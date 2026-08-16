@@ -38,42 +38,42 @@ type TargetUser struct {
 
 // SourceProduct represents a product from MariaDB.
 type SourceProduct struct {
-	ID           int64
-	NameAr       string
-	NameEn       string
-	Slug         string
-	Description  string
-	CategoryID   int64
-	Price        float64
-	Stock        int
-	VendorOrgID  int64
-	CreatedAt    time.Time
+	ID          int64
+	NameAr      string
+	NameEn      string
+	Slug        string
+	Description string
+	CategoryID  int64
+	Price       float64
+	Stock       int
+	VendorOrgID int64
+	CreatedAt   time.Time
 }
 
 // TargetProduct represents a transformed product for PostgreSQL.
 type TargetProduct struct {
-	ID             int64
-	PublicID       string
-	CategoryID     int64
-	Name           i18n.Text
-	Slug           string
-	Description    i18n.Text
-	DosageForm     string
+	ID                   int64
+	PublicID             string
+	CategoryID           int64
+	Name                 i18n.Text
+	Slug                 string
+	Description          i18n.Text
+	DosageForm           string
 	RequiresPrescription bool
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
 
 // TargetVariant represents a transformed variant for PostgreSQL.
 type TargetVariant struct {
-	ID          int64
-	PublicID    string
-	ProductID   int64
-	SKU         string
-	Price       money.Amount
-	Stock       int
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID        int64
+	PublicID  string
+	ProductID int64
+	SKU       string
+	Price     money.Amount
+	Stock     int
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // Transformer handles data cleaning, Arabic normalization, and money conversions.

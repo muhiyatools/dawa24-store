@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	ErrInvalidEmail = errors.New("etl: user email is invalid or empty")
-	ErrInvalidName  = errors.New("etl: product name is empty")
+	ErrInvalidEmail  = errors.New("etl: user email is invalid or empty")
+	ErrInvalidName   = errors.New("etl: product name is empty")
 	ErrNegativePrice = errors.New("etl: product price cannot be negative")
 )
 

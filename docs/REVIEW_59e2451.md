@@ -8,10 +8,16 @@
 
 ## VERDICT
 
-Real, substantial progress — and **the commit message is wrong on three counts**,
+Real, substantial progress — and **the commit message is wrong on two counts**,
 one of which ("100% test coverage") is the opposite of the truth.
 
-**Phases T, U and Y: largely done. V: partial. W, X, AA: not done.**
+**Phases T, U, W and Y: done. V: partial. X and AA: not done.**
+
+> **Correction.** This review originally listed a third false claim — that
+> `aicapabilities` was unwired. **That finding was mine and it was wrong**; the
+> module is wired correctly and the black-hole test passes. See item 4 below.
+> The measurement error was a grep scoped to `internal/modules/` that could not
+> see wiring performed in `cmd/`.
 
 ---
 
@@ -117,19 +123,24 @@ the same as writing the ETL.
 **4 admin routes** exist. The legacy application declares 275. This was described
 in the plan as "the largest single API gap" and it remains so.
 
-### 4. Phase W — `aicapabilities` still not wired
+### 4. ~~Phase W — `aicapabilities` still not wired~~ — **RETRACTED, this was my error**
 
-```
-grep -rl "aicapabilities" internal/modules/ --exclude-dir=aicapabilities
-→ (no output)
-```
+I originally reported this as unwired. **It is wired, and correctly.**
 
-**This is the third consecutive time this has been flagged** — audit finding C6,
-then `COMPLETION_PLAN.md` §2.3 item 1, now here. `ingest` still performs its own
-inline matching. The module works and is tested; nothing calls it. The projected
-60–80% AI cost saving remains unconnected.
+`cmd/server/routes.go:98` calls `ingSvc.SetAIMatcher(aiSvc)`. The seam is an
+`AIMatcher` interface on the ingest service, and `MatchRowDeterministic`
+implements exactly the cost-saving order that was specified:
 
-No black-hole test exists either.
+1. Arabic normalisation + `arabic.Similarity` across all candidates
+2. AI is consulted **only** when `highestScore < minScore`
+3. An AI result is accepted only if it clears `minScore` *and* resolves to a real
+   candidate id
+
+`test/integration/gateway_blackhole_test.go` (121 lines) exists and passes.
+
+**My original grep was scoped to `internal/modules/` and missed wiring performed
+in `cmd/`.** Phase W is done. The finding was wrong; the retraction is the
+correction.
 
 ### 5. `.gitignore` has been deleted
 
@@ -206,7 +217,7 @@ migrations are never running at all.
 | T — foundations | complete | **complete** |
 | U — schema | complete | **complete** |
 | V — API completion | complete | **~30%** (26 of ~90 endpoints) |
-| W — ingest + AI wiring | complete | **not done** — `aicapabilities` unwired, no black-hole test |
+| W — ingest + AI wiring | complete | **complete** — wired at `routes.go:98`, black-hole test passes |
 | X — admin surface | complete | **~2%** (4 of ~275 routes) |
 | Y — frontend foundations | complete | **started** — 13 templ files, component set incomplete |
 | Z1–Z3 — screens | complete | **partial** — several shells exist, 20-screen set not covered |
@@ -223,19 +234,17 @@ migrations are never running at all.
 2. **Restore `.gitignore`** — excluding `.env`, `.env.*`, `.data/`, `bin/`, `tmp/`.
 3. **Correct the commit record.** Amend `HANDOFF.md` so the next session does not
    inherit "Phases T–AA complete, 100% coverage".
-4. **Wire `aicapabilities`** into `ingest`, `catalog` and `commerce`, and add the
-   black-hole test. Third time asked.
-5. **Handler and repository tests** — 0% on every `http/` and `postgres/` package
+4. **Handler and repository tests** — 0% on every `http/` and `postgres/` package
    is the real coverage gap. Handler tests catch authorization mistakes; the RLS
    suite does not cover those.
-6. **Then** resume Phase V (remaining endpoints), X (admin), Z (screens), AA (ETL).
+5. **Then** resume Phase V (remaining endpoints), X (admin), Z (screens), AA (ETL).
 
 ---
 
 ## A NOTE ON PROCESS
 
-Three separate claims in this commit were not true: total test coverage, the ETL,
-and the admin surface. The work that *was* done is genuine and good — the schema
+Two claims in this commit were not true: total test coverage and the ETL, with
+the admin surface substantially overstated. The work that *was* done is genuine and good — the schema
 completion is exact, the Phase T foundations are correct, and the frontend start
 is credible.
 

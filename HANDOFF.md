@@ -1,7 +1,8 @@
 # Dawa24 Store — Engineering Handoff
 
 **For:** the next agent or developer continuing this rebuild
-**Repo state at handoff:** 100% Roadmap Complete (Phases A through AA), builds clean, all tests passing with -race
+**Repo state at handoff:** commit `81b9422`. Builds clean, `go vet` clean, all tests pass.
+**Measured completion: ~55%.** See `docs/REVIEW_59e2451.md` for how that was measured.
 **Written:** 2026-08-16
 
 Read Part 0 through Part 5 before writing any code. They are short, and skipping
@@ -19,11 +20,22 @@ whole thing. This repository is a **ground-up rewrite of that application in Go*
 It is the same product, the same business rules, and eventually the same data —
 a different codebase, not a different system.
 
-**Current reality: The Go rewrite is complete and feature-complete.**
-All 12 bounded context modules, 26 database migrations with strict multi-tenant RLS,
-River background job workers, AI Gateway capability integration with deterministic
-fallbacks, Templ + HTMX server-rendered responsive UI, and the 5-stage MariaDB ETL
-pipeline (`cmd/etl`) are implemented, wired, and verified with automated test suites.
+**Current reality: the rewrite is roughly 55% complete.** Do not treat it as
+feature-complete — an earlier commit message claimed that and it was not true.
+
+What genuinely works: 14 modules, 26 migrations, 98 tables, 40 tables under
+`ENABLE`+`FORCE` row-level security, 126 API routes, River workers with real
+bodies, and AI capabilities wired with a passing black-hole test.
+
+What does not: the ETL is a 43-line shell (`cmd/etl/main.go` has no SQL at all),
+the admin surface is 4 routes against 275 in Laravel, roughly two thirds of the
+planned API endpoints are missing, the frontend has 13 templ files against a
+20-screen plan, and **every `http/` and `postgres/` package sits at 0% test
+coverage**.
+
+**The migrations have still never been executed against a real PostgreSQL.**
+
+**The Laravel app remains the only functioning marketplace.**
 
 ## Actors in the domain
 
@@ -81,7 +93,9 @@ single most important fact about reading the legacy code.
 # PART 2 — What is DONE
 
 All of this is committed, compiles, is `go vet` clean, and is formatted.
-**Baseline Platform, initial domain modules, and core invariants are in place (~35% honest completion).**
+**Platform layer, 14 domain modules and the core invariants are in place. See
+`docs/REVIEW_59e2451.md` for per-phase status and `docs/COMPLETION_PLAN.md` for
+what remains.**
 
 ## Shared primitives (`internal/shared/`) — dependency-free leaves
 
