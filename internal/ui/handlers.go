@@ -118,6 +118,8 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/admin/users/{id}/suspend", h.AdminUserSuspendSubmit)
 	r.Post("/admin/users/{id}/reactivate", h.AdminUserReactivateSubmit)
 	r.Post("/admin/users/{id}/reset-mfa", h.AdminUserResetMFASubmit)
+	r.Post("/admin/approvals/{id}/approve", h.AdminApproveOrgSubmit)
+	r.Post("/admin/approvals/{id}/reject", h.AdminRejectOrgSubmit)
 }
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {

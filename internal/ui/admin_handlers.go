@@ -272,3 +272,63 @@ func (h *UIHandler) AdminUserResetMFASubmit(w http.ResponseWriter, r *http.Reque
 		return h.idSvc.AdminResetMFA(ctx, userID, actorID)
 	})
 }
+
+// Organization approval actions.
+//
+// The approvals page posted straight to the JSON API and swapped the response
+// into the table row, so a successful approval replaced the row with the text
+// {"status":"approved"}. These do the work and return the refreshed table.
+
+func (h *UIHandler) adminApprovalAction(
+	w http.ResponseWriter,
+	r *http.Request,
+	action func(ctx context.Context, orgID int64) error,
+) {
+	ctx := r.Context()
+
+	if _, ok := authctx.From(ctx); !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/approvals", http.StatusSeeOther)
+		return
+	}
+	if h.orgSvc == nil {
+		h.renderError(w, r, apperr.Unavailable("org", nil))
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		h.renderError(w, r, apperr.Validation("id.invalid", "Invalid organization ID", nil))
+		return
+	}
+
+	if err := action(ctx, id); err != nil {
+		h.renderError(w, r, err)
+		return
+	}
+
+	pendingStatus := org.StatusPending
+	pending, err := h.orgSvc.ListOrganizations(ctx, nil, &pendingStatus, 50, 0)
+	if err != nil {
+		h.renderError(w, r, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminApprovalsTable(pending).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render approvals table after action", "error", err)
+	}
+}
+
+// AdminApproveOrgSubmit approves a pending organization.
+func (h *UIHandler) AdminApproveOrgSubmit(w http.ResponseWriter, r *http.Request) {
+	h.adminApprovalAction(w, r, func(ctx context.Context, orgID int64) error {
+		return h.orgSvc.ApproveOrganization(ctx, orgID)
+	})
+}
+
+// AdminRejectOrgSubmit rejects a pending organization.
+func (h *UIHandler) AdminRejectOrgSubmit(w http.ResponseWriter, r *http.Request) {
+	h.adminApprovalAction(w, r, func(ctx context.Context, orgID int64) error {
+		return h.orgSvc.RejectOrganization(ctx, orgID)
+	})
+}

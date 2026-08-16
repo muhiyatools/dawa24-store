@@ -9,77 +9,113 @@ import (
 
 templ AdminApprovals(pending []*org.Organization, lang, dir string) {
 	@layouts.AdminShell("طلبات اعتماد الشركاء | Partner Approvals", "approvals", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card" style="margin-bottom:0; overflow:visible;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">
 					@components.IconBuilding("icon-md")
 					<h2 class="card-title" style="margin:0;">
 						طلبات المؤسسات والصيدليات المعلقة ({ fmt.Sprintf("%d", len(pending)) })
 					</h2>
 				</div>
+				@components.LoadingIndicator("جارٍ التحديث…")
 			</div>
-
-			if len(pending) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد طلبات اعتماد معلقة",
-					Message: "تمت مراجعة واعتماد جميع طلبات انضمام الشركات والصيدليات بنجاح.",
-				})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>الاسم القانوني</th>
-								<th>الاسم التجاري</th>
-								<th>البطاقة الضريبية</th>
-								<th>السجل التجاري</th>
-								<th>نوع المؤسسة</th>
-								<th style="text-align:end;">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, o := range pending {
-								<tr id={ fmt.Sprintf("org-row-%d", o.ID) }>
-									<td style="font-weight:700; color:var(--neutral-900);">{ o.LegalName }</td>
-									<td>
-										if o.TradeName["ar"] != "" {
-											{ o.TradeName["ar"] }
-										} else {
-											{ o.TradeName["en"] }
-										}
-									</td>
-									<td class="tabular-nums">{ o.TaxNumber }</td>
-									<td class="tabular-nums">{ o.CommercialRegister }</td>
-									<td>
-										<span class="badge badge-slate">{ string(o.Type) }</span>
-									</td>
-									<td style="text-align:end;">
-										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
-											<button
-												class="btn btn-primary btn-sm"
-												hx-post={ fmt.Sprintf("/api/v1/admin/org/%d/approve", o.ID) }
-												hx-target={ fmt.Sprintf("#org-row-%d", o.ID) }
-												hx-swap="outerHTML"
-											>
-												@components.IconCheck("icon-xs")
-												<span>اعتماد</span>
-											</button>
-											<button
-												class="btn btn-danger btn-sm"
-												hx-post={ fmt.Sprintf("/api/v1/admin/org/%d/reject", o.ID) }
-												hx-target={ fmt.Sprintf("#org-row-%d", o.ID) }
-												hx-swap="outerHTML"
-											>
-												<span>رفض</span>
-											</button>
-										</div>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+			<!-- The action buttons swap this region. They used to post to the JSON
+			     API and swap the response into the row, which replaced the row with
+			     the literal text {"status":"approved"}. -->
+			<div id="admin-approvals-content">
+				@AdminApprovalsTable(pending)
+			</div>
 		</div>
+	}
+}
+
+templ AdminApprovalsTable(pending []*org.Organization) {
+	if len(pending) == 0 {
+		@components.EmptyState(components.EmptyStateProps{
+			Title:   "لا توجد طلبات اعتماد معلقة",
+			Message: "تمت مراجعة واعتماد جميع طلبات انضمام الشركات والصيدليات بنجاح.",
+		})
+	} else {
+		<div class="table-container" style="overflow:visible;">
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>الاسم القانوني</th>
+						<th>الاسم التجاري</th>
+						<th>البطاقة الضريبية</th>
+						<th>السجل التجاري</th>
+						<th>نوع المؤسسة</th>
+						<th style="text-align:end;">الإجراءات</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, o := range pending {
+						<tr id={ fmt.Sprintf("org-row-%d", o.ID) }>
+							<td style="font-weight:700; color:var(--neutral-900);">{ o.LegalName }</td>
+							<td>
+								if o.TradeName["ar"] != "" {
+									{ o.TradeName["ar"] }
+								} else {
+									{ o.TradeName["en"] }
+								}
+							</td>
+							<td class="tabular-nums">{ o.TaxNumber }</td>
+							<td class="tabular-nums">{ o.CommercialRegister }</td>
+							<td>
+								<span class="badge badge-slate">{ orgTypeAr(string(o.Type)) }</span>
+							</td>
+							<td style="text-align:end;">
+								<div class="table-actions" style="justify-content:flex-end;">
+									<button
+										class="btn btn-primary btn-sm"
+										hx-post={ fmt.Sprintf("/admin/approvals/%d/approve", o.ID) }
+										hx-target="#admin-approvals-content"
+										hx-swap="innerHTML"
+									>
+										@components.IconCheck("icon-xs")
+										<span>اعتماد</span>
+									</button>
+									<!-- Rejection is the irreversible half of this decision, so
+									     it asks first; approval does not need to. -->
+									@components.ModalTrigger(fmt.Sprintf("confirm-reject-%d", o.ID), "btn btn-danger btn-sm") {
+										<span>رفض</span>
+									}
+									@components.ConfirmModal(components.ConfirmModalProps{
+										ID:          fmt.Sprintf("confirm-reject-%d", o.ID),
+										Title:       "تأكيد رفض الطلب",
+										Message:     fmt.Sprintf("سيتم رفض طلب انضمام «%s» ولن تتمكن المؤسسة من الدخول إلى المنصة.", o.LegalName),
+										ConfirmURL:  fmt.Sprintf("/admin/approvals/%d/reject", o.ID),
+										ConfirmVerb: "post",
+										ConfirmText: "نعم، ارفض الطلب",
+										CancelText:  "إلغاء",
+										Danger:      true,
+										Target:      "#admin-approvals-content",
+									})
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+// orgTypeAr gives the Arabic wording for an organization type. The raw key was
+// being shown to an Arabic-first interface.
+func orgTypeAr(t string) string {
+	switch t {
+	case "supplier":
+		return "مورّد"
+	case "pharmacy":
+		return "صيدلية"
+	case "chain_pharmacy":
+		return "سلسلة صيدليات"
+	case "company":
+		return "شركة"
+	case "agency":
+		return "وكالة"
+	default:
+		return t
 	}
 }
