@@ -1,0 +1,25 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ CustomerCatalog() {
+	@layouts.CustomerShell("Catalog", "en", "ltr") {
+		<div class="catalog-grid">
+			<aside class="filters">
+				<h3>Categories</h3>
+				<ul><li>Antibiotics</li></ul>
+				<h3>Brands</h3>
+				<ul><li>PharmaCo</li></ul>
+			</aside>
+			<main>
+				<input type="search" placeholder="Search products..." />
+				<div class="grid">
+					<div class="card">
+						<h4>Product A</h4>
+						<p class="tabular-nums">150.00 EGP</p>
+						<button class="btn btn-primary">Add to Cart</button>
+					</div>
+				</div>
+			</main>
+		</div>
+	}
+}

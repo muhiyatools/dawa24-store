@@ -1,0 +1,29 @@
+package components
+
+type ModalProps struct {
+	ID    string
+	Title string
+	State string
+}
+
+templ Modal(props ModalProps) {
+	<dialog id={ props.ID } class="modal backdrop-blur-sm fixed inset-0 w-full h-full bg-black/50 p-4">
+		<div class="modal-box bg-white rounded-lg shadow-xl max-w-lg mx-auto mt-20 p-6 flex flex-col focus-trap">
+			<div class="flex justify-between items-center mb-4 border-b pb-2">
+				<h3 class="font-bold text-lg">{ props.Title }</h3>
+				<form method="dialog">
+					<button class="text-gray-500 hover:text-gray-700">âœ•</button>
+				</form>
+			</div>
+			<div class="modal-body flex-1 overflow-y-auto">
+				if props.State == "loading" {
+					@SkeletonText(3)
+				} else if props.State == "error" {
+					<div class="text-red-500">Error loading content</div>
+				} else {
+					{ children... }
+				}
+			</div>
+		</div>
+	</dialog>
+}

@@ -1,0 +1,29 @@
+package pages
+
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ PrivacyPolicy() {
+	@layouts.Base("سياسة الخصوصية", "ar", "rtl") {
+		<div class="content card" dir="rtl" style="max-width: 800px; margin: 2rem auto; padding: 2rem;">
+			<h1 style="margin-bottom: 1rem; color: var(--primary-700);">سياسة الخصوصية — Dawa24</h1>
+			<p style="color: var(--neutral-700); line-height: 1.8;">
+				نحن في منصة دواء24 نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية والتجارية. تهدف هذه الوثيقة إلى توضيح كيفية جمع واستخدام وحماية البيانات الخاصة بالصيدليات والموردين والعملاء.
+			</p>
+			<h2 style="margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.25rem;">جمع البيانات</h2>
+			<p style="color: var(--neutral-600); line-height: 1.7;">
+				يتم جمع البيانات الأساسية للتسجيل والتحقق من التراخيص الطبية والتجارية لضمان أمان المعاملات الدوائية.
+			</p>
+		</div>
+	}
+}
+
+templ TermsOfService() {
+	@layouts.Base("شروط الخدمة", "ar", "rtl") {
+		<div class="content card" dir="rtl" style="max-width: 800px; margin: 2rem auto; padding: 2rem;">
+			<h1 style="margin-bottom: 1rem; color: var(--primary-700);">شروط الاستخدام والخدمة — Dawa24</h1>
+			<p style="color: var(--neutral-700); line-height: 1.8;">
+				باستخدامك لمنصة دواء24 لتوزيع الأدوية والمستلزمات الصيدلانية، فإنك توافق على الالتزام بجميع القوانين واللوائح المنظمة لتداول الأدوية المعمول بها في جمهورية مصر العربية.
+			</p>
+		</div>
+	}
+}

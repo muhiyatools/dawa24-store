@@ -1,0 +1,14 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ CustomerProductDetail() {
+	@layouts.CustomerShell("Product Detail", "en", "ltr") {
+		<div class="product-detail">
+			<h1>Product Name</h1>
+			<p>Dosage Form: Tablet</p>
+			<p>Manufacturer: PharmaCo</p>
+			<p class="tabular-nums">150.00 EGP</p>
+			<button class="btn btn-primary">Add to Cart</button>
+		</div>
+	}
+}

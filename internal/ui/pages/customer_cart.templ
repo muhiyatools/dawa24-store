@@ -1,0 +1,19 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ CustomerCart() {
+	@layouts.CustomerShell("Shopping Cart", "en", "ltr") {
+		<div class="cart">
+			<h2>Your Cart</h2>
+			<ul>
+				<li>
+					Product A - 
+					<input type="number" value="1" />
+					<span class="tabular-nums">150.00 EGP</span>
+				</li>
+			</ul>
+			<div class="subtotal tabular-nums">Subtotal: 150.00 EGP</div>
+			<a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+		</div>
+	}
+}

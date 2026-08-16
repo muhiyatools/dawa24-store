@@ -1,0 +1,32 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ VendorProductEditor() {
+	@layouts.VendorShell("Edit Product", "products", "en", "ltr") {
+		<form class="editor-form">
+			<div class="grid-2">
+				<div>
+					<label>English Name</label>
+					<input type="text" name="nameEn" />
+				</div>
+				<div dir="rtl">
+					<label>Arabic Name</label>
+					<input type="text" name="nameAr" />
+				</div>
+			</div>
+			<div>
+				<label>Price</label>
+				<input type="number" name="price" />
+			</div>
+			<div>
+				<label>Dosage Form</label>
+				<input type="text" name="dosage" />
+			</div>
+			<div>
+				<label>Scientific Name</label>
+				<input type="text" name="scientificName" />
+			</div>
+			<button class="btn btn-primary">Save Product</button>
+		</form>
+	}
+}

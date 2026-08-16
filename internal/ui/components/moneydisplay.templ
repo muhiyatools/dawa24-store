@@ -1,0 +1,21 @@
+package components
+
+import "fmt"
+
+type MoneyDisplayProps struct {
+	Amount float64
+	State  string
+}
+
+templ MoneyDisplay(props MoneyDisplayProps) {
+	<span class="money-display inline-flex items-center gap-1">
+		if props.State == "loading" {
+			<div class="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
+		} else if props.State == "error" {
+			<span class="text-red-500 tabular-nums">---</span>
+		} else {
+			<span class="tabular-nums font-semibold text-gray-900">{ fmt.Sprintf("%.2f", props.Amount) }</span>
+			<span class="badge bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-xs">EGP</span>
+		}
+	</span>
+}

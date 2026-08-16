@@ -1,0 +1,33 @@
+package components
+
+type DatePickerProps struct {
+	ID       string
+	Label    string
+	MinDate  string
+	MaxDate  string
+	State    string
+	IsArabic bool
+}
+
+templ DatePicker(props DatePickerProps) {
+	<div class="datepicker-container flex flex-col gap-1">
+		<label for={ props.ID } class="text-sm font-medium text-gray-700">{ props.Label }</label>
+		if props.State == "loading" {
+			<div class="h-10 w-full bg-gray-200 animate-pulse rounded"></div>
+		} else {
+			<input 
+				type="date" 
+				id={ props.ID } 
+				name={ props.ID }
+				min={ props.MinDate }
+				max={ props.MaxDate }
+				lang={ func() string { if props.IsArabic { return "ar" }; return "en" }() }
+				class={ "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border",
+					templ.KV("border-red-500", props.State == "error") }
+			/>
+			if props.State == "error" {
+				<span class="text-xs text-red-500">Invalid date selection</span>
+			}
+		}
+	</div>
+}

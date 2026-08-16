@@ -1,0 +1,23 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ CustomerOrders() {
+	@layouts.CustomerShell("My Orders", "en", "ltr") {
+		<div class="orders">
+			<h2>Order History</h2>
+			<ul>
+				<li>
+					<a href="/orders/1">Order #1</a> - Processing
+				</li>
+			</ul>
+			<div class="timeline">
+				<p>Order Tracking Timeline:</p>
+				<ul>
+					<li>Placed</li>
+					<li>Processing</li>
+					<li>Shipped</li>
+				</ul>
+			</div>
+		</div>
+	}
+}

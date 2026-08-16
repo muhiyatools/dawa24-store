@@ -1,0 +1,15 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ Notifications() {
+	@layouts.Base("Notifications", "en", "ltr") {
+		<div class="notifications">
+			<h2>Notifications <span class="badge">3 Unread</span></h2>
+			<button class="btn btn-secondary">Mark All Read</button>
+			<ul>
+				<li class="unread">New Order Received</li>
+				<li>Password Changed</li>
+			</ul>
+		</div>
+	}
+}

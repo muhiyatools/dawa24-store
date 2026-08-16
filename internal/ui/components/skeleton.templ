@@ -1,0 +1,32 @@
+package components
+
+templ SkeletonText(lines int) {
+	<div class="skeleton-text flex flex-col gap-2 w-full animate-pulse">
+		for i := 0; i < lines; i++ {
+			<div class={ "h-4 bg-gray-200 rounded", templ.KV("w-3/4", i == lines-1), templ.KV("w-full", i != lines-1) }></div>
+		}
+	</div>
+}
+
+templ SkeletonCard() {
+	<div class="skeleton-card border p-4 rounded-lg shadow-sm w-full animate-pulse">
+		<div class="h-32 bg-gray-200 rounded-md mb-4"></div>
+		<div class="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+		<div class="h-4 bg-gray-200 rounded w-full mb-1"></div>
+		<div class="h-4 bg-gray-200 rounded w-5/6"></div>
+	</div>
+}
+
+templ SkeletonTable() {
+	<div class="skeleton-table w-full animate-pulse border rounded-lg overflow-hidden">
+		<div class="h-10 bg-gray-100 border-b"></div>
+		for i := 0; i < 5; i++ {
+			<div class="flex border-b p-3 gap-4">
+				<div class="h-4 bg-gray-200 rounded w-1/4"></div>
+				<div class="h-4 bg-gray-200 rounded w-1/4"></div>
+				<div class="h-4 bg-gray-200 rounded w-1/4"></div>
+				<div class="h-4 bg-gray-200 rounded w-1/4"></div>
+			</div>
+		}
+	</div>
+}

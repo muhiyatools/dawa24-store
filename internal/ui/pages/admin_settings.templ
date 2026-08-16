@@ -1,0 +1,19 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ AdminSettings() {
+	@layouts.AdminShell("Settings", "system", "en", "ltr") {
+		<div class="settings">
+			<h2>Reference Data</h2>
+			<form>
+				<label>Currencies</label>
+				<input type="text" value="EGP, USD" />
+				<label>Languages</label>
+				<input type="text" value="en, ar" />
+				<label>Contact Email</label>
+				<input type="email" value="support@dawa24.com" />
+				<button class="btn btn-primary">Save Settings</button>
+			</form>
+		</div>
+	}
+}

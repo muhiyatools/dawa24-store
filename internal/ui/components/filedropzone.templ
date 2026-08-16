@@ -1,0 +1,45 @@
+package components
+
+import "strconv"
+
+type FileDropzoneProps struct {
+	ID       string
+	Label    string
+	State    string
+	Progress int
+}
+
+templ FileDropzone(props FileDropzoneProps) {
+	<div class="file-dropzone w-full">
+		<label class="block text-sm font-medium text-gray-700 mb-1">{ props.Label }</label>
+		if props.State == "loading" {
+			<div class="h-32 w-full bg-gray-100 animate-pulse rounded-lg border-2 border-dashed border-gray-300"></div>
+		} else {
+			<div class={ "mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors",
+				templ.KV("border-gray-300 hover:border-blue-400", props.State != "error"),
+				templ.KV("border-red-300 bg-red-50", props.State == "error") }>
+				<div class="space-y-1 text-center">
+					<svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+						<path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+					<div class="flex text-sm text-gray-600 justify-center">
+						<label for={ props.ID } class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+							<span>Upload a file</span>
+							<input id={ props.ID } name={ props.ID } type="file" class="sr-only" />
+						</label>
+						<p class="pl-1">or drag and drop</p>
+					</div>
+					<p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+				</div>
+			</div>
+			if props.State == "partial" || props.Progress > 0 {
+				<div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+					<div class="bg-blue-600 h-2.5 rounded-full" style={ "width: " + strconv.Itoa(props.Progress) + "%" }></div>
+				</div>
+			}
+			if props.State == "error" {
+				<p class="mt-2 text-sm text-red-600">Upload failed. Please try again.</p>
+			}
+		}
+	</div>
+}

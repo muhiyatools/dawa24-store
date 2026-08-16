@@ -5,11 +5,10 @@ package pages
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import (
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
-	"github.com/muhiya/dawa24-store/internal/ui/layouts"
-)
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
+
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
 
 func LoginPage(lang, dir, errorMsg string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -67,7 +66,7 @@ func LoginPage(lang, dir, errorMsg string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/api/v1/auth/login\"><div class=\"form-group\"><label class=\"form-label\" for=\"email\">Email Address</label> <input type=\"email\" id=\"email\" name=\"email\" required class=\"form-input\" placeholder=\"pharmacist@dawa24.eg\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"password\">Password</label> <input type=\"password\" id=\"password\" name=\"password\" required class=\"form-input\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; margin-top:0.5rem;\">Sign In</button></form><div style=\"text-align:center; margin-top:1.25rem; font-size:0.875rem; color:var(--neutral-600);\">Don't have an account? <a href=\"/auth/register\">Register your pharmacy or store</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/api/v1/auth/login\"><div class=\"form-group\"><label class=\"form-label\" for=\"email\">Email Address</label> <input type=\"email\" id=\"email\" name=\"email\" required class=\"form-input\" placeholder=\"pharmacist@dawa24.eg\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"password\">Password</label> <input type=\"password\" id=\"password\" name=\"password\" required class=\"form-input\" placeholder=\"â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; margin-top:0.5rem;\">Sign In</button></form><div style=\"text-align:center; margin-top:1.25rem; font-size:0.875rem; color:var(--neutral-600);\">Don't have an account? <a href=\"/auth/register\">Register your pharmacy or store</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

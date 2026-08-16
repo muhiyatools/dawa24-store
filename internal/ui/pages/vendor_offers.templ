@@ -1,0 +1,14 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ VendorOffers() {
+	@layouts.VendorShell("Offers", "offers", "en", "ltr") {
+		<div class="offers">
+			<h2>Promotions & Ad Campaigns</h2>
+			<button class="btn btn-primary">Create Promotion</button>
+			<ul>
+				<li>Summer Sale - 10% Off</li>
+			</ul>
+		</div>
+	}
+}

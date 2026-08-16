@@ -1,0 +1,21 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ AdminUsers() {
+	@layouts.AdminShell("Users", "users", "en", "ltr") {
+		<div class="users">
+			<select><option>All Roles</option></select>
+			<table>
+				<tr><th>User</th><th>Role</th><th>Actions</th></tr>
+				<tr>
+					<td>admin@dawa24.com</td>
+					<td>Admin</td>
+					<td>
+						<button class="btn btn-secondary">Suspend</button>
+						<button class="btn btn-secondary">Reset MFA</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+	}
+}

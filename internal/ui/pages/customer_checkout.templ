@@ -1,0 +1,24 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ CustomerCheckout() {
+	@layouts.CustomerShell("Checkout", "en", "ltr") {
+		<div class="checkout">
+			<h2>Checkout</h2>
+			<div class="summary">
+				<h3>Order Summary</h3>
+				<p>Vendor 1: 150.00 EGP</p>
+			</div>
+			<form action="/checkout" method="post">
+				<select name="address">
+					<option>Main Pharmacy - 123 Street</option>
+				</select>
+				<select name="payment">
+					<option>Cash on Delivery</option>
+					<option>Bank Transfer</option>
+				</select>
+				<button type="submit" class="btn btn-primary">Place Order</button>
+			</form>
+		</div>
+	}
+}

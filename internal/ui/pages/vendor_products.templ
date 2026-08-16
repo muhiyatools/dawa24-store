@@ -1,0 +1,18 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ VendorProducts() {
+	@layouts.VendorShell("Products", "products", "en", "ltr") {
+		<div class="table-container">
+			<div class="filters">
+				<input type="text" placeholder="Search..." />
+				<select><option>All Statuses</option></select>
+			</div>
+			<table>
+				<tr><th>Name</th><th>Status</th></tr>
+				<tr><td>Empty</td><td>-</td></tr>
+			</table>
+			<div class="pagination"></div>
+		</div>
+	}
+}

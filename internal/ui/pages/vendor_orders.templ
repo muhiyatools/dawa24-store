@@ -1,0 +1,21 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ VendorOrders() {
+	@layouts.VendorShell("Orders", "shipments", "en", "ltr") {
+		<div class="orders">
+			<h2>Fulfilment</h2>
+			<table>
+				<tr><th>Order ID</th><th>Status</th><th>Actions</th></tr>
+				<tr>
+					<td>#1001</td>
+					<td>Pending</td>
+					<td>
+						<button class="btn btn-primary">Process</button>
+						<button class="btn btn-secondary">Ship</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+	}
+}

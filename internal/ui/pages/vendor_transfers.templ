@@ -1,0 +1,23 @@
+package pages
+import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+
+templ VendorTransfers() {
+	@layouts.VendorShell("Transfers", "inventory", "en", "ltr") {
+		<div>
+			<button class="btn btn-primary">Initiate Transfer</button>
+			<table>
+				<tr><th>ID</th><th>From</th><th>To</th><th>Status</th><th>Actions</th></tr>
+				<tr>
+					<td>#123</td>
+					<td>Warehouse A</td>
+					<td>Warehouse B</td>
+					<td>Pending</td>
+					<td>
+						<button class="btn btn-primary">Receive</button>
+						<button class="btn btn-secondary">Cancel</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+	}
+}
