@@ -1,0 +1,57 @@
+# Local development stack. Mirrors the Elest.io topology: PostgreSQL, Redis and
+# S3-compatible object storage, with the app talking to all three.
+#
+# The AI Gateway is deliberately absent. It runs as its own Elest.io service at
+# api.muhiya.com and the Store is fully functional without it, so local
+# development does not need it. Point GATEWAY_BASE_URL at a real instance and
+# set GATEWAY_ENABLED=true when you have a virtual key.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dawa24
+      POSTGRES_PASSWORD: dawa24
+      POSTGRES_DB: dawa24_store
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dawa24 -d dawa24_store"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./.data/minio:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
