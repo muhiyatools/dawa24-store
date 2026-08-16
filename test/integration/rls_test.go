@@ -62,11 +62,49 @@ func getTestDB(t *testing.T) *database.DB {
 		t.Fatalf("failed to load migrations: %v", err)
 	}
 
-	if err := db.Migrate(ctx, migrations, func(string, ...any) {}); err != nil {
-		t.Fatalf("failed to apply migrations: %v", err)
+	// Deliberately does NOT run migrations.
+	//
+	// Migrations are a deploy step performed by a privileged role (ADR 0004).
+	// This suite must connect as the least-privilege application role, because
+	// that is the only way it can prove anything: a superuser bypasses
+	// row-level security unconditionally, so running these checks as one
+	// reports leaks that do not exist in production and hides the ones that do.
+	//
+	// The application role cannot create schemas, so it verifies the schema is
+	// current instead of making it so.
+	pending, err := db.PendingCount(ctx, migrations)
+	if err != nil {
+		t.Fatalf("cannot read migration state: %v", err)
+	}
+	if pending > 0 {
+		t.Fatalf("%d migrations pending; run `cli migrate` as an admin role before this suite", pending)
 	}
 
 	return db
+}
+
+// resetFixtures removes rows left by a previous run.
+//
+// The suite inserts at fixed ids so a failure is easy to inspect afterwards,
+// which means it must clear them first or the second run collides with the
+// first. Runs as system because it spans both test tenants deliberately.
+func resetFixtures(t *testing.T, db *database.DB, orgs ...int64) {
+	t.Helper()
+	ctx := database.AsSystem(context.Background())
+	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		for _, org := range orgs {
+			if _, err := tx.Exec(txCtx, `DELETE FROM org.members WHERE organization_id = $1`, org); err != nil {
+				return err
+			}
+			if _, err := tx.Exec(txCtx, `DELETE FROM org.branches WHERE organization_id = $1`, org); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("reset fixtures: %v", err)
+	}
 }
 
 func TestTenantIsolation_Branches(t *testing.T) {
@@ -102,6 +140,7 @@ func TestTenantIsolation_Branches(t *testing.T) {
 	if err != nil {
 		t.Fatalf("setup failed: %v", err)
 	}
+	resetFixtures(t, db, orgA, orgB)
 
 	// Step 1: Insert branch for Org A under Org A tenant context
 	ctxA := database.WithTenant(ctx, orgA)
@@ -210,6 +249,7 @@ func TestTenantIsolation_Members(t *testing.T) {
 	if err != nil {
 		t.Fatalf("setup failed: %v", err)
 	}
+	resetFixtures(t, db, orgA, orgB)
 
 	// Insert member in Org A tenant context
 	ctxA := database.WithTenant(ctx, orgA)

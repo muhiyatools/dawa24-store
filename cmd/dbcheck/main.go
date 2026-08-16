@@ -20,9 +20,21 @@ func main() {
 	doVerify := flag.String("verify", "", "verify schema state at this DSN")
 	scopeDSN := flag.String("scoping", "", "report scoping columns of unprotected tables")
 	colsDSN := flag.String("cols", "", "print columns of tables given as arguments")
+	provisionDSN := flag.String("provision", "", "create the least-privilege app role at this DSN")
+	roleName := flag.String("role", "dawa24_app", "application role name")
+	rolePass := flag.String("password", "", "application role password")
 	target := flag.String("db", "dawa24-store", "target database name")
 	admin := flag.String("admin", "", "admin connection string (to the postgres database)")
 	flag.Parse()
+
+	if *provisionDSN != "" {
+		if *rolePass == "" {
+			fmt.Fprintln(os.Stderr, "-password is required with -provision")
+			os.Exit(1)
+		}
+		provision(*provisionDSN, *roleName, *rolePass)
+		return
+	}
 
 	if *colsDSN != "" {
 		cols(*colsDSN, flag.Args())

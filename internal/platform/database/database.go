@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -209,7 +210,17 @@ func applyTenant(ctx context.Context, tx pgx.Tx) error {
 		return nil
 	}
 
-	if _, err := tx.Exec(ctx, "SELECT set_config('app.current_org_id', $1::text, true)", orgID); err != nil {
+	// The value is formatted in Go rather than cast in SQL.
+	//
+	// `$1::text` tells PostgreSQL the parameter's type is text, so pgx must
+	// encode an int64 as text and has no plan for that — every tenant-scoped
+	// transaction failed with "cannot find encode plan". set_config's second
+	// argument is text by signature, so the conversion has to happen on this
+	// side of the wire.
+	if _, err := tx.Exec(ctx,
+		"SELECT set_config('app.current_org_id', $1, true)",
+		strconv.FormatInt(orgID, 10),
+	); err != nil {
 		return fmt.Errorf("database: set tenant context: %w", err)
 	}
 	return nil
