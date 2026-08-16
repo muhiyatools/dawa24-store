@@ -15,19 +15,23 @@ Measured, not estimated:
 
 | | Value |
 |---|---|
-| Migrations | **31 of 31** (001 through 031) |
+| Migrations | **31 of 31** applied (029 was deleted from disk and restored — see REVIEW_AND_PLAN_2026-08-16b.md) |
 | Tables | 98 |
 | API routes | 165+ |
-| Admin routes | **60+** (all modules have `RegisterAdminRoutes` gated by permissions) |
+| Admin routes | **37** (measured; the 60+ figure was not accurate) |
 | templ files | **38** (16 components, 4 layouts, 18 pages) |
 | UI page routes | **24** (all 20 planned screens + static assets) |
-| ETL | **Real extract/transform/load/verify** (`cmd/etl`) |
+| ETL | 740 lines with real connections; extract/load still thin |
 | Coverage: domain/service | Verified with unit test suites |
-| Coverage: every `http/` package | **100% of modules have authorization test suites** |
-| Coverage: `postgres/` packages | **6 core modules have integration test suites** |
+| Coverage: every `http/` package | test files exist for all 12 modules, **9–17% coverage** — authorization paths only |
+| Coverage: `postgres/` packages | 6 suites exist; **5 still skip or fail**, only `catalog` runs (81.7%) |
 
 **The system runs.** Register, login, authenticated and anonymous access all
-work against PostgreSQL. All automated test suites pass cleanly with race detection.
+work against PostgreSQL, and the unit suite passes.
+
+**Caution when reading a green suite:** `ok ... 0.0% of statements` means the
+tests skipped and executed nothing. Six repository suites reported exactly that.
+Check the coverage number, not the `ok`.
 
 ## The database is real and connected
 
