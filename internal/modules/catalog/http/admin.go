@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -15,7 +15,7 @@ import (
 
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(identityHttp.RequirePermission("catalog.admin", h.log))
+		admin.Use(authctx.RequirePermission("catalog.admin", h.log))
 
 		admin.Get("/api/v1/admin/catalog/products", h.AdminListProducts)
 		admin.Get("/api/v1/admin/catalog/products/{id}", h.AdminGetProduct)

@@ -1,4 +1,4 @@
-package ingest_test
+package ingest
 
 import (
 	"context"
@@ -6,35 +6,34 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 type mockIngestRepo struct {
-	uploads  map[int64]*ingest.FileUpload
-	sessions map[int64]*ingest.ImportSession
-	rows     map[int64]*ingest.ImportRow
+	uploads  map[int64]*FileUpload
+	sessions map[int64]*ImportSession
+	rows     map[int64]*ImportRow
 	nextID   int64
 }
 
 func newMockIngestRepo() *mockIngestRepo {
 	return &mockIngestRepo{
-		uploads:  map[int64]*ingest.FileUpload{},
-		sessions: map[int64]*ingest.ImportSession{},
-		rows:     map[int64]*ingest.ImportRow{},
+		uploads:  map[int64]*FileUpload{},
+		sessions: map[int64]*ImportSession{},
+		rows:     map[int64]*ImportRow{},
 		nextID:   1,
 	}
 }
 
-func (m *mockIngestRepo) CreateFileUpload(_ context.Context, f *ingest.FileUpload) error {
+func (m *mockIngestRepo) CreateFileUpload(_ context.Context, f *FileUpload) error {
 	f.ID = m.nextID
 	m.nextID++
 	m.uploads[f.ID] = f
 	return nil
 }
 
-func (m *mockIngestRepo) GetFileUploadByID(_ context.Context, id int64) (*ingest.FileUpload, error) {
+func (m *mockIngestRepo) GetFileUploadByID(_ context.Context, id int64) (*FileUpload, error) {
 	f, ok := m.uploads[id]
 	if !ok {
 		return nil, apperr.NotFound("file_upload")
@@ -42,14 +41,14 @@ func (m *mockIngestRepo) GetFileUploadByID(_ context.Context, id int64) (*ingest
 	return f, nil
 }
 
-func (m *mockIngestRepo) CreateImportSession(_ context.Context, s *ingest.ImportSession) error {
+func (m *mockIngestRepo) CreateImportSession(_ context.Context, s *ImportSession) error {
 	s.ID = m.nextID
 	m.nextID++
 	m.sessions[s.ID] = s
 	return nil
 }
 
-func (m *mockIngestRepo) GetImportSessionByID(_ context.Context, id int64) (*ingest.ImportSession, error) {
+func (m *mockIngestRepo) GetImportSessionByID(_ context.Context, id int64) (*ImportSession, error) {
 	s, ok := m.sessions[id]
 	if !ok {
 		return nil, apperr.NotFound("import_session")
@@ -57,7 +56,7 @@ func (m *mockIngestRepo) GetImportSessionByID(_ context.Context, id int64) (*ing
 	return s, nil
 }
 
-func (m *mockIngestRepo) UpdateImportSessionProgress(_ context.Context, id int64, processed, matched int, status ingest.SessionStatus, errMsg string) error {
+func (m *mockIngestRepo) UpdateImportSessionProgress(_ context.Context, id int64, processed, matched int, status SessionStatus, errMsg string) error {
 	s, ok := m.sessions[id]
 	if !ok {
 		return apperr.NotFound("import_session")
@@ -69,7 +68,7 @@ func (m *mockIngestRepo) UpdateImportSessionProgress(_ context.Context, id int64
 	return nil
 }
 
-func (m *mockIngestRepo) InsertImportRows(_ context.Context, rows []*ingest.ImportRow) error {
+func (m *mockIngestRepo) InsertImportRows(_ context.Context, rows []*ImportRow) error {
 	for _, r := range rows {
 		r.ID = m.nextID
 		m.nextID++
@@ -78,8 +77,14 @@ func (m *mockIngestRepo) InsertImportRows(_ context.Context, rows []*ingest.Impo
 	return nil
 }
 
-func (m *mockIngestRepo) ListImportSessions(_ context.Context, orgID int64, limit, offset int) ([]*ingest.ImportSession, error) {
-	return []*ingest.ImportSession{}, nil
+func (m *mockIngestRepo) ListImportSessions(_ context.Context, orgID int64, limit, offset int) ([]*ImportSession, error) {
+	var list []*ImportSession
+	for _, s := range m.sessions {
+		if s.OrganizationID == orgID {
+			list = append(list, s)
+		}
+	}
+	return list, nil
 }
 
 func (m *mockIngestRepo) UpdateColumnMapping(_ context.Context, id int64, mapping map[string]string) error {
@@ -89,15 +94,15 @@ func (m *mockIngestRepo) UpdateColumnMapping(_ context.Context, id int64, mappin
 	return nil
 }
 
-func (m *mockIngestRepo) UpdateSessionStatus(_ context.Context, id int64, status ingest.SessionStatus) error {
+func (m *mockIngestRepo) UpdateSessionStatus(_ context.Context, id int64, status SessionStatus) error {
 	if s, ok := m.sessions[id]; ok {
 		s.Status = status
 	}
 	return nil
 }
 
-func (m *mockIngestRepo) ListImportRows(_ context.Context, sessionID int64, status string, limit, offset int) ([]*ingest.ImportRow, error) {
-	var list []*ingest.ImportRow
+func (m *mockIngestRepo) ListImportRows(_ context.Context, sessionID int64, status string, limit, offset int) ([]*ImportRow, error) {
+	var list []*ImportRow
 	for _, r := range m.rows {
 		if r.SessionID == sessionID && (status == "" || r.Status == status) {
 			list = append(list, r)
@@ -106,7 +111,7 @@ func (m *mockIngestRepo) ListImportRows(_ context.Context, sessionID int64, stat
 	return list, nil
 }
 
-func (m *mockIngestRepo) GetImportRowByID(_ context.Context, id int64) (*ingest.ImportRow, error) {
+func (m *mockIngestRepo) GetImportRowByID(_ context.Context, id int64) (*ImportRow, error) {
 	if r, ok := m.rows[id]; ok {
 		return r, nil
 	}
@@ -134,15 +139,15 @@ func TestColumnDetection(t *testing.T) {
 		"كود الصنف",
 	}
 
-	mapping := ingest.DetectColumns(rawHeaders)
+	mapping := DetectColumns(rawHeaders)
 
 	expected := map[string]string{
-		"اسم الدواء":  ingest.FieldProductName,
-		"سعر الجمهور": ingest.FieldPrice,
-		"الرصيد":      ingest.FieldQuantity,
-		"نسبة الخصم":  ingest.FieldDiscount,
-		"الباركود":    ingest.FieldBarcode,
-		"كود الصنف":   ingest.FieldSKU,
+		"اسم الدواء":  FieldProductName,
+		"سعر الجمهور": FieldPrice,
+		"الرصيد":      FieldQuantity,
+		"نسبة الخصم":  FieldDiscount,
+		"الباركود":    FieldBarcode,
+		"كود الصنف":   FieldSKU,
 	}
 
 	for header, expectedField := range expected {
@@ -152,43 +157,86 @@ func TestColumnDetection(t *testing.T) {
 	}
 }
 
-func TestDeterministicProductMatcher(t *testing.T) {
+func TestDeterministicProductMatcherAndSessionLifecycle(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 10)
 	repo := newMockIngestRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	svc := ingest.NewService(repo, logger)
+	svc := NewService(repo, logger)
 
-	candidates := []ingest.ProductCandidate{
+	// 1. Register Upload
+	upload, err := svc.RegisterUpload(ctx, &FileUpload{
+		Filename:      "stock.xlsx",
+		StorageKey:    "uploads/stock.xlsx",
+		MimeType:      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		FileSizeBytes: 1024,
+	})
+	if err != nil {
+		t.Fatalf("RegisterUpload failed: %v", err)
+	}
+
+	// 2. Start Session
+	headers := []string{"اسم الدواء", "سعر الجمهور", "الرصيد"}
+	sess, err := svc.StartSession(ctx, upload.ID, headers, 0.85)
+	if err != nil {
+		t.Fatalf("StartSession failed: %v", err)
+	}
+
+	// 3. Stage Rows
+	rows := []map[string]any{
+		{"name": "بانادول اكسترا اقراص", "price": "25.00", "qty": "100"},
+		{"name": "فيتامين سي فوار", "price": "30.00", "qty": "50"},
+	}
+	err = svc.StageRows(ctx, sess.ID, "name", rows)
+	if err != nil {
+		t.Fatalf("StageRows failed: %v", err)
+	}
+
+	// 4. Match Rows
+	candidates := []ProductCandidate{
 		{ID: 1001, Name: "بنادول اكسترا اقراص"},
 		{ID: 1002, Name: "كتافلام 50 مجم"},
 		{ID: 1003, Name: "كونجستال اقراص"},
 	}
 
-	// Case 1: Close Arabic match
-	row1 := &ingest.ImportRow{
-		ID:             1,
-		NormalizedName: "بانادول اكسترا اقراص",
-	}
-	repo.rows[row1.ID] = row1
-	matched, matchID, score, err := svc.MatchRowDeterministic(ctx, row1, candidates, 0.85)
-	if err != nil {
-		t.Fatalf("MatchRowDeterministic failed: %v", err)
-	}
-	if !matched || matchID == nil || *matchID != 1001 {
-		t.Errorf("expected row1 to match product 1001 with high score, got matched=%v, matchID=%v, score=%f", matched, matchID, score)
+	stagedRows, err := svc.ListImportRows(ctx, sess.ID, "", 10, 0)
+	if err != nil || len(stagedRows) != 2 {
+		t.Fatalf("ListImportRows failed: %v", err)
 	}
 
-	// Case 2: Unrelated product
-	row2 := &ingest.ImportRow{
-		ID:             2,
-		NormalizedName: "فيتامين سي فوار",
+	matched, matchID, score, err := svc.MatchRowDeterministic(ctx, stagedRows[0], candidates, 0.85)
+	if err != nil || !matched || matchID == nil || *matchID != 1001 {
+		t.Errorf("expected row 0 to match 1001, got matched=%v, matchID=%v, score=%f", matched, matchID, score)
 	}
-	repo.rows[row2.ID] = row2
-	matched, _, score, err = svc.MatchRowDeterministic(ctx, row2, candidates, 0.85)
-	if err != nil {
-		t.Fatalf("MatchRowDeterministic failed: %v", err)
+
+	matched2, _, _, _ := svc.MatchRowDeterministic(ctx, stagedRows[1], candidates, 0.85)
+	if matched2 {
+		t.Error("expected row 1 to be unmatched")
 	}
-	if matched {
-		t.Errorf("expected row2 to be unmatched, got matched=true, score=%f", score)
+
+	// 5. Update Mapping and Session
+	newMapping := map[string]string{"اسم الصنف": FieldProductName}
+	if err := svc.UpdateColumnMapping(ctx, sess.ID, newMapping); err != nil {
+		t.Fatalf("UpdateColumnMapping failed: %v", err)
+	}
+
+	gotSess, err := svc.GetSessionProgress(ctx, sess.ID)
+	if err != nil || gotSess.ID != sess.ID {
+		t.Fatalf("GetSessionProgress failed: %v", err)
+	}
+
+	sessions, err := svc.ListSessions(ctx, 10, 10, 0)
+	if err != nil || len(sessions) != 1 {
+		t.Fatalf("ListSessions failed: %v", err)
+	}
+
+	if err := svc.OverrideRowMatch(ctx, stagedRows[1].ID, 1002); err != nil {
+		t.Fatalf("OverrideRowMatch failed: %v", err)
+	}
+
+	if err := svc.CommitSession(ctx, sess.ID); err != nil {
+		t.Fatalf("CommitSession failed: %v", err)
+	}
+	if err := svc.CancelSession(ctx, sess.ID); err != nil {
+		t.Fatalf("CancelSession failed: %v", err)
 	}
 }

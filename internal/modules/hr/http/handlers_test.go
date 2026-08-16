@@ -14,8 +14,6 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	hrHttp "github.com/muhiya/dawa24-store/internal/modules/hr/http"
-	"github.com/muhiya/dawa24-store/internal/modules/identity"
-	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
@@ -110,20 +108,13 @@ func newAuthedRouter(repo hr.Repository) http.Handler {
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sess := &identity.Session{
-				UserID:      1,
-				ActiveOrgID: 1,
-				Role:        "admin",
-				Permissions: []string{"admin", "hr.admin"},
-			}
-			ctx := identityHttp.WithSession(r.Context(), sess)
 			actor := authctx.Actor{
 				UserID:         1,
 				OrganizationID: 1,
 				Role:           "admin",
 				Permissions:    []string{"admin", "hr.admin"},
 			}
-			ctx = authctx.WithActor(ctx, actor)
+			ctx := authctx.WithActor(r.Context(), actor)
 			ctx = database.WithTenant(ctx, 1)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

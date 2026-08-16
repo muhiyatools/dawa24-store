@@ -5,14 +5,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 )
 
 // RegisterAdminRoutes mounts administrative notification routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(identityHttp.RequirePermission("notifications.admin", h.log))
+		admin.Use(authctx.RequirePermission("notifications.admin", h.log))
 
 		admin.Post("/api/v1/admin/notifications/broadcast", h.AdminBroadcast)
 	})

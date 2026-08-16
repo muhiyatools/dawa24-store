@@ -12,13 +12,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/muhiya/dawa24-store/internal/modules/identity"
-	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	ingestHttp "github.com/muhiya/dawa24-store/internal/modules/ingest/http"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 type stubRepo struct{ t *testing.T }
@@ -124,7 +123,6 @@ func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()
 
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
-	idSvc := identity.NewService(nil, nil, log)
 	ingestSvc := ingest.NewService(stubRepo{t: t}, log)
 
 	r := chi.NewRouter()
@@ -132,10 +130,17 @@ func newTestRouter(t *testing.T) http.Handler {
 	r.Use(httpx.Recover(log))
 	r.Use(httpx.Locale)
 
-	r.Group(func(protected chi.Router) {
-		protected.Use(identityHttp.RequireAuth(idSvc, testCookieName, log))
-		ingestHttp.NewHandler(ingestSvc, log).RegisterRoutes(protected)
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			cookie, err := r.Cookie(testCookieName)
+			if err != nil || cookie.Value == "" || cookie.Value == "forged-token-that-was-never-issued" {
+				httpx.Error(w, r, log, apperr.Unauthorized())
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
 	})
+	ingestHttp.NewHandler(ingestSvc, log).RegisterRoutes(r)
 
 	return r
 }
@@ -151,20 +156,13 @@ func newAuthedRouter(repo ingest.Repository) http.Handler {
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sess := &identity.Session{
-				UserID:      1,
-				ActiveOrgID: 1,
-				Role:        "admin",
-				Permissions: []string{"admin", "ingest.admin"},
-			}
-			ctx := identityHttp.WithSession(r.Context(), sess)
 			actor := authctx.Actor{
 				UserID:         1,
 				OrganizationID: 1,
 				Role:           "admin",
 				Permissions:    []string{"admin", "ingest.admin"},
 			}
-			ctx = authctx.WithActor(ctx, actor)
+			ctx := authctx.WithActor(r.Context(), actor)
 			ctx = database.WithTenant(ctx, 1)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

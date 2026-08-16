@@ -1,4 +1,4 @@
-package identity_test
+package identity
 
 import (
 	"context"
@@ -7,36 +7,39 @@ import (
 	"testing"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // mockRepo is an in-memory repository for unit testing identity workflows.
 type mockRepo struct {
-	users       map[int64]*identity.User
-	usersByMail map[string]*identity.User
-	securities  map[int64]*identity.UserSecurity
-	mfas        map[int64]*identity.UserMFA
+	users       map[int64]*User
+	usersByMail map[string]*User
+	securities  map[int64]*UserSecurity
+	mfas        map[int64]*UserMFA
 	permissions map[int64][]string
 	orgMembers  map[string]bool
+	addresses   map[int64]*UserAddress
+	favorites   map[int64][]int64
 	nextID      int64
 }
 
 func newMockRepo() *mockRepo {
 	return &mockRepo{
-		users:       map[int64]*identity.User{},
-		usersByMail: map[string]*identity.User{},
-		securities:  map[int64]*identity.UserSecurity{},
-		mfas:        map[int64]*identity.UserMFA{},
+		users:       map[int64]*User{},
+		usersByMail: map[string]*User{},
+		securities:  map[int64]*UserSecurity{},
+		mfas:        map[int64]*UserMFA{},
 		permissions: map[int64][]string{},
 		orgMembers:  map[string]bool{},
+		addresses:   map[int64]*UserAddress{},
+		favorites:   map[int64][]int64{},
 		nextID:      1,
 	}
 }
 
-func (m *mockRepo) CreateUser(_ context.Context, u *identity.User) error {
-	cleanEmail := identity.NormalizeEmail(u.Email)
+func (m *mockRepo) CreateUser(_ context.Context, u *User) error {
+	cleanEmail := NormalizeEmail(u.Email)
 	if _, exists := m.usersByMail[cleanEmail]; exists {
 		return apperr.Conflict("user.email_exists", "Email already exists")
 	}
@@ -51,7 +54,7 @@ func (m *mockRepo) CreateUser(_ context.Context, u *identity.User) error {
 	return nil
 }
 
-func (m *mockRepo) GetUserByID(_ context.Context, id int64) (*identity.User, error) {
+func (m *mockRepo) GetUserByID(_ context.Context, id int64) (*User, error) {
 	u, ok := m.users[id]
 	if !ok {
 		return nil, apperr.NotFound("user")
@@ -59,42 +62,42 @@ func (m *mockRepo) GetUserByID(_ context.Context, id int64) (*identity.User, err
 	return u, nil
 }
 
-func (m *mockRepo) GetUserByEmail(_ context.Context, email string) (*identity.User, error) {
-	u, ok := m.usersByMail[identity.NormalizeEmail(email)]
+func (m *mockRepo) GetUserByEmail(_ context.Context, email string) (*User, error) {
+	u, ok := m.usersByMail[NormalizeEmail(email)]
 	if !ok {
 		return nil, apperr.NotFound("user")
 	}
 	return u, nil
 }
 
-func (m *mockRepo) UpdateUser(_ context.Context, u *identity.User) error {
+func (m *mockRepo) UpdateUser(_ context.Context, u *User) error {
 	m.users[u.ID] = u
-	m.usersByMail[identity.NormalizeEmail(u.Email)] = u
+	m.usersByMail[NormalizeEmail(u.Email)] = u
 	return nil
 }
 
-func (m *mockRepo) GetSecurity(_ context.Context, userID int64) (*identity.UserSecurity, error) {
+func (m *mockRepo) GetSecurity(_ context.Context, userID int64) (*UserSecurity, error) {
 	s, ok := m.securities[userID]
 	if !ok {
-		return &identity.UserSecurity{UserID: userID}, nil
+		return &UserSecurity{UserID: userID}, nil
 	}
 	return s, nil
 }
 
-func (m *mockRepo) UpsertSecurity(_ context.Context, s *identity.UserSecurity) error {
+func (m *mockRepo) UpsertSecurity(_ context.Context, s *UserSecurity) error {
 	m.securities[s.UserID] = s
 	return nil
 }
 
-func (m *mockRepo) GetMFA(_ context.Context, userID int64) (*identity.UserMFA, error) {
+func (m *mockRepo) GetMFA(_ context.Context, userID int64) (*UserMFA, error) {
 	mfa, ok := m.mfas[userID]
 	if !ok {
-		return &identity.UserMFA{UserID: userID}, nil
+		return &UserMFA{UserID: userID}, nil
 	}
 	return mfa, nil
 }
 
-func (m *mockRepo) UpsertMFA(_ context.Context, mfa *identity.UserMFA) error {
+func (m *mockRepo) UpsertMFA(_ context.Context, mfa *UserMFA) error {
 	m.mfas[mfa.UserID] = mfa
 	return nil
 }
@@ -114,41 +117,75 @@ func (m *mockRepo) UserBelongsToOrg(_ context.Context, userID int64, orgID int64
 	return true, nil
 }
 
-func (m *mockRepo) CreateAddress(_ context.Context, addr *identity.UserAddress) error {
+func (m *mockRepo) CreateAddress(_ context.Context, addr *UserAddress) error {
 	addr.ID = m.nextID
 	m.nextID++
+	m.addresses[addr.ID] = addr
 	return nil
 }
-func (m *mockRepo) GetAddressByID(_ context.Context, id, userID int64) (*identity.UserAddress, error) {
-	return nil, apperr.NotFound("user_address")
+func (m *mockRepo) GetAddressByID(_ context.Context, id, userID int64) (*UserAddress, error) {
+	a, ok := m.addresses[id]
+	if !ok || a.UserID != userID {
+		return nil, apperr.NotFound("user_address")
+	}
+	return a, nil
 }
-func (m *mockRepo) ListAddresses(_ context.Context, userID int64) ([]*identity.UserAddress, error) {
-	return nil, nil
+func (m *mockRepo) ListAddresses(_ context.Context, userID int64) ([]*UserAddress, error) {
+	var list []*UserAddress
+	for _, a := range m.addresses {
+		if a.UserID == userID {
+			list = append(list, a)
+		}
+	}
+	return list, nil
 }
-func (m *mockRepo) UpdateAddress(_ context.Context, addr *identity.UserAddress) error {
+func (m *mockRepo) UpdateAddress(_ context.Context, addr *UserAddress) error {
+	m.addresses[addr.ID] = addr
 	return nil
 }
 func (m *mockRepo) DeleteAddress(_ context.Context, id, userID int64) error {
+	delete(m.addresses, id)
 	return nil
 }
 
 func (m *mockRepo) AddFavorite(_ context.Context, userID, productID int64) error {
+	m.favorites[userID] = append(m.favorites[userID], productID)
 	return nil
 }
 func (m *mockRepo) RemoveFavorite(_ context.Context, userID, productID int64) error {
+	var rem []int64
+	for _, id := range m.favorites[userID] {
+		if id != productID {
+			rem = append(rem, id)
+		}
+	}
+	m.favorites[userID] = rem
 	return nil
 }
 func (m *mockRepo) ListFavorites(_ context.Context, userID int64) ([]int64, error) {
-	return nil, nil
+	return m.favorites[userID], nil
 }
-func (m *mockRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
-	return nil, nil
+func (m *mockRepo) AdminListUsers(ctx context.Context, role, status string) ([]*User, error) {
+	var list []*User
+	for _, u := range m.users {
+		list = append(list, u)
+	}
+	return list, nil
 }
 func (m *mockRepo) AdminUpdateUserStatus(ctx context.Context, id int64, status string, actorID int64) error {
+	if u, ok := m.users[id]; ok {
+		u.Status = UserStatus(status)
+	}
 	return nil
 }
-func (m *mockRepo) AdminResetMFA(ctx context.Context, id int64, actorID int64) error { return nil }
+func (m *mockRepo) AdminResetMFA(ctx context.Context, id int64, actorID int64) error {
+	delete(m.mfas, id)
+	return nil
+}
 func (m *mockRepo) AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error {
+	if u, ok := m.users[id]; ok {
+		u.Role = role
+	}
 	return nil
 }
 
@@ -156,10 +193,10 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	svc := identity.NewService(repo, nil, logger)
+	svc := NewService(repo, nil, logger)
 
 	// 1. Register a new user
-	regInput := identity.RegisterInput{
+	regInput := RegisterInput{
 		Email:    "pharmacist@dawa24.eg",
 		Password: "SecurePassword123!",
 		NameAr:   "صيدلية الشفاء",
@@ -185,7 +222,7 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 	}
 
 	// 3. Login with correct password
-	loginRes, err := svc.Login(ctx, identity.LoginInput{
+	loginRes, err := svc.Login(ctx, LoginInput{
 		Email:    "pharmacist@dawa24.eg",
 		Password: "SecurePassword123!",
 	})
@@ -197,28 +234,82 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 	}
 
 	// 4. Login with wrong password
-	_, err = svc.Login(ctx, identity.LoginInput{
+	_, err = svc.Login(ctx, LoginInput{
 		Email:    "pharmacist@dawa24.eg",
 		Password: "WrongPassword!",
 	})
-	if err != identity.ErrInvalidCredentials {
+	if err != ErrInvalidCredentials {
 		t.Errorf("expected ErrInvalidCredentials on wrong password, got %v", err)
 	}
 
 	// 5. Account lockout after 5 consecutive failures
 	for i := 0; i < 4; i++ {
-		_, _ = svc.Login(ctx, identity.LoginInput{
+		_, _ = svc.Login(ctx, LoginInput{
 			Email:    "pharmacist@dawa24.eg",
 			Password: "WrongPassword!",
 		})
 	}
 
 	// Next attempt should be locked
-	_, err = svc.Login(ctx, identity.LoginInput{
+	_, err = svc.Login(ctx, LoginInput{
 		Email:    "pharmacist@dawa24.eg",
 		Password: "SecurePassword123!",
 	})
 	if err == nil || apperr.KindOf(err) != apperr.KindForbidden {
 		t.Errorf("expected Forbidden error due to account lockout, got %v", err)
+	}
+
+	// 6. Admin functions
+	users, err := svc.AdminListUsers(ctx, "", "")
+	if err != nil || len(users) == 0 {
+		t.Fatalf("AdminListUsers failed: %v", err)
+	}
+	if err := svc.AdminSuspendUser(ctx, user.ID, 1); err != nil {
+		t.Fatalf("AdminSuspendUser failed: %v", err)
+	}
+	if err := svc.AdminReactivateUser(ctx, user.ID, 1); err != nil {
+		t.Fatalf("AdminReactivateUser failed: %v", err)
+	}
+	if err := svc.AdminResetMFA(ctx, user.ID, 1); err != nil {
+		t.Fatalf("AdminResetMFA failed: %v", err)
+	}
+	if err := svc.AdminAssignRole(ctx, user.ID, "manager", 1); err != nil {
+		t.Fatalf("AdminAssignRole failed: %v", err)
+	}
+
+	// 7. Profile & Addresses
+	me, err := svc.GetMe(ctx, user.ID, nil)
+	if err != nil || me.User.ID != user.ID {
+		t.Fatalf("GetMe failed: %v", err)
+	}
+	addr := &UserAddress{
+		UserID:    user.ID,
+		Recipient: "Pharmacist",
+		Address:   "Tahrir St",
+		CityID:    1,
+		IsDefault: true,
+	}
+	createdAddr, err := svc.CreateAddress(ctx, addr)
+	if err != nil {
+		t.Fatalf("CreateAddress failed: %v", err)
+	}
+	addrs, err := svc.ListAddresses(ctx, user.ID)
+	if err != nil || len(addrs) != 1 {
+		t.Fatalf("ListAddresses failed: %v", err)
+	}
+	if err := svc.DeleteAddress(ctx, createdAddr.ID, user.ID); err != nil {
+		t.Fatalf("DeleteAddress failed: %v", err)
+	}
+
+	// 8. Favorites
+	if err := svc.AddFavorite(ctx, user.ID, 101); err != nil {
+		t.Fatalf("AddFavorite failed: %v", err)
+	}
+	favs, err := svc.ListFavorites(ctx, user.ID)
+	if err != nil || len(favs) != 1 {
+		t.Fatalf("ListFavorites failed: %v", err)
+	}
+	if err := svc.RemoveFavorite(ctx, user.ID, 101); err != nil {
+		t.Fatalf("RemoveFavorite failed: %v", err)
 	}
 }

@@ -1,15 +1,13 @@
-package catalog_test
+package catalog
 
 import (
 	"context"
-
-	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 )
 
 // Lifecycle methods of mockCatalogRepo.
 
-func (m *mockCatalogRepo) ListProducts(_ context.Context, status string, limit, offset int) ([]*catalog.Product, error) {
-	var list []*catalog.Product
+func (m *mockCatalogRepo) ListProducts(_ context.Context, status string, limit, offset int) ([]*Product, error) {
+	var list []*Product
 	for _, p := range m.products {
 		if status == "" || string(p.Status) == status {
 			list = append(list, p)
@@ -25,7 +23,7 @@ func (m *mockCatalogRepo) ListProducts(_ context.Context, status string, limit, 
 	return list[offset:end], nil
 }
 
-func (m *mockCatalogRepo) SetProductsStatus(_ context.Context, ids []int64, status catalog.ProductStatus) (int64, error) {
+func (m *mockCatalogRepo) SetProductsStatus(_ context.Context, ids []int64, status ProductStatus) (int64, error) {
 	var n int64
 	for _, id := range ids {
 		if p, ok := m.products[id]; ok {

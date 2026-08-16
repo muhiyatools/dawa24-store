@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -13,7 +13,7 @@ import (
 // RegisterAdminRoutes mounts administrative platform routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(identityHttp.RequirePermission("platform.admin", h.log))
+		admin.Use(authctx.RequirePermission("platform.admin", h.log))
 
 		admin.Get("/api/v1/admin/platform/settings", h.ListPublicSettings)
 		admin.Put("/api/v1/admin/platform/settings/{key}", h.SetSetting)

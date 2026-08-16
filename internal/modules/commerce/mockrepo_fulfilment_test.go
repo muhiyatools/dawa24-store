@@ -1,9 +1,8 @@
-package commerce_test
+package commerce
 
 import (
 	"context"
 
-	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -13,7 +12,7 @@ func (m *mockCommerceRepo) SetCartItemQuantity(_ context.Context, _, _ int64, _ 
 	return nil
 }
 
-func (m *mockCommerceRepo) GetShipmentByID(_ context.Context, id int64) (*commerce.OrderShipment, error) {
+func (m *mockCommerceRepo) GetShipmentByID(_ context.Context, id int64) (*OrderShipment, error) {
 	for _, list := range m.shipments {
 		for _, s := range list {
 			if s.ID == id {
@@ -31,8 +30,8 @@ func (m *mockCommerceRepo) GetShipmentByID(_ context.Context, id int64) (*commer
 func (m *mockCommerceRepo) UpdateShipmentStatus(
 	_ context.Context,
 	id int64,
-	from, to commerce.OrderStatus,
-	history commerce.OrderStatusHistory,
+	from, to OrderStatus,
+	history OrderStatusHistory,
 ) error {
 	for _, list := range m.shipments {
 		for _, s := range list {
@@ -48,10 +47,10 @@ func (m *mockCommerceRepo) UpdateShipmentStatus(
 			return nil
 		}
 	}
-	return apperr.NotFound("shipment")
+	return nil
 }
 
-func (m *mockCommerceRepo) ListOrderHistory(_ context.Context, orderID int64) ([]*commerce.OrderStatusHistory, error) {
+func (m *mockCommerceRepo) ListOrderHistory(_ context.Context, orderID int64) ([]*OrderStatusHistory, error) {
 	return m.history[orderID], nil
 }
 

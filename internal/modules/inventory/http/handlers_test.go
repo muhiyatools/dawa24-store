@@ -12,8 +12,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/muhiya/dawa24-store/internal/modules/identity"
-	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	inventoryHttp "github.com/muhiya/dawa24-store/internal/modules/inventory/http"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -195,20 +193,13 @@ func newAuthedRouter(repo inventory.Repository) http.Handler {
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sess := &identity.Session{
-				UserID:      1,
-				ActiveOrgID: 1,
-				Role:        "admin",
-				Permissions: []string{"admin", "inventory.admin"},
-			}
-			ctx := identityHttp.WithSession(r.Context(), sess)
 			actor := authctx.Actor{
 				UserID:         1,
 				OrganizationID: 1,
 				Role:           "admin",
 				Permissions:    []string{"admin", "inventory.admin"},
 			}
-			ctx = authctx.WithActor(ctx, actor)
+			ctx := authctx.WithActor(r.Context(), actor)
 			ctx = database.WithTenant(ctx, 1)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

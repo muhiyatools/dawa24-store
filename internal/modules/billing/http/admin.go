@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
@@ -16,7 +15,7 @@ import (
 
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(identityHttp.RequirePermission("billing.admin", h.log))
+		admin.Use(authctx.RequirePermission("billing.admin", h.log))
 
 		admin.Get("/api/v1/admin/billing/subscriptions", h.AdminListSubscriptions)
 		admin.Post("/api/v1/admin/billing/wallets/{id}/adjust", h.AdminAdjustWallet)

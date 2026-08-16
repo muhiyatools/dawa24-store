@@ -1,4 +1,4 @@
-package catalog_test
+package catalog
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -14,27 +13,35 @@ import (
 )
 
 type mockCatalogRepo struct {
-	products map[int64]*catalog.Product
-	variants map[int64]*catalog.ProductVariant
-	nextID   int64
+	products        map[int64]*Product
+	variants        map[int64]*ProductVariant
+	categories      map[int64]*Category
+	brands          map[int64]*Brand
+	customerPricing map[string]*CustomerProductMapping
+	alerts          map[int64]*ProductAlert
+	nextID          int64
 }
 
 func newMockCatalogRepo() *mockCatalogRepo {
 	return &mockCatalogRepo{
-		products: map[int64]*catalog.Product{},
-		variants: map[int64]*catalog.ProductVariant{},
-		nextID:   1,
+		products:        map[int64]*Product{},
+		variants:        map[int64]*ProductVariant{},
+		categories:      map[int64]*Category{},
+		brands:          map[int64]*Brand{},
+		customerPricing: map[string]*CustomerProductMapping{},
+		alerts:          map[int64]*ProductAlert{},
+		nextID:          1,
 	}
 }
 
-func (m *mockCatalogRepo) CreateProduct(_ context.Context, p *catalog.Product) error {
+func (m *mockCatalogRepo) CreateProduct(_ context.Context, p *Product) error {
 	p.ID = m.nextID
 	m.nextID++
 	m.products[p.ID] = p
 	return nil
 }
 
-func (m *mockCatalogRepo) GetProductByID(_ context.Context, id int64) (*catalog.Product, error) {
+func (m *mockCatalogRepo) GetProductByID(_ context.Context, id int64) (*Product, error) {
 	p, ok := m.products[id]
 	if !ok {
 		return nil, apperr.NotFound("product")
@@ -42,7 +49,7 @@ func (m *mockCatalogRepo) GetProductByID(_ context.Context, id int64) (*catalog.
 	return p, nil
 }
 
-func (m *mockCatalogRepo) UpdateProduct(_ context.Context, p *catalog.Product) error {
+func (m *mockCatalogRepo) UpdateProduct(_ context.Context, p *Product) error {
 	m.products[p.ID] = p
 	return nil
 }
@@ -52,22 +59,22 @@ func (m *mockCatalogRepo) DeleteProduct(_ context.Context, id int64) error {
 	return nil
 }
 
-func (m *mockCatalogRepo) SearchProducts(_ context.Context, params catalog.SearchParams) ([]*catalog.Product, error) {
-	var list []*catalog.Product
+func (m *mockCatalogRepo) SearchProducts(_ context.Context, params SearchParams) ([]*Product, error) {
+	var list []*Product
 	for _, p := range m.products {
 		list = append(list, p)
 	}
 	return list, nil
 }
 
-func (m *mockCatalogRepo) CreateVariant(_ context.Context, v *catalog.ProductVariant) error {
+func (m *mockCatalogRepo) CreateVariant(_ context.Context, v *ProductVariant) error {
 	v.ID = m.nextID
 	m.nextID++
 	m.variants[v.ID] = v
 	return nil
 }
 
-func (m *mockCatalogRepo) GetVariantByID(_ context.Context, id int64) (*catalog.ProductVariant, error) {
+func (m *mockCatalogRepo) GetVariantByID(_ context.Context, id int64) (*ProductVariant, error) {
 	v, ok := m.variants[id]
 	if !ok {
 		return nil, apperr.NotFound("product_variant")
@@ -75,8 +82,8 @@ func (m *mockCatalogRepo) GetVariantByID(_ context.Context, id int64) (*catalog.
 	return v, nil
 }
 
-func (m *mockCatalogRepo) ListVariantsByProduct(_ context.Context, productID int64) ([]*catalog.ProductVariant, error) {
-	var list []*catalog.ProductVariant
+func (m *mockCatalogRepo) ListVariantsByProduct(_ context.Context, productID int64) ([]*ProductVariant, error) {
+	var list []*ProductVariant
 	for _, v := range m.variants {
 		if v.ProductID == productID {
 			list = append(list, v)
@@ -85,7 +92,7 @@ func (m *mockCatalogRepo) ListVariantsByProduct(_ context.Context, productID int
 	return list, nil
 }
 
-func (m *mockCatalogRepo) UpdateVariant(_ context.Context, v *catalog.ProductVariant) error {
+func (m *mockCatalogRepo) UpdateVariant(_ context.Context, v *ProductVariant) error {
 	m.variants[v.ID] = v
 	return nil
 }
@@ -95,38 +102,96 @@ func (m *mockCatalogRepo) DeleteVariant(_ context.Context, id int64) error {
 	return nil
 }
 
-func (m *mockCatalogRepo) CreateCategory(_ context.Context, c *catalog.Category) error { return nil }
-func (m *mockCatalogRepo) GetCategoryByID(_ context.Context, id int64) (*catalog.Category, error) {
-	return nil, apperr.NotFound("category")
-}
-func (m *mockCatalogRepo) UpdateCategory(_ context.Context, c *catalog.Category) error { return nil }
-func (m *mockCatalogRepo) ListCategories(_ context.Context) ([]*catalog.Category, error) {
-	return []*catalog.Category{}, nil
-}
-func (m *mockCatalogRepo) CreateBrand(_ context.Context, b *catalog.Brand) error { return nil }
-func (m *mockCatalogRepo) GetBrandByID(_ context.Context, id int64) (*catalog.Brand, error) {
-	return nil, apperr.NotFound("brand")
-}
-func (m *mockCatalogRepo) UpdateBrand(_ context.Context, b *catalog.Brand) error { return nil }
-func (m *mockCatalogRepo) ListBrands(_ context.Context) ([]*catalog.Brand, error) {
-	return []*catalog.Brand{}, nil
+func (m *mockCatalogRepo) CreateCategory(_ context.Context, c *Category) error {
+	c.ID = m.nextID
+	m.nextID++
+	m.categories[c.ID] = c
+	return nil
 }
 
-func (m *mockCatalogRepo) SetCustomerPricing(_ context.Context, cm *catalog.CustomerProductMapping) error {
+func (m *mockCatalogRepo) GetCategoryByID(_ context.Context, id int64) (*Category, error) {
+	c, ok := m.categories[id]
+	if !ok {
+		return nil, apperr.NotFound("category")
+	}
+	return c, nil
+}
+
+func (m *mockCatalogRepo) UpdateCategory(_ context.Context, c *Category) error {
+	m.categories[c.ID] = c
 	return nil
 }
-func (m *mockCatalogRepo) GetCustomerPricing(_ context.Context, vendorOrgID, customerOrgID, productID int64) (*catalog.CustomerProductMapping, error) {
-	return nil, apperr.NotFound("customer_pricing")
+
+func (m *mockCatalogRepo) ListCategories(_ context.Context) ([]*Category, error) {
+	var list []*Category
+	for _, c := range m.categories {
+		list = append(list, c)
+	}
+	return list, nil
 }
-func (m *mockCatalogRepo) CreateProductAlert(_ context.Context, a *catalog.ProductAlert) error {
+
+func (m *mockCatalogRepo) CreateBrand(_ context.Context, b *Brand) error {
+	b.ID = m.nextID
+	m.nextID++
+	m.brands[b.ID] = b
 	return nil
 }
-func (m *mockCatalogRepo) ListProductAlertsByUser(_ context.Context, userID int64) ([]*catalog.ProductAlert, error) {
-	return nil, nil
+
+func (m *mockCatalogRepo) GetBrandByID(_ context.Context, id int64) (*Brand, error) {
+	b, ok := m.brands[id]
+	if !ok {
+		return nil, apperr.NotFound("brand")
+	}
+	return b, nil
+}
+
+func (m *mockCatalogRepo) UpdateBrand(_ context.Context, b *Brand) error {
+	m.brands[b.ID] = b
+	return nil
+}
+
+func (m *mockCatalogRepo) ListBrands(_ context.Context) ([]*Brand, error) {
+	var list []*Brand
+	for _, b := range m.brands {
+		list = append(list, b)
+	}
+	return list, nil
+}
+
+func (m *mockCatalogRepo) SetCustomerPricing(_ context.Context, cm *CustomerProductMapping) error {
+	key := string(rune(cm.OrganizationID)) + ":" + string(rune(cm.CustomerOrgID)) + ":" + string(rune(cm.ProductID))
+	m.customerPricing[key] = cm
+	return nil
+}
+
+func (m *mockCatalogRepo) GetCustomerPricing(_ context.Context, vendorOrgID, customerOrgID, productID int64) (*CustomerProductMapping, error) {
+	key := string(rune(vendorOrgID)) + ":" + string(rune(customerOrgID)) + ":" + string(rune(productID))
+	cm, ok := m.customerPricing[key]
+	if !ok {
+		return nil, apperr.NotFound("customer_pricing")
+	}
+	return cm, nil
+}
+
+func (m *mockCatalogRepo) CreateProductAlert(_ context.Context, a *ProductAlert) error {
+	a.ID = m.nextID
+	m.nextID++
+	m.alerts[a.ID] = a
+	return nil
+}
+
+func (m *mockCatalogRepo) ListProductAlertsByUser(_ context.Context, userID int64) ([]*ProductAlert, error) {
+	var list []*ProductAlert
+	for _, a := range m.alerts {
+		if a.UserID == userID {
+			list = append(list, a)
+		}
+	}
+	return list, nil
 }
 
 func TestProductEffectivePrice(t *testing.T) {
-	p := &catalog.Product{
+	p := &Product{
 		Price:    money.MustParse("100.00"),
 		Discount: money.MustParse("15.50"),
 	}
@@ -142,10 +207,10 @@ func TestCatalogServiceCreateAndVariants(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 42)
 	repo := newMockCatalogRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	svc := catalog.NewService(repo, logger)
+	svc := NewService(repo, logger)
 
 	// 1. Create Product
-	p, err := svc.CreateProduct(ctx, &catalog.Product{
+	p, err := svc.CreateProduct(ctx, &Product{
 		Name:           i18n.New("بانادول اكسترا", "Panadol Extra"),
 		Price:          money.MustParse("45.00"),
 		DosageForm:     "Tablet",
@@ -160,7 +225,7 @@ func TestCatalogServiceCreateAndVariants(t *testing.T) {
 	}
 
 	// 2. Create Variant
-	v, err := svc.CreateVariant(ctx, &catalog.ProductVariant{
+	v, err := svc.CreateVariant(ctx, &ProductVariant{
 		ProductID: p.ID,
 		Name:      i18n.New("شريط 12 قرص", "Strip of 12 tablets"),
 		Price:     money.MustParse("22.50"),

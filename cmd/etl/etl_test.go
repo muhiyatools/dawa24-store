@@ -9,6 +9,14 @@ func TestETLUserTransformationAndValidation(t *testing.T) {
 	v := NewValidator()
 	tr := NewTransformer()
 
+	// Invalid users
+	if err := v.ValidateUser(&SourceUser{ID: 0, Email: "a@b.com"}); err == nil {
+		t.Error("expected error for ID <= 0")
+	}
+	if err := v.ValidateUser(&SourceUser{ID: 1, Email: "invalid"}); err == nil {
+		t.Error("expected error for invalid email")
+	}
+
 	src := &SourceUser{
 		ID:        42,
 		Name:      "أحمد محمد علي",
@@ -41,6 +49,17 @@ func TestETLUserTransformationAndValidation(t *testing.T) {
 func TestETLProductTransformationAndMoneyConversion(t *testing.T) {
 	v := NewValidator()
 	tr := NewTransformer()
+
+	// Invalid products
+	if err := v.ValidateProduct(&SourceProduct{ID: 0, NameAr: "دواء"}); err == nil {
+		t.Error("expected error for ID <= 0")
+	}
+	if err := v.ValidateProduct(&SourceProduct{ID: 1, NameAr: "", NameEn: ""}); err == nil {
+		t.Error("expected error for empty names")
+	}
+	if err := v.ValidateProduct(&SourceProduct{ID: 1, NameAr: "دواء", Price: -10}); err == nil {
+		t.Error("expected error for negative price")
+	}
 
 	src := &SourceProduct{
 		ID:          101,

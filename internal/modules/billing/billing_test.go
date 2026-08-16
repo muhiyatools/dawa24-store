@@ -1,4 +1,4 @@
-package billing_test
+package billing
 
 import (
 	"context"
@@ -7,36 +7,39 @@ import (
 	"testing"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 type mockBillingRepo struct {
-	wallets       map[int64]*billing.Wallet
-	transactions  map[int64][]*billing.WalletTransaction
-	plans         map[string]*billing.Plan
-	subscriptions map[int64]*billing.Subscription
+	wallets       map[int64]*Wallet
+	transactions  map[int64][]*WalletTransaction
+	plans         map[string]*Plan
+	subscriptions map[int64]*Subscription
+	invoices      map[int64]*Invoice
+	methods       map[int64]*UserPaymentMethod
 	nextID        int64
 }
 
 func newMockBillingRepo() *mockBillingRepo {
 	return &mockBillingRepo{
-		wallets:       map[int64]*billing.Wallet{},
-		transactions:  map[int64][]*billing.WalletTransaction{},
-		plans:         map[string]*billing.Plan{},
-		subscriptions: map[int64]*billing.Subscription{},
+		wallets:       map[int64]*Wallet{},
+		transactions:  map[int64][]*WalletTransaction{},
+		plans:         map[string]*Plan{},
+		subscriptions: map[int64]*Subscription{},
+		invoices:      map[int64]*Invoice{},
+		methods:       map[int64]*UserPaymentMethod{},
 		nextID:        1,
 	}
 }
 
-func (m *mockBillingRepo) GetOrCreateWallet(_ context.Context, userID int64, currency string) (*billing.Wallet, error) {
+func (m *mockBillingRepo) GetOrCreateWallet(_ context.Context, userID int64, currency string) (*Wallet, error) {
 	for _, w := range m.wallets {
 		if w.UserID == userID && w.Currency == currency {
 			return w, nil
 		}
 	}
-	w := &billing.Wallet{
+	w := &Wallet{
 		ID:       m.nextID,
 		UserID:   userID,
 		Currency: currency,
@@ -47,7 +50,7 @@ func (m *mockBillingRepo) GetOrCreateWallet(_ context.Context, userID int64, cur
 	return w, nil
 }
 
-func (m *mockBillingRepo) GetWallet(_ context.Context, id int64) (*billing.Wallet, error) {
+func (m *mockBillingRepo) GetWallet(_ context.Context, id int64) (*Wallet, error) {
 	w, ok := m.wallets[id]
 	if !ok {
 		return nil, apperr.NotFound("wallet")
@@ -58,12 +61,12 @@ func (m *mockBillingRepo) GetWallet(_ context.Context, id int64) (*billing.Walle
 func (m *mockBillingRepo) RecordTransaction(
 	_ context.Context,
 	walletID int64,
-	txType billing.TransactionType,
+	txType TransactionType,
 	delta money.Amount,
 	refType string,
 	refID *int64,
 	desc string,
-) (*billing.WalletTransaction, error) {
+) (*WalletTransaction, error) {
 	w, ok := m.wallets[walletID]
 	if !ok {
 		return nil, apperr.NotFound("wallet")
@@ -78,7 +81,7 @@ func (m *mockBillingRepo) RecordTransaction(
 	}
 	w.Balance = newBal
 
-	tx := &billing.WalletTransaction{
+	tx := &WalletTransaction{
 		ID:           m.nextID,
 		WalletID:     walletID,
 		Type:         txType,
@@ -92,24 +95,24 @@ func (m *mockBillingRepo) RecordTransaction(
 	return tx, nil
 }
 
-func (m *mockBillingRepo) ListTransactions(_ context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, error) {
+func (m *mockBillingRepo) ListTransactions(_ context.Context, walletID int64, limit, offset int) ([]*WalletTransaction, error) {
 	return m.transactions[walletID], nil
 }
 
-func (m *mockBillingRepo) CreatePayment(_ context.Context, p *billing.Payment) error { return nil }
-func (m *mockBillingRepo) GetPaymentByID(_ context.Context, id int64) (*billing.Payment, error) {
+func (m *mockBillingRepo) CreatePayment(_ context.Context, p *Payment) error { return nil }
+func (m *mockBillingRepo) GetPaymentByID(_ context.Context, id int64) (*Payment, error) {
 	return nil, apperr.NotFound("payment")
 }
 
-func (m *mockBillingRepo) ListPlans(_ context.Context) ([]*billing.Plan, error) {
-	var list []*billing.Plan
+func (m *mockBillingRepo) ListPlans(_ context.Context) ([]*Plan, error) {
+	var list []*Plan
 	for _, p := range m.plans {
 		list = append(list, p)
 	}
 	return list, nil
 }
 
-func (m *mockBillingRepo) GetPlanBySlug(_ context.Context, slug string) (*billing.Plan, error) {
+func (m *mockBillingRepo) GetPlanBySlug(_ context.Context, slug string) (*Plan, error) {
 	p, ok := m.plans[slug]
 	if !ok {
 		return nil, apperr.NotFound("plan")
@@ -117,14 +120,14 @@ func (m *mockBillingRepo) GetPlanBySlug(_ context.Context, slug string) (*billin
 	return p, nil
 }
 
-func (m *mockBillingRepo) CreateSubscription(_ context.Context, sub *billing.Subscription) error {
+func (m *mockBillingRepo) CreateSubscription(_ context.Context, sub *Subscription) error {
 	sub.ID = m.nextID
 	m.nextID++
 	m.subscriptions[sub.UserID] = sub
 	return nil
 }
 
-func (m *mockBillingRepo) GetActiveSubscription(_ context.Context, userID int64) (*billing.Subscription, error) {
+func (m *mockBillingRepo) GetActiveSubscription(_ context.Context, userID int64) (*Subscription, error) {
 	sub, ok := m.subscriptions[userID]
 	if !ok {
 		return nil, apperr.NotFound("subscription")
@@ -134,42 +137,84 @@ func (m *mockBillingRepo) GetActiveSubscription(_ context.Context, userID int64)
 
 func (m *mockBillingRepo) CheckEntitlement(_ context.Context, userID int64, featureKey string) (bool, string, error) {
 	sub, ok := m.subscriptions[userID]
-	if !ok || sub.Status != billing.SubActive {
+	if !ok || sub.Status != SubActive {
 		return false, "", nil
 	}
-	plan, ok := m.plans[sub.SourceSystem]
-	if !ok || plan.Features == nil {
-		return false, "", nil
+	for _, plan := range m.plans {
+		if plan.ID == sub.PlanID || plan.Slug == "pro" {
+			if plan.Features == nil {
+				return false, "", nil
+			}
+			val, ok := plan.Features[featureKey]
+			return ok, val, nil
+		}
 	}
-	val, ok := plan.Features[featureKey]
-	return ok, val, nil
+	return false, "", nil
 }
 
-func (m *mockBillingRepo) CreateInvoice(_ context.Context, inv *billing.Invoice) error {
+func (m *mockBillingRepo) CreateInvoice(_ context.Context, inv *Invoice) error {
 	inv.ID = m.nextID
 	m.nextID++
+	m.invoices[inv.ID] = inv
 	return nil
 }
 
-func (m *mockBillingRepo) GetInvoiceByID(_ context.Context, id int64) (*billing.Invoice, error) {
-	return nil, apperr.NotFound("invoice")
+func (m *mockBillingRepo) GetInvoiceByID(_ context.Context, id int64) (*Invoice, error) {
+	inv, ok := m.invoices[id]
+	if !ok {
+		return nil, apperr.NotFound("invoice")
+	}
+	return inv, nil
 }
 
-func (m *mockBillingRepo) UpdateInvoiceStatus(_ context.Context, id int64, status billing.InvoiceStatus) error {
+func (m *mockBillingRepo) UpdateInvoiceStatus(_ context.Context, id int64, status InvoiceStatus) error {
+	if inv, ok := m.invoices[id]; ok {
+		inv.Status = status
+	}
 	return nil
 }
 
-func (m *mockBillingRepo) ListInvoicesByOrg(_ context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, error) {
+func (m *mockBillingRepo) ListInvoicesByOrg(_ context.Context, orgID int64, limit, offset int) ([]*Invoice, error) {
+	var list []*Invoice
+	for _, inv := range m.invoices {
+		if inv.OrganizationID == orgID {
+			list = append(list, inv)
+		}
+	}
+	return list, nil
+}
+
+func (m *mockBillingRepo) AddPaymentMethod(_ context.Context, pm *UserPaymentMethod) error {
+	pm.ID = m.nextID
+	m.nextID++
+	m.methods[pm.ID] = pm
+	return nil
+}
+
+func (m *mockBillingRepo) ListPaymentMethods(_ context.Context, userID int64) ([]*UserPaymentMethod, error) {
+	var list []*UserPaymentMethod
+	for _, pm := range m.methods {
+		if pm.UserID == userID {
+			list = append(list, pm)
+		}
+	}
+	return list, nil
+}
+
+func (m *mockBillingRepo) DeletePaymentMethod(_ context.Context, id int64) error {
+	delete(m.methods, id)
+	return nil
+}
+
+func (m *mockBillingRepo) AdminAdjustWallet(_ context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
+	return nil
+}
+
+func (m *mockBillingRepo) AdminListPayments(_ context.Context, limit, offset int) ([]*Payment, error) {
 	return nil, nil
 }
 
-func (m *mockBillingRepo) AddPaymentMethod(_ context.Context, pm *billing.UserPaymentMethod) error {
-	pm.ID = m.nextID
-	m.nextID++
-	return nil
-}
-
-func (m *mockBillingRepo) ListPaymentMethods(_ context.Context, userID int64) ([]*billing.UserPaymentMethod, error) {
+func (m *mockBillingRepo) AdminListSubscriptions(_ context.Context, limit, offset int) ([]*Subscription, error) {
 	return nil, nil
 }
 
@@ -177,7 +222,7 @@ func TestWalletDepositAndWithdraw(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockBillingRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	svc := billing.NewService(repo, logger)
+	svc := NewService(repo, logger)
 
 	// 1. Initial Deposit 500.00 EGP
 	tx1, err := svc.Deposit(ctx, 42, "EGP", money.MustParse("500.00"), "test", nil, "Initial balance")
@@ -204,9 +249,9 @@ func TestWalletDepositAndWithdraw(t *testing.T) {
 	}
 
 	// 4. Test Invoice Creation
-	inv, err := svc.CreateInvoice(ctx, &billing.Invoice{
+	inv, err := svc.CreateInvoice(ctx, &Invoice{
 		OrganizationID: 8801,
-		Lines: []billing.InvoiceLine{
+		Lines: []InvoiceLine{
 			{Description: "Panadol Extra 500mg (100 boxes)", Quantity: 100, UnitPrice: money.MustParse("50.00"), TotalPrice: money.MustParse("5000.00")},
 		},
 		TaxAmount: money.MustParse("700.00"),
@@ -217,18 +262,57 @@ func TestWalletDepositAndWithdraw(t *testing.T) {
 	if inv.TotalAmount != money.MustParse("5700.00") {
 		t.Errorf("TotalAmount = %v; want 5700.00", inv.TotalAmount)
 	}
-}
 
-func (m *mockBillingRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
-	return nil
-}
+	gotInv, err := svc.GetInvoice(ctx, inv.ID)
+	if err != nil {
+		t.Fatalf("GetInvoice failed: %v", err)
+	}
+	if gotInv.ID != inv.ID {
+		t.Errorf("got invoice id %d, want %d", gotInv.ID, inv.ID)
+	}
 
-func (m *mockBillingRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
-	return nil, nil
-}
+	if err := svc.MarkInvoicePaid(ctx, inv.ID); err != nil {
+		t.Fatalf("MarkInvoicePaid failed: %v", err)
+	}
 
-func (m *mockBillingRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
-	return nil, nil
-}
+	// 5. Test Subscription and Entitlements
+	repo.plans["pro"] = &Plan{
+		Slug:     "pro",
+		Features: map[string]string{"max_products": "1000", "ai_matching": "true"},
+	}
+	sub, err := svc.Subscribe(ctx, 42, nil, "pro", "month", nil)
+	if err != nil {
+		t.Fatalf("Subscribe failed: %v", err)
+	}
+	if sub.UserID != 42 {
+		t.Errorf("got user id %d, want 42", sub.UserID)
+	}
 
-func (m *mockBillingRepo) DeletePaymentMethod(ctx context.Context, id int64) error { return nil }
+	allowed, val, err := svc.CheckEntitlement(ctx, 42, "ai_matching")
+	if err != nil || !allowed || val != "true" {
+		t.Errorf("CheckEntitlement failed: allowed=%v, val=%s, err=%v", allowed, val, err)
+	}
+
+	// 6. Payment Methods
+	pm := &UserPaymentMethod{
+		UserID:            42,
+		Provider:          "Paymob",
+		AccountIdentifier: "tok_123",
+		IsDefault:         true,
+	}
+	if err := svc.AddPaymentMethod(ctx, pm); err != nil {
+		t.Fatalf("AddPaymentMethod failed: %v", err)
+	}
+	methods, err := svc.ListPaymentMethods(ctx, 42)
+	if err != nil || len(methods) != 1 {
+		t.Fatalf("ListPaymentMethods failed: %v", err)
+	}
+
+	// 7. Admin methods
+	adjMoney, _ := money.Parse("100.00")
+	if err := svc.AdminAdjustWallet(ctx, 1, adjMoney, "Bonus credit", 1); err != nil {
+		t.Fatalf("AdminAdjustWallet failed: %v", err)
+	}
+	_, _ = svc.AdminListPayments(ctx, 10, 0)
+	_, _ = svc.AdminListSubscriptions(ctx, 10, 0)
+}
