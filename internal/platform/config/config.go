@@ -109,10 +109,22 @@ type Worker struct {
 	ShutdownTimeout time.Duration
 }
 
-// Load reads the environment and returns a validated Config, or an aggregate of
-// everything that is wrong. Reporting all problems at once beats making an
-// operator restart six times to discover six missing variables.
-func Load() (*Config, error) {
+// Load reads the environment and returns a validated Config for the server and
+// worker, or an aggregate of everything that is wrong. Reporting all problems at
+// once beats making an operator restart six times to discover six missing
+// variables.
+func Load() (*Config, error) { return load(false) }
+
+// LoadForCLI is Load with the requirements the CLI genuinely has.
+//
+// Migrations and other operational commands touch PostgreSQL and nothing else.
+// Demanding REDIS_URL and a 32-byte SESSION_SECRET from them meant an operator
+// had to invent two values the command never reads before it would run — which
+// is enough friction that migrations get skipped, and skipped migrations are how
+// a deploy serves traffic against a schema it does not expect.
+func LoadForCLI() (*Config, error) { return load(true) }
+
+func load(cliOnly bool) (*Config, error) {
 	var problems []string
 	fail := func(format string, args ...any) {
 		problems = append(problems, fmt.Sprintf(format, args...))
@@ -206,11 +218,13 @@ func Load() (*Config, error) {
 	} else if _, err := url.Parse(cfg.Database.URL); err != nil {
 		fail("DATABASE_URL is not a valid URL: %v", err)
 	}
-	if cfg.Redis.URL == "" {
-		fail("REDIS_URL is required (cache, sessions and rate limiting all depend on it)")
-	}
-	if len(cfg.Session.Secret) < 32 {
-		fail("SESSION_SECRET is required and must be at least 32 bytes")
+	if !cliOnly {
+		if cfg.Redis.URL == "" {
+			fail("REDIS_URL is required (cache, sessions and rate limiting all depend on it)")
+		}
+		if len(cfg.Session.Secret) < 32 {
+			fail("SESSION_SECRET is required and must be at least 32 bytes")
+		}
 	}
 
 	// --- Gateway coherence ---
@@ -228,7 +242,7 @@ func Load() (*Config, error) {
 	}
 
 	// --- Production-only strictness ---
-	if env.IsProd() {
+	if env.IsProd() && !cliOnly {
 		if cfg.Storage.AccessKeyID == "" || cfg.Storage.SecretAccessKey == "" {
 			fail("STORAGE_ACCESS_KEY_ID and STORAGE_SECRET_ACCESS_KEY are required in production")
 		}
