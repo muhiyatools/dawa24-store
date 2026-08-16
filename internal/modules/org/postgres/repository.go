@@ -25,8 +25,16 @@ func (r *Repository) CreateOrganization(ctx context.Context, o *org.Organization
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO org.organizations (
-				legal_name, trade_name, tax_number, commercial_register, type, status, credit_limit, payment_terms_days
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+				name, legal_name, trade_name, tax_number, commercial_register, type, status, credit_limit, payment_terms_days
+			) VALUES (
+				jsonb_build_object('ar', $1::text, 'en', $1::text),
+				-- trade_name is optional on the domain type but NOT NULL in the
+				-- schema, so an organisation registered without one marshals to
+				-- NULL and fails the insert. Falling back to the legal name is
+				-- what a reader of the record would expect anyway.
+				$1, COALESCE($2, jsonb_build_object('ar', $1::text, 'en', $1::text)),
+				$3, $4, $5, $6, $7, $8
+			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
@@ -141,7 +149,7 @@ func (r *Repository) CreateBranch(ctx context.Context, b *org.Branch) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO org.branches (organization_id, name, code, address, city_id, is_main, phone)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			VALUES ($1, COALESCE($2, '{"ar":"الفرع","en":"Branch"}'::jsonb), NULLIF($3, ''), $4, $5, $6, $7)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
@@ -164,7 +172,11 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 	var b org.Branch
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, name, code, address, city_id, is_main, phone, created_at, updated_at
+			SELECT id, public_id, organization_id, name,
+			       -- code carries a unique index, so it stays nullable: NULLs do not
+			       -- collide but empty strings would, and most branches have no code.
+			       -- COALESCE keeps the Go field a plain string without that risk.
+			       COALESCE(code, ''), address, city_id, is_main, phone, created_at, updated_at
 			FROM org.branches WHERE id = $1;
 		`
 		err := tx.QueryRow(txCtx, query, id).Scan(
@@ -189,7 +201,11 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 	var list []*org.Branch
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, name, code, address, city_id, is_main, phone, created_at, updated_at
+			SELECT id, public_id, organization_id, name,
+			       -- code carries a unique index, so it stays nullable: NULLs do not
+			       -- collide but empty strings would, and most branches have no code.
+			       -- COALESCE keeps the Go field a plain string without that risk.
+			       COALESCE(code, ''), address, city_id, is_main, phone, created_at, updated_at
 			FROM org.branches WHERE organization_id = $1 ORDER BY is_main DESC, id ASC;
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
@@ -216,9 +232,9 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO org.members (organization_id, user_id, role_id, is_active)
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (organization_id, user_id) DO UPDATE SET role_id = EXCLUDED.role_id, is_active = EXCLUDED.is_active, updated_at = now()
+			INSERT INTO org.members (organization_id, user_id, role_id, role_key, is_active)
+			VALUES ($1, $2, $3, 'org_employee', $4)
+			ON CONFLICT (organization_id, user_id) DO UPDATE SET role_id = EXCLUDED.role_id, role_key = EXCLUDED.role_key, is_active = EXCLUDED.is_active, updated_at = now()
 			RETURNING id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query, m.OrganizationID, m.UserID, m.RoleID, m.IsActive).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)

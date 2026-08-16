@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -73,25 +74,52 @@ func resetFixtures(t *testing.T, db *database.DB, orgID int64) {
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		// Clean inventory tables
-		_, _ = tx.Exec(txCtx, `DELETE FROM inventory.warehouse_transfers WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM inventory.stock_movements WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM inventory.stocks WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM inventory.warehouses WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id = $1`, testCategoryID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id = $1`, testBrandID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM inventory.warehouse_transfers WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete warehouse_transfers: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM inventory.stock_movements WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete stock_movements: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM inventory.stocks WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete stocks: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM inventory.warehouses WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete warehouses: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete product_variants: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete products: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id = $1`, testCategoryID); err != nil {
+			return fmt.Errorf("delete categories: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id = $1`, testBrandID); err != nil {
+			return fmt.Errorf("delete brands: %w", err)
+		}
 
 		// Setup prerequisite org, category, brand, product, variant for stock FKs
-		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Inventory Test Org"}') ON CONFLICT DO NOTHING`, orgID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.categories (id, name, slug) VALUES ($1, '{"en":"Test Cat"}', 'inv-test-cat') ON CONFLICT DO NOTHING`, testCategoryID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.brands (id, name, slug) VALUES ($1, '{"en":"Test Brand"}', 'inv-test-brand') ON CONFLICT DO NOTHING`, testBrandID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, category_id, brand_id, name, slug, dosage_form)
-			VALUES ($1, $2, $3, $4, '{"en":"Test Prod"}', 'inv-test-prod', 'tablet') ON CONFLICT DO NOTHING`,
-			testProductID, orgID, testCategoryID, testBrandID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.product_variants (id, organization_id, product_id, sku, price)
-			VALUES ($1, $2, $3, 'INV-VAR-1', 50.00) ON CONFLICT DO NOTHING`,
-			testVariantID, orgID, testProductID)
+		if _, err := tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة المخزون","en":"Inventory Test Org"}'::jsonb) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, orgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.categories (id, name) VALUES ($1, '{"ar":"قسم","en":"Test Cat"}'::jsonb) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testCategoryID); err != nil {
+			return fmt.Errorf("insert category: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.brands (id, name) VALUES ($1, '{"ar":"ماركة","en":"Test Brand"}'::jsonb) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testBrandID); err != nil {
+			return fmt.Errorf("insert brand: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, category_id, brand_id, name, dosage_form)
+			VALUES ($1, $2, $3, $4, '{"ar":"منتج","en":"Test Prod"}'::jsonb, 'tablet') ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`,
+			testProductID, orgID, testCategoryID, testBrandID); err != nil {
+			return fmt.Errorf("insert product: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.product_variants (id, organization_id, product_id, name, sku, price)
+			VALUES ($1, $2, $3, '{"ar":"عبوة","en":"Test Variant"}'::jsonb, 'INV-VAR-1', 50.00)
+			ON CONFLICT (id) DO UPDATE SET price = EXCLUDED.price`,
+			testVariantID, orgID, testProductID); err != nil {
+			return fmt.Errorf("insert variant: %w", err)
+		}
 		return nil
 	})
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"log/slog"
+	"sort"
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -84,6 +85,9 @@ func (m *mockIngestRepo) ListImportSessions(_ context.Context, orgID int64, limi
 			list = append(list, s)
 		}
 	}
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].ID < list[j].ID
+	})
 	return list, nil
 }
 
@@ -108,6 +112,9 @@ func (m *mockIngestRepo) ListImportRows(_ context.Context, sessionID int64, stat
 			list = append(list, r)
 		}
 	}
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].RowNumber < list[j].RowNumber
+	})
 	return list, nil
 }
 

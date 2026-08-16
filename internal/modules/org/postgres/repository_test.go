@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -67,17 +68,34 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organization_policies WHERE organization_id IN (SELECT id FROM org.organizations WHERE legal_name LIKE 'Test Org %')`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organization_followers WHERE user_id = $1`, testUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organization_reviews WHERE user_id = $1`, testUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.members WHERE user_id = $1`, testUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.branches WHERE organization_id IN (SELECT id FROM org.organizations WHERE legal_name LIKE 'Test Org %')`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE legal_name LIKE 'Test Org %'`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organization_policies WHERE organization_id IN (SELECT id FROM org.organizations WHERE legal_name LIKE 'Test Org %')`); err != nil {
+			return fmt.Errorf("delete policies: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organization_followers WHERE user_id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete followers: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organization_reviews WHERE user_id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete reviews: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.members WHERE user_id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete members: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.branches WHERE organization_id IN (SELECT id FROM org.organizations WHERE legal_name LIKE 'Test Org %')`); err != nil {
+			return fmt.Errorf("delete branches: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE legal_name LIKE 'Test Org %'`); err != nil {
+			return fmt.Errorf("delete orgs: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete user: %w", err)
+		}
 
 		// Create user for member, follower, review checks
-		_, _ = tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name, role)
-			VALUES ($1, 'user88590@example.com', 'x', '{"en":"User"}', 'customer') ON CONFLICT DO NOTHING`, testUserID)
+		if _, err := tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name, role)
+			VALUES ($1, 'user88590@example.com', 'x', '{"ar":"مستخدم","en":"User"}'::jsonb, 'customer')
+			ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testUserID); err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
 		return nil
 	})
 	if err != nil {
@@ -204,7 +222,7 @@ func TestOrgRepository(t *testing.T) {
 			t.Fatalf("failed to list members: %v", err)
 		}
 
-		if err := repo.UpdateMemberRole(ctx, orgID, testUserID, "member"); err != nil {
+		if err := repo.UpdateMemberRole(ctx, orgID, testUserID, "org_manager"); err != nil {
 			t.Fatalf("failed to update member role: %v", err)
 		}
 
@@ -232,31 +250,43 @@ func TestOrgRepository(t *testing.T) {
 			UserID:         testUserID,
 			Rating:         5,
 			ReviewText:     "Great service",
+			// ListReviewsByOrg returns approved reviews only, by design.
+			IsApproved: true,
 		}
 		if err := repo.AddReview(ctx, rev); err != nil {
 			t.Fatalf("failed to add review: %v", err)
 		}
 
 		reviews, err := repo.ListReviewsByOrg(ctx, orgID, 10, 0)
-		if err != nil || len(reviews) == 0 {
+		if err != nil {
 			t.Fatalf("failed to list reviews: %v", err)
+		}
+		// Reported separately from the error. Combining them printed
+		// "failed to list reviews: <nil>", which says nothing about an empty result.
+		if len(reviews) == 0 {
+			t.Fatalf("listed 0 reviews for org %d after adding one", orgID)
 		}
 	})
 
 	t.Run("Policies", func(t *testing.T) {
 		p := &org.Policy{
 			OrganizationID: orgID,
-			PolicyType:     "return_policy",
+			PolicyType:     "returns",
 			Title:          "Return Policy",
 			Content:        "14 days return policy for sealed items",
+			// ListPoliciesByOrg returns active policies only, by design.
+			IsActive: true,
 		}
 		if err := repo.CreatePolicy(ctx, p); err != nil {
 			t.Fatalf("failed to create policy: %v", err)
 		}
 
 		policies, err := repo.ListPoliciesByOrg(ctx, orgID)
-		if err != nil || len(policies) == 0 {
+		if err != nil {
 			t.Fatalf("failed to list policies: %v", err)
+		}
+		if len(policies) == 0 {
+			t.Fatalf("listed 0 policies for org %d after creating one", orgID)
 		}
 	})
 }

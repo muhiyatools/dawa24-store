@@ -30,13 +30,12 @@ func (r *Repository) CreateLog(ctx context.Context, l *notifications.Notificatio
 			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			RETURNING id, public_id, created_at;
 		`
-		var errPtr *string
-		if l.ErrorMessage != "" {
-			errPtr = &l.ErrorMessage
-		}
+		// error_message is NOT NULL DEFAULT '' as of migration 033. It used to
+		// store an empty message as NULL, which is what the read path then could
+		// not scan back into a string.
 		return tx.QueryRow(txCtx, query,
 			l.UserID, l.OrganizationID, string(l.Channel), l.Recipient,
-			l.Title, l.Body, string(l.Status), errPtr, l.SentAt,
+			l.Title, l.Body, string(l.Status), l.ErrorMessage, l.SentAt,
 		).Scan(&l.ID, &l.PublicID, &l.CreatedAt)
 	})
 }

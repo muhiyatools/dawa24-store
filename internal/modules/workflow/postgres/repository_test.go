@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -70,22 +71,42 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM workflow.report_issues WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM workflow.weekly_coverages WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM workflow.purchase_priority_engines WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.branches WHERE id = $1`, testBranchID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM workflow.report_issues WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete report_issues: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM workflow.weekly_coverages WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete weekly_coverages: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM workflow.purchase_priority_engines WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete purchase_priority_engines: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.branches WHERE id = $1`, testBranchID); err != nil {
+			return fmt.Errorf("delete branches: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete users: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete organizations: %w", err)
+		}
 
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Workflow Test Org"}') ON CONFLICT DO NOTHING`, testOrgID)
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO identity.users (id, public_id, email, password_hash, name, role)
-			 VALUES ($1, 'usr_wf_test_1', 'wf-test@example.com', 'hash', '{"en":"Workflow User"}', 'customer')
-			 ON CONFLICT DO NOTHING`, testUserID)
-		_, _ = tx.Exec(txCtx,
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة سير العمل","en":"Workflow Test Org"}'::jsonb)
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testOrgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO identity.users (id, email, password_hash, name, role)
+			 VALUES ($1, 'wf-test@example.com', 'hash', '{"ar":"مستخدم","en":"Workflow User"}'::jsonb, 'customer')
+			 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testUserID); err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
 			`INSERT INTO org.branches (id, organization_id, name, address)
-			 VALUES ($1, $2, '{"en":"Main Branch"}', '123 Test St') ON CONFLICT DO NOTHING`, testBranchID, testOrgID)
+			 VALUES ($1, $2, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb, '123 Test St')
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testBranchID, testOrgID); err != nil {
+			return fmt.Errorf("insert branch: %w", err)
+		}
 		return nil
 	})
 	if err != nil {
@@ -168,7 +189,7 @@ func TestWorkflowRepository(t *testing.T) {
 			OrganizationID: &orgID,
 			IssueType:      "delivery_delay",
 			Description:    "Shipment delayed past expected arrival date",
-			Status:         "open",
+			Status:         "pending",
 			Priority:       "high",
 		}
 

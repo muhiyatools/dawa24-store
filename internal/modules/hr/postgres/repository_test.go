@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -69,17 +70,30 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM hr.work_times WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM hr.employees WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM hr.work_times WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete work_times: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM hr.employees WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete employees: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete users: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete organizations: %w", err)
+		}
 
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"HR Test Org"}') ON CONFLICT DO NOTHING`, testOrgID)
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO identity.users (id, public_id, email, password_hash, name, role)
-			 VALUES ($1, 'usr_hr_test_1', 'hr-test@example.com', 'hash', '{"en":"HR User"}', 'employee')
-			 ON CONFLICT DO NOTHING`, testUserID)
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة الموارد","en":"HR Test Org"}'::jsonb)
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testOrgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO identity.users (id, email, password_hash, name, role)
+			 VALUES ($1, 'hr-test@example.com', 'hash', '{"ar":"موظف","en":"HR User"}'::jsonb, 'customer')
+			 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testUserID); err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
 		return nil
 	})
 	if err != nil {

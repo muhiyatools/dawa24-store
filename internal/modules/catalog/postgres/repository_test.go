@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"testing"
@@ -85,24 +86,40 @@ func resetFixtures(t *testing.T, db *database.DB, orgID int64) {
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		// Clean catalog tables
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.product_alerts WHERE product_id IN (SELECT id FROM catalog.products WHERE organization_id = $1)`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.customer_product_mappings WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id >= 88100 AND id <= 88199`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id >= 88100 AND id <= 88199`)
-		// Prerequisites for the foreign keys these tests exercise: the vendor
-		// organization, a separate customer organization for per-customer
-		// pricing, and a user for product alerts. Without them the subtests
-		// fail on a constraint instead of on the behaviour under test.
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Catalog Test Org"}') ON CONFLICT DO NOTHING`, orgID)
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Catalog Test Customer"}') ON CONFLICT DO NOTHING`, testCustomerOrgID)
-		_, _ = tx.Exec(txCtx,
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.product_alerts WHERE product_id IN (SELECT id FROM catalog.products WHERE organization_id = $1)`, orgID); err != nil {
+			return fmt.Errorf("delete product_alerts: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.customer_product_mappings WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete customer_product_mappings: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete product_variants: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgID); err != nil {
+			return fmt.Errorf("delete products: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id >= 88100 AND id <= 88199`); err != nil {
+			return fmt.Errorf("delete categories: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id >= 88100 AND id <= 88199`); err != nil {
+			return fmt.Errorf("delete brands: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة الفهرس","en":"Catalog Test Org"}'::jsonb)
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, orgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"عميل الفهرس","en":"Catalog Test Customer"}'::jsonb)
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testCustomerOrgID); err != nil {
+			return fmt.Errorf("insert cust org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
 			`INSERT INTO identity.users (id, email, password_hash, name)
-			 VALUES ($1, 'catalog-fixture@dawa24.test', '$2y$10$fixture', '{"en":"Catalog Fixture"}')
-			 ON CONFLICT (id) DO NOTHING`, testUserID)
+			 VALUES ($1, 'catalog-fixture@dawa24.test', '$2y$10$fixture', '{"ar":"مستخدم","en":"Catalog Fixture"}'::jsonb)
+			 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testUserID); err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
 		return nil
 	})
 	if err != nil {

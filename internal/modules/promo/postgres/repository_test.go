@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -69,16 +70,33 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM promo.offer_sponsorships WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM promo.offer_products WHERE offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1)`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM promo.offers WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM promo.offer_packages WHERE name->>'en' = 'Promo Test Package'`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM promo.ads WHERE title->>'en' = 'Test Ad'`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM promo.highlight_sections WHERE slug = 'test-curated'`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM promo.offer_sponsorships WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete offer_sponsorships: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM promo.offer_products WHERE offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1)`, testOrgID); err != nil {
+			return fmt.Errorf("delete offer_products: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM promo.offers WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete offers: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM promo.offer_packages WHERE name->>'en' = 'Promo Test Package'`); err != nil {
+			return fmt.Errorf("delete offer_packages: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM promo.ads WHERE title = 'Test Ad'`); err != nil {
+			return fmt.Errorf("delete ads: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM promo.highlight_sections WHERE slug = 'test-curated'`); err != nil {
+			return fmt.Errorf("delete highlight_sections: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete org: %w", err)
+		}
 
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Promo Test Org"}') ON CONFLICT DO NOTHING`, testOrgID)
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة العروض","en":"Promo Test Org"}'::jsonb)
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testOrgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
 		return nil
 	})
 	if err != nil {

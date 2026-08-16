@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -69,18 +70,47 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_favorites WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_addresses WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_mfa WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_security WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.members WHERE organization_id = $1`, testOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE email LIKE 'test-identity-%@example.com'`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE id = $1`, testProductID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.user_favorites WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`); err != nil {
+			return fmt.Errorf("delete user_favorites: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.user_addresses WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`); err != nil {
+			return fmt.Errorf("delete user_addresses: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.user_mfa WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`); err != nil {
+			return fmt.Errorf("delete user_mfa: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.user_security WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`); err != nil {
+			return fmt.Errorf("delete user_security: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.members WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete org.members: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE email LIKE 'test-identity-%@example.com'`); err != nil {
+			return fmt.Errorf("delete identity.users: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.products WHERE id = $1`, testProductID); err != nil {
+			return fmt.Errorf("delete catalog.products: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete org.organizations: %w", err)
+		}
+
+		// user_addresses.city_id is a real foreign key, so the address subtest
+		// needs a city (and the country it hangs off) to exist.
+		if _, err := tx.Exec(txCtx, `INSERT INTO platform_admin.countries (id, code, name, phone_code) VALUES (1, 'EG', '{"ar":"مصر","en":"Egypt"}'::jsonb, '+20') ON CONFLICT (id) DO NOTHING`); err != nil {
+			return fmt.Errorf("insert country: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO platform_admin.cities (id, country_id, name) VALUES (1, 1, '{"ar":"القاهرة","en":"Cairo"}'::jsonb) ON CONFLICT (id) DO NOTHING`); err != nil {
+			return fmt.Errorf("insert city: %w", err)
+		}
 
 		// Create org and product for membership and favorite checks
-		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Identity Test Org"}') ON CONFLICT DO NOTHING`, testOrgID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, name, slug, dosage_form) VALUES ($1, $2, '{"en":"Identity Test Prod"}', 'identity-test-prod', 'tablet') ON CONFLICT DO NOTHING`, testProductID, testOrgID)
+		if _, err := tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة الفحص","en":"Identity Test Org"}'::jsonb) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testOrgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, name, dosage_form) VALUES ($1, $2, '{"ar":"دواء الفحص","en":"Identity Test Prod"}'::jsonb, 'tablet') ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testProductID, testOrgID); err != nil {
+			return fmt.Errorf("insert product: %w", err)
+		}
 		return nil
 	})
 	if err != nil {
@@ -162,11 +192,15 @@ func TestIdentityRepository(t *testing.T) {
 			t.Errorf("got %d login attempts, want 2", gotSec.LoginAttempts)
 		}
 
+		mfaConfirmedAt := time.Now().UTC()
 		mfa := &identity.UserMFA{
 			UserID:        userID,
 			TOTPSecret:    []byte("SECRETKEY"),
 			RecoveryCodes: []byte(`["REC1","REC2"]`),
 			Enabled:       true,
+			// mfa_enabled_requires_secret refuses an enabled record with no
+			// confirmation, which is correct: MFA is not on until it is proven.
+			ConfirmedAt: &mfaConfirmedAt,
 		}
 		if err := repo.UpsertMFA(ctx, mfa); err != nil {
 			t.Fatalf("failed to upsert mfa: %v", err)

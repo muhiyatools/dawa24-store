@@ -15,7 +15,11 @@ func (r *Repository) UpdateOrganization(ctx context.Context, o *org.Organization
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE org.organizations
-			SET legal_name = $1, trade_name = $2, tax_number = $3, commercial_register = $4,
+			SET legal_name = $1,
+			    -- Same NOT NULL guard as CreateOrganization: an empty i18n.Text
+			    -- marshals to NULL, and the column takes the legal name instead.
+			    trade_name = COALESCE($2, jsonb_build_object('ar', $1::text, 'en', $1::text)),
+			    tax_number = $3, commercial_register = $4,
 			    credit_limit = $5, payment_terms_days = $6, updated_at = now()
 			WHERE id = $7;
 		`
@@ -52,7 +56,10 @@ func (r *Repository) UpdateBranch(ctx context.Context, b *org.Branch) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE org.branches
-			SET name = $1, code = $2, phone = $3, address = $4,
+			SET name = COALESCE($1, '{"ar":"الفرع","en":"Branch"}'::jsonb),
+			    -- code is uniquely indexed, so an empty one must stay NULL:
+			    -- NULLs do not collide but empty strings do.
+			    code = NULLIF($2, ''), phone = $3, address = $4,
 			    city_id = $5, is_main = $6, updated_at = now()
 			WHERE id = $7 AND organization_id = $8;
 		`

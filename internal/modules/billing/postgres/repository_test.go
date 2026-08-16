@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -64,19 +65,41 @@ func resetBillingFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM billing.user_payment_methods WHERE user_id = $1`, testBillingUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM billing.wallet_transactions WHERE wallet_id IN (SELECT id FROM billing.wallets WHERE user_id = $1)`, testBillingUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM billing.wallets WHERE user_id = $1`, testBillingUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM billing.payments WHERE user_id = $1`, testBillingUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM billing.subscriptions WHERE user_id = $1`, testBillingUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM billing.invoices WHERE organization_id = $1`, testBillingOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testBillingOrgID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testBillingUserID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM billing.user_payment_methods WHERE user_id = $1`, testBillingUserID); err != nil {
+			return fmt.Errorf("delete user_payment_methods: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM billing.wallet_transactions WHERE wallet_id IN (SELECT id FROM billing.wallets WHERE user_id = $1)`, testBillingUserID); err != nil {
+			return fmt.Errorf("delete wallet_transactions: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM billing.wallets WHERE user_id = $1`, testBillingUserID); err != nil {
+			return fmt.Errorf("delete wallets: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM billing.payments WHERE user_id = $1`, testBillingUserID); err != nil {
+			return fmt.Errorf("delete payments: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM billing.subscriptions WHERE user_id = $1`, testBillingUserID); err != nil {
+			return fmt.Errorf("delete subscriptions: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM billing.invoices WHERE organization_id = $1`, testBillingOrgID); err != nil {
+			return fmt.Errorf("delete invoices: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testBillingOrgID); err != nil {
+			return fmt.Errorf("delete organizations: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testBillingUserID); err != nil {
+			return fmt.Errorf("delete users: %w", err)
+		}
 
-		_, _ = tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name)
-			VALUES ($1, 'user88490@example.com', 'x', '{"en":"Billing User"}') ON CONFLICT DO NOTHING`, testBillingUserID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name)
-			VALUES ($1, '{"en":"Billing Org"}') ON CONFLICT DO NOTHING`, testBillingOrgID)
+		if _, err := tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name)
+			VALUES ($1, 'user88490@example.com', 'x', '{"ar":"مستخدم","en":"Billing User"}'::jsonb)
+			ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testBillingUserID); err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO org.organizations (id, name)
+			VALUES ($1, '{"ar":"مؤسسة الفواتير","en":"Billing Org"}'::jsonb)
+			ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testBillingOrgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
 		return nil
 	})
 	if err != nil {

@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -69,39 +70,87 @@ func resetCommerceFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.order_ratings WHERE customer_id = $1`, testCommerceUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.order_status_history WHERE changed_by_user_id = $1`, testCommerceUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.order_lines WHERE organization_id = $1`, testCommerceVendorID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.order_shipments WHERE vendor_org_id = $1`, testCommerceVendorID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.orders WHERE customer_user_id = $1`, testCommerceUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.wishlists WHERE user_id = $1`, testCommerceUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.quote_requests WHERE organization_id IN ($1, $2)`, testCommerceVendorID, testCommerceCustID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.cart_items WHERE cart_id IN (SELECT id FROM commerce.carts WHERE user_id = $1)`, testCommerceUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM commerce.carts WHERE user_id = $1`, testCommerceUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE id = $1`, testCommerceVarID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE id = $1`, testCommerceProdID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id = $1`, testCommerceCatID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id = $1`, testCommerceBrandID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id IN ($1, $2)`, testCommerceVendorID, testCommerceCustID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testCommerceUserID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.order_status_history WHERE changed_by_user_id = $1`, testCommerceUserID); err != nil {
+			return fmt.Errorf("delete order_status_history: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.order_lines WHERE organization_id = $1`, testCommerceVendorID); err != nil {
+			return fmt.Errorf("delete order_lines: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.order_shipments WHERE organization_id = $1`, testCommerceVendorID); err != nil {
+			return fmt.Errorf("delete order_shipments: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.orders WHERE customer_id = $1`, testCommerceUserID); err != nil {
+			return fmt.Errorf("delete orders: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.wishlists WHERE user_id = $1`, testCommerceUserID); err != nil {
+			return fmt.Errorf("delete wishlists: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.quote_requests WHERE organization_id IN ($1, $2)`, testCommerceVendorID, testCommerceCustID); err != nil {
+			return fmt.Errorf("delete quote_requests: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.cart_items WHERE cart_id IN (SELECT id FROM commerce.carts WHERE user_id = $1)`, testCommerceUserID); err != nil {
+			return fmt.Errorf("delete cart_items: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM commerce.carts WHERE user_id = $1`, testCommerceUserID); err != nil {
+			return fmt.Errorf("delete carts: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE id = $1`, testCommerceVarID); err != nil {
+			return fmt.Errorf("delete product_variants: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.products WHERE id = $1`, testCommerceProdID); err != nil {
+			return fmt.Errorf("delete products: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id = $1`, testCommerceCatID); err != nil {
+			return fmt.Errorf("delete categories: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id = $1`, testCommerceBrandID); err != nil {
+			return fmt.Errorf("delete brands: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id IN ($1, $2)`, testCommerceVendorID, testCommerceCustID); err != nil {
+			return fmt.Errorf("delete organizations: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testCommerceUserID); err != nil {
+			return fmt.Errorf("delete users: %w", err)
+		}
 
 		// Setup prerequisite user, orgs, and product
-		_, _ = tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name)
-			VALUES ($1, 'commuser88390@example.com', 'x', '{"en":"Commerce User"}') ON CONFLICT DO NOTHING`, testCommerceUserID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name)
-			VALUES ($1, '{"en":"Commerce Vendor Org"}') ON CONFLICT DO NOTHING`, testCommerceVendorID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name)
-			VALUES ($1, '{"en":"Commerce Cust Org"}') ON CONFLICT DO NOTHING`, testCommerceCustID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.categories (id, name, slug)
-			VALUES ($1, '{"en":"Comm Cat"}', 'comm-cat') ON CONFLICT DO NOTHING`, testCommerceCatID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.brands (id, name, slug)
-			VALUES ($1, '{"en":"Comm Brand"}', 'comm-brand') ON CONFLICT DO NOTHING`, testCommerceBrandID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, category_id, brand_id, name, slug, dosage_form)
-			VALUES ($1, $2, $3, $4, '{"en":"Comm Prod"}', 'comm-prod', 'tablet') ON CONFLICT DO NOTHING`,
-			testCommerceProdID, testCommerceVendorID, testCommerceCatID, testCommerceBrandID)
-		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.product_variants (id, organization_id, product_id, sku, price)
-			VALUES ($1, $2, $3, 'COMM-SKU-1', 100.00) ON CONFLICT DO NOTHING`,
-			testCommerceVarID, testCommerceVendorID, testCommerceProdID)
+		if _, err := tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name)
+			VALUES ($1, 'commuser88390@example.com', 'x', '{"ar":"مستخدم","en":"Commerce User"}'::jsonb)
+			ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testCommerceUserID); err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO org.organizations (id, name)
+			VALUES ($1, '{"ar":"بائع","en":"Commerce Vendor Org"}'::jsonb)
+			ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testCommerceVendorID); err != nil {
+			return fmt.Errorf("insert vendor org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO org.organizations (id, name)
+			VALUES ($1, '{"ar":"عميل","en":"Commerce Cust Org"}'::jsonb)
+			ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testCommerceCustID); err != nil {
+			return fmt.Errorf("insert cust org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.categories (id, name)
+			VALUES ($1, '{"ar":"قسم","en":"Comm Cat"}'::jsonb)
+			ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testCommerceCatID); err != nil {
+			return fmt.Errorf("insert category: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.brands (id, name)
+			VALUES ($1, '{"ar":"ماركة","en":"Comm Brand"}'::jsonb)
+			ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testCommerceBrandID); err != nil {
+			return fmt.Errorf("insert brand: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, category_id, brand_id, name, dosage_form)
+			VALUES ($1, $2, $3, $4, '{"ar":"منتج","en":"Comm Prod"}'::jsonb, 'tablet')
+			ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`,
+			testCommerceProdID, testCommerceVendorID, testCommerceCatID, testCommerceBrandID); err != nil {
+			return fmt.Errorf("insert product: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `INSERT INTO catalog.product_variants (id, organization_id, product_id, name, sku, price)
+			VALUES ($1, $2, $3, '{"ar":"عبوة","en":"Commerce Variant"}'::jsonb, 'COMM-SKU-1', 100.00)
+			ON CONFLICT (id) DO UPDATE SET price = EXCLUDED.price`,
+			testCommerceVarID, testCommerceVendorID, testCommerceProdID); err != nil {
+			return fmt.Errorf("insert variant: %w", err)
+		}
 		return nil
 	})
 	if err != nil {

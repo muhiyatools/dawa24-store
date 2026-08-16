@@ -29,7 +29,12 @@ func (r *Repository) CreateUser(ctx context.Context, u *identity.User) error {
 			INSERT INTO identity.users (
 				email, password_hash, name, role, status, language, timezone, phone
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8
+				-- name is NOT NULL DEFAULT '{"ar":"","en":""}', so the schema already
+				-- treats an empty name as acceptable. An empty i18n.Text marshals to
+				-- NULL, though, which violates the constraint instead of taking the
+				-- default. Registration validates the name; this keeps any other
+				-- caller from turning a missing one into a 500.
+				$1, $2, COALESCE($3, '{"ar":"","en":""}'::jsonb), $4, $5, $6, $7, $8
 			) RETURNING id, public_id, created_at, updated_at;
 		`
 		err := tx.QueryRow(txCtx, query,
@@ -122,7 +127,10 @@ func (r *Repository) UpdateUser(ctx context.Context, u *identity.User) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE identity.users
-			SET email = $2, password_hash = $3, name = $4, role = $5, status = $6,
+			SET email = $2, password_hash = $3,
+			    -- Same NOT NULL guard as CreateUser: an empty i18n.Text marshals to
+			    -- NULL, which the column rejects rather than defaulting.
+			    name = COALESCE($4, '{"ar":"","en":""}'::jsonb), role = $5, status = $6,
 			    language = $7, timezone = $8, phone = $9, email_verified_at = $10,
 			    phone_verified_at = $11, updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;

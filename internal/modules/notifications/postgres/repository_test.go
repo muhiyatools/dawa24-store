@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -68,21 +69,36 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM notifications.logs WHERE user_id = $1`, testUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM notifications.templates WHERE slug = 'test_template'`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID)
-		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM notifications.logs WHERE user_id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete logs: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM notifications.templates WHERE slug = 'test_template'`); err != nil {
+			return fmt.Errorf("delete templates: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID); err != nil {
+			return fmt.Errorf("delete users: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete organizations: %w", err)
+		}
 
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Notifications Test Org"}') ON CONFLICT DO NOTHING`, testOrgID)
-		_, _ = tx.Exec(txCtx,
-			`INSERT INTO identity.users (id, public_id, email, password_hash, name, role)
-			 VALUES ($1, 'usr_notif_test_1', 'notif-test@example.com', 'hash', '{"en":"Notif User"}', 'customer')
-			 ON CONFLICT DO NOTHING`, testUserID)
-		_, _ = tx.Exec(txCtx,
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة الإشعارات","en":"Notifications Test Org"}'::jsonb)
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testOrgID); err != nil {
+			return fmt.Errorf("insert org: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
+			`INSERT INTO identity.users (id, email, password_hash, name, role)
+			 VALUES ($1, 'notif-test@example.com', 'hash', '{"ar":"مستخدم","en":"Notif User"}'::jsonb, 'customer')
+			 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testUserID); err != nil {
+			return fmt.Errorf("insert user: %w", err)
+		}
+		if _, err := tx.Exec(txCtx,
 			`INSERT INTO notifications.templates (slug, channel, title, body, is_active)
-			 VALUES ('test_template', 'in_app', '{"en":"Welcome"}', '{"en":"Welcome to Dawa24"}', true)
-			 ON CONFLICT DO NOTHING`)
+			 VALUES ('test_template', 'in_app', '{"ar":"مرحبا","en":"Welcome"}'::jsonb, '{"ar":"مرحبا بكم","en":"Welcome to Dawa24"}'::jsonb, true)
+			 ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title`); err != nil {
+			return fmt.Errorf("insert template: %w", err)
+		}
 		return nil
 	})
 	if err != nil {

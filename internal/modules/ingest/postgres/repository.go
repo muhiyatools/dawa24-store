@@ -134,11 +134,9 @@ func (r *Repository) UpdateImportSessionProgress(
 			SET processed_rows = $2, matched_rows = $3, status = $4, error_message = $5, updated_at = now()
 			WHERE id = $1;
 		`
-		var errPtr *string
-		if errMsg != "" {
-			errPtr = &errMsg
-		}
-		_, err := tx.Exec(txCtx, query, id, processed, matched, string(status), errPtr)
+		// error_message is NOT NULL DEFAULT '' as of migration 033; an empty
+		// message is stored as '' rather than inverted to NULL.
+		_, err := tx.Exec(txCtx, query, id, processed, matched, string(status), errMsg)
 		return err
 	})
 }

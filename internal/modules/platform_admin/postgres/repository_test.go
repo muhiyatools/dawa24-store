@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -63,8 +64,12 @@ func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM platform_admin.contact_messages WHERE email = 'contact-test@example.com'`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM platform_admin.system_settings WHERE key = 'test_maintenance_mode'`)
+		if _, err := tx.Exec(txCtx, `DELETE FROM platform_admin.contact_messages WHERE email = 'contact-test@example.com'`); err != nil {
+			return fmt.Errorf("delete contact_messages: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM platform_admin.system_settings WHERE key = 'test_maintenance_mode'`); err != nil {
+			return fmt.Errorf("delete system_settings: %w", err)
+		}
 		return nil
 	})
 	if err != nil {
@@ -141,7 +146,7 @@ func TestPlatformAdminRepository(t *testing.T) {
 			Phone:   "+201000000000",
 			Subject: "Inquiry",
 			Message: "Need help with onboarding",
-			Status:  "pending",
+			Status:  "unread",
 		}
 
 		if err := repo.CreateContactMessage(ctx, msg); err != nil {
@@ -151,7 +156,7 @@ func TestPlatformAdminRepository(t *testing.T) {
 			t.Fatalf("expected positive message ID, got %d", msg.ID)
 		}
 
-		list, err := repo.ListContactMessages(ctx, "pending", 10, 0)
+		list, err := repo.ListContactMessages(ctx, "unread", 10, 0)
 		if err != nil {
 			t.Fatalf("ListContactMessages failed: %v", err)
 		}
