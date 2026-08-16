@@ -23,12 +23,18 @@ func main() {
 	provisionDSN := flag.String("provision", "", "create the least-privilege app role at this DSN")
 	rehashDSN := flag.String("rehash", "", "report applied migrations whose recorded hash differs only by line endings")
 	nullscanDSN := flag.String("nullscan", "", "report nullable text columns selected into non-pointer scans")
+	auditDSN := flag.String("audit", "", "print the most recent platform.audit_log rows")
 	rehashApply := flag.Bool("rehash-apply", false, "write the corrected hashes")
 	roleName := flag.String("role", "dawa24_app", "application role name")
 	rolePass := flag.String("password", "", "application role password")
 	target := flag.String("db", "dawa24-store", "target database name")
 	admin := flag.String("admin", "", "admin connection string (to the postgres database)")
 	flag.Parse()
+
+	if *auditDSN != "" {
+		auditPeek(*auditDSN)
+		return
+	}
 
 	if *nullscanDSN != "" {
 		nullscan(*nullscanDSN)

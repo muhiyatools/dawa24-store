@@ -173,3 +173,44 @@ func nullscan(dsn string) {
 		fmt.Printf("  %-44s %s\n", h.table+"."+h.col, h.file)
 	}
 }
+
+// auditPeek prints the most recent audit rows, to confirm that admin mutations
+// are recording what they claim to.
+func auditPeek(dsn string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	conn, err := pgx.Connect(ctx, dsn)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "connect: %v\n", err)
+		os.Exit(1)
+	}
+	defer conn.Close(ctx)
+
+	rows, err := conn.Query(ctx, `
+		SELECT action, entity_type, entity_id,
+		       COALESCE(before::text, '-'), COALESCE(after::text, '-'), created_at
+		FROM platform.audit_log
+		ORDER BY created_at DESC
+		LIMIT 10`)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "query audit: %v\n", err)
+		os.Exit(1)
+	}
+	defer rows.Close()
+
+	n := 0
+	for rows.Next() {
+		var action, entity, id, before, after string
+		var at time.Time
+		if err := rows.Scan(&action, &entity, &id, &before, &after, &at); err != nil {
+			break
+		}
+		fmt.Printf("  %s  %-34s %s#%s\n      before=%s after=%s\n",
+			at.Format("15:04:05"), action, entity, id, before, after)
+		n++
+	}
+	if n == 0 {
+		fmt.Println("no audit rows")
+	}
+}
