@@ -1,8 +1,15 @@
 package components
 
+import "strconv"
+
 type Tab struct {
 	ID    string
 	Label string
+	// URL makes the tab a link, which is what a tab that changes the page
+	// should be: it stays shareable, bookmarkable and usable with the back
+	// button. Leave empty for a client-side tab.
+	URL   string
+	Count int
 }
 
 type TabsProps struct {
@@ -12,28 +19,51 @@ type TabsProps struct {
 }
 
 templ Tabs(props TabsProps) {
-	<div class="tabs-container w-full">
-		<div class="tab-list flex border-b border-gray-200" role="tablist">
+	<div>
+		<div class="tabs" role="tablist">
 			for _, tab := range props.Tabs {
-				<button 
-					role="tab"
-					aria-selected={ func() string { if tab.ID == props.ActiveID { return "true" }; return "false" }() }
-					class={ "px-4 py-2 text-sm font-medium border-b-2 transition-colors", 
-						templ.KV("border-blue-500 text-blue-600", tab.ID == props.ActiveID),
-						templ.KV("border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300", tab.ID != props.ActiveID) }>
-					{ tab.Label }
-				</button>
+				if tab.URL != "" {
+					<a
+						href={ templ.SafeURL(tab.URL) }
+						role="tab"
+						class={ "tab", templ.KV("active", tab.ID == props.ActiveID) }
+						if tab.ID == props.ActiveID {
+							aria-selected="true"
+						} else {
+							aria-selected="false"
+						}
+					>
+						{ tab.Label }
+						if tab.Count > 0 {
+							@Badge(BadgeProps{Label: strconv.Itoa(tab.Count), Tone: "slate"})
+						}
+					</a>
+				} else {
+					<button
+						type="button"
+						role="tab"
+						class={ "tab", templ.KV("active", tab.ID == props.ActiveID) }
+						if tab.ID == props.ActiveID {
+							aria-selected="true"
+						} else {
+							aria-selected="false"
+						}
+					>
+						{ tab.Label }
+					</button>
+				}
 			}
 		</div>
-		<div class="tab-panels p-4">
-			if props.State == "loading" {
-				@SkeletonText(4)
-			} else if props.State == "error" {
-				@EmptyState(EmptyStateProps{Title: "Error", Message: "Failed to load tab"})
-			} else if props.State == "empty" {
-				@EmptyState(EmptyStateProps{Title: "No Content", Message: "This tab is empty"})
-			} else {
-				{ children... }
+		<div role="tabpanel">
+			switch props.State {
+				case "loading":
+					@SkeletonText(4)
+				case "error":
+					@ErrorState(ErrorStateProps{})
+				case "empty":
+					@EmptyState(EmptyStateProps{Title: "لا توجد بيانات", Message: "لا يوجد محتوى في هذا القسم بعد."})
+				default:
+					{ children... }
 			}
 		</div>
 	</div>

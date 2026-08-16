@@ -4,41 +4,82 @@ type Column struct {
 	Key      string
 	Label    string
 	Sortable bool
+	// Numeric right-aligns and applies tabular figures, so a column of money
+	// or quantities lines up on the decimal.
+	Numeric bool
 }
 
 type DataTableProps struct {
 	Columns []Column
-	State   string // "loading", "empty", "error", "ready", "partial"
-	Error   string
+	// State is one of loading, empty, error, ready, partial.
+	State string
+	Error string
+	// EmptyTitle and EmptyMessage let each screen say something specific
+	// instead of a generic "no data".
+	EmptyTitle   string
+	EmptyMessage string
+	// ShowActions appends an actions column header.
+	ShowActions bool
+	// SortURL is the base URL for sortable headers; the column key is appended
+	// as ?sort=<key>.
+	SortURL string
 }
 
 templ DataTable(props DataTableProps) {
-	<div class="table-container overflow-auto">
-		if props.State == "loading" {
-			@SkeletonTable()
-		} else if props.State == "error" {
-			@EmptyState(EmptyStateProps{Title: "Error", Message: props.Error, ActionLabel: "Retry"})
-		} else if props.State == "empty" {
-			@EmptyState(EmptyStateProps{Title: "No Data", Message: "No records found.", ActionLabel: "Add New"})
-		} else {
-			<table class="table min-w-full">
-				<thead class="sticky top-0 bg-white shadow-sm">
-					<tr>
-						for _, col := range props.Columns {
-							<th class="px-6 py-3 border-b text-left text-xs font-medium text-gray-500 uppercase tracking-wider" aria-sort={ func() string { if col.Sortable { return "none" }; return "" }() }>
-								{ col.Label }
-							</th>
-						}
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{ children... }
-				</tbody>
-			</table>
-			if props.State == "partial" {
-				<div class="p-4 text-center text-sm text-gray-500">Loading more...</div>
-			}
-		}
-	</div>
+	switch props.State {
+		case "loading":
+			@SkeletonTable(6)
+		case "error":
+			@ErrorState(ErrorStateProps{Message: props.Error})
+		case "empty":
+			@EmptyState(EmptyStateProps{
+				Title:   defaultStr(props.EmptyTitle, "لا توجد سجلات"),
+				Message: defaultStr(props.EmptyMessage, "لم يتم العثور على أي بيانات لعرضها حتى الآن."),
+			})
+		default:
+			<div class="table-container">
+				<table class="data-table">
+					<thead>
+						<tr>
+							for _, col := range props.Columns {
+								<th
+									if col.Numeric {
+										class="tabular-nums"
+										style="text-align:end;"
+									}
+								>
+									if col.Sortable && props.SortURL != "" {
+										<a href={ templ.SafeURL(props.SortURL + "?sort=" + col.Key) } style="color:inherit; display:inline-flex; align-items:center; gap:0.25rem;">
+											{ col.Label }
+											<span aria-hidden="true" style="opacity:0.5;">↕</span>
+										</a>
+									} else {
+										{ col.Label }
+									}
+								</th>
+							}
+							if props.ShowActions {
+								<th style="text-align:end;">إجراءات</th>
+							}
+						</tr>
+					</thead>
+					<tbody>
+						{ children... }
+					</tbody>
+				</table>
+				if props.State == "partial" {
+					<div class="table-empty" style="border-top:1px solid var(--neutral-100);">
+						@Spinner("")
+						<span style="margin-inline-start:0.5rem;">جارٍ تحميل المزيد…</span>
+					</div>
+				}
+			</div>
+	}
+}
+
+func defaultStr(v, fallback string) string {
+	if v == "" {
+		return fallback
+	}
+	return v
 }

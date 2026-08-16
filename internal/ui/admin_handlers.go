@@ -11,25 +11,36 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	// Every figure here used to be len() of a page capped at 100 rows, so the
+	// dashboard silently stopped counting at 100 and reported "100 users" to a
+	// platform with a thousand. Totals come from COUNT queries.
 	stats := pages.AdminDashboardStats{}
 
 	if h.idSvc != nil {
-		if users, err := h.idSvc.AdminListUsers(ctx, "", ""); err == nil {
-			stats.TotalUsers = len(users)
+		if n, err := h.idSvc.AdminCountUsers(ctx); err != nil {
+			h.log.ErrorContext(ctx, "dashboard: count users", "error", err)
+		} else {
+			stats.TotalUsers = n
 		}
 	}
 	if h.orgSvc != nil {
-		if orgs, err := h.orgSvc.ListOrganizations(ctx, nil, nil, 100, 0); err == nil {
-			stats.TotalOrganizations = len(orgs)
+		if n, err := h.orgSvc.CountOrganizations(ctx, nil, nil); err != nil {
+			h.log.ErrorContext(ctx, "dashboard: count organizations", "error", err)
+		} else {
+			stats.TotalOrganizations = n
 		}
 		pending := org.StatusPending
-		if pendingOrgs, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 100, 0); err == nil {
-			stats.PendingApprovals = len(pendingOrgs)
+		if n, err := h.orgSvc.CountOrganizations(ctx, nil, &pending); err != nil {
+			h.log.ErrorContext(ctx, "dashboard: count pending organizations", "error", err)
+		} else {
+			stats.PendingApprovals = n
 		}
 	}
 	if h.commSvc != nil {
-		if orders, err := h.commSvc.ListCustomerOrders(ctx, 0, 100, 0); err == nil {
-			stats.TotalOrders = len(orders)
+		if n, err := h.commSvc.CountOrders(ctx); err != nil {
+			h.log.ErrorContext(ctx, "dashboard: count orders", "error", err)
+		} else {
+			stats.TotalOrders = n
 		}
 	}
 
@@ -95,4 +106,3 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 	h.log.InfoContext(ctx, "admin updated platform settings", "support_email", r.PostFormValue("support_email"))
 	http.Redirect(w, r, "/admin/settings?saved=true", http.StatusSeeOther)
 }
-

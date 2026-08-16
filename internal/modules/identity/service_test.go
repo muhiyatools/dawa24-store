@@ -313,3 +313,5 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 		t.Fatalf("RemoveFavorite failed: %v", err)
 	}
 }
+
+func (m *mockRepo) AdminCountUsers(_ context.Context) (int, error) { return 0, nil }

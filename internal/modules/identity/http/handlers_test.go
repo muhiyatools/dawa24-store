@@ -383,3 +383,10 @@ func TestIdentityHandler_HappyPaths(t *testing.T) {
 		})
 	}
 }
+
+func (r stubRepo) AdminCountUsers(_ context.Context) (int, error) {
+	r.fail("AdminCountUsers")
+	return 0, nil
+}
+
+func (happyRepo) AdminCountUsers(_ context.Context) (int, error) { return 3, nil }

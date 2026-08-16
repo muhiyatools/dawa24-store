@@ -290,3 +290,7 @@ func TestOrgLifecycleAndBranches(t *testing.T) {
 		t.Fatalf("DeleteOrganization failed: %v", err)
 	}
 }
+
+func (m *mockOrgRepo) CountOrganizations(_ context.Context, _ *OrganizationType, _ *OrganizationStatus) (int, error) {
+	return len(m.orgs), nil
+}

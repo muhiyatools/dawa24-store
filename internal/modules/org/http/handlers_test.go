@@ -380,3 +380,12 @@ func TestOrgHandler_HappyPaths(t *testing.T) {
 		})
 	}
 }
+
+func (r stubRepo) CountOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus) (int, error) {
+	r.fail("CountOrganizations")
+	return 0, nil
+}
+
+func (happyRepo) CountOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus) (int, error) {
+	return 2, nil
+}

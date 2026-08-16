@@ -3,6 +3,7 @@ package ui
 import (
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -111,6 +112,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/checkout", h.CheckoutSubmit)
 	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
 	r.Post("/vendor/products", h.VendorProductSaveSubmit)
+	r.Delete("/vendor/products/{id}", h.VendorProductDeleteSubmit)
 	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
 }
@@ -184,6 +186,28 @@ func statusForError(err error) int {
 	default:
 		return http.StatusInternalServerError
 	}
+}
+
+// redirectWithNotice sends the user on with a message to show when they land.
+//
+// Form posts here redirect after handling, which is correct — it stops a
+// refresh from resubmitting. But it also throws away everything the handler
+// learned, which is why a failed save was indistinguishable from a successful
+// one. The outcome travels in the query string and the layout renders it as a
+// toast on arrival.
+func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, path, kind, message string) {
+	q := url.Values{}
+	q.Set("notice", kind)
+	q.Set("msg", message)
+	http.Redirect(w, r, path+"?"+q.Encode(), http.StatusSeeOther)
+}
+
+// langOf is the language alone, for callers that do not need the direction.
+func langOf(r *http.Request) string {
+	if r.URL.Query().Get("lang") == "en" {
+		return "en"
+	}
+	return "ar"
 }
 
 func (h *UIHandler) pageLimit(r *http.Request) int {

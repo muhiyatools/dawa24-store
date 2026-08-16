@@ -186,4 +186,3 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/catalog", http.StatusSeeOther)
 }
-

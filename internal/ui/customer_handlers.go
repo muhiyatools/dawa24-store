@@ -322,4 +322,3 @@ func (h *UIHandler) MarkNotificationReadSubmit(w http.ResponseWriter, r *http.Re
 	}
 	http.Redirect(w, r, "/notifications", http.StatusSeeOther)
 }
-

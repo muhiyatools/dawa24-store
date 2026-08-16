@@ -300,4 +300,3 @@ func (h *Handler) DeletePaymentMethod(w http.ResponseWriter, r *http.Request) {
 
 	httpx.JSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
-

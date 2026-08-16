@@ -382,3 +382,36 @@ func (r *Repository) ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*org
 	})
 	return list, err
 }
+
+// CountOrganizations returns how many organizations match the filter.
+//
+// The admin dashboard previously derived this from len() of a page capped at
+// 100 rows, so every figure on it stopped counting at 100 and quietly
+// under-reported from the hundred-and-first organization onward. A count
+// belongs in SQL.
+func (r *Repository) CountOrganizations(
+	ctx context.Context,
+	orgType *org.OrganizationType,
+	status *org.OrganizationStatus,
+) (int, error) {
+	var total int
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT COUNT(*)
+			FROM org.organizations
+			WHERE ($1::text IS NULL OR type = $1)
+			  AND ($2::text IS NULL OR status = $2);
+		`
+		var typeStr, statusStr *string
+		if orgType != nil {
+			s := string(*orgType)
+			typeStr = &s
+		}
+		if status != nil {
+			s := string(*status)
+			statusStr = &s
+		}
+		return tx.QueryRow(txCtx, query, typeStr, statusStr).Scan(&total)
+	})
+	return total, err
+}

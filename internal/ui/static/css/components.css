@@ -1,0 +1,393 @@
+/* ==========================================================================
+   Dawa24 — Component Layer
+
+   Everything here backs a templ component in internal/ui/components/.
+
+   Those components were originally written in Tailwind utility classes
+   (bg-gray-200, animate-pulse, rounded-lg, p-4). Tailwind is not loaded on
+   this project and never has been — there is no CDN link in the layout and no
+   build step in the repository — so all of them rendered with no styling
+   whatsoever. That is why the modal, drawer, tabs, dropdown, toast and
+   skeleton components were wired into zero pages: they looked broken, so
+   nobody used them, and the component library sat unused next to pages that
+   hand-rolled their own markup.
+
+   These rules put the library on the same token set as the rest of the
+   application, so the components can be used where they were meant to be.
+
+   Everything is written logical-direction-first (inset-inline-start, not
+   left) because the primary language is Arabic and the shell is RTL.
+   ========================================================================== */
+
+/* Skeletons -------------------------------------------------------------- */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--neutral-100) 25%,
+    var(--neutral-200) 37%,
+    var(--neutral-100) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-sheen 1.4s ease infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes skeleton-sheen {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.skeleton-line { height: 0.85rem; margin-bottom: 0.6rem; }
+.skeleton-line:last-child { margin-bottom: 0; }
+.skeleton-title { height: 1.4rem; width: 45%; margin-bottom: 1rem; }
+.skeleton-block { height: 8rem; margin-bottom: 1rem; }
+.skeleton-avatar { width: 42px; height: 42px; border-radius: var(--radius-full); flex-shrink: 0; }
+
+.skeleton-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-xs);
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.25rem;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+/* A reader who asked for less motion gets a flat placeholder. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background: var(--neutral-100); }
+}
+
+/* Modal ------------------------------------------------------------------ */
+
+.modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-width: min(92vw, 560px);
+  width: 100%;
+  margin: auto;
+}
+
+.modal::backdrop {
+  background: rgb(15 23 42 / 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+.modal-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.modal-body { padding: 1.35rem; overflow-y: auto; flex: 1; }
+
+.modal-footer {
+  display: flex;
+  gap: 0.6rem;
+  padding: 1rem 1.35rem;
+  border-top: 1px solid var(--neutral-100);
+  background: var(--neutral-50);
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--neutral-500);
+  padding: 0.3rem;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+}
+.modal-close:hover { color: var(--neutral-800); background: var(--neutral-100); }
+
+.modal[open] { animation: modal-in 0.18s ease-out; }
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal[open] { animation: none; }
+}
+
+/* Toast ------------------------------------------------------------------ */
+
+.toast-stack {
+  position: fixed;
+  bottom: 1.25rem;
+  inset-inline-start: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  min-width: 280px;
+  max-width: 380px;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
+  font-size: 0.875rem;
+  animation: toast-in 0.2s ease-out;
+}
+
+.toast-success { border-color: #a7f3d0; background: #ecfdf5; color: #065f46; }
+.toast-error   { border-color: var(--danger-border); background: var(--danger-light); color: #991b1b; }
+.toast-info    { border-color: var(--info-border); background: var(--info-light); color: #075985; }
+.toast-title   { font-weight: 700; margin-bottom: 0.15rem; }
+.toast-close   { margin-inline-start: auto; border: none; background: transparent; cursor: pointer; color: inherit; opacity: 0.6; }
+.toast-close:hover { opacity: 1; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+}
+
+/* Drawer ----------------------------------------------------------------- */
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(15 23 42 / 0.45);
+  z-index: 54;
+}
+
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: min(92vw, 420px);
+  background: var(--bg-card);
+  border-inline-start: 1px solid var(--border-card);
+  box-shadow: var(--shadow-lg);
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+.drawer-title { font-size: 1.05rem; font-weight: 800; color: var(--neutral-900); margin: 0; }
+.drawer-body { padding: 1.35rem; overflow-y: auto; flex: 1; }
+
+/* Tabs ------------------------------------------------------------------- */
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--neutral-200);
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+}
+
+.tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--neutral-600);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.tab:hover { color: var(--neutral-900); }
+.tab.active { color: var(--primary-700); border-bottom-color: var(--primary-600); }
+
+/* Dropdown --------------------------------------------------------------- */
+
+.dropdown { position: relative; display: inline-block; }
+
+.dropdown-menu {
+  position: absolute;
+  inset-inline-start: 0;
+  top: calc(100% + 0.35rem);
+  min-width: 200px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 0.35rem;
+  z-index: 40;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--neutral-700);
+  cursor: pointer;
+  text-align: start;
+  text-decoration: none;
+}
+.dropdown-item:hover { background: var(--neutral-100); color: var(--neutral-900); }
+.dropdown-item.danger { color: var(--danger); }
+.dropdown-item.danger:hover { background: var(--danger-light); }
+.dropdown-divider { height: 1px; background: var(--neutral-100); margin: 0.35rem 0; }
+
+/* File dropzone & progress ----------------------------------------------- */
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2.5rem 1.5rem;
+  border: 2px dashed var(--neutral-300);
+  border-radius: var(--radius-xl);
+  background: var(--neutral-50);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.dropzone:hover { border-color: var(--primary-400); background: var(--primary-50); }
+.dropzone.is-dragging { border-color: var(--primary-600); background: var(--primary-100); }
+.dropzone-title { font-weight: 700; color: var(--neutral-800); }
+.dropzone-hint { font-size: 0.825rem; color: var(--neutral-500); }
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--neutral-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary-600);
+  border-radius: var(--radius-full);
+  transition: width 0.25s ease;
+}
+
+/* Avatar ----------------------------------------------------------------- */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--primary-100);
+  color: var(--primary-800);
+  font-weight: 700;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-sm { width: 30px; height: 30px; font-size: 0.75rem; }
+.avatar-md { width: 40px; height: 40px; font-size: 0.9rem; }
+.avatar-lg { width: 56px; height: 56px; font-size: 1.15rem; }
+
+/* Money ------------------------------------------------------------------ */
+
+.money {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--neutral-900);
+  white-space: nowrap;
+}
+.money-currency {
+  font-size: 0.78em;
+  font-weight: 600;
+  color: var(--neutral-500);
+  margin-inline-start: 0.2rem;
+}
+.money-negative { color: var(--danger); }
+.money-lg { font-size: 1.35rem; }
+
+/* Spinner & loading ------------------------------------------------------ */
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--neutral-300);
+  border-top-color: var(--primary-600);
+  border-radius: var(--radius-full);
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+.spinner-lg { width: 30px; height: 30px; border-width: 3px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s; }
+}
+
+/* Dims a region while HTMX is swapping it, so the reader can tell that the
+   content on screen is stale rather than final. */
+.htmx-request.swap-target { opacity: 0.45; transition: opacity 0.1s ease; }
+
+/* Data table helpers ----------------------------------------------------- */
+
+.table-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--neutral-500);
+  font-size: 0.9rem;
+}
+
+.table-actions { display: flex; gap: 0.4rem; align-items: center; }

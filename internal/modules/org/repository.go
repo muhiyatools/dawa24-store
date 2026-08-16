@@ -12,6 +12,7 @@ type Repository interface {
 	UpdateOrganization(ctx context.Context, o *Organization) error
 	DeleteOrganization(ctx context.Context, id int64) error
 	ListOrganizations(ctx context.Context, orgType *OrganizationType, status *OrganizationStatus, limit, offset int) ([]*Organization, error)
+	CountOrganizations(ctx context.Context, orgType *OrganizationType, status *OrganizationStatus) (int, error)
 
 	CreateBranch(ctx context.Context, b *Branch) error
 	GetBranchByID(ctx context.Context, id int64) (*Branch, error)

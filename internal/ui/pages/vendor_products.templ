@@ -12,17 +12,19 @@ templ VendorProducts(products []*catalog.Product, lang, dir string, isPartial bo
 		@VendorProductsTable(products)
 	} else {
 		@layouts.VendorShell("إدارة الأدوية والمنتجات | Products", "products", lang, dir) {
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
 				<div>
 					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">قائمة الأدوية المتاحة</h2>
 					<p style="font-size:0.875rem; color:var(--neutral-500);">إدارة الأسعار والتوافر والعبوات المعروضة للصيدليات</p>
 				</div>
-				<a href="/vendor/products/new" class="btn btn-primary">
-					@components.IconPlus("icon-xs")
-					<span>إضافة منتج جديد</span>
-				</a>
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					@components.LoadingIndicator("جارٍ التحديث…")
+					<a href="/vendor/products/new" class="btn btn-primary">
+						@components.IconPlus("icon-xs")
+						<span>إضافة منتج جديد</span>
+					</a>
+				</div>
 			</div>
-
 			<div id="vendor-products-content">
 				@VendorProductsTable(products)
 			</div>
@@ -38,7 +40,7 @@ templ VendorProductsTable(products []*catalog.Product) {
 			ActionLabel: "+ إضافة منتج جديد",
 		})
 	} else {
-		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
+		<div class="card" style="padding:0; overflow:visible; margin-bottom:0;">
 			<table class="data-table">
 				<thead>
 					<tr>
@@ -51,23 +53,46 @@ templ VendorProductsTable(products []*catalog.Product) {
 				</thead>
 				<tbody>
 					for _, p := range products {
-						<tr>
+						<tr id={ fmt.Sprintf("product-row-%d", p.ID) }>
 							<td style="font-weight:700; color:var(--neutral-900);">{ p.Name["ar"] }</td>
 							<td style="color:var(--neutral-600);">{ p.Name["en"] }</td>
 							<td>
 								<span class="badge badge-slate">{ p.DosageForm }</span>
 							</td>
 							<td>
-								<span class="badge badge-emerald">
-									@components.IconCheck("icon-xs")
-									<span>{ string(p.Status) }</span>
-								</span>
+								<!-- StatusBadge carries the Arabic wording and the tone. The
+								     status key used to be printed raw, so an Arabic-first
+								     interface showed "active" and "draft" to its readers. -->
+								@components.StatusBadge(string(p.Status))
 							</td>
 							<td style="text-align:end;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/products/%d", p.ID)) } class="btn btn-secondary btn-sm" style="font-weight:600;">
-									@components.IconFileText("icon-xs")
-									<span>تعديل الصنف</span>
-								</a>
+								<div class="table-actions" style="justify-content:flex-end;">
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/vendor/products/%d", p.ID)) }
+										class="btn btn-secondary btn-sm"
+										style="font-weight:600;"
+									>
+										@components.IconEdit("icon-xs")
+										<span>تعديل</span>
+									</a>
+									<!-- Deletion is one click from a list, so it goes through a
+									     confirmation. The dialog is rendered per row below. -->
+									@components.ModalTrigger(fmt.Sprintf("confirm-delete-%d", p.ID), "btn btn-danger btn-sm") {
+										@components.IconTrash("icon-xs")
+										<span>حذف</span>
+									}
+								</div>
+								@components.ConfirmModal(components.ConfirmModalProps{
+									ID:          fmt.Sprintf("confirm-delete-%d", p.ID),
+									Title:       "تأكيد حذف المنتج",
+									Message:     fmt.Sprintf("سيتم حذف «%s» من كتالوج شركتك. لا يمكن التراجع عن هذا الإجراء.", p.Name["ar"]),
+									ConfirmURL:  fmt.Sprintf("/vendor/products/%d", p.ID),
+									ConfirmVerb: "delete",
+									ConfirmText: "نعم، احذف المنتج",
+									CancelText:  "إلغاء",
+									Danger:      true,
+									Target:      "#vendor-products-content",
+								})
 							</td>
 						</tr>
 					}

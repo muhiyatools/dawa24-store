@@ -203,4 +203,3 @@ func (s *Service) DeletePaymentMethod(ctx context.Context, userID, id int64) err
 	}
 	return s.repo.DeletePaymentMethod(ctx, userID, id)
 }
-

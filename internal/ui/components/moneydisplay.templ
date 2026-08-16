@@ -1,21 +1,44 @@
 package components
 
-import "fmt"
+import "github.com/muhiya/dawa24-store/internal/shared/money"
 
+// MoneyDisplayProps renders a monetary amount.
+//
+// Amount is a money.Amount — int64 minor units — not a float64. The previous
+// version took a float64 and formatted it with %.2f, which is the one thing
+// this codebase does not do with money anywhere else: binary floating point
+// cannot represent 0.10 exactly, and a catalogue of prices summed through that
+// type drifts by cents. money.Amount is the project-wide representation and
+// the only thing that should reach a price on screen.
 type MoneyDisplayProps struct {
-	Amount float64
-	State  string
+	Amount   money.Amount
+	Currency string
+	State    string
+	// Large renders the figure at cart/checkout total size.
+	Large bool
 }
 
 templ MoneyDisplay(props MoneyDisplayProps) {
-	<span class="money-display inline-flex items-center gap-1">
-		if props.State == "loading" {
-			<div class="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
-		} else if props.State == "error" {
-			<span class="text-red-500 tabular-nums">---</span>
-		} else {
-			<span class="tabular-nums font-semibold text-gray-900">{ fmt.Sprintf("%.2f", props.Amount) }</span>
-			<span class="badge bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-xs">EGP</span>
+	<span style="display:inline-flex; align-items:baseline; gap:0.15rem;">
+		switch props.State {
+			case "loading":
+				<span class="skeleton" style="display:inline-block; height:1.1em; width:4.5rem;"></span>
+			case "error":
+				<span class="money money-negative" aria-label="تعذر تحميل السعر">—</span>
+			default:
+				<span
+					class={ "money", templ.KV("money-lg", props.Large),
+						templ.KV("money-negative", props.Amount.Minor() < 0) }
+				>
+					{ props.Amount.String() }
+				</span>
+				<span class="money-currency">
+					if props.Currency != "" {
+						{ props.Currency }
+					} else {
+						ج.م
+					}
+				</span>
 		}
 	</span>
 }

@@ -4,26 +4,52 @@ type DrawerProps struct {
 	ID    string
 	Title string
 	State string
-	Side  string // "left" or "right"
 }
 
+// Drawer slides in from the inline-end edge — the start side in an RTL layout
+// is where the navigation lives, so a panel belongs opposite it.
+//
+// The previous version positioned itself with translate-x-full and a "hidden"
+// class and had no open/close mechanism, so it was permanently invisible.
 templ Drawer(props DrawerProps) {
-	<div id={ props.ID } class="drawer fixed inset-0 z-50 flex pointer-events-none">
-		<div class="drawer-backdrop fixed inset-0 bg-black/50 pointer-events-auto transition-opacity hidden"></div>
-		<div class={ "drawer-panel pointer-events-auto bg-white w-80 h-full shadow-2xl transition-transform transform", templ.KV("translate-x-full ml-auto", props.Side == "right"), templ.KV("-translate-x-full", props.Side == "left") }>
-			<div class="p-4 border-b flex justify-between">
-				<h2 class="text-lg font-semibold">{ props.Title }</h2>
-				<button class="drawer-close">&times;</button>
+	<div id={ props.ID } x-data="{ open: false }" @open-drawer.window="if ($event.detail === $el.id) open = true" @keydown.escape.window="open = false">
+		<div class="drawer-overlay" x-show="open" x-cloak x-transition.opacity @click="open = false"></div>
+		<aside
+			class="drawer-panel"
+			x-show="open"
+			x-cloak
+			x-transition:enter-start="translate-end"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby={ props.ID + "-title" }
+		>
+			<div class="drawer-header">
+				<h2 class="drawer-title" id={ props.ID + "-title" }>{ props.Title }</h2>
+				<button type="button" class="modal-close" aria-label="إغلاق" @click="open = false">
+					@IconClose("icon-sm")
+				</button>
 			</div>
-			<div class="p-4 overflow-y-auto h-full">
-				if props.State == "loading" {
-					@SkeletonText(5)
-				} else if props.State == "error" {
-					@EmptyState(EmptyStateProps{Title: "Error", Message: "Could not load drawer content"})
-				} else {
-					{ children... }
+			<div class="drawer-body">
+				switch props.State {
+					case "loading":
+						@SkeletonText(5)
+					case "error":
+						@ErrorState(ErrorStateProps{})
+					default:
+						{ children... }
 				}
 			</div>
-		</div>
+		</aside>
 	</div>
+}
+
+// DrawerTrigger opens a drawer by id.
+templ DrawerTrigger(drawerID, class string) {
+	<button type="button" class={ class } onclick={ openDrawer(drawerID) }>
+		{ children... }
+	</button>
+}
+
+script openDrawer(id string) {
+	window.dispatchEvent(new CustomEvent("open-drawer", { detail: id }));
 }

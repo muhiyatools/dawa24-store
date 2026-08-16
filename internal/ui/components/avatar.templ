@@ -3,17 +3,28 @@ package components
 type AvatarProps struct {
 	ImageURL string
 	Initials string
+	Name     string
+	Size     string // "sm", "md" (default), "lg"
 	State    string
 }
 
 templ Avatar(props AvatarProps) {
-	<div class="avatar relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full">
-		if props.State == "loading" {
-			<div class="w-full h-full bg-gray-300 animate-pulse"></div>
-		} else if props.State == "error" || props.ImageURL == "" {
-			<span class="font-medium text-gray-600">{ props.Initials }</span>
-		} else {
-			<img src={ props.ImageURL } alt="Avatar" class="w-full h-full object-cover" />
+	<span
+		class={ "avatar",
+			templ.KV("avatar-sm", props.Size == "sm"),
+			templ.KV("avatar-lg", props.Size == "lg"),
+			templ.KV("avatar-md", props.Size != "sm" && props.Size != "lg") }
+		if props.Name != "" {
+			title={ props.Name }
 		}
-	</div>
+	>
+		switch {
+			case props.State == "loading":
+				<span class="skeleton" style="width:100%; height:100%; border-radius:inherit;"></span>
+			case props.ImageURL != "":
+				<img src={ props.ImageURL } alt={ props.Name } loading="lazy"/>
+			default:
+				<span>{ props.Initials }</span>
+		}
+	</span>
 }

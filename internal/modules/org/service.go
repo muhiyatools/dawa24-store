@@ -88,6 +88,16 @@ func (s *Service) GetOrganization(ctx context.Context, id int64) (*Organization,
 	return s.repo.GetOrganizationByID(ctx, id)
 }
 
+// CountOrganizations returns the number of organizations matching a filter,
+// for dashboards that need a total rather than a page.
+func (s *Service) CountOrganizations(
+	ctx context.Context,
+	orgType *OrganizationType,
+	status *OrganizationStatus,
+) (int, error) {
+	return s.repo.CountOrganizations(ctx, orgType, status)
+}
+
 // ListOrganizations lists filtered organizations.
 func (s *Service) ListOrganizations(
 	ctx context.Context,
