@@ -55,6 +55,7 @@ type TargetOrg struct {
 	TradeName          i18n.Text
 	TaxNumber          string
 	CommercialRegister string
+	Phone              string
 	Type               string
 	Status             string
 	CreditLimit        money.Amount
@@ -147,6 +148,7 @@ func (t *Transformer) TransformOrg(src *SourceOrg) *TargetOrg {
 		},
 		TaxNumber:          src.TaxNumber,
 		CommercialRegister: src.CommercialRegister,
+		Phone:              cleanPhone(src.Phone),
 		Type:               "supplier",
 		Status:             "approved",
 		CreditLimit:        money.Zero,

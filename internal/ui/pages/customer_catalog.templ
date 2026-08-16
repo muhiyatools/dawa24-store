@@ -1,25 +1,106 @@
 package pages
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
 
-templ CustomerCatalog() {
-	@layouts.CustomerShell("Catalog", "en", "ltr") {
-		<div class="catalog-grid">
-			<aside class="filters">
-				<h3>Categories</h3>
-				<ul><li>Antibiotics</li></ul>
-				<h3>Brands</h3>
-				<ul><li>PharmaCo</li></ul>
-			</aside>
-			<main>
-				<input type="search" placeholder="Search products..." />
-				<div class="grid">
-					<div class="card">
-						<h4>Product A</h4>
-						<p class="tabular-nums">150.00 EGP</p>
-						<button class="btn btn-primary">Add to Cart</button>
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Category, query string, lang, dir string, isPartial bool) {
+	if isPartial {
+		@CustomerCatalogList(products, lang)
+	} else {
+		@layouts.CustomerShell("كتالوج الأدوية والمستلزمات | Catalog", lang, dir) {
+			<div class="catalog-page-container" style="display:grid; grid-template-columns:260px 1fr; gap:2rem; margin-top:1.5rem;">
+				<aside class="catalog-filters" style="background:#fff; padding:1.25rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); height:fit-content;">
+					<h3 style="font-size:1.125rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem; border-bottom:1px solid var(--neutral-100); padding-bottom:0.5rem;">
+						الأقسام والتصنيفات
+					</h3>
+					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem;">
+						<li>
+							<a href="/catalog" class="filter-link active" style="color:var(--primary-700); font-weight:600; text-decoration:none; display:block; padding:0.25rem 0.5rem; border-radius:4px; background:var(--primary-50);">
+								جميع الأدوية
+							</a>
+						</li>
+						for _, cat := range categories {
+							<li>
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="filter-link" style="color:var(--neutral-700); text-decoration:none; display:block; padding:0.25rem 0.5rem; border-radius:4px;">
+									if cat.Name["ar"] != "" {
+										{ cat.Name["ar"] }
+									} else {
+										{ cat.Name["en"] }
+									}
+								</a>
+							</li>
+						}
+					</ul>
+				</aside>
+
+				<main class="catalog-content">
+					<div class="catalog-search-bar" style="margin-bottom:1.5rem; display:flex; gap:0.75rem;">
+						<input
+							type="search"
+							name="q"
+							value={ query }
+							placeholder="ابحث بالاسم التجاري، المادة الفعالة، أو الباركود..."
+							class="form-input"
+							style="flex:1; font-size:1rem; padding:0.75rem 1rem;"
+							hx-get="/catalog"
+							hx-trigger="keyup changed delay:300ms, search"
+							hx-target="#catalog-results"
+							hx-push-url="true"
+						/>
+					</div>
+
+					<div id="catalog-results">
+						@CustomerCatalogList(products, lang)
+					</div>
+				</main>
+			</div>
+		}
+	}
+}
+
+templ CustomerCatalogList(products []*catalog.Product, lang string) {
+	if len(products) == 0 {
+		@components.EmptyState(components.EmptyStateProps{
+			Title:       "لا توجد منتجات مطابقة",
+			Message:     "لم نعثر على أي أدوية أو مستلزمات تطابق معايير البحث الحالية.",
+			ActionLabel: "عرض كل المنتجات",
+		})
+	} else {
+		<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:1.25rem;">
+			for _, p := range products {
+				<div class="card product-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); background:#fff;">
+					<div>
+						<span style="font-size:0.75rem; color:var(--primary-700); font-weight:700; background:var(--primary-50); padding:0.2rem 0.5rem; border-radius:4px;">
+							{ p.DosageForm }
+						</span>
+						<h4 style="font-size:1.05rem; font-weight:700; margin-top:0.5rem; margin-bottom:0.25rem; color:var(--neutral-900);">
+							if p.Name["ar"] != "" {
+								{ p.Name["ar"] }
+							} else {
+								{ p.Name["en"] }
+							}
+						</h4>
+						<p style="font-size:0.825rem; color:var(--neutral-500); margin-bottom:0.75rem;">
+							{ p.Name["en"] }
+						</p>
+						if p.ManufacturingCompanies != "" {
+							<p style="font-size:0.8rem; color:var(--neutral-600);">
+								الشركة: { p.ManufacturingCompanies }
+							</p>
+						}
+					</div>
+
+					<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.5rem;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-secondary" style="text-align:center; font-size:0.875rem; width:100%;">
+							عرض التفاصيل والأسعار
+						</a>
 					</div>
 				</div>
-			</main>
+			}
 		</div>
 	}
 }

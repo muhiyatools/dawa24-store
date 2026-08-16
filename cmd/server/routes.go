@@ -90,10 +90,23 @@ func mountModuleRoutes(
 	catRepoUI := catalogPostgres.NewRepository(db)
 	orgRepoUI := orgPostgres.NewRepository(db)
 	ingRepoUI := ingestPostgres.NewRepository(db)
+	commRepoUI := commercePostgres.NewRepository(db)
+	invRepoUI := inventoryPostgres.NewRepository(db)
+	notifRepoUI := notificationsPostgres.NewRepository(db)
+	promoRepoUI := promoPostgres.NewRepository(db)
+	adminRepoUI := platformadminPostgres.NewRepository(db)
+
 	uiHandler := ui.NewUIHandler(
 		catalog.NewService(catRepoUI, log),
 		org.NewService(orgRepoUI, log),
 		ingest.NewService(ingRepoUI, log),
+		commerce.NewService(commRepoUI, log),
+		inventory.NewService(invRepoUI, log),
+		idSvc,
+		notifications.NewService(notifRepoUI, log),
+		promo.NewService(promoRepoUI, log),
+		platformadmin.NewService(adminRepoUI, log),
+		log,
 	)
 	uiHandler.RegisterPageRoutes(r)
 }

@@ -1,24 +1,98 @@
 package pages
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
 
-templ CustomerCheckout() {
-	@layouts.CustomerShell("Checkout", "en", "ltr") {
-		<div class="checkout">
-			<h2>Checkout</h2>
-			<div class="summary">
-				<h3>Order Summary</h3>
-				<p>Vendor 1: 150.00 EGP</p>
-			</div>
-			<form action="/checkout" method="post">
-				<select name="address">
-					<option>Main Pharmacy - 123 Street</option>
-				</select>
-				<select name="payment">
-					<option>Cash on Delivery</option>
-					<option>Bank Transfer</option>
-				</select>
-				<button type="submit" class="btn btn-primary">Place Order</button>
-			</form>
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, lang, dir string) {
+	@layouts.CustomerShell("إتمام الطلب | Checkout", lang, dir) {
+		<div class="checkout-page-container" style="max-width:960px; margin:2rem auto;">
+			<h1 style="font-size:1.75rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
+				إتمام الطلب
+			</h1>
+
+			if cart == nil || len(cart.Items) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:       "سلة المشتريات فارغة",
+					Message:     "لا توجد منتجات في السلة لإتمام الطلب.",
+					ActionLabel: "العودة للكتالوج",
+				})
+			} else {
+				<div style="display:grid; grid-template-columns:1fr 340px; gap:2rem;">
+					<div style="display:flex; flex-direction:column; gap:1.5rem;">
+						<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
+							<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+								1. عنوان التوصيل
+							</h3>
+							if len(addresses) == 0 {
+								<p style="font-size:0.875rem; color:var(--neutral-600); margin-bottom:1rem;">
+									لا يوجد عنوان مسجل. يرجى إدخال عنوان الصيدلية أو العيادة:
+								</p>
+								<input type="text" name="address" placeholder="العنوان بالتفصيل..." class="form-input" style="width:100%; margin-bottom:0.75rem;" />
+							} else {
+								<div style="display:flex; flex-direction:column; gap:0.5rem;">
+									for _, addr := range addresses {
+										<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
+											<input type="radio" name="address_id" value={ fmt.Sprintf("%d", addr.ID) } checked?={ addr.IsDefault } />
+											<div>
+												<div style="font-weight:600; font-size:0.9rem;">{ addr.Recipient }</div>
+												<div style="font-size:0.8rem; color:var(--neutral-500);">{ addr.Address }</div>
+											</div>
+										</label>
+									}
+								</div>
+							}
+						</div>
+
+						<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
+							<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+								2. طريقة الدفع
+							</h3>
+							<div style="display:flex; flex-direction:column; gap:0.5rem;">
+								<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
+									<input type="radio" name="payment_method" value="cash_on_delivery" checked />
+									<div>
+										<div style="font-weight:600; font-size:0.9rem;">الدفع عند الاستلام (نقداً)</div>
+										<div style="font-size:0.8rem; color:var(--neutral-500);">يتم التحصيل بمعرفة مندوب شركة التوزيع</div>
+									</div>
+								</label>
+								<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
+									<input type="radio" name="payment_method" value="bank_transfer" />
+									<div>
+										<div style="font-weight:600; font-size:0.9rem;">تحويل بنكي / شيك آجل</div>
+										<div style="font-size:0.8rem; color:var(--neutral-500);">طبقاً للائحة الائتمان المعتمدة للمؤسسة</div>
+									</div>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem; height:fit-content;">
+						<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+							ملخص الطلب
+						</h3>
+						<div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.9rem; color:var(--neutral-600);">
+							<span>عدد الأصناف:</span>
+							<span class="tabular-nums" style="font-weight:600;">{ fmt.Sprintf("%d", len(cart.Items)) }</span>
+						</div>
+						<div style="display:flex; justify-content:space-between; margin-bottom:1rem; font-size:0.9rem; color:var(--neutral-600);">
+							<span>مصاريف الشحن:</span>
+							<span style="font-weight:600; color:var(--success-700);">مجاناً للطلبيات المعتمدة</span>
+						</div>
+						<button
+							hx-post="/api/v1/commerce/checkout"
+							class="btn btn-primary"
+							style="width:100%; padding:0.85rem; font-size:1rem; font-weight:700; margin-top:1rem;"
+						>
+							تأكيد الطلب وإرساله للموردين
+						</button>
+					</div>
+				</div>
+			}
 		</div>
 	}
 }

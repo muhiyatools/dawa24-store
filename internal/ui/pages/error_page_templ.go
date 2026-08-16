@@ -9,10 +9,11 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-func AdminSettings(lang, dir string) templ.Component {
+func ErrorPage(title, message, retryURL, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -45,13 +46,26 @@ func AdminSettings(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:800px; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); padding:2rem;\"><h2 style=\"font-size:1.5rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">الإعدادات العامة وبيانات النظام</h2><form style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">العملة الافتراضية</label> <input type=\"text\" value=\"EGP (الجنيه المصري)\" disabled class=\"form-input\" style=\"width:100%; background:var(--neutral-50);\"></div><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">اللغات المدعومة</label> <input type=\"text\" value=\"العربية (الرئيسية)، English\" disabled class=\"form-input\" style=\"width:100%; background:var(--neutral-50);\"></div><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">بريد الدعم الفني والإشعارات</label> <input type=\"email\" value=\"support@dawa24.eg\" class=\"form-input\" style=\"width:100%;\"></div><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">نسبة عمولة المنصة الافتراضية (%)</label> <input type=\"number\" value=\"1.5\" step=\"0.1\" class=\"form-input\" style=\"width:100%;\"></div><div style=\"display:flex; justify-content:flex-end; margin-top:1rem;\"><button type=\"button\" class=\"btn btn-primary\">حفظ التغييرات</button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-screen flex items-center justify-center p-4 bg-gray-50\"><div class=\"max-w-lg w-full\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.ErrorState(components.ErrorStateProps{
+				Title:      title,
+				Message:    message,
+				RetryURL:   retryURL,
+				RetryLabel: "العودة للرئيسية",
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("إعدادات المنصة | Platform Settings", "system", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base(title, lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

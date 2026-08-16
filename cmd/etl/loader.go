@@ -74,11 +74,12 @@ func (l *Loader) LoadOrganizations(ctx context.Context, orgs []*TargetOrg) (int,
 	defer tx.Rollback()
 
 	stmt, err := tx.PrepareContext(ctx, `
-		INSERT INTO org.organizations (id, public_id, name, legal_name, trade_name, tax_number, commercial_register, type, status, credit_limit, payment_terms_days, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		INSERT INTO org.organizations (id, public_id, name, tax_number, phone, type, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		ON CONFLICT (id) DO UPDATE SET
 			name = EXCLUDED.name,
-			legal_name = EXCLUDED.legal_name,
+			tax_number = EXCLUDED.tax_number,
+			phone = EXCLUDED.phone,
 			updated_at = EXCLUDED.updated_at;
 	`)
 	if err != nil {
@@ -90,9 +91,9 @@ func (l *Loader) LoadOrganizations(ctx context.Context, orgs []*TargetOrg) (int,
 	for _, o := range orgs {
 		nameJSON := fmt.Sprintf(`{"ar":"%s","en":"%s"}`, o.LegalName["ar"], o.LegalName["en"])
 		_, err := stmt.ExecContext(ctx,
-			o.ID, o.PublicID, nameJSON, nameJSON, nameJSON,
-			o.TaxNumber, o.CommercialRegister, o.Type, o.Status,
-			o.CreditLimit.String(), o.PaymentTermsDays, o.CreatedAt, o.UpdatedAt,
+			o.ID, o.PublicID, nameJSON,
+			o.TaxNumber, o.Phone, o.Type, o.Status,
+			o.CreatedAt, o.UpdatedAt,
 		)
 		if err != nil {
 			return loaded, fmt.Errorf("insert org %d: %w", o.ID, err)

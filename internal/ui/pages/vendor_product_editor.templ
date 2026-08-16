@@ -1,32 +1,174 @@
 package pages
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
 
-templ VendorProductEditor() {
-	@layouts.VendorShell("Edit Product", "products", "en", "ltr") {
-		<form class="editor-form">
-			<div class="grid-2">
-				<div>
-					<label>English Name</label>
-					<input type="text" name="nameEn" />
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ VendorProductEditor(product *catalog.Product, categories []*catalog.Category, brands []*catalog.Brand, isNew bool, lang, dir string) {
+	@layouts.VendorShell(editorTitle(isNew), "products", lang, dir) {
+		<div style="max-width:800px; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); padding:2rem;">
+			<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
+				if isNew {
+					إضافة صنف دوائي جديد
+				} else {
+					تعديل بيانات الصنف الدوائي
+				}
+			</h2>
+
+			<form
+				if isNew {
+					hx-post="/api/v1/catalog/products"
+				} else {
+					hx-put={ fmt.Sprintf("/api/v1/catalog/products/%d", product.ID) }
+				}
+				hx-swap="none"
+				style="display:flex; flex-direction:column; gap:1.25rem;"
+			>
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div>
+						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+							الاسم التجاري (عربي) *
+						</label>
+						<input
+							type="text"
+							name="name_ar"
+							value={ getProdNameAr(product) }
+							required
+							class="form-input"
+							style="width:100%;"
+						/>
+					</div>
+					<div>
+						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+							الاسم التجاري (إنجليزي) *
+						</label>
+						<input
+							type="text"
+							name="name_en"
+							value={ getProdNameEn(product) }
+							required
+							class="form-input"
+							style="width:100%;"
+						/>
+					</div>
 				</div>
-				<div dir="rtl">
-					<label>Arabic Name</label>
-					<input type="text" name="nameAr" />
+
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div>
+						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+							الشكل الصيدلي (Dosage Form) *
+						</label>
+						<input
+							type="text"
+							name="dosage_form"
+							value={ getProdDosage(product) }
+							placeholder="أقراص / كبسولات / شراب / أمبولات..."
+							required
+							class="form-input"
+							style="width:100%;"
+						/>
+					</div>
+					<div>
+						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+							الشركة المصنعة (Manufacturing Company)
+						</label>
+						<input
+							type="text"
+							name="manufacturing_companies"
+							value={ getProdManufacturer(product) }
+							class="form-input"
+							style="width:100%;"
+						/>
+					</div>
 				</div>
-			</div>
-			<div>
-				<label>Price</label>
-				<input type="number" name="price" />
-			</div>
-			<div>
-				<label>Dosage Form</label>
-				<input type="text" name="dosage" />
-			</div>
-			<div>
-				<label>Scientific Name</label>
-				<input type="text" name="scientificName" />
-			</div>
-			<button class="btn btn-primary">Save Product</button>
-		</form>
+
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div>
+						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+							الاسم العلمي (Scientific Name)
+						</label>
+						<input
+							type="text"
+							name="scientific_name"
+							value={ getProdActiveIng(product) }
+							class="form-input"
+							style="width:100%;"
+						/>
+					</div>
+					<div>
+						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+							الباركود الدولي (Barcode)
+						</label>
+						<input
+							type="text"
+							name="barcode"
+							value={ getProdBarcode(product) }
+							class="form-input"
+							style="width:100%;"
+						/>
+					</div>
+				</div>
+
+				<div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
+					<a href="/vendor/products" class="btn btn-secondary">
+						إلغاء
+					</a>
+					<button type="submit" class="btn btn-primary">
+						حفظ المنتج
+					</button>
+				</div>
+			</form>
+		</div>
 	}
+}
+
+func editorTitle(isNew bool) string {
+	if isNew {
+		return "إضافة صنف جديد"
+	}
+	return "تعديل الصنف"
+}
+
+func getProdNameAr(p *catalog.Product) string {
+	if p == nil {
+		return ""
+	}
+	return p.Name["ar"]
+}
+
+func getProdNameEn(p *catalog.Product) string {
+	if p == nil {
+		return ""
+	}
+	return p.Name["en"]
+}
+
+func getProdDosage(p *catalog.Product) string {
+	if p == nil {
+		return ""
+	}
+	return p.DosageForm
+}
+
+func getProdManufacturer(p *catalog.Product) string {
+	if p == nil {
+		return ""
+	}
+	return p.ManufacturingCompanies
+}
+
+func getProdActiveIng(p *catalog.Product) string {
+	if p == nil {
+		return ""
+	}
+	return p.ScientificName
+}
+
+func getProdBarcode(p *catalog.Product) string {
+	if p == nil {
+		return ""
+	}
+	return p.Barcode
 }

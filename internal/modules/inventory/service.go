@@ -144,3 +144,4 @@ func (s *Service) ListStocksByWarehouse(ctx context.Context, warehouseID int64) 
 func (s *Service) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error) {
 	return s.repo.ListStockMovements(ctx, stockID, limit)
 }
+

@@ -1,58 +1,92 @@
 package ui
 
 import (
+	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // UIHandler serves server-rendered HTML pages via Templ.
 type UIHandler struct {
-	catSvc *catalog.Service
-	orgSvc *org.Service
-	ingSvc *ingest.Service
+	catSvc   *catalog.Service
+	orgSvc   *org.Service
+	ingSvc   *ingest.Service
+	commSvc  *commerce.Service
+	invSvc   *inventory.Service
+	idSvc    *identity.Service
+	notifSvc *notifications.Service
+	promoSvc *promo.Service
+	adminSvc *platformadmin.Service
+	log      *slog.Logger
 }
 
-// NewUIHandler creates a new UI page handler.
-func NewUIHandler(catSvc *catalog.Service, orgSvc *org.Service, ingSvc *ingest.Service) *UIHandler {
+// NewUIHandler creates a new UI page handler with all platform domain services wired.
+func NewUIHandler(
+	catSvc *catalog.Service,
+	orgSvc *org.Service,
+	ingSvc *ingest.Service,
+	commSvc *commerce.Service,
+	invSvc *inventory.Service,
+	idSvc *identity.Service,
+	notifSvc *notifications.Service,
+	promoSvc *promo.Service,
+	adminSvc *platformadmin.Service,
+	log *slog.Logger,
+) *UIHandler {
 	return &UIHandler{
-		catSvc: catSvc,
-		orgSvc: orgSvc,
-		ingSvc: ingSvc,
+		catSvc:   catSvc,
+		orgSvc:   orgSvc,
+		ingSvc:   ingSvc,
+		commSvc:  commSvc,
+		invSvc:   invSvc,
+		idSvc:    idSvc,
+		notifSvc: notifSvc,
+		promoSvc: promoSvc,
+		adminSvc: adminSvc,
+		log:      log,
 	}
 }
 
-// RegisterPageRoutes registers HTML view endpoints across all 20 screens.
+// RegisterPageRoutes registers HTML view endpoints across all screens.
 func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	RegisterStaticRoutes(r)
 
-	// Public & Auth
+	// Public & Auth (8 screens)
 	r.Get("/", h.HomePage)
 	r.Get("/privacy", h.PrivacyPage)
 	r.Get("/terms", h.TermsPage)
 	r.Get("/auth/login", h.LoginPage)
+	r.Get("/auth/register", h.RegisterPage)
 	r.Get("/auth/forgot", h.ForgotPasswordPage)
 	r.Get("/auth/reset", h.ResetPasswordPage)
-	r.Get("/auth/register", h.OnboardingPage)
 	r.Get("/onboarding", h.OnboardingPage)
 
-	// Customer Buyer Experience
+	// Customer Buyer Experience (7 screens)
 	r.Get("/catalog", h.CustomerCatalogPage)
 	r.Get("/catalog/{id}", h.CustomerProductDetailPage)
 	r.Get("/cart", h.CustomerCartPage)
 	r.Get("/checkout", h.CustomerCheckoutPage)
 	r.Get("/orders", h.CustomerOrdersPage)
-	r.Get("/orders/{id}", h.CustomerOrdersPage)
+	r.Get("/orders/{id}", h.CustomerOrderDetailPage)
 	r.Get("/notifications", h.NotificationsPage)
 
-	// Vendor Supplier Experience
+	// Vendor Supplier Experience (8 screens)
 	r.Get("/vendor/products", h.VendorProductsPage)
-	r.Get("/vendor/products/new", h.VendorProductEditorPage)
+	r.Get("/vendor/products/new", h.VendorProductNewPage)
 	r.Get("/vendor/products/{id}", h.VendorProductEditorPage)
 	r.Get("/vendor/inventory", h.VendorInventoryPage)
 	r.Get("/vendor/transfers", h.VendorTransfersPage)
@@ -60,144 +94,65 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/vendor/orders", h.VendorOrdersPage)
 	r.Get("/vendor/offers", h.VendorOffersPage)
 
-	// Platform Admin Experience
+	// Platform Admin Experience (4 screens)
 	r.Get("/admin/dashboard", h.AdminDashboardPage)
 	r.Get("/admin/approvals", h.AdminApprovalsPage)
 	r.Get("/admin/users", h.AdminUsersPage)
 	r.Get("/admin/settings", h.AdminSettingsPage)
 }
 
-func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerHome(nil, "ar", "rtl").Render(r.Context(), w)
-}
+func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {
+	ctx := r.Context()
+	h.log.ErrorContext(ctx, "ui error rendering page", "error", err, "path", r.URL.Path)
 
-func (h *UIHandler) PrivacyPage(w http.ResponseWriter, r *http.Request) {
+	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.PrivacyPolicy().Render(r.Context(), w)
-}
 
-func (h *UIHandler) TermsPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.TermsOfService().Render(r.Context(), w)
-}
-
-func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.LoginPage("ar", "rtl", "").Render(r.Context(), w)
-}
-
-func (h *UIHandler) ForgotPasswordPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.PasswordReset().Render(r.Context(), w)
-}
-
-func (h *UIHandler) ResetPasswordPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.PasswordResetConfirm("").Render(r.Context(), w)
-}
-
-func (h *UIHandler) OnboardingPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.Onboarding().Render(r.Context(), w)
-}
-
-func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerCatalog().Render(r.Context(), w)
-}
-
-func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerProductDetail().Render(r.Context(), w)
-}
-
-func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerCart().Render(r.Context(), w)
-}
-
-func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerCheckout().Render(r.Context(), w)
-}
-
-func (h *UIHandler) CustomerOrdersPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerOrders().Render(r.Context(), w)
-}
-
-func (h *UIHandler) NotificationsPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.Notifications().Render(r.Context(), w)
-}
-
-func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorProducts().Render(r.Context(), w)
-}
-
-func (h *UIHandler) VendorProductEditorPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorProductEditor().Render(r.Context(), w)
-}
-
-func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorInventory().Render(r.Context(), w)
-}
-
-func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorTransfers().Render(r.Context(), w)
-}
-
-func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorOrders().Render(r.Context(), w)
-}
-
-func (h *UIHandler) VendorOffersPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorOffers().Render(r.Context(), w)
-}
-
-func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
-	var sessions []*ingest.ImportSession
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorIngest(sessions, "en", "ltr").Render(r.Context(), w)
-}
-
-func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
-	stats := pages.AdminDashboardStats{
-		TotalUsers:         150,
-		TotalOrganizations: 45,
-		PendingApprovals:   3,
-		TotalOrders:        1280,
+	if h.isHTMX(r) {
+		w.WriteHeader(http.StatusOK)
+		_ = components.ErrorState(components.ErrorStateProps{
+			Title:      "حدث خطأ أثناء تحميل البيانات",
+			Message:    err.Error(),
+			RetryURL:   r.URL.String(),
+			RetryLabel: "إعادة المحاولة",
+		}).Render(ctx, w)
+		return
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminDashboard(stats, "en", "ltr").Render(r.Context(), w)
+
+	w.WriteHeader(http.StatusOK)
+	_ = pages.ErrorPage(
+		"عذراً، حدث خطأ",
+		err.Error(),
+		"/",
+		lang,
+		dir,
+	).Render(ctx, w)
 }
 
-func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
-	var pending []*org.Organization
-	if h.orgSvc != nil {
-		pendingStatus := org.StatusPending
-		list, err := h.orgSvc.ListOrganizations(r.Context(), nil, &pendingStatus, 50, 0)
-		if err == nil {
-			pending = list
-		}
+func (h *UIHandler) pageLimit(r *http.Request) int {
+	lim, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if lim <= 0 || lim > 100 {
+		return 20
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminApprovals(pending, "en", "ltr").Render(r.Context(), w)
+	return lim
 }
 
-func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminUsers().Render(r.Context(), w)
+func (h *UIHandler) pageOffset(r *http.Request) int {
+	off, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	if off < 0 {
+		return 0
+	}
+	return off
 }
 
-func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminSettings().Render(r.Context(), w)
+func (h *UIHandler) isHTMX(r *http.Request) bool {
+	return r.Header.Get("HX-Request") == "true"
+}
+
+func (h *UIHandler) localeAndDir(r *http.Request) (string, string) {
+	lang := r.URL.Query().Get("lang")
+	if lang == "en" {
+		return "en", "ltr"
+	}
+	return "ar", "rtl"
 }

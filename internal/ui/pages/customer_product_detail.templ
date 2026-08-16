@@ -1,14 +1,107 @@
 package pages
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
 
-templ CustomerProductDetail() {
-	@layouts.CustomerShell("Product Detail", "en", "ltr") {
-		<div class="product-detail">
-			<h1>Product Name</h1>
-			<p>Dosage Form: Tablet</p>
-			<p>Manufacturer: PharmaCo</p>
-			<p class="tabular-nums">150.00 EGP</p>
-			<button class="btn btn-primary">Add to Cart</button>
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ CustomerProductDetail(product *catalog.Product, variants []*catalog.ProductVariant, lang, dir string) {
+	@layouts.CustomerShell(productTitle(product), lang, dir) {
+		<div class="product-detail-container" style="max-width:1000px; margin:2rem auto; background:#fff; padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--neutral-200);">
+			<div style="display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; margin-bottom:2rem;">
+				<div>
+					<span style="display:inline-block; font-size:0.8rem; font-weight:700; color:var(--primary-700); background:var(--primary-50); padding:0.25rem 0.75rem; border-radius:6px; margin-bottom:0.75rem;">
+						{ product.DosageForm }
+					</span>
+					<h1 style="font-size:1.75rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.25rem;">
+						if product.Name["ar"] != "" {
+							{ product.Name["ar"] }
+						} else {
+							{ product.Name["en"] }
+						}
+					</h1>
+					<h2 style="font-size:1.1rem; color:var(--neutral-500); font-weight:500; margin-bottom:1.25rem;">
+						{ product.Name["en"] }
+					</h2>
+
+					<div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.9rem; color:var(--neutral-700);">
+						if product.ScientificName != "" {
+							<div><strong>الاسم العلمي / المادة الفعالة:</strong> { product.ScientificName }</div>
+						}
+						if product.ManufacturingCompanies != "" {
+							<div><strong>الشركة المصنعة:</strong> { product.ManufacturingCompanies }</div>
+						}
+						if product.Barcode != "" {
+							<div><strong>الباركود الدولي:</strong> <span class="tabular-nums">{ product.Barcode }</span></div>
+						}
+					</div>
+				</div>
+
+				<div style="background:var(--neutral-50); padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); display:flex; flex-direction:column; justify-content:center;">
+					<h3 style="font-size:1.1rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+						طلب توريد سريع
+					</h3>
+					<p style="font-size:0.875rem; color:var(--neutral-600); margin-bottom:1.5rem;">
+						الشراء متاح للصيدليات والمستشفيات والعيادات المرخصة في جمهورية مصر العربية.
+					</p>
+					<a href="/cart" class="btn btn-primary" style="text-align:center; padding:0.75rem; font-size:1rem; font-weight:600;">
+						الانتقال إلى سلة المشتريات
+					</a>
+				</div>
+			</div>
+
+			<div class="product-variants-section" style="border-top:1px solid var(--neutral-200); padding-top:1.5rem;">
+				<h3 style="font-size:1.25rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+					العبوات والتشغيلات المتاحة
+				</h3>
+				if len(variants) == 0 {
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد عبوات متاحة حالياً",
+						Message: "هذا الدواء غير متوفر في المخزون المباشر حالياً.",
+					})
+				} else {
+					<div style="display:flex; flex-direction:column; gap:0.75rem;">
+						for _, v := range variants {
+							<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-md);">
+								<div>
+									<div style="font-weight:700; color:var(--neutral-900);">
+										if v.Name["ar"] != "" {
+											{ v.Name["ar"] }
+										} else {
+											{ v.Name["en"] }
+										}
+									</div>
+									<div style="font-size:0.8rem; color:var(--neutral-500);">
+										SKU: <span class="tabular-nums">{ v.SKU }</span> | باركود: <span class="tabular-nums">{ v.Barcode }</span>
+									</div>
+								</div>
+								<div style="display:flex; align-items:center; gap:1.5rem;">
+									<form hx-post="/api/v1/commerce/cart/items" hx-swap="none" style="display:flex; align-items:center; gap:0.5rem;">
+										<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
+										<input type="hidden" name="product_variant_id" value={ fmt.Sprintf("%d", v.ID) } />
+										<input type="number" name="quantity" value="1" min="1" class="form-input" style="width:70px; text-align:center;" />
+										<button type="submit" class="btn btn-primary" style="font-size:0.875rem;">
+											+ أضف للسلة
+										</button>
+									</form>
+								</div>
+							</div>
+						}
+					</div>
+				}
+			</div>
 		</div>
 	}
+}
+
+func productTitle(p *catalog.Product) string {
+	if p == nil {
+		return "تفاصيل المنتج"
+	}
+	if p.Name["ar"] != "" {
+		return p.Name["ar"]
+	}
+	return p.Name["en"]
 }

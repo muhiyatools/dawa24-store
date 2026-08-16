@@ -1,19 +1,75 @@
 package pages
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
 
-templ VendorInventory() {
-	@layouts.VendorShell("Inventory", "inventory", "en", "ltr") {
-		<div>
-			<h2>Stock Levels <span class="badge badge-warning">Low Stock Alerts: 3</span></h2>
-			<table>
-				<tr><th>Product</th><th>Stock</th><th>Action</th></tr>
-				<tr>
-					<td>Item A</td>
-					<td>
-						<input type="number" value="10" />
-					</td>
-					<td><button class="btn btn-primary">Update</button></td>
-				</tr>
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ VendorInventory(stocks []*inventory.Stock, lang, dir string, isPartial bool) {
+	if isPartial {
+		@VendorInventoryTable(stocks)
+	} else {
+		@layouts.VendorShell("المخزون والأرصدة | Inventory & Stock", "inventory", lang, dir) {
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">أرصدة المخازن والفروع</h2>
+					<p style="font-size:0.875rem; color:var(--neutral-500);">مراقبة الكميات المتاحة والمحجوزة للطلبيات في الوقت الفعلي</p>
+				</div>
+				<div style="display:flex; gap:0.75rem;">
+					<a href="/vendor/transfers" class="btn btn-secondary">
+						🔄 تحويل بين المخازن
+					</a>
+					<a href="/vendor/ingest" class="btn btn-primary">
+						📥 استيراد ملف أرصدة
+					</a>
+				</div>
+			</div>
+
+			<div id="vendor-inventory-content">
+				@VendorInventoryTable(stocks)
+			</div>
+		}
+	}
+}
+
+templ VendorInventoryTable(stocks []*inventory.Stock) {
+	if len(stocks) == 0 {
+		@components.EmptyState(components.EmptyStateProps{
+			Title:       "لا توجد أرصدة مسجلة بالمخزن",
+			Message:     "لم يتم تسجيل أي تشغيلات أو كميات مخزون بعد.",
+			ActionLabel: "📥 رفع ملف مخزون",
+		})
+	} else {
+		<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:hidden;">
+			<table style="width:100%; border-collapse:collapse; text-align:start; font-size:0.9rem;">
+				<thead>
+					<tr style="background:var(--neutral-50); border-bottom:1px solid var(--neutral-200);">
+						<th style="padding:0.75rem 1rem;">المنتج / العبوة</th>
+						<th style="padding:0.75rem 1rem;">المخزن / الفرع</th>
+						<th style="padding:0.75rem 1rem;">الرصيد المتاح</th>
+						<th style="padding:0.75rem 1rem;">حد إعادة الطلب</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, s := range stocks {
+						<tr style="border-bottom:1px solid var(--neutral-100);">
+							<td style="padding:0.75rem 1rem; font-weight:700; color:var(--neutral-900);">
+								Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }
+							</td>
+							<td style="padding:0.75rem 1rem; color:var(--neutral-600);">
+								Warehouse #{ fmt.Sprintf("%d", s.WarehouseID) }
+							</td>
+							<td style="padding:0.75rem 1rem; font-weight:700; color:var(--success-700);" class="tabular-nums">
+								{ fmt.Sprintf("%d", s.Quantity) }
+							</td>
+							<td style="padding:0.75rem 1rem; color:var(--warning-700);" class="tabular-nums">
+								{ fmt.Sprintf("%d", s.MinThreshold) }
+							</td>
+						</tr>
+					}
+				</tbody>
 			</table>
 		</div>
 	}

@@ -26,6 +26,8 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 	var createdOrderID int64
 	var orderNumber string
 	var shipmentID int64
+	custOrgID := testCommerceCustID
+	userID := testCommerceUserID
 
 	t.Run("CreateOrder_MultiVendorAndLineTotals", func(t *testing.T) {
 		orderNumber = "ORD-2026-TEST-001"
@@ -38,7 +40,7 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 		order := &commerce.Order{
 			OrderNumber:    orderNumber,
 			CustomerID:     testCommerceUserID,
-			OrganizationID: &testCommerceCustID,
+			OrganizationID: &custOrgID,
 			Status:         commerce.StatusPending,
 			Subtotal:       subtotal,
 			DiscountAmount: discount,
@@ -64,6 +66,7 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 		vName := i18n.Text{"ar": "افتراضي", "en": "Default"}
 		prodID := testCommerceProdID
 		varID := testCommerceVarID
+		lineTotal, _ := subtotal.Sub(discount)
 
 		lines := []*commerce.OrderLine{
 			{
@@ -71,12 +74,12 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 				ProductID:        &prodID,
 				ProductVariantID: &varID,
 				ProductName:      pName,
-				VariantName:      &vName,
+				VariantName:      vName,
 				SKU:              "COMM-SKU-1",
 				UnitPrice:        money.MustParse("100.00"),
 				Quantity:         2,
 				DiscountAmount:   discount,
-				TotalPrice:       subtotal.Sub(discount), // 190.00
+				TotalPrice:       lineTotal, // 190.00
 			},
 		}
 
@@ -133,12 +136,13 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 	})
 
 	t.Run("OrderStatusTransitions_AndHistory", func(t *testing.T) {
+		fromStatus := string(commerce.StatusPending)
 		history := commerce.OrderStatusHistory{
-			OrderID:          createdOrderID,
-			FromStatus:       string(commerce.StatusPending),
-			ToStatus:         string(commerce.StatusConfirmed),
-			Notes:            "Vendor confirmed the order",
-			ChangedByUserID:  &testCommerceUserID,
+			OrderID:         createdOrderID,
+			FromStatus:      &fromStatus,
+			ToStatus:        string(commerce.StatusConfirmed),
+			Notes:           "Vendor confirmed the order",
+			ChangedByUserID: &userID,
 		}
 
 		err := repo.UpdateOrderStatus(ctx, createdOrderID, commerce.StatusConfirmed, history)
@@ -178,14 +182,15 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 			t.Errorf("got shipment ID %d, want %d", shipment.ID, shipmentID)
 		}
 
-		// Transition shipment from pending to processing (or confirmed)
+		// Transition shipment from pending to confirmed
+		fromStatus := string(commerce.StatusPending)
 		shipHist := commerce.OrderStatusHistory{
 			OrderID:         createdOrderID,
 			ShipmentID:      &shipmentID,
-			FromStatus:      string(commerce.StatusPending),
+			FromStatus:      &fromStatus,
 			ToStatus:        string(commerce.StatusConfirmed),
 			Notes:           "Shipment confirmed",
-			ChangedByUserID: &testCommerceUserID,
+			ChangedByUserID: &userID,
 		}
 		err = repo.UpdateShipmentStatus(ctx, shipmentID, commerce.StatusPending, commerce.StatusConfirmed, shipHist)
 		if err != nil {
@@ -196,14 +201,14 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 		staleHist := commerce.OrderStatusHistory{
 			OrderID:    createdOrderID,
 			ShipmentID: &shipmentID,
-			FromStatus: string(commerce.StatusPending),
+			FromStatus: &fromStatus,
 			ToStatus:   string(commerce.StatusProcessing),
 		}
 		err = repo.UpdateShipmentStatus(ctx, shipmentID, commerce.StatusPending, commerce.StatusProcessing, staleHist)
 		if err == nil {
 			t.Error("expected conflict error for stale shipment status update, got nil")
 		}
-		if !apperr.IsConflict(err) {
+		if apperr.KindOf(err) != apperr.KindConflict {
 			t.Errorf("expected conflict apperr, got: %v", err)
 		}
 	})

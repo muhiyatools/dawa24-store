@@ -1,14 +1,61 @@
 package pages
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
 
-templ VendorOffers() {
-	@layouts.VendorShell("Offers", "offers", "en", "ltr") {
-		<div class="offers">
-			<h2>Promotions & Ad Campaigns</h2>
-			<button class="btn btn-primary">Create Promotion</button>
-			<ul>
-				<li>Summer Sale - 10% Off</li>
-			</ul>
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ VendorOffers(offers []*promo.Offer, packages []*promo.OfferPackage, lang, dir string, isPartial bool) {
+	if isPartial {
+		@VendorOffersList(offers, packages)
+	} else {
+		@layouts.VendorShell("العروض والخصومات الترويجية | Offers & Promo", "offers", lang, dir) {
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">إدارة العروض الترويجية والخصومات</h2>
+					<p style="font-size:0.875rem; color:var(--neutral-500);">إنشاء حملات الخصم والرعايات الإعلانية لزيادة مبيعات الأدوية</p>
+				</div>
+			</div>
+
+			<div id="vendor-offers-content">
+				@VendorOffersList(offers, packages)
+			</div>
+		}
+	}
+}
+
+templ VendorOffersList(offers []*promo.Offer, packages []*promo.OfferPackage) {
+	if len(offers) == 0 {
+		@components.EmptyState(components.EmptyStateProps{
+			Title:   "لا توجد عروض ترويجية نشطة",
+			Message: "قم بإنشاء عروض خاصة على الأدوية والمستلزمات لجذب مزيد من طلبات الصيدليات.",
+		})
+	} else {
+		<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+			for _, o := range offers {
+				<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between;">
+					<div>
+						<span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:4px; background:var(--primary-50); color:var(--primary-700);">
+							{ string(o.DiscountType) }
+						</span>
+						<h3 style="font-size:1.1rem; font-weight:700; color:var(--neutral-900); margin:0.5rem 0 0.25rem 0;">
+							if o.Title["ar"] != "" {
+								{ o.Title["ar"] }
+							} else {
+								{ o.Title["en"] }
+							}
+						</h3>
+						<p style="font-size:0.85rem; color:var(--neutral-600); margin-bottom:1rem;">
+							قيمة الخصم: <strong class="tabular-nums">{ o.DiscountValue.String() }</strong>
+						</p>
+					</div>
+					<div style="font-size:0.75rem; color:var(--neutral-500); border-top:1px solid var(--neutral-100); padding-top:0.75rem;">
+						صالح حتى: <span class="tabular-nums">{ o.ExpiresAt.Format("2006-01-02") }</span> | المشاهدات: <span class="tabular-nums">{ fmt.Sprintf("%d", o.ViewsCount) }</span>
+					</div>
+				</div>
+			}
 		</div>
 	}
 }

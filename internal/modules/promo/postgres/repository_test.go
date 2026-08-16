@@ -227,6 +227,50 @@ func TestPromoRepository(t *testing.T) {
 		}
 	})
 
+	t.Run("ListActiveOffers", func(t *testing.T) {
+		activeOffers, err := repo.ListActiveOffers(ctx, 10, 0)
+		if err != nil {
+			t.Fatalf("ListActiveOffers failed: %v", err)
+		}
+		if len(activeOffers) == 0 {
+			t.Fatal("expected at least one active offer")
+		}
+	})
+
+	t.Run("Ads_Operations", func(t *testing.T) {
+		// Clean and insert test ad
+		err := db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+			_, _ = tx.Exec(txCtx, `DELETE FROM promo.ad_clicks WHERE user_agent = 'TestAgent'`)
+			_, _ = tx.Exec(txCtx, `DELETE FROM promo.ads WHERE title = 'Banner Ad Test'`)
+			var adID int64
+			err := tx.QueryRow(txCtx, `
+				INSERT INTO promo.ads (organization_id, title, image_url, target_url, position, is_active, starts_at, expires_at)
+				VALUES ($1, 'Banner Ad Test', 'https://cdn.example.com/ad.jpg', 'https://dawa24.test/sale', 'top_banner', true, now() - interval '1 hour', now() + interval '1 day')
+				RETURNING id;
+			`, testOrgID).Scan(&adID)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("setup test ad failed: %v", err)
+		}
+
+		ads, err := repo.ListActiveAds(ctx, "top_banner")
+		if err != nil {
+			t.Fatalf("ListActiveAds failed: %v", err)
+		}
+		if len(ads) == 0 {
+			t.Fatal("expected at least 1 active ad")
+		}
+
+		err = repo.RecordAdClick(ctx, ads[0].ID, nil, "127.0.0.1", "TestAgent")
+		if err != nil {
+			t.Fatalf("RecordAdClick failed: %v", err)
+		}
+	})
+
 	t.Run("Expire Promotions", func(t *testing.T) {
 		_, err := repo.ExpirePromotions(ctx)
 		if err != nil {
