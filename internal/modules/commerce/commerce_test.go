@@ -112,6 +112,16 @@ func (m *mockCommerceRepo) ListShipmentsByVendor(_ context.Context, vendorOrgID 
 	return list, nil
 }
 
+func (m *mockCommerceRepo) AddToWishlist(_ context.Context, userID int64, productID int64) error {
+	return nil
+}
+func (m *mockCommerceRepo) RemoveFromWishlist(_ context.Context, userID int64, productID int64) error {
+	return nil
+}
+func (m *mockCommerceRepo) ListWishlist(_ context.Context, userID int64) ([]*commerce.WishlistItem, error) {
+	return nil, nil
+}
+
 func TestOrderStatusTransitions(t *testing.T) {
 	validTransitions := [][2]commerce.OrderStatus{
 		{commerce.StatusPending, commerce.StatusConfirmed},
@@ -187,5 +197,22 @@ func TestMultiVendorCheckout(t *testing.T) {
 	// Check that 2 vendor shipments were created
 	if len(order.Shipments) != 2 {
 		t.Fatalf("expected 2 shipments, got %d", len(order.Shipments))
+	}
+}
+
+func TestWishlistOperations(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCommerceRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := commerce.NewService(repo, logger)
+
+	err := svc.AddToWishlist(ctx, 100, 42)
+	if err != nil {
+		t.Fatalf("AddToWishlist failed: %v", err)
+	}
+
+	err = svc.RemoveFromWishlist(ctx, 100, 42)
+	if err != nil {
+		t.Fatalf("RemoveFromWishlist failed: %v", err)
 	}
 }

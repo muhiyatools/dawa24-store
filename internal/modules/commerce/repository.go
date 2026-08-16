@@ -18,4 +18,8 @@ type Repository interface {
 	UpdateOrderStatus(ctx context.Context, orderID int64, toStatus OrderStatus, history OrderStatusHistory) error
 	ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*Order, error)
 	ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*OrderShipment, error)
+
+	AddToWishlist(ctx context.Context, userID int64, productID int64) error
+	RemoveFromWishlist(ctx context.Context, userID int64, productID int64) error
+	ListWishlist(ctx context.Context, userID int64) ([]*WishlistItem, error)
 }

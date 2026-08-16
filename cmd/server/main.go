@@ -28,6 +28,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/web"
 )
 
 func main() {
@@ -160,9 +161,23 @@ func newRouter(
 		r.Get("/status", health.status)
 	})
 
-	// A human hitting the domain in a browser should not get a 404 with no
-	// explanation. This is a placeholder until the UI lands in Phase 2.
-	r.Get("/", health.root)
+	// Mount all domain module endpoints
+	mountModuleRoutes(r, cfg, log, deps, ai)
+
+	// Static assets
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(web.StaticFS())))
+
+	// Web UI
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		htmlBytes, err := web.IndexHTML()
+		if err != nil {
+			health.root(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(htmlBytes)
+	})
 
 	return r
 }

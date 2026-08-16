@@ -1,0 +1,141 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+)
+
+// Repository implements notifications.Repository using PostgreSQL.
+type Repository struct {
+	db *database.DB
+}
+
+// NewRepository creates a new notification PostgreSQL repository.
+func NewRepository(db *database.DB) *Repository {
+	return &Repository{db: db}
+}
+
+// CreateLog writes a notification delivery log record.
+func (r *Repository) CreateLog(ctx context.Context, l *notifications.NotificationLog) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO notifications.logs (
+				user_id, organization_id, channel, recipient, title, body, status, error_message, sent_at
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			RETURNING id, public_id, created_at;
+		`
+		var errPtr *string
+		if l.ErrorMessage != "" {
+			errPtr = &l.ErrorMessage
+		}
+		return tx.QueryRow(txCtx, query,
+			l.UserID, l.OrganizationID, string(l.Channel), l.Recipient,
+			l.Title, l.Body, string(l.Status), errPtr, l.SentAt,
+		).Scan(&l.ID, &l.PublicID, &l.CreatedAt)
+	})
+}
+
+// GetTemplateBySlug retrieves a message template by unique slug.
+func (r *Repository) GetTemplateBySlug(ctx context.Context, slug string) (*notifications.Template, error) {
+	var t notifications.Template
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, slug, channel, title, body, is_active, created_at, updated_at
+			FROM notifications.templates
+			WHERE slug = $1 AND is_active = true;
+		`
+		var chStr string
+		err := tx.QueryRow(txCtx, query, slug).Scan(
+			&t.ID, &t.PublicID, &t.Slug, &chStr, &t.Title, &t.Body, &t.IsActive, &t.CreatedAt, &t.UpdatedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("template")
+			}
+			return err
+		}
+		t.Channel = notifications.Channel(chStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+// ListUserNotifications retrieves paginated in-app feeds for a user.
+func (r *Repository) ListUserNotifications(ctx context.Context, userID int64, limit, offset int) ([]*notifications.NotificationLog, error) {
+	var list []*notifications.NotificationLog
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, user_id, organization_id, channel, recipient, title, body,
+			       status, error_message, is_read, read_at, sent_at, created_at
+			FROM notifications.logs
+			WHERE user_id = $1
+			ORDER BY created_at DESC
+			LIMIT $2 OFFSET $3;
+		`
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		rows, err := tx.Query(txCtx, query, userID, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var l notifications.NotificationLog
+			var chStr, statusStr string
+			var errMsg *string
+			if err := rows.Scan(
+				&l.ID, &l.PublicID, &l.UserID, &l.OrganizationID, &chStr, &l.Recipient,
+				&l.Title, &l.Body, &statusStr, &errMsg, &l.IsRead, &l.ReadAt, &l.SentAt, &l.CreatedAt,
+			); err != nil {
+				return err
+			}
+			l.Channel = notifications.Channel(chStr)
+			l.Status = notifications.DeliveryStatus(statusStr)
+			if errMsg != nil {
+				l.ErrorMessage = *errMsg
+			}
+			list = append(list, &l)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// MarkAsRead flags a notification as read.
+func (r *Repository) MarkAsRead(ctx context.Context, id int64, userID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE notifications.logs SET is_read = true, read_at = now() WHERE id = $1 AND user_id = $2;`
+		tag, err := tx.Exec(txCtx, query, id, userID)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("notification")
+		}
+		return nil
+	})
+}
+
+// GetUnreadCount returns total unread notifications for a user.
+func (r *Repository) GetUnreadCount(ctx context.Context, userID int64) (int, error) {
+	var count int
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT COUNT(*) FROM notifications.logs WHERE user_id = $1 AND is_read = false;`
+		return tx.QueryRow(txCtx, query, userID).Scan(&count)
+	})
+	if err != nil {
+		return 0, fmt.Errorf("notifications postgres: unread count: %w", err)
+	}
+	return count, nil
+}

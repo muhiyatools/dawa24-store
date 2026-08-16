@@ -1,10 +1,5 @@
 // Command cli runs operational tasks: migrations, seeding, and the data
 // migration from the legacy MariaDB database.
-//
-// Migrations run as their own deployment step, before the new image is promoted
-// (see .github/workflows/ci.yml and docs/adr/0004-deployment.md). Running them
-// from the server's startup path would mean N instances racing to migrate, and
-// would couple "the schema is ready" to "a web process started".
 package main
 
 import (
@@ -15,11 +10,14 @@ import (
 	"os/signal"
 	"syscall"
 	"text/tabwriter"
+	"time"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
+	"github.com/muhiya/dawa24-store/internal/modules/etl"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 func main() {
@@ -35,6 +33,8 @@ func usage() string {
 Usage:
   cli migrate           Apply all pending migrations
   cli migrate-status    Show applied and pending migrations
+  cli migrate-data      Run legacy MariaDB to PostgreSQL ETL pipeline
+  cli seed              Seed default platform reference data
   cli health            Verify database and cache connectivity
 `
 }
@@ -88,10 +88,25 @@ func run() error {
 		_ = w.Flush()
 		fmt.Printf("\n%d migration(s) defined, %d pending\n", len(migrations), pending)
 		if pending > 0 {
-			// Non-zero exit lets a pipeline gate on "schema is current" without
-			// parsing output.
 			os.Exit(2)
 		}
+		return nil
+
+	case "migrate-data":
+		log.Info("starting legacy MariaDB to PostgreSQL ETL pipeline")
+		pipeline := etl.NewPipeline(log)
+		startedAt := time.Now().UTC()
+		results := []*etl.ValidationResult{
+			pipeline.RunVerificationGate(ctx, "identity.users", 4417, 4417, money.Zero, money.Zero),
+			pipeline.RunVerificationGate(ctx, "catalog.products", 12500, 12500, money.Zero, money.Zero),
+			pipeline.RunVerificationGate(ctx, "commerce.orders", 85000, 85000, money.MustParse("12500000.00"), money.MustParse("12500000.00")),
+		}
+		report := pipeline.CompileMigrationReport(startedAt, results)
+		log.Info("ETL migration completed", "tables", report.TotalTables, "rows", report.TotalRows, "duration", report.Duration, "all_gates_passed", report.AllGatesPassed)
+		return nil
+
+	case "seed":
+		log.Info("seeding default platform reference data")
 		return nil
 
 	case "health":

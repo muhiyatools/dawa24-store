@@ -122,6 +122,7 @@ All of this is committed, compiles, is `go vet` clean, and is formatted.
 | `workflow` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `workflow_test.go` | **Complete. 1 test suite.** Automated purchase priority engine, weekly branch route coverage, issue tracking. |
 | `hr` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `hr_test.go` | **Complete. 1 test suite.** Staff profiles, exact salary compensation, weekly operating business hours. |
 | `platform_admin` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `platform_admin_test.go` | **Complete. 1 test suite.** System configuration settings, geographical reference data (countries, cities). |
+| `notifications` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `notifications_test.go` | **Complete. 2 test suites.** Multi-channel message delivery (SMS, WhatsApp, Email, In-App), template parameter interpolation, user notification inbox, unread counts. |
 | `etl` | `domain.go`, `transformer.go`, `pipeline.go`, `etl_test.go` | **Complete. 4 test suites.** 6-stage ETL engine (Extract, Validate, Transform, Load, Verify, Reconcile), legacy PK preservation, money sum verification. |
 | `aicapabilities` | `domain.go`, `service.go`, `aicapabilities_test.go` | **Complete. 2 test suites.** AI-augmented catalog matching and search expansion with deterministic fallback and RFC 5737 black-hole tests. |
 
@@ -129,9 +130,9 @@ All of this is committed, compiles, is `go vet` clean, and is formatted.
 
 | Binary | Files | State |
 |---|---|---|
-| `server` | `main.go`, `health.go`, `deps.go` | **Complete.** Starts HTTP *before* dependencies connect; dials PostgreSQL and Redis in background with capped backoff. |
-| `worker` | `main.go` | **Complete skeleton.** Uses `internal/platform/queue`, River self-migration, graceful shutdown, heartbeat job. |
-| `cli` | `main.go` | **Complete.** `migrate`, `migrate-status`, `health`. |
+| `server` | `main.go`, `health.go`, `deps.go`, `routes.go` | **Complete.** Starts HTTP *before* dependencies connect; mounts all 11 bounded context routes with tenant context resolution and middleware. |
+| `worker` | `main.go` | **Complete.** River worker engine registering job handlers for order notifications, ingest batch staging, promo expiration, and queue heartbeats. |
+| `cli` | `main.go` | **Complete.** `migrate`, `migrate-status`, `migrate-data` (ETL pipeline), `seed`, `health`. |
 
 ## Database (`db/migrations/` and `db/queries/`)
 
@@ -149,6 +150,7 @@ All of this is committed, compiles, is `go vet` clean, and is formatted.
 | `010_workflow` | `workflow.purchase_priority_engines`, `weekly_coverages`, `report_issues`. |
 | `011_hr` | `hr.employees`, `hr.work_times`. |
 | `012_platform_admin` | `platform_admin.system_settings`, `countries`, `cities`. |
+| `013_notifications` | `notifications.templates`, `notifications.logs`. |
 | `db/queries/` | `identity.sql`, `catalog.sql`, `inventory.sql`, `commerce.sql`, `billing.sql`, `ingest.sql`, `promo.sql`. |
 
 ## Documentation (`docs/modules/`)
@@ -165,6 +167,7 @@ All of this is committed, compiles, is `go vet` clean, and is formatted.
 | `docs/modules/workflow.md` | **Complete.** |
 | `docs/modules/hr.md` | **Complete.** |
 | `docs/modules/platform_admin.md` | **Complete.** |
+| `docs/modules/notifications.md` | **Complete.** |
 | `docs/modules/etl.md` | **Complete.** |
 | `docs/modules/aicapabilities.md` | **Complete.** |
 

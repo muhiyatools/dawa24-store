@@ -178,3 +178,12 @@ func (l *OrderLine) ValidateLine() error {
 	}
 	return nil
 }
+
+// WishlistItem represents an item in a user's wishlist / favorites.
+type WishlistItem struct {
+	ID        int64     `json:"id"`
+	PublicID  string    `json:"public_id"`
+	UserID    int64     `json:"user_id"`
+	ProductID int64     `json:"product_id"`
+	CreatedAt time.Time `json:"created_at"`
+}

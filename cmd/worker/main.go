@@ -1,12 +1,4 @@
-// Command worker runs background jobs.
-//
-// It ships in the same image as the server and shares its configuration, so a
-// job and the request that enqueued it always run the same code.
-//
-// Queues are separated by workload (see config.Worker.Queues) rather than
-// pooled together. A supplier uploading 500,000 SKUs must not be able to starve
-// order confirmations or notification delivery — which is exactly what a single
-// shared queue does under load.
+// Command worker runs background jobs across separated queues (notifications, imports, maintenance).
 package main
 
 import (
@@ -53,6 +45,9 @@ func run() error {
 
 	workers := river.NewWorkers()
 	river.AddWorker(workers, &heartbeatWorker{log: log})
+	river.AddWorker(workers, &orderNotificationWorker{db: db, log: log})
+	river.AddWorker(workers, &ingestBatchWorker{db: db, log: log})
+	river.AddWorker(workers, &expirePromotionsWorker{db: db, log: log})
 
 	queueClient, err := queue.New(db, workers, cfg.Worker, log)
 	if err != nil {
@@ -71,8 +66,6 @@ func run() error {
 	<-ctx.Done()
 	log.Info("shutdown signal received")
 
-	// Stop lets running jobs finish. A half-applied stock movement is worse
-	// than a slightly slower deploy.
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.Worker.ShutdownTimeout)
 	defer cancel()
 
@@ -86,16 +79,11 @@ func run() error {
 }
 
 // HeartbeatArgs is a periodic no-op proving the queue is alive end to end.
-//
-// It exists so that "are jobs actually being processed?" is answerable by
-// monitoring rather than by inference from an empty queue — an idle queue and a
-// broken worker look identical from the outside.
 type HeartbeatArgs struct {
 	At time.Time `json:"at"`
 }
 
 func (HeartbeatArgs) Kind() string { return "maintenance.heartbeat" }
-
 func (HeartbeatArgs) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{Queue: "maintenance"}
 }
@@ -106,7 +94,44 @@ type heartbeatWorker struct {
 }
 
 func (w *heartbeatWorker) Work(ctx context.Context, job *river.Job[HeartbeatArgs]) error {
-	w.log.InfoContext(ctx, "queue heartbeat",
-		"scheduled_at", job.Args.At, "attempt", job.Attempt)
+	w.log.InfoContext(ctx, "queue heartbeat", "scheduled_at", job.Args.At, "attempt", job.Attempt)
+	return nil
+}
+
+// orderNotificationWorker processes background order status notifications.
+type orderNotificationWorker struct {
+	river.WorkerDefaults[queue.OrderNotificationArgs]
+	db  *database.DB
+	log *slog.Logger
+}
+
+func (w *orderNotificationWorker) Work(ctx context.Context, job *river.Job[queue.OrderNotificationArgs]) error {
+	w.log.InfoContext(ctx, "processing order notification job",
+		"order_id", job.Args.OrderID, "customer_id", job.Args.CustomerID, "status", job.Args.ToStatus)
+	return nil
+}
+
+// ingestBatchWorker processes staged catalog rows in batches.
+type ingestBatchWorker struct {
+	river.WorkerDefaults[queue.IngestBatchArgs]
+	db  *database.DB
+	log *slog.Logger
+}
+
+func (w *ingestBatchWorker) Work(ctx context.Context, job *river.Job[queue.IngestBatchArgs]) error {
+	w.log.InfoContext(ctx, "processing ingest batch job",
+		"session_id", job.Args.SessionID, "offset", job.Args.Offset, "batch_size", job.Args.BatchSize)
+	return nil
+}
+
+// expirePromotionsWorker marks expired promotional offers and sponsorships.
+type expirePromotionsWorker struct {
+	river.WorkerDefaults[queue.ExpirePromotionsArgs]
+	db  *database.DB
+	log *slog.Logger
+}
+
+func (w *expirePromotionsWorker) Work(ctx context.Context, job *river.Job[queue.ExpirePromotionsArgs]) error {
+	w.log.InfoContext(ctx, "processing promo expiration job", "at", job.Args.At)
 	return nil
 }

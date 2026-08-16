@@ -178,4 +178,19 @@ func (s *Service) ListVendorShipments(ctx context.Context, vendorOrgID int64, li
 	return s.repo.ListShipmentsByVendor(ctx, vendorOrgID, limit, offset)
 }
 
+// AddToWishlist adds a product to customer's wishlist.
+func (s *Service) AddToWishlist(ctx context.Context, userID int64, productID int64) error {
+	return s.repo.AddToWishlist(ctx, userID, productID)
+}
+
+// RemoveFromWishlist removes a product from customer's wishlist.
+func (s *Service) RemoveFromWishlist(ctx context.Context, userID int64, productID int64) error {
+	return s.repo.RemoveFromWishlist(ctx, userID, productID)
+}
+
+// GetWishlist returns all wishlist items for a customer.
+func (s *Service) GetWishlist(ctx context.Context, userID int64) ([]*WishlistItem, error) {
+	return s.repo.ListWishlist(ctx, userID)
+}
+
 var _ fmt.Stringer
