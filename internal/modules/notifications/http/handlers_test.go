@@ -16,6 +16,8 @@ import (
 	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	notificationsHttp "github.com/muhiya/dawa24-store/internal/modules/notifications/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 )
 
@@ -52,6 +54,31 @@ func (r stubRepo) GetUnreadCount(context.Context, int64) (int, error) {
 	return 0, nil
 }
 
+type happyRepo struct{}
+
+func (happyRepo) CreateLog(ctx context.Context, l *notifications.NotificationLog) error {
+	l.ID = 1
+	return nil
+}
+func (happyRepo) GetTemplateBySlug(ctx context.Context, slug string) (*notifications.Template, error) {
+	return &notifications.Template{ID: 1, Slug: slug}, nil
+}
+func (happyRepo) ListUserNotifications(ctx context.Context, userID int64, limit, offset int) ([]*notifications.NotificationLog, error) {
+	return []*notifications.NotificationLog{{ID: 1, UserID: userID, Title: "Order Confirmed"}}, nil
+}
+func (happyRepo) MarkAsRead(ctx context.Context, id, userID int64) error {
+	return nil
+}
+func (happyRepo) MarkAllAsRead(ctx context.Context, userID int64) (int64, error) {
+	return 5, nil
+}
+func (happyRepo) ListUnread(ctx context.Context, userID int64, limit, offset int) ([]*notifications.NotificationLog, error) {
+	return []*notifications.NotificationLog{{ID: 1, UserID: userID, Title: "Order Confirmed"}}, nil
+}
+func (happyRepo) GetUnreadCount(ctx context.Context, userID int64) (int, error) {
+	return 3, nil
+}
+
 const testCookieName = "dawa24_session"
 
 func newTestRouter(t *testing.T) http.Handler {
@@ -71,6 +98,39 @@ func newTestRouter(t *testing.T) http.Handler {
 		notificationsHttp.NewHandler(notifSvc, log).RegisterRoutes(protected)
 	})
 
+	return r
+}
+
+func newAuthedRouter(repo notifications.Repository) http.Handler {
+	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	notifSvc := notifications.NewService(repo, log)
+
+	r := chi.NewRouter()
+	r.Use(httpx.RequestID)
+	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			sess := &identity.Session{
+				UserID:      1,
+				ActiveOrgID: 1,
+				Role:        "admin",
+				Permissions: []string{"admin", "notifications.admin"},
+			}
+			ctx := identityHttp.WithSession(r.Context(), sess)
+			actor := authctx.Actor{
+				UserID:         1,
+				OrganizationID: 1,
+				Role:           "admin",
+				Permissions:    []string{"admin", "notifications.admin"},
+			}
+			ctx = authctx.WithActor(ctx, actor)
+			ctx = database.WithTenant(ctx, 1)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
+	notificationsHttp.NewHandler(notifSvc, log).RegisterRoutes(r)
 	return r
 }
 
@@ -106,7 +166,7 @@ func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 	for _, route := range protectedRoutes {
 		req := httptest.NewRequest(route.method, route.path, strings.NewReader("{}"))
 		req.Header.Set("Content-Type", "application/json")
-		req.AddCookie(&http.Cookie{Name: testCookieName, Value: "forged-token-that-was-never-issued"})
+		req.AddCookie(&http.Cookie{Name: "dawa24_session", Value: "forged-token-that-was-never-issued"})
 		rec := httptest.NewRecorder()
 
 		router.ServeHTTP(rec, req)
@@ -119,20 +179,56 @@ func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 
 func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	router := newTestRouter(t)
-
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/notifications", nil)
 	rec := httptest.NewRecorder()
+
 	router.ServeHTTP(rec, req)
 
 	var body httpx.ErrorBody
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 		t.Fatalf("response is not the JSON error envelope: %v (body: %s)", err, rec.Body.String())
 	}
-
 	if body.Error.Code == "" {
-		t.Error("error envelope has no code; clients cannot branch on it")
+		t.Error("error envelope has no code")
 	}
 	if body.Error.RequestID == "" {
 		t.Error("error envelope has no request_id")
+	}
+}
+
+func TestNotificationsHandler_HappyPaths(t *testing.T) {
+	router := newAuthedRouter(happyRepo{})
+
+	tests := []struct {
+		name       string
+		method     string
+		path       string
+		body       string
+		wantStatus int
+	}{
+		{"ListNotifications", http.MethodGet, "/api/v1/notifications?limit=10&offset=0", "", http.StatusOK},
+		{"MarkAsRead", http.MethodPost, "/api/v1/notifications/1/read", "", http.StatusOK},
+		{"GetUnreadCount", http.MethodGet, "/api/v1/notifications/unread-count", "", http.StatusOK},
+		{"ListUnread", http.MethodGet, "/api/v1/notifications/unread?limit=10&offset=0", "", http.StatusOK},
+		{"MarkAllRead", http.MethodPost, "/api/v1/notifications/read-all", "", http.StatusOK},
+		{"AdminBroadcast", http.MethodPost, "/api/v1/admin/notifications/broadcast", `{"title":"System Maintenance","body":"Downtime in 10 mins"}`, http.StatusOK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var bodyReader io.Reader
+			if tt.body != "" {
+				bodyReader = strings.NewReader(tt.body)
+			}
+			req := httptest.NewRequest(tt.method, tt.path, bodyReader)
+			if tt.body != "" {
+				req.Header.Set("Content-Type", "application/json")
+			}
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("%s %s got status %d, want %d (body: %s)", tt.method, tt.path, rec.Code, tt.wantStatus, rec.Body.String())
+			}
+		})
 	}
 }

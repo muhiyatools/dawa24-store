@@ -32,6 +32,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/notifications/unread-count", h.GetUnreadCount)
 	r.Get("/api/v1/notifications/unread", h.ListUnread)
 	r.Post("/api/v1/notifications/read-all", h.MarkAllRead)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // ListNotifications returns in-app notification feed.

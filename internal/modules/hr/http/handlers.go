@@ -30,6 +30,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/hr/employees", h.ListEmployees)
 	r.Post("/api/v1/hr/work-times", h.SaveWorkTimes)
 	r.Get("/api/v1/hr/work-times", h.ListWorkTimes)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // CreateEmployee handles onboarding a staff member.

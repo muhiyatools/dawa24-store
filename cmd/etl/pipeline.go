@@ -64,6 +64,12 @@ func (p *Pipeline) Run(ctx context.Context, verifyOnly bool) error {
 		p.log.Warn("organization migration warning (table may differ)", "error", err)
 	}
 
+	// Stage 3: Products & Variants
+	p.log.Info("starting products migration stage")
+	if err := p.migrateProducts(ctx, extractor, loader); err != nil {
+		p.log.Warn("products migration warning (table may differ)", "error", err)
+	}
+
 	p.log.Info("running post-migration verification gates")
 	return p.Verify(ctx, sourceDB, targetDB)
 }
@@ -129,6 +135,43 @@ func (p *Pipeline) migrateOrganizations(ctx context.Context, extractor *Extracto
 	}
 
 	p.log.Info("organizations migration completed", "total_loaded", totalLoaded)
+	return nil
+}
+
+func (p *Pipeline) migrateProducts(ctx context.Context, extractor *Extractor, loader *Loader) error {
+	offset := 0
+	totalLoaded := 0
+
+	for {
+		products, err := extractor.ExtractProducts(ctx, p.batchSize, offset)
+		if err != nil {
+			return err
+		}
+		if len(products) == 0 {
+			break
+		}
+
+		var targetProducts []*TargetProduct
+		var targetVariants []*TargetVariant
+		for _, prod := range products {
+			if err := p.validator.ValidateProduct(prod); err != nil {
+				p.log.Warn("skipping invalid product", "id", prod.ID, "error", err)
+				continue
+			}
+			tProd, tVar := p.transformer.TransformProduct(prod)
+			targetProducts = append(targetProducts, tProd)
+			targetVariants = append(targetVariants, tVar)
+		}
+
+		loaded, err := loader.LoadProducts(ctx, targetProducts, targetVariants)
+		if err != nil {
+			return fmt.Errorf("load products batch: %w", err)
+		}
+		totalLoaded += loaded
+		offset += len(products)
+	}
+
+	p.log.Info("products migration completed", "total_loaded", totalLoaded)
 	return nil
 }
 

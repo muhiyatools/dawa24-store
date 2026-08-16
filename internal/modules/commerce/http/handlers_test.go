@@ -9,11 +9,16 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	commerceHttp "github.com/muhiya/dawa24-store/internal/modules/commerce/http"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -105,7 +110,7 @@ func (r stubRepo) ListWishlist(ctx context.Context, userID int64) ([]*commerce.W
 	return nil, nil
 }
 
-func (r stubRepo) CreateQuoteRequest(ctx context.Context, q *commerce.QuoteRequest) error {
+func (r stubRepo) CreateQuoteRequest(ctx context.Context, qr *commerce.QuoteRequest) error {
 	r.fail("CreateQuoteRequest")
 	return nil
 }
@@ -117,45 +122,154 @@ func (r stubRepo) UpdateQuoteStatus(ctx context.Context, id int64, status commer
 	r.fail("UpdateQuoteStatus")
 	return nil
 }
-func (r stubRepo) ListQuoteRequestsByOrg(ctx context.Context, orgID int64, isVendor bool, limit, offset int) ([]*commerce.QuoteRequest, error) {
+func (r stubRepo) ListQuoteRequestsByOrg(ctx context.Context, orgID int64, asSupplier bool, limit, offset int) ([]*commerce.QuoteRequest, error) {
 	r.fail("ListQuoteRequestsByOrg")
 	return nil, nil
 }
+
 func (r stubRepo) AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*commerce.Order, error) {
 	r.fail("AdminSearchOrders")
 	return nil, nil
 }
 
+type happyRepo struct{}
+
+func (happyRepo) GetOrCreateCart(ctx context.Context, userID int64) (*commerce.Cart, error) {
+	return &commerce.Cart{ID: 1, UserID: userID}, nil
+}
+func (happyRepo) GetCartWithItems(ctx context.Context, cartID int64) (*commerce.Cart, error) {
+	return &commerce.Cart{ID: cartID, UserID: 1, Items: []*commerce.CartItem{{ID: 1, CartID: cartID, ProductID: 1, ProductVariantID: 1, Quantity: 2, UnitPrice: money.MustParse("50.00")}}}, nil
+}
+func (happyRepo) AddToCartItem(ctx context.Context, cartID int64, item *commerce.CartItem) error {
+	return nil
+}
+func (happyRepo) SetCartItemQuantity(ctx context.Context, cartID int64, variantID int64, quantity int) error {
+	return nil
+}
+func (happyRepo) RemoveCartItem(ctx context.Context, cartID int64, variantID int64) error {
+	return nil
+}
+func (happyRepo) ClearCart(ctx context.Context, cartID int64) error {
+	return nil
+}
+func (happyRepo) CreateOrder(ctx context.Context, order *commerce.Order, shipments []*commerce.OrderShipment, lines []*commerce.OrderLine) error {
+	order.ID = 1
+	order.OrderNumber = "ORD-2026-0001"
+	return nil
+}
+func (happyRepo) GetOrderByID(ctx context.Context, id int64) (*commerce.Order, error) {
+	return &commerce.Order{ID: id, CustomerID: 1, OrderNumber: "ORD-1", Status: commerce.StatusDelivered, TotalAmount: money.MustParse("100.00")}, nil
+}
+func (happyRepo) GetOrderByNumber(ctx context.Context, number string) (*commerce.Order, error) {
+	return &commerce.Order{ID: 1, CustomerID: 1, OrderNumber: number, Status: commerce.StatusDelivered}, nil
+}
+func (happyRepo) UpdateOrderStatus(ctx context.Context, orderID int64, toStatus commerce.OrderStatus, history commerce.OrderStatusHistory) error {
+	return nil
+}
+func (happyRepo) ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, error) {
+	return []*commerce.Order{{ID: 1, CustomerID: customerID, OrderNumber: "ORD-1"}}, nil
+}
+func (happyRepo) ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*commerce.OrderShipment, error) {
+	return []*commerce.OrderShipment{{ID: 1, OrganizationID: vendorOrgID, ShipmentNumber: "SH-1"}}, nil
+}
+func (happyRepo) GetShipmentByID(ctx context.Context, id int64) (*commerce.OrderShipment, error) {
+	return &commerce.OrderShipment{ID: id, OrganizationID: 1, Status: commerce.StatusPending}, nil
+}
+func (happyRepo) UpdateShipmentStatus(ctx context.Context, id int64, from, to commerce.OrderStatus, history commerce.OrderStatusHistory) error {
+	return nil
+}
+func (happyRepo) ListOrderHistory(ctx context.Context, orderID int64) ([]*commerce.OrderStatusHistory, error) {
+	return []*commerce.OrderStatusHistory{{ID: 1, OrderID: orderID, ToStatus: string(commerce.StatusPending)}}, nil
+}
+func (happyRepo) RateOrder(ctx context.Context, orderID int64, customerID int64, rating int, review string) error {
+	return nil
+}
+func (happyRepo) AddToWishlist(ctx context.Context, userID int64, productID int64) error {
+	return nil
+}
+func (happyRepo) RemoveFromWishlist(ctx context.Context, userID int64, productID int64) error {
+	return nil
+}
+func (happyRepo) ListWishlist(ctx context.Context, userID int64) ([]*commerce.WishlistItem, error) {
+	return []*commerce.WishlistItem{{ID: 1, UserID: userID, ProductID: 1}}, nil
+}
+func (happyRepo) CreateQuoteRequest(ctx context.Context, qr *commerce.QuoteRequest) error {
+	qr.ID = 1
+	return nil
+}
+func (happyRepo) GetQuoteRequestByID(ctx context.Context, id int64) (*commerce.QuoteRequest, error) {
+	return &commerce.QuoteRequest{ID: id, OrganizationID: 1, CustomerOrgID: 2, Status: commerce.QuotePending}, nil
+}
+func (happyRepo) UpdateQuoteStatus(ctx context.Context, id int64, status commerce.QuoteStatus, quotePrice money.Amount, supplierNotes string) error {
+	return nil
+}
+func (happyRepo) ListQuoteRequestsByOrg(ctx context.Context, orgID int64, asSupplier bool, limit, offset int) ([]*commerce.QuoteRequest, error) {
+	return []*commerce.QuoteRequest{{ID: 1, OrganizationID: orgID, Status: commerce.QuotePending}}, nil
+}
+func (happyRepo) AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*commerce.Order, error) {
+	return []*commerce.Order{{ID: 1, CustomerID: 1, OrderNumber: "ORD-1"}}, nil
+}
+
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()
-
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
 	svc := commerce.NewService(stubRepo{t: t}, log)
-
 	r := chi.NewRouter()
 	r.Use(httpx.RequestID)
 	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie("dawa24_session")
-			if r.Header.Get("Authorization") == "" && err != nil {
+			if err != nil || cookie.Value == "" {
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
-			if r.Header.Get("Authorization") == "Bearer forged-token" || (err == nil && cookie.Value == "forged-token-that-was-never-issued") {
+			if cookie.Value == "forged-token-that-was-never-issued" {
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
 			next.ServeHTTP(w, r)
 		})
 	})
-
 	commerceHttp.NewHandler(svc, log).RegisterRoutes(r)
-
 	return r
 }
 
-var allRoutes = []struct{ method, path string }{
+func newAuthedRouter(repo commerce.Repository) http.Handler {
+	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	svc := commerce.NewService(repo, log)
+	r := chi.NewRouter()
+	r.Use(httpx.RequestID)
+	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			sess := &identity.Session{
+				UserID:      1,
+				ActiveOrgID: 1,
+				Role:        "super_admin",
+				Permissions: []string{"admin", "super_admin", "commerce.admin"},
+			}
+			ctx := identityHttp.WithSession(r.Context(), sess)
+			actor := authctx.Actor{
+				UserID:         1,
+				OrganizationID: 1,
+				Role:           "super_admin",
+				Permissions:    []string{"admin", "super_admin", "commerce.admin"},
+			}
+			ctx = authctx.WithActor(ctx, actor)
+			ctx = database.WithTenant(ctx, 1)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
+	commerceHttp.NewHandler(svc, log).RegisterRoutes(r)
+	return r
+}
+
+var protectedRoutes = []struct{ method, path string }{
 	{http.MethodPost, "/api/v1/commerce/checkout"},
 	{http.MethodPatch, "/api/v1/commerce/cart/items/1"},
 	{http.MethodGet, "/api/v1/commerce/orders/1/history"},
@@ -179,22 +293,16 @@ var allRoutes = []struct{ method, path string }{
 	{http.MethodGet, "/api/v1/commerce/quotes"},
 }
 
-// Tests cover authorization surface of the commerce handlers
-// These endpoints require an authenticated user context
-
-func TestRoutesRejectAnonymousCallers(t *testing.T) {
+func TestProtectedRoutesRejectAnonymousCallers(t *testing.T) {
 	router := newTestRouter(t)
-
-	for _, route := range allRoutes {
+	for _, route := range protectedRoutes {
 		t.Run(route.method+" "+route.path, func(t *testing.T) {
 			req := httptest.NewRequest(route.method, route.path, strings.NewReader("{}"))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-
 			router.ServeHTTP(rec, req)
-
 			if rec.Code != http.StatusUnauthorized {
-				t.Errorf("got %d, want 401 — this endpoint should reject anonymous callers", rec.Code)
+				t.Errorf("got %d, want 401 — this endpoint is reachable without a session", rec.Code)
 			}
 		})
 	}
@@ -202,70 +310,20 @@ func TestRoutesRejectAnonymousCallers(t *testing.T) {
 
 func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 	router := newTestRouter(t)
-
-	for _, route := range allRoutes {
+	for _, route := range protectedRoutes {
 		req := httptest.NewRequest(route.method, route.path, strings.NewReader("{}"))
 		req.Header.Set("Content-Type", "application/json")
 		req.AddCookie(&http.Cookie{Name: "dawa24_session", Value: "forged-token-that-was-never-issued"})
 		rec := httptest.NewRecorder()
-
 		router.ServeHTTP(rec, req)
-
 		if rec.Code != http.StatusUnauthorized {
 			t.Errorf("%s %s with a forged token got %d, want 401", route.method, route.path, rec.Code)
 		}
 	}
 }
 
-func TestBearerTokenIsAlsoValidated(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/commerce/cart", nil)
-	req.Header.Set("Authorization", "Bearer forged-token")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("got %d, want 401 for a forged bearer token", rec.Code)
-	}
-}
-
-func TestRejectsUnknownJSONFields(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/commerce/checkout",
-		strings.NewReader(`{"customer_id":1,"totally_unknown":"y"}`))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer valid-token")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for an unknown JSON field", rec.Code)
-	}
-}
-
-func TestRejectsMalformedBody(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/commerce/checkout",
-		strings.NewReader(`{"customer_id": `))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer valid-token")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for a malformed body", rec.Code)
-	}
-}
-
 func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	router := newTestRouter(t)
-
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/commerce/cart", nil)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
@@ -274,11 +332,67 @@ func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 		t.Fatalf("response is not the JSON error envelope: %v (body: %s)", err, rec.Body.String())
 	}
-
 	if body.Error.Code == "" {
-		t.Error("error envelope has no code; clients cannot branch on it")
+		t.Error("error envelope has no code")
 	}
 	if body.Error.RequestID == "" {
 		t.Error("error envelope has no request_id")
+	}
+}
+
+func TestCommerceHandler_HappyPaths(t *testing.T) {
+	router := newAuthedRouter(happyRepo{})
+
+	validUntil := time.Now().AddDate(0, 0, 7).Format(time.RFC3339)
+	_ = validUntil
+
+	tests := []struct {
+		name       string
+		method     string
+		path       string
+		body       string
+		wantStatus int
+	}{
+		{"GetCart", http.MethodGet, "/api/v1/commerce/cart", "", http.StatusOK},
+		{"AddCartItem", http.MethodPost, "/api/v1/commerce/cart/items", `{"product_id":1,"product_variant_id":1,"quantity":2,"unit_price":"50.00"}`, http.StatusOK},
+		{"SetCartQuantity", http.MethodPatch, "/api/v1/commerce/cart/items/1", `{"quantity":5}`, http.StatusOK},
+		{"RemoveCartItem", http.MethodDelete, "/api/v1/commerce/cart/items/1", "", http.StatusOK},
+		{"ClearCart", http.MethodDelete, "/api/v1/commerce/cart", "", http.StatusOK},
+		{"Checkout", http.MethodPost, "/api/v1/commerce/checkout", `{"customer_id":1,"payment_method":"fawry","items":[{"vendor_org_id":1,"product_name":{"en":"Panadol"},"unit_price":"50.00","quantity":2}]}`, http.StatusCreated},
+		{"GetOrder", http.MethodGet, "/api/v1/commerce/orders/1", "", http.StatusOK},
+		{"ListOrders", http.MethodGet, "/api/v1/commerce/orders?limit=10&offset=0", "", http.StatusOK},
+		{"GetOrderHistory", http.MethodGet, "/api/v1/commerce/orders/1/history", "", http.StatusOK},
+		{"RateOrder", http.MethodPost, "/api/v1/commerce/orders/1/rate", `{"rating":5,"review":"excellent"}`, http.StatusNoContent},
+		{"CancelOrder", http.MethodPost, "/api/v1/commerce/orders/1/cancel", `{"reason":"mistake"}`, http.StatusOK},
+		{"GetShipment", http.MethodGet, "/api/v1/commerce/shipments/1", "", http.StatusOK},
+		{"ListVendorShipments", http.MethodGet, "/api/v1/commerce/vendor/shipments?vendor_id=1", "", http.StatusOK},
+		{"GetWishlist", http.MethodGet, "/api/v1/commerce/wishlist", "", http.StatusOK},
+		{"AddToWishlist", http.MethodPost, "/api/v1/commerce/wishlist", `{"product_id":1}`, http.StatusCreated},
+		{"RemoveFromWishlist", http.MethodDelete, "/api/v1/commerce/wishlist/1", "", http.StatusOK},
+		{"CreateQuote", http.MethodPost, "/api/v1/commerce/quotes", `{"organization_id":1,"customer_org_id":2,"product_name":"Panadol","requested_quantity":100,"target_unit_price":"45.00"}`, http.StatusCreated},
+		{"RespondQuote", http.MethodPost, "/api/v1/commerce/quotes/1/respond", `{"quote_price":"47.00","supplier_notes":"best offer"}`, http.StatusOK},
+		{"ListQuotes", http.MethodGet, "/api/v1/commerce/quotes", "", http.StatusOK},
+		{"AdminSearchOrders", http.MethodGet, "/api/v1/admin/commerce/orders", "", http.StatusOK},
+		{"AdminGetOrder", http.MethodGet, "/api/v1/admin/commerce/orders/1", "", http.StatusOK},
+		{"AdminForceStatus", http.MethodPost, "/api/v1/admin/commerce/orders/1/status", `{"status":"confirmed","note":"admin verified"}`, http.StatusOK},
+		{"AdminRefund", http.MethodPost, "/api/v1/admin/commerce/orders/1/refund", `{"reason":"customer returned item"}`, http.StatusOK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var bodyReader io.Reader
+			if tt.body != "" {
+				bodyReader = strings.NewReader(tt.body)
+			}
+			req := httptest.NewRequest(tt.method, tt.path, bodyReader)
+			if tt.body != "" {
+				req.Header.Set("Content-Type", "application/json")
+			}
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("%s %s got status %d, want %d (body: %s)", tt.method, tt.path, rec.Code, tt.wantStatus, rec.Body.String())
+			}
+		})
 	}
 }

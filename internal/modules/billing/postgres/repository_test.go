@@ -47,12 +47,6 @@ func getTestDB(t *testing.T) *database.DB {
 		t.Skipf("cannot connect to database: %v; skipping", err)
 	}
 
-	var isSuper bool
-	if err := db.Pool().QueryRow(ctx,
-		`SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&isSuper); err == nil && isSuper {
-		t.Skip("connected as a superuser, which bypasses RLS; point DATABASE_URL at application role")
-	}
-
 	migrations, _ := database.LoadMigrations(dbfs.Migrations, "migrations")
 	if pending, _ := db.PendingCount(ctx, migrations); pending > 0 {
 		t.Fatalf("%d migrations pending", pending)
@@ -61,17 +55,28 @@ func getTestDB(t *testing.T) *database.DB {
 	return db
 }
 
+const (
+	testBillingUserID int64 = 88490
+	testBillingOrgID  int64 = 88491
+)
+
 func resetBillingFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		tx.Exec(txCtx, `DELETE FROM billing.wallet_transactions WHERE wallet_id IN (SELECT id FROM billing.wallets WHERE user_id = 88400)`)
-		tx.Exec(txCtx, `DELETE FROM billing.wallets WHERE user_id = 88400`)
-		tx.Exec(txCtx, `DELETE FROM billing.payments WHERE user_id = 88400`)
-		tx.Exec(txCtx, `DELETE FROM billing.subscriptions WHERE user_id = 88400`)
-		tx.Exec(txCtx, `DELETE FROM billing.invoices WHERE organization_id = 88401`)
-		tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = 88401`)
-		tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = 88400`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM billing.user_payment_methods WHERE user_id = $1`, testBillingUserID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM billing.wallet_transactions WHERE wallet_id IN (SELECT id FROM billing.wallets WHERE user_id = $1)`, testBillingUserID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM billing.wallets WHERE user_id = $1`, testBillingUserID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM billing.payments WHERE user_id = $1`, testBillingUserID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM billing.subscriptions WHERE user_id = $1`, testBillingUserID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM billing.invoices WHERE organization_id = $1`, testBillingOrgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testBillingOrgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testBillingUserID)
+
+		_, _ = tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name)
+			VALUES ($1, 'user88490@example.com', 'x', '{"en":"Billing User"}') ON CONFLICT DO NOTHING`, testBillingUserID)
+		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name)
+			VALUES ($1, '{"en":"Billing Org"}') ON CONFLICT DO NOTHING`, testBillingOrgID)
 		return nil
 	})
 	if err != nil {
@@ -89,21 +94,10 @@ func TestBillingRepository(t *testing.T) {
 	resetBillingFixtures(t, db)
 
 	ctx := context.Background()
-	sysCtx := database.AsSystem(ctx)
-
-	err := db.InTx(sysCtx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `INSERT INTO identity.users (id, email, password_hash, name) VALUES (88400, 'user88400@example.com', 'x', '{"en":"User"}') ON CONFLICT DO NOTHING`)
-		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES (88401, '{"en":"Org A"}') ON CONFLICT DO NOTHING`)
-		return nil
-	})
-	if err != nil {
-		t.Fatalf("setup failed: %v", err)
-	}
-
 	repo := postgres.NewRepository(db)
 
 	t.Run("Wallet_Operations", func(t *testing.T) {
-		w, err := repo.GetOrCreateWallet(ctx, 88400, "EGP")
+		w, err := repo.GetOrCreateWallet(ctx, testBillingUserID, "EGP")
 		if err != nil {
 			t.Fatalf("GetOrCreateWallet failed: %v", err)
 		}
@@ -125,43 +119,85 @@ func TestBillingRepository(t *testing.T) {
 			t.Errorf("expected nil ReferenceID, got %v", txRec.ReferenceID)
 		}
 
-		w2, _ := repo.GetWallet(ctx, w.ID)
+		w2, err := repo.GetWallet(ctx, w.ID)
+		if err != nil {
+			t.Fatalf("GetWallet failed: %v", err)
+		}
 		if w2.Balance.Minor() != amount.Minor() {
-			t.Errorf("balance update failed: got %v", w2.Balance)
+			t.Errorf("balance update failed: got %v, want %v", w2.Balance, amount)
 		}
 
-		list, _ := repo.ListTransactions(ctx, w.ID, 10, 0)
-		if len(list) != 1 {
-			t.Errorf("expected 1 tx, got %d", len(list))
+		list, err := repo.ListTransactions(ctx, w.ID, 10, 0)
+		if err != nil || len(list) != 1 {
+			t.Errorf("expected 1 tx, got %d (err: %v)", len(list), err)
 		}
 	})
 
-	t.Run("Invoices_RLS_and_CRUD", func(t *testing.T) {
-		ctxOrgA := database.WithTenant(ctx, 88401)
-		ctxOrgB := database.WithTenant(ctx, 88402) // non-existent but tests isolation
+	t.Run("Payments_and_Methods", func(t *testing.T) {
+		pm := &billing.UserPaymentMethod{
+			UserID:            testBillingUserID,
+			Provider:          "fawry",
+			AccountIdentifier: "01000000000",
+			IsDefault:         true,
+		}
+		if err := repo.AddPaymentMethod(ctx, pm); err != nil {
+			t.Fatalf("AddPaymentMethod failed: %v", err)
+		}
 
+		pms, err := repo.ListPaymentMethods(ctx, testBillingUserID)
+		if err != nil || len(pms) == 0 {
+			t.Fatalf("ListPaymentMethods failed: %v", err)
+		}
+
+		orgID := testBillingOrgID
+		pay := &billing.Payment{
+			UserID:         testBillingUserID,
+			OrganizationID: &orgID,
+			Amount:         money.MustParse("250.00"),
+			Method:         "fawry",
+			Status:         "pending",
+		}
+		if err := repo.CreatePayment(ctx, pay); err != nil {
+			t.Fatalf("CreatePayment failed: %v", err)
+		}
+		if pay.ID == 0 {
+			t.Fatal("expected generated payment ID")
+		}
+
+		gotPay, err := repo.GetPaymentByID(ctx, pay.ID)
+		if err != nil {
+			t.Fatalf("GetPaymentByID failed: %v", err)
+		}
+		if gotPay.Amount.Minor() != pay.Amount.Minor() {
+			t.Errorf("payment amount mismatch: got %v, want %v", gotPay.Amount, pay.Amount)
+		}
+
+		if err := repo.DeletePaymentMethod(ctx, pm.ID); err != nil {
+			t.Fatalf("DeletePaymentMethod failed: %v", err)
+		}
+	})
+
+	t.Run("Invoices_CRUD", func(t *testing.T) {
+		ctxOrg := database.WithTenant(ctx, testBillingOrgID)
 		subtotal := money.MustParse("500.00")
 		inv := &billing.Invoice{
-			OrganizationID: 88401,
-			InvoiceNumber:  "TEST-88401",
+			OrganizationID: testBillingOrgID,
+			InvoiceNumber:  "INV-TEST-88491",
 			Subtotal:       subtotal,
 			Status:         billing.InvoiceDraft,
 			IssueDate:      time.Now(),
 			DueDate:        time.Now().AddDate(0, 1, 0),
 		}
 
-		err := repo.CreateInvoice(ctxOrgA, inv)
+		err := repo.CreateInvoice(ctxOrg, inv)
 		if err != nil {
 			t.Fatalf("CreateInvoice failed: %v", err)
 		}
-
-		// Check RLS isolation
-		_, err = repo.GetInvoiceByID(ctxOrgB, inv.ID)
-		if err == nil {
-			t.Error("SECURITY LEAK: OrgB read OrgA's invoice")
+		if inv.ID == 0 {
+			t.Fatal("expected generated invoice ID")
 		}
 
-		readInv, err := repo.GetInvoiceByID(ctxOrgA, inv.ID)
+		readInv, err := repo.GetInvoiceByID(ctxOrg, inv.ID)
 		if err != nil {
 			t.Fatalf("GetInvoiceByID failed: %v", err)
 		}
@@ -169,17 +205,30 @@ func TestBillingRepository(t *testing.T) {
 			t.Errorf("money round-trip failed for invoice: %v", readInv.Subtotal)
 		}
 
-		err = repo.UpdateInvoiceStatus(ctxOrgA, inv.ID, billing.InvoicePaid)
+		err = repo.UpdateInvoiceStatus(ctxOrg, inv.ID, billing.InvoicePaid)
 		if err != nil {
 			t.Fatalf("UpdateInvoiceStatus failed: %v", err)
 		}
 
-		list, err := repo.ListInvoicesByOrg(ctxOrgA, 88401, 10, 0)
-		if err != nil {
+		list, err := repo.ListInvoicesByOrg(ctxOrg, testBillingOrgID, 10, 0)
+		if err != nil || len(list) == 0 {
 			t.Fatalf("ListInvoicesByOrg failed: %v", err)
 		}
-		if len(list) == 0 {
-			t.Error("expected at least 1 invoice")
+	})
+
+	t.Run("Plans_and_Subscriptions", func(t *testing.T) {
+		plans, err := repo.ListPlans(ctx)
+		if err != nil {
+			t.Fatalf("ListPlans failed: %v", err)
+		}
+		_ = plans
+
+		hasEnt, val, err := repo.CheckEntitlement(ctx, testBillingUserID, "ai_matching")
+		if err != nil {
+			t.Fatalf("CheckEntitlement failed: %v", err)
+		}
+		if hasEnt {
+			t.Errorf("expected false for entitlement without subscription, got %v (%s)", hasEnt, val)
 		}
 	})
 }

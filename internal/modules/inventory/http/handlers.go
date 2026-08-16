@@ -44,6 +44,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/inventory/transfers/{id}", h.GetTransfer)
 	r.Post("/api/v1/inventory/transfers/{id}/receive", h.ReceiveTransfer)
 	r.Post("/api/v1/inventory/transfers/{id}/cancel", h.CancelTransfer)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // CreateWarehouse handles warehouse creation.

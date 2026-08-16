@@ -69,6 +69,18 @@ func (s *Service) ListPackages(ctx context.Context) ([]*OfferPackage, error) {
 	return s.repo.ListPackages(ctx)
 }
 
+// CreatePackage registers a new sponsorship package plan.
+func (s *Service) CreatePackage(ctx context.Context, p *OfferPackage) (*OfferPackage, error) {
+	if p.Name.IsEmpty() {
+		return nil, apperr.Validation("package.name_required", "Package name is required.", nil)
+	}
+	p.IsActive = true
+	if err := s.repo.CreatePackage(ctx, p); err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
 // SponsorOffer sponsors an offer using a package tier.
 func (s *Service) SponsorOffer(ctx context.Context, offerID int64, packageID int64, durationDays int) (*OfferSponsorship, error) {
 	orgID, ok := database.TenantFrom(ctx)

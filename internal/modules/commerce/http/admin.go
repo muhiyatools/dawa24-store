@@ -21,6 +21,7 @@ func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 		admin.Get("/api/v1/admin/commerce/orders", h.AdminSearchOrders)
 		admin.Get("/api/v1/admin/commerce/orders/{id}", h.AdminGetOrder)
 		admin.Post("/api/v1/admin/commerce/orders/{id}/status", h.AdminForceOrderStatus)
+		admin.Post("/api/v1/admin/commerce/orders/{id}/refund", h.AdminRefundOrder)
 	})
 }
 
@@ -83,4 +84,30 @@ func (h *Handler) AdminForceOrderStatus(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	httpx.JSON(w, http.StatusOK, map[string]string{"status": "updated"})
+}
+
+func (h *Handler) AdminRefundOrder(w http.ResponseWriter, r *http.Request) {
+	ctx := database.AsSystem(r.Context())
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid order ID", nil))
+		return
+	}
+
+	actorID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	var body struct {
+		Reason string `json:"reason"`
+	}
+	_ = httpx.DecodeJSON(w, r, &body)
+
+	if err := h.service.TransitionOrderStatus(ctx, id, commerce.StatusRefunded, &actorID, "Refund: "+body.Reason); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]string{"status": "refunded"})
 }

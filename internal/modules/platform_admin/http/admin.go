@@ -5,15 +5,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // RegisterAdminRoutes mounts administrative platform routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
-	r.Get("/api/v1/admin/platform/translations", h.AdminListTranslations)
-	r.Put("/api/v1/admin/platform/translations/{key}", h.AdminUpdateTranslation)
-	r.Get("/api/v1/admin/platform/audit-log", h.AdminViewAuditLog)
+	r.Group(func(admin chi.Router) {
+		admin.Use(identityHttp.RequirePermission("platform.admin", h.log))
+
+		admin.Get("/api/v1/admin/platform/settings", h.ListPublicSettings)
+		admin.Put("/api/v1/admin/platform/settings/{key}", h.SetSetting)
+		admin.Get("/api/v1/admin/platform/translations", h.AdminListTranslations)
+		admin.Put("/api/v1/admin/platform/translations/{key}", h.AdminUpdateTranslation)
+		admin.Get("/api/v1/admin/platform/audit-log", h.AdminViewAuditLog)
+	})
 }
 
 func (h *Handler) AdminListTranslations(w http.ResponseWriter, r *http.Request) {

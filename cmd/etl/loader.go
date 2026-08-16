@@ -105,3 +105,74 @@ func (l *Loader) LoadOrganizations(ctx context.Context, orgs []*TargetOrg) (int,
 	}
 	return loaded, nil
 }
+
+// LoadProducts inserts transformed products and variants into catalog.products and catalog.product_variants.
+func (l *Loader) LoadProducts(ctx context.Context, products []*TargetProduct, variants []*TargetVariant) (int, error) {
+	if len(products) == 0 {
+		return 0, nil
+	}
+
+	tx, err := l.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, fmt.Errorf("begin load tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	prodStmt, err := tx.PrepareContext(ctx, `
+		INSERT INTO catalog.products (id, public_id, category_id, name, slug, description, dosage_form, requires_prescription, created_at, updated_at)
+		VALUES ($1, $2, NULLIF($3, 0), $4, $5, $6, $7, $8, $9, $10)
+		ON CONFLICT (id) DO UPDATE SET
+			name = EXCLUDED.name,
+			slug = EXCLUDED.slug,
+			description = EXCLUDED.description,
+			updated_at = EXCLUDED.updated_at;
+	`)
+	if err != nil {
+		return 0, fmt.Errorf("prepare product load stmt: %w", err)
+	}
+	defer prodStmt.Close()
+
+	varStmt, err := tx.PrepareContext(ctx, `
+		INSERT INTO catalog.product_variants (id, public_id, product_id, sku, price, stock, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		ON CONFLICT (id) DO UPDATE SET
+			sku = EXCLUDED.sku,
+			price = EXCLUDED.price,
+			stock = EXCLUDED.stock,
+			updated_at = EXCLUDED.updated_at;
+	`)
+	if err != nil {
+		return 0, fmt.Errorf("prepare variant load stmt: %w", err)
+	}
+	defer varStmt.Close()
+
+	loaded := 0
+	for i, p := range products {
+		nameJSON := fmt.Sprintf(`{"ar":"%s","en":"%s"}`, p.Name["ar"], p.Name["en"])
+		descJSON := fmt.Sprintf(`{"ar":"%s","en":"%s"}`, p.Description["ar"], p.Description["en"])
+		_, err := prodStmt.ExecContext(ctx,
+			p.ID, p.PublicID, p.CategoryID, nameJSON, p.Slug, descJSON,
+			p.DosageForm, p.RequiresPrescription, p.CreatedAt, p.UpdatedAt,
+		)
+		if err != nil {
+			return loaded, fmt.Errorf("insert product %d: %w", p.ID, err)
+		}
+
+		if i < len(variants) && variants[i] != nil {
+			v := variants[i]
+			_, err := varStmt.ExecContext(ctx,
+				v.ID, v.PublicID, v.ProductID, v.SKU, v.Price.String(),
+				v.Stock, v.CreatedAt, v.UpdatedAt,
+			)
+			if err != nil {
+				return loaded, fmt.Errorf("insert variant %d: %w", v.ID, err)
+			}
+		}
+		loaded++
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("commit product load: %w", err)
+	}
+	return loaded, nil
+}

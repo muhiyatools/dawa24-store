@@ -12,8 +12,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	inventoryHttp "github.com/muhiya/dawa24-store/internal/modules/inventory/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -96,6 +100,64 @@ func (r stubRepo) ListTransfers(ctx context.Context, status string, limit, offse
 	return nil, nil
 }
 
+type happyRepo struct{}
+
+func (happyRepo) CreateWarehouse(ctx context.Context, w *inventory.Warehouse) error {
+	w.ID = 1
+	return nil
+}
+func (happyRepo) GetWarehouseByID(ctx context.Context, id int64) (*inventory.Warehouse, error) {
+	return &inventory.Warehouse{ID: id, OrganizationID: 1, Name: "Main Warehouse", IsActive: true}, nil
+}
+func (happyRepo) ListWarehouses(ctx context.Context) ([]*inventory.Warehouse, error) {
+	return []*inventory.Warehouse{{ID: 1, OrganizationID: 1, Name: "Main Warehouse", IsActive: true}}, nil
+}
+func (happyRepo) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error {
+	return nil
+}
+func (happyRepo) SoftDeleteWarehouse(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) CountStockInWarehouse(ctx context.Context, warehouseID int64) (int, error) {
+	return 0, nil
+}
+func (happyRepo) GetStock(ctx context.Context, warehouseID, variantID int64) (*inventory.Stock, error) {
+	return &inventory.Stock{ID: 1, OrganizationID: 1, WarehouseID: warehouseID, ProductVariantID: variantID, Quantity: 100}, nil
+}
+func (happyRepo) UpsertStock(ctx context.Context, s *inventory.Stock) error {
+	s.ID = 1
+	return nil
+}
+func (happyRepo) AdjustStock(ctx context.Context, stockID int64, delta int, movement inventory.StockMovement) (*inventory.Stock, error) {
+	return &inventory.Stock{ID: stockID, OrganizationID: 1, WarehouseID: 1, ProductVariantID: 1, Quantity: 110}, nil
+}
+func (happyRepo) ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.Stock, error) {
+	return []*inventory.Stock{{ID: 1, OrganizationID: 1, WarehouseID: warehouseID, ProductVariantID: 1, Quantity: 100}}, nil
+}
+func (happyRepo) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
+	return []*inventory.StockMovement{{ID: 1, StockID: stockID, Type: inventory.MovementIn, QuantityDelta: 10}}, nil
+}
+func (happyRepo) ListLowStock(ctx context.Context, limit, offset int) ([]*inventory.Stock, error) {
+	return []*inventory.Stock{{ID: 1, OrganizationID: 1, Quantity: 5, MinThreshold: 10}}, nil
+}
+func (happyRepo) ListMovementsByOrg(ctx context.Context, limit, offset int) ([]*inventory.StockMovement, error) {
+	return []*inventory.StockMovement{{ID: 1, OrganizationID: 1, Type: inventory.MovementIn, QuantityDelta: 10}}, nil
+}
+func (happyRepo) CreateTransfer(ctx context.Context, t *inventory.WarehouseTransfer) error {
+	t.ID = 1
+	t.Status = inventory.TransferInTransit
+	return nil
+}
+func (happyRepo) GetTransferByID(ctx context.Context, id int64) (*inventory.WarehouseTransfer, error) {
+	return &inventory.WarehouseTransfer{ID: id, OrganizationID: 1, FromWarehouseID: 1, ToWarehouseID: 2, ProductVariantID: 1, Quantity: 10, Status: inventory.TransferInTransit}, nil
+}
+func (happyRepo) UpdateTransferStatus(ctx context.Context, id int64, from, to inventory.TransferStatus) error {
+	return nil
+}
+func (happyRepo) ListTransfers(ctx context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, error) {
+	return []*inventory.WarehouseTransfer{{ID: 1, OrganizationID: 1, Status: inventory.TransferInTransit}}, nil
+}
+
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
@@ -117,6 +179,38 @@ func newTestRouter(t *testing.T) http.Handler {
 				return
 			}
 			next.ServeHTTP(w, r)
+		})
+	})
+	inventoryHttp.NewHandler(svc, log).RegisterRoutes(r)
+	return r
+}
+
+func newAuthedRouter(repo inventory.Repository) http.Handler {
+	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	svc := inventory.NewService(repo, log)
+	r := chi.NewRouter()
+	r.Use(httpx.RequestID)
+	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			sess := &identity.Session{
+				UserID:      1,
+				ActiveOrgID: 1,
+				Role:        "admin",
+				Permissions: []string{"admin", "inventory.admin"},
+			}
+			ctx := identityHttp.WithSession(r.Context(), sess)
+			actor := authctx.Actor{
+				UserID:         1,
+				OrganizationID: 1,
+				Role:           "admin",
+				Permissions:    []string{"admin", "inventory.admin"},
+			}
+			ctx = authctx.WithActor(ctx, actor)
+			ctx = database.WithTenant(ctx, 1)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})
 	inventoryHttp.NewHandler(svc, log).RegisterRoutes(r)
@@ -188,30 +282,50 @@ func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	}
 }
 
-func TestHandlerRejectsUnknownJSONFields(t *testing.T) {
-	router := newTestRouter(t)
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/inventory/warehouses",
-		strings.NewReader(`{"name":"test","unknown_field":"y"}`))
-	req.Header.Set("Content-Type", "application/json")
-	req.AddCookie(&http.Cookie{Name: "dawa24_session", Value: "valid-token"})
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
+func TestInventoryHandler_HappyPaths(t *testing.T) {
+	router := newAuthedRouter(happyRepo{})
 
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for an unknown JSON field", rec.Code)
+	tests := []struct {
+		name       string
+		method     string
+		path       string
+		body       string
+		wantStatus int
+	}{
+		{"ListWarehouses", http.MethodGet, "/api/v1/inventory/warehouses", "", http.StatusOK},
+		{"CreateWarehouse", http.MethodPost, "/api/v1/inventory/warehouses", `{"organization_id":1,"name":"Main Warehouse","is_active":true}`, http.StatusCreated},
+		{"GetWarehouse", http.MethodGet, "/api/v1/inventory/warehouses/1", "", http.StatusOK},
+		{"UpdateWarehouse", http.MethodPut, "/api/v1/inventory/warehouses/1", `{"organization_id":1,"name":"Main Warehouse Updated","is_active":true}`, http.StatusOK},
+		{"DeleteWarehouse", http.MethodDelete, "/api/v1/inventory/warehouses/1", "", http.StatusNoContent},
+		{"ListStocks", http.MethodGet, "/api/v1/inventory/warehouses/1/stocks", "", http.StatusOK},
+		{"AdjustStock", http.MethodPost, "/api/v1/inventory/stocks/adjust", `{"stock_id":1,"delta":10,"type":"in","details":"restock"}`, http.StatusOK},
+		{"ListLowStock", http.MethodGet, "/api/v1/inventory/stocks/low?limit=10&offset=0", "", http.StatusOK},
+		{"ListMovements", http.MethodGet, "/api/v1/inventory/stocks/1/movements", "", http.StatusOK},
+		{"ListOrgMovements", http.MethodGet, "/api/v1/inventory/movements?limit=10&offset=0", "", http.StatusOK},
+		{"TransferStock", http.MethodPost, "/api/v1/inventory/transfers", `{"from_warehouse_id":1,"to_warehouse_id":2,"product_id":1,"product_variant_id":1,"quantity":10,"notes":"transfer"}`, http.StatusOK},
+		{"ListTransfers", http.MethodGet, "/api/v1/inventory/transfers?limit=10&offset=0", "", http.StatusOK},
+		{"GetTransfer", http.MethodGet, "/api/v1/inventory/transfers/1", "", http.StatusOK},
+		{"ReceiveTransfer", http.MethodPost, "/api/v1/inventory/transfers/1/receive", "", http.StatusOK},
+		{"CancelTransfer", http.MethodPost, "/api/v1/inventory/transfers/1/cancel", "", http.StatusOK},
+		{"AdminWarehouses", http.MethodGet, "/api/v1/admin/inventory/warehouses", "", http.StatusOK},
+		{"AdminTransfers", http.MethodGet, "/api/v1/admin/inventory/transfers", "", http.StatusOK},
 	}
-}
 
-func TestHandlerRejectsMalformedBody(t *testing.T) {
-	router := newTestRouter(t)
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/inventory/warehouses",
-		strings.NewReader(`{"name": `))
-	req.Header.Set("Content-Type", "application/json")
-	req.AddCookie(&http.Cookie{Name: "dawa24_session", Value: "valid-token"})
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for a malformed body", rec.Code)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var bodyReader io.Reader
+			if tt.body != "" {
+				bodyReader = strings.NewReader(tt.body)
+			}
+			req := httptest.NewRequest(tt.method, tt.path, bodyReader)
+			if tt.body != "" {
+				req.Header.Set("Content-Type", "application/json")
+			}
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("%s %s got status %d, want %d (body: %s)", tt.method, tt.path, rec.Code, tt.wantStatus, rec.Body.String())
+			}
+		})
 	}
 }

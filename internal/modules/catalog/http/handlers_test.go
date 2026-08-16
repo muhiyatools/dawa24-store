@@ -112,25 +112,23 @@ func (r stubRepo) UpdateBrand(ctx context.Context, b *catalog.Brand) error {
 	r.fail("UpdateBrand")
 	return nil
 }
-func (r stubRepo) DeleteBrand(ctx context.Context, id int64) error { r.fail("DeleteBrand"); return nil }
+func (r stubRepo) DeleteBrand(ctx context.Context, id int64) error {
+	r.fail("DeleteBrand")
+	return nil
+}
 func (r stubRepo) ListBrands(ctx context.Context) ([]*catalog.Brand, error) {
 	r.fail("ListBrands")
 	return nil, nil
-}
-func (r stubRepo) CountProductsInBrand(ctx context.Context, brandID int64) (int, error) {
-	r.fail("CountProductsInBrand")
-	return 0, nil
 }
 
 func (r stubRepo) SetCustomerPricing(ctx context.Context, m *catalog.CustomerProductMapping) error {
 	r.fail("SetCustomerPricing")
 	return nil
 }
-func (r stubRepo) GetCustomerPricing(ctx context.Context, vendorOrgID, customerOrgID, productID int64) (*catalog.CustomerProductMapping, error) {
+func (r stubRepo) GetCustomerPricing(ctx context.Context, organizationID, customerOrgID, productID int64) (*catalog.CustomerProductMapping, error) {
 	r.fail("GetCustomerPricing")
 	return nil, nil
 }
-
 func (r stubRepo) CreateProductAlert(ctx context.Context, a *catalog.ProductAlert) error {
 	r.fail("CreateProductAlert")
 	return nil
@@ -138,6 +136,10 @@ func (r stubRepo) CreateProductAlert(ctx context.Context, a *catalog.ProductAler
 func (r stubRepo) ListProductAlertsByUser(ctx context.Context, userID int64) ([]*catalog.ProductAlert, error) {
 	r.fail("ListProductAlertsByUser")
 	return nil, nil
+}
+func (r stubRepo) CountProductsInBrand(ctx context.Context, brandID int64) (int, error) {
+	r.fail("CountProductsInBrand")
+	return 0, nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {

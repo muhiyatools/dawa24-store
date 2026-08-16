@@ -21,6 +21,7 @@ func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 		admin.Get("/api/v1/admin/billing/subscriptions", h.AdminListSubscriptions)
 		admin.Post("/api/v1/admin/billing/wallets/{id}/adjust", h.AdminAdjustWallet)
 		admin.Get("/api/v1/admin/billing/payments", h.AdminListPayments)
+		admin.Post("/api/v1/admin/billing/invoices/{id}/paid", h.AdminMarkInvoicePaid)
 	})
 }
 
@@ -78,4 +79,19 @@ func (h *Handler) AdminListPayments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSON(w, http.StatusOK, map[string]any{"payments": payments})
+}
+
+func (h *Handler) AdminMarkInvoicePaid(w http.ResponseWriter, r *http.Request) {
+	ctx := database.AsSystem(r.Context())
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid invoice ID", nil))
+		return
+	}
+
+	if err := h.service.MarkInvoicePaid(ctx, id); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]string{"status": "paid"})
 }

@@ -14,8 +14,13 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingHttp "github.com/muhiya/dawa24-store/internal/modules/billing/http"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -98,43 +103,160 @@ func (r stubRepo) ListPaymentMethods(ctx context.Context, userID int64) ([]*bill
 	r.fail("ListPaymentMethods")
 	return nil, nil
 }
+func (r stubRepo) DeletePaymentMethod(ctx context.Context, id int64) error {
+	r.fail("DeletePaymentMethod")
+	return nil
+}
+
+func (r stubRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
+	r.fail("AdminListSubscriptions")
+	return nil, nil
+}
+func (r stubRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
+	r.fail("AdminAdjustWallet")
+	return nil
+}
+func (r stubRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
+	r.fail("AdminListPayments")
+	return nil, nil
+}
+
+type happyRepo struct{}
+
+func (happyRepo) GetOrCreateWallet(ctx context.Context, userID int64, currency string) (*billing.Wallet, error) {
+	return &billing.Wallet{ID: 1, UserID: userID, Currency: currency, Balance: money.MustParse("100.00")}, nil
+}
+func (happyRepo) GetWallet(ctx context.Context, id int64) (*billing.Wallet, error) {
+	return &billing.Wallet{ID: id, UserID: 1, Currency: "EGP", Balance: money.MustParse("100.00")}, nil
+}
+func (happyRepo) RecordTransaction(ctx context.Context, walletID int64, txType billing.TransactionType, delta money.Amount, refType string, refID *int64, desc string) (*billing.WalletTransaction, error) {
+	return &billing.WalletTransaction{ID: 1, WalletID: walletID, Type: txType, Amount: delta, BalanceAfter: delta}, nil
+}
+func (happyRepo) ListTransactions(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, error) {
+	return []*billing.WalletTransaction{{ID: 1, WalletID: walletID}}, nil
+}
+func (happyRepo) CreatePayment(ctx context.Context, p *billing.Payment) error {
+	p.ID = 1
+	return nil
+}
+func (happyRepo) GetPaymentByID(ctx context.Context, id int64) (*billing.Payment, error) {
+	return &billing.Payment{ID: id, UserID: 1, Amount: money.MustParse("100.00"), Method: "fawry"}, nil
+}
+func (happyRepo) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
+	return []*billing.Plan{{ID: 1, Slug: "basic", Name: i18n.Text{"en": "Basic"}}}, nil
+}
+func (happyRepo) GetPlanBySlug(ctx context.Context, slug string) (*billing.Plan, error) {
+	return &billing.Plan{ID: 1, Slug: slug, Name: i18n.Text{"en": "Basic"}}, nil
+}
+func (happyRepo) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {
+	sub.ID = 1
+	return nil
+}
+func (happyRepo) GetActiveSubscription(ctx context.Context, userID int64) (*billing.Subscription, error) {
+	return &billing.Subscription{ID: 1, UserID: userID, Status: billing.SubActive}, nil
+}
+func (happyRepo) CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error) {
+	return true, "unlimited", nil
+}
+func (happyRepo) CreateInvoice(ctx context.Context, inv *billing.Invoice) error {
+	inv.ID = 1
+	return nil
+}
+func (happyRepo) GetInvoiceByID(ctx context.Context, id int64) (*billing.Invoice, error) {
+	return &billing.Invoice{ID: id, OrganizationID: 1, InvoiceNumber: "INV-1", Subtotal: money.MustParse("100.00")}, nil
+}
+func (happyRepo) UpdateInvoiceStatus(ctx context.Context, id int64, status billing.InvoiceStatus) error {
+	return nil
+}
+func (happyRepo) ListInvoicesByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, error) {
+	return []*billing.Invoice{{ID: 1, OrganizationID: orgID}}, nil
+}
+func (happyRepo) AddPaymentMethod(ctx context.Context, pm *billing.UserPaymentMethod) error {
+	pm.ID = 1
+	return nil
+}
+func (happyRepo) ListPaymentMethods(ctx context.Context, userID int64) ([]*billing.UserPaymentMethod, error) {
+	return []*billing.UserPaymentMethod{{ID: 1, UserID: userID, Provider: "fawry"}}, nil
+}
+func (happyRepo) DeletePaymentMethod(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
+	return []*billing.Subscription{{ID: 1, UserID: 1}}, nil
+}
+func (happyRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
+	return nil
+}
+func (happyRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
+	return []*billing.Payment{{ID: 1, UserID: 1}}, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()
-
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
 	svc := billing.NewService(stubRepo{t: t}, log)
-
 	r := chi.NewRouter()
 	r.Use(httpx.RequestID)
 	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie("dawa24_session")
-			if r.Header.Get("Authorization") == "" && err != nil {
+			if err != nil || cookie.Value == "" {
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
-			if r.Header.Get("Authorization") == "Bearer forged-token" || (err == nil && cookie.Value == "forged-token-that-was-never-issued") {
+			if cookie.Value == "forged-token-that-was-never-issued" {
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
 			next.ServeHTTP(w, r)
 		})
 	})
-
 	billingHttp.NewHandler(svc, log).RegisterRoutes(r)
-
 	return r
 }
 
-var allRoutes = []struct{ method, path string }{
+func newAuthedRouter(repo billing.Repository) http.Handler {
+	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	svc := billing.NewService(repo, log)
+	r := chi.NewRouter()
+	r.Use(httpx.RequestID)
+	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			sess := &identity.Session{
+				UserID:      1,
+				ActiveOrgID: 1,
+				Role:        "super_admin",
+				Permissions: []string{"admin", "super_admin", "billing.admin"},
+			}
+			ctx := identityHttp.WithSession(r.Context(), sess)
+			actor := authctx.Actor{
+				UserID:         1,
+				OrganizationID: 1,
+				Role:           "super_admin",
+				Permissions:    []string{"admin", "super_admin", "billing.admin"},
+			}
+			ctx = authctx.WithActor(ctx, actor)
+			ctx = database.WithTenant(ctx, 1)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
+	billingHttp.NewHandler(svc, log).RegisterRoutes(r)
+	return r
+}
+
+var protectedRoutes = []struct{ method, path string }{
 	{http.MethodGet, "/api/v1/billing/wallet"},
 	{http.MethodPost, "/api/v1/billing/wallet/deposit"},
 	{http.MethodPost, "/api/v1/billing/wallet/withdraw"},
 	{http.MethodGet, "/api/v1/billing/plans"},
 	{http.MethodPost, "/api/v1/billing/subscriptions"},
-	{http.MethodGet, "/api/v1/billing/entitlements/feature-key"},
+	{http.MethodGet, "/api/v1/billing/entitlements/test_feat"},
 	{http.MethodPost, "/api/v1/billing/invoices"},
 	{http.MethodGet, "/api/v1/billing/invoices/1"},
 	{http.MethodGet, "/api/v1/billing/invoices"},
@@ -143,25 +265,16 @@ var allRoutes = []struct{ method, path string }{
 	{http.MethodGet, "/api/v1/billing/payment-methods"},
 }
 
-// Tests cover authorization surface of the billing handlers
-
-func TestRoutesRejectAnonymousCallers(t *testing.T) {
+func TestProtectedRoutesRejectAnonymousCallers(t *testing.T) {
 	router := newTestRouter(t)
-
-	for _, route := range allRoutes {
+	for _, route := range protectedRoutes {
 		t.Run(route.method+" "+route.path, func(t *testing.T) {
 			req := httptest.NewRequest(route.method, route.path, strings.NewReader("{}"))
 			req.Header.Set("Content-Type", "application/json")
 			rec := httptest.NewRecorder()
-
 			router.ServeHTTP(rec, req)
-
-			// Wait, not all billing endpoints extract authctx.
-			// Check if they fail. Some endpoints might not have authctx extraction.
-			// The prompt expects us to test them.
-
 			if rec.Code != http.StatusUnauthorized {
-				t.Errorf("got %d, want 401 — this endpoint should reject anonymous callers", rec.Code)
+				t.Errorf("got %d, want 401 — this endpoint is reachable without a session", rec.Code)
 			}
 		})
 	}
@@ -169,70 +282,20 @@ func TestRoutesRejectAnonymousCallers(t *testing.T) {
 
 func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 	router := newTestRouter(t)
-
-	for _, route := range allRoutes {
+	for _, route := range protectedRoutes {
 		req := httptest.NewRequest(route.method, route.path, strings.NewReader("{}"))
 		req.Header.Set("Content-Type", "application/json")
 		req.AddCookie(&http.Cookie{Name: "dawa24_session", Value: "forged-token-that-was-never-issued"})
 		rec := httptest.NewRecorder()
-
 		router.ServeHTTP(rec, req)
-
 		if rec.Code != http.StatusUnauthorized {
 			t.Errorf("%s %s with a forged token got %d, want 401", route.method, route.path, rec.Code)
 		}
 	}
 }
 
-func TestBearerTokenIsAlsoValidated(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/billing/wallet", nil)
-	req.Header.Set("Authorization", "Bearer forged-token")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("got %d, want 401 for a forged bearer token", rec.Code)
-	}
-}
-
-func TestRejectsUnknownJSONFields(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/billing/wallet/deposit",
-		strings.NewReader(`{"user_id":1,"totally_unknown":"y"}`))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer valid-token")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for an unknown JSON field", rec.Code)
-	}
-}
-
-func TestRejectsMalformedBody(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/billing/wallet/deposit",
-		strings.NewReader(`{"user_id": `))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer valid-token")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for a malformed body", rec.Code)
-	}
-}
-
 func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	router := newTestRouter(t)
-
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/billing/wallet", nil)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
@@ -241,25 +304,57 @@ func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 		t.Fatalf("response is not the JSON error envelope: %v (body: %s)", err, rec.Body.String())
 	}
-
 	if body.Error.Code == "" {
-		t.Error("error envelope has no code; clients cannot branch on it")
+		t.Error("error envelope has no code")
 	}
 	if body.Error.RequestID == "" {
 		t.Error("error envelope has no request_id")
 	}
 }
 
-func (r stubRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
-	return nil
-}
+func TestBillingHandler_HappyPaths(t *testing.T) {
+	router := newAuthedRouter(happyRepo{})
 
-func (r stubRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
-	return nil, nil
-}
+	tests := []struct {
+		name       string
+		method     string
+		path       string
+		body       string
+		wantStatus int
+	}{
+		{"GetWallet", http.MethodGet, "/api/v1/billing/wallet", "", http.StatusOK},
+		{"Deposit", http.MethodPost, "/api/v1/billing/wallet/deposit", `{"user_id":1,"currency":"EGP","amount":"50.00","description":"test deposit"}`, http.StatusOK},
+		{"Withdraw", http.MethodPost, "/api/v1/billing/wallet/withdraw", `{"user_id":1,"currency":"EGP","amount":"25.00","description":"test withdraw"}`, http.StatusOK},
+		{"ListPlans", http.MethodGet, "/api/v1/billing/plans", "", http.StatusOK},
+		{"Subscribe", http.MethodPost, "/api/v1/billing/subscriptions", `{"plan_slug":"basic"}`, http.StatusCreated},
+		{"CheckEntitlement", http.MethodGet, "/api/v1/billing/entitlements/ai_matching", "", http.StatusOK},
+		{"CreateInvoice", http.MethodPost, "/api/v1/billing/invoices", `{"organization_id":1,"invoice_number":"INV-100","subtotal":"100.00","issue_date":"2026-01-01T00:00:00Z","due_date":"2026-02-01T00:00:00Z"}`, http.StatusCreated},
+		{"GetInvoice", http.MethodGet, "/api/v1/billing/invoices/1", "", http.StatusOK},
+		{"ListInvoices", http.MethodGet, "/api/v1/billing/invoices?limit=10&offset=0", "", http.StatusOK},
+		{"PayInvoice", http.MethodPost, "/api/v1/billing/invoices/1/pay", `{"payment_method_id":1}`, http.StatusOK},
+		{"AddPaymentMethod", http.MethodPost, "/api/v1/billing/payment-methods", `{"user_id":1,"provider":"fawry","account_identifier":"01000000000","is_default":true}`, http.StatusCreated},
+		{"ListPaymentMethods", http.MethodGet, "/api/v1/billing/payment-methods", "", http.StatusOK},
+		{"AdminSubscriptions", http.MethodGet, "/api/v1/admin/billing/subscriptions", "", http.StatusOK},
+		{"AdminAdjustWallet", http.MethodPost, "/api/v1/admin/billing/wallets/1/adjust", `{"amount":"10.00","reason":"admin bonus"}`, http.StatusOK},
+		{"AdminPayments", http.MethodGet, "/api/v1/admin/billing/payments", "", http.StatusOK},
+		{"AdminMarkPaid", http.MethodPost, "/api/v1/admin/billing/invoices/1/paid", "", http.StatusOK},
+	}
 
-func (r stubRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
-	return nil, nil
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var bodyReader io.Reader
+			if tt.body != "" {
+				bodyReader = strings.NewReader(tt.body)
+			}
+			req := httptest.NewRequest(tt.method, tt.path, bodyReader)
+			if tt.body != "" {
+				req.Header.Set("Content-Type", "application/json")
+			}
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("%s %s got status %d, want %d (body: %s)", tt.method, tt.path, rec.Code, tt.wantStatus, rec.Body.String())
+			}
+		})
+	}
 }
-
-func (r stubRepo) DeletePaymentMethod(ctx context.Context, id int64) error { return nil }

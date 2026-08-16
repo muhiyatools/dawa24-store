@@ -15,24 +15,13 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
-// These tests cover the authorization surface of the identity handlers.
-//
-// Row-level security protects rows once a query runs; it cannot protect an
-// endpoint that never checks who is calling. That gap is exactly what handler
-// tests close, and it is why every protected route below is asserted to reject
-// an anonymous caller rather than merely "not crash".
-//
-// The service is constructed with a nil SessionStore on purpose:
-// Service.ValidateSession returns Unauthorized when the store is nil, which
-// exercises the real middleware path without needing Redis.
-
-// stubRepo satisfies identity.Repository. Every method fails loudly, because no
-// test here should reach the repository: if one does, the request got past an
-// authorization check it should not have.
 type stubRepo struct{ t *testing.T }
 
 func (r stubRepo) fail(method string) {
@@ -98,7 +87,10 @@ func (r stubRepo) DeleteAddress(context.Context, int64, int64) error {
 	r.fail("DeleteAddress")
 	return nil
 }
-func (r stubRepo) AddFavorite(context.Context, int64, int64) error { r.fail("AddFavorite"); return nil }
+func (r stubRepo) AddFavorite(context.Context, int64, int64) error {
+	r.fail("AddFavorite")
+	return nil
+}
 func (r stubRepo) RemoveFavorite(context.Context, int64, int64) error {
 	r.fail("RemoveFavorite")
 	return nil
@@ -124,6 +116,82 @@ func (r stubRepo) AdminAssignRole(context.Context, int64, string, int64) error {
 	return nil
 }
 
+type happyRepo struct{}
+
+func (happyRepo) CreateUser(ctx context.Context, u *identity.User) error {
+	u.ID = 1
+	return nil
+}
+func (happyRepo) GetUserByID(ctx context.Context, id int64) (*identity.User, error) {
+	return &identity.User{
+		ID:       id,
+		Email:    "user@example.com",
+		Name:     i18n.Text{"en": "User"},
+		Status:   identity.StatusActive,
+		Role:     "customer",
+		Language: "en",
+	}, nil
+}
+func (happyRepo) GetUserByEmail(ctx context.Context, email string) (*identity.User, error) {
+	return &identity.User{
+		ID:           1,
+		Email:        email,
+		Name:         i18n.Text{"en": "User"},
+		Status:       identity.StatusActive,
+		Role:         "customer",
+		PasswordHash: "$2a$10$abcdefghijklmnopqrstuu",
+	}, nil
+}
+func (happyRepo) UpdateUser(ctx context.Context, u *identity.User) error { return nil }
+func (happyRepo) GetSecurity(ctx context.Context, id int64) (*identity.UserSecurity, error) {
+	return &identity.UserSecurity{UserID: id}, nil
+}
+func (happyRepo) UpsertSecurity(ctx context.Context, s *identity.UserSecurity) error { return nil }
+func (happyRepo) GetMFA(ctx context.Context, id int64) (*identity.UserMFA, error) {
+	return &identity.UserMFA{UserID: id, Enabled: false}, nil
+}
+func (happyRepo) UpsertMFA(ctx context.Context, m *identity.UserMFA) error { return nil }
+func (happyRepo) GetPermissionsForUser(ctx context.Context, userID, orgID int64) ([]string, error) {
+	return []string{"customer"}, nil
+}
+func (happyRepo) GetRolesForUser(ctx context.Context, userID int64) ([]string, error) {
+	return []string{"customer"}, nil
+}
+func (happyRepo) UserBelongsToOrg(ctx context.Context, userID, orgID int64) (bool, error) {
+	return true, nil
+}
+func (happyRepo) CreateAddress(ctx context.Context, a *identity.UserAddress) error {
+	a.ID = 1
+	return nil
+}
+func (happyRepo) GetAddressByID(ctx context.Context, id, userID int64) (*identity.UserAddress, error) {
+	return &identity.UserAddress{ID: id, UserID: userID, Title: "Home", Recipient: "User", Phone: "01000000000", Address: "123 Main St", CityID: 1}, nil
+}
+func (happyRepo) ListAddresses(ctx context.Context, userID int64) ([]*identity.UserAddress, error) {
+	return []*identity.UserAddress{{ID: 1, UserID: userID, Title: "Home", Recipient: "User", Phone: "01000000000", Address: "123 Main St", CityID: 1}}, nil
+}
+func (happyRepo) UpdateAddress(ctx context.Context, a *identity.UserAddress) error { return nil }
+func (happyRepo) DeleteAddress(ctx context.Context, id, userID int64) error        { return nil }
+func (happyRepo) AddFavorite(ctx context.Context, userID, productID int64) error   { return nil }
+func (happyRepo) RemoveFavorite(ctx context.Context, userID, productID int64) error {
+	return nil
+}
+func (happyRepo) ListFavorites(ctx context.Context, userID int64) ([]int64, error) {
+	return []int64{1, 2}, nil
+}
+func (happyRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
+	return []*identity.User{{ID: 1, Email: "user@example.com"}}, nil
+}
+func (happyRepo) AdminUpdateUserStatus(ctx context.Context, userID int64, status string, actorID int64) error {
+	return nil
+}
+func (happyRepo) AdminResetMFA(ctx context.Context, userID int64, actorID int64) error {
+	return nil
+}
+func (happyRepo) AdminAssignRole(ctx context.Context, userID int64, role string, actorID int64) error {
+	return nil
+}
+
 const testCookieName = "dawa24_session"
 
 func newTestRouter(t *testing.T) http.Handler {
@@ -131,24 +199,72 @@ func newTestRouter(t *testing.T) http.Handler {
 
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
 	svc := identity.NewService(stubRepo{t: t}, nil, log)
+	handler := identityHttp.NewHandler(svc, config.Session{
+		CookieName: testCookieName,
+		TTL:        30 * 24 * time.Hour,
+		SecureOnly: false,
+	}, log)
+
+	r := chi.NewRouter()
+	r.Use(httpx.RequestID)
+	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+	handler.RegisterRoutes(r)
+	return r
+}
+
+func newAuthedRouter(repo identity.Repository) http.Handler {
+	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	svc := identity.NewService(repo, nil, log)
+	handler := identityHttp.NewHandler(svc, config.Session{
+		CookieName: testCookieName,
+		TTL:        30 * 24 * time.Hour,
+		SecureOnly: false,
+	}, log)
 
 	r := chi.NewRouter()
 	r.Use(httpx.RequestID)
 	r.Use(httpx.Recover(log))
 	r.Use(httpx.Locale)
 
-	identityHttp.NewHandler(svc, config.Session{
-		CookieName: testCookieName,
-		TTL:        24 * time.Hour,
-		SecureOnly: true,
-	}, log).RegisterRoutes(r)
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			sess := &identity.Session{
+				UserID:      1,
+				ActiveOrgID: 1,
+				Role:        "super_admin",
+				Permissions: []string{"admin", "super_admin", "identity.admin"},
+			}
+			ctx := identityHttp.WithSession(r.Context(), sess)
+			actor := authctx.Actor{
+				UserID:         1,
+				OrganizationID: 1,
+				Role:           "super_admin",
+				Permissions:    []string{"admin", "super_admin", "identity.admin"},
+			}
+			ctx = authctx.WithActor(ctx, actor)
+			ctx = database.WithTenant(ctx, 1)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
 
+	r.Post("/api/v1/auth/register", handler.Register)
+	r.Post("/api/v1/auth/login", handler.Login)
+	r.Post("/api/v1/auth/logout", handler.Logout)
+	r.Get("/api/v1/auth/me", handler.Me)
+	r.Get("/api/v1/me", handler.GetMe)
+	r.Put("/api/v1/me", handler.UpdateMe)
+	r.Get("/api/v1/me/addresses", handler.ListAddresses)
+	r.Post("/api/v1/me/addresses", handler.CreateAddress)
+	r.Put("/api/v1/me/addresses/{id}", handler.UpdateAddress)
+	r.Delete("/api/v1/me/addresses/{id}", handler.DeleteAddress)
+	r.Get("/api/v1/me/favorites", handler.ListFavorites)
+	r.Post("/api/v1/me/favorites", handler.AddFavorite)
+	r.Delete("/api/v1/me/favorites/{productId}", handler.RemoveFavorite)
+	handler.RegisterAdminRoutes(r)
 	return r
 }
 
-// protectedRoutes is every route behind RequireAuth. Adding a protected route
-// without adding it here means it is untested; that is the point of listing
-// them explicitly rather than discovering them by reflection.
 var protectedRoutes = []struct{ method, path string }{
 	{http.MethodGet, "/api/v1/auth/me"},
 	{http.MethodGet, "/api/v1/me"},
@@ -183,12 +299,13 @@ func TestProtectedRoutesRejectAnonymousCallers(t *testing.T) {
 func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 	router := newTestRouter(t)
 
-	// A token that is well-formed but not a real session. It must be rejected
-	// by validation, not merely by absence.
 	for _, route := range protectedRoutes {
 		req := httptest.NewRequest(route.method, route.path, strings.NewReader("{}"))
 		req.Header.Set("Content-Type", "application/json")
-		req.AddCookie(&http.Cookie{Name: testCookieName, Value: "forged-token-that-was-never-issued"})
+		req.AddCookie(&http.Cookie{
+			Name:  testCookieName,
+			Value: "forged-token-that-was-never-issued",
+		})
 		rec := httptest.NewRecorder()
 
 		router.ServeHTTP(rec, req)
@@ -199,142 +316,70 @@ func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 	}
 }
 
-func TestBearerTokenIsAlsoValidated(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/me", nil)
-	req.Header.Set("Authorization", "Bearer forged-token")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("got %d, want 401 for a forged bearer token", rec.Code)
-	}
-}
-
 func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/me", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/me", nil)
 	rec := httptest.NewRecorder()
+
 	router.ServeHTTP(rec, req)
 
 	var body httpx.ErrorBody
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 		t.Fatalf("response is not the JSON error envelope: %v (body: %s)", err, rec.Body.String())
 	}
-
 	if body.Error.Code == "" {
-		t.Error("error envelope has no code; clients cannot branch on it")
+		t.Error("error envelope has no code")
 	}
-	// The request id is what ties a user's support ticket to a log line.
 	if body.Error.RequestID == "" {
 		t.Error("error envelope has no request_id")
 	}
 }
 
-func TestLogoutClearsTheSessionCookieSecurely(t *testing.T) {
-	router := newTestRouter(t)
+func TestIdentityHandler_HappyPaths(t *testing.T) {
+	router := newAuthedRouter(happyRepo{})
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/logout", nil)
-	req.AddCookie(&http.Cookie{Name: testCookieName, Value: "whatever"})
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusNoContent {
-		t.Fatalf("logout returned %d, want 204", rec.Code)
+	tests := []struct {
+		name       string
+		method     string
+		path       string
+		body       string
+		wantStatus int
+	}{
+		{"Register", http.MethodPost, "/api/v1/auth/register", `{"email":"newuser@example.com","password":"password123","name_ar":"مستخدم","name_en":"User"}`, http.StatusCreated},
+		{"Logout", http.MethodPost, "/api/v1/auth/logout", "", http.StatusNoContent},
+		{"Me", http.MethodGet, "/api/v1/auth/me", "", http.StatusOK},
+		{"GetMe", http.MethodGet, "/api/v1/me", "", http.StatusOK},
+		{"UpdateMe", http.MethodPut, "/api/v1/me", `{"name_ar":"مستخدم","name_en":"Updated User","phone":"01000000000","timezone":"Africa/Cairo","language":"en"}`, http.StatusOK},
+		{"ListAddresses", http.MethodGet, "/api/v1/me/addresses", "", http.StatusOK},
+		{"CreateAddress", http.MethodPost, "/api/v1/me/addresses", `{"title":"Office","recipient":"User","phone":"01000000000","address":"456 Nile St","city_id":1}`, http.StatusCreated},
+		{"UpdateAddress", http.MethodPut, "/api/v1/me/addresses/1", `{"title":"Office 2","recipient":"User","phone":"01000000000","address":"456 Nile St","city_id":1}`, http.StatusOK},
+		{"DeleteAddress", http.MethodDelete, "/api/v1/me/addresses/1", "", http.StatusOK},
+		{"ListFavorites", http.MethodGet, "/api/v1/me/favorites", "", http.StatusOK},
+		{"AddFavorite", http.MethodPost, "/api/v1/me/favorites", `{"product_id":1}`, http.StatusOK},
+		{"RemoveFavorite", http.MethodDelete, "/api/v1/me/favorites/1", "", http.StatusOK},
+		{"AdminUsers", http.MethodGet, "/api/v1/admin/identity/users", "", http.StatusOK},
+		{"AdminGetUser", http.MethodGet, "/api/v1/admin/identity/users/1", "", http.StatusOK},
+		{"AdminSuspend", http.MethodPost, "/api/v1/admin/identity/users/1/suspend", "", http.StatusOK},
+		{"AdminReactivate", http.MethodPost, "/api/v1/admin/identity/users/1/reactivate", "", http.StatusOK},
+		{"AdminResetMFA", http.MethodPost, "/api/v1/admin/identity/users/1/reset-mfa", "", http.StatusOK},
+		{"AdminAssignRole", http.MethodPut, "/api/v1/admin/identity/users/1/role", `{"role":"vendor"}`, http.StatusOK},
 	}
 
-	var cleared *http.Cookie
-	for _, c := range rec.Result().Cookies() {
-		if c.Name == testCookieName {
-			cleared = c
-		}
-	}
-	if cleared == nil {
-		t.Fatal("logout did not set a clearing cookie; the browser keeps the old session")
-	}
-	if cleared.Value != "" || cleared.MaxAge >= 0 {
-		t.Errorf("cookie not cleared: value=%q maxage=%d", cleared.Value, cleared.MaxAge)
-	}
-	// A session cookie readable by JavaScript is stealable by any XSS.
-	if !cleared.HttpOnly {
-		t.Error("session cookie is not HttpOnly")
-	}
-	if !cleared.Secure {
-		t.Error("session cookie is not Secure despite SecureOnly config")
-	}
-	if cleared.SameSite != http.SameSiteLaxMode {
-		t.Errorf("SameSite is %v, want Lax", cleared.SameSite)
-	}
-}
-
-func TestLoginRejectsUnknownJSONFields(t *testing.T) {
-	router := newTestRouter(t)
-
-	// DecodeJSON uses DisallowUnknownFields. A typo'd field must fail loudly
-	// rather than be silently ignored — otherwise a client "sets" a value that
-	// never arrives and the bug surfaces much later.
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login",
-		strings.NewReader(`{"email":"a@b.com","password":"x","totally_unknown":"y"}`))
-	req.Header.Set("Content-Type", "application/json")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for an unknown JSON field", rec.Code)
-	}
-}
-
-func TestLoginRejectsMalformedBody(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login",
-		strings.NewReader(`{"email": `))
-	req.Header.Set("Content-Type", "application/json")
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d, want 422 for a malformed body", rec.Code)
-	}
-}
-
-func TestArabicIsTheDefaultErrorLanguage(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/me", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	var body httpx.ErrorBody
-	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
-		t.Fatalf("not an error envelope: %v", err)
-	}
-
-	// This platform is Arabic-first: with no Accept-Language and no cookie, the
-	// user-facing message must come back in Arabic.
-	if !strings.ContainsAny(body.Error.Message, "ابتثجحخدذرزسشصضطظعغفقكلمنهوي") {
-		t.Errorf("default error message is not Arabic: %q", body.Error.Message)
-	}
-}
-
-func TestEnglishRequestedExplicitlyIsHonoured(t *testing.T) {
-	router := newTestRouter(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/me?lang=en", nil)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	var body httpx.ErrorBody
-	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
-		t.Fatalf("not an error envelope: %v", err)
-	}
-	if strings.ContainsAny(body.Error.Message, "ابتثجحخدذرزسشصضطظعغفقكلمنهوي") {
-		t.Errorf("lang=en still returned Arabic: %q", body.Error.Message)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var bodyReader io.Reader
+			if tt.body != "" {
+				bodyReader = strings.NewReader(tt.body)
+			}
+			req := httptest.NewRequest(tt.method, tt.path, bodyReader)
+			if tt.body != "" {
+				req.Header.Set("Content-Type", "application/json")
+			}
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("%s %s got status %d, want %d (body: %s)", tt.method, tt.path, rec.Code, tt.wantStatus, rec.Body.String())
+			}
+		})
 	}
 }

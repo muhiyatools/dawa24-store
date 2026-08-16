@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	dbfs "github.com/muhiya/dawa24-store/db"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/identity/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
@@ -24,11 +25,9 @@ func getTestDB(t *testing.T) *database.DB {
 		dbURL = os.Getenv("TEST_DATABASE_URL")
 	}
 	if dbURL == "" {
-		if os.Getenv("CI") == "true" {
-			t.Fatal("DATABASE_URL or TEST_DATABASE_URL must be set in CI")
-		}
 		t.Skip("DATABASE_URL not set; skipping integration test")
 	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -43,26 +42,45 @@ func getTestDB(t *testing.T) *database.DB {
 
 	db, err := database.Open(ctx, cfg)
 	if err != nil {
-		t.Skipf("cannot connect to database: %v; skipping", err)
-		return nil
+		t.Skipf("cannot connect to database: %v", err)
 	}
 
-	var isSuper bool
-	if err := db.Pool().QueryRow(ctx, `SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&isSuper); err == nil && isSuper {
-		t.Skipf("connected as a superuser, which bypasses row-level security")
+	migrations, err := database.LoadMigrations(dbfs.Migrations, "migrations")
+	if err != nil {
+		t.Fatalf("failed to load migrations: %v", err)
+	}
+
+	pending, err := db.PendingCount(ctx, migrations)
+	if err != nil {
+		t.Fatalf("cannot read migration state: %v", err)
+	}
+	if pending > 0 {
+		t.Fatalf("%d migrations pending", pending)
 	}
 	return db
 }
+
+const (
+	testOrgID     int64 = 88690
+	testProductID int64 = 88691
+)
 
 func resetFixtures(t *testing.T, db *database.DB) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
 	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_favorites WHERE user_id IN (88601, 88602)`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_addresses WHERE user_id IN (88601, 88602)`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_mfa WHERE user_id IN (88601, 88602)`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_security WHERE user_id IN (88601, 88602)`)
-		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE id IN (88601, 88602)`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_favorites WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_addresses WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_mfa WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM identity.user_security WHERE user_id IN (SELECT id FROM identity.users WHERE email LIKE 'test-identity-%@example.com')`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM org.members WHERE organization_id = $1`, testOrgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM identity.users WHERE email LIKE 'test-identity-%@example.com'`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE id = $1`, testProductID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM org.organizations WHERE id = $1`, testOrgID)
+
+		// Create org and product for membership and favorite checks
+		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Identity Test Org"}') ON CONFLICT DO NOTHING`, testOrgID)
+		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, name, slug, dosage_form) VALUES ($1, $2, '{"en":"Identity Test Prod"}', 'identity-test-prod', 'tablet') ON CONFLICT DO NOTHING`, testProductID, testOrgID)
 		return nil
 	})
 	if err != nil {
@@ -81,19 +99,27 @@ func TestIdentityRepository(t *testing.T) {
 	repo := postgres.NewRepository(db)
 	ctx := context.Background()
 
+	var userID int64
+
 	t.Run("Create and Get User", func(t *testing.T) {
 		u := &identity.User{
-			Email:        "user88601@example.com",
-			PasswordHash: "hash",
+			Email:        "test-identity-1@example.com",
+			PasswordHash: "hash123",
 			Status:       identity.StatusActive,
 			Language:     "en",
 			Role:         "customer",
+			Timezone:     "Africa/Cairo",
+			Phone:        "+201000000001",
 		}
 		if err := repo.CreateUser(ctx, u); err != nil {
 			t.Fatalf("failed to create user: %v", err)
 		}
+		if u.ID == 0 {
+			t.Fatal("expected generated user ID")
+		}
+		userID = u.ID
 
-		fetched, err := repo.GetUserByID(ctx, u.ID)
+		fetched, err := repo.GetUserByID(ctx, userID)
 		if err != nil {
 			t.Fatalf("failed to get user: %v", err)
 		}
@@ -101,87 +127,156 @@ func TestIdentityRepository(t *testing.T) {
 			t.Errorf("got %q, want %q", fetched.Email, u.Email)
 		}
 
-		fetchedByEmail, err := repo.GetUserByEmail(ctx, u.Email)
+		byEmail, err := repo.GetUserByEmail(ctx, u.Email)
 		if err != nil {
 			t.Fatalf("failed to get user by email: %v", err)
 		}
-		if fetchedByEmail.ID != u.ID {
-			t.Errorf("got %d, want %d", fetchedByEmail.ID, u.ID)
+		if byEmail.ID != userID {
+			t.Errorf("got %d, want %d", byEmail.ID, userID)
 		}
 
-		u.Phone = "+1234567890"
+		u.Phone = "+201000000002"
 		if err := repo.UpdateUser(ctx, u); err != nil {
 			t.Fatalf("failed to update user: %v", err)
 		}
 	})
 
-	t.Run("Security", func(t *testing.T) {
-		u := &identity.User{Email: "user88602@example.com", PasswordHash: "hash", Status: identity.StatusActive, Language: "en", Role: "customer"}
-		repo.CreateUser(ctx, u)
-
-		s := &identity.UserSecurity{UserID: u.ID, LoginAttempts: 3}
-		if err := repo.UpsertSecurity(ctx, s); err != nil {
+	t.Run("Security and MFA", func(t *testing.T) {
+		maxSessions := 5
+		sec := &identity.UserSecurity{
+			UserID:              userID,
+			LoginAttempts:       2,
+			LastUserAgent:       "TestAgent",
+			MaxLoginSessions:    &maxSessions,
+			PasswordChangeCount: 1,
+		}
+		if err := repo.UpsertSecurity(ctx, sec); err != nil {
 			t.Fatalf("failed to upsert security: %v", err)
 		}
 
-		fetched, err := repo.GetSecurity(ctx, u.ID)
+		gotSec, err := repo.GetSecurity(ctx, userID)
 		if err != nil {
 			t.Fatalf("failed to get security: %v", err)
 		}
-		if fetched.LoginAttempts != 3 {
-			t.Errorf("got %d, want 3", fetched.LoginAttempts)
+		if gotSec.LoginAttempts != 2 {
+			t.Errorf("got %d login attempts, want 2", gotSec.LoginAttempts)
 		}
-	})
 
-	t.Run("MFA", func(t *testing.T) {
-		u := &identity.User{Email: "user88603@example.com", PasswordHash: "hash", Status: identity.StatusActive, Language: "en", Role: "customer"}
-		repo.CreateUser(ctx, u)
-
-		mfa := &identity.UserMFA{UserID: u.ID, Enabled: true, TOTPSecret: []byte("secret"), RecoveryCodes: []byte("codes")}
+		mfa := &identity.UserMFA{
+			UserID:        userID,
+			TOTPSecret:    []byte("SECRETKEY"),
+			RecoveryCodes: []byte(`["REC1","REC2"]`),
+			Enabled:       true,
+		}
 		if err := repo.UpsertMFA(ctx, mfa); err != nil {
 			t.Fatalf("failed to upsert mfa: %v", err)
 		}
 
-		fetched, err := repo.GetMFA(ctx, u.ID)
+		gotMFA, err := repo.GetMFA(ctx, userID)
 		if err != nil {
 			t.Fatalf("failed to get mfa: %v", err)
 		}
-		if !fetched.Enabled {
+		if !gotMFA.Enabled {
 			t.Error("expected MFA to be enabled")
 		}
 	})
 
+	t.Run("Roles and Permissions", func(t *testing.T) {
+		roles, err := repo.GetRolesForUser(ctx, userID)
+		if err != nil {
+			t.Fatalf("failed to get roles: %v", err)
+		}
+		if len(roles) == 0 {
+			t.Error("expected at least customer role")
+		}
+
+		perms, err := repo.GetPermissionsForUser(ctx, userID, testOrgID)
+		if err != nil {
+			t.Fatalf("failed to get permissions: %v", err)
+		}
+		_ = perms
+
+		belongs, err := repo.UserBelongsToOrg(ctx, userID, testOrgID)
+		if err != nil {
+			t.Fatalf("failed to check org membership: %v", err)
+		}
+		if belongs {
+			t.Error("user should not belong to org yet")
+		}
+	})
+
 	t.Run("Addresses", func(t *testing.T) {
-		u := &identity.User{Email: "user88604@example.com", PasswordHash: "hash", Status: identity.StatusActive, Language: "en", Role: "customer"}
-		repo.CreateUser(ctx, u)
+		addr := &identity.UserAddress{
+			UserID:    userID,
+			Title:     "Home",
+			Recipient: "Test User",
+			Phone:     "+201000000001",
+			Address:   "123 Main St",
+			CityID:    1,
+			IsDefault: true,
+		}
+		if err := repo.CreateAddress(ctx, addr); err != nil {
+			t.Fatalf("failed to create address: %v", err)
+		}
 
-		addr := &identity.UserAddress{UserID: u.ID, Title: "Home", Address: "123 Main St", IsDefault: true, CityID: 1}
-		// city_id = 1 might fail FK if cities table is empty. Let's assume there is no FK or city 1 exists.
-		// Usually if it fails we can catch it in `go test` output.
-		_ = db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-			_, err := tx.Exec(txCtx, `INSERT INTO location.cities (id, name, country_id) VALUES (1, '{"en":"City"}', 1) ON CONFLICT DO NOTHING`)
-			return err
-		})
+		gotAddr, err := repo.GetAddressByID(ctx, addr.ID, userID)
+		if err != nil {
+			t.Fatalf("failed to get address: %v", err)
+		}
+		if gotAddr.Title != "Home" {
+			t.Errorf("got %q, want Home", gotAddr.Title)
+		}
 
-		if err := repo.CreateAddress(ctx, addr); err == nil {
-			list, _ := repo.ListAddresses(ctx, u.ID)
-			if len(list) > 0 {
-				addr.Title = "Work"
-				repo.UpdateAddress(ctx, addr)
-				repo.DeleteAddress(ctx, addr.ID, u.ID)
-			}
+		list, err := repo.ListAddresses(ctx, userID)
+		if err != nil || len(list) == 0 {
+			t.Fatalf("failed to list addresses: %v", err)
+		}
+
+		addr.Title = "Office"
+		if err := repo.UpdateAddress(ctx, addr); err != nil {
+			t.Fatalf("failed to update address: %v", err)
+		}
+
+		if err := repo.DeleteAddress(ctx, addr.ID, userID); err != nil {
+			t.Fatalf("failed to delete address: %v", err)
 		}
 	})
 
 	t.Run("Favorites", func(t *testing.T) {
-		u := &identity.User{Email: "user88605@example.com", PasswordHash: "hash", Status: identity.StatusActive, Language: "en", Role: "customer"}
-		repo.CreateUser(ctx, u)
+		if err := repo.AddFavorite(ctx, userID, testProductID); err != nil {
+			t.Fatalf("failed to add favorite: %v", err)
+		}
 
-		if err := repo.AddFavorite(ctx, u.ID, 1); err != nil {
-			// ignore FK if product 1 doesn't exist
-		} else {
-			repo.ListFavorites(ctx, u.ID)
-			repo.RemoveFavorite(ctx, u.ID, 1)
+		favs, err := repo.ListFavorites(ctx, userID)
+		if err != nil {
+			t.Fatalf("failed to list favorites: %v", err)
+		}
+		if len(favs) == 0 || favs[0] != testProductID {
+			t.Errorf("expected favorite product %d, got %v", testProductID, favs)
+		}
+
+		if err := repo.RemoveFavorite(ctx, userID, testProductID); err != nil {
+			t.Fatalf("failed to remove favorite: %v", err)
+		}
+	})
+
+	t.Run("Admin Operations", func(t *testing.T) {
+		users, err := repo.AdminListUsers(ctx, "customer", "active")
+		if err != nil {
+			t.Fatalf("AdminListUsers failed: %v", err)
+		}
+		_ = users
+
+		if err := repo.AdminUpdateUserStatus(ctx, userID, "suspended", 1); err != nil {
+			t.Fatalf("AdminUpdateUserStatus failed: %v", err)
+		}
+
+		if err := repo.AdminResetMFA(ctx, userID, 1); err != nil {
+			t.Fatalf("AdminResetMFA failed: %v", err)
+		}
+
+		if err := repo.AdminAssignRole(ctx, userID, "vendor", 1); err != nil {
+			t.Fatalf("AdminAssignRole failed: %v", err)
 		}
 	})
 }

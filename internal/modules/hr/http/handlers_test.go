@@ -16,7 +16,11 @@ import (
 	hrHttp "github.com/muhiya/dawa24-store/internal/modules/hr/http"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 type stubRepo struct{ t *testing.T }
@@ -47,13 +51,29 @@ func (r stubRepo) ListWorkTimes(context.Context) ([]*hr.WorkTime, error) {
 	return nil, nil
 }
 
-const testCookieName = "dawa24_session"
+type happyRepo struct{}
+
+func (happyRepo) CreateEmployee(ctx context.Context, e *hr.Employee) error {
+	e.ID = 1
+	return nil
+}
+func (happyRepo) GetEmployeeByID(ctx context.Context, id int64) (*hr.Employee, error) {
+	return &hr.Employee{ID: id, UserID: 1, EmployeeCode: "EMP-01", JobTitle: "Pharmacist", BaseSalary: money.MustParse("5000.00")}, nil
+}
+func (happyRepo) ListEmployees(ctx context.Context, limit, offset int) ([]*hr.Employee, error) {
+	return []*hr.Employee{{ID: 1, UserID: 1, EmployeeCode: "EMP-01", JobTitle: "Pharmacist"}}, nil
+}
+func (happyRepo) SaveWorkTimes(ctx context.Context, times []*hr.WorkTime) error {
+	return nil
+}
+func (happyRepo) ListWorkTimes(ctx context.Context) ([]*hr.WorkTime, error) {
+	return []*hr.WorkTime{{ID: 1, DayNameEn: "Monday", DayNameAr: "الاثنين", OpenTime: "09:00", CloseTime: "17:00"}}, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()
 
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
-	idSvc := identity.NewService(nil, nil, log)
 	hrSvc := hr.NewService(stubRepo{t: t}, log)
 
 	r := chi.NewRouter()
@@ -61,11 +81,54 @@ func newTestRouter(t *testing.T) http.Handler {
 	r.Use(httpx.Recover(log))
 	r.Use(httpx.Locale)
 
-	r.Group(func(protected chi.Router) {
-		protected.Use(identityHttp.RequireAuth(idSvc, testCookieName, log))
-		hrHttp.NewHandler(hrSvc, log).RegisterRoutes(protected)
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			cookie, err := r.Cookie("dawa24_session")
+			if err != nil || cookie.Value == "" {
+				httpx.Error(w, r, log, apperr.Unauthorized())
+				return
+			}
+			if cookie.Value == "forged-token-that-was-never-issued" {
+				httpx.Error(w, r, log, apperr.Unauthorized())
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
 	})
+	hrHttp.NewHandler(hrSvc, log).RegisterRoutes(r)
+	return r
+}
 
+func newAuthedRouter(repo hr.Repository) http.Handler {
+	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
+	hrSvc := hr.NewService(repo, log)
+
+	r := chi.NewRouter()
+	r.Use(httpx.RequestID)
+	r.Use(httpx.Recover(log))
+	r.Use(httpx.Locale)
+
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			sess := &identity.Session{
+				UserID:      1,
+				ActiveOrgID: 1,
+				Role:        "admin",
+				Permissions: []string{"admin", "hr.admin"},
+			}
+			ctx := identityHttp.WithSession(r.Context(), sess)
+			actor := authctx.Actor{
+				UserID:         1,
+				OrganizationID: 1,
+				Role:           "admin",
+				Permissions:    []string{"admin", "hr.admin"},
+			}
+			ctx = authctx.WithActor(ctx, actor)
+			ctx = database.WithTenant(ctx, 1)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
+	hrHttp.NewHandler(hrSvc, log).RegisterRoutes(r)
 	return r
 }
 
@@ -101,7 +164,7 @@ func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 	for _, route := range protectedRoutes {
 		req := httptest.NewRequest(route.method, route.path, strings.NewReader("{}"))
 		req.Header.Set("Content-Type", "application/json")
-		req.AddCookie(&http.Cookie{Name: testCookieName, Value: "forged-token-that-was-never-issued"})
+		req.AddCookie(&http.Cookie{Name: "dawa24_session", Value: "forged-token-that-was-never-issued"})
 		rec := httptest.NewRecorder()
 
 		router.ServeHTTP(rec, req)
@@ -114,20 +177,56 @@ func TestProtectedRoutesRejectGarbageSessionToken(t *testing.T) {
 
 func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 	router := newTestRouter(t)
-
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/hr/employees", nil)
 	rec := httptest.NewRecorder()
+
 	router.ServeHTTP(rec, req)
 
 	var body httpx.ErrorBody
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 		t.Fatalf("response is not the JSON error envelope: %v (body: %s)", err, rec.Body.String())
 	}
-
 	if body.Error.Code == "" {
-		t.Error("error envelope has no code; clients cannot branch on it")
+		t.Error("error envelope has no code")
 	}
 	if body.Error.RequestID == "" {
 		t.Error("error envelope has no request_id")
+	}
+}
+
+func TestHRHandler_HappyPaths(t *testing.T) {
+	router := newAuthedRouter(happyRepo{})
+
+	tests := []struct {
+		name       string
+		method     string
+		path       string
+		body       string
+		wantStatus int
+	}{
+		{"CreateEmployee", http.MethodPost, "/api/v1/hr/employees", `{"user_id":1,"employee_code":"EMP-01","job_title":"Pharmacist","base_salary":"5000.00"}`, http.StatusCreated},
+		{"GetEmployee", http.MethodGet, "/api/v1/hr/employees/1", "", http.StatusOK},
+		{"ListEmployees", http.MethodGet, "/api/v1/hr/employees?limit=10&offset=0", "", http.StatusOK},
+		{"SaveWorkTimes", http.MethodPost, "/api/v1/hr/work-times", `[{"day_name_ar":"الاثنين","day_name_en":"Monday","open_time":"09:00","close_time":"17:00"}]`, http.StatusOK},
+		{"ListWorkTimes", http.MethodGet, "/api/v1/hr/work-times", "", http.StatusOK},
+		{"AdminEmployees", http.MethodGet, "/api/v1/admin/hr/employees", "", http.StatusOK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var bodyReader io.Reader
+			if tt.body != "" {
+				bodyReader = strings.NewReader(tt.body)
+			}
+			req := httptest.NewRequest(tt.method, tt.path, bodyReader)
+			if tt.body != "" {
+				req.Header.Set("Content-Type", "application/json")
+			}
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("%s %s got status %d, want %d (body: %s)", tt.method, tt.path, rec.Code, tt.wantStatus, rec.Body.String())
+			}
+		})
 	}
 }

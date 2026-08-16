@@ -30,6 +30,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/workflow/branches/{id}/coverage", h.GetBranchCoverage)
 	r.Post("/api/v1/workflow/issues", h.ReportIssue)
 	r.Get("/api/v1/workflow/issues", h.ListIssues)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // CreatePriorityRequest submits a purchasing priority calculation.

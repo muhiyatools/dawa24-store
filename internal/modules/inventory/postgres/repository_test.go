@@ -50,16 +50,6 @@ func getTestDB(t *testing.T) *database.DB {
 		t.Fatalf("failed to load migrations: %v", err)
 	}
 
-	// Deliberately no superuser skip.
-	//
-	// The RLS suite skips for a superuser because a superuser bypasses
-	// row-level security, so it cannot prove isolation either way. That
-	// reasoning does not transfer here: these tests check that the SQL is
-	// correct -- columns exist, types scan, money round-trips -- and a
-	// superuser answers those questions perfectly well. Copying the skip meant
-	// these tests reported `ok` while executing nothing, which is the exact
-	// failure mode they were written to prevent.
-
 	pending, err := db.PendingCount(ctx, migrations)
 	if err != nil {
 		t.Fatalf("cannot read migration state: %v", err)
@@ -70,6 +60,14 @@ func getTestDB(t *testing.T) *database.DB {
 	return db
 }
 
+const (
+	testOrgID      int64 = 88201
+	testProductID  int64 = 88290
+	testVariantID  int64 = 88291
+	testCategoryID int64 = 88292
+	testBrandID    int64 = 88293
+)
+
 func resetFixtures(t *testing.T, db *database.DB, orgID int64) {
 	t.Helper()
 	ctx := database.AsSystem(context.Background())
@@ -79,8 +77,21 @@ func resetFixtures(t *testing.T, db *database.DB, orgID int64) {
 		_, _ = tx.Exec(txCtx, `DELETE FROM inventory.stock_movements WHERE organization_id = $1`, orgID)
 		_, _ = tx.Exec(txCtx, `DELETE FROM inventory.stocks WHERE organization_id = $1`, orgID)
 		_, _ = tx.Exec(txCtx, `DELETE FROM inventory.warehouses WHERE organization_id = $1`, orgID)
-		// Setup org
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE organization_id = $1`, orgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id = $1`, testCategoryID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id = $1`, testBrandID)
+
+		// Setup prerequisite org, category, brand, product, variant for stock FKs
 		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Inventory Test Org"}') ON CONFLICT DO NOTHING`, orgID)
+		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.categories (id, name, slug) VALUES ($1, '{"en":"Test Cat"}', 'inv-test-cat') ON CONFLICT DO NOTHING`, testCategoryID)
+		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.brands (id, name, slug) VALUES ($1, '{"en":"Test Brand"}', 'inv-test-brand') ON CONFLICT DO NOTHING`, testBrandID)
+		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.products (id, organization_id, category_id, brand_id, name, slug, dosage_form)
+			VALUES ($1, $2, $3, $4, '{"en":"Test Prod"}', 'inv-test-prod', 'tablet') ON CONFLICT DO NOTHING`,
+			testProductID, orgID, testCategoryID, testBrandID)
+		_, _ = tx.Exec(txCtx, `INSERT INTO catalog.product_variants (id, organization_id, product_id, sku, price)
+			VALUES ($1, $2, $3, 'INV-VAR-1', 50.00) ON CONFLICT DO NOTHING`,
+			testVariantID, orgID, testProductID)
 		return nil
 	})
 	if err != nil {
@@ -95,16 +106,19 @@ func TestInventoryRepository(t *testing.T) {
 	}
 	defer db.Close()
 
-	const orgID int64 = 88201
-	resetFixtures(t, db, orgID)
+	resetFixtures(t, db, testOrgID)
 
-	ctx := database.WithTenant(context.Background(), orgID)
+	ctx := database.WithTenant(context.Background(), testOrgID)
 	repo := postgres.NewRepository(db)
+
+	var warehouse1ID int64
+	var warehouse2ID int64
+	var stockID int64
+	var transferID int64
 
 	t.Run("Warehouses", func(t *testing.T) {
 		w := &inventory.Warehouse{
-			ID:             88200,
-			OrganizationID: orgID,
+			OrganizationID: testOrgID,
 			Name:           "Main Warehouse",
 			IsActive:       true,
 		}
@@ -112,8 +126,12 @@ func TestInventoryRepository(t *testing.T) {
 		if err != nil {
 			t.Fatalf("CreateWarehouse failed: %v", err)
 		}
+		if w.ID == 0 {
+			t.Fatal("expected generated warehouse ID")
+		}
+		warehouse1ID = w.ID
 
-		got, err := repo.GetWarehouseByID(ctx, 88200)
+		got, err := repo.GetWarehouseByID(ctx, warehouse1ID)
 		if err != nil {
 			t.Fatalf("GetWarehouseByID failed: %v", err)
 		}
@@ -138,7 +156,7 @@ func TestInventoryRepository(t *testing.T) {
 			t.Error("expected at least 1 warehouse")
 		}
 
-		count, err := repo.CountStockInWarehouse(ctx, 88200)
+		count, err := repo.CountStockInWarehouse(ctx, warehouse1ID)
 		if err != nil {
 			t.Fatalf("CountStockInWarehouse failed: %v", err)
 		}
@@ -149,11 +167,10 @@ func TestInventoryRepository(t *testing.T) {
 
 	t.Run("Stocks and Movements", func(t *testing.T) {
 		s := &inventory.Stock{
-			ID:               88201,
-			OrganizationID:   orgID,
-			WarehouseID:      88200,
-			ProductID:        88202, // dummy
-			ProductVariantID: 88203, // dummy
+			OrganizationID:   testOrgID,
+			WarehouseID:      warehouse1ID,
+			ProductID:        testProductID,
+			ProductVariantID: testVariantID,
 			Quantity:         100,
 			MinThreshold:     10,
 		}
@@ -162,22 +179,23 @@ func TestInventoryRepository(t *testing.T) {
 			t.Fatalf("UpsertStock failed: %v", err)
 		}
 
-		got, err := repo.GetStock(ctx, 88200, 88203)
+		got, err := repo.GetStock(ctx, warehouse1ID, testVariantID)
 		if err != nil {
 			t.Fatalf("GetStock failed: %v", err)
 		}
 		if got.Quantity != 100 {
 			t.Errorf("expected 100 quantity, got %d", got.Quantity)
 		}
+		stockID = got.ID
 
 		movement := inventory.StockMovement{
-			OrganizationID: orgID,
-			StockID:        got.ID,
+			OrganizationID: testOrgID,
+			StockID:        stockID,
 			Type:           inventory.MovementAdjustment,
 			QuantityDelta:  -5,
 			BalanceAfter:   95,
 		}
-		adjGot, err := repo.AdjustStock(ctx, got.ID, -5, movement)
+		adjGot, err := repo.AdjustStock(ctx, stockID, -5, movement)
 		if err != nil {
 			t.Fatalf("AdjustStock failed: %v", err)
 		}
@@ -185,7 +203,7 @@ func TestInventoryRepository(t *testing.T) {
 			t.Errorf("expected 95 quantity, got %d", adjGot.Quantity)
 		}
 
-		stocks, err := repo.ListStocksByWarehouse(ctx, 88200)
+		stocks, err := repo.ListStocksByWarehouse(ctx, warehouse1ID)
 		if err != nil {
 			t.Fatalf("ListStocksByWarehouse failed: %v", err)
 		}
@@ -197,10 +215,9 @@ func TestInventoryRepository(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ListLowStock failed: %v", err)
 		}
-		// Quantity is 95, min threshold is 10, so it's not low. We just check no error.
 		_ = low
 
-		moves, err := repo.ListStockMovements(ctx, got.ID, 10)
+		moves, err := repo.ListStockMovements(ctx, stockID, 10)
 		if err != nil {
 			t.Fatalf("ListStockMovements failed: %v", err)
 		}
@@ -218,10 +235,8 @@ func TestInventoryRepository(t *testing.T) {
 	})
 
 	t.Run("Transfers", func(t *testing.T) {
-		// Create another warehouse for transfer
 		w2 := &inventory.Warehouse{
-			ID:             88201,
-			OrganizationID: orgID,
+			OrganizationID: testOrgID,
 			Name:           "Second Warehouse",
 			IsActive:       true,
 		}
@@ -229,14 +244,14 @@ func TestInventoryRepository(t *testing.T) {
 		if err != nil {
 			t.Fatalf("CreateWarehouse 2 failed: %v", err)
 		}
+		warehouse2ID = w2.ID
 
 		transfer := &inventory.WarehouseTransfer{
-			ID:               88202,
-			OrganizationID:   orgID,
-			FromWarehouseID:  88200,
-			ToWarehouseID:    88201,
-			ProductID:        88202,
-			ProductVariantID: 88203,
+			OrganizationID:   testOrgID,
+			FromWarehouseID:  warehouse1ID,
+			ToWarehouseID:    warehouse2ID,
+			ProductID:        testProductID,
+			ProductVariantID: testVariantID,
 			Quantity:         10,
 			Status:           inventory.TransferPending,
 		}
@@ -244,8 +259,12 @@ func TestInventoryRepository(t *testing.T) {
 		if err != nil {
 			t.Fatalf("CreateTransfer failed: %v", err)
 		}
+		if transfer.ID == 0 {
+			t.Fatal("expected generated transfer ID")
+		}
+		transferID = transfer.ID
 
-		got, err := repo.GetTransferByID(ctx, 88202)
+		got, err := repo.GetTransferByID(ctx, transferID)
 		if err != nil {
 			t.Fatalf("GetTransferByID failed: %v", err)
 		}
@@ -253,7 +272,7 @@ func TestInventoryRepository(t *testing.T) {
 			t.Errorf("expected transfer quantity 10, got %d", got.Quantity)
 		}
 
-		err = repo.UpdateTransferStatus(ctx, 88202, inventory.TransferPending, inventory.TransferInTransit)
+		err = repo.UpdateTransferStatus(ctx, transferID, inventory.TransferPending, inventory.TransferInTransit)
 		if err != nil {
 			t.Fatalf("UpdateTransferStatus failed: %v", err)
 		}
@@ -268,13 +287,13 @@ func TestInventoryRepository(t *testing.T) {
 	})
 
 	t.Run("Cleanup", func(t *testing.T) {
-		err := repo.SoftDeleteWarehouse(ctx, 88201)
+		err := repo.SoftDeleteWarehouse(ctx, warehouse2ID)
 		if err != nil {
-			t.Fatalf("SoftDeleteWarehouse 88201 failed: %v", err)
+			t.Fatalf("SoftDeleteWarehouse %d failed: %v", warehouse2ID, err)
 		}
-		err = repo.SoftDeleteWarehouse(ctx, 88200)
+		err = repo.SoftDeleteWarehouse(ctx, warehouse1ID)
 		if err != nil {
-			t.Fatalf("SoftDeleteWarehouse 88200 failed: %v", err)
+			t.Fatalf("SoftDeleteWarehouse %d failed: %v", warehouse1ID, err)
 		}
 	})
 }
