@@ -33,11 +33,19 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // ErrNoTenant is returned when tenant-scoped work is attempted without an
-// organisation in context. This is a programming error, not a user error.
-var ErrNoTenant = errors.New("database: no organization in context")
+// organisation in context.
+//
+// This is usually a legitimate request from a user who simply has no active
+// organisation — a customer hitting a vendor endpoint, or a member who has not
+// selected one yet. Classifying it as an internal error turned that into a 500
+// reading "something went wrong on our side", which is both wrong and
+// unactionable. It is a forbidden request with a message that says what to do.
+var ErrNoTenant = apperr.Forbidden("tenant.required",
+	"No active organization. Select one, or ask to be added to a supplier account.")
 
 type ctxKey int
 
