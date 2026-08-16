@@ -4,7 +4,6 @@ import (
 	"log/slog"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/redis/go-redis/v9"
 
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
@@ -58,16 +57,14 @@ func mountModuleRoutes(
 	deps *dependencies,
 	ai gateway.Client,
 ) {
-	db, _ := deps.DB()
-	cache, _ := deps.Cache()
+	db := deps.Handle()
 
 	// 1. Identity & Auth
 	idRepo := identityPostgres.NewRepository(db)
-	var rdb *redis.Client
-	if cache != nil {
-		rdb = cache.Redis()
-	}
-	sessionStore := identity.NewSessionStore(rdb, cfg.Session)
+	// The cache handle is stable from construction and gains its client when
+	// Redis connects, so the session store resolves a live client per call
+	// rather than capturing nil at mount time.
+	sessionStore := identity.NewSessionStore(deps.CacheHandle(), cfg.Session)
 	idSvc := identity.NewService(idRepo, sessionStore, log)
 	identityHttp.NewHandler(idSvc, cfg.Session, log).RegisterRoutes(r)
 
@@ -110,7 +107,7 @@ func mountAuthenticatedModules(
 	deps *dependencies,
 	ai gateway.Client,
 ) {
-	db, _ := deps.DB()
+	db := deps.Handle()
 
 	// 2. Catalog
 	catRepo := catalogPostgres.NewRepository(db)

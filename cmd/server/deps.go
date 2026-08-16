@@ -33,6 +33,12 @@ type dependencies struct {
 
 func newDependencies() *dependencies {
 	return &dependencies{
+		// The handle exists from the start and gains its pool when dialling
+		// succeeds. Routes are mounted before the database is up, so
+		// repositories must be handed a pointer that becomes usable later
+		// rather than one that is nil at mount time and nil forever after.
+		db:       database.New(),
+		cache:    nil, // set in connect once the environment is known
 		dbErr:    errNotConnectedYet,
 		cacheErr: errNotConnectedYet,
 	}
@@ -63,17 +69,24 @@ func (d *dependencies) Ready() bool {
 	return d.ready
 }
 
-func (d *dependencies) setDB(db *database.DB, err error) {
+// setDBErr records connection state. The handle itself never changes.
+func (d *dependencies) setDBErr(err error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	d.db, d.dbErr = db, err
+	d.dbErr = err
 	d.recompute()
 }
 
-func (d *dependencies) setCache(c *cache.Cache, err error) {
+// Handle returns the database handle, which is non-nil from construction even
+// before the pool is dialled. Callers that need to know whether it is usable
+// yet ask DB() instead.
+func (d *dependencies) Handle() *database.DB { return d.db }
+
+// setCacheErr records connection state. The handle itself never changes.
+func (d *dependencies) setCacheErr(err error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	d.cache, d.cacheErr = c, err
+	d.cacheErr = err
 	d.recompute()
 }
 
@@ -100,24 +113,35 @@ func (d *dependencies) close() {
 // fresh deploy the database service may genuinely still be provisioning, and a
 // container that exits after 30 seconds turns a slow start into a crash loop
 // that hides the original cause.
+// CacheHandle returns the cache handle, non-nil from the first connect call.
+func (d *dependencies) CacheHandle() *cache.Cache {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.cache
+}
+
 func (d *dependencies) connect(ctx context.Context, cfg *config.Config, log *slog.Logger) {
+	// Create the handle before dialling so anything constructed during route
+	// mounting holds a pointer that becomes usable later.
+	d.mu.Lock()
+	d.cache = cache.New(cfg.Env)
+	d.mu.Unlock()
+
 	go retryForever(ctx, log, "database", func(ctx context.Context) error {
-		db, err := database.Open(ctx, cfg.Database)
-		if err != nil {
-			d.setDB(nil, err)
+		if err := d.db.Connect(ctx, cfg.Database); err != nil {
+			d.setDBErr(err)
 			return err
 		}
-		d.setDB(db, nil)
+		d.setDBErr(nil)
 		return nil
 	})
 
 	go retryForever(ctx, log, "redis", func(ctx context.Context) error {
-		c, err := cache.Open(ctx, cfg.Redis, cfg.Env)
-		if err != nil {
-			d.setCache(nil, err)
+		if err := d.CacheHandle().Connect(ctx, cfg.Redis); err != nil {
+			d.setCacheErr(err)
 			return err
 		}
-		d.setCache(c, nil)
+		d.setCacheErr(nil)
 		return nil
 	})
 }

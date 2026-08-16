@@ -95,7 +95,12 @@ CREATE TABLE IF NOT EXISTS public.schema_migrations (
 // no signal, which is precisely the state the legacy project reached with 153
 // archived migrations and a schema nobody could rebuild.
 func (db *DB) Migrate(ctx context.Context, migrations []Migration, log func(string, ...any)) error {
-	conn, err := db.pool.Acquire(ctx)
+	pool, err := db.getPool()
+	if err != nil {
+		return err
+	}
+
+	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("migrate: acquire connection: %w", err)
 	}
@@ -192,7 +197,12 @@ func loadApplied(ctx context.Context, conn *pgx.Conn) (map[int]string, error) {
 // readiness probe. A pod serving traffic against a stale schema is worse than a
 // pod that reports itself unready.
 func (db *DB) PendingCount(ctx context.Context, migrations []Migration) (int, error) {
-	conn, err := db.pool.Acquire(ctx)
+	pool, err := db.getPool()
+	if err != nil {
+		return 0, err
+	}
+
+	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		return 0, err
 	}

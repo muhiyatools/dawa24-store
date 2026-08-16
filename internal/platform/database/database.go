@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -71,14 +72,73 @@ func isSystem(ctx context.Context) bool {
 	return v
 }
 
+// ErrNotConnected is returned when the pool has not been established yet.
+var ErrNotConnected = errors.New("database: not connected yet")
+
 // DB wraps the pool and exposes only transaction-scoped access.
+//
+// The handle is created before the pool exists and is filled in once dialling
+// succeeds. That indirection matters: the HTTP server starts before its
+// dependencies are up (see cmd/server/deps.go), so routes are mounted — and
+// repositories constructed — while the database is still connecting. Handing
+// those repositories a *DB that is nil at that moment would leave every one of
+// them holding a nil pointer forever, which is exactly the panic this replaced.
 type DB struct {
+	mu   sync.RWMutex
 	pool *pgxpool.Pool
+}
+
+// New returns an unconnected handle. Call Connect to establish the pool.
+func New() *DB { return &DB{} }
+
+// Connect dials PostgreSQL and attaches the pool to this handle.
+//
+// Safe to call repeatedly: a successful connection replaces any previous pool
+// and closes it, so a retry loop cannot leak connections.
+func (db *DB) Connect(ctx context.Context, cfg config.Database) error {
+	pool, err := newPool(ctx, cfg)
+	if err != nil {
+		return err
+	}
+
+	db.mu.Lock()
+	old := db.pool
+	db.pool = pool
+	db.mu.Unlock()
+
+	if old != nil {
+		old.Close()
+	}
+	return nil
+}
+
+// Connected reports whether the pool is established.
+func (db *DB) Connected() bool {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+	return db.pool != nil
+}
+
+func (db *DB) getPool() (*pgxpool.Pool, error) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+	if db.pool == nil {
+		return nil, ErrNotConnected
+	}
+	return db.pool, nil
 }
 
 // Open builds the pool and verifies connectivity. A process that cannot reach
 // its database should fail at boot, not on its first request.
 func Open(ctx context.Context, cfg config.Database) (*DB, error) {
+	pool, err := newPool(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	return &DB{pool: pool}, nil
+}
+
+func newPool(ctx context.Context, cfg config.Database) (*pgxpool.Pool, error) {
 	poolCfg, err := pgxpool.ParseConfig(cfg.URL)
 	if err != nil {
 		return nil, fmt.Errorf("database: parse DATABASE_URL: %w", err)
@@ -112,18 +172,31 @@ func Open(ctx context.Context, cfg config.Database) (*DB, error) {
 		return nil, fmt.Errorf("database: ping: %w", err)
 	}
 
-	return &DB{pool: pool}, nil
+	return pool, nil
 }
 
-func (db *DB) Close() { db.pool.Close() }
+// Close releases the pool if one is attached.
+func (db *DB) Close() {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	if db.pool != nil {
+		db.pool.Close()
+		db.pool = nil
+	}
+}
 
 // Health verifies the database answers, for the /health endpoint and the
 // container healthcheck.
 func (db *DB) Health(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
+	pool, err := db.getPool()
+	if err != nil {
+		return err
+	}
+
 	var one int
-	if err := db.pool.QueryRow(ctx, "SELECT 1").Scan(&one); err != nil {
+	if err := pool.QueryRow(ctx, "SELECT 1").Scan(&one); err != nil {
 		return fmt.Errorf("database: health: %w", err)
 	}
 	return nil
@@ -131,7 +204,11 @@ func (db *DB) Health(ctx context.Context) error {
 
 // Pool exposes the raw pool for the River queue driver, which manages its own
 // transactions. Application code must not use this.
-func (db *DB) Pool() *pgxpool.Pool { return db.pool }
+func (db *DB) Pool() *pgxpool.Pool {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+	return db.pool
+}
 
 // InTx runs fn inside a read-write transaction with tenant isolation applied.
 //
@@ -150,7 +227,12 @@ func (db *DB) InReadTx(ctx context.Context, fn func(context.Context, pgx.Tx) err
 }
 
 func (db *DB) transact(ctx context.Context, opts pgx.TxOptions, fn func(context.Context, pgx.Tx) error) (err error) {
-	tx, err := db.pool.BeginTx(ctx, opts)
+	pool, err := db.getPool()
+	if err != nil {
+		return err
+	}
+
+	tx, err := pool.BeginTx(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("database: begin: %w", err)
 	}

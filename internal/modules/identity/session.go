@@ -11,6 +11,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
+	cachepkg "github.com/muhiya/dawa24-store/internal/platform/cache"
+
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -31,20 +33,25 @@ type Session struct {
 }
 
 // SessionStore handles session persistence in Redis.
+// SessionStore holds the cache handle rather than a redis.Client.
+//
+// The client does not exist when routes are mounted — the server starts before
+// its dependencies connect — so capturing one at construction time captures nil
+// forever. Asking the handle at each use gets whatever is live now.
 type SessionStore struct {
-	redisClient *redis.Client
-	cookieName  string
-	ttl         time.Duration
-	secure      bool
+	cache      *cachepkg.Cache
+	cookieName string
+	ttl        time.Duration
+	secure     bool
 }
 
 // NewSessionStore creates a session store wrapping Redis.
-func NewSessionStore(rdb *redis.Client, cfg config.Session) *SessionStore {
+func NewSessionStore(c *cachepkg.Cache, cfg config.Session) *SessionStore {
 	return &SessionStore{
-		redisClient: rdb,
-		cookieName:  cfg.CookieName,
-		ttl:         cfg.TTL,
-		secure:      cfg.SecureOnly,
+		cache:      c,
+		cookieName: cfg.CookieName,
+		ttl:        cfg.TTL,
+		secure:     cfg.SecureOnly,
 	}
 }
 
@@ -83,7 +90,11 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 		return fmt.Errorf("session: marshal: %w", err)
 	}
 
-	pipe := s.redisClient.TxPipeline()
+	rdb, err := s.client()
+	if err != nil {
+		return err
+	}
+	pipe := rdb.TxPipeline()
 	pipe.Set(ctx, sessionKey(sess.Token), data, s.ttl)
 	pipe.SAdd(ctx, userSessionsKey(sess.UserID), sess.Token)
 	pipe.Expire(ctx, userSessionsKey(sess.UserID), s.ttl)
@@ -100,7 +111,11 @@ func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) 
 		return nil, apperr.Unauthorized()
 	}
 
-	val, err := s.redisClient.Get(ctx, sessionKey(token)).Bytes()
+	rdb, err := s.client()
+	if err != nil {
+		return nil, err
+	}
+	val, err := rdb.Get(ctx, sessionKey(token)).Bytes()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, apperr.Unauthorized()
@@ -122,12 +137,17 @@ func (s *SessionStore) Delete(ctx context.Context, token string) error {
 		return nil
 	}
 
-	sess, err := s.Get(ctx, token)
-	if err == nil && sess != nil {
-		s.redisClient.SRem(ctx, userSessionsKey(sess.UserID), token)
+	rdb, err := s.client()
+	if err != nil {
+		return err
 	}
 
-	if err := s.redisClient.Del(ctx, sessionKey(token)).Err(); err != nil {
+	sess, err := s.Get(ctx, token)
+	if err == nil && sess != nil {
+		rdb.SRem(ctx, userSessionsKey(sess.UserID), token)
+	}
+
+	if err := rdb.Del(ctx, sessionKey(token)).Err(); err != nil {
 		return apperr.Unavailable("redis", err)
 	}
 	return nil
@@ -135,7 +155,11 @@ func (s *SessionStore) Delete(ctx context.Context, token string) error {
 
 // DeleteAllForUser invalidates all active sessions for a given user.
 func (s *SessionStore) DeleteAllForUser(ctx context.Context, userID int64) error {
-	tokens, err := s.redisClient.SMembers(ctx, userSessionsKey(userID)).Result()
+	rdb, err := s.client()
+	if err != nil {
+		return err
+	}
+	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return apperr.Unavailable("redis", err)
 	}
@@ -146,9 +170,22 @@ func (s *SessionStore) DeleteAllForUser(ctx context.Context, userID int64) error
 			keys = append(keys, sessionKey(tok))
 		}
 		keys = append(keys, userSessionsKey(userID))
-		if err := s.redisClient.Del(ctx, keys...).Err(); err != nil {
+		if err := rdb.Del(ctx, keys...).Err(); err != nil {
 			return apperr.Unavailable("redis", err)
 		}
 	}
 	return nil
+}
+
+// client resolves the live Redis client, or reports that sessions are
+// unavailable because the cache has not connected yet.
+func (s *SessionStore) client() (*redis.Client, error) {
+	if s == nil || s.cache == nil {
+		return nil, apperr.Unavailable("session", cachepkg.ErrNotConnected)
+	}
+	rdb := s.cache.Redis()
+	if rdb == nil {
+		return nil, apperr.Unavailable("session", cachepkg.ErrNotConnected)
+	}
+	return rdb, nil
 }

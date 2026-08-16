@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -28,12 +29,61 @@ import (
 // never as a failure.
 var ErrMiss = errors.New("cache: miss")
 
+// ErrNotConnected is returned before the client has been established.
+var ErrNotConnected = errors.New("cache: not connected yet")
+
 type Cache struct {
+	mu     sync.RWMutex
 	rdb    *redis.Client
 	prefix string
 }
 
+// New returns an unconnected handle.
+//
+// Same reasoning as database.New: the HTTP server starts before its
+// dependencies are up, so anything constructed at route-mount time must hold a
+// pointer that becomes usable later rather than a nil client captured forever.
+func New(appEnv config.Env) *Cache {
+	return &Cache{prefix: "dawa24:" + string(appEnv) + ":"}
+}
+
+// Connect dials Redis and attaches the client to this handle.
+func (c *Cache) Connect(ctx context.Context, cfg config.Redis) error {
+	rdb, err := dial(ctx, cfg)
+	if err != nil {
+		return err
+	}
+
+	c.mu.Lock()
+	old := c.rdb
+	c.rdb = rdb
+	c.mu.Unlock()
+
+	if old != nil {
+		_ = old.Close()
+	}
+	return nil
+}
+
+// client returns the live client, or ErrNotConnected.
+func (c *Cache) client() (*redis.Client, error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if c.rdb == nil {
+		return nil, ErrNotConnected
+	}
+	return c.rdb, nil
+}
+
 func Open(ctx context.Context, cfg config.Redis, appEnv config.Env) (*Cache, error) {
+	rdb, err := dial(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	return &Cache{rdb: rdb, prefix: "dawa24:" + string(appEnv) + ":"}, nil
+}
+
+func dial(ctx context.Context, cfg config.Redis) (*redis.Client, error) {
 	opts, err := redis.ParseURL(cfg.URL)
 	if err != nil {
 		return nil, fmt.Errorf("cache: parse REDIS_URL: %w", err)
@@ -49,22 +99,36 @@ func Open(ctx context.Context, cfg config.Redis, appEnv config.Env) (*Cache, err
 		return nil, fmt.Errorf("cache: ping: %w", err)
 	}
 
-	// Environment-prefixed keys mean a staging deploy pointed at the wrong
-	// Redis cannot serve production data, and flushing one environment cannot
-	// wipe another.
-	return &Cache{rdb: rdb, prefix: "dawa24:" + string(appEnv) + ":"}, nil
+	return rdb, nil
 }
 
-func (c *Cache) Close() error { return c.rdb.Close() }
+func (c *Cache) Close() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.rdb == nil {
+		return nil
+	}
+	err := c.rdb.Close()
+	c.rdb = nil
+	return err
+}
 
 func (c *Cache) Health(ctx context.Context) error {
+	rdb, err := c.client()
+	if err != nil {
+		return err
+	}
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
-	return c.rdb.Ping(ctx).Err()
+	return rdb.Ping(ctx).Err()
 }
 
 // Redis exposes the client for the session store and rate limiter.
-func (c *Cache) Redis() *redis.Client { return c.rdb }
+func (c *Cache) Redis() *redis.Client {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.rdb
+}
 
 // Key builds a tenant-scoped cache key.
 //
@@ -88,7 +152,13 @@ func (c *Cache) Key(orgID int64, parts ...string) string {
 
 // GetJSON reads and decodes a value, returning ErrMiss when absent.
 func (c *Cache) GetJSON(ctx context.Context, key string, dst any) error {
-	raw, err := c.rdb.Get(ctx, key).Bytes()
+	rdb, err := c.client()
+	if err != nil {
+		// Redis being unavailable must not fail the request; the caller
+		// recomputes on a miss.
+		return ErrMiss
+	}
+	raw, err := rdb.Get(ctx, key).Bytes()
 	if errors.Is(err, redis.Nil) {
 		return ErrMiss
 	}
@@ -98,7 +168,7 @@ func (c *Cache) GetJSON(ctx context.Context, key string, dst any) error {
 	if err := json.Unmarshal(raw, dst); err != nil {
 		// A value we cannot decode is worse than no value: drop it so the next
 		// request repopulates rather than failing forever on a stale shape.
-		_ = c.rdb.Del(ctx, key).Err()
+		_ = rdb.Del(ctx, key).Err()
 		return ErrMiss
 	}
 	return nil
@@ -116,7 +186,12 @@ func (c *Cache) SetJSON(ctx context.Context, key string, val any, ttl time.Durat
 	if err != nil {
 		return fmt.Errorf("cache: marshal %s: %w", key, err)
 	}
-	if err := c.rdb.Set(ctx, key, raw, ttl).Err(); err != nil {
+
+	rdb, err := c.client()
+	if err != nil {
+		return err
+	}
+	if err := rdb.Set(ctx, key, raw, ttl).Err(); err != nil {
 		return fmt.Errorf("cache: set %s: %w", key, err)
 	}
 	return nil
@@ -127,7 +202,11 @@ func (c *Cache) Delete(ctx context.Context, keys ...string) error {
 	if len(keys) == 0 {
 		return nil
 	}
-	return c.rdb.Del(ctx, keys...).Err()
+	rdb, err := c.client()
+	if err != nil {
+		return err
+	}
+	return rdb.Del(ctx, keys...).Err()
 }
 
 // Remember returns the cached value or computes, stores and returns it.
@@ -154,15 +233,20 @@ func Remember[T any](ctx context.Context, c *Cache, key string, ttl time.Duratio
 // It uses SCAN rather than KEYS: KEYS blocks Redis for the duration of the
 // sweep, which on a shared instance stalls every other tenant's requests too.
 func (c *Cache) InvalidateTenant(ctx context.Context, orgID int64) error {
+	rdb, err := c.client()
+	if err != nil {
+		return err
+	}
+
 	pattern := c.Key(orgID) + "*"
 	var cursor uint64
 	for {
-		keys, next, err := c.rdb.Scan(ctx, cursor, pattern, 200).Result()
+		keys, next, err := rdb.Scan(ctx, cursor, pattern, 200).Result()
 		if err != nil {
 			return fmt.Errorf("cache: scan %s: %w", pattern, err)
 		}
 		if len(keys) > 0 {
-			if err := c.rdb.Del(ctx, keys...).Err(); err != nil {
+			if err := rdb.Del(ctx, keys...).Err(); err != nil {
 				return fmt.Errorf("cache: delete batch: %w", err)
 			}
 		}
