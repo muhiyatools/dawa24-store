@@ -28,6 +28,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/web"
 )
 
@@ -159,6 +160,21 @@ func newRouter(
 	// affects the verdict.
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/status", health.status)
+	})
+
+	// Unmatched routes get the same JSON envelope as every other error, with the
+	// request id, rather than chi's bare "404 page not found" text. The hint
+	// matters more than it looks: this domain previously served a different
+	// application, so stale bookmarks and browser autocomplete land on paths
+	// that never existed here.
+	r.NotFound(func(w http.ResponseWriter, req *http.Request) {
+		httpx.Error(w, req, log, apperr.New(apperr.KindNotFound, "route.not_found",
+			"No such endpoint. Try /health, /ready, /api/v1/status, or /."))
+	})
+
+	r.MethodNotAllowed(func(w http.ResponseWriter, req *http.Request) {
+		httpx.Error(w, req, log, apperr.New(apperr.KindValidation, "route.method_not_allowed",
+			"That endpoint exists but does not accept this HTTP method."))
 	})
 
 	// Mount all domain module endpoints
