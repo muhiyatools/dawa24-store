@@ -1,0 +1,66 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminApprovals(pending []*org.Organization, lang, dir string) {
+	@layouts.AdminShell("Tenant Approval Queue", "approvals", lang, dir) {
+		<div class="card">
+			<h2 class="card-title">Pending Organizations ({ fmt.Sprintf("%d", len(pending)) })</h2>
+			if len(pending) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.875rem;">No pending organization applications at this time.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>Legal Name</th>
+								<th>Trade Name</th>
+								<th>Tax Number</th>
+								<th>CR Number</th>
+								<th>Type</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, o := range pending {
+								<tr id={ fmt.Sprintf("org-row-%d", o.ID) }>
+									<td>{ o.LegalName }</td>
+									<td>{ o.TradeName["ar"] }</td>
+									<td>{ o.TaxNumber }</td>
+									<td>{ o.CommercialRegister }</td>
+									<td>{ string(o.Type) }</td>
+									<td>
+										<div style="display:flex; gap:0.5rem;">
+											<button
+												class="btn btn-primary"
+												style="padding:0.25rem 0.5rem; font-size:0.75rem;"
+												hx-post={ fmt.Sprintf("/api/v1/admin/org/%d/approve", o.ID) }
+												hx-target={ fmt.Sprintf("#org-row-%d", o.ID) }
+												hx-swap="outerHTML"
+											>
+												Approve
+											</button>
+											<button
+												class="btn btn-danger"
+												style="padding:0.25rem 0.5rem; font-size:0.75rem;"
+												hx-post={ fmt.Sprintf("/api/v1/admin/org/%d/reject", o.ID) }
+												hx-target={ fmt.Sprintf("#org-row-%d", o.ID) }
+												hx-swap="outerHTML"
+											>
+												Reject
+											</button>
+										</div>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

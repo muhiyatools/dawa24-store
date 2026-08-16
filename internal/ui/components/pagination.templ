@@ -1,0 +1,30 @@
+package components
+
+templ PaginationNav(prevCursor string, nextCursor string, baseURL string) {
+	<div class="pagination-container" style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem;">
+		if prevCursor != "" {
+			<a
+				href={ templ.SafeURL(baseURL + "?cursor=" + prevCursor) }
+				class="btn btn-secondary"
+				hx-get={ baseURL + "?cursor=" + prevCursor }
+				hx-target="#data-table-container"
+				hx-push-url="true"
+			>
+				&larr; Previous
+			</a>
+		} else {
+			<div></div>
+		}
+		if nextCursor != "" {
+			<a
+				href={ templ.SafeURL(baseURL + "?cursor=" + nextCursor) }
+				class="btn btn-secondary"
+				hx-get={ baseURL + "?cursor=" + nextCursor }
+				hx-target="#data-table-container"
+				hx-push-url="true"
+			>
+				Next &rarr;
+			</a>
+		}
+	</div>
+}

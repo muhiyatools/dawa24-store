@@ -42,6 +42,17 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Group(func(protected chi.Router) {
 		protected.Use(RequireAuth(h.service, h.cookieName, h.log))
 		protected.Get("/api/v1/auth/me", h.Me)
+		protected.Get("/api/v1/me", h.GetMe)
+		protected.Put("/api/v1/me", h.UpdateMe)
+
+		protected.Get("/api/v1/me/addresses", h.ListAddresses)
+		protected.Post("/api/v1/me/addresses", h.CreateAddress)
+		protected.Put("/api/v1/me/addresses/{id}", h.UpdateAddress)
+		protected.Delete("/api/v1/me/addresses/{id}", h.DeleteAddress)
+
+		protected.Get("/api/v1/me/favorites", h.ListFavorites)
+		protected.Post("/api/v1/me/favorites", h.AddFavorite)
+		protected.Delete("/api/v1/me/favorites/{productId}", h.RemoveFavorite)
 	})
 }
 

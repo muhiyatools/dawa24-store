@@ -29,18 +29,26 @@ func NewHandler(service *org.Service, log *slog.Logger) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/org/organizations", h.RegisterOrg)
 	r.Get("/api/v1/org/organizations/{id}", h.GetOrg)
+	r.Put("/api/v1/org/organizations/{id}", h.UpdateOrg)
+	r.Delete("/api/v1/org/organizations/{id}", h.DeleteOrg)
 	r.Get("/api/v1/org/organizations", h.ListOrgs)
 	r.Post("/api/v1/org/organizations/{id}/status", h.UpdateStatus)
 
 	r.Post("/api/v1/org/organizations/{id}/branches", h.CreateBranch)
 	r.Get("/api/v1/org/organizations/{id}/branches", h.ListBranches)
+	r.Put("/api/v1/org/organizations/{id}/branches/{bid}", h.UpdateBranch)
+	r.Delete("/api/v1/org/organizations/{id}/branches/{bid}", h.DeleteBranch)
 
 	r.Post("/api/v1/org/organizations/{id}/members", h.AddMember)
 	r.Get("/api/v1/org/organizations/{id}/members", h.ListMembers)
+	r.Put("/api/v1/org/organizations/{id}/members/{uid}", h.UpdateMemberRole)
+	r.Delete("/api/v1/org/organizations/{id}/members/{uid}", h.RemoveMember)
 
 	r.Post("/api/v1/org/organizations/{id}/reviews", h.AddReview)
 	r.Get("/api/v1/org/organizations/{id}/reviews", h.ListReviews)
 	r.Post("/api/v1/org/organizations/{id}/follow", h.ToggleFollow)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // RegisterOrg handles organization creation.

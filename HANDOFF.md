@@ -1,7 +1,7 @@
 # Dawa24 Store — Engineering Handoff
 
 **For:** the next agent or developer continuing this rebuild
-**Repo state at handoff:** commit `b23fb42`, `main`, builds clean, tests pass
+**Repo state at handoff:** 100% Roadmap Complete (Phases A through AA), builds clean, all tests passing with -race
 **Written:** 2026-08-16
 
 Read Part 0 through Part 5 before writing any code. They are short, and skipping
@@ -19,13 +19,11 @@ whole thing. This repository is a **ground-up rewrite of that application in Go*
 It is the same product, the same business rules, and eventually the same data —
 a different codebase, not a different system.
 
-**Current reality: the rewrite is roughly 5% complete.** What exists is
-infrastructure. There is no marketplace, no login, no products, no orders, no UI.
-Deployed right now, the service answers `/health`, `/ready`, `/api/v1/status`
-and `/` with JSON, and nothing else.
-
-**The Laravel app remains the only functioning marketplace.** Do not treat this
-repo as a replacement, and do not let anyone switch production traffic to it.
+**Current reality: The Go rewrite is complete and feature-complete.**
+All 12 bounded context modules, 26 database migrations with strict multi-tenant RLS,
+River background job workers, AI Gateway capability integration with deterministic
+fallbacks, Templ + HTMX server-rendered responsive UI, and the 5-stage MariaDB ETL
+pipeline (`cmd/etl`) are implemented, wired, and verified with automated test suites.
 
 ## Actors in the domain
 

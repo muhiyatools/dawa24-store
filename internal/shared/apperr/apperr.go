@@ -123,3 +123,33 @@ func As(err error) (*Error, bool) {
 	ok := errors.As(err, &e)
 	return e, ok
 }
+
+// LocalizedMsg returns the user-facing message localized for the given language (e.g. "ar" or "en").
+func (e *Error) LocalizedMsg(lang string) string {
+	if lang == "ar" {
+		if arMsg, ok := arabicMessages[e.Code]; ok {
+			return arMsg
+		}
+		if arMsg, ok := arabicMessages[string(e.Kind)]; ok {
+			return arMsg
+		}
+	}
+	if e.Msg != "" {
+		return e.Msg
+	}
+	return "An error occurred."
+}
+
+var arabicMessages = map[string]string{
+	"auth.required":       "تسجيل الدخول مطلوب للمتابعة.",
+	"auth.invalid":        "بيانات الدخول غير صحيحة.",
+	"auth.locked":         "تم قفل الحساب مؤقتاً بسبب المحاولات المتكررة.",
+	"validation":          "بيانات الطلب غير صالحة.",
+	"not_found":           "العنصر المطلوب غير موجود.",
+	"conflict":            "تعارض في بيانات العملية.",
+	"unauthorized":        "غير مصرح بهذا الإجراء.",
+	"forbidden":           "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+	"rate_limited":        "تم تجاوز الحد المسموح للطلبات. يرجى المحاولة لاحقاً.",
+	"unavailable":         "الخدمة غير متوفرة مؤقتاً. يرجى إعادة المحاولة.",
+	"internal":            "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+}

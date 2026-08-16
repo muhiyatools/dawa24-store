@@ -27,7 +27,14 @@ func NewHandler(service *ingest.Service, log *slog.Logger) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/ingest/uploads", h.RegisterUpload)
 	r.Post("/api/v1/ingest/sessions", h.StartSession)
+	r.Get("/api/v1/ingest/sessions", h.ListSessions)
 	r.Get("/api/v1/ingest/sessions/{id}", h.GetSession)
+	r.Get("/api/v1/ingest/sessions/{id}/rows", h.ListRows)
+	r.Post("/api/v1/ingest/sessions/{id}/mapping", h.UpdateMapping)
+	r.Post("/api/v1/ingest/sessions/{id}/commit", h.CommitSession)
+	r.Post("/api/v1/ingest/sessions/{id}/cancel", h.CancelSession)
+	r.Put("/api/v1/ingest/sessions/{id}/rows/{rid}", h.OverrideRowMatch)
+	r.Get("/api/v1/ingest/sessions/{id}/events", h.StreamEvents)
 }
 
 // RegisterUpload registers a file uploaded to S3/MinIO.

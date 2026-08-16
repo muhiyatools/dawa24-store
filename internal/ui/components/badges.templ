@@ -1,0 +1,14 @@
+package components
+
+templ StatusBadge(status string) {
+	switch status {
+		case "active", "completed", "approved", "delivered", "published":
+			<span class="badge badge-success">{ status }</span>
+		case "pending", "processing", "draft":
+			<span class="badge badge-warning">{ status }</span>
+		case "failed", "cancelled", "rejected", "suspended":
+			<span class="badge badge-danger">{ status }</span>
+		default:
+			<span class="badge badge-neutral">{ status }</span>
+	}
+}

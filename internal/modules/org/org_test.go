@@ -56,6 +56,30 @@ func (m *mockOrgRepo) UpdateOrganizationStatus(_ context.Context, id int64, stat
 	return nil
 }
 
+func (m *mockOrgRepo) UpdateOrganization(_ context.Context, o *org.Organization) error {
+	m.orgs[o.ID] = o
+	return nil
+}
+
+func (m *mockOrgRepo) DeleteOrganization(_ context.Context, id int64) error {
+	if o, ok := m.orgs[id]; ok {
+		o.Status = org.StatusSuspended
+	}
+	return nil
+}
+
+func (m *mockOrgRepo) UpdateBranch(_ context.Context, b *org.Branch) error {
+	return nil
+}
+
+func (m *mockOrgRepo) DeleteBranch(_ context.Context, id, orgID int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) UpdateMemberRole(_ context.Context, orgID, userID int64, role string) error {
+	return nil
+}
+
 func (m *mockOrgRepo) ListOrganizations(_ context.Context, orgType *org.OrganizationType, status *org.OrganizationStatus, limit, offset int) ([]*org.Organization, error) {
 	var list []*org.Organization
 	for _, o := range m.orgs {

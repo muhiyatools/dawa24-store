@@ -1,0 +1,35 @@
+package layouts
+
+templ CustomerShell(title string, lang string, dir string) {
+	@Base(title, lang, dir) {
+		<header class="top-navbar" style="border-block-end:1px solid var(--neutral-200); position:sticky; top:0; z-index:50;">
+			<div style="display:flex; align-items:center; gap:2rem;">
+				<a href="/" style="font-weight:700; font-size:1.375rem; color:var(--primary-700); text-decoration:none;">
+					Dawa24 Store
+				</a>
+				<nav style="display:flex; gap:1rem;">
+					<a href="/catalog" class="nav-link">Catalog</a>
+					<a href="/offers" class="nav-link">Special Offers</a>
+					<a href="/quotes" class="nav-link">B2B Quotes</a>
+				</nav>
+			</div>
+			<div style="display:flex; align-items:center; gap:1.25rem;">
+				<a href="/cart" class="btn btn-secondary" style="position:relative;">
+					🛒 Cart
+				</a>
+				<a href="/account/orders" class="btn btn-secondary">
+					📦 My Orders
+				</a>
+				<a href="/auth/login" class="btn btn-primary">
+					Sign In
+				</a>
+			</div>
+		</header>
+		<main class="page-container" style="flex:1;">
+			{ children... }
+		</main>
+		<footer style="background-color:#ffffff; border-block-start:1px solid var(--neutral-200); padding:2rem 1.5rem; text-align:center; color:var(--neutral-500); font-size:0.875rem;">
+			<p>© 2026 Dawa24 B2B Pharmaceutical Marketplace. All rights reserved.</p>
+		</footer>
+	}
+}

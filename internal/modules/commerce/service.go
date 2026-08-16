@@ -167,6 +167,11 @@ func (s *Service) TransitionOrderStatus(
 	return s.repo.UpdateOrderStatus(ctx, orderID, newStatus, history)
 }
 
+// CancelOrder transitions an order to cancelled status.
+func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserID *int64, reason string) error {
+	return s.TransitionOrderStatus(ctx, orderID, StatusCancelled, changedByUserID, reason)
+}
+
 // ListCustomerOrders retrieves paginated orders for a customer.
 func (s *Service) ListCustomerOrders(ctx context.Context, customerID int64, limit, offset int) ([]*Order, error) {
 	return s.repo.ListOrdersByCustomer(ctx, customerID, limit, offset)

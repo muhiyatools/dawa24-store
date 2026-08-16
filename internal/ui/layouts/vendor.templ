@@ -1,0 +1,47 @@
+package layouts
+
+templ VendorShell(title string, activeNav string, lang string, dir string) {
+	@Base(title, lang, dir) {
+		<div class="app-shell">
+			<aside class="sidebar">
+				<div class="sidebar-header">
+					<span>Dawa24 Vendor</span>
+				</div>
+				<nav class="sidebar-nav">
+					<a href="/vendor/dashboard" class={ "nav-link", templ.KV("active", activeNav == "dashboard") }>
+						<span>📈 Dashboard</span>
+					</a>
+					<a href="/vendor/ingest" class={ "nav-link", templ.KV("active", activeNav == "ingest") }>
+						<span>📥 Bulk Import Wizard</span>
+					</a>
+					<a href="/vendor/inventory" class={ "nav-link", templ.KV("active", activeNav == "inventory") }>
+						<span>📦 Inventory & Stock</span>
+					</a>
+					<a href="/vendor/shipments" class={ "nav-link", templ.KV("active", activeNav == "shipments") }>
+						<span>🚚 Orders & Shipments</span>
+					</a>
+					<a href="/vendor/invoices" class={ "nav-link", templ.KV("active", activeNav == "invoices") }>
+						<span>🧾 Invoices & Payouts</span>
+					</a>
+					<a href="/vendor/profile" class={ "nav-link", templ.KV("active", activeNav == "profile") }>
+						<span>🏢 Company Profile</span>
+					</a>
+				</nav>
+			</aside>
+			<main class="main-content">
+				<header class="top-navbar">
+					<div>
+						<h1 style="font-size:1.25rem; font-weight:600;">{ title }</h1>
+					</div>
+					<div style="display:flex; align-items:center; gap:1rem;">
+						<span style="font-size:0.875rem; color:var(--neutral-600);">Vendor Portal</span>
+						<button hx-post="/api/v1/auth/logout" class="btn btn-secondary">Logout</button>
+					</div>
+				</header>
+				<div class="page-container">
+					{ children... }
+				</div>
+			</main>
+		</div>
+	}
+}

@@ -114,6 +114,34 @@ func (m *mockRepo) UserBelongsToOrg(_ context.Context, userID int64, orgID int64
 	return true, nil
 }
 
+func (m *mockRepo) CreateAddress(_ context.Context, addr *identity.UserAddress) error {
+	addr.ID = m.nextID
+	m.nextID++
+	return nil
+}
+func (m *mockRepo) GetAddressByID(_ context.Context, id, userID int64) (*identity.UserAddress, error) {
+	return nil, apperr.NotFound("user_address")
+}
+func (m *mockRepo) ListAddresses(_ context.Context, userID int64) ([]*identity.UserAddress, error) {
+	return nil, nil
+}
+func (m *mockRepo) UpdateAddress(_ context.Context, addr *identity.UserAddress) error {
+	return nil
+}
+func (m *mockRepo) DeleteAddress(_ context.Context, id, userID int64) error {
+	return nil
+}
+
+func (m *mockRepo) AddFavorite(_ context.Context, userID, productID int64) error {
+	return nil
+}
+func (m *mockRepo) RemoveFavorite(_ context.Context, userID, productID int64) error {
+	return nil
+}
+func (m *mockRepo) ListFavorites(_ context.Context, userID int64) ([]int64, error) {
+	return nil, nil
+}
+
 func TestServiceRegisterAndLogin(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockRepo()

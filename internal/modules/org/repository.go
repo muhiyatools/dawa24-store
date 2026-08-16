@@ -9,14 +9,19 @@ type Repository interface {
 	CreateOrganization(ctx context.Context, o *Organization) error
 	GetOrganizationByID(ctx context.Context, id int64) (*Organization, error)
 	UpdateOrganizationStatus(ctx context.Context, id int64, status OrganizationStatus) error
+	UpdateOrganization(ctx context.Context, o *Organization) error
+	DeleteOrganization(ctx context.Context, id int64) error
 	ListOrganizations(ctx context.Context, orgType *OrganizationType, status *OrganizationStatus, limit, offset int) ([]*Organization, error)
 
 	CreateBranch(ctx context.Context, b *Branch) error
 	GetBranchByID(ctx context.Context, id int64) (*Branch, error)
+	UpdateBranch(ctx context.Context, b *Branch) error
+	DeleteBranch(ctx context.Context, id, orgID int64) error
 	ListBranchesByOrg(ctx context.Context, orgID int64) ([]*Branch, error)
 	UnsetMainBranches(ctx context.Context, orgID int64) error
 
 	AddMember(ctx context.Context, m *Member) error
+	UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error
 	ListMembersByOrg(ctx context.Context, orgID int64) ([]*Member, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
 

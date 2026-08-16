@@ -1,0 +1,69 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
+	@layouts.VendorShell("Bulk Import Wizard", "ingest", lang, dir) {
+		<div class="card">
+			<h2 class="card-title">Upload Excel / CSV Catalog</h2>
+			<p style="color:var(--neutral-600); font-size:0.875rem; margin-bottom:1.5rem;">
+				Import thousands of pharmaceutical products with automatic Arabic name normalization and fuzzy candidate matching.
+			</p>
+
+			<form hx-post="/api/v1/ingest/uploads" hx-target="#upload-response">
+				<div class="form-group">
+					<label class="form-label" for="catalog-file">Select Excel (.xlsx) or CSV (.csv) File</label>
+					<input type="file" id="catalog-file" name="file" accept=".xlsx,.csv" class="form-input"/>
+				</div>
+				<button type="submit" class="btn btn-primary">
+					Start Import Wizard &rarr;
+				</button>
+			</form>
+			<div id="upload-response" style="margin-top:1rem;"></div>
+		</div>
+
+		<div class="card">
+			<h2 class="card-title">Recent Import Sessions</h2>
+			if len(sessions) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.875rem;">No previous import sessions found.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>Session ID</th>
+								<th>Status</th>
+								<th>Total Rows</th>
+								<th>Processed</th>
+								<th>Matched</th>
+								<th>Created At</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, s := range sessions {
+								<tr>
+									<td>{ s.PublicID }</td>
+									<td><span class="badge badge-neutral">{ string(s.Status) }</span></td>
+									<td>{ fmt.Sprintf("%d", s.TotalRows) }</td>
+									<td>{ fmt.Sprintf("%d", s.ProcessedRows) }</td>
+									<td>{ fmt.Sprintf("%d", s.MatchedRows) }</td>
+									<td>{ s.CreatedAt.Format("2006-01-02 15:04") }</td>
+									<td>
+										<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", s.ID)) } class="btn btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem;">
+											Review Matches
+										</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

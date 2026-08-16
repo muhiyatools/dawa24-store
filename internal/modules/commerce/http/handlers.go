@@ -29,6 +29,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/commerce/orders/{id}", h.GetOrder)
 	r.Get("/api/v1/commerce/orders", h.ListCustomerOrders)
 	r.Post("/api/v1/commerce/orders/{id}/status", h.TransitionStatus)
+	r.Post("/api/v1/commerce/orders/{id}/cancel", h.CancelOrder)
 	r.Get("/api/v1/commerce/vendor/shipments", h.ListVendorShipments)
 
 	r.Get("/api/v1/commerce/cart", h.GetCart)
@@ -208,4 +209,25 @@ func (h *Handler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSON(w, http.StatusOK, map[string]any{"wishlist": items, "count": len(items)})
+}
+
+// CancelOrder handles customer/admin order cancellation.
+func (h *Handler) CancelOrder(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid order ID", nil))
+		return
+	}
+
+	var body struct {
+		UserID *int64 `json:"user_id,omitempty"`
+		Reason string `json:"reason,omitempty"`
+	}
+	_ = httpx.DecodeJSON(w, r, &body)
+
+	if err := h.service.CancelOrder(r.Context(), id, body.UserID, body.Reason); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]string{"status": "cancelled"})
 }

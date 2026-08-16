@@ -69,7 +69,7 @@ func Error(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) 
 
 	var body ErrorBody
 	body.Error.Code = appError.Code
-	body.Error.Message = appError.Msg
+	body.Error.Message = appError.LocalizedMsg(string(LangFrom(r.Context())))
 	body.Error.Fields = appError.Fields
 	body.Error.RequestID = observability.RequestIDFrom(r.Context())
 

@@ -1,0 +1,34 @@
+package components
+
+templ FormInput(label, name, inputType, value, placeholder string, required bool) {
+	<div class="form-group">
+		<label class="form-label" for={ name }>{ label }</label>
+		<input
+			type={ inputType }
+			id={ name }
+			name={ name }
+			value={ value }
+			placeholder={ placeholder }
+			if required {
+				required
+			}
+			class="form-input"
+		/>
+	</div>
+}
+
+templ FormTextarea(label, name, value, placeholder string, rows int, required bool) {
+	<div class="form-group">
+		<label class="form-label" for={ name }>{ label }</label>
+		<textarea
+			id={ name }
+			name={ name }
+			placeholder={ placeholder }
+			rows={ string(rune('0' + rows)) }
+			if required {
+				required
+			}
+			class="form-textarea"
+		>{ value }</textarea>
+	</div>
+}

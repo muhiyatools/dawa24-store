@@ -185,3 +185,34 @@ func (s *Service) ListReviews(ctx context.Context, orgID int64, limit, offset in
 func (s *Service) ToggleFollow(ctx context.Context, orgID, userID int64) (bool, error) {
 	return s.repo.ToggleFollower(ctx, orgID, userID)
 }
+
+// UpdateOrganization updates organization details.
+func (s *Service) UpdateOrganization(ctx context.Context, o *Organization) error {
+	if err := o.Validate(); err != nil {
+		return err
+	}
+	return s.repo.UpdateOrganization(ctx, o)
+}
+
+// DeleteOrganization deactivates an organization.
+func (s *Service) DeleteOrganization(ctx context.Context, id int64) error {
+	return s.repo.DeleteOrganization(ctx, id)
+}
+
+// UpdateBranch modifies branch details.
+func (s *Service) UpdateBranch(ctx context.Context, b *Branch) error {
+	if b.IsMain {
+		_ = s.repo.UnsetMainBranches(ctx, b.OrganizationID)
+	}
+	return s.repo.UpdateBranch(ctx, b)
+}
+
+// DeleteBranch removes a branch.
+func (s *Service) DeleteBranch(ctx context.Context, id, orgID int64) error {
+	return s.repo.DeleteBranch(ctx, id, orgID)
+}
+
+// UpdateMemberRole changes a member role.
+func (s *Service) UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error {
+	return s.repo.UpdateMemberRole(ctx, orgID, userID, role)
+}

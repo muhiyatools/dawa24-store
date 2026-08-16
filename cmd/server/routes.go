@@ -19,6 +19,7 @@ import (
 	promoPostgres "github.com/muhiya/dawa24-store/internal/modules/promo/postgres"
 	workflowPostgres "github.com/muhiya/dawa24-store/internal/modules/workflow/postgres"
 
+	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingHttp "github.com/muhiya/dawa24-store/internal/modules/billing/http"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -46,6 +47,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
 // mountModuleRoutes registers domain handlers across all platform bounded contexts.
@@ -89,9 +91,11 @@ func mountModuleRoutes(
 	billSvc := billing.NewService(billRepo, log)
 	billingHttp.NewHandler(billSvc, log).RegisterRoutes(r)
 
-	// 6. Ingest
+	// 6. Ingest & AI Matching
+	aiSvc := aicapabilities.NewService(ai, log)
 	ingRepo := ingestPostgres.NewRepository(db)
 	ingSvc := ingest.NewService(ingRepo, log)
+	ingSvc.SetAIMatcher(aiSvc)
 	ingestHttp.NewHandler(ingSvc, log).RegisterRoutes(r)
 
 	// 7. Promo, Offers & Ads
@@ -123,4 +127,8 @@ func mountModuleRoutes(
 	orgRepo := orgPostgres.NewRepository(db)
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
+
+	// 13. Templ SSR Frontend & Static Assets
+	uiHandler := ui.NewUIHandler(catSvc, orgSvc, ingSvc)
+	uiHandler.RegisterPageRoutes(r)
 }

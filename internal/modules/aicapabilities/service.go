@@ -66,6 +66,15 @@ func (s *Service) MatchProduct(ctx context.Context, req MatchRequest) MatchRespo
 	}
 }
 
+// MatchCandidate satisfies the Ingest matcher interface.
+func (s *Service) MatchCandidate(ctx context.Context, query string, candidateNames []string) (string, float64) {
+	resp := s.MatchProduct(ctx, MatchRequest{
+		QueryName:  query,
+		Candidates: candidateNames,
+	})
+	return resp.MatchedCandidate, resp.ConfidenceScore
+}
+
 // ExpandSearch expands pharmaceutical query keywords using AI gateway with deterministic fallback.
 func (s *Service) ExpandSearch(ctx context.Context, req QueryExpansionRequest) QueryExpansionResponse {
 	if s.gw != nil && s.gw.Enabled() {

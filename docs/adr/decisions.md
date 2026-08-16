@@ -248,3 +248,80 @@ consumers.
   Gateway plans.
 - Store developers cannot experiment with a provider directly. That is the
   intent: the capability boundary is what keeps the Store portable.
+
+---
+
+## ADR 0006 — Content i18n in JSONB vs Embedded UI Chrome vs Admin Translations Table
+
+**Status:** Accepted · 2026-08-16
+
+### Context (D-2)
+Domain content (product titles, categories) requires bilingual storage. UI labels (buttons, validation codes) and admin copy (legal policies, banners) have different owners and lifecycles.
+
+### Decision
+1. **Content**: JSONB `{"ar","en"}` stored on row columns using `i18n.Text`.
+2. **UI Chrome**: Embedded catalog in Go binary keyed by `apperr.Code` and template identifiers.
+3. **Admin Copy**: `platform_admin.translations` and policy tables editable through admin surface.
+
+---
+
+## ADR 0007 — Per-Module Admin Routes Under `/api/v1/admin/`
+
+**Status:** Accepted · 2026-08-16
+
+### Context (D-3)
+Admin is a permission level, not an isolated bounded context. A central admin module would break architecture boundaries by importing all domain repositories.
+
+### Decision
+Each module owns its administrative endpoints mounted under `/api/v1/admin/<module>/...` protected by `identity.RequirePermission`.
+
+---
+
+## ADR 0008 — Keyset (Cursor) Pagination by Default
+
+**Status:** Accepted · 2026-08-16
+
+### Context (D-4)
+Large tables (`catalog.products`, `commerce.order_lines`) suffer severe query latency with high offsets.
+
+### Decision
+Keyset (cursor) pagination is the standard for all listing APIs (`internal/shared/pagination`), with default limit of 50 and ceiling limit of 200. Offset pagination is used only for specific tabular admin views requiring page number navigation.
+
+---
+
+## ADR 0009 — Direct-to-Storage Presigned Uploads
+
+**Status:** Accepted · 2026-08-16
+
+### Context (D-5)
+Large spreadsheet imports and media uploads proxying through application workers tie up worker threads and memory.
+
+### Decision
+The backend generates presigned PUT URLs via `storage.PresignPut`. The client uploads directly to MinIO/S3 and confirms the object key to the backend, which performs server-side validation.
+
+---
+
+## ADR 0010 — Session Cookies for Frontend with CSRF Protection
+
+**Status:** Accepted · 2026-08-16
+
+### Context (D-7)
+The templ/HTMX frontend is server-rendered and same-origin.
+
+### Decision
+The frontend uses Redis-backed session cookies with `SameSite=Lax`, `HttpOnly`, `Secure` flags, and per-session CSRF token validation on mutating HTTP methods (`POST`, `PUT`, `PATCH`, `DELETE`). External vendor API integrations use PASETO tokens.
+
+---
+
+## ADR 0011 — Data Integrity: Partial Unique Indexes, State Machines, Decimal Strings, Idempotent ETL
+
+**Status:** Accepted · 2026-08-16
+
+### Context (D-8, D-9, D-10, D-11)
+Soft deletes, order transitions, currency representation, and data migration require strict consistency.
+
+### Decision
+1. **Soft Deletes**: Unique indexes on soft-deletable tables are partial: `WHERE deleted_at IS NULL`.
+2. **Order Transitions**: Validated by domain state machines and recorded to `order_status_history` in the same transaction.
+3. **Money in JSON**: Always formatted as a two-decimal JSON string via `money.Amount`.
+4. **ETL**: Built as resumable, chunked, idempotent operations with 2-way sum reconciliation down to the cent.

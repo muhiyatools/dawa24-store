@@ -165,3 +165,36 @@ func NormalizeEmail(email string) string {
 
 // ErrInvalidCredentials is a reusable authentication failure error.
 var ErrInvalidCredentials = apperr.New(apperr.KindUnauthorized, "auth.invalid_credentials", "Invalid email or password.")
+
+// UserAddress represents a saved shipping/billing address.
+type UserAddress struct {
+	ID        int64     `json:"id"`
+	UserID    int64     `json:"user_id"`
+	Title     string    `json:"title"`
+	Recipient string    `json:"recipient"`
+	Phone     string    `json:"phone"`
+	CityID    int64     `json:"city_id"`
+	Address   string    `json:"address"`
+	Building  string    `json:"building,omitempty"`
+	Floor     string    `json:"floor,omitempty"`
+	Apartment string    `json:"apartment,omitempty"`
+	IsDefault bool      `json:"is_default"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// UserFavorite represents a bookmarked product.
+type UserFavorite struct {
+	ID        int64     `json:"id"`
+	UserID    int64     `json:"user_id"`
+	ProductID int64     `json:"product_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// MeResponse represents the authenticated user's profile and active session context.
+type MeResponse struct {
+	User        *User    `json:"user"`
+	ActiveOrgID *int64   `json:"active_org_id,omitempty"`
+	Role        string   `json:"role"`
+	Permissions []string `json:"permissions"`
+}

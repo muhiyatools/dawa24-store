@@ -168,21 +168,21 @@ func (r *Repository) InsertImportRows(ctx context.Context, rows []*ingest.Import
 }
 
 // ListImportRows retrieves staged rows for a session.
-func (r *Repository) ListImportRows(ctx context.Context, sessionID int64, limit, offset int) ([]*ingest.ImportRow, error) {
+func (r *Repository) ListImportRows(ctx context.Context, sessionID int64, status string, limit, offset int) ([]*ingest.ImportRow, error) {
 	var rowsList []*ingest.ImportRow
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, session_id, organization_id, row_number, raw_data, normalized_name,
 			       matched_product_id, similarity_score, status, created_at
 			FROM ingest.import_rows
-			WHERE session_id = $1
+			WHERE session_id = $1 AND ($2 = '' OR status = $2)
 			ORDER BY row_number ASC
-			LIMIT $2 OFFSET $3;
+			LIMIT $3 OFFSET $4;
 		`
 		if limit <= 0 || limit > 500 {
 			limit = 100
 		}
-		rows, err := tx.Query(txCtx, query, sessionID, limit, offset)
+		rows, err := tx.Query(txCtx, query, sessionID, status, limit, offset)
 		if err != nil {
 			return err
 		}
@@ -209,6 +209,110 @@ func (r *Repository) ListImportRows(ctx context.Context, sessionID int64, limit,
 		return rows.Err()
 	})
 	return rowsList, err
+}
+
+// GetImportRowByID retrieves a single staged row.
+func (r *Repository) GetImportRowByID(ctx context.Context, id int64) (*ingest.ImportRow, error) {
+	var ir ingest.ImportRow
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, session_id, organization_id, row_number, raw_data, normalized_name,
+			       matched_product_id, similarity_score, status, created_at
+			FROM ingest.import_rows
+			WHERE id = $1;
+		`
+		var rawJSON []byte
+		var normName *string
+		err := tx.QueryRow(txCtx, query, id).Scan(
+			&ir.ID, &ir.SessionID, &ir.OrganizationID, &ir.RowNumber, &rawJSON,
+			&normName, &ir.MatchedProductID, &ir.SimilarityScore, &ir.Status, &ir.CreatedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("import_row")
+			}
+			return err
+		}
+		if normName != nil {
+			ir.NormalizedName = *normName
+		}
+		if len(rawJSON) > 0 {
+			_ = json.Unmarshal(rawJSON, &ir.RawData)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ir, nil
+}
+
+// ListImportSessions returns sessions for an organization.
+func (r *Repository) ListImportSessions(ctx context.Context, orgID int64, limit, offset int) ([]*ingest.ImportSession, error) {
+	var list []*ingest.ImportSession
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, file_upload_id, status, column_mapping,
+			       min_similarity_score, total_rows, processed_rows, matched_rows,
+			       error_message, started_at, completed_at, created_at, updated_at
+			FROM ingest.import_sessions
+			WHERE organization_id = $1
+			ORDER BY id DESC
+			LIMIT $2 OFFSET $3;
+		`
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var s ingest.ImportSession
+			var statusStr string
+			var mappingJSON []byte
+			var errMsg *string
+			if err := rows.Scan(
+				&s.ID, &s.PublicID, &s.OrganizationID, &s.FileUploadID, &statusStr, &mappingJSON,
+				&s.MinSimilarityScore, &s.TotalRows, &s.ProcessedRows, &s.MatchedRows,
+				&errMsg, &s.StartedAt, &s.CompletedAt, &s.CreatedAt, &s.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			s.Status = ingest.SessionStatus(statusStr)
+			if errMsg != nil {
+				s.ErrorMessage = *errMsg
+			}
+			if len(mappingJSON) > 0 {
+				_ = json.Unmarshal(mappingJSON, &s.ColumnMapping)
+			}
+			list = append(list, &s)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// UpdateColumnMapping modifies column definitions.
+func (r *Repository) UpdateColumnMapping(ctx context.Context, id int64, mapping map[string]string) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		mappingJSON, err := json.Marshal(mapping)
+		if err != nil {
+			return err
+		}
+		_, err = tx.Exec(txCtx, `UPDATE ingest.import_sessions SET column_mapping = $1, updated_at = now() WHERE id = $2;`, mappingJSON, id)
+		return err
+	})
+}
+
+// UpdateSessionStatus changes the status of a session.
+func (r *Repository) UpdateSessionStatus(ctx context.Context, id int64, status ingest.SessionStatus) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `UPDATE ingest.import_sessions SET status = $1, updated_at = now() WHERE id = $2;`, string(status), id)
+		return err
+	})
 }
 
 // UpdateImportRowMatch updates matching product result and similarity score on a staged row.

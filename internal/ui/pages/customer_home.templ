@@ -1,0 +1,58 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ CustomerHome(featured []*catalog.Product, lang, dir string) {
+	@layouts.CustomerShell("B2B Pharmaceutical Marketplace", lang, dir) {
+		<section style="background:linear-gradient(135deg, var(--primary-50) 0%, #ffffff 100%); padding:3rem 1.5rem; border-radius:var(--radius-xl); border:1px solid var(--neutral-200); margin-bottom:2.5rem; text-align:center;">
+			<h1 style="font-size:2.25rem; font-weight:700; color:var(--primary-800); margin-bottom:0.75rem;">
+				Egypt's Premier B2B Pharmaceutical Marketplace
+			</h1>
+			<p style="color:var(--neutral-600); font-size:1.125rem; max-width:640px; margin:0 auto 1.5rem auto;">
+				Direct ordering from licensed distributors, transparent pricing, verified batch expiry dates, and automated fulfillment.
+			</p>
+			<div style="max-width:560px; margin:0 auto; display:flex; gap:0.5rem;">
+				<input
+					type="search"
+					name="q"
+					placeholder="Search by drug trade name, active ingredient, or barcode..."
+					class="form-input"
+					style="font-size:1rem; padding:0.75rem 1rem;"
+					hx-get="/api/v1/catalog/search"
+					hx-trigger="keyup changed delay:300ms"
+					hx-target="#search-results"
+				/>
+				<button class="btn btn-primary" style="padding-inline:1.5rem;">
+					Search
+				</button>
+			</div>
+			<div id="search-results" style="margin-top:1rem; text-align:start;"></div>
+		</section>
+
+		<section>
+			<h2 style="font-size:1.5rem; font-weight:700; color:var(--neutral-900); margin-bottom:1.25rem;">
+				Featured Pharmaceutical Products
+			</h2>
+			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:1.5rem;">
+				for _, p := range featured {
+					<div class="card" style="display:flex; flex-direction:column; justify-content:space-between; margin-bottom:0;">
+						<div>
+							<span style="font-size:0.75rem; color:var(--neutral-500); text-transform:uppercase; font-weight:600;">{ p.DosageForm }</span>
+							<h3 style="font-size:1rem; font-weight:600; margin-top:0.25rem; color:var(--neutral-900);">{ p.Name["ar"] }</h3>
+							<p style="font-size:0.875rem; color:var(--neutral-600);">{ p.Name["en"] }</p>
+						</div>
+						<div style="margin-top:1.25rem; display:flex; align-items:center; justify-content:space-between;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/products/%s", p.PublicID)) } class="btn btn-secondary" style="width:100%; font-size:0.875rem;">
+								View Details
+							</a>
+						</div>
+					</div>
+				}
+			</div>
+		</section>
+	}
+}

@@ -20,4 +20,14 @@ type Repository interface {
 	GetPermissionsForUser(ctx context.Context, userID int64, orgID int64) ([]string, error)
 	GetRolesForUser(ctx context.Context, userID int64) ([]string, error)
 	UserBelongsToOrg(ctx context.Context, userID int64, orgID int64) (bool, error)
+
+	CreateAddress(ctx context.Context, addr *UserAddress) error
+	GetAddressByID(ctx context.Context, id, userID int64) (*UserAddress, error)
+	ListAddresses(ctx context.Context, userID int64) ([]*UserAddress, error)
+	UpdateAddress(ctx context.Context, addr *UserAddress) error
+	DeleteAddress(ctx context.Context, id, userID int64) error
+
+	AddFavorite(ctx context.Context, userID, productID int64) error
+	RemoveFavorite(ctx context.Context, userID, productID int64) error
+	ListFavorites(ctx context.Context, userID int64) ([]int64, error)
 }

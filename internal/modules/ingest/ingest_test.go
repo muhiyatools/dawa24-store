@@ -78,14 +78,39 @@ func (m *mockIngestRepo) InsertImportRows(_ context.Context, rows []*ingest.Impo
 	return nil
 }
 
-func (m *mockIngestRepo) ListImportRows(_ context.Context, sessionID int64, limit, offset int) ([]*ingest.ImportRow, error) {
+func (m *mockIngestRepo) ListImportSessions(_ context.Context, orgID int64, limit, offset int) ([]*ingest.ImportSession, error) {
+	return []*ingest.ImportSession{}, nil
+}
+
+func (m *mockIngestRepo) UpdateColumnMapping(_ context.Context, id int64, mapping map[string]string) error {
+	if s, ok := m.sessions[id]; ok {
+		s.ColumnMapping = mapping
+	}
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateSessionStatus(_ context.Context, id int64, status ingest.SessionStatus) error {
+	if s, ok := m.sessions[id]; ok {
+		s.Status = status
+	}
+	return nil
+}
+
+func (m *mockIngestRepo) ListImportRows(_ context.Context, sessionID int64, status string, limit, offset int) ([]*ingest.ImportRow, error) {
 	var list []*ingest.ImportRow
 	for _, r := range m.rows {
-		if r.SessionID == sessionID {
+		if r.SessionID == sessionID && (status == "" || r.Status == status) {
 			list = append(list, r)
 		}
 	}
 	return list, nil
+}
+
+func (m *mockIngestRepo) GetImportRowByID(_ context.Context, id int64) (*ingest.ImportRow, error) {
+	if r, ok := m.rows[id]; ok {
+		return r, nil
+	}
+	return nil, apperr.NotFound("import_row")
 }
 
 func (m *mockIngestRepo) UpdateImportRowMatch(_ context.Context, rowID int64, matchedProductID *int64, score float64, status string) error {

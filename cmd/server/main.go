@@ -29,7 +29,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
-	"github.com/muhiya/dawa24-store/web"
 )
 
 func main() {
@@ -183,23 +182,8 @@ func newRouter(
 		httpx.JSON(w, http.StatusMethodNotAllowed, body)
 	})
 
-	// Mount all domain module endpoints
+	// Mount all domain module and UI endpoints
 	mountModuleRoutes(r, cfg, log, deps, ai)
-
-	// Static assets
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(web.StaticFS())))
-
-	// Web UI
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		htmlBytes, err := web.IndexHTML()
-		if err != nil {
-			health.root(w, r)
-			return
-		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(htmlBytes)
-	})
 
 	return r
 }
