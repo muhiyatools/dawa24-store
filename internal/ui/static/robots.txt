@@ -1,0 +1,7 @@
+# Dawa24 — public marketplace pages are indexable; authenticated areas are not.
+User-agent: *
+Disallow: /admin/
+Disallow: /vendor/
+Disallow: /account/
+Disallow: /api/
+Allow: /

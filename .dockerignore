@@ -1,0 +1,23 @@
+# Keep the build context small and secrets out of the image.
+
+.git
+.github
+.data
+bin
+tmp
+
+# Secrets must never enter a build context: anything copied in is recoverable
+# from the image layers even if a later step deletes it.
+.env
+.env.*
+!.env.example
+
+# Local-only
+docker-compose.yml
+*.md
+!README.md
+
+# Test and editor noise
+.idea
+.vscode
+.DS_Store
