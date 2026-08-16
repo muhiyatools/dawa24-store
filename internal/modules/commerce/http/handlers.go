@@ -27,6 +27,12 @@ func NewHandler(service *commerce.Service, log *slog.Logger) *Handler {
 // RegisterRoutes registers commerce endpoints on a Chi router.
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/commerce/checkout", h.Checkout)
+
+	r.Patch("/api/v1/commerce/cart/items/{variantId}", h.SetCartQuantity)
+	r.Get("/api/v1/commerce/orders/{id}/history", h.GetOrderHistory)
+	r.Post("/api/v1/commerce/orders/{id}/rate", h.RateOrder)
+	r.Get("/api/v1/commerce/shipments/{id}", h.GetShipment)
+	r.Post("/api/v1/commerce/shipments/{id}/status", h.TransitionShipmentStatus)
 	r.Get("/api/v1/commerce/orders/{id}", h.GetOrder)
 	r.Get("/api/v1/commerce/orders", h.ListCustomerOrders)
 	r.Post("/api/v1/commerce/orders/{id}/status", h.TransitionStatus)

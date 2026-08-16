@@ -1,0 +1,161 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+)
+
+// SetCartItemQuantity changes quantity without touching unit_price.
+//
+// Leaving unit_price alone is the entire point: it holds the price captured
+// when the item was added, and a quantity change must not reprice the line.
+func (r *Repository) SetCartItemQuantity(ctx context.Context, cartID, variantID int64, quantity int) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE commerce.cart_items
+			SET quantity = $3, updated_at = now()
+			WHERE cart_id = $1 AND product_variant_id = $2;
+		`
+		res, err := tx.Exec(txCtx, query, cartID, variantID, quantity)
+		if err != nil {
+			return fmt.Errorf("commerce postgres: set cart quantity: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.NotFound("cart item")
+		}
+		return nil
+	})
+}
+
+// GetShipmentByID returns one shipment.
+func (r *Repository) GetShipmentByID(ctx context.Context, id int64) (*commerce.OrderShipment, error) {
+	var s commerce.OrderShipment
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, order_id, organization_id, branch_id, shipment_number,
+			       status, subtotal, shipping_fee, total_amount, tracking_number,
+			       carrier_name, shipped_at, delivered_at, created_at
+			FROM commerce.order_shipments
+			WHERE id = $1;
+		`
+		return tx.QueryRow(txCtx, query, id).Scan(
+			&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID, &s.ShipmentNumber,
+			&s.Status, &s.Subtotal, &s.ShippingFee, &s.TotalAmount, &s.TrackingNumber,
+			&s.CarrierName, &s.ShippedAt, &s.DeliveredAt, &s.CreatedAt,
+		)
+	})
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, apperr.NotFound("shipment")
+		}
+		return nil, fmt.Errorf("commerce postgres: get shipment: %w", err)
+	}
+	return &s, nil
+}
+
+// UpdateShipmentStatus advances a shipment and records the transition.
+//
+// The status change and its history row are written in one transaction, so the
+// audit trail cannot disagree with the current state. The `status = $2`
+// predicate makes it a compare-and-swap: two vendor staff clicking at once
+// produce one transition and one conflict, not two history rows.
+func (r *Repository) UpdateShipmentStatus(
+	ctx context.Context,
+	id int64,
+	from, to commerce.OrderStatus,
+	history commerce.OrderStatusHistory,
+) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		update := `
+			UPDATE commerce.order_shipments
+			SET status = $3,
+			    shipped_at   = CASE WHEN $3 = 'shipped'   THEN now() ELSE shipped_at   END,
+			    delivered_at = CASE WHEN $3 = 'delivered' THEN now() ELSE delivered_at END
+			WHERE id = $1 AND status = $2;
+		`
+		res, err := tx.Exec(txCtx, update, id, string(from), string(to))
+		if err != nil {
+			return fmt.Errorf("commerce postgres: update shipment status: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.Conflict("shipment.state_changed",
+				"This shipment was already updated by someone else. Reload and try again.")
+		}
+
+		insert := `
+			INSERT INTO commerce.order_status_history
+				(order_id, shipment_id, from_status, to_status, notes, changed_by_user_id)
+			VALUES ($1, $2, $3, $4, $5, $6);
+		`
+		if _, err := tx.Exec(txCtx, insert,
+			history.OrderID, history.ShipmentID, history.FromStatus,
+			history.ToStatus, history.Notes, history.ChangedByUserID,
+		); err != nil {
+			return fmt.Errorf("commerce postgres: insert shipment history: %w", err)
+		}
+		return nil
+	})
+}
+
+// ListOrderHistory returns every status transition for an order, oldest first.
+func (r *Repository) ListOrderHistory(ctx context.Context, orderID int64) ([]*commerce.OrderStatusHistory, error) {
+	var list []*commerce.OrderStatusHistory
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, order_id, shipment_id, from_status, to_status, notes,
+			       changed_by_user_id, created_at
+			FROM commerce.order_status_history
+			WHERE order_id = $1
+			ORDER BY created_at ASC, id ASC;
+		`
+		rows, err := tx.Query(txCtx, query, orderID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var h commerce.OrderStatusHistory
+			if err := rows.Scan(
+				&h.ID, &h.OrderID, &h.ShipmentID, &h.FromStatus, &h.ToStatus,
+				&h.Notes, &h.ChangedByUserID, &h.CreatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &h)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("commerce postgres: list order history: %w", err)
+	}
+	return list, nil
+}
+
+// RateOrder records a customer rating on their own order.
+//
+// The customer_id predicate is what stops one buyer rating another's order:
+// orders belong to a customer, not to the acting organization, so row-level
+// security does not cover this case.
+func (r *Repository) RateOrder(ctx context.Context, orderID, customerID int64, rating int, review string) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE commerce.orders
+			SET rating = $3, review = $4, rated_at = now()
+			WHERE id = $1 AND customer_id = $2;
+		`
+		res, err := tx.Exec(txCtx, query, orderID, customerID, rating, review)
+		if err != nil {
+			return fmt.Errorf("commerce postgres: rate order: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.NotFound("order")
+		}
+		return nil
+	})
+}

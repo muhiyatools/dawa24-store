@@ -16,6 +16,7 @@ type mockCommerceRepo struct {
 	orders    map[int64]*commerce.Order
 	shipments map[int64][]*commerce.OrderShipment
 	lines     map[int64][]*commerce.OrderLine
+	history   map[int64][]*commerce.OrderStatusHistory
 	nextID    int64
 }
 
@@ -23,6 +24,7 @@ func newMockCommerceRepo() *mockCommerceRepo {
 	return &mockCommerceRepo{
 		orders:    map[int64]*commerce.Order{},
 		shipments: map[int64][]*commerce.OrderShipment{},
+		history:   map[int64][]*commerce.OrderStatusHistory{},
 		lines:     map[int64][]*commerce.OrderLine{},
 		nextID:    1,
 	}
