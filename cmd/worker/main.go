@@ -19,12 +19,11 @@ import (
 	"time"
 
 	"github.com/riverqueue/river"
-	"github.com/riverqueue/river/riverdriver/riverpgxv5"
-	"github.com/riverqueue/river/rivermigrate"
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/internal/platform/queue"
 )
 
 func main() {
@@ -52,41 +51,20 @@ func run() error {
 	}
 	defer db.Close()
 
-	driver := riverpgxv5.New(db.Pool())
-
-	// River owns its own schema. Migrating it here rather than in the
-	// application's migration set keeps the two independent: upgrading River
-	// does not require authoring a Dawa24 migration.
-	migrator, err := rivermigrate.New(driver, nil)
-	if err != nil {
-		return fmt.Errorf("worker: river migrator: %w", err)
-	}
-	if _, err := migrator.Migrate(ctx, rivermigrate.DirectionUp, nil); err != nil {
-		return fmt.Errorf("worker: river migrate: %w", err)
-	}
-
 	workers := river.NewWorkers()
 	river.AddWorker(workers, &heartbeatWorker{log: log})
 
-	queues := make(map[string]river.QueueConfig, len(cfg.Worker.Queues))
-	for name, count := range cfg.Worker.Queues {
-		queues[name] = river.QueueConfig{MaxWorkers: count}
-	}
-
-	client, err := river.NewClient(driver, &river.Config{
-		Queues:  queues,
-		Workers: workers,
-		Logger:  log,
-		// A job that outlives this is stuck, not slow. Imports are chunked, so
-		// no single job should approach the ceiling.
-		JobTimeout: 30 * time.Minute,
-	})
+	queueClient, err := queue.New(db, workers, cfg.Worker, log)
 	if err != nil {
-		return fmt.Errorf("worker: river client: %w", err)
+		return err
 	}
 
-	if err := client.Start(ctx); err != nil {
-		return fmt.Errorf("worker: start: %w", err)
+	if err := queueClient.Migrate(ctx); err != nil {
+		return err
+	}
+
+	if err := queueClient.Start(ctx); err != nil {
+		return err
 	}
 	log.Info("worker started", "queues", cfg.Worker.Queues)
 
@@ -98,7 +76,7 @@ func run() error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.Worker.ShutdownTimeout)
 	defer cancel()
 
-	if err := client.Stop(shutdownCtx); err != nil {
+	if err := queueClient.Stop(shutdownCtx); err != nil {
 		log.Error("graceful worker shutdown failed", "error", err)
 		return err
 	}

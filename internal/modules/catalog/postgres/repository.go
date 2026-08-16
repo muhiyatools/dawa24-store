@@ -1,0 +1,185 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+)
+
+// Repository implements catalog.Repository using PostgreSQL.
+type Repository struct {
+	db *database.DB
+}
+
+// NewRepository creates a PostgreSQL catalog repository.
+func NewRepository(db *database.DB) *Repository {
+	return &Repository{db: db}
+}
+
+// CreateProduct inserts a new product for the active organization.
+func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO catalog.products (
+				organization_id, category_id, brand_id, branch_id, name, description,
+				sku, barcode, price, discount, old_price, image, image_link, status,
+				is_featured, dosage_form, scientific_name, pharmacology, active,
+				concentration, unit, manufacturing_companies
+			) VALUES (
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
+			) RETURNING id, public_id, created_at, updated_at;
+		`
+		err := tx.QueryRow(txCtx, query,
+			p.OrganizationID, p.CategoryID, p.BrandID, p.BranchID, p.Name, p.Description,
+			p.SKU, p.Barcode, p.Price, p.Discount, p.OldPrice, p.Image, p.ImageLink,
+			string(p.Status), p.IsFeatured, p.DosageForm, p.ScientificName,
+			p.Pharmacology, p.Active, p.Concentration, p.Unit, p.ManufacturingCompanies,
+		).Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
+
+		if err != nil {
+			return fmt.Errorf("catalog postgres: create product: %w", err)
+		}
+		return nil
+	})
+}
+
+// GetProductByID retrieves a product by its primary key.
+func (r *Repository) GetProductByID(ctx context.Context, id int64) (*catalog.Product, error) {
+	var p catalog.Product
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, category_id, brand_id, branch_id,
+			       name, description, sku, barcode, price, discount, old_price, image,
+			       image_link, status, sold_times, is_featured, dosage_form,
+			       scientific_name, pharmacology, active, concentration, unit,
+			       manufacturing_companies, created_at, updated_at, deleted_at
+			FROM catalog.products
+			WHERE id = $1 AND deleted_at IS NULL;
+		`
+		var statusStr string
+		err := tx.QueryRow(txCtx, query, id).Scan(
+			&p.ID, &p.PublicID, &p.OrganizationID, &p.CategoryID, &p.BrandID, &p.BranchID,
+			&p.Name, &p.Description, &p.SKU, &p.Barcode, &p.Price, &p.Discount,
+			&p.OldPrice, &p.Image, &p.ImageLink, &statusStr, &p.SoldTimes, &p.IsFeatured,
+			&p.DosageForm, &p.ScientificName, &p.Pharmacology, &p.Active,
+			&p.Concentration, &p.Unit, &p.ManufacturingCompanies,
+			&p.CreatedAt, &p.UpdatedAt, &p.DeletedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("product")
+			}
+			return fmt.Errorf("catalog postgres: get product: %w", err)
+		}
+		p.Status = catalog.ProductStatus(statusStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+// UpdateProduct updates product attributes.
+func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE catalog.products
+			SET category_id = $2, brand_id = $3, branch_id = $4, name = $5,
+			    description = $6, sku = $7, barcode = $8, price = $9, discount = $10,
+			    old_price = $11, image = $12, image_link = $13, status = $14,
+			    is_featured = $15, dosage_form = $16, scientific_name = $17,
+			    pharmacology = $18, active = $19, concentration = $20, unit = $21,
+			    manufacturing_companies = $22, updated_at = now()
+			WHERE id = $1 AND deleted_at IS NULL;
+		`
+		res, err := tx.Exec(txCtx, query,
+			p.ID, p.CategoryID, p.BrandID, p.BranchID, p.Name, p.Description,
+			p.SKU, p.Barcode, p.Price, p.Discount, p.OldPrice, p.Image, p.ImageLink,
+			string(p.Status), p.IsFeatured, p.DosageForm, p.ScientificName,
+			p.Pharmacology, p.Active, p.Concentration, p.Unit, p.ManufacturingCompanies,
+		)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: update product: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.NotFound("product")
+		}
+		return nil
+	})
+}
+
+// DeleteProduct soft-deletes a product.
+func (r *Repository) DeleteProduct(ctx context.Context, id int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE catalog.products SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL;`
+		res, err := tx.Exec(txCtx, query, id)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: delete product: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.NotFound("product")
+		}
+		return nil
+	})
+}
+
+// SearchProducts performs fuzzy Arabic search and filters.
+func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchParams) ([]*catalog.Product, error) {
+	var products []*catalog.Product
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, category_id, brand_id, branch_id,
+			       name, description, sku, barcode, price, discount, old_price, image,
+			       image_link, status, sold_times, is_featured, dosage_form,
+			       scientific_name, pharmacology, active, concentration, unit,
+			       manufacturing_companies, created_at, updated_at, deleted_at
+			FROM catalog.products
+			WHERE deleted_at IS NULL
+			  AND ($1 = '' OR platform.normalize_arabic(name->>'ar') % platform.normalize_arabic($1)
+			               OR name->>'en' ILIKE '%' || $1 || '%')
+			  AND ($2::bigint IS NULL OR category_id = $2)
+			  AND ($3::bigint IS NULL OR brand_id = $3)
+			ORDER BY (CASE WHEN $1 <> '' THEN similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) ELSE 0 END) DESC,
+			         sold_times DESC, created_at DESC
+			LIMIT $4 OFFSET $5;
+		`
+		limit := params.Limit
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+
+		rows, err := tx.Query(txCtx, query, params.Query, params.CategoryID, params.BrandID, limit, params.Offset)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: search products: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var p catalog.Product
+			var statusStr string
+			if err := rows.Scan(
+				&p.ID, &p.PublicID, &p.OrganizationID, &p.CategoryID, &p.BrandID, &p.BranchID,
+				&p.Name, &p.Description, &p.SKU, &p.Barcode, &p.Price, &p.Discount,
+				&p.OldPrice, &p.Image, &p.ImageLink, &statusStr, &p.SoldTimes, &p.IsFeatured,
+				&p.DosageForm, &p.ScientificName, &p.Pharmacology, &p.Active,
+				&p.Concentration, &p.Unit, &p.ManufacturingCompanies,
+				&p.CreatedAt, &p.UpdatedAt, &p.DeletedAt,
+			); err != nil {
+				return err
+			}
+			p.Status = catalog.ProductStatus(statusStr)
+			products = append(products, &p)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}

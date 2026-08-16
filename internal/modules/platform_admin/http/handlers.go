@@ -1,0 +1,103 @@
+package http
+
+import (
+	"log/slog"
+	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
+
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+)
+
+// Handler exposes platform administration endpoints.
+type Handler struct {
+	service *platformadmin.Service
+	log     *slog.Logger
+}
+
+// NewHandler creates a platform admin HTTP handler.
+func NewHandler(service *platformadmin.Service, log *slog.Logger) *Handler {
+	return &Handler{service: service, log: log}
+}
+
+// RegisterRoutes registers platform admin routes on a Chi router.
+func (h *Handler) RegisterRoutes(r chi.Router) {
+	r.Get("/api/v1/platform/settings/public", h.ListPublicSettings)
+	r.Get("/api/v1/platform/settings/{key}", h.GetSetting)
+	r.Put("/api/v1/platform/settings/{key}", h.SetSetting)
+	r.Get("/api/v1/platform/countries", h.ListCountries)
+	r.Get("/api/v1/platform/countries/{id}/cities", h.ListCities)
+}
+
+// ListPublicSettings returns public configs.
+func (h *Handler) ListPublicSettings(w http.ResponseWriter, r *http.Request) {
+	settings, err := h.service.ListPublicSettings(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{"settings": settings})
+}
+
+// GetSetting retrieves a setting.
+func (h *Handler) GetSetting(w http.ResponseWriter, r *http.Request) {
+	key := chi.URLParam(r, "key")
+	s, err := h.service.GetSetting(r.Context(), key)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, s)
+}
+
+// SetSetting writes a setting.
+func (h *Handler) SetSetting(w http.ResponseWriter, r *http.Request) {
+	key := chi.URLParam(r, "key")
+	var s platformadmin.SystemSetting
+	if err := httpx.DecodeJSON(w, r, &s); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	s.Key = key
+
+	if err := h.service.SetSetting(r.Context(), &s); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]string{"status": "saved"})
+}
+
+// ListCountries returns supported countries.
+func (h *Handler) ListCountries(w http.ResponseWriter, r *http.Request) {
+	countries, err := h.service.ListCountries(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{"countries": countries})
+}
+
+// ListCities returns cities for a country.
+func (h *Handler) ListCities(w http.ResponseWriter, r *http.Request) {
+	countryIDStr := chi.URLParam(r, "id")
+	countryID, err := strconv.ParseInt(countryIDStr, 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("country_id.invalid", "Invalid country ID", nil))
+		return
+	}
+
+	cities, err := h.service.ListCities(r.Context(), countryID)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{"cities": cities})
+}

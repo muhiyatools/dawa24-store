@@ -1,0 +1,331 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+)
+
+// Repository implements identity.Repository using PostgreSQL.
+type Repository struct {
+	db *database.DB
+}
+
+// NewRepository creates a PostgreSQL identity repository.
+func NewRepository(db *database.DB) *Repository {
+	return &Repository{db: db}
+}
+
+// CreateUser inserts a new user record.
+func (r *Repository) CreateUser(ctx context.Context, u *identity.User) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO identity.users (
+				email, password_hash, name, role, status, language, timezone, phone
+			) VALUES (
+				$1, $2, $3, $4, $5, $6, $7, $8
+			) RETURNING id, public_id, created_at, updated_at;
+		`
+		err := tx.QueryRow(txCtx, query,
+			identity.NormalizeEmail(u.Email),
+			u.PasswordHash,
+			u.Name,
+			u.Role,
+			string(u.Status),
+			string(u.Language),
+			u.Timezone,
+			u.Phone,
+		).Scan(&u.ID, &u.PublicID, &u.CreatedAt, &u.UpdatedAt)
+
+		if err != nil {
+			if database.IsUniqueViolation(err) {
+				return apperr.Conflict("user.email_exists", "An account with this email already exists.")
+			}
+			return fmt.Errorf("identity postgres: create user: %w", err)
+		}
+		return nil
+	})
+}
+
+// GetUserByID retrieves an active user by primary key.
+func (r *Repository) GetUserByID(ctx context.Context, id int64) (*identity.User, error) {
+	var u identity.User
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, email, password_hash, name, role, status, language, timezone,
+			       phone, email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
+			FROM identity.users
+			WHERE id = $1 AND deleted_at IS NULL;
+		`
+		var statusStr, langStr string
+		err := tx.QueryRow(txCtx, query, id).Scan(
+			&u.ID, &u.PublicID, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
+			&statusStr, &langStr, &u.Timezone, &u.Phone, &u.EmailVerifiedAt,
+			&u.PhoneVerifiedAt, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("user")
+			}
+			return fmt.Errorf("identity postgres: get user by id: %w", err)
+		}
+		u.Status = identity.UserStatus(statusStr)
+		u.Language = i18n.Lang(langStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+// GetUserByEmail retrieves a user by email address.
+func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*identity.User, error) {
+	var u identity.User
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, email, password_hash, name, role, status, language, timezone,
+			       phone, email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
+			FROM identity.users
+			WHERE email = $1 AND deleted_at IS NULL;
+		`
+		var statusStr, langStr string
+		err := tx.QueryRow(txCtx, query, identity.NormalizeEmail(email)).Scan(
+			&u.ID, &u.PublicID, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
+			&statusStr, &langStr, &u.Timezone, &u.Phone, &u.EmailVerifiedAt,
+			&u.PhoneVerifiedAt, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("user")
+			}
+			return fmt.Errorf("identity postgres: get user by email: %w", err)
+		}
+		u.Status = identity.UserStatus(statusStr)
+		u.Language = i18n.Lang(langStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+// UpdateUser updates user profile and security fields.
+func (r *Repository) UpdateUser(ctx context.Context, u *identity.User) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE identity.users
+			SET email = $2, password_hash = $3, name = $4, role = $5, status = $6,
+			    language = $7, timezone = $8, phone = $9, email_verified_at = $10,
+			    phone_verified_at = $11, updated_at = now()
+			WHERE id = $1 AND deleted_at IS NULL;
+		`
+		res, err := tx.Exec(txCtx, query,
+			u.ID, identity.NormalizeEmail(u.Email), u.PasswordHash, u.Name, u.Role,
+			string(u.Status), string(u.Language), u.Timezone, u.Phone,
+			u.EmailVerifiedAt, u.PhoneVerifiedAt,
+		)
+		if err != nil {
+			return fmt.Errorf("identity postgres: update user: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.NotFound("user")
+		}
+		return nil
+	})
+}
+
+// GetSecurity retrieves login security status for a user.
+func (r *Repository) GetSecurity(ctx context.Context, userID int64) (*identity.UserSecurity, error) {
+	var s identity.UserSecurity
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT user_id, login_attempts, locked_until, last_login_at, last_login_ip::text,
+			       last_user_agent, last_password_change, password_change_count, max_login_sessions
+			FROM identity.user_security
+			WHERE user_id = $1;
+		`
+		var ip *string
+		err := tx.QueryRow(txCtx, query, userID).Scan(
+			&s.UserID, &s.LoginAttempts, &s.LockedUntil, &s.LastLoginAt, &ip,
+			&s.LastUserAgent, &s.LastPasswordChange, &s.PasswordChangeCount, &s.MaxLoginSessions,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				s.UserID = userID
+				return nil
+			}
+			return fmt.Errorf("identity postgres: get user security: %w", err)
+		}
+		if ip != nil {
+			s.LastLoginIP = *ip
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &s, nil
+}
+
+// UpsertSecurity updates login attempts and lockouts.
+func (r *Repository) UpsertSecurity(ctx context.Context, s *identity.UserSecurity) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO identity.user_security (
+				user_id, login_attempts, locked_until, last_login_at, last_user_agent,
+				last_password_change, password_change_count, max_login_sessions
+			) VALUES (
+				$1, $2, $3, $4, $5, $6, $7, $8
+			) ON CONFLICT (user_id) DO UPDATE SET
+				login_attempts = EXCLUDED.login_attempts,
+				locked_until = EXCLUDED.locked_until,
+				last_login_at = EXCLUDED.last_login_at,
+				last_user_agent = EXCLUDED.last_user_agent,
+				last_password_change = EXCLUDED.last_password_change,
+				password_change_count = EXCLUDED.password_change_count,
+				max_login_sessions = EXCLUDED.max_login_sessions;
+		`
+		_, err := tx.Exec(txCtx, query,
+			s.UserID, s.LoginAttempts, s.LockedUntil, s.LastLoginAt, s.LastUserAgent,
+			s.LastPasswordChange, s.PasswordChangeCount, s.MaxLoginSessions,
+		)
+		if err != nil {
+			return fmt.Errorf("identity postgres: upsert security: %w", err)
+		}
+		return nil
+	})
+}
+
+// GetMFA retrieves MFA configuration.
+func (r *Repository) GetMFA(ctx context.Context, userID int64) (*identity.UserMFA, error) {
+	var m identity.UserMFA
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT user_id, totp_secret, recovery_codes, enabled, confirmed_at
+			FROM identity.user_mfa
+			WHERE user_id = $1;
+		`
+		err := tx.QueryRow(txCtx, query, userID).Scan(
+			&m.UserID, &m.TOTPSecret, &m.RecoveryCodes, &m.Enabled, &m.ConfirmedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				m.UserID = userID
+				return nil
+			}
+			return fmt.Errorf("identity postgres: get mfa: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
+// UpsertMFA creates or updates MFA records.
+func (r *Repository) UpsertMFA(ctx context.Context, m *identity.UserMFA) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO identity.user_mfa (
+				user_id, totp_secret, recovery_codes, enabled, confirmed_at
+			) VALUES (
+				$1, $2, $3, $4, $5
+			) ON CONFLICT (user_id) DO UPDATE SET
+				totp_secret = EXCLUDED.totp_secret,
+				recovery_codes = EXCLUDED.recovery_codes,
+				enabled = EXCLUDED.enabled,
+				confirmed_at = EXCLUDED.confirmed_at;
+		`
+		_, err := tx.Exec(txCtx, query, m.UserID, m.TOTPSecret, m.RecoveryCodes, m.Enabled, m.ConfirmedAt)
+		if err != nil {
+			return fmt.Errorf("identity postgres: upsert mfa: %w", err)
+		}
+		return nil
+	})
+}
+
+// GetPermissionsForUser resolves effective permissions across platform roles and active org roles.
+func (r *Repository) GetPermissionsForUser(ctx context.Context, userID int64, orgID int64) ([]string, error) {
+	var permissions []string
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT DISTINCT p.key
+			FROM identity.permissions p
+			JOIN identity.role_permissions rp ON rp.permission_key = p.key
+			WHERE rp.role_key IN (
+				SELECT role_key FROM identity.user_roles WHERE user_id = $1
+				UNION
+				SELECT role FROM identity.users WHERE id = $1
+				UNION
+				SELECT role_key FROM org.members WHERE user_id = $1 AND organization_id = $2 AND status = 'active'
+			);
+		`
+		rows, err := tx.Query(txCtx, query, userID, orgID)
+		if err != nil {
+			return fmt.Errorf("identity postgres: get permissions: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var perm string
+			if err := rows.Scan(&perm); err != nil {
+				return err
+			}
+			permissions = append(permissions, perm)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return permissions, nil
+}
+
+// GetRolesForUser returns all assigned platform role keys.
+func (r *Repository) GetRolesForUser(ctx context.Context, userID int64) ([]string, error) {
+	var roles []string
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT role_key FROM identity.user_roles WHERE user_id = $1
+			UNION
+			SELECT role FROM identity.users WHERE id = $1;
+		`
+		rows, err := tx.Query(txCtx, query, userID)
+		if err != nil {
+			return fmt.Errorf("identity postgres: get roles: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var role string
+			if err := rows.Scan(&role); err != nil {
+				return err
+			}
+			roles = append(roles, role)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
+}
+
+// UserBelongsToOrg checks whether a user has active membership in an organization.
+func (r *Repository) UserBelongsToOrg(ctx context.Context, userID int64, orgID int64) (bool, error) {
+	var belongs bool
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT EXISTS (SELECT 1 FROM org.members WHERE user_id = $1 AND organization_id = $2 AND status = 'active');`
+		return tx.QueryRow(txCtx, query, userID, orgID).Scan(&belongs)
+	})
+	return belongs, err
+}
