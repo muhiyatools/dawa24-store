@@ -25,6 +25,10 @@ type Repository interface {
 	UpdateProduct(ctx context.Context, p *Product) error
 	DeleteProduct(ctx context.Context, id int64) error
 	SearchProducts(ctx context.Context, params SearchParams) ([]*Product, error)
+	// ListProducts is the vendor's own catalogue, scoped by row-level security
+	// to the active organization rather than by a caller-supplied id.
+	ListProducts(ctx context.Context, status string, limit, offset int) ([]*Product, error)
+	SetProductsStatus(ctx context.Context, ids []int64, status ProductStatus) (int64, error)
 
 	CreateVariant(ctx context.Context, v *ProductVariant) error
 	GetVariantByID(ctx context.Context, id int64) (*ProductVariant, error)
@@ -35,12 +39,19 @@ type Repository interface {
 	CreateCategory(ctx context.Context, c *Category) error
 	GetCategoryByID(ctx context.Context, id int64) (*Category, error)
 	UpdateCategory(ctx context.Context, c *Category) error
+	DeleteCategory(ctx context.Context, id int64) error
 	ListCategories(ctx context.Context) ([]*Category, error)
+	// CountProductsInCategory backs the refusal to delete a taxonomy row that
+	// products still reference; deleting one would leave them uncategorised
+	// with no way to find them in the vendor UI.
+	CountProductsInCategory(ctx context.Context, categoryID int64) (int, error)
 
 	CreateBrand(ctx context.Context, b *Brand) error
 	GetBrandByID(ctx context.Context, id int64) (*Brand, error)
 	UpdateBrand(ctx context.Context, b *Brand) error
+	DeleteBrand(ctx context.Context, id int64) error
 	ListBrands(ctx context.Context) ([]*Brand, error)
+	CountProductsInBrand(ctx context.Context, brandID int64) (int, error)
 
 	SetCustomerPricing(ctx context.Context, m *CustomerProductMapping) error
 	GetCustomerPricing(ctx context.Context, vendorOrgID, customerOrgID, productID int64) (*CustomerProductMapping, error)

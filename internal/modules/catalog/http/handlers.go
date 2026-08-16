@@ -30,7 +30,21 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Put("/api/v1/catalog/products/{id}", h.UpdateProduct)
 	r.Delete("/api/v1/catalog/products/{id}", h.DeleteProduct)
 	r.Post("/api/v1/catalog/products", h.CreateProduct)
+	r.Get("/api/v1/catalog/products", h.ListProducts)
+	r.Post("/api/v1/catalog/products/bulk-status", h.SetProductsStatus)
+
 	r.Post("/api/v1/catalog/products/{id}/variants", h.CreateVariant)
+	r.Get("/api/v1/catalog/products/{id}/variants/{variantId}", h.GetVariant)
+	r.Put("/api/v1/catalog/products/{id}/variants/{variantId}", h.UpdateVariant)
+	r.Delete("/api/v1/catalog/products/{id}/variants/{variantId}", h.DeleteVariant)
+
+	r.Get("/api/v1/catalog/categories/{id}", h.GetCategory)
+	r.Put("/api/v1/catalog/categories/{id}", h.UpdateCategory)
+	r.Delete("/api/v1/catalog/categories/{id}", h.DeleteCategory)
+
+	r.Get("/api/v1/catalog/brands/{id}", h.GetBrand)
+	r.Put("/api/v1/catalog/brands/{id}", h.UpdateBrand)
+	r.Delete("/api/v1/catalog/brands/{id}", h.DeleteBrand)
 
 	r.Get("/api/v1/catalog/categories", h.ListCategories)
 	r.Post("/api/v1/catalog/categories", h.CreateCategory)

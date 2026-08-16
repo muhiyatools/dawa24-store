@@ -120,3 +120,31 @@ func TestSendAndMarkAsRead(t *testing.T) {
 		t.Errorf("expected 0 unread notifications after mark read, got %d", unreadAfter)
 	}
 }
+
+func (m *mockNotificationRepo) MarkAllAsRead(_ context.Context, userID int64) (int64, error) {
+	var n int64
+	for _, l := range m.logs {
+		if l.UserID == userID && !l.IsRead {
+			l.IsRead = true
+			n++
+		}
+	}
+	return n, nil
+}
+
+func (m *mockNotificationRepo) ListUnread(_ context.Context, userID int64, limit, offset int) ([]*notifications.NotificationLog, error) {
+	var list []*notifications.NotificationLog
+	for _, l := range m.logs {
+		if l.UserID == userID && !l.IsRead {
+			list = append(list, l)
+		}
+	}
+	if offset >= len(list) {
+		return nil, nil
+	}
+	end := offset + limit
+	if limit <= 0 || end > len(list) {
+		end = len(list)
+	}
+	return list[offset:end], nil
+}

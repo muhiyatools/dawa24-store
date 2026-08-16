@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"log/slog"
 	"time"
 
@@ -98,6 +99,22 @@ func (s *Service) ListUserNotifications(ctx context.Context, userID int64, limit
 // MarkRead flags a notification as seen.
 func (s *Service) MarkRead(ctx context.Context, id int64, userID int64) error {
 	return s.repo.MarkAsRead(ctx, id, userID)
+}
+
+// MarkAllRead clears the caller's entire notification feed.
+func (s *Service) MarkAllRead(ctx context.Context, userID int64) (int64, error) {
+	if userID <= 0 {
+		return 0, apperr.Unauthorized()
+	}
+	return s.repo.MarkAllAsRead(ctx, userID)
+}
+
+// ListUnread returns only unread notifications, for the badge dropdown.
+func (s *Service) ListUnread(ctx context.Context, userID int64, limit, offset int) ([]*NotificationLog, error) {
+	if userID <= 0 {
+		return nil, apperr.Unauthorized()
+	}
+	return s.repo.ListUnread(ctx, userID, limit, offset)
 }
 
 // GetUnreadCount returns total unread messages.

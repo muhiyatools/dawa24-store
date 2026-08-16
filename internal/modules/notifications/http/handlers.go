@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 )
 
 // Handler exposes notification endpoints.
@@ -29,6 +30,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/notifications", h.ListNotifications)
 	r.Post("/api/v1/notifications/{id}/read", h.MarkAsRead)
 	r.Get("/api/v1/notifications/unread-count", h.GetUnreadCount)
+	r.Get("/api/v1/notifications/unread", h.ListUnread)
+	r.Post("/api/v1/notifications/read-all", h.MarkAllRead)
 }
 
 // ListNotifications returns in-app notification feed.
@@ -101,4 +104,42 @@ func (h *Handler) GetUnreadCount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSON(w, http.StatusOK, map[string]any{"unread_count": count})
+}
+
+// ListUnread returns only unread notifications, for the badge dropdown.
+func (h *Handler) ListUnread(w http.ResponseWriter, r *http.Request) {
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	p := pagination.FromRequest(r)
+	list, err := h.service.ListUnread(r.Context(), userID, p.Limit, p.Offset)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, pagination.Page[*notifications.NotificationLog]{
+		Data:    list,
+		HasMore: len(list) == p.Limit,
+	})
+}
+
+// MarkAllRead clears the caller's whole notification feed.
+func (h *Handler) MarkAllRead(w http.ResponseWriter, r *http.Request) {
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	updated, err := h.service.MarkAllRead(r.Context(), userID)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{"marked_read": updated})
 }

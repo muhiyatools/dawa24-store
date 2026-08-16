@@ -10,5 +10,9 @@ type Repository interface {
 	GetTemplateBySlug(ctx context.Context, slug string) (*Template, error)
 	ListUserNotifications(ctx context.Context, userID int64, limit, offset int) ([]*NotificationLog, error)
 	MarkAsRead(ctx context.Context, id int64, userID int64) error
+	// MarkAllAsRead clears the whole feed in one statement rather than making
+	// the client issue one request per notification.
+	MarkAllAsRead(ctx context.Context, userID int64) (int64, error)
+	ListUnread(ctx context.Context, userID int64, limit, offset int) ([]*NotificationLog, error)
 	GetUnreadCount(ctx context.Context, userID int64) (int, error)
 }
