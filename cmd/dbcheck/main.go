@@ -30,7 +30,7 @@ func main() {
 	flag.Parse()
 
 	if *rehashDSN != "" {
-		rehash(*rehashDSN, "db/migrations", *rehashApply)
+		rehash(*rehashDSN, *rehashApply)
 		return
 	}
 

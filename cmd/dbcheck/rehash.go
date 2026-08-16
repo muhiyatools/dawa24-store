@@ -6,27 +6,42 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+
+	dbfs "github.com/muhiya/dawa24-store/db"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
-// rehash recomputes the recorded checksum of already-applied migrations from
-// the files currently on disk, but ONLY where the content is identical apart
-// from line endings.
+// rehash brings recorded migration checksums in line with what the migration
+// runner now computes.
 //
-// The migration runner refuses to start when a recorded hash differs from the
-// file, which is correct: an edited migration means environments have silently
-// diverged. Line endings are the one exception. A file applied from a CRLF
-// working tree and later normalised to LF by .gitattributes has not changed in
-// any way PostgreSQL can observe, but its sha256 has.
+// The runner hashes migrations with line endings normalised, so the checksum
+// describes the SQL rather than the operating system the file was last written
+// on. Migrations applied before that change recorded a raw-bytes hash, which on
+// a Windows working tree is the CRLF value — and every Linux container then
+// computed the LF value and refused to start with "modified after being
+// applied", blocking deploys with no schema change of any kind.
 //
-// This refuses to touch anything whose content genuinely differs, so it cannot
-// be used to paper over a real edit.
-func rehash(dsn, dir string, apply bool) {
+// A recorded hash is corrected only when the file's content is provably the
+// same modulo line endings. Anything genuinely edited is reported and left
+// alone: that check is the whole reason the checksum exists.
+func rehash(dsn string, apply bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
+
+	// Use the runner's own loader so the values compared here are exactly the
+	// values it will compute at deploy time.
+	migrations, err := database.LoadMigrations(dbfs.Migrations, "migrations")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "load migrations: %v\n", err)
+		os.Exit(1)
+	}
+	canonical := make(map[int]database.Migration, len(migrations))
+	for _, m := range migrations {
+		canonical[m.Version] = m
+	}
 
 	conn, err := pgx.Connect(ctx, dsn)
 	if err != nil {
@@ -56,33 +71,35 @@ func rehash(dsn, dir string, apply bool) {
 	}
 	rows.Close()
 
+	changed := 0
 	for _, r := range applied {
-		path := filepath.Join(dir, fmt.Sprintf("%03d_%s.up.sql", r.version, r.name))
-		raw, err := os.ReadFile(path)
-		if err != nil {
-			fmt.Printf("  %03d %-32s NO FILE ON DISK — a fresh database would never receive this\n", r.version, r.name)
+		m, ok := canonical[r.version]
+		if !ok {
+			fmt.Printf("  %03d %-32s NO FILE ON DISK — a fresh database would never receive this\n",
+				r.version, r.name)
+			continue
+		}
+		if r.hash == m.Hash {
 			continue
 		}
 
-		sum := sha256.Sum256(raw)
-		current := hex.EncodeToString(sum[:])
-		if current == r.hash {
-			continue
-		}
-
-		// Only a line-ending difference is forgivable.
-		crlf := sha256.Sum256(normaliseToCRLF(raw))
-		if hex.EncodeToString(crlf[:]) != r.hash {
-			fmt.Printf("  %03d %-32s CONTENT DIFFERS — not a line-ending change, refusing\n", r.version, r.name)
+		// Is the recorded value simply the CRLF encoding of the same SQL?
+		crlf := sha256.Sum256(toCRLF([]byte(m.SQL)))
+		raw := sha256.Sum256([]byte(m.SQL))
+		if r.hash != hex.EncodeToString(crlf[:]) && r.hash != hex.EncodeToString(raw[:]) {
+			fmt.Printf("  %03d %-32s CONTENT DIFFERS — not a line-ending change, refusing\n",
+				r.version, r.name)
 			continue
 		}
 
 		fmt.Printf("  %03d %-32s line endings only (%s -> %s)\n",
-			r.version, r.name, r.hash[:12], current[:12])
+			r.version, r.name, r.hash[:12], m.Hash[:12])
+		changed++
+
 		if apply {
 			if _, err := conn.Exec(ctx,
 				`UPDATE public.schema_migrations SET hash = $2 WHERE version = $1`,
-				r.version, current); err != nil {
+				r.version, m.Hash); err != nil {
 				fmt.Fprintf(os.Stderr, "    update failed: %v\n", err)
 				os.Exit(1)
 			}
@@ -90,12 +107,16 @@ func rehash(dsn, dir string, apply bool) {
 		}
 	}
 
-	if !apply {
-		fmt.Println("\ndry run; pass -rehash-apply to write the corrected hashes")
+	switch {
+	case changed == 0:
+		fmt.Println("all recorded hashes already match what the runner computes")
+	case !apply:
+		fmt.Printf("\n%d to correct; pass -rehash-apply to write them\n", changed)
 	}
 }
 
-func normaliseToCRLF(b []byte) []byte {
+// toCRLF re-expands LF to CRLF, reproducing what a Windows working tree held.
+func toCRLF(b []byte) []byte {
 	out := make([]byte, 0, len(b)+len(b)/20)
 	for i := 0; i < len(b); i++ {
 		if b[i] == '\n' && (i == 0 || b[i-1] != '\r') {

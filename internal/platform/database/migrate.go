@@ -1,6 +1,7 @@
 package database
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -61,7 +62,21 @@ func LoadMigrations(fsys fs.FS, dir string) ([]Migration, error) {
 			return nil, fmt.Errorf("migrate: read %s: %w", name, err)
 		}
 
-		sum := sha256.Sum256(body)
+		// Hash the content with line endings normalised.
+		//
+		// The checksum exists to detect an edited migration. A file is edited
+		// when its statements change, not when it crosses an operating system:
+		// a developer's Windows working tree holds CRLF while git and every
+		// Linux container hold LF, so hashing the bytes verbatim makes the
+		// same migration produce two different hashes depending on where it is
+		// read. That is exactly what happened — a migration applied from a
+		// Windows machine then blocked every container deploy with "modified
+		// after being applied", and the deploy failed with no schema change of
+		// any kind.
+		//
+		// Normalising here means the hash describes the SQL, which is the
+		// thing the check is actually about.
+		sum := sha256.Sum256(normaliseLineEndings(body))
 		out = append(out, Migration{
 			Version: version,
 			Name:    rest,
@@ -237,4 +252,13 @@ func short(hash string) string {
 		return hash
 	}
 	return hash[:12]
+}
+
+// normaliseLineEndings converts CRLF to LF so a migration's checksum describes
+// its SQL rather than the operating system it was last written on.
+func normaliseLineEndings(b []byte) []byte {
+	if !bytes.Contains(b, []byte("\r\n")) {
+		return b
+	}
+	return bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 }
