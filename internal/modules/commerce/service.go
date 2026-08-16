@@ -172,6 +172,11 @@ func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserI
 	return s.TransitionOrderStatus(ctx, orderID, StatusCancelled, changedByUserID, reason)
 }
 
+// CountOrders returns the platform-wide order total, for admin dashboards.
+func (s *Service) CountOrders(ctx context.Context) (int, error) {
+	return s.repo.CountOrders(ctx)
+}
+
 // ListCustomerOrders retrieves paginated orders for a customer.
 func (s *Service) ListCustomerOrders(ctx context.Context, customerID int64, limit, offset int) ([]*Order, error) {
 	return s.repo.ListOrdersByCustomer(ctx, customerID, limit, offset)

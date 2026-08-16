@@ -115,6 +115,9 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Delete("/vendor/products/{id}", h.VendorProductDeleteSubmit)
 	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
+	r.Post("/admin/users/{id}/suspend", h.AdminUserSuspendSubmit)
+	r.Post("/admin/users/{id}/reactivate", h.AdminUserReactivateSubmit)
+	r.Post("/admin/users/{id}/reset-mfa", h.AdminUserResetMFASubmit)
 }
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {

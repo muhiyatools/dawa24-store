@@ -12,13 +12,13 @@ templ AdminUsers(users []*identity.User, lang, dir string, isPartial bool) {
 		@AdminUsersTable(users)
 	} else {
 		@layouts.AdminShell("إدارة المستخدمين والصلاحيات | Users", "users", lang, dir) {
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
 				<div>
 					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">دليل المستخدمين وحسابات النظام</h2>
 					<p style="font-size:0.875rem; color:var(--neutral-500);">إدارة صلاحيات الدخول، تعليق الحسابات، وإعادة ضبط التحقق الثنائي</p>
 				</div>
+				@components.LoadingIndicator("جارٍ التحديث…")
 			</div>
-
 			<div id="admin-users-content">
 				@AdminUsersTable(users)
 			</div>
@@ -33,7 +33,9 @@ templ AdminUsersTable(users []*identity.User) {
 			Message: "لم يتم العثور على أي حسابات مستخدمين مطابقة.",
 		})
 	} else {
-		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
+		<!-- overflow is visible rather than hidden so a confirmation dialog
+		     opened from the last row is not clipped by the card. -->
+		<div class="card" style="padding:0; overflow:visible; margin-bottom:0;">
 			<table class="data-table">
 				<thead>
 					<tr>
@@ -56,51 +58,53 @@ templ AdminUsersTable(users []*identity.User) {
 							</td>
 							<td style="color:var(--neutral-600);">{ u.Email }</td>
 							<td>
-								<span class="badge badge-sky">
-									{ u.Role }
-								</span>
+								<span class="badge badge-sky">{ u.Role }</span>
 							</td>
 							<td>
-								if u.Status == identity.StatusActive {
-									<span class="badge badge-emerald">
-										@components.IconCheck("icon-xs")
-										<span>نشط</span>
-									</span>
-								} else {
-									<span class="badge badge-rose">
-										<span>معلق</span>
-									</span>
-								}
+								@components.StatusBadge(string(u.Status))
 							</td>
 							<td style="text-align:end;">
-								<div style="display:inline-flex; gap:0.5rem;">
+								<div class="table-actions" style="justify-content:flex-end;">
 									if u.Status == identity.StatusActive {
-										<button
-											hx-post={ fmt.Sprintf("/api/v1/identity/admin/users/%d/suspend", u.ID) }
-											hx-swap="none"
-											class="btn btn-secondary btn-sm"
-											style="color:var(--danger); border-color:var(--danger-border);"
-										>
+										@components.ModalTrigger(fmt.Sprintf("confirm-suspend-%d", u.ID), "btn btn-danger btn-sm") {
 											<span>تعليق الحساب</span>
-										</button>
+										}
+										@components.ConfirmModal(components.ConfirmModalProps{
+											ID:          fmt.Sprintf("confirm-suspend-%d", u.ID),
+											Title:       "تأكيد تعليق الحساب",
+											Message:     fmt.Sprintf("سيتم تعليق حساب «%s» وإنهاء جميع جلساته المفتوحة فوراً.", u.Email),
+											ConfirmURL:  fmt.Sprintf("/admin/users/%d/suspend", u.ID),
+											ConfirmVerb: "post",
+											ConfirmText: "نعم، علّق الحساب",
+											CancelText:  "إلغاء",
+											Danger:      true,
+											Target:      "#admin-users-content",
+										})
 									} else {
 										<button
-											hx-post={ fmt.Sprintf("/api/v1/identity/admin/users/%d/reactivate", u.ID) }
-											hx-swap="none"
+											hx-post={ fmt.Sprintf("/admin/users/%d/reactivate", u.ID) }
+											hx-target="#admin-users-content"
+											hx-swap="innerHTML"
 											class="btn btn-primary btn-sm"
 										>
 											@components.IconCheck("icon-xs")
 											<span>إعادة التفعيل</span>
 										</button>
 									}
-									<button
-										hx-post={ fmt.Sprintf("/api/v1/identity/admin/users/%d/reset-mfa", u.ID) }
-										hx-swap="none"
-										class="btn btn-secondary btn-sm"
-									>
+									@components.ModalTrigger(fmt.Sprintf("confirm-mfa-%d", u.ID), "btn btn-secondary btn-sm") {
 										@components.IconRefresh("icon-xs")
 										<span>إعادة ضبط MFA</span>
-									</button>
+									}
+									@components.ConfirmModal(components.ConfirmModalProps{
+										ID:          fmt.Sprintf("confirm-mfa-%d", u.ID),
+										Title:       "إعادة ضبط التحقق الثنائي",
+										Message:     fmt.Sprintf("سيتم حذف التحقق الثنائي لحساب «%s» وإنهاء جلساته، وسيحتاج إلى تفعيله من جديد.", u.Email),
+										ConfirmURL:  fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID),
+										ConfirmVerb: "post",
+										ConfirmText: "نعم، أعد الضبط",
+										CancelText:  "إلغاء",
+										Target:      "#admin-users-content",
+									})
 								</div>
 							</td>
 						</tr>

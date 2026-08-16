@@ -61,3 +61,5 @@ func (m *mockCommerceRepo) RateOrder(_ context.Context, orderID, customerID int6
 	}
 	return nil
 }
+
+func (m *mockCommerceRepo) CountOrders(_ context.Context) (int, error) { return len(m.orders), nil }

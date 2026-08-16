@@ -387,3 +387,10 @@ func TestCommerceHandler_HappyPaths(t *testing.T) {
 		})
 	}
 }
+
+func (r stubRepo) CountOrders(_ context.Context) (int, error) {
+	r.fail("CountOrders")
+	return 0, nil
+}
+
+func (happyRepo) CountOrders(_ context.Context) (int, error) { return 5, nil }

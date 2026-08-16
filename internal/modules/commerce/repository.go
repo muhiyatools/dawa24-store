@@ -24,6 +24,7 @@ type Repository interface {
 	GetOrderByNumber(ctx context.Context, number string) (*Order, error)
 	UpdateOrderStatus(ctx context.Context, orderID int64, toStatus OrderStatus, history OrderStatusHistory) error
 	ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*Order, error)
+	CountOrders(ctx context.Context) (int, error)
 	ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*OrderShipment, error)
 	GetShipmentByID(ctx context.Context, id int64) (*OrderShipment, error)
 	// UpdateShipmentStatus is a compare-and-swap on the expected prior status,

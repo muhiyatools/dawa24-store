@@ -287,3 +287,15 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 }
 
 var _ time.Time
+
+// CountOrders returns the total number of orders on the platform.
+//
+// Used by the admin dashboard, which previously counted len() of a page capped
+// at 100 and so reported 100 for any platform with more than that.
+func (r *Repository) CountOrders(ctx context.Context) (int, error) {
+	var total int
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.orders;`).Scan(&total)
+	})
+	return total, err
+}
