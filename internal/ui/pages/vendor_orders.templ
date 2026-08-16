@@ -67,32 +67,38 @@ templ VendorOrdersTable(shipments []*commerce.OrderShipment) {
 							</td>
 							<td style="padding:0.75rem 1rem; text-align:end;">
 								if sh.Status == commerce.StatusPending {
-									<button
-										hx-put={ fmt.Sprintf("/api/v1/commerce/shipments/%d/status", sh.ID) }
-										hx-vals='{"to_status":"confirmed"}'
-										class="btn btn-primary"
-										style="font-size:0.75rem; padding:0.25rem 0.6rem;"
-									>
-										تأكيد الطلب ✓
-									</button>
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+										<input type="hidden" name="status" value="confirmed" />
+										<button
+											type="submit"
+											class="btn btn-primary"
+											style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+										>
+											تأكيد الطلب ✓
+										</button>
+									</form>
 								} else if sh.Status == commerce.StatusConfirmed {
-									<button
-										hx-put={ fmt.Sprintf("/api/v1/commerce/shipments/%d/status", sh.ID) }
-										hx-vals='{"to_status":"shipped"}'
-										class="btn btn-primary"
-										style="font-size:0.75rem; padding:0.25rem 0.6rem;"
-									>
-										بدء الشحن 🚚
-									</button>
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+										<input type="hidden" name="status" value="shipped" />
+										<button
+											type="submit"
+											class="btn btn-primary"
+											style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+										>
+											بدء الشحن 🚚
+										</button>
+									</form>
 								} else if sh.Status == commerce.StatusShipped {
-									<button
-										hx-put={ fmt.Sprintf("/api/v1/commerce/shipments/%d/status", sh.ID) }
-										hx-vals='{"to_status":"delivered"}'
-										class="btn btn-primary"
-										style="font-size:0.75rem; padding:0.25rem 0.6rem;"
-									>
-										تم التسليم ✅
-									</button>
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+										<input type="hidden" name="status" value="delivered" />
+										<button
+											type="submit"
+											class="btn btn-primary"
+											style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+										>
+											تم التسليم ✅
+										</button>
+									</form>
 								} else {
 									<span style="font-size:0.8rem; color:var(--neutral-500);">مكتمل</span>
 								}

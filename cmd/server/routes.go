@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/go-chi/chi/v5"
@@ -46,6 +47,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
@@ -83,7 +85,7 @@ func mountModuleRoutes(
 		protected.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		protected.Use(identityHttp.ResolveTenant(idSvc, log))
 
-		mountAuthenticatedModules(protected, log, deps, ai)
+		mountAuthenticatedModules(protected, cfg, log, deps, ai)
 	})
 
 	// 13. Templ SSR Frontend & Static Assets
@@ -108,7 +110,10 @@ func mountModuleRoutes(
 		platformadmin.NewService(adminRepoUI, log),
 		log,
 	)
-	uiHandler.RegisterPageRoutes(r)
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(identityHttp.OptionalAuth(idSvc, cfg.Session.CookieName))
+		uiHandler.RegisterPageRoutes(uiRouter)
+	})
 }
 
 // mountAuthenticatedModules registers every module whose endpoints require a
@@ -116,6 +121,7 @@ func mountModuleRoutes(
 // reads as one decision rather than being repeated per module.
 func mountAuthenticatedModules(
 	r chi.Router,
+	cfg *config.Config,
 	log *slog.Logger,
 	deps *dependencies,
 	ai gateway.Client,
@@ -147,6 +153,12 @@ func mountAuthenticatedModules(
 	ingRepo := ingestPostgres.NewRepository(db)
 	ingSvc := ingest.NewService(ingRepo, log)
 	ingSvc.SetAIMatcher(aiSvc)
+	if storageClient, err := storage.New(context.Background(), cfg.Storage); err == nil {
+		ingSvc.SetStorage(storageClient)
+		log.Info("object storage client initialized for ingest", "bucket", cfg.Storage.Bucket)
+	} else {
+		log.Warn("object storage client not initialized", "error", err)
+	}
 	ingestHttp.NewHandler(ingSvc, log).RegisterRoutes(r)
 
 	// 7. Promo, Offers & Ads

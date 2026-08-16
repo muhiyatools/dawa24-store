@@ -96,15 +96,17 @@ jobs:
           go run ./cmd/cli migrate
           go run ./cmd/cli migrate-status
 
-      - name: Run Tests (with race detector)
+      - name: Run Tests (with race detector & coverage)
         env:
           DATABASE_URL: postgres://dawa24:dawa24@localhost:5432/dawa24_store?sslmode=disable
           REDIS_URL: redis://localhost:6379/0
           SESSION_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-        run: go test -v -race -count=1 ./...
+        run: go test -v -race -cover -count=1 ./...
 
-      - name: Build Binaries
+      - name: Build All 5 Production Binaries
         run: |
           go build -trimpath -o bin/server ./cmd/server
           go build -trimpath -o bin/worker ./cmd/worker
           go build -trimpath -o bin/cli ./cmd/cli
+          go build -trimpath -o bin/etl ./cmd/etl
+          go build -trimpath -o bin/dbcheck ./cmd/dbcheck

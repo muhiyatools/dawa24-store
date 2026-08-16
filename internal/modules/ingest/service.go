@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -21,10 +22,24 @@ type AIMatcher interface {
 	MatchCandidate(ctx context.Context, query string, candidateNames []string) (bestCandidate string, score float64)
 }
 
+// StorageClient provides object storage presigning operations.
+type StorageClient interface {
+	PresignPut(ctx context.Context, key string, contentType string, lifetime time.Duration) (string, error)
+}
+
+// PresignedUpload holds presigned upload credentials for the browser.
+type PresignedUpload struct {
+	FileUploadID int64  `json:"file_upload_id"`
+	UploadURL    string `json:"upload_url"`
+	StorageKey   string `json:"storage_key"`
+	Method       string `json:"method"`
+}
+
 // Service manages vendor bulk catalog file processing and Arabic product matching.
 type Service struct {
 	repo      Repository
 	aiMatcher AIMatcher
+	storage   StorageClient
 	log       *slog.Logger
 }
 
@@ -36,9 +51,58 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 	}
 }
 
+// SetStorage configures the object storage client.
+func (s *Service) SetStorage(storage StorageClient) {
+	s.storage = storage
+}
+
 // SetAIMatcher configures an optional AI candidate matcher.
 func (s *Service) SetAIMatcher(matcher AIMatcher) {
 	s.aiMatcher = matcher
+}
+
+// PresignUpload generates a presigned S3/MinIO upload URL and registers the file record.
+func (s *Service) PresignUpload(ctx context.Context, userID int64, filename, mimeType string, sizeBytes int64) (*PresignedUpload, error) {
+	orgID, ok := database.TenantFrom(ctx)
+	if !ok {
+		return nil, database.ErrNoTenant
+	}
+	if s.storage == nil {
+		return nil, apperr.Unavailable("storage", nil)
+	}
+
+	cleanFilename := filename
+	if cleanFilename == "" {
+		cleanFilename = "upload.csv"
+	}
+	key := fmt.Sprintf("orgs/%d/uploads/%d_%s", orgID, time.Now().UnixNano(), cleanFilename)
+
+	uploadURL, err := s.storage.PresignPut(ctx, key, mimeType, 15*time.Minute)
+	if err != nil {
+		return nil, fmt.Errorf("presign upload: %w", err)
+	}
+
+	f := &FileUpload{
+		OrganizationID: orgID,
+		UserID:         userID,
+		Filename:       cleanFilename,
+		StorageKey:     key,
+		FileSizeBytes:  sizeBytes,
+		MimeType:       mimeType,
+		CreatedAt:      time.Now().UTC(),
+	}
+
+	if err := s.repo.CreateFileUpload(ctx, f); err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "presigned upload created", "upload_id", f.ID, "key", key)
+	return &PresignedUpload{
+		FileUploadID: f.ID,
+		UploadURL:    uploadURL,
+		StorageKey:   key,
+		Method:       "PUT",
+	}, nil
 }
 
 // RegisterUpload creates a file upload metadata pointer.

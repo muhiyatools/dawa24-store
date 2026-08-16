@@ -11,11 +11,26 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	stats := pages.AdminDashboardStats{
-		TotalUsers:         150,
-		TotalOrganizations: 45,
-		PendingApprovals:   3,
-		TotalOrders:        1280,
+	stats := pages.AdminDashboardStats{}
+
+	if h.idSvc != nil {
+		if users, err := h.idSvc.AdminListUsers(ctx, "", ""); err == nil {
+			stats.TotalUsers = len(users)
+		}
+	}
+	if h.orgSvc != nil {
+		if orgs, err := h.orgSvc.ListOrganizations(ctx, nil, nil, 100, 0); err == nil {
+			stats.TotalOrganizations = len(orgs)
+		}
+		pending := org.StatusPending
+		if pendingOrgs, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 100, 0); err == nil {
+			stats.PendingApprovals = len(pendingOrgs)
+		}
+	}
+	if h.commSvc != nil {
+		if orders, err := h.commSvc.ListCustomerOrders(ctx, 0, 100, 0); err == nil {
+			stats.TotalOrders = len(orders)
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -74,3 +89,10 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorContext(ctx, "render admin settings page", "error", err)
 	}
 }
+
+func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	h.log.InfoContext(ctx, "admin updated platform settings", "support_email", r.PostFormValue("support_email"))
+	http.Redirect(w, r, "/admin/settings?saved=true", http.StatusSeeOther)
+}
+

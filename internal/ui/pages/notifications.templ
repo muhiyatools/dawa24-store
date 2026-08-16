@@ -60,15 +60,15 @@ templ NotificationsList(logs []*notifications.NotificationLog) {
 					</div>
 
 					if !l.IsRead {
-						<button
-							hx-put={ fmt.Sprintf("/api/v1/notifications/%d/read", l.ID) }
-							hx-target="closest div"
-							hx-swap="outerHTML"
-							class="btn btn-secondary"
-							style="font-size:0.75rem; padding:0.25rem 0.6rem;"
-						>
-							تحديد كمقروء ✓
-						</button>
+						<form action={ templ.SafeURL(fmt.Sprintf("/notifications/%d/read", l.ID)) } method="POST" style="margin:0;">
+							<button
+								type="submit"
+								class="btn btn-secondary"
+								style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+							>
+								تحديد كمقروء ✓
+							</button>
+						</form>
 					}
 				</div>
 			}

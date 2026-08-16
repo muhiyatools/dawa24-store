@@ -42,6 +42,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 	r.Post("/api/v1/billing/payment-methods", h.AddPaymentMethod)
 	r.Get("/api/v1/billing/payment-methods", h.ListPaymentMethods)
+	r.Delete("/api/v1/billing/payment-methods/{id}", h.DeletePaymentMethod)
 
 	h.RegisterAdminRoutes(r)
 }
@@ -277,3 +278,26 @@ func (h *Handler) ListPaymentMethods(w http.ResponseWriter, r *http.Request) {
 
 	httpx.JSON(w, http.StatusOK, map[string]any{"payment_methods": list, "count": len(list)})
 }
+
+// DeletePaymentMethod deletes a saved payment method belonging to the caller.
+func (h *Handler) DeletePaymentMethod(w http.ResponseWriter, r *http.Request) {
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("payment_method.invalid_id", "Invalid payment method ID.", nil))
+		return
+	}
+
+	if err := h.service.DeletePaymentMethod(r.Context(), userID, id); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+

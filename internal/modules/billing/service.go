@@ -195,3 +195,12 @@ func (s *Service) AddPaymentMethod(ctx context.Context, pm *UserPaymentMethod) e
 func (s *Service) ListPaymentMethods(ctx context.Context, userID int64) ([]*UserPaymentMethod, error) {
 	return s.repo.ListPaymentMethods(ctx, userID)
 }
+
+// DeletePaymentMethod removes a user payment method scoped to the owner.
+func (s *Service) DeletePaymentMethod(ctx context.Context, userID, id int64) error {
+	if userID <= 0 || id <= 0 {
+		return apperr.Validation("payment_method.invalid_id", "Valid user ID and payment method ID are required.", nil)
+	}
+	return s.repo.DeletePaymentMethod(ctx, userID, id)
+}
+

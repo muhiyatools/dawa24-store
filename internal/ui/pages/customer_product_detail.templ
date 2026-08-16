@@ -78,11 +78,12 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 									</div>
 								</div>
 								<div style="display:flex; align-items:center; gap:1.5rem;">
-									<form hx-post="/api/v1/commerce/cart/items" hx-swap="none" style="display:flex; align-items:center; gap:0.5rem;">
+									<form action="/cart/add" method="POST" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
 										<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
-										<input type="hidden" name="product_variant_id" value={ fmt.Sprintf("%d", v.ID) } />
+										<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.ID) } />
+										<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", product.OrganizationID) } />
 										<input type="number" name="quantity" value="1" min="1" class="form-input" style="width:70px; text-align:center;" />
-										<button type="submit" class="btn btn-primary" style="font-size:0.875rem;">
+										<button type="submit" class="btn btn-primary" style="font-size:0.875rem; padding:0.45rem 1rem;">
 											+ أضف للسلة
 										</button>
 									</form>

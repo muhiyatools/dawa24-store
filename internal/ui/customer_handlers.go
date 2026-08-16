@@ -212,3 +212,114 @@ func (h *UIHandler) NotificationsPage(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorContext(ctx, "render notifications page", "error", err)
 	}
 }
+
+func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, err := authctx.UserID(ctx)
+	if err != nil {
+		http.Redirect(w, r, "/auth/login?redirect=/cart", http.StatusSeeOther)
+		return
+	}
+
+	if h.commSvc == nil {
+		http.Redirect(w, r, "/cart", http.StatusSeeOther)
+		return
+	}
+
+	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
+	productID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
+	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
+	if qty <= 0 {
+		qty = 1
+	}
+
+	item := &commerce.CartItem{
+		ProductID:        productID,
+		ProductVariantID: variantID,
+		Quantity:         qty,
+	}
+
+	_, _ = h.commSvc.AddToCart(ctx, userID, item)
+	http.Redirect(w, r, "/cart", http.StatusSeeOther)
+}
+
+func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, err := authctx.UserID(ctx)
+	if err != nil {
+		http.Redirect(w, r, "/auth/login?redirect=/cart", http.StatusSeeOther)
+		return
+	}
+
+	if h.commSvc == nil {
+		http.Redirect(w, r, "/cart", http.StatusSeeOther)
+		return
+	}
+
+	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
+	_, _ = h.commSvc.RemoveFromCart(ctx, userID, variantID)
+	http.Redirect(w, r, "/cart", http.StatusSeeOther)
+}
+
+func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, err := authctx.UserID(ctx)
+	if err != nil {
+		http.Redirect(w, r, "/auth/login?redirect=/checkout", http.StatusSeeOther)
+		return
+	}
+
+	if h.commSvc == nil {
+		http.Redirect(w, r, "/orders", http.StatusSeeOther)
+		return
+	}
+
+	cart, err := h.commSvc.GetCart(ctx, userID)
+	if err != nil || cart == nil || len(cart.Items) == 0 {
+		http.Redirect(w, r, "/cart", http.StatusSeeOther)
+		return
+	}
+
+	var items []commerce.CheckoutLineItem
+	for _, it := range cart.Items {
+		pID := it.ProductID
+		vID := it.ProductVariantID
+		items = append(items, commerce.CheckoutLineItem{
+			VendorOrgID:      1,
+			ProductID:        &pID,
+			ProductVariantID: &vID,
+			Quantity:         it.Quantity,
+			UnitPrice:        it.UnitPrice,
+		})
+	}
+
+	paymentMethod := r.PostFormValue("payment_method")
+	if paymentMethod == "" {
+		paymentMethod = "cod"
+	}
+
+	order, err := h.commSvc.Checkout(ctx, commerce.CheckoutInput{
+		CustomerID:    userID,
+		PaymentMethod: paymentMethod,
+		Notes:         r.PostFormValue("notes"),
+		Items:         items,
+	})
+	if err != nil {
+		h.renderError(w, r, err)
+		return
+	}
+
+	_ = h.commSvc.ClearCart(ctx, userID)
+	http.Redirect(w, r, "/orders/"+strconv.FormatInt(order.ID, 10), http.StatusSeeOther)
+}
+
+func (h *UIHandler) MarkNotificationReadSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, _ := authctx.UserID(ctx)
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if h.notifSvc != nil && id > 0 {
+		_ = h.notifSvc.MarkRead(ctx, id, userID)
+	}
+	http.Redirect(w, r, "/notifications", http.StatusSeeOther)
+}
+

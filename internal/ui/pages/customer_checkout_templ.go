@@ -63,12 +63,12 @@ func CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, la
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"display:grid; grid-template-columns:1fr 340px; gap:2rem;\"><div style=\"display:flex; flex-direction:column; gap:1.5rem;\"><div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;\"><h3 style=\"font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;\">1. عنوان التوصيل</h3>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form action=\"/checkout\" method=\"POST\"><div style=\"display:grid; grid-template-columns:1fr 340px; gap:2rem;\"><div style=\"display:flex; flex-direction:column; gap:1.5rem;\"><div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;\"><h3 style=\"font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;\">1. عنوان التوصيل</h3>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if len(addresses) == 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p style=\"font-size:0.875rem; color:var(--neutral-600); margin-bottom:1rem;\">لا يوجد عنوان مسجل. يرجى إدخال عنوان الصيدلية أو العيادة:</p><input type=\"text\" name=\"address\" placeholder=\"العنوان بالتفصيل...\" class=\"form-input\" style=\"width:100%; margin-bottom:0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p style=\"font-size:0.875rem; color:var(--neutral-600); margin-bottom:1rem;\">يرجى إدخال عنوان الصيدلية أو العيادة بالتفصيل:</p><input type=\"text\" name=\"address\" placeholder=\"العنوان بالتفصيل...\" class=\"form-input\" style=\"width:100%; margin-bottom:0.75rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -85,7 +85,7 @@ func CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, la
 						var templ_7745c5c3_Var3 string
 						templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", addr.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 40, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 41, Col: 84}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 						if templ_7745c5c3_Err != nil {
@@ -108,7 +108,7 @@ func CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, la
 						var templ_7745c5c3_Var4 string
 						templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Recipient)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 42, Col: 76}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 43, Col: 77}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 						if templ_7745c5c3_Err != nil {
@@ -121,7 +121,7 @@ func CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, la
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 43, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 44, Col: 84}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -137,20 +137,20 @@ func CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, la
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;\"><h3 style=\"font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;\">2. طريقة الدفع</h3><div style=\"display:flex; flex-direction:column; gap:0.5rem;\"><label style=\"display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"cash_on_delivery\" checked><div><div style=\"font-weight:600; font-size:0.9rem;\">الدفع عند الاستلام (نقداً)</div><div style=\"font-size:0.8rem; color:var(--neutral-500);\">يتم التحصيل بمعرفة مندوب شركة التوزيع</div></div></label> <label style=\"display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"bank_transfer\"><div><div style=\"font-weight:600; font-size:0.9rem;\">تحويل بنكي / شيك آجل</div><div style=\"font-size:0.8rem; color:var(--neutral-500);\">طبقاً للائحة الائتمان المعتمدة للمؤسسة</div></div></label></div></div></div><div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem; height:fit-content;\"><h3 style=\"font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;\">ملخص الطلب</h3><div style=\"display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.9rem; color:var(--neutral-600);\"><span>عدد الأصناف:</span> <span class=\"tabular-nums\" style=\"font-weight:600;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;\"><h3 style=\"font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;\">2. طريقة الدفع</h3><div style=\"display:flex; flex-direction:column; gap:0.5rem;\"><label style=\"display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"cod\" checked><div><div style=\"font-weight:600; font-size:0.9rem;\">الدفع عند الاستلام (نقداً)</div><div style=\"font-size:0.8rem; color:var(--neutral-500);\">يتم التحصيل بمعرفة مندوب شركة التوزيع</div></div></label> <label style=\"display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"bank_transfer\"><div><div style=\"font-weight:600; font-size:0.9rem;\">تحويل بنكي / شيك آجل</div><div style=\"font-size:0.8rem; color:var(--neutral-500);\">طبقاً للائحة الائتمان المعتمدة للمؤسسة</div></div></label></div></div><div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;\"><h3 style=\"font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;\">3. ملاحظات إضافية للتوريد</h3><textarea name=\"notes\" rows=\"2\" placeholder=\"أي تعليمات خاصة بمواعيد الاستلام أو مندوب التوزيع...\" class=\"form-input\" style=\"width:100%;\"></textarea></div></div><div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem; height:fit-content;\"><h3 style=\"font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;\">ملخص الطلب</h3><div style=\"display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.9rem; color:var(--neutral-600);\"><span>عدد الأصناف:</span> <span class=\"tabular-nums\" style=\"font-weight:600;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(cart.Items)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 80, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 88, Col: 96}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div><div style=\"display:flex; justify-content:space-between; margin-bottom:1rem; font-size:0.9rem; color:var(--neutral-600);\"><span>مصاريف الشحن:</span> <span style=\"font-weight:600; color:var(--success-700);\">مجاناً للطلبيات المعتمدة</span></div><button hx-post=\"/api/v1/commerce/checkout\" class=\"btn btn-primary\" style=\"width:100%; padding:0.85rem; font-size:1rem; font-weight:700; margin-top:1rem;\">تأكيد الطلب وإرساله للموردين</button></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div><div style=\"display:flex; justify-content:space-between; margin-bottom:1rem; font-size:0.9rem; color:var(--neutral-600);\"><span>مصاريف الشحن:</span> <span style=\"font-weight:600; color:var(--success-700);\">مجاناً للطلبيات المعتمدة</span></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.85rem; font-size:1rem; font-weight:700; margin-top:1rem;\">تأكيد الطلب وإرساله للموردين</button></div></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

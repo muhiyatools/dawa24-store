@@ -7,7 +7,9 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -211,3 +213,56 @@ func (h *UIHandler) VendorOffersPage(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorContext(ctx, "render vendor offers page", "error", err)
 	}
 }
+
+func (h *UIHandler) VendorProductSaveSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
+
+	if h.catSvc == nil {
+		http.Redirect(w, r, "/vendor/products", http.StatusSeeOther)
+		return
+	}
+
+	nameAr := r.PostFormValue("name_ar")
+	nameEn := r.PostFormValue("name_en")
+	dosage := r.PostFormValue("dosage_form")
+	manufacturer := r.PostFormValue("manufacturing_companies")
+	scientific := r.PostFormValue("scientific_name")
+	barcode := r.PostFormValue("barcode")
+
+	prod := &catalog.Product{
+		OrganizationID:         actor.OrganizationID,
+		Name:                   i18n.New(nameAr, nameEn),
+		DosageForm:             dosage,
+		ManufacturingCompanies: manufacturer,
+		ScientificName:         scientific,
+		Barcode:                barcode,
+		Status:                 catalog.StatusActive,
+	}
+
+	_, _ = h.catSvc.CreateProduct(ctx, prod)
+	http.Redirect(w, r, "/vendor/products", http.StatusSeeOther)
+}
+
+func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/orders", http.StatusSeeOther)
+		return
+	}
+
+	shipmentID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	toStatus := r.PostFormValue("status")
+
+	if h.commSvc != nil && shipmentID > 0 && toStatus != "" {
+		_, _ = h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, "")
+	}
+
+	http.Redirect(w, r, "/vendor/orders", http.StatusSeeOther)
+}
+

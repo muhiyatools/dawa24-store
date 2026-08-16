@@ -2,40 +2,46 @@ package layouts
 
 templ AdminShell(title string, activeNav string, lang string, dir string) {
 	@Base(title, lang, dir) {
-		<div class="app-shell">
-			<aside class="sidebar">
-				<div class="sidebar-header">
-					<span>Dawa24 Admin</span>
+		<div class="app-shell" style="display:flex; min-height:100vh;">
+			<aside class="sidebar" style="width:260px; background:var(--neutral-900); color:#fff; display:flex; flex-direction:column; padding:1.5rem 1rem; border-inline-end:1px solid var(--neutral-800);">
+				<div class="sidebar-header" style="margin-bottom:2rem; padding-inline:0.5rem;">
+					<a href="/admin/dashboard" style="text-decoration:none; color:#fff; font-weight:800; font-size:1.25rem; display:flex; align-items:center; gap:0.5rem;">
+						<span>🛡️ إدارة دواء 24</span>
+					</a>
 				</div>
-				<nav class="sidebar-nav">
-					<a href="/admin/dashboard" class={ "nav-link", templ.KV("active", activeNav == "dashboard") }>
-						<span>📊 Dashboard</span>
+				<nav class="sidebar-nav" style="display:flex; flex-direction:column; gap:0.35rem; flex:1;">
+					<a href="/admin/dashboard" class={ "nav-link", templ.KV("active", activeNav == "dashboard") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>📊 لوحة المعلومات</span>
 					</a>
-					<a href="/admin/approvals" class={ "nav-link", templ.KV("active", activeNav == "approvals") }>
-						<span>🏢 Tenant Approvals</span>
+					<a href="/admin/approvals" class={ "nav-link", templ.KV("active", activeNav == "approvals") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>🏢 اعتماد الشركاء</span>
 					</a>
-					<a href="/admin/catalog" class={ "nav-link", templ.KV("active", activeNav == "catalog") }>
-						<span>💊 Global Catalog</span>
+					<a href="/admin/users" class={ "nav-link", templ.KV("active", activeNav == "users") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>👥 المستخدمين والأدوار</span>
 					</a>
-					<a href="/admin/users" class={ "nav-link", templ.KV("active", activeNav == "users") }>
-						<span>👥 Users & Security</span>
-					</a>
-					<a href="/admin/system" class={ "nav-link", templ.KV("active", activeNav == "system") }>
-						<span>⚙️ System Resources</span>
+					<a href="/admin/settings" class={ "nav-link", templ.KV("active", activeNav == "settings") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>⚙️ إعدادات المنصة</span>
 					</a>
 				</nav>
+				<div style="border-top:1px solid var(--neutral-800); padding-top:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+					<a href="/catalog" style="color:var(--neutral-400); text-decoration:none; font-size:0.85rem; padding:0.4rem 0.8rem;">
+						← العودة للسوق
+					</a>
+				</div>
 			</aside>
-			<main class="main-content">
-				<header class="top-navbar">
+			<main class="main-content" style="flex:1; display:flex; flex-direction:column; background:var(--neutral-50);">
+				<header class="top-navbar" style="background:#fff; border-bottom:1px solid var(--neutral-200); padding:0.875rem 2rem; display:flex; justify-content:space-between; align-items:center;">
 					<div>
-						<h1 style="font-size:1.25rem; font-weight:600;">{ title }</h1>
+						<h1 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--neutral-900);">{ title }</h1>
 					</div>
 					<div style="display:flex; align-items:center; gap:1rem;">
-						<span style="font-size:0.875rem; color:var(--neutral-600);">Super Admin</span>
-						<button hx-post="/api/v1/auth/logout" class="btn btn-secondary">Logout</button>
+						<span style="font-size:0.875rem; color:var(--primary-700); font-weight:600;">Super Administrator</span>
+						<form action="/auth/logout" method="POST" style="margin:0; display:inline;">
+							<button type="submit" class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 0.75rem;">خروج</button>
+						</form>
 					</div>
 				</header>
-				<div class="page-container">
+				<div class="page-container" style="flex:1; padding:2rem;">
 					{ children... }
 				</div>
 			</main>

@@ -62,6 +62,34 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 	}
 }
 
+// OptionalAuth authenticates incoming requests if a valid session exists, but allows anonymous requests.
+func OptionalAuth(service *identity.Service, cookieName string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token := extractToken(r, cookieName)
+			if token == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			sess, err := service.ValidateSession(r.Context(), token)
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			ctx := WithSession(r.Context(), sess)
+			ctx = authctx.WithActor(ctx, authctx.Actor{
+				UserID:         sess.UserID,
+				OrganizationID: sess.ActiveOrgID,
+				Role:           sess.Role,
+				Permissions:    sess.Permissions,
+			})
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
 // RequirePermission ensures the authenticated user possesses the required permission.
 func RequirePermission(permissionKey string, log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

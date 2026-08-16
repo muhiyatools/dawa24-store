@@ -96,8 +96,41 @@ func TestAuthenticatedUIRoutesWithActor(t *testing.T) {
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
 
-	// Since commSvc is nil in this test setup, it gracefully calls renderError and returns 200 with error page/state
 	if rec.Code != http.StatusOK {
 		t.Errorf("GET /cart with actor returned status %d, want 200", rec.Code)
 	}
 }
+
+func TestFormActionRoutes(t *testing.T) {
+	router := setupTestRouter()
+
+	actionRoutes := []struct {
+		method string
+		path   string
+	}{
+		{"POST", "/auth/logout"},
+		{"GET", "/auth/logout"},
+		{"POST", "/admin/settings"},
+		{"POST", "/cart/add"},
+		{"POST", "/cart/remove"},
+		{"POST", "/checkout"},
+		{"POST", "/notifications/123/read"},
+		{"POST", "/vendor/products"},
+		{"POST", "/vendor/orders/456/status"},
+	}
+
+	for _, route := range actionRoutes {
+		t.Run(route.method+" "+route.path, func(t *testing.T) {
+			req := httptest.NewRequest(route.method, route.path, nil)
+			rec := httptest.NewRecorder()
+
+			router.ServeHTTP(rec, req)
+
+			// Actions perform redirects (303 See Other)
+			if rec.Code != http.StatusSeeOther {
+				t.Errorf("%s %s returned status %d, want %d", route.method, route.path, rec.Code, http.StatusSeeOther)
+			}
+		})
+	}
+}
+

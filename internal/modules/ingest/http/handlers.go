@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -25,6 +26,7 @@ func NewHandler(service *ingest.Service, log *slog.Logger) *Handler {
 
 // RegisterRoutes registers ingest routes on a Chi router.
 func (h *Handler) RegisterRoutes(r chi.Router) {
+	r.Post("/api/v1/ingest/uploads/presign", h.PresignUpload)
 	r.Post("/api/v1/ingest/uploads", h.RegisterUpload)
 	r.Post("/api/v1/ingest/sessions", h.StartSession)
 	r.Get("/api/v1/ingest/sessions", h.ListSessions)
@@ -37,6 +39,35 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/ingest/sessions/{id}/events", h.StreamEvents)
 
 	h.RegisterAdminRoutes(r)
+}
+
+type PresignUploadRequest struct {
+	Filename      string `json:"filename"`
+	MimeType      string `json:"mime_type"`
+	FileSizeBytes int64  `json:"file_size_bytes"`
+}
+
+// PresignUpload returns a presigned S3/MinIO upload URL for direct browser uploads.
+func (h *Handler) PresignUpload(w http.ResponseWriter, r *http.Request) {
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	var req PresignUploadRequest
+	if err := httpx.DecodeJSON(w, r, &req); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	res, err := h.service.PresignUpload(r.Context(), userID, req.Filename, req.MimeType, req.FileSizeBytes)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, res)
 }
 
 // RegisterUpload registers a file uploaded to S3/MinIO.

@@ -3,61 +3,99 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
-	@layouts.VendorShell("Bulk Import Wizard", "ingest", lang, dir) {
-		<div class="card">
-			<h2 class="card-title">Upload Excel / CSV Catalog</h2>
-			<p style="color:var(--neutral-600); font-size:0.875rem; margin-bottom:1.5rem;">
-				Import thousands of pharmaceutical products with automatic Arabic name normalization and fuzzy candidate matching.
+	@layouts.VendorShell("استيراد ملفات الأرصدة | Bulk Import Wizard", "ingest", lang, dir) {
+		<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:2rem; margin-bottom:2rem;">
+			<h2 style="font-size:1.35rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;">
+				رفع وتحديث كتالوج الأدوية والأرصدة
+			</h2>
+			<p style="color:var(--neutral-600); font-size:0.9rem; margin-bottom:1.5rem;">
+				استيراد آلاف الأصناف والتشغيلات دفعة واحدة مع التطابق الذكي للأسماء العربية والإنجليزية والباركود الدولي.
 			</p>
 
-			<form hx-post="/api/v1/ingest/uploads" hx-target="#upload-response">
-				<div class="form-group">
-					<label class="form-label" for="catalog-file">Select Excel (.xlsx) or CSV (.csv) File</label>
-					<input type="file" id="catalog-file" name="file" accept=".xlsx,.csv" class="form-input"/>
+			<div x-data="ingestUploader()" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div style="border:2px dashed var(--primary-200); border-radius:var(--radius-lg); padding:2.5rem; text-align:center; background:var(--primary-50); cursor:pointer;" @click="$refs.fileInput.click()">
+					<input
+						type="file"
+						x-ref="fileInput"
+						accept=".csv,.xlsx,.xls"
+						style="display:none;"
+						@change="handleFileSelect($event)"
+					/>
+					<div style="font-size:2.5rem; margin-bottom:0.5rem;">📁</div>
+					<div style="font-weight:700; color:var(--primary-900); font-size:1.1rem;" x-text="fileName ? fileName : 'انقر لاختيار ملف Excel أو CSV أو اسحبه هنا'"></div>
+					<div style="font-size:0.825rem; color:var(--neutral-500); margin-top:0.35rem;" x-text="fileSize ? fileSize : 'الصيغ المدعومة: .xlsx, .csv (الحد الأقصى 200 ميجابايت)'"></div>
 				</div>
-				<button type="submit" class="btn btn-primary">
-					Start Import Wizard &rarr;
-				</button>
-			</form>
-			<div id="upload-response" style="margin-top:1rem;"></div>
+
+				<div x-show="uploading" style="display:none;">
+					<div style="display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.35rem; font-weight:600;">
+						<span x-text="uploadStatus"></span>
+						<span x-text="uploadProgress + '%'"></span>
+					</div>
+					<div style="width:100%; height:8px; background:var(--neutral-200); border-radius:4px; overflow:hidden;">
+						<div :style="'width: ' + uploadProgress + '%; height:100%; background:var(--primary-600); transition: width 0.2s;'"></div>
+					</div>
+				</div>
+
+				<div x-show="errorMessage" style="display:none; color:var(--danger-700); background:var(--danger-50); padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.875rem;" x-text="errorMessage"></div>
+				<div x-show="successMessage" style="display:none; color:var(--success-700); background:var(--success-50); padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.875rem;" x-text="successMessage"></div>
+
+				<div style="display:flex; justify-content:flex-end;">
+					<button
+						type="button"
+						class="btn btn-primary"
+						:disabled="!selectedFile || uploading"
+						@click="startUpload()"
+						style="padding:0.75rem 1.75rem;"
+					>
+						بدء عملية الاستيراد والمطابقة ←
+					</button>
+				</div>
+			</div>
 		</div>
 
-		<div class="card">
-			<h2 class="card-title">Recent Import Sessions</h2>
+		<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:2rem;">
+			<h2 style="font-size:1.35rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;">
+				سجل عمليات الاستيراد السابقة
+			</h2>
+
 			if len(sessions) == 0 {
-				<p style="color:var(--neutral-500); font-size:0.875rem;">No previous import sessions found.</p>
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد عمليات استيراد سابقة",
+					Message: "يمكنك رفع ملف الأرصدة والأسعار الخاص بشركتك للبدء في البيع فوراً.",
+				})
 			} else {
-				<div class="table-container">
-					<table class="data-table">
+				<div style="overflow-x:auto;">
+					<table style="width:100%; border-collapse:collapse; text-align:start; font-size:0.9rem;">
 						<thead>
-							<tr>
-								<th>Session ID</th>
-								<th>Status</th>
-								<th>Total Rows</th>
-								<th>Processed</th>
-								<th>Matched</th>
-								<th>Created At</th>
-								<th>Actions</th>
+							<tr style="background:var(--neutral-50); border-bottom:1px solid var(--neutral-200);">
+								<th style="padding:0.75rem 1rem;">معرف العملية</th>
+								<th style="padding:0.75rem 1rem;">الحالة</th>
+								<th style="padding:0.75rem 1rem;">إجمالي الصفوف</th>
+								<th style="padding:0.75rem 1rem;">تمت المعالجة</th>
+								<th style="padding:0.75rem 1rem;">المطابقة</th>
+								<th style="padding:0.75rem 1rem;">التاريخ</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, s := range sessions {
-								<tr>
-									<td>{ s.PublicID }</td>
-									<td><span class="badge badge-neutral">{ string(s.Status) }</span></td>
-									<td>{ fmt.Sprintf("%d", s.TotalRows) }</td>
-									<td>{ fmt.Sprintf("%d", s.ProcessedRows) }</td>
-									<td>{ fmt.Sprintf("%d", s.MatchedRows) }</td>
-									<td>{ s.CreatedAt.Format("2006-01-02 15:04") }</td>
-									<td>
-										<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", s.ID)) } class="btn btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem;">
-											Review Matches
-										</a>
+								<tr style="border-bottom:1px solid var(--neutral-100);">
+									<td style="padding:0.75rem 1rem; font-weight:700; color:var(--primary-700);" class="tabular-nums">
+										{ s.PublicID }
 									</td>
+									<td style="padding:0.75rem 1rem;">
+										<span style="font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px; background:var(--primary-50); color:var(--primary-700); font-weight:600;">
+											{ string(s.Status) }
+										</span>
+									</td>
+									<td style="padding:0.75rem 1rem;" class="tabular-nums">{ fmt.Sprintf("%d", s.TotalRows) }</td>
+									<td style="padding:0.75rem 1rem;" class="tabular-nums">{ fmt.Sprintf("%d", s.ProcessedRows) }</td>
+									<td style="padding:0.75rem 1rem; font-weight:700; color:var(--success-700);" class="tabular-nums">{ fmt.Sprintf("%d", s.MatchedRows) }</td>
+									<td style="padding:0.75rem 1rem; color:var(--neutral-500);" class="tabular-nums">{ s.CreatedAt.Format("2006-01-02 15:04") }</td>
 								</tr>
 							}
 						</tbody>
@@ -65,5 +103,98 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 				</div>
 			}
 		</div>
+
+		<script>
+			function ingestUploader() {
+				return {
+					selectedFile: null,
+					fileName: '',
+					fileSize: '',
+					uploading: false,
+					uploadProgress: 0,
+					uploadStatus: '',
+					errorMessage: '',
+					successMessage: '',
+
+					handleFileSelect(event) {
+						const file = event.target.files[0];
+						if (!file) return;
+						this.selectedFile = file;
+						this.fileName = file.name;
+						this.fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت';
+						this.errorMessage = '';
+						this.successMessage = '';
+					},
+
+					async startUpload() {
+						if (!this.selectedFile) return;
+						this.uploading = true;
+						this.uploadProgress = 10;
+						this.uploadStatus = 'طلب تصريح الرفع المباشر...';
+						this.errorMessage = '';
+
+						try {
+							// Step 1: Request presigned upload URL
+							const presignRes = await fetch('/api/v1/ingest/uploads/presign', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									filename: this.selectedFile.name,
+									mime_type: this.selectedFile.type || 'text/csv',
+									file_size_bytes: this.selectedFile.size
+								})
+							});
+
+							if (!presignRes.ok) {
+								throw new Error('فشل إنشاء رابط الرفع. يرجى التأكد من إعداد التخزين السحابي.');
+							}
+
+							const presignData = await presignRes.json();
+							this.uploadProgress = 30;
+							this.uploadStatus = 'جاري رفع الملف إلى التخزين الآمن...';
+
+							// Step 2: PUT file directly to S3/MinIO presigned URL
+							const uploadRes = await fetch(presignData.upload_url, {
+								method: 'PUT',
+								headers: { 'Content-Type': this.selectedFile.type || 'text/csv' },
+								body: this.selectedFile
+							});
+
+							if (!uploadRes.ok && uploadRes.status !== 200) {
+								throw new Error('فشل نقل الملف إلى وحدة التخزين.');
+							}
+
+							this.uploadProgress = 80;
+							this.uploadStatus = 'جاري تسجيل جلسة الاستيراد وتحليل الأعمدة...';
+
+							// Step 3: Start Ingest Session
+							const sessionRes = await fetch('/api/v1/ingest/sessions', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									file_upload_id: presignData.file_upload_id,
+									headers: ["product_name", "price", "quantity", "barcode"],
+									min_score: 0.7
+								})
+							});
+
+							if (!sessionRes.ok) {
+								throw new Error('تم الرفع ولكن تعذر بدء جلسة المعالجة.');
+							}
+
+							this.uploadProgress = 100;
+							this.uploadStatus = 'تم الرفع بنجاح!';
+							this.successMessage = 'تم استلام الملف وبدء عملية المطابقة بنجاح. سيتم تحديث السجل أدناه.';
+							setTimeout(() => window.location.reload(), 1500);
+
+						} catch (err) {
+							this.errorMessage = err.message;
+						} finally {
+							this.uploading = false;
+						}
+					}
+				};
+			}
+		</script>
 	}
 }

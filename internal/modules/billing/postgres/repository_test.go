@@ -267,4 +267,38 @@ func TestBillingRepository(t *testing.T) {
 			t.Errorf("expected false for entitlement without subscription, got %v (%s)", hasEnt, val)
 		}
 	})
+
+	t.Run("Payment_Methods_CRUD", func(t *testing.T) {
+		pm := &billing.UserPaymentMethod{
+			UserID:            testBillingUserID,
+			Provider:          "paymob",
+			AccountIdentifier: "**** 1234",
+			IsDefault:         true,
+		}
+		if err := repo.AddPaymentMethod(ctx, pm); err != nil {
+			t.Fatalf("AddPaymentMethod failed: %v", err)
+		}
+		if pm.ID == 0 {
+			t.Fatal("expected generated payment method ID")
+		}
+
+		pms, err := repo.ListPaymentMethods(ctx, testBillingUserID)
+		if err != nil {
+			t.Fatalf("ListPaymentMethods failed: %v", err)
+		}
+		if len(pms) == 0 {
+			t.Fatal("expected at least 1 payment method")
+		}
+
+		// Delete by wrong user should report not found
+		if err := repo.DeletePaymentMethod(ctx, 999999, pm.ID); err == nil {
+			t.Error("expected error deleting payment method owned by someone else")
+		}
+
+		// Delete by owner
+		if err := repo.DeletePaymentMethod(ctx, testBillingUserID, pm.ID); err != nil {
+			t.Fatalf("DeletePaymentMethod failed: %v", err)
+		}
+	})
 }
+

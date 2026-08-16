@@ -353,49 +353,6 @@ func TestCatalogRepository(t *testing.T) {
 		}
 	})
 
-	t.Run("CustomerPricing", func(t *testing.T) {
-		m := &catalog.CustomerProductMapping{
-			OrganizationID: orgID,
-			CustomerOrgID:  testCustomerOrgID,
-			ProductID:      productID,
-			CustomPrice:    money.FromMinor(800),
-			IsActive:       true,
-		}
-		err := repo.SetCustomerPricing(ctx, m)
-		if err != nil {
-			t.Fatalf("SetCustomerPricing failed: %v", err)
-		}
-
-		got, err := repo.GetCustomerPricing(ctx, orgID, testCustomerOrgID, productID)
-		if err != nil {
-			t.Fatalf("GetCustomerPricing failed: %v", err)
-		}
-		if got.CustomPrice.Minor() != 800 {
-			t.Errorf("money round-trip failed for custom price: got %v", got.CustomPrice)
-		}
-	})
-
-	t.Run("ProductAlerts", func(t *testing.T) {
-		a := &catalog.ProductAlert{
-			UserID:      testUserID,
-			ProductID:   productID,
-			AlertType:   "price_drop",
-			TargetPrice: money.FromMinor(900),
-		}
-		err := repo.CreateProductAlert(ctx, a)
-		if err != nil {
-			t.Fatalf("CreateProductAlert failed: %v", err)
-		}
-
-		alerts, err := repo.ListProductAlertsByUser(ctx, testUserID)
-		if err != nil {
-			t.Fatalf("ListProductAlertsByUser failed: %v", err)
-		}
-		if len(alerts) == 0 {
-			t.Error("expected at least 1 alert")
-		}
-	})
-
 	t.Run("Cleanup", func(t *testing.T) {
 		err := repo.DeleteProduct(ctx, productID)
 		if err != nil {

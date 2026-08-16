@@ -100,6 +100,19 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/admin/approvals", h.AdminApprovalsPage)
 	r.Get("/admin/users", h.AdminUsersPage)
 	r.Get("/admin/settings", h.AdminSettingsPage)
+
+	// Interactive Form & Action Handlers
+	r.Post("/auth/login", h.LoginSubmit)
+	r.Post("/auth/logout", h.LogoutSubmit)
+	r.Get("/auth/logout", h.LogoutSubmit)
+	r.Post("/auth/register", h.RegisterSubmit)
+	r.Post("/cart/add", h.AddToCartSubmit)
+	r.Post("/cart/remove", h.RemoveFromCartSubmit)
+	r.Post("/checkout", h.CheckoutSubmit)
+	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
+	r.Post("/vendor/products", h.VendorProductSaveSubmit)
+	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
+	r.Post("/admin/settings", h.AdminSettingsSubmit)
 }
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {

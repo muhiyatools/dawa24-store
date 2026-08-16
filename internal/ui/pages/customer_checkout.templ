@@ -22,76 +22,85 @@ templ CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, l
 					ActionLabel: "العودة للكتالوج",
 				})
 			} else {
-				<div style="display:grid; grid-template-columns:1fr 340px; gap:2rem;">
-					<div style="display:flex; flex-direction:column; gap:1.5rem;">
-						<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
-							<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
-								1. عنوان التوصيل
-							</h3>
-							if len(addresses) == 0 {
-								<p style="font-size:0.875rem; color:var(--neutral-600); margin-bottom:1rem;">
-									لا يوجد عنوان مسجل. يرجى إدخال عنوان الصيدلية أو العيادة:
-								</p>
-								<input type="text" name="address" placeholder="العنوان بالتفصيل..." class="form-input" style="width:100%; margin-bottom:0.75rem;" />
-							} else {
-								<div style="display:flex; flex-direction:column; gap:0.5rem;">
-									for _, addr := range addresses {
-										<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
-											<input type="radio" name="address_id" value={ fmt.Sprintf("%d", addr.ID) } checked?={ addr.IsDefault } />
-											<div>
-												<div style="font-weight:600; font-size:0.9rem;">{ addr.Recipient }</div>
-												<div style="font-size:0.8rem; color:var(--neutral-500);">{ addr.Address }</div>
-											</div>
-										</label>
-									}
-								</div>
-							}
-						</div>
+				<form action="/checkout" method="POST">
+					<div style="display:grid; grid-template-columns:1fr 340px; gap:2rem;">
+						<div style="display:flex; flex-direction:column; gap:1.5rem;">
+							<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
+								<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+									1. عنوان التوصيل
+								</h3>
+								if len(addresses) == 0 {
+									<p style="font-size:0.875rem; color:var(--neutral-600); margin-bottom:1rem;">
+										يرجى إدخال عنوان الصيدلية أو العيادة بالتفصيل:
+									</p>
+									<input type="text" name="address" placeholder="العنوان بالتفصيل..." class="form-input" style="width:100%; margin-bottom:0.75rem;" />
+								} else {
+									<div style="display:flex; flex-direction:column; gap:0.5rem;">
+										for _, addr := range addresses {
+											<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
+												<input type="radio" name="address_id" value={ fmt.Sprintf("%d", addr.ID) } checked?={ addr.IsDefault } />
+												<div>
+													<div style="font-weight:600; font-size:0.9rem;">{ addr.Recipient }</div>
+													<div style="font-size:0.8rem; color:var(--neutral-500);">{ addr.Address }</div>
+												</div>
+											</label>
+										}
+									</div>
+								}
+							</div>
 
-						<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
-							<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
-								2. طريقة الدفع
-							</h3>
-							<div style="display:flex; flex-direction:column; gap:0.5rem;">
-								<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
-									<input type="radio" name="payment_method" value="cash_on_delivery" checked />
-									<div>
-										<div style="font-weight:600; font-size:0.9rem;">الدفع عند الاستلام (نقداً)</div>
-										<div style="font-size:0.8rem; color:var(--neutral-500);">يتم التحصيل بمعرفة مندوب شركة التوزيع</div>
-									</div>
-								</label>
-								<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
-									<input type="radio" name="payment_method" value="bank_transfer" />
-									<div>
-										<div style="font-weight:600; font-size:0.9rem;">تحويل بنكي / شيك آجل</div>
-										<div style="font-size:0.8rem; color:var(--neutral-500);">طبقاً للائحة الائتمان المعتمدة للمؤسسة</div>
-									</div>
-								</label>
+							<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
+								<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+									2. طريقة الدفع
+								</h3>
+								<div style="display:flex; flex-direction:column; gap:0.5rem;">
+									<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
+										<input type="radio" name="payment_method" value="cod" checked />
+										<div>
+											<div style="font-weight:600; font-size:0.9rem;">الدفع عند الاستلام (نقداً)</div>
+											<div style="font-size:0.8rem; color:var(--neutral-500);">يتم التحصيل بمعرفة مندوب شركة التوزيع</div>
+										</div>
+									</label>
+									<label style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; border:1px solid var(--neutral-200); border-radius:var(--radius-md); cursor:pointer;">
+										<input type="radio" name="payment_method" value="bank_transfer" />
+										<div>
+											<div style="font-weight:600; font-size:0.9rem;">تحويل بنكي / شيك آجل</div>
+											<div style="font-size:0.8rem; color:var(--neutral-500);">طبقاً للائحة الائتمان المعتمدة للمؤسسة</div>
+										</div>
+									</label>
+								</div>
+							</div>
+
+							<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
+								<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+									3. ملاحظات إضافية للتوريد
+								</h3>
+								<textarea name="notes" rows="2" placeholder="أي تعليمات خاصة بمواعيد الاستلام أو مندوب التوزيع..." class="form-input" style="width:100%;"></textarea>
 							</div>
 						</div>
-					</div>
 
-					<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem; height:fit-content;">
-						<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
-							ملخص الطلب
-						</h3>
-						<div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.9rem; color:var(--neutral-600);">
-							<span>عدد الأصناف:</span>
-							<span class="tabular-nums" style="font-weight:600;">{ fmt.Sprintf("%d", len(cart.Items)) }</span>
+						<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem; height:fit-content;">
+							<h3 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem;">
+								ملخص الطلب
+							</h3>
+							<div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.9rem; color:var(--neutral-600);">
+								<span>عدد الأصناف:</span>
+								<span class="tabular-nums" style="font-weight:600;">{ fmt.Sprintf("%d", len(cart.Items)) }</span>
+							</div>
+							<div style="display:flex; justify-content:space-between; margin-bottom:1rem; font-size:0.9rem; color:var(--neutral-600);">
+								<span>مصاريف الشحن:</span>
+								<span style="font-weight:600; color:var(--success-700);">مجاناً للطلبيات المعتمدة</span>
+							</div>
+							<button
+								type="submit"
+								class="btn btn-primary"
+								style="width:100%; padding:0.85rem; font-size:1rem; font-weight:700; margin-top:1rem;"
+							>
+								تأكيد الطلب وإرساله للموردين
+							</button>
 						</div>
-						<div style="display:flex; justify-content:space-between; margin-bottom:1rem; font-size:0.9rem; color:var(--neutral-600);">
-							<span>مصاريف الشحن:</span>
-							<span style="font-weight:600; color:var(--success-700);">مجاناً للطلبيات المعتمدة</span>
-						</div>
-						<button
-							hx-post="/api/v1/commerce/checkout"
-							class="btn btn-primary"
-							style="width:100%; padding:0.85rem; font-size:1rem; font-weight:700; margin-top:1rem;"
-						>
-							تأكيد الطلب وإرساله للموردين
-						</button>
 					</div>
-				</div>
+				</form>
 			}
 		</div>
 	}

@@ -17,15 +17,10 @@ templ VendorProductEditor(product *catalog.Product, categories []*catalog.Catego
 				}
 			</h2>
 
-			<form
-				if isNew {
-					hx-post="/api/v1/catalog/products"
-				} else {
-					hx-put={ fmt.Sprintf("/api/v1/catalog/products/%d", product.ID) }
+			<form action="/vendor/products" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+				if !isNew && product != nil {
+					<input type="hidden" name="id" value={ fmt.Sprintf("%d", product.ID) } />
 				}
-				hx-swap="none"
-				style="display:flex; flex-direction:column; gap:1.25rem;"
-			>
 				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 					<div>
 						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">

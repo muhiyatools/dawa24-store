@@ -8,6 +8,10 @@ package layouts
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+)
+
 func CustomerShell(title string, lang string, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -41,7 +45,42 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"top-navbar\" style=\"border-block-end:1px solid var(--neutral-200); position:sticky; top:0; z-index:50;\"><div style=\"display:flex; align-items:center; gap:2rem;\"><a href=\"/\" style=\"font-weight:700; font-size:1.375rem; color:var(--primary-700); text-decoration:none;\">Dawa24 Store</a><nav style=\"display:flex; gap:1rem;\"><a href=\"/catalog\" class=\"nav-link\">Catalog</a> <a href=\"/offers\" class=\"nav-link\">Special Offers</a> <a href=\"/quotes\" class=\"nav-link\">B2B Quotes</a></nav></div><div style=\"display:flex; align-items:center; gap:1.25rem;\"><a href=\"/cart\" class=\"btn btn-secondary\" style=\"position:relative;\">🛒 Cart</a> <a href=\"/account/orders\" class=\"btn btn-secondary\">📦 My Orders</a> <a href=\"/auth/login\" class=\"btn btn-primary\">Sign In</a></div></header><main class=\"page-container\" style=\"flex:1;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"top-navbar\" style=\"border-block-end:1px solid var(--neutral-200); position:sticky; top:0; z-index:50; background:#fff; padding:0.75rem 2rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);\"><div style=\"display:flex; align-items:center; gap:2rem;\"><a href=\"/\" style=\"font-weight:800; font-size:1.4rem; color:var(--primary-700); text-decoration:none; display:flex; align-items:center; gap:0.5rem;\"><span>💊 دواء 24</span></a><nav style=\"display:flex; gap:1.25rem; font-size:0.95rem;\"><a href=\"/catalog\" class=\"nav-link\" style=\"color:var(--neutral-700); text-decoration:none; font-weight:600;\">الأدوية والمستلزمات</a> <a href=\"/vendor/offers\" class=\"nav-link\" style=\"color:var(--neutral-700); text-decoration:none; font-weight:600;\">العروض الخاصة</a></nav></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><a href=\"/cart\" class=\"btn btn-secondary\" style=\"display:flex; align-items:center; gap:0.4rem; padding:0.5rem 0.85rem;\">🛒 <span>السلة</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if actor, ok := authctx.From(ctx); ok {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"/orders\" class=\"btn btn-secondary\" style=\"display:flex; align-items:center; gap:0.4rem; padding:0.5rem 0.85rem;\">📦 <span>طلبياتي</span></a> <a href=\"/notifications\" class=\"btn btn-secondary\" style=\"display:flex; align-items:center; gap:0.4rem; padding:0.5rem 0.85rem;\">🔔 <span>الإشعارات</span></a> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if actor.Role == "admin" || actor.Role == "super_admin" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/admin/dashboard\" class=\"btn btn-secondary\" style=\"color:var(--primary-700); font-weight:600; padding:0.5rem 0.85rem;\">🛡️ لوحة الإدارة</a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<a href=\"/vendor/products\" class=\"btn btn-secondary\" style=\"color:var(--primary-700); font-weight:600; padding:0.5rem 0.85rem;\">🏢 بوابة المورد</a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " <form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary\" style=\"color:var(--danger-700); border-color:var(--danger-200); padding:0.5rem 0.85rem;\">خروج</button></form>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"padding:0.5rem 1rem;\">تسجيل الدخول</a> <a href=\"/onboarding\" class=\"btn btn-primary\" style=\"padding:0.5rem 1rem;\">انضم كشريك</a>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></header><main class=\"page-container\" style=\"flex:1; min-height:calc(100vh - 140px); padding:2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -49,7 +88,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main><footer style=\"background-color:#ffffff; border-block-start:1px solid var(--neutral-200); padding:2rem 1.5rem; text-align:center; color:var(--neutral-500); font-size:0.875rem;\"><p>© 2026 Dawa24 B2B Pharmaceutical Marketplace. All rights reserved.</p></footer>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</main><footer style=\"background-color:#ffffff; border-block-start:1px solid var(--neutral-200); padding:2rem 1.5rem; text-align:center; color:var(--neutral-500); font-size:0.875rem;\"><p>© 2026 دواء 24 — سوق الأدوية والمستلزمات الصيدلانية الموحد. جميع الحقوق محفوظة.</p></footer>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

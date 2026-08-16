@@ -2,43 +2,55 @@ package layouts
 
 templ VendorShell(title string, activeNav string, lang string, dir string) {
 	@Base(title, lang, dir) {
-		<div class="app-shell">
-			<aside class="sidebar">
-				<div class="sidebar-header">
-					<span>Dawa24 Vendor</span>
+		<div class="app-shell" style="display:flex; min-height:100vh;">
+			<aside class="sidebar" style="width:260px; background:var(--neutral-900); color:#fff; display:flex; flex-direction:column; padding:1.5rem 1rem; border-inline-end:1px solid var(--neutral-800);">
+				<div class="sidebar-header" style="margin-bottom:2rem; padding-inline:0.5rem;">
+					<a href="/vendor/products" style="text-decoration:none; color:#fff; font-weight:800; font-size:1.25rem; display:flex; align-items:center; gap:0.5rem;">
+						<span>🏢 بوابة الموردين</span>
+					</a>
 				</div>
-				<nav class="sidebar-nav">
-					<a href="/vendor/dashboard" class={ "nav-link", templ.KV("active", activeNav == "dashboard") }>
-						<span>📈 Dashboard</span>
+				<nav class="sidebar-nav" style="display:flex; flex-direction:column; gap:0.35rem; flex:1;">
+					<a href="/vendor/products" class={ "nav-link", templ.KV("active", activeNav == "products") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>💊 قائمة المنتجات</span>
 					</a>
-					<a href="/vendor/ingest" class={ "nav-link", templ.KV("active", activeNav == "ingest") }>
-						<span>📥 Bulk Import Wizard</span>
+					<a href="/vendor/products/new" class={ "nav-link", templ.KV("active", activeNav == "new_product") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>➕ إضافة صنف جديد</span>
 					</a>
-					<a href="/vendor/inventory" class={ "nav-link", templ.KV("active", activeNav == "inventory") }>
-						<span>📦 Inventory & Stock</span>
+					<a href="/vendor/inventory" class={ "nav-link", templ.KV("active", activeNav == "inventory") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>📦 الأرصدة والمخازن</span>
 					</a>
-					<a href="/vendor/shipments" class={ "nav-link", templ.KV("active", activeNav == "shipments") }>
-						<span>🚚 Orders & Shipments</span>
+					<a href="/vendor/transfers" class={ "nav-link", templ.KV("active", activeNav == "transfers") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>🔄 التحويلات المخزنية</span>
 					</a>
-					<a href="/vendor/invoices" class={ "nav-link", templ.KV("active", activeNav == "invoices") }>
-						<span>🧾 Invoices & Payouts</span>
+					<a href="/vendor/ingest" class={ "nav-link", templ.KV("active", activeNav == "ingest") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>📥 استيراد ملفات الأرصدة</span>
 					</a>
-					<a href="/vendor/profile" class={ "nav-link", templ.KV("active", activeNav == "profile") }>
-						<span>🏢 Company Profile</span>
+					<a href="/vendor/orders" class={ "nav-link", templ.KV("active", activeNav == "orders") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>🚚 الشحنات والتوريد</span>
+					</a>
+					<a href="/vendor/offers" class={ "nav-link", templ.KV("active", activeNav == "offers") } style="color:var(--neutral-300); text-decoration:none; padding:0.6rem 0.8rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.6rem; font-weight:500;">
+						<span>📢 العروض والإعلانات</span>
 					</a>
 				</nav>
+				<div style="border-top:1px solid var(--neutral-800); padding-top:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+					<a href="/catalog" style="color:var(--neutral-400); text-decoration:none; font-size:0.85rem; padding:0.4rem 0.8rem;">
+						← العودة للسوق
+					</a>
+				</div>
 			</aside>
-			<main class="main-content">
-				<header class="top-navbar">
+			<main class="main-content" style="flex:1; display:flex; flex-direction:column; background:var(--neutral-50);">
+				<header class="top-navbar" style="background:#fff; border-bottom:1px solid var(--neutral-200); padding:0.875rem 2rem; display:flex; justify-content:space-between; align-items:center;">
 					<div>
-						<h1 style="font-size:1.25rem; font-weight:600;">{ title }</h1>
+						<h1 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--neutral-900);">{ title }</h1>
 					</div>
 					<div style="display:flex; align-items:center; gap:1rem;">
-						<span style="font-size:0.875rem; color:var(--neutral-600);">Vendor Portal</span>
-						<button hx-post="/api/v1/auth/logout" class="btn btn-secondary">Logout</button>
+						<span style="font-size:0.875rem; color:var(--neutral-500);">بوابة الموردين المعتمدة</span>
+						<form action="/auth/logout" method="POST" style="margin:0; display:inline;">
+							<button type="submit" class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 0.75rem;">خروج</button>
+						</form>
 					</div>
 				</header>
-				<div class="page-container">
+				<div class="page-container" style="flex:1; padding:2rem;">
 					{ children... }
 				</div>
 			</main>
