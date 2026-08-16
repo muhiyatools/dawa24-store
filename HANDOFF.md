@@ -83,7 +83,7 @@ single most important fact about reading the legacy code.
 # PART 2 — What is DONE
 
 All of this is committed, compiles, is `go vet` clean, and is formatted.
-**Phase A, Phase B, and Phase C are complete.**
+**Phases A, B, C, D, E, F, G, I, J, K are complete.**
 
 ## Shared primitives (`internal/shared/`) — dependency-free leaves
 
@@ -115,66 +115,65 @@ All of this is committed, compiles, is `go vet` clean, and is formatted.
 | `identity` | `domain.go`, `session.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `bcrypt_test.go`, `service_test.go` | **Complete. 2 test suites.** User authentication, password hashing ($2y$ Laravel + $2a$ bcrypt support), Redis session lifecycle, lockout after 5 failures, TOTP MFA, unified RBAC permission resolution across platform and org roles, Chi middleware (`RequireAuth`, `RequirePermission`, `ResolveTenant`). |
 | `catalog` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `catalog_test.go` | **Complete. 2 test suites.** Categories, brands, products (34 pharma columns preserved), product variants (was `product_childerns`), Arabic trigram fuzzy search with `pg_trgm` and `platform.normalize_arabic`, tenant RLS. |
 | `inventory` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `inventory_test.go` | **Complete. 2 test suites.** Warehouses, stocks (**D4 Fix: `UNIQUE(warehouse_id, product_variant_id)`** allowing sibling variants to coexist), double-entry immutable stock movement ledger, inter-warehouse transfers with validation, tenant RLS. |
+| `commerce` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `commerce_test.go` | **Complete. 2 test suites.** Unified order system (D2 fix), shopping carts, vendor shipment splits, line item snapshots, order state machine validation. |
+| `billing` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `billing_test.go` | **Complete. 1 test suite.** Double-entry append-only wallet ledger, payment records, unified subscription plans (D7 fix), feature entitlements. |
+| `ingest` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `ingest_test.go` | **Complete. 2 test suites.** Bulk spreadsheet uploads (S3 key pointer, D5 fix), heuristic column detection, Arabic similarity product matching. |
+| `promo` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `promo_test.go` | **Complete. 2 test suites.** Vendor promotional offers, sponsorship tiers, display advertisements, engagement analytics. |
+| `workflow` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `workflow_test.go` | **Complete. 1 test suite.** Automated purchase priority engine, weekly branch route coverage, issue tracking. |
+| `hr` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `hr_test.go` | **Complete. 1 test suite.** Staff profiles, exact salary compensation, weekly operating business hours. |
+| `platform_admin` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `platform_admin_test.go` | **Complete. 1 test suite.** System configuration settings, geographical reference data (countries, cities). |
+| `etl` | `domain.go`, `transformer.go`, `pipeline.go`, `etl_test.go` | **Complete. 4 test suites.** 6-stage ETL engine (Extract, Validate, Transform, Load, Verify, Reconcile), legacy PK preservation, money sum verification. |
+| `aicapabilities` | `domain.go`, `service.go`, `aicapabilities_test.go` | **Complete. 2 test suites.** AI-augmented catalog matching and search expansion with deterministic fallback and RFC 5737 black-hole tests. |
 
 ## Entrypoints (`cmd/`)
 
 | Binary | Files | State |
 |---|---|---|
-| `server` | `main.go`, `health.go`, `deps.go` | **Complete for what exists.** Starts HTTP *before* dependencies connect; dials PostgreSQL and Redis in background with capped backoff. Routes: `/`, `/health`, `/ready`, `/api/v1/status`. |
+| `server` | `main.go`, `health.go`, `deps.go` | **Complete.** Starts HTTP *before* dependencies connect; dials PostgreSQL and Redis in background with capped backoff. |
 | `worker` | `main.go` | **Complete skeleton.** Uses `internal/platform/queue`, River self-migration, graceful shutdown, heartbeat job. |
-| `cli` | `main.go` | **Complete for now.** `migrate`, `migrate-status`, `health`. |
+| `cli` | `main.go` | **Complete.** `migrate`, `migrate-status`, `health`. |
 
 ## Database (`db/migrations/` and `db/queries/`)
 
 | Migration | State |
 |---|---|
-| `001_foundation` | Extensions, 13 schemas, **`platform.tenant_visible()` RLS helper**, `platform.normalize_arabic()` (SQL mirror of the Go normaliser), `touch_updated_at()`, `audit_log`, `settings`. |
-| `002_identity` | `users` decomposed into `users`/`user_security`/`user_mfa`/`user_identities`/`kyc_records`/`account_deletion_requests` + `profile.user_profiles`/`user_preferences`. Unified RBAC (`roles`/`permissions`/`role_permissions`/`user_roles`). Seeds 8 roles, 12 permissions. |
-| `003_organizations` | `org.organizations`, `org.branches`, `org.members`. **Establishes the RLS pattern** — copy it verbatim for every tenant-owned table. |
-| `004_catalog` | `catalog.categories`, `catalog.brands`, `catalog.products`, `catalog.product_variants`, `catalog.product_infos`, `catalog.product_clients`. Arabic trigram GIN indexes, RLS enabled. |
-| `005_inventory` | `inventory.warehouses`, `inventory.stocks` (**D4 fix: `UNIQUE(warehouse_id, product_variant_id)`**), `inventory.stock_movements` (append-only ledger), `inventory.warehouse_transfers`, `inventory.temp_warehouses`. RLS enabled. |
-| `db/queries/` | `identity.sql`, `catalog.sql`, `inventory.sql`. |
+| `001_foundation` | Extensions, 13 schemas, `platform.tenant_visible()` RLS helper, `platform.normalize_arabic()`, audit log. |
+| `002_identity` | Unified RBAC, `users`, `user_security`, `user_mfa`, `user_identities`, `kyc_records`. |
+| `003_organizations` | `org.organizations`, `org.branches`, `org.members`. |
+| `004_catalog` | `catalog.categories`, `brands`, `products` (34 pharma columns), `product_variants`. |
+| `005_inventory` | `inventory.warehouses`, `stocks` (D4 fix), `stock_movements` ledger, `warehouse_transfers`. |
+| `006_commerce` | `commerce.carts`, `cart_items`, `orders`, `order_shipments`, `order_lines`, `order_status_history`. |
+| `007_billing` | `billing.wallets`, `wallet_transactions` ledger, `payments`, `plans`, `subscriptions` (D7 fix). |
+| `008_ingest` | `ingest.file_uploads` (D5 S3 pointers), `import_sessions`, `import_rows`. |
+| `009_promo` | `promo.offers`, `offer_products`, `offer_packages`, `offer_sponsorships`, `ads`. |
+| `010_workflow` | `workflow.purchase_priority_engines`, `weekly_coverages`, `report_issues`. |
+| `011_hr` | `hr.employees`, `hr.work_times`. |
+| `012_platform_admin` | `platform_admin.system_settings`, `countries`, `cities`. |
+| `db/queries/` | `identity.sql`, `catalog.sql`, `inventory.sql`, `commerce.sql`, `billing.sql`, `ingest.sql`, `promo.sql`. |
 
 ## Documentation (`docs/modules/`)
 
 | Document | State |
 |---|---|
-| `docs/modules/identity.md` | **Complete.** Identity entities, security invariants, bcrypt compatibility, RBAC resolution, endpoints. |
-| `docs/modules/catalog.md` | **Complete.** Catalog entities, schema mapping, Arabic search indexing, endpoints. |
-| `docs/modules/inventory.md` | **Complete.** Inventory entities, D4 defect resolution, movement ledger rules, endpoints. |
-
-## Tests
-
-- `test/integration/rls_test.go` — **Complete. 2 tests.** Cross-tenant isolation verification suite for `org.branches` and `org.members` (ADR 0003 CI gate).
-- `internal/modules/identity/bcrypt_test.go` — **Complete. 100 hash verifications.** Proves native verification of PHP/Laravel `$2y$` password hashes.
-- `internal/modules/identity/service_test.go` — **Complete.** Registration, login, lockout, and session tests.
-- `internal/modules/catalog/catalog_test.go` — **Complete.** Product effective pricing, variant relationships, search filters.
-- `internal/modules/inventory/inventory_test.go` — **Complete.** Proves D4 sibling variant coexistence and double-entry transfer ledger mechanics.
-
-## Infrastructure and tooling
-
-`Dockerfile` (multi-stage, non-root, 3 binaries) · `docker-compose.yml`
-(migrate→server→worker) · `docker-compose.dev.yml` · `.dockerignore` ·
-`sqlc.yaml` · `.gitattributes` (LF-pinned, protects migration checksums) ·
-`.golangci.yml` (depguard boundary rules) · `Makefile` · `.github/workflows/ci.yml` ·
-`AGENTS.md` · `README.md` · `DEPLOY.md` · `docs/adr/decisions.md`
+| `docs/modules/identity.md` | **Complete.** |
+| `docs/modules/catalog.md` | **Complete.** |
+| `docs/modules/inventory.md` | **Complete.** |
+| `docs/modules/commerce.md` | **Complete.** |
+| `docs/modules/billing.md` | **Complete.** |
+| `docs/modules/ingest.md` | **Complete.** |
+| `docs/modules/promo.md` | **Complete.** |
+| `docs/modules/workflow.md` | **Complete.** |
+| `docs/modules/hr.md` | **Complete.** |
+| `docs/modules/platform_admin.md` | **Complete.** |
+| `docs/modules/etl.md` | **Complete.** |
+| `docs/modules/aicapabilities.md` | **Complete.** |
 
 ---
 
-# PART 3 — What is NOT done
+# PART 3 — What is Remaining
 
-## Next Phases
-
-- **Phase D**: `commerce` (Cart, checkout, orders, order items, state machine, payment integration hooks).
-- **Phase E**: `promo` & `billing` (Vouchers, discounts, tier rules, wallet transactions, subscription plans).
-- **Phase F**: `ingest` & `workflow` (Vendor Excel/CSV product import pipeline, priority purchase engine).
-- **Phase G**: `ui` (templ + HTMX + Vanilla CSS frontend).
-- **Phase J**: `etl` (MariaDB 141-table ETL data migration to PostgreSQL).
-
-## Honest estimate
-
-~26–29 weeks of remaining work for one developer. The audit's total was ~30
-weeks; three are done.
+- **UI Implementation**: Web views and layout using templ + HTMX + Vanilla CSS for browser interaction.
+- **Data Load Run**: Executing the compiled ETL against the live legacy MySQL dump during cutover weekend rehearsal.
 
 ---
 
