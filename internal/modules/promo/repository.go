@@ -17,4 +17,8 @@ type Repository interface {
 	CreateSponsorship(ctx context.Context, s *OfferSponsorship) error
 	ListActiveAds(ctx context.Context, position string) ([]*Ad, error)
 	RecordAdClick(ctx context.Context, adID int64, userID *int64, ip, ua string) error
+
+	CreateHighlightSection(ctx context.Context, h *HighlightSection) error
+	ListHighlightSections(ctx context.Context) ([]*HighlightSection, error)
+	ExpirePromotions(ctx context.Context) (int64, error)
 }

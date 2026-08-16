@@ -110,7 +110,78 @@ func (s *Service) ListCategories(ctx context.Context) ([]*Category, error) {
 	return s.repo.ListCategories(ctx)
 }
 
+// CreateCategory adds a category.
+func (s *Service) CreateCategory(ctx context.Context, c *Category) (*Category, error) {
+	if c.Name.IsEmpty() {
+		return nil, apperr.Validation("category.name_required", "Category name is required.", nil)
+	}
+	if err := s.repo.CreateCategory(ctx, c); err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+// GetCategory retrieves a category.
+func (s *Service) GetCategory(ctx context.Context, id int64) (*Category, error) {
+	return s.repo.GetCategoryByID(ctx, id)
+}
+
+// UpdateCategory modifies category data.
+func (s *Service) UpdateCategory(ctx context.Context, c *Category) error {
+	return s.repo.UpdateCategory(ctx, c)
+}
+
 // ListBrands returns all brands.
 func (s *Service) ListBrands(ctx context.Context) ([]*Brand, error) {
 	return s.repo.ListBrands(ctx)
+}
+
+// CreateBrand adds a brand.
+func (s *Service) CreateBrand(ctx context.Context, b *Brand) (*Brand, error) {
+	if b.Name.IsEmpty() {
+		return nil, apperr.Validation("brand.name_required", "Brand name is required.", nil)
+	}
+	if err := s.repo.CreateBrand(ctx, b); err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+// GetBrand retrieves a brand.
+func (s *Service) GetBrand(ctx context.Context, id int64) (*Brand, error) {
+	return s.repo.GetBrandByID(ctx, id)
+}
+
+// UpdateBrand modifies brand data.
+func (s *Service) UpdateBrand(ctx context.Context, b *Brand) error {
+	return s.repo.UpdateBrand(ctx, b)
+}
+
+// SetCustomerPricing stores customer-specific custom price or discount terms.
+func (s *Service) SetCustomerPricing(ctx context.Context, m *CustomerProductMapping) error {
+	if m.OrganizationID <= 0 || m.CustomerOrgID <= 0 || m.ProductID <= 0 {
+		return apperr.Validation("mapping.invalid", "Organization, customer, and product IDs are required.", nil)
+	}
+	return s.repo.SetCustomerPricing(ctx, m)
+}
+
+// GetCustomerPricing looks up custom pricing for a customer.
+func (s *Service) GetCustomerPricing(ctx context.Context, vendorOrgID, customerOrgID, productID int64) (*CustomerProductMapping, error) {
+	return s.repo.GetCustomerPricing(ctx, vendorOrgID, customerOrgID, productID)
+}
+
+// CreateProductAlert registers a price/stock alert.
+func (s *Service) CreateProductAlert(ctx context.Context, a *ProductAlert) (*ProductAlert, error) {
+	if a.UserID <= 0 || a.ProductID <= 0 || a.AlertType == "" {
+		return nil, apperr.Validation("alert.invalid", "User ID, product ID, and alert type are required.", nil)
+	}
+	if err := s.repo.CreateProductAlert(ctx, a); err != nil {
+		return nil, err
+	}
+	return a, nil
+}
+
+// ListProductAlerts returns active alerts for a user.
+func (s *Service) ListProductAlerts(ctx context.Context, userID int64) ([]*ProductAlert, error) {
+	return s.repo.ListProductAlertsByUser(ctx, userID)
 }

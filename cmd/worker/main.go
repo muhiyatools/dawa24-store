@@ -10,12 +10,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/riverqueue/river"
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
+	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 )
 
 func main() {
@@ -106,8 +108,22 @@ type orderNotificationWorker struct {
 }
 
 func (w *orderNotificationWorker) Work(ctx context.Context, job *river.Job[queue.OrderNotificationArgs]) error {
-	w.log.InfoContext(ctx, "processing order notification job",
-		"order_id", job.Args.OrderID, "customer_id", job.Args.CustomerID, "status", job.Args.ToStatus)
+	title := fmt.Sprintf("تحديث حالة الطلب #%d", job.Args.OrderID)
+	body := fmt.Sprintf("تم تحديث حالة طلبك إلى: %s", job.Args.ToStatus)
+
+	err := w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO notifications.logs (user_id, channel, event_type, recipient, title, body, status, sent_at)
+			VALUES ($1, 'in_app', 'order_status', $2, $3, $4, 'delivered', now());
+		`
+		_, err := tx.Exec(txCtx, query, job.Args.CustomerID, fmt.Sprintf("user_%d", job.Args.CustomerID), title, body)
+		return err
+	})
+	if err != nil {
+		w.log.ErrorContext(ctx, "failed to record order notification", "order_id", job.Args.OrderID, "error", err)
+		return err
+	}
+	w.log.InfoContext(ctx, "order notification recorded", "order_id", job.Args.OrderID, "customer_id", job.Args.CustomerID)
 	return nil
 }
 
@@ -119,9 +135,92 @@ type ingestBatchWorker struct {
 }
 
 func (w *ingestBatchWorker) Work(ctx context.Context, job *river.Job[queue.IngestBatchArgs]) error {
-	w.log.InfoContext(ctx, "processing ingest batch job",
-		"session_id", job.Args.SessionID, "offset", job.Args.Offset, "batch_size", job.Args.BatchSize)
-	return nil
+	return w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		queryRows := `
+			SELECT id, normalized_name FROM ingest.import_rows
+			WHERE session_id = $1 AND status = 'pending'
+			ORDER BY row_number ASC
+			LIMIT $2 OFFSET $3;
+		`
+		rows, err := tx.Query(txCtx, queryRows, job.Args.SessionID, job.Args.BatchSize, job.Args.Offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		type staged struct {
+			id   int64
+			name string
+		}
+		var batch []staged
+		for rows.Next() {
+			var s staged
+			if err := rows.Scan(&s.id, &s.name); err != nil {
+				return err
+			}
+			batch = append(batch, s)
+		}
+		if len(batch) == 0 {
+			return nil
+		}
+
+		catRows, err := tx.Query(txCtx, `SELECT id, name->>'ar' FROM catalog.products WHERE deleted_at IS NULL LIMIT 500;`)
+		if err != nil {
+			return err
+		}
+		defer catRows.Close()
+
+		type candidate struct {
+			id   int64
+			name string
+		}
+		var candidates []candidate
+		for catRows.Next() {
+			var c candidate
+			var name *string
+			if err := catRows.Scan(&c.id, &name); err != nil {
+				return err
+			}
+			if name != nil {
+				c.name = *name
+				candidates = append(candidates, c)
+			}
+		}
+
+		for _, item := range batch {
+			var bestID *int64
+			var bestScore float64
+			for _, cand := range candidates {
+				score := arabic.Similarity(item.name, arabic.Normalize(cand.name))
+				if score > bestScore {
+					bestScore = score
+					cID := cand.id
+					bestID = &cID
+				}
+			}
+
+			status := "unmatched"
+			if bestScore >= 0.85 {
+				status = "matched"
+			}
+
+			_, err = tx.Exec(txCtx, `
+				UPDATE ingest.import_rows
+				SET matched_product_id = $1, match_confidence = $2, status = $3, updated_at = now()
+				WHERE id = $4;
+			`, bestID, bestScore, status, item.id)
+			if err != nil {
+				return err
+			}
+		}
+
+		_, err = tx.Exec(txCtx, `
+			UPDATE ingest.import_sessions
+			SET processed_rows = processed_rows + $1, updated_at = now()
+			WHERE id = $2;
+		`, len(batch), job.Args.SessionID)
+		return err
+	})
 }
 
 // expirePromotionsWorker marks expired promotional offers and sponsorships.
@@ -132,6 +231,16 @@ type expirePromotionsWorker struct {
 }
 
 func (w *expirePromotionsWorker) Work(ctx context.Context, job *river.Job[queue.ExpirePromotionsArgs]) error {
-	w.log.InfoContext(ctx, "processing promo expiration job", "at", job.Args.At)
-	return nil
+	return w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		_, err1 := tx.Exec(txCtx, `UPDATE promo.offers SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`)
+		_, err2 := tx.Exec(txCtx, `UPDATE promo.offer_sponsorships SET status = 'expired' WHERE status = 'active' AND expires_at < now();`)
+		_, err3 := tx.Exec(txCtx, `UPDATE promo.ads SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`)
+		if err1 != nil {
+			return err1
+		}
+		if err2 != nil {
+			return err2
+		}
+		return err3
+	})
 }

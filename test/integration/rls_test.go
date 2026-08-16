@@ -29,6 +29,9 @@ func getTestDB(t *testing.T) *database.DB {
 		dbURL = os.Getenv("TEST_DATABASE_URL")
 	}
 	if dbURL == "" {
+		if os.Getenv("CI") == "true" {
+			t.Fatal("DATABASE_URL or TEST_DATABASE_URL must be set in CI")
+		}
 		t.Skip("DATABASE_URL not set; skipping integration test")
 	}
 
@@ -46,6 +49,9 @@ func getTestDB(t *testing.T) *database.DB {
 
 	db, err := database.Open(ctx, cfg)
 	if err != nil {
+		if os.Getenv("CI") == "true" {
+			t.Fatalf("CI failed to connect to database at %s: %v", dbURL, err)
+		}
 		t.Skipf("cannot connect to database at %s: %v; skipping", dbURL, err)
 		return nil
 	}

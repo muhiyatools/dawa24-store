@@ -111,6 +111,20 @@ func (m *mockPromoRepo) RecordAdClick(_ context.Context, adID int64, userID *int
 	return nil
 }
 
+func (m *mockPromoRepo) CreateHighlightSection(_ context.Context, h *promo.HighlightSection) error {
+	h.ID = m.nextID
+	m.nextID++
+	return nil
+}
+
+func (m *mockPromoRepo) ListHighlightSections(_ context.Context) ([]*promo.HighlightSection, error) {
+	return []*promo.HighlightSection{}, nil
+}
+
+func (m *mockPromoRepo) ExpirePromotions(_ context.Context) (int64, error) {
+	return 0, nil
+}
+
 func TestOfferDiscounts(t *testing.T) {
 	now := time.Now()
 

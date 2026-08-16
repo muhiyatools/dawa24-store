@@ -245,3 +245,61 @@ func (r *Repository) RecordAdClick(ctx context.Context, adID int64, userID *int6
 		return err
 	})
 }
+
+// CreateHighlightSection creates a homepage curated section.
+func (r *Repository) CreateHighlightSection(ctx context.Context, h *promo.HighlightSection) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO promo.highlight_sections (title, slug, display_order, is_active)
+			VALUES ($1, $2, $3, $4)
+			RETURNING id, public_id, created_at;
+		`
+		return tx.QueryRow(txCtx, query, h.Title, h.Slug, h.DisplayOrder, h.IsActive).
+			Scan(&h.ID, &h.PublicID, &h.CreatedAt)
+	})
+}
+
+// ListHighlightSections returns all active highlight sections.
+func (r *Repository) ListHighlightSections(ctx context.Context) ([]*promo.HighlightSection, error) {
+	var list []*promo.HighlightSection
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT id, public_id, title, slug, display_order, is_active, created_at FROM promo.highlight_sections WHERE is_active = true ORDER BY display_order ASC;`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var h promo.HighlightSection
+			if err := rows.Scan(&h.ID, &h.PublicID, &h.Title, &h.Slug, &h.DisplayOrder, &h.IsActive, &h.CreatedAt); err != nil {
+				return err
+			}
+			list = append(list, &h)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// ExpirePromotions marks expired offers and sponsorships as inactive.
+func (r *Repository) ExpirePromotions(ctx context.Context) (int64, error) {
+	var totalExpired int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		tagOffers, err := tx.Exec(txCtx, `UPDATE promo.offers SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`)
+		if err != nil {
+			return err
+		}
+		tagSponsors, err := tx.Exec(txCtx, `UPDATE promo.offer_sponsorships SET status = 'expired' WHERE status = 'active' AND expires_at < now();`)
+		if err != nil {
+			return err
+		}
+		tagAds, err := tx.Exec(txCtx, `UPDATE promo.ads SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`)
+		if err != nil {
+			return err
+		}
+		totalExpired = tagOffers.RowsAffected() + tagSponsors.RowsAffected() + tagAds.RowsAffected()
+		return nil
+	})
+	return totalExpired, err
+}

@@ -31,9 +31,18 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/commerce/orders/{id}/status", h.TransitionStatus)
 	r.Get("/api/v1/commerce/vendor/shipments", h.ListVendorShipments)
 
+	r.Get("/api/v1/commerce/cart", h.GetCart)
+	r.Post("/api/v1/commerce/cart/items", h.AddCartItem)
+	r.Delete("/api/v1/commerce/cart/items/{variantId}", h.RemoveCartItem)
+	r.Delete("/api/v1/commerce/cart", h.ClearCart)
+
 	r.Get("/api/v1/commerce/wishlist", h.GetWishlist)
 	r.Post("/api/v1/commerce/wishlist", h.AddToWishlist)
 	r.Delete("/api/v1/commerce/wishlist/{productId}", h.RemoveFromWishlist)
+
+	r.Post("/api/v1/commerce/quotes", h.CreateQuoteRequest)
+	r.Post("/api/v1/commerce/quotes/{id}/respond", h.RespondQuote)
+	r.Get("/api/v1/commerce/quotes", h.ListQuotes)
 }
 
 // Checkout handles order placement.

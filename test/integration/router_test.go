@@ -22,6 +22,7 @@ import (
 	ingestHttp "github.com/muhiya/dawa24-store/internal/modules/ingest/http"
 	inventoryHttp "github.com/muhiya/dawa24-store/internal/modules/inventory/http"
 	notificationsHttp "github.com/muhiya/dawa24-store/internal/modules/notifications/http"
+	orgHttp "github.com/muhiya/dawa24-store/internal/modules/org/http"
 	platformadminHttp "github.com/muhiya/dawa24-store/internal/modules/platform_admin/http"
 	promoHttp "github.com/muhiya/dawa24-store/internal/modules/promo/http"
 	workflowHttp "github.com/muhiya/dawa24-store/internal/modules/workflow/http"
@@ -34,6 +35,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
@@ -65,6 +67,7 @@ func buildTestRouter(log *slog.Logger) http.Handler {
 	hrHttp.NewHandler(hr.NewService(nil, log), log).RegisterRoutes(r)
 	platformadminHttp.NewHandler(platformadmin.NewService(nil, log), log).RegisterRoutes(r)
 	notificationsHttp.NewHandler(notifications.NewService(nil, log), log).RegisterRoutes(r)
+	orgHttp.NewHandler(org.NewService(nil, log), log).RegisterRoutes(r)
 
 	return r
 }
@@ -93,6 +96,7 @@ func TestRouterEndpointsMounting(t *testing.T) {
 		{"GET", "/api/v1/platform/settings/public"},
 		{"GET", "/api/v1/platform/countries"},
 		{"GET", "/api/v1/notifications/unread-count"},
+		{"GET", "/api/v1/org/organizations"},
 	}
 
 	for _, ep := range endpoints {

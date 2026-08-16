@@ -83,7 +83,7 @@ single most important fact about reading the legacy code.
 # PART 2 — What is DONE
 
 All of this is committed, compiles, is `go vet` clean, and is formatted.
-**Phases A, B, C, D, E, F, G, I, J, K are complete.**
+**Baseline Platform, initial domain modules, and core invariants are in place (~35% honest completion).**
 
 ## Shared primitives (`internal/shared/`) — dependency-free leaves
 
@@ -112,29 +112,30 @@ All of this is committed, compiles, is `go vet` clean, and is formatted.
 
 | Module | Files | State |
 |---|---|---|
-| `identity` | `domain.go`, `session.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `bcrypt_test.go`, `service_test.go` | **Complete. 2 test suites.** User authentication, password hashing ($2y$ Laravel + $2a$ bcrypt support), Redis session lifecycle, lockout after 5 failures, TOTP MFA, unified RBAC permission resolution across platform and org roles, Chi middleware (`RequireAuth`, `RequirePermission`, `ResolveTenant`). |
-| `catalog` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `catalog_test.go` | **Complete. 2 test suites.** Categories, brands, products (34 pharma columns preserved), product variants (was `product_childerns`), Arabic trigram fuzzy search with `pg_trgm` and `platform.normalize_arabic`, tenant RLS. |
-| `inventory` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `inventory_test.go` | **Complete. 2 test suites.** Warehouses, stocks (**D4 Fix: `UNIQUE(warehouse_id, product_variant_id)`** allowing sibling variants to coexist), double-entry immutable stock movement ledger, inter-warehouse transfers with validation, tenant RLS. |
-| `commerce` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `commerce_test.go` | **Complete. 2 test suites.** Unified order system (D2 fix), shopping carts, vendor shipment splits, line item snapshots, order state machine validation. |
-| `billing` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `billing_test.go` | **Complete. 1 test suite.** Double-entry append-only wallet ledger, payment records, unified subscription plans (D7 fix), feature entitlements. |
-| `ingest` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `ingest_test.go` | **Complete. 2 test suites.** Bulk spreadsheet uploads (S3 key pointer, D5 fix), heuristic column detection, Arabic similarity product matching. |
-| `promo` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `promo_test.go` | **Complete. 2 test suites.** Vendor promotional offers, sponsorship tiers, display advertisements, engagement analytics. |
-| `workflow` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `workflow_test.go` | **Complete. 1 test suite.** Automated purchase priority engine, weekly branch route coverage, issue tracking. |
-| `hr` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `hr_test.go` | **Complete. 1 test suite.** Staff profiles, exact salary compensation, weekly operating business hours. |
-| `platform_admin` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `platform_admin_test.go` | **Complete. 1 test suite.** System configuration settings, geographical reference data (countries, cities). |
-| `notifications` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `notifications_test.go` | **Complete. 2 test suites.** Multi-channel message delivery (SMS, WhatsApp, Email, In-App), template parameter interpolation, user notification inbox, unread counts. |
-| `etl` | `domain.go`, `transformer.go`, `pipeline.go`, `etl_test.go` | **Complete. 4 test suites.** 6-stage ETL engine (Extract, Validate, Transform, Load, Verify, Reconcile), legacy PK preservation, money sum verification. |
-| `aicapabilities` | `domain.go`, `service.go`, `aicapabilities_test.go` | **Complete. 2 test suites.** AI-augmented catalog matching and search expansion with deterministic fallback and RFC 5737 black-hole tests. |
+| `identity` | `domain.go`, `session.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `bcrypt_test.go`, `service_test.go` | **Active.** User authentication, password hashing ($2y$ Laravel + $2a$ bcrypt support), Redis session lifecycle, lockout after 5 failures, TOTP MFA, unified RBAC permission resolution across platform and org roles, Chi middleware (`RequireAuth`, `RequirePermission`, `ResolveTenant`). |
+| `org` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `org_test.go` | **Active.** Dedicated bounded context: Organizations (supplier, pharmacy, chain), approval workflows, branches (enforcing single main branch), members & RBAC roles, verified reviews, followers, policies, and social media handles. |
+| `catalog` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `catalog_test.go` | **Active.** Categories, brands, products (34 pharma columns preserved), product variants, Arabic trigram fuzzy search with `pg_trgm` and `platform.normalize_arabic`, customer-specific custom pricing mappings, product price/stock alerts, tenant RLS. |
+| `inventory` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `inventory_test.go` | **Active.** Warehouses, stocks (**D4 Fix: `UNIQUE(warehouse_id, product_variant_id)`** allowing sibling variants to coexist), double-entry immutable stock movement ledger, inter-warehouse transfers with validation, tenant RLS. |
+| `commerce` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `commerce_test.go` | **Active.** Unified order system (D2 fix), shopping carts (with item addition, removal, clear), buyer quote requests, wishlists, vendor shipment splits, line item snapshots, order state machine validation. |
+| `billing` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `billing_test.go` | **Active.** Double-entry append-only wallet ledger, B2B invoices (`billing.invoices`, `billing.invoice_lines`), payment methods, payments, unified subscription plans (D7 fix), feature entitlements. |
+| `ingest` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `ingest_test.go` | **Active.** Bulk spreadsheet uploads (S3 key pointer, D5 fix), heuristic column detection, Arabic similarity product matching with AI gateway escalation and deterministic fallback. |
+| `promo` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `promo_test.go` | **Active.** Vendor promotional offers, sponsorship tiers, display advertisements, engagement analytics (views, clicks), homepage highlight sections, and automated expiration sweeps. |
+| `workflow` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `workflow_test.go` | **Active.** Automated purchase priority engine, weekly branch route coverage, issue tracking. |
+| `hr` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `hr_test.go` | **Active.** Staff profiles, exact salary compensation, weekly operating business hours. |
+| `platform_admin` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `platform_admin_test.go` | **Active.** System configuration settings, geographical reference data (countries, Egyptian cities), supported currencies, UI languages, public contact message inquiries, and uploaded verification documents. |
+| `notifications` | `domain.go`, `repository.go`, `service.go`, `postgres/`, `http/`, `notifications_test.go` | **Active.** Multi-channel message delivery (SMS, WhatsApp, Email, In-App), template parameter interpolation, user notification inbox, unread counts. |
+| `etl` | `domain.go`, `transformer.go`, `pipeline.go`, `etl_test.go` | **Helpers & Pipeline Foundation.** Datetime parsing, money parsing, i18n text transform helpers, validation contracts for live MariaDB extraction. |
+| `aicapabilities` | `domain.go`, `service.go`, `aicapabilities_test.go` | **Active.** AI-augmented catalog matching and search expansion with deterministic fallback, wired to ingest and catalog. |
 
 ## Entrypoints (`cmd/`)
 
 | Binary | Files | State |
 |---|---|---|
-| `server` | `main.go`, `health.go`, `deps.go`, `routes.go` | **Complete.** Starts HTTP *before* dependencies connect; mounts all 11 bounded context routes with tenant context resolution and middleware. |
-| `worker` | `main.go` | **Complete.** River worker engine registering job handlers for order notifications, ingest batch staging, promo expiration, and queue heartbeats. |
-| `cli` | `main.go` | **Complete.** `migrate`, `migrate-status`, `migrate-data` (ETL pipeline), `seed`, `health`. |
+| `server` | `main.go`, `health.go`, `deps.go`, `routes.go` | **Active.** Starts HTTP *before* dependencies connect; mounts all 12 module routes with tenant context resolution and middleware. |
+| `worker` | `main.go` | **Active.** Uses `internal/platform/queue`, River self-migration, graceful shutdown, real `orderNotificationWorker` (with retry on failure), `ingestBatchWorker` (Arabic matching + progress tracking), and `expirePromotionsWorker`. |
+| `cli` | `main.go`, `seed.go` | **Active.** `migrate`, `migrate-status`, `migrate-data`, `seed` (roles, permissions, currencies, languages, Egyptian cities, settings), `health`. |
 
-## Database (`db/migrations/` and `db/queries/`)
+## Database (`db/migrations/`)
 
 | Migration | State |
 |---|---|
@@ -151,32 +152,20 @@ All of this is committed, compiles, is `go vet` clean, and is formatted.
 | `011_hr` | `hr.employees`, `hr.work_times`. |
 | `012_platform_admin` | `platform_admin.system_settings`, `countries`, `cities`. |
 | `013_notifications` | `notifications.templates`, `notifications.logs`. |
-| `db/queries/` | `identity.sql`, `catalog.sql`, `inventory.sql`, `commerce.sql`, `billing.sql`, `ingest.sql`, `promo.sql`. |
-
-## Documentation (`docs/modules/`)
-
-| Document | State |
-|---|---|
-| `docs/modules/identity.md` | **Complete.** |
-| `docs/modules/catalog.md` | **Complete.** |
-| `docs/modules/inventory.md` | **Complete.** |
-| `docs/modules/commerce.md` | **Complete.** |
-| `docs/modules/billing.md` | **Complete.** |
-| `docs/modules/ingest.md` | **Complete.** |
-| `docs/modules/promo.md` | **Complete.** |
-| `docs/modules/workflow.md` | **Complete.** |
-| `docs/modules/hr.md` | **Complete.** |
-| `docs/modules/platform_admin.md` | **Complete.** |
-| `docs/modules/notifications.md` | **Complete.** |
-| `docs/modules/etl.md` | **Complete.** |
-| `docs/modules/aicapabilities.md` | **Complete.** |
+| `014_enhancements` | `identity.user_addresses`, `commerce.wishlists`, `org.organization_reviews`, `org.organization_followers`. |
+| `015_org_extensions` | `org.organization_social_media`, `org.organization_policies`, `org.user_organization_numbers`. |
+| `016_billing_invoices` | `billing.invoices`, `billing.invoice_lines`, `billing.user_payment_methods`. |
+| `017_catalog_extensions` | `catalog.customer_product_mappings`, `catalog.product_alerts`, `catalog.saving_products`. |
+| `018_commerce_quotes` | `commerce.quote_requests`. |
+| `019_promo_tracking` | `promo.offer_views`, `promo.offer_clicks`, `promo.highlight_sections`, `promo.highlight_section_items`. |
+| `020_platform_extensions` | `platform_admin.currencies`, `platform_admin.languages`, `platform_admin.contact_messages`, `platform_admin.documents`. |
 
 ---
 
-# PART 3 — What is Remaining
+# PART 3 — What is NOT Done (Remaining Phases)
 
-- **UI Implementation**: Web views and layout using templ + HTMX + Vanilla CSS for browser interaction.
-- **Data Load Run**: Executing the compiled ETL against the live legacy MySQL dump during cutover weekend rehearsal.
+- **Phase R (Templ + HTMX Frontend)**: Admin shell, Vendor dashboard, Customer catalogue, cart & checkout, SSE import progress wizard.
+- **Phase S (Full Real ETL)**: MariaDB extraction, validation (orphan sweep), transformation, COPY load, and 2-way verification gates against live data.
 
 ---
 

@@ -14,6 +14,7 @@ import (
 	ingestPostgres "github.com/muhiya/dawa24-store/internal/modules/ingest/postgres"
 	inventoryPostgres "github.com/muhiya/dawa24-store/internal/modules/inventory/postgres"
 	notificationsPostgres "github.com/muhiya/dawa24-store/internal/modules/notifications/postgres"
+	orgPostgres "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
 	platformadminPostgres "github.com/muhiya/dawa24-store/internal/modules/platform_admin/postgres"
 	promoPostgres "github.com/muhiya/dawa24-store/internal/modules/promo/postgres"
 	workflowPostgres "github.com/muhiya/dawa24-store/internal/modules/workflow/postgres"
@@ -34,6 +35,8 @@ import (
 	inventoryHttp "github.com/muhiya/dawa24-store/internal/modules/inventory/http"
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	notificationsHttp "github.com/muhiya/dawa24-store/internal/modules/notifications/http"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	orgHttp "github.com/muhiya/dawa24-store/internal/modules/org/http"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	platformadminHttp "github.com/muhiya/dawa24-store/internal/modules/platform_admin/http"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -115,4 +118,9 @@ func mountModuleRoutes(
 	notifRepo := notificationsPostgres.NewRepository(db)
 	notifSvc := notifications.NewService(notifRepo, log)
 	notificationsHttp.NewHandler(notifSvc, log).RegisterRoutes(r)
+
+	// 12. Organizations & Tenants
+	orgRepo := orgPostgres.NewRepository(db)
+	orgSvc := org.NewService(orgRepo, log)
+	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
 }

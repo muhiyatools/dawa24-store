@@ -1,0 +1,99 @@
+package http
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+)
+
+// GetCart returns customer cart and items.
+func (h *Handler) GetCart(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil || userID <= 0 {
+		httpx.Error(w, r, h.log, apperr.Validation("user_id.invalid", "Valid user_id required", nil))
+		return
+	}
+
+	cart, err := h.service.GetCart(r.Context(), userID)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, cart)
+}
+
+// AddCartItem adds or updates item quantity in the cart.
+func (h *Handler) AddCartItem(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		UserID           int64        `json:"user_id"`
+		ProductID        int64        `json:"product_id"`
+		ProductVariantID int64        `json:"product_variant_id"`
+		Quantity         int          `json:"quantity"`
+		UnitPrice        money.Amount `json:"unit_price"`
+	}
+	if err := httpx.DecodeJSON(w, r, &body); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	item := &commerce.CartItem{
+		ProductID:        body.ProductID,
+		ProductVariantID: body.ProductVariantID,
+		Quantity:         body.Quantity,
+		UnitPrice:        body.UnitPrice,
+	}
+
+	cart, err := h.service.AddToCart(r.Context(), body.UserID, item)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, cart)
+}
+
+// RemoveCartItem removes a variant from the cart.
+func (h *Handler) RemoveCartItem(w http.ResponseWriter, r *http.Request) {
+	variantIDStr := chi.URLParam(r, "variantId")
+	variantID, err := strconv.ParseInt(variantIDStr, 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("variant_id.invalid", "Invalid variant ID", nil))
+		return
+	}
+
+	userIDStr := r.URL.Query().Get("user_id")
+	userID, _ := strconv.ParseInt(userIDStr, 10, 64)
+
+	cart, err := h.service.RemoveFromCart(r.Context(), userID, variantID)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, cart)
+}
+
+// ClearCart empties the shopping cart.
+func (h *Handler) ClearCart(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil || userID <= 0 {
+		httpx.Error(w, r, h.log, apperr.Validation("user_id.invalid", "Valid user_id required", nil))
+		return
+	}
+
+	if err := h.service.ClearCart(r.Context(), userID); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]string{"status": "cleared"})
+}

@@ -2,6 +2,7 @@ package billing
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -136,4 +137,61 @@ func (s *Service) Subscribe(
 // CheckEntitlement resolves whether a user has access to a specific feature key.
 func (s *Service) CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error) {
 	return s.repo.CheckEntitlement(ctx, userID, featureKey)
+}
+
+// CreateInvoice generates a new B2B invoice.
+func (s *Service) CreateInvoice(ctx context.Context, inv *Invoice) (*Invoice, error) {
+	if inv.OrganizationID <= 0 {
+		return nil, apperr.Validation("invoice.org_required", "Organization ID is required.", nil)
+	}
+	if inv.InvoiceNumber == "" {
+		inv.InvoiceNumber = fmt.Sprintf("INV-%d-%d", inv.OrganizationID, time.Now().Unix())
+	}
+	if inv.Status == "" {
+		inv.Status = InvoiceDraft
+	}
+
+	var subtotal money.Amount
+	for _, l := range inv.Lines {
+		subtotal, _ = subtotal.Add(l.TotalPrice)
+	}
+	inv.Subtotal = subtotal
+	total, _ := subtotal.Add(inv.TaxAmount)
+	total, _ = total.Sub(inv.DiscountAmount)
+	inv.TotalAmount = total
+
+	if err := s.repo.CreateInvoice(ctx, inv); err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "invoice created", "invoice_id", inv.ID, "number", inv.InvoiceNumber, "total", inv.TotalAmount.String())
+	return inv, nil
+}
+
+// GetInvoice returns an invoice by ID.
+func (s *Service) GetInvoice(ctx context.Context, id int64) (*Invoice, error) {
+	return s.repo.GetInvoiceByID(ctx, id)
+}
+
+// ListInvoices lists invoices for an organization.
+func (s *Service) ListInvoices(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, error) {
+	return s.repo.ListInvoicesByOrg(ctx, orgID, limit, offset)
+}
+
+// MarkInvoicePaid updates invoice status to paid.
+func (s *Service) MarkInvoicePaid(ctx context.Context, id int64) error {
+	return s.repo.UpdateInvoiceStatus(ctx, id, InvoicePaid)
+}
+
+// AddPaymentMethod saves a user payment method.
+func (s *Service) AddPaymentMethod(ctx context.Context, pm *UserPaymentMethod) error {
+	if pm.UserID <= 0 || pm.Provider == "" || pm.AccountIdentifier == "" {
+		return apperr.Validation("payment_method.invalid", "User ID, provider, and account identifier are required.", nil)
+	}
+	return s.repo.AddPaymentMethod(ctx, pm)
+}
+
+// ListPaymentMethods returns saved payment methods for a user.
+func (s *Service) ListPaymentMethods(ctx context.Context, userID int64) ([]*UserPaymentMethod, error) {
+	return s.repo.ListPaymentMethods(ctx, userID)
 }

@@ -50,3 +50,24 @@ func (s *Service) ListCountries(ctx context.Context) ([]*Country, error) {
 func (s *Service) ListCities(ctx context.Context, countryID int64) ([]*City, error) {
 	return s.repo.ListCities(ctx, countryID)
 }
+
+// ListCurrencies returns supported currencies.
+func (s *Service) ListCurrencies(ctx context.Context) ([]*Currency, error) {
+	return s.repo.ListCurrencies(ctx)
+}
+
+// ListLanguages returns supported UI languages.
+func (s *Service) ListLanguages(ctx context.Context) ([]*Language, error) {
+	return s.repo.ListLanguages(ctx)
+}
+
+// SubmitContactMessage records a contact inquiry.
+func (s *Service) SubmitContactMessage(ctx context.Context, m *ContactMessage) error {
+	m.Status = "unread"
+	return s.repo.CreateContactMessage(ctx, m)
+}
+
+// ListContactMessages returns contact inquiries.
+func (s *Service) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*ContactMessage, error) {
+	return s.repo.ListContactMessages(ctx, status, limit, offset)
+}

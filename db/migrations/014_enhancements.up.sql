@@ -64,6 +64,13 @@ CREATE TABLE org.organization_reviews (
 
 CREATE INDEX org_reviews_org_idx ON org.organization_reviews (organization_id);
 
+ALTER TABLE org.organization_reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE org.organization_reviews FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY org_reviews_tenant_isolation ON org.organization_reviews
+    USING (platform.tenant_visible(organization_id))
+    WITH CHECK (platform.tenant_visible(organization_id));
+
 -- ---------------------------------------------------------------------------
 -- Organization Followers
 -- ---------------------------------------------------------------------------
@@ -77,5 +84,12 @@ CREATE TABLE org.organization_followers (
 );
 
 CREATE INDEX org_followers_org_idx ON org.organization_followers (organization_id);
+
+ALTER TABLE org.organization_followers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE org.organization_followers FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY org_followers_tenant_isolation ON org.organization_followers
+    USING (platform.tenant_visible(organization_id))
+    WITH CHECK (platform.tenant_visible(organization_id));
 
 COMMIT;

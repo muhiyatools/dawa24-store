@@ -43,3 +43,48 @@ func (s *SystemSetting) Validate() error {
 	}
 	return nil
 }
+
+// Currency represents a supported monetary currency.
+type Currency struct {
+	ID              int64     `json:"id"`
+	Code            string    `json:"code"`
+	Name            i18n.Text `json:"name"`
+	Symbol          string    `json:"symbol"`
+	ExchangeRateEGP float64   `json:"exchange_rate_egp"`
+	IsActive        bool      `json:"is_active"`
+	IsDefault       bool      `json:"is_default"`
+}
+
+// Language represents a supported UI locale language.
+type Language struct {
+	ID        int64  `json:"id"`
+	Code      string `json:"code"`
+	Name      string `json:"name"`
+	Dir       string `json:"dir"` // rtl or ltr
+	IsActive  bool   `json:"is_active"`
+	IsDefault bool   `json:"is_default"`
+}
+
+// ContactMessage represents a public contact inquiry form submission.
+type ContactMessage struct {
+	ID        int64     `json:"id"`
+	PublicID  string    `json:"public_id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Phone     string    `json:"phone,omitempty"`
+	Subject   string    `json:"subject"`
+	Message   string    `json:"message"`
+	Status    string    `json:"status"` // unread, read, resolved
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// Document represents an organization uploaded official verification document.
+type Document struct {
+	ID             int64     `json:"id"`
+	PublicID       string    `json:"public_id"`
+	OrganizationID *int64    `json:"organization_id,omitempty"`
+	Title          string    `json:"title"`
+	DocumentType   string    `json:"document_type"`
+	StorageKey     string    `json:"storage_key"`
+	CreatedAt      time.Time `json:"created_at"`
+}

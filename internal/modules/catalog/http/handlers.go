@@ -27,11 +27,21 @@ func NewHandler(service *catalog.Service, log *slog.Logger) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/catalog/search", h.Search)
 	r.Get("/api/v1/catalog/products/{id}", h.GetProduct)
-	r.Get("/api/v1/catalog/categories", h.ListCategories)
-	r.Get("/api/v1/catalog/brands", h.ListBrands)
-
+	r.Put("/api/v1/catalog/products/{id}", h.UpdateProduct)
+	r.Delete("/api/v1/catalog/products/{id}", h.DeleteProduct)
 	r.Post("/api/v1/catalog/products", h.CreateProduct)
 	r.Post("/api/v1/catalog/products/{id}/variants", h.CreateVariant)
+
+	r.Get("/api/v1/catalog/categories", h.ListCategories)
+	r.Post("/api/v1/catalog/categories", h.CreateCategory)
+	r.Get("/api/v1/catalog/brands", h.ListBrands)
+	r.Post("/api/v1/catalog/brands", h.CreateBrand)
+
+	r.Post("/api/v1/catalog/pricing/customer", h.SetCustomerPricing)
+	r.Get("/api/v1/catalog/pricing/customer", h.GetCustomerPricing)
+
+	r.Post("/api/v1/catalog/alerts", h.CreateProductAlert)
+	r.Get("/api/v1/catalog/alerts", h.ListProductAlerts)
 }
 
 // Search handles product search queries.

@@ -127,3 +127,58 @@ func ValidateCreditAmount(a money.Amount) error {
 	}
 	return nil
 }
+
+// InvoiceStatus tracks invoice lifecycle states.
+type InvoiceStatus string
+
+const (
+	InvoiceDraft     InvoiceStatus = "draft"
+	InvoiceIssued    InvoiceStatus = "issued"
+	InvoicePaid      InvoiceStatus = "paid"
+	InvoiceOverdue   InvoiceStatus = "overdue"
+	InvoiceCancelled InvoiceStatus = "cancelled"
+)
+
+// Invoice represents a B2B commercial tax invoice.
+type Invoice struct {
+	ID             int64         `json:"id"`
+	PublicID       string        `json:"public_id"`
+	OrganizationID int64         `json:"organization_id"`
+	CustomerOrgID  *int64        `json:"customer_org_id,omitempty"`
+	OrderID        *int64        `json:"order_id,omitempty"`
+	InvoiceNumber  string        `json:"invoice_number"`
+	IssueDate      time.Time     `json:"issue_date"`
+	DueDate        time.Time     `json:"due_date"`
+	Subtotal       money.Amount  `json:"subtotal"`
+	TaxAmount      money.Amount  `json:"tax_amount"`
+	DiscountAmount money.Amount  `json:"discount_amount"`
+	TotalAmount    money.Amount  `json:"total_amount"`
+	Status         InvoiceStatus `json:"status"`
+	PaymentMethod  string        `json:"payment_method"`
+	Notes          string        `json:"notes,omitempty"`
+	Lines          []InvoiceLine `json:"lines,omitempty"`
+	CreatedAt      time.Time     `json:"created_at"`
+	UpdatedAt      time.Time     `json:"updated_at"`
+}
+
+// InvoiceLine is a line item on an invoice.
+type InvoiceLine struct {
+	ID          int64        `json:"id"`
+	InvoiceID   int64        `json:"invoice_id"`
+	ProductID   *int64       `json:"product_id,omitempty"`
+	Description string       `json:"description"`
+	Quantity    int          `json:"quantity"`
+	UnitPrice   money.Amount `json:"unit_price"`
+	TotalPrice  money.Amount `json:"total_price"`
+}
+
+// UserPaymentMethod represents a stored payment method identifier.
+type UserPaymentMethod struct {
+	ID                int64     `json:"id"`
+	PublicID          string    `json:"public_id"`
+	UserID            int64     `json:"user_id"`
+	Provider          string    `json:"provider"`
+	AccountIdentifier string    `json:"account_identifier"`
+	IsDefault         bool      `json:"is_default"`
+	CreatedAt         time.Time `json:"created_at"`
+}

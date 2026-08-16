@@ -30,6 +30,11 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Put("/api/v1/platform/settings/{key}", h.SetSetting)
 	r.Get("/api/v1/platform/countries", h.ListCountries)
 	r.Get("/api/v1/platform/countries/{id}/cities", h.ListCities)
+
+	r.Get("/api/v1/platform/currencies", h.ListCurrencies)
+	r.Get("/api/v1/platform/languages", h.ListLanguages)
+	r.Post("/api/v1/platform/contact", h.SubmitContact)
+	r.Get("/api/v1/platform/contact", h.ListContactMessages)
 }
 
 // ListPublicSettings returns public configs.
@@ -100,4 +105,52 @@ func (h *Handler) ListCities(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSON(w, http.StatusOK, map[string]any{"cities": cities})
+}
+
+// ListCurrencies returns supported currencies.
+func (h *Handler) ListCurrencies(w http.ResponseWriter, r *http.Request) {
+	currencies, err := h.service.ListCurrencies(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"currencies": currencies})
+}
+
+// ListLanguages returns supported languages.
+func (h *Handler) ListLanguages(w http.ResponseWriter, r *http.Request) {
+	languages, err := h.service.ListLanguages(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"languages": languages})
+}
+
+// SubmitContact handles contact form submission.
+func (h *Handler) SubmitContact(w http.ResponseWriter, r *http.Request) {
+	var m platformadmin.ContactMessage
+	if err := httpx.DecodeJSON(w, r, &m); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	if err := h.service.SubmitContactMessage(r.Context(), &m); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusCreated, m)
+}
+
+// ListContactMessages returns contact inquiries.
+func (h *Handler) ListContactMessages(w http.ResponseWriter, r *http.Request) {
+	status := r.URL.Query().Get("status")
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+
+	messages, err := h.service.ListContactMessages(r.Context(), status, limit, offset)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"messages": messages, "count": len(messages)})
 }

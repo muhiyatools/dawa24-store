@@ -119,3 +119,24 @@ func (o *Offer) Validate() error {
 	}
 	return nil
 }
+
+// HighlightSection represents a curated section on the homepage or storefront.
+type HighlightSection struct {
+	ID           int64                  `json:"id"`
+	PublicID     string                 `json:"public_id"`
+	Title        i18n.Text              `json:"title"`
+	Slug         string                 `json:"slug"`
+	DisplayOrder int                    `json:"display_order"`
+	IsActive     bool                   `json:"is_active"`
+	Items        []HighlightSectionItem `json:"items,omitempty"`
+	CreatedAt    time.Time              `json:"created_at"`
+}
+
+// HighlightSectionItem represents an item within a highlight section.
+type HighlightSectionItem struct {
+	ID           int64  `json:"id"`
+	SectionID    int64  `json:"section_id"`
+	ProductID    *int64 `json:"product_id,omitempty"`
+	OfferID      *int64 `json:"offer_id,omitempty"`
+	DisplayOrder int    `json:"display_order"`
+}

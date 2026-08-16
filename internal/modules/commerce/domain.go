@@ -187,3 +187,33 @@ type WishlistItem struct {
 	ProductID int64     `json:"product_id"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+// QuoteStatus represents the state of a buyer quote request.
+type QuoteStatus string
+
+const (
+	QuotePending  QuoteStatus = "pending"
+	QuoteQuoted   QuoteStatus = "quoted"
+	QuoteAccepted QuoteStatus = "accepted"
+	QuoteRejected QuoteStatus = "rejected"
+	QuoteExpired  QuoteStatus = "expired"
+)
+
+// QuoteRequest represents a buyer-initiated inquiry for bulk special pricing.
+type QuoteRequest struct {
+	ID                int64        `json:"id"`
+	PublicID          string       `json:"public_id"`
+	OrganizationID    int64        `json:"organization_id"`
+	CustomerOrgID     int64        `json:"customer_org_id"`
+	ProductID         *int64       `json:"product_id,omitempty"`
+	ProductName       string       `json:"product_name"`
+	RequestedQuantity int          `json:"requested_quantity"`
+	TargetUnitPrice   money.Amount `json:"target_unit_price"`
+	QuoteUnitPrice    money.Amount `json:"quote_unit_price"`
+	Status            QuoteStatus  `json:"status"`
+	BuyerNotes        string       `json:"buyer_notes,omitempty"`
+	SupplierNotes     string       `json:"supplier_notes,omitempty"`
+	ValidUntil        *time.Time   `json:"valid_until,omitempty"`
+	CreatedAt         time.Time    `json:"created_at"`
+	UpdatedAt         time.Time    `json:"updated_at"`
+}

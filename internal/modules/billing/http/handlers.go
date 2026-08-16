@@ -32,6 +32,14 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/billing/plans", h.ListPlans)
 	r.Post("/api/v1/billing/subscriptions", h.Subscribe)
 	r.Get("/api/v1/billing/entitlements/{key}", h.CheckEntitlement)
+
+	r.Post("/api/v1/billing/invoices", h.CreateInvoice)
+	r.Get("/api/v1/billing/invoices/{id}", h.GetInvoice)
+	r.Get("/api/v1/billing/invoices", h.ListInvoices)
+	r.Post("/api/v1/billing/invoices/{id}/pay", h.PayInvoice)
+
+	r.Post("/api/v1/billing/payment-methods", h.AddPaymentMethod)
+	r.Get("/api/v1/billing/payment-methods", h.ListPaymentMethods)
 }
 
 // GetWallet retrieves wallet details.
@@ -145,4 +153,111 @@ func (h *Handler) CheckEntitlement(w http.ResponseWriter, r *http.Request) {
 		"allowed": allowed,
 		"value":   val,
 	})
+}
+
+// CreateInvoice generates an invoice.
+func (h *Handler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
+	var inv billing.Invoice
+	if err := httpx.DecodeJSON(w, r, &inv); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	created, err := h.service.CreateInvoice(r.Context(), &inv)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusCreated, created)
+}
+
+// GetInvoice returns an invoice by ID.
+func (h *Handler) GetInvoice(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid invoice ID", nil))
+		return
+	}
+
+	inv, err := h.service.GetInvoice(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, inv)
+}
+
+// ListInvoices lists invoices for an organization.
+func (h *Handler) ListInvoices(w http.ResponseWriter, r *http.Request) {
+	orgIDStr := r.URL.Query().Get("org_id")
+	orgID, err := strconv.ParseInt(orgIDStr, 10, 64)
+	if err != nil || orgID <= 0 {
+		httpx.Error(w, r, h.log, apperr.Validation("org_id.invalid", "Valid org_id is required", nil))
+		return
+	}
+
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+
+	list, err := h.service.ListInvoices(r.Context(), orgID, limit, offset)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{"invoices": list, "count": len(list)})
+}
+
+// PayInvoice records invoice payment.
+func (h *Handler) PayInvoice(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid invoice ID", nil))
+		return
+	}
+
+	if err := h.service.MarkInvoicePaid(r.Context(), id); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]string{"status": "paid"})
+}
+
+// AddPaymentMethod adds a user payment method.
+func (h *Handler) AddPaymentMethod(w http.ResponseWriter, r *http.Request) {
+	var pm billing.UserPaymentMethod
+	if err := httpx.DecodeJSON(w, r, &pm); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	if err := h.service.AddPaymentMethod(r.Context(), &pm); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusCreated, pm)
+}
+
+// ListPaymentMethods returns saved payment methods.
+func (h *Handler) ListPaymentMethods(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil || userID <= 0 {
+		httpx.Error(w, r, h.log, apperr.Validation("user_id.invalid", "Valid user_id is required", nil))
+		return
+	}
+
+	list, err := h.service.ListPaymentMethods(r.Context(), userID)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{"payment_methods": list, "count": len(list)})
 }

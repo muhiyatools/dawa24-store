@@ -145,6 +145,34 @@ func (m *mockBillingRepo) CheckEntitlement(_ context.Context, userID int64, feat
 	return ok, val, nil
 }
 
+func (m *mockBillingRepo) CreateInvoice(_ context.Context, inv *billing.Invoice) error {
+	inv.ID = m.nextID
+	m.nextID++
+	return nil
+}
+
+func (m *mockBillingRepo) GetInvoiceByID(_ context.Context, id int64) (*billing.Invoice, error) {
+	return nil, apperr.NotFound("invoice")
+}
+
+func (m *mockBillingRepo) UpdateInvoiceStatus(_ context.Context, id int64, status billing.InvoiceStatus) error {
+	return nil
+}
+
+func (m *mockBillingRepo) ListInvoicesByOrg(_ context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AddPaymentMethod(_ context.Context, pm *billing.UserPaymentMethod) error {
+	pm.ID = m.nextID
+	m.nextID++
+	return nil
+}
+
+func (m *mockBillingRepo) ListPaymentMethods(_ context.Context, userID int64) ([]*billing.UserPaymentMethod, error) {
+	return nil, nil
+}
+
 func TestWalletDepositAndWithdraw(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockBillingRepo()
@@ -173,5 +201,20 @@ func TestWalletDepositAndWithdraw(t *testing.T) {
 	_, err = svc.Withdraw(ctx, 42, "EGP", money.MustParse("400.00"), "test", nil, "Overdraft")
 	if err == nil || apperr.KindOf(err) != apperr.KindValidation {
 		t.Errorf("expected validation error on overdraft, got: %v", err)
+	}
+
+	// 4. Test Invoice Creation
+	inv, err := svc.CreateInvoice(ctx, &billing.Invoice{
+		OrganizationID: 8801,
+		Lines: []billing.InvoiceLine{
+			{Description: "Panadol Extra 500mg (100 boxes)", Quantity: 100, UnitPrice: money.MustParse("50.00"), TotalPrice: money.MustParse("5000.00")},
+		},
+		TaxAmount: money.MustParse("700.00"),
+	})
+	if err != nil {
+		t.Fatalf("CreateInvoice failed: %v", err)
+	}
+	if inv.TotalAmount != money.MustParse("5700.00") {
+		t.Errorf("TotalAmount = %v; want 5700.00", inv.TotalAmount)
 	}
 }

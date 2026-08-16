@@ -21,4 +21,12 @@ type Repository interface {
 	CreateSubscription(ctx context.Context, sub *Subscription) error
 	GetActiveSubscription(ctx context.Context, userID int64) (*Subscription, error)
 	CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error)
+
+	CreateInvoice(ctx context.Context, inv *Invoice) error
+	GetInvoiceByID(ctx context.Context, id int64) (*Invoice, error)
+	UpdateInvoiceStatus(ctx context.Context, id int64, status InvoiceStatus) error
+	ListInvoicesByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, error)
+
+	AddPaymentMethod(ctx context.Context, pm *UserPaymentMethod) error
+	ListPaymentMethods(ctx context.Context, userID int64) ([]*UserPaymentMethod, error)
 }

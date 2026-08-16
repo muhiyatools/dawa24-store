@@ -96,12 +96,33 @@ func (m *mockCatalogRepo) DeleteVariant(_ context.Context, id int64) error {
 }
 
 func (m *mockCatalogRepo) CreateCategory(_ context.Context, c *catalog.Category) error { return nil }
+func (m *mockCatalogRepo) GetCategoryByID(_ context.Context, id int64) (*catalog.Category, error) {
+	return nil, apperr.NotFound("category")
+}
+func (m *mockCatalogRepo) UpdateCategory(_ context.Context, c *catalog.Category) error { return nil }
 func (m *mockCatalogRepo) ListCategories(_ context.Context) ([]*catalog.Category, error) {
 	return []*catalog.Category{}, nil
 }
 func (m *mockCatalogRepo) CreateBrand(_ context.Context, b *catalog.Brand) error { return nil }
+func (m *mockCatalogRepo) GetBrandByID(_ context.Context, id int64) (*catalog.Brand, error) {
+	return nil, apperr.NotFound("brand")
+}
+func (m *mockCatalogRepo) UpdateBrand(_ context.Context, b *catalog.Brand) error { return nil }
 func (m *mockCatalogRepo) ListBrands(_ context.Context) ([]*catalog.Brand, error) {
 	return []*catalog.Brand{}, nil
+}
+
+func (m *mockCatalogRepo) SetCustomerPricing(_ context.Context, cm *catalog.CustomerProductMapping) error {
+	return nil
+}
+func (m *mockCatalogRepo) GetCustomerPricing(_ context.Context, vendorOrgID, customerOrgID, productID int64) (*catalog.CustomerProductMapping, error) {
+	return nil, apperr.NotFound("customer_pricing")
+}
+func (m *mockCatalogRepo) CreateProductAlert(_ context.Context, a *catalog.ProductAlert) error {
+	return nil
+}
+func (m *mockCatalogRepo) ListProductAlertsByUser(_ context.Context, userID int64) ([]*catalog.ProductAlert, error) {
+	return nil, nil
 }
 
 func TestProductEffectivePrice(t *testing.T) {

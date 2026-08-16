@@ -33,6 +33,9 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/promo/packages", h.ListPackages)
 	r.Get("/api/v1/promo/ads", h.ListAds)
 	r.Post("/api/v1/promo/ads/{id}/click", h.RecordAdClick)
+
+	r.Get("/api/v1/promo/highlights", h.ListHighlights)
+	r.Post("/api/v1/promo/highlights", h.CreateHighlight)
 }
 
 // ListOffers returns all currently active promotions.
@@ -139,4 +142,29 @@ func (h *Handler) RecordAdClick(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.service.RecordAdClick(r.Context(), id, nil, r.RemoteAddr, r.UserAgent())
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// ListHighlights returns homepage highlight sections.
+func (h *Handler) ListHighlights(w http.ResponseWriter, r *http.Request) {
+	sections, err := h.service.ListHighlightSections(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"highlights": sections, "count": len(sections)})
+}
+
+// CreateHighlight creates a highlight section.
+func (h *Handler) CreateHighlight(w http.ResponseWriter, r *http.Request) {
+	var sec promo.HighlightSection
+	if err := httpx.DecodeJSON(w, r, &sec); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	created, err := h.service.CreateHighlightSection(r.Context(), &sec)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusCreated, created)
 }

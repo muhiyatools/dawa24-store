@@ -110,3 +110,24 @@ func (s *Service) RecordAdClick(ctx context.Context, adID int64, userID *int64, 
 	}
 	return s.repo.RecordAdClick(ctx, adID, userID, ip, ua)
 }
+
+// CreateHighlightSection creates a homepage curated highlight section.
+func (s *Service) CreateHighlightSection(ctx context.Context, h *HighlightSection) (*HighlightSection, error) {
+	if h.Title.IsEmpty() || h.Slug == "" {
+		return nil, apperr.Validation("section.invalid", "Title and slug are required.", nil)
+	}
+	if err := s.repo.CreateHighlightSection(ctx, h); err != nil {
+		return nil, err
+	}
+	return h, nil
+}
+
+// ListHighlightSections returns all active curated sections.
+func (s *Service) ListHighlightSections(ctx context.Context) ([]*HighlightSection, error) {
+	return s.repo.ListHighlightSections(ctx)
+}
+
+// ExpirePromotions marks expired offers and sponsorships as inactive.
+func (s *Service) ExpirePromotions(ctx context.Context) (int64, error) {
+	return s.repo.ExpirePromotions(ctx)
+}

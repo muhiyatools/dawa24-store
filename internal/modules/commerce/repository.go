@@ -2,6 +2,8 @@ package commerce
 
 import (
 	"context"
+
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // Repository defines the storage contract for cart, order, and shipment operations.
@@ -22,4 +24,9 @@ type Repository interface {
 	AddToWishlist(ctx context.Context, userID int64, productID int64) error
 	RemoveFromWishlist(ctx context.Context, userID int64, productID int64) error
 	ListWishlist(ctx context.Context, userID int64) ([]*WishlistItem, error)
+
+	CreateQuoteRequest(ctx context.Context, q *QuoteRequest) error
+	GetQuoteRequestByID(ctx context.Context, id int64) (*QuoteRequest, error)
+	UpdateQuoteStatus(ctx context.Context, id int64, status QuoteStatus, quotePrice money.Amount, supplierNotes string) error
+	ListQuoteRequestsByOrg(ctx context.Context, orgID int64, isVendor bool, limit, offset int) ([]*QuoteRequest, error)
 }

@@ -12,4 +12,9 @@ type Repository interface {
 
 	ListCountries(ctx context.Context) ([]*Country, error)
 	ListCities(ctx context.Context, countryID int64) ([]*City, error)
+
+	ListCurrencies(ctx context.Context) ([]*Currency, error)
+	ListLanguages(ctx context.Context) ([]*Language, error)
+	CreateContactMessage(ctx context.Context, m *ContactMessage) error
+	ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*ContactMessage, error)
 }

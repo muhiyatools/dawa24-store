@@ -122,6 +122,21 @@ func (m *mockCommerceRepo) ListWishlist(_ context.Context, userID int64) ([]*com
 	return nil, nil
 }
 
+func (m *mockCommerceRepo) CreateQuoteRequest(_ context.Context, q *commerce.QuoteRequest) error {
+	q.ID = m.nextID
+	m.nextID++
+	return nil
+}
+func (m *mockCommerceRepo) GetQuoteRequestByID(_ context.Context, id int64) (*commerce.QuoteRequest, error) {
+	return nil, apperr.NotFound("quote_request")
+}
+func (m *mockCommerceRepo) UpdateQuoteStatus(_ context.Context, id int64, status commerce.QuoteStatus, quotePrice money.Amount, supplierNotes string) error {
+	return nil
+}
+func (m *mockCommerceRepo) ListQuoteRequestsByOrg(_ context.Context, orgID int64, isVendor bool, limit, offset int) ([]*commerce.QuoteRequest, error) {
+	return nil, nil
+}
+
 func TestOrderStatusTransitions(t *testing.T) {
 	validTransitions := [][2]commerce.OrderStatus{
 		{commerce.StatusPending, commerce.StatusConfirmed},

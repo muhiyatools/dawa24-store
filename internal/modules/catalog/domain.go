@@ -126,3 +126,41 @@ func (p *Product) Validate() error {
 	}
 	return nil
 }
+
+// CustomerProductMapping defines customer-specific custom pricing and discount terms.
+type CustomerProductMapping struct {
+	ID               int64        `json:"id"`
+	OrganizationID   int64        `json:"organization_id"`
+	CustomerOrgID    int64        `json:"customer_org_id"`
+	ProductID        int64        `json:"product_id"`
+	ProductVariantID *int64       `json:"product_variant_id,omitempty"`
+	CustomPrice      money.Amount `json:"custom_price"`
+	DiscountBps      *int         `json:"discount_bps,omitempty"`
+	IsActive         bool         `json:"is_active"`
+	CreatedAt        time.Time    `json:"created_at"`
+	UpdatedAt        time.Time    `json:"updated_at"`
+}
+
+// ProductAlert represents user notification triggers for price drops and restocks.
+type ProductAlert struct {
+	ID          int64        `json:"id"`
+	PublicID    string       `json:"public_id"`
+	UserID      int64        `json:"user_id"`
+	ProductID   int64        `json:"product_id"`
+	AlertType   string       `json:"alert_type"`
+	TargetPrice money.Amount `json:"target_price"`
+	IsTriggered bool         `json:"is_triggered"`
+	TriggeredAt *time.Time   `json:"triggered_at,omitempty"`
+	CreatedAt   time.Time    `json:"created_at"`
+}
+
+// SavingProduct represents promotional bundled deals.
+type SavingProduct struct {
+	ID             int64        `json:"id"`
+	OrganizationID int64        `json:"organization_id"`
+	ProductID      int64        `json:"product_id"`
+	BundleQuantity int          `json:"bundle_quantity"`
+	BundleDiscount money.Amount `json:"bundle_discount"`
+	IsActive       bool         `json:"is_active"`
+	CreatedAt      time.Time    `json:"created_at"`
+}

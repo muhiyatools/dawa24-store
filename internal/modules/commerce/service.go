@@ -2,7 +2,6 @@ package commerce
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -193,4 +192,70 @@ func (s *Service) GetWishlist(ctx context.Context, userID int64) ([]*WishlistIte
 	return s.repo.ListWishlist(ctx, userID)
 }
 
-var _ fmt.Stringer
+// GetCart retrieves or initializes a customer cart.
+func (s *Service) GetCart(ctx context.Context, userID int64) (*Cart, error) {
+	cart, err := s.repo.GetOrCreateCart(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return s.repo.GetCartWithItems(ctx, cart.ID)
+}
+
+// AddToCart adds or updates an item in the cart.
+func (s *Service) AddToCart(ctx context.Context, userID int64, item *CartItem) (*Cart, error) {
+	cart, err := s.repo.GetOrCreateCart(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.repo.AddToCartItem(ctx, cart.ID, item); err != nil {
+		return nil, err
+	}
+	return s.repo.GetCartWithItems(ctx, cart.ID)
+}
+
+// RemoveFromCart removes an item from cart.
+func (s *Service) RemoveFromCart(ctx context.Context, userID int64, variantID int64) (*Cart, error) {
+	cart, err := s.repo.GetOrCreateCart(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.repo.RemoveCartItem(ctx, cart.ID, variantID); err != nil {
+		return nil, err
+	}
+	return s.repo.GetCartWithItems(ctx, cart.ID)
+}
+
+// ClearCart empties the cart.
+func (s *Service) ClearCart(ctx context.Context, userID int64) error {
+	cart, err := s.repo.GetOrCreateCart(ctx, userID)
+	if err != nil {
+		return err
+	}
+	return s.repo.ClearCart(ctx, cart.ID)
+}
+
+// CreateQuoteRequest creates a new price inquiry from buyer to supplier.
+func (s *Service) CreateQuoteRequest(ctx context.Context, q *QuoteRequest) (*QuoteRequest, error) {
+	if q.OrganizationID <= 0 || q.CustomerOrgID <= 0 {
+		return nil, apperr.Validation("quote.orgs_required", "Vendor and customer organization IDs are required.", nil)
+	}
+	if q.RequestedQuantity <= 0 {
+		return nil, apperr.Validation("quote.qty_invalid", "Requested quantity must be positive.", nil)
+	}
+	q.Status = QuotePending
+	if err := s.repo.CreateQuoteRequest(ctx, q); err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "quote requested", "quote_id", q.ID, "vendor_org", q.OrganizationID, "customer_org", q.CustomerOrgID)
+	return q, nil
+}
+
+// RespondToQuote allows vendor to provide quote unit price or reject.
+func (s *Service) RespondToQuote(ctx context.Context, quoteID int64, status QuoteStatus, price money.Amount, notes string) error {
+	return s.repo.UpdateQuoteStatus(ctx, quoteID, status, price, notes)
+}
+
+// ListQuoteRequests lists quotes for an organization.
+func (s *Service) ListQuoteRequests(ctx context.Context, orgID int64, isVendor bool, limit, offset int) ([]*QuoteRequest, error) {
+	return s.repo.ListQuoteRequestsByOrg(ctx, orgID, isVendor, limit, offset)
+}

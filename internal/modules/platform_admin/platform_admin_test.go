@@ -55,6 +55,22 @@ func (m *mockPlatformAdminRepo) ListCities(_ context.Context, countryID int64) (
 	return m.cities[countryID], nil
 }
 
+func (m *mockPlatformAdminRepo) ListCurrencies(_ context.Context) ([]*platformadmin.Currency, error) {
+	return []*platformadmin.Currency{}, nil
+}
+
+func (m *mockPlatformAdminRepo) ListLanguages(_ context.Context) ([]*platformadmin.Language, error) {
+	return []*platformadmin.Language{}, nil
+}
+
+func (m *mockPlatformAdminRepo) CreateContactMessage(_ context.Context, _ *platformadmin.ContactMessage) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) ListContactMessages(_ context.Context, _ string, _, _ int) ([]*platformadmin.ContactMessage, error) {
+	return []*platformadmin.ContactMessage{}, nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

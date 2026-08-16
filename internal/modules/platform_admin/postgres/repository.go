@@ -141,3 +141,98 @@ func (r *Repository) ListCities(ctx context.Context, countryID int64) ([]*platfo
 	})
 	return list, err
 }
+
+// ListCurrencies returns supported currencies.
+func (r *Repository) ListCurrencies(ctx context.Context) ([]*platformadmin.Currency, error) {
+	var list []*platformadmin.Currency
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT id, code, name, symbol, exchange_rate_egp, is_active, is_default FROM platform_admin.currencies WHERE is_active = true ORDER BY id ASC;`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var cur platformadmin.Currency
+			if err := rows.Scan(&cur.ID, &cur.Code, &cur.Name, &cur.Symbol, &cur.ExchangeRateEGP, &cur.IsActive, &cur.IsDefault); err != nil {
+				return err
+			}
+			list = append(list, &cur)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// ListLanguages returns supported languages.
+func (r *Repository) ListLanguages(ctx context.Context) ([]*platformadmin.Language, error) {
+	var list []*platformadmin.Language
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT id, code, name, dir, is_active, is_default FROM platform_admin.languages WHERE is_active = true ORDER BY id ASC;`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var l platformadmin.Language
+			if err := rows.Scan(&l.ID, &l.Code, &l.Name, &l.Dir, &l.IsActive, &l.IsDefault); err != nil {
+				return err
+			}
+			list = append(list, &l)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// CreateContactMessage persists a contact inquiry.
+func (r *Repository) CreateContactMessage(ctx context.Context, m *platformadmin.ContactMessage) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO platform_admin.contact_messages (name, email, phone, subject, message, status)
+			VALUES ($1, $2, $3, $4, $5, $6)
+			RETURNING id, public_id, created_at;
+		`
+		return tx.QueryRow(txCtx, query, m.Name, m.Email, m.Phone, m.Subject, m.Message, m.Status).
+			Scan(&m.ID, &m.PublicID, &m.CreatedAt)
+	})
+}
+
+// ListContactMessages returns contact inquiries.
+func (r *Repository) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, error) {
+	var list []*platformadmin.ContactMessage
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, name, email, phone, subject, message, status, created_at
+			FROM platform_admin.contact_messages
+			WHERE ($1 = '' OR status = $1)
+			ORDER BY created_at DESC
+			LIMIT $2 OFFSET $3;
+		`
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		rows, err := tx.Query(txCtx, query, status, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var m platformadmin.ContactMessage
+			var phone *string
+			if err := rows.Scan(&m.ID, &m.PublicID, &m.Name, &m.Email, &phone, &m.Subject, &m.Message, &m.Status, &m.CreatedAt); err != nil {
+				return err
+			}
+			if phone != nil {
+				m.Phone = *phone
+			}
+			list = append(list, &m)
+		}
+		return rows.Err()
+	})
+	return list, err
+}

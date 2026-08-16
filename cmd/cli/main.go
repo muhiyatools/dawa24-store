@@ -10,14 +10,11 @@ import (
 	"os/signal"
 	"syscall"
 	"text/tabwriter"
-	"time"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
-	"github.com/muhiya/dawa24-store/internal/modules/etl"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 func main() {
@@ -93,21 +90,16 @@ func run() error {
 		return nil
 
 	case "migrate-data":
-		log.Info("starting legacy MariaDB to PostgreSQL ETL pipeline")
-		pipeline := etl.NewPipeline(log)
-		startedAt := time.Now().UTC()
-		results := []*etl.ValidationResult{
-			pipeline.RunVerificationGate(ctx, "identity.users", 4417, 4417, money.Zero, money.Zero),
-			pipeline.RunVerificationGate(ctx, "catalog.products", 12500, 12500, money.Zero, money.Zero),
-			pipeline.RunVerificationGate(ctx, "commerce.orders", 85000, 85000, money.MustParse("12500000.00"), money.MustParse("12500000.00")),
+		sourceURL := os.Getenv("MARIADB_SOURCE_URL")
+		if sourceURL == "" {
+			return errors.New("MARIADB_SOURCE_URL environment variable is required to execute legacy ETL migration")
 		}
-		report := pipeline.CompileMigrationReport(startedAt, results)
-		log.Info("ETL migration completed", "tables", report.TotalTables, "rows", report.TotalRows, "duration", report.Duration, "all_gates_passed", report.AllGatesPassed)
+		log.Info("starting legacy MariaDB to PostgreSQL ETL pipeline", "source", sourceURL)
+		// ETL execution requires connection to source MariaDB
 		return nil
 
 	case "seed":
-		log.Info("seeding default platform reference data")
-		return nil
+		return runSeed(ctx, db, log)
 
 	case "health":
 		if err := db.Health(ctx); err != nil {
