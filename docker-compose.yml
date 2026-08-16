@@ -5,7 +5,7 @@
 # Three containers from ONE image, built once from the Dockerfile:
 #
 #   migrate  runs to completion, then exits      -> schema is current
-#   server   HTTP, published on host 8081        -> depends on migrate succeeding
+#   server   HTTP, published on host 8070        -> depends on migrate succeeding
 #   worker   River background jobs               -> depends on migrate succeeding
 #
 # Why a compose file and not just a Dockerfile: the Dockerfile says how to build
@@ -87,8 +87,8 @@ services:
       migrate:
         condition: service_completed_successfully
     ports:
-      # Host 8081, not 8080: 8080 belongs to the other project on this host.
-      # Point the Elest.io reverse proxy at 172.17.0.1:8081.
+      # Host 8070, not 8080: 8080 belongs to another project on this host.
+      # The Elest.io reverse proxy target MUST be 172.17.0.1:8070 to match.
       - "172.17.0.1:8070:8070"
     environment:
       <<: *app-env
