@@ -201,7 +201,7 @@ func (m *mockBillingRepo) ListPaymentMethods(_ context.Context, userID int64) ([
 	return list, nil
 }
 
-func (m *mockBillingRepo) DeletePaymentMethod(_ context.Context, id int64) error {
+func (m *mockBillingRepo) DeletePaymentMethod(_ context.Context, _, id int64) error {
 	delete(m.methods, id)
 	return nil
 }

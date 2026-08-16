@@ -7,18 +7,27 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // RegisterAdminRoutes mounts administrative organization routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
-	r.Get("/api/v1/admin/org/pending", h.ListPendingOrgs)
-	r.Post("/api/v1/admin/org/{id}/approve", h.AdminApproveOrg)
-	r.Post("/api/v1/admin/org/{id}/reject", h.AdminRejectOrg)
-	r.Post("/api/v1/admin/org/{id}/suspend", h.AdminSuspendOrg)
-	r.Put("/api/v1/admin/org/{id}", h.AdminUpdateOrg)
-	r.Get("/api/v1/admin/org/members", h.AdminListAllMembers)
+	r.Group(func(admin chi.Router) {
+		// These handlers read and write across every tenant with
+		// database.AsSystem. Without this guard the whole group was reachable
+		// by any authenticated user, matching neither the other modules nor
+		// the intent of an /admin/ path.
+		admin.Use(authctx.RequirePermission("org.admin", h.log))
+
+		admin.Get("/api/v1/admin/org/pending", h.ListPendingOrgs)
+		admin.Post("/api/v1/admin/org/{id}/approve", h.AdminApproveOrg)
+		admin.Post("/api/v1/admin/org/{id}/reject", h.AdminRejectOrg)
+		admin.Post("/api/v1/admin/org/{id}/suspend", h.AdminSuspendOrg)
+		admin.Put("/api/v1/admin/org/{id}", h.AdminUpdateOrg)
+		admin.Get("/api/v1/admin/org/members", h.AdminListAllMembers)
+	})
 }
 
 // ListPendingOrgs returns organizations awaiting platform approval.

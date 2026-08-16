@@ -195,7 +195,20 @@ func TestBillingRepository(t *testing.T) {
 			t.Errorf("payment amount mismatch: got %v, want %v", gotPay.Amount, pay.Amount)
 		}
 
-		if err := repo.DeletePaymentMethod(ctx, pm.ID); err != nil {
+		// A different user must not be able to delete this payment method by id.
+		// billing.user_payment_methods has no row-level security, and the app
+		// connects as a superuser in any case, so the user_id predicate in the
+		// query is the only thing standing between one user and another's saved
+		// card. Assert it, or a later refactor can quietly drop it.
+		const otherUserID = testBillingUserID + 1
+		if err := repo.DeletePaymentMethod(ctx, otherUserID, pm.ID); err == nil {
+			t.Fatal("a different user deleted this payment method; the user_id predicate is missing")
+		}
+		if _, err := repo.ListPaymentMethods(ctx, testBillingUserID); err != nil {
+			t.Fatalf("ListPaymentMethods failed: %v", err)
+		}
+
+		if err := repo.DeletePaymentMethod(ctx, testBillingUserID, pm.ID); err != nil {
 			t.Fatalf("DeletePaymentMethod failed: %v", err)
 		}
 	})

@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -16,6 +17,14 @@ func (h *Handler) UpdateOrg(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid organization ID", nil))
+		return
+	}
+
+	// Authentication established who is calling; it says nothing about which
+	// tenant they may act on. Without this, any logged-in user could address any
+	// organization by changing the id in the URL.
+	if err := authctx.SameOrgOrForbidden(r.Context(), id, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 
@@ -41,6 +50,14 @@ func (h *Handler) DeleteOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Authentication established who is calling; it says nothing about which
+	// tenant they may act on. Without this, any logged-in user could address any
+	// organization by changing the id in the URL.
+	if err := authctx.SameOrgOrForbidden(r.Context(), id, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
 	if err := h.service.DeleteOrganization(r.Context(), id); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
@@ -53,6 +70,14 @@ func (h *Handler) UpdateBranch(w http.ResponseWriter, r *http.Request) {
 	orgID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("org_id.invalid", "Invalid organization ID", nil))
+		return
+	}
+
+	// Authentication established who is calling; it says nothing about which
+	// tenant they may act on. Without this, any logged-in user could address any
+	// organization by changing the id in the URL.
+	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 	bid, err := strconv.ParseInt(chi.URLParam(r, "bid"), 10, 64)
@@ -83,6 +108,14 @@ func (h *Handler) DeleteBranch(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, h.log, apperr.Validation("org_id.invalid", "Invalid organization ID", nil))
 		return
 	}
+
+	// Authentication established who is calling; it says nothing about which
+	// tenant they may act on. Without this, any logged-in user could address any
+	// organization by changing the id in the URL.
+	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
 	bid, err := strconv.ParseInt(chi.URLParam(r, "bid"), 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("bid.invalid", "Invalid branch ID", nil))
@@ -101,6 +134,14 @@ func (h *Handler) UpdateMemberRole(w http.ResponseWriter, r *http.Request) {
 	orgID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("org_id.invalid", "Invalid organization ID", nil))
+		return
+	}
+
+	// Authentication established who is calling; it says nothing about which
+	// tenant they may act on. Without this, any logged-in user could address any
+	// organization by changing the id in the URL.
+	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 	uid, err := strconv.ParseInt(chi.URLParam(r, "uid"), 10, 64)
@@ -129,6 +170,14 @@ func (h *Handler) RemoveMember(w http.ResponseWriter, r *http.Request) {
 	orgID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("org_id.invalid", "Invalid organization ID", nil))
+		return
+	}
+
+	// Authentication established who is calling; it says nothing about which
+	// tenant they may act on. Without this, any logged-in user could address any
+	// organization by changing the id in the URL.
+	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 	uid, err := strconv.ParseInt(chi.URLParam(r, "uid"), 10, 64)

@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -14,13 +15,21 @@ import (
 
 // RegisterAdminRoutes mounts administrative promo routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
-	r.Get("/api/v1/admin/promo/ads", h.AdminListAds)
-	r.Post("/api/v1/admin/promo/ads/{id}/approve", h.AdminApproveAd)
-	r.Post("/api/v1/admin/promo/ads/{id}/reject", h.AdminRejectAd)
-	r.Get("/api/v1/admin/promo/sponsorships", h.AdminListSponsorships)
-	r.Post("/api/v1/admin/promo/sponsorships/{id}/review", h.AdminReviewSponsorship)
-	r.Get("/api/v1/admin/promo/packages", h.AdminListPackages)
-	r.Post("/api/v1/admin/promo/packages", h.AdminCreatePackage)
+	r.Group(func(admin chi.Router) {
+		// These handlers read and write across every tenant with
+		// database.AsSystem. Without this guard the whole group was reachable
+		// by any authenticated user, matching neither the other modules nor
+		// the intent of an /admin/ path.
+		admin.Use(authctx.RequirePermission("promo.admin", h.log))
+
+		admin.Get("/api/v1/admin/promo/ads", h.AdminListAds)
+		admin.Post("/api/v1/admin/promo/ads/{id}/approve", h.AdminApproveAd)
+		admin.Post("/api/v1/admin/promo/ads/{id}/reject", h.AdminRejectAd)
+		admin.Get("/api/v1/admin/promo/sponsorships", h.AdminListSponsorships)
+		admin.Post("/api/v1/admin/promo/sponsorships/{id}/review", h.AdminReviewSponsorship)
+		admin.Get("/api/v1/admin/promo/packages", h.AdminListPackages)
+		admin.Post("/api/v1/admin/promo/packages", h.AdminCreatePackage)
+	})
 }
 
 func (h *Handler) AdminListAds(w http.ResponseWriter, r *http.Request) {

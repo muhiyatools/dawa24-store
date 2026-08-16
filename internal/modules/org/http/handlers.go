@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -137,6 +138,14 @@ func (h *Handler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Guarded for the same reason as the handlers in mutations.go: the id comes
+	// from the URL, so without this any authenticated user could act on any
+	// organization. Status changes belong to platform staff, who hold org.admin.
+	if err := authctx.SameOrgOrForbidden(r.Context(), id, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
 	var body struct {
 		Status string `json:"status"`
 	}
@@ -171,6 +180,14 @@ func (h *Handler) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	orgID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid org ID", nil))
+		return
+	}
+
+	// Guarded for the same reason as the handlers in mutations.go: the id comes
+	// from the URL, so without this any authenticated user could act on any
+	// organization. Status changes belong to platform staff, who hold org.admin.
+	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 
@@ -213,6 +230,14 @@ func (h *Handler) AddMember(w http.ResponseWriter, r *http.Request) {
 	orgID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid org ID", nil))
+		return
+	}
+
+	// Guarded for the same reason as the handlers in mutations.go: the id comes
+	// from the URL, so without this any authenticated user could act on any
+	// organization. Status changes belong to platform staff, who hold org.admin.
+	if err := authctx.SameOrgOrForbidden(r.Context(), orgID, "org.admin"); err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 

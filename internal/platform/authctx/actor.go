@@ -83,3 +83,30 @@ func SameUserOrForbidden(ctx context.Context, targetUserID int64, overridePermis
 	return apperr.Forbidden("actor.not_owner",
 		"You do not have access to another user's data.")
 }
+
+// SameOrgOrForbidden guards access to another tenant's data.
+//
+// Pass the organization id taken from the route. Authentication establishes who
+// is calling; it says nothing about which tenant they may act on. A handler that
+// reads {id} from the URL and passes it straight to a service lets any logged-in
+// user address any organization, which is how PUT /org/organizations/{id} came
+// to accept another tenant's id.
+//
+// This matters more here than it looks: the application connects to PostgreSQL
+// as a superuser, so row-level security is inert and this check is the only
+// thing enforcing the boundary.
+func SameOrgOrForbidden(ctx context.Context, targetOrgID int64, overridePermission string) error {
+	a, ok := From(ctx)
+	if !ok {
+		return apperr.Unauthorized()
+	}
+	if a.OrganizationID == targetOrgID {
+		return nil
+	}
+	// Platform staff legitimately act across tenants; they hold the permission.
+	if overridePermission != "" && a.Can(overridePermission) {
+		return nil
+	}
+	return apperr.Forbidden("actor.wrong_tenant",
+		"You do not have access to another organization's data.")
+}

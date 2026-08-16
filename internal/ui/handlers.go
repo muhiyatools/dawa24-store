@@ -16,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -108,25 +109,68 @@ func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err erro
 	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
+	// err.Error() renders the internal form - "conflict [order.already_confirmed]:
+	// ... (detail)" for an apperr, and for anything else the raw driver text,
+	// which names tables, columns and constraints. apperr.Msg is documented as
+	// user-safe and LocalizedMsg gives the Arabic wording by code; anything that
+	// is not an apperr gets a generic message and lives only in the log above.
+	msg := h.safeMessage(err, lang)
+
 	if h.isHTMX(r) {
+		// 200 on purpose: HTMX swaps the error state into the target region. A
+		// non-2xx would leave the old content in place with nothing explaining why.
 		w.WriteHeader(http.StatusOK)
-		_ = components.ErrorState(components.ErrorStateProps{
+		if rerr := components.ErrorState(components.ErrorStateProps{
 			Title:      "حدث خطأ أثناء تحميل البيانات",
-			Message:    err.Error(),
+			Message:    msg,
 			RetryURL:   r.URL.String(),
 			RetryLabel: "إعادة المحاولة",
-		}).Render(ctx, w)
+		}).Render(ctx, w); rerr != nil {
+			h.log.ErrorContext(ctx, "render error state", "error", rerr)
+		}
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	_ = pages.ErrorPage(
+	w.WriteHeader(statusForError(err))
+	if rerr := pages.ErrorPage(
 		"عذراً، حدث خطأ",
-		err.Error(),
+		msg,
 		"/",
 		lang,
 		dir,
-	).Render(ctx, w)
+	).Render(ctx, w); rerr != nil {
+		h.log.ErrorContext(ctx, "render error page", "error", rerr)
+	}
+}
+
+// safeMessage returns wording that may be shown to a user.
+func (h *UIHandler) safeMessage(err error, lang string) string {
+	if appErr, ok := apperr.As(err); ok {
+		return appErr.LocalizedMsg(lang)
+	}
+	if lang == "ar" {
+		return "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+	}
+	return "An unexpected error occurred. Please try again."
+}
+
+// statusForError maps an error onto a response code. A full page load that
+// returns 200 for a failure is invisible to uptime checks and to the browser.
+func statusForError(err error) int {
+	switch apperr.KindOf(err) {
+	case apperr.KindNotFound:
+		return http.StatusNotFound
+	case apperr.KindValidation:
+		return http.StatusBadRequest
+	case apperr.KindUnauthorized:
+		return http.StatusUnauthorized
+	case apperr.KindForbidden:
+		return http.StatusForbidden
+	case apperr.KindConflict:
+		return http.StatusConflict
+	default:
+		return http.StatusInternalServerError
+	}
 }
 
 func (h *UIHandler) pageLimit(r *http.Request) int {

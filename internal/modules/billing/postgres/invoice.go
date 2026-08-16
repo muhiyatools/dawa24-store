@@ -199,11 +199,26 @@ func (r *Repository) ListPaymentMethods(ctx context.Context, userID int64) ([]*b
 	return list, err
 }
 
-// DeletePaymentMethod removes a user payment method.
-func (r *Repository) DeletePaymentMethod(ctx context.Context, id int64) error {
+// DeletePaymentMethod removes a payment method belonging to the given user.
+//
+// userID is part of the predicate, not just a lookup argument. The previous
+// signature took the id alone and deleted on it, and billing.user_payment_methods
+// carries no row-level security - so once any handler reached this, one user
+// could delete another's saved card by id. Requiring the owner here means a
+// caller cannot express the unsafe version.
+func (r *Repository) DeletePaymentMethod(ctx context.Context, userID, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `DELETE FROM billing.user_payment_methods WHERE id = $1;`
-		_, err := tx.Exec(txCtx, query, id)
-		return err
+		query := `DELETE FROM billing.user_payment_methods WHERE id = $1 AND user_id = $2;`
+		tag, err := tx.Exec(txCtx, query, id, userID)
+		if err != nil {
+			return err
+		}
+		// A row that exists but belongs to someone else is reported as absent
+		// rather than forbidden, so the endpoint cannot be used to probe which
+		// payment-method ids are real.
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("payment_method")
+		}
+		return nil
 	})
 }

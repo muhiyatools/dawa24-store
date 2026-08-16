@@ -101,7 +101,7 @@ func (r stubRepo) ListPaymentMethods(ctx context.Context, userID int64) ([]*bill
 	r.fail("ListPaymentMethods")
 	return nil, nil
 }
-func (r stubRepo) DeletePaymentMethod(ctx context.Context, id int64) error {
+func (r stubRepo) DeletePaymentMethod(ctx context.Context, _, id int64) error {
 	r.fail("DeletePaymentMethod")
 	return nil
 }
@@ -176,7 +176,7 @@ func (happyRepo) AddPaymentMethod(ctx context.Context, pm *billing.UserPaymentMe
 func (happyRepo) ListPaymentMethods(ctx context.Context, userID int64) ([]*billing.UserPaymentMethod, error) {
 	return []*billing.UserPaymentMethod{{ID: 1, UserID: userID, Provider: "fawry"}}, nil
 }
-func (happyRepo) DeletePaymentMethod(ctx context.Context, id int64) error {
+func (happyRepo) DeletePaymentMethod(ctx context.Context, _, id int64) error {
 	return nil
 }
 func (happyRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
