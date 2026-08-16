@@ -35,6 +35,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/platform/languages", h.ListLanguages)
 	r.Post("/api/v1/platform/contact", h.SubmitContact)
 	r.Get("/api/v1/platform/contact", h.ListContactMessages)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // ListPublicSettings returns public configs.

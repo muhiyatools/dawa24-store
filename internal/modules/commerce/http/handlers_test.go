@@ -121,6 +121,10 @@ func (r stubRepo) ListQuoteRequestsByOrg(ctx context.Context, orgID int64, isVen
 	r.fail("ListQuoteRequestsByOrg")
 	return nil, nil
 }
+func (r stubRepo) AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*commerce.Order, error) {
+	r.fail("AdminSearchOrders")
+	return nil, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

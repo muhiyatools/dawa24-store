@@ -51,6 +51,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/commerce/quotes", h.CreateQuoteRequest)
 	r.Post("/api/v1/commerce/quotes/{id}/respond", h.RespondQuote)
 	r.Get("/api/v1/commerce/quotes", h.ListQuotes)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // Checkout handles order placement.

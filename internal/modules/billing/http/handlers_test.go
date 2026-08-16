@@ -249,3 +249,17 @@ func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 		t.Error("error envelope has no request_id")
 	}
 }
+
+func (r stubRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
+	return nil
+}
+
+func (r stubRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
+	return nil, nil
+}
+
+func (r stubRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
+	return nil, nil
+}
+
+func (r stubRepo) DeletePaymentMethod(ctx context.Context, id int64) error { return nil }

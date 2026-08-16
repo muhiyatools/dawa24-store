@@ -29,4 +29,9 @@ type Repository interface {
 
 	AddPaymentMethod(ctx context.Context, pm *UserPaymentMethod) error
 	ListPaymentMethods(ctx context.Context, userID int64) ([]*UserPaymentMethod, error)
+	DeletePaymentMethod(ctx context.Context, id int64) error
+
+	AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*Subscription, error)
+	AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error
+	AdminListPayments(ctx context.Context, limit, offset int) ([]*Payment, error)
 }

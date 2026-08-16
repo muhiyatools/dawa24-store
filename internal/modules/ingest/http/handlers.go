@@ -35,6 +35,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/ingest/sessions/{id}/cancel", h.CancelSession)
 	r.Put("/api/v1/ingest/sessions/{id}/rows/{rid}", h.OverrideRowMatch)
 	r.Get("/api/v1/ingest/sessions/{id}/events", h.StreamEvents)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // RegisterUpload registers a file uploaded to S3/MinIO.

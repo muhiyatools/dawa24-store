@@ -2,9 +2,10 @@ package notifications
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"log/slog"
 	"time"
+
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"

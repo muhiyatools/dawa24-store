@@ -166,6 +166,8 @@ var protectedRoutes = []struct{ method, path string }{
 	{http.MethodPost, "/api/v1/admin/org/1/approve"},
 	{http.MethodPost, "/api/v1/admin/org/1/reject"},
 	{http.MethodPost, "/api/v1/admin/org/1/suspend"},
+	{http.MethodPut, "/api/v1/admin/org/1"},
+	{http.MethodGet, "/api/v1/admin/org/members"},
 }
 
 func TestProtectedRoutesRejectAnonymousCallers(t *testing.T) {

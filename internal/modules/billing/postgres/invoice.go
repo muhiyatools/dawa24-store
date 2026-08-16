@@ -198,3 +198,12 @@ func (r *Repository) ListPaymentMethods(ctx context.Context, userID int64) ([]*b
 	})
 	return list, err
 }
+
+// DeletePaymentMethod removes a user payment method.
+func (r *Repository) DeletePaymentMethod(ctx context.Context, id int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `DELETE FROM billing.user_payment_methods WHERE id = $1;`
+		_, err := tx.Exec(txCtx, query, id)
+		return err
+	})
+}

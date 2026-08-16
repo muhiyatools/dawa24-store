@@ -17,6 +17,8 @@ func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Post("/api/v1/admin/org/{id}/approve", h.AdminApproveOrg)
 	r.Post("/api/v1/admin/org/{id}/reject", h.AdminRejectOrg)
 	r.Post("/api/v1/admin/org/{id}/suspend", h.AdminSuspendOrg)
+	r.Put("/api/v1/admin/org/{id}", h.AdminUpdateOrg)
+	r.Get("/api/v1/admin/org/members", h.AdminListAllMembers)
 }
 
 // ListPendingOrgs returns organizations awaiting platform approval.
@@ -70,4 +72,30 @@ func (h *Handler) AdminSuspendOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSON(w, http.StatusOK, map[string]string{"status": "suspended"})
+}
+
+// AdminUpdateOrg force-updates an organization.
+func (h *Handler) AdminUpdateOrg(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid organization ID", nil))
+		return
+	}
+	var o org.Organization
+	if err := httpx.DecodeJSON(w, r, &o); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	o.ID = id
+	if err := h.service.UpdateOrganization(r.Context(), &o); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, o)
+}
+
+// AdminListAllMembers lists all members across organizations.
+func (h *Handler) AdminListAllMembers(w http.ResponseWriter, r *http.Request) {
+	// TODO: implement list all members across organizations
+	httpx.JSON(w, http.StatusOK, map[string]any{"members": []any{}})
 }

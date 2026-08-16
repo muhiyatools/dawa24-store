@@ -54,6 +54,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 		protected.Post("/api/v1/me/favorites", h.AddFavorite)
 		protected.Delete("/api/v1/me/favorites/{productId}", h.RemoveFavorite)
 	})
+
+	h.RegisterAdminRoutes(r)
 }
 
 // Register handles user registration.

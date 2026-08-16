@@ -233,3 +233,7 @@ func TestWishlistOperations(t *testing.T) {
 		t.Fatalf("RemoveFromWishlist failed: %v", err)
 	}
 }
+
+func (m *mockCommerceRepo) AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*commerce.Order, error) {
+	return nil, nil
+}

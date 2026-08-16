@@ -30,4 +30,9 @@ type Repository interface {
 	AddFavorite(ctx context.Context, userID, productID int64) error
 	RemoveFavorite(ctx context.Context, userID, productID int64) error
 	ListFavorites(ctx context.Context, userID int64) ([]int64, error)
+
+	AdminListUsers(ctx context.Context, role, status string) ([]*User, error)
+	AdminUpdateUserStatus(ctx context.Context, id int64, status string, actorID int64) error
+	AdminResetMFA(ctx context.Context, id int64, actorID int64) error
+	AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error
 }

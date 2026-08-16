@@ -107,6 +107,22 @@ func (r stubRepo) ListFavorites(context.Context, int64) ([]int64, error) {
 	r.fail("ListFavorites")
 	return nil, nil
 }
+func (r stubRepo) AdminListUsers(context.Context, string, string) ([]*identity.User, error) {
+	r.fail("AdminListUsers")
+	return nil, nil
+}
+func (r stubRepo) AdminUpdateUserStatus(context.Context, int64, string, int64) error {
+	r.fail("AdminUpdateUserStatus")
+	return nil
+}
+func (r stubRepo) AdminResetMFA(context.Context, int64, int64) error {
+	r.fail("AdminResetMFA")
+	return nil
+}
+func (r stubRepo) AdminAssignRole(context.Context, int64, string, int64) error {
+	r.fail("AdminAssignRole")
+	return nil
+}
 
 const testCookieName = "dawa24_session"
 

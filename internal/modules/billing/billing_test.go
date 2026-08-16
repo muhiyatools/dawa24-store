@@ -218,3 +218,17 @@ func TestWalletDepositAndWithdraw(t *testing.T) {
 		t.Errorf("TotalAmount = %v; want 5700.00", inv.TotalAmount)
 	}
 }
+
+func (m *mockBillingRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
+	return nil
+}
+
+func (m *mockBillingRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) DeletePaymentMethod(ctx context.Context, id int64) error { return nil }

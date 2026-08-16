@@ -56,6 +56,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 	r.Post("/api/v1/catalog/alerts", h.CreateProductAlert)
 	r.Get("/api/v1/catalog/alerts", h.ListProductAlerts)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // Search handles product search queries.

@@ -141,6 +141,16 @@ func (m *mockRepo) RemoveFavorite(_ context.Context, userID, productID int64) er
 func (m *mockRepo) ListFavorites(_ context.Context, userID int64) ([]int64, error) {
 	return nil, nil
 }
+func (m *mockRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
+	return nil, nil
+}
+func (m *mockRepo) AdminUpdateUserStatus(ctx context.Context, id int64, status string, actorID int64) error {
+	return nil
+}
+func (m *mockRepo) AdminResetMFA(ctx context.Context, id int64, actorID int64) error { return nil }
+func (m *mockRepo) AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error {
+	return nil
+}
 
 func TestServiceRegisterAndLogin(t *testing.T) {
 	ctx := context.Background()

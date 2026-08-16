@@ -40,4 +40,6 @@ type Repository interface {
 	GetQuoteRequestByID(ctx context.Context, id int64) (*QuoteRequest, error)
 	UpdateQuoteStatus(ctx context.Context, id int64, status QuoteStatus, quotePrice money.Amount, supplierNotes string) error
 	ListQuoteRequestsByOrg(ctx context.Context, orgID int64, isVendor bool, limit, offset int) ([]*QuoteRequest, error)
+
+	AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*Order, error)
 }

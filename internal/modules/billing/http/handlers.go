@@ -42,6 +42,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 	r.Post("/api/v1/billing/payment-methods", h.AddPaymentMethod)
 	r.Get("/api/v1/billing/payment-methods", h.ListPaymentMethods)
+
+	h.RegisterAdminRoutes(r)
 }
 
 // GetWallet retrieves wallet details.
