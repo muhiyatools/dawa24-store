@@ -29,17 +29,17 @@ const (
 func (e Env) IsProd() bool { return e == EnvProd }
 
 type Config struct {
-	Env       Env
-	AppName   string
-	BaseURL   string
-	HTTP      HTTP
-	Database  Database
-	Redis     Redis
-	Storage   Storage
-	Gateway   Gateway
-	Session   Session
-	Observ    Observability
-	Worker    Worker
+	Env      Env
+	AppName  string
+	BaseURL  string
+	HTTP     HTTP
+	Database Database
+	Redis    Redis
+	Storage  Storage
+	Gateway  Gateway
+	Session  Session
+	Observ   Observability
+	Worker   Worker
 }
 
 type HTTP struct {
@@ -52,11 +52,11 @@ type HTTP struct {
 }
 
 type Database struct {
-	URL             string
-	MaxConns        int32
-	MinConns        int32
-	MaxConnLifetime time.Duration
-	MaxConnIdleTime time.Duration
+	URL              string
+	MaxConns         int32
+	MinConns         int32
+	MaxConnLifetime  time.Duration
+	MaxConnIdleTime  time.Duration
 	StatementTimeout time.Duration
 }
 

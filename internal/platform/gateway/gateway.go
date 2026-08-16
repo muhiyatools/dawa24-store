@@ -80,14 +80,14 @@ type Request struct {
 
 // Response is a capability result.
 type Response struct {
-	Content    string
-	Model      string // Gateway's resolved model id, for logging only
-	RequestID  string // Gateway request_logs.id, stored alongside the domain row
-	InputTok   int
-	OutputTok  int
+	Content     string
+	Model       string // Gateway's resolved model id, for logging only
+	RequestID   string // Gateway request_logs.id, stored alongside the domain row
+	InputTok    int
+	OutputTok   int
 	CostNanoUSD int64
-	FromCache  bool
-	Fallback   bool // true when this came from the deterministic path
+	FromCache   bool
+	Fallback    bool // true when this came from the deterministic path
 }
 
 // Client is the Store-facing interface. Modules depend on this, never on the
@@ -370,7 +370,7 @@ func backoff(attempt int) time.Duration {
 }
 
 var (
-	randMu sync.Mutex
+	randMu    sync.Mutex
 	randState uint64 = 0x2545F4914F6CDD1D
 )
 
