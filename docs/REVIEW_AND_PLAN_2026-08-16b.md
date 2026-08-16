@@ -1,5 +1,15 @@
 # Review of Gemini's execution, and the plan from here
 
+> **CORRECTION (see docs/REMAINING_WORK.md).** Two findings below were my own
+> measurement errors, not defects in the work:
+>
+> - `http/` coverage is **53–68%**, not 9–17%. The 50% target is met.
+> - Admin routes are **47 registrations across 64 distinct paths**, not 37. The
+>   "60+" claim was fair.
+>
+> Both were bad awk column parsing. The two findings that were real — migration
+> 029 deleted from disk, and six repository suites skipping on superuser — stand.
+
 **Reviewed at:** commit `38ed0d6` · **Method:** measurement against the live database, not the summary.
 
 ---
