@@ -99,9 +99,24 @@ func (w *statusWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
-// Unwrap lets http.ResponseController reach the underlying writer, which is what
-// makes SSE flushing work through this wrapper.
+// Unwrap lets http.ResponseController reach the underlying writer.
 func (w *statusWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+
+// Flush forwards to the underlying writer.
+//
+// Unwrap alone is not enough: it only helps callers that go through
+// http.ResponseController. A handler doing the conventional
+// `w.(http.Flusher)` assertion sees this wrapper, not the real writer, and
+// without this method the assertion fails — which silently disabled every SSE
+// endpoint behind this middleware, including import progress.
+func (w *statusWriter) Flush() {
+	if !w.wrote {
+		w.WriteHeader(http.StatusOK)
+	}
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
 
 func headersSent(w http.ResponseWriter) bool {
 	sw, ok := w.(*statusWriter)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -146,24 +147,51 @@ func (h *Handler) StreamEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
+	// Reverse proxies buffer responses by default, which holds every event until
+	// the stream closes — the client would see one burst at the end instead of
+	// live progress. This app runs behind such a proxy in every deployed
+	// environment, so without this header SSE appears broken in production while
+	// working locally.
+	w.Header().Set("X-Accel-Buffering", "no")
+
+	// Emit immediately rather than making the client wait a full tick to learn
+	// anything. An import that is already finished then closes the stream at
+	// once instead of hanging for a second.
+	emit := func() bool {
+		session, err := h.service.GetSessionProgress(r.Context(), id)
+		if err != nil {
+			return false
+		}
+		data, _ := json.Marshal(session)
+		fmt.Fprintf(w, "event: progress\ndata: %s\n\n", data)
+		flusher.Flush()
+		return session.Status != ingest.StatusCompleted && session.Status != ingest.StatusFailed
+	}
+
+	if !emit() {
+		return
+	}
 
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
+
+	// A session wedged in `processing` — a worker that died mid-import — would
+	// otherwise hold this goroutine and one query per second for as long as the
+	// browser tab stays open. The cap bounds that; the client reconnects if it
+	// still cares.
+	const maxStreamDuration = 30 * time.Minute
+	deadline := time.After(maxStreamDuration)
 
 	for {
 		select {
 		case <-r.Context().Done():
 			return
-		case <-ticker.C:
-			session, err := h.service.GetSessionProgress(r.Context(), id)
-			if err != nil {
-				return
-			}
-			data, _ := json.Marshal(session)
-			fmt.Fprintf(w, "event: progress\ndata: %s\n\n", data)
+		case <-deadline:
+			fmt.Fprint(w, "event: timeout\ndata: {\"reason\":\"stream_duration_exceeded\"}\n\n")
 			flusher.Flush()
-
-			if session.Status == "completed" || session.Status == "failed" {
+			return
+		case <-ticker.C:
+			if !emit() {
 				return
 			}
 		}
