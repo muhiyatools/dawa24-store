@@ -55,8 +55,11 @@ func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *UIHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+	errorMsg := r.URL.Query().Get("error")
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.Onboarding().Render(ctx, w); err != nil {
+	if err := pages.RegisterPage(lang, dir, errorMsg).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render register page", "error", err)
 	}
 }
