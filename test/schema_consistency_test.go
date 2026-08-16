@@ -175,3 +175,89 @@ func TestRepositorySQLMatchesMigrations(t *testing.T) {
 	}
 	t.Logf("verified %d SELECT statements against %d tables", checked, len(schema))
 }
+
+var (
+	reInsertInto = regexp.MustCompile(`(?is)INSERT INTO\s+([a-z_]+\.[a-z_]+)\s*\(([^)]*)\)`)
+	reUpdateSet  = regexp.MustCompile(`(?is)UPDATE\s+([a-z_]+\.[a-z_]+)\s+SET\s+(.*?)(?:\bWHERE\b|;|$)`)
+	reAssignment = regexp.MustCompile(`(?m)(?:^|,)\s*([a-z_][a-z_0-9]*)\s*=`)
+)
+
+// TestWriteSQLMatchesMigrations covers the other half: columns a repository
+// writes to.
+//
+// SELECT coverage alone missed three columns added by an endpoint whose table
+// had never gained them, because a write is just as capable of naming a column
+// that does not exist — and a failing write loses data rather than merely
+// failing a read.
+func TestWriteSQLMatchesMigrations(t *testing.T) {
+	root := ".."
+	schema := loadSchema(t, filepath.Join(root, "db", "migrations"))
+
+	var goFiles []string
+	err := filepath.Walk(filepath.Join(root, "internal"), func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(path, ".go") &&
+			strings.Contains(filepath.ToSlash(path), "/postgres/") &&
+			!strings.HasSuffix(path, "_test.go") {
+			goFiles = append(goFiles, path)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk internal: %v", err)
+	}
+
+	inserts, updates := 0, 0
+	for _, f := range goFiles {
+		raw, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatalf("read %s: %v", f, err)
+		}
+		rel := filepath.ToSlash(f)
+
+		for _, lit := range reSQLLiteral.FindAllStringSubmatch(string(raw), -1) {
+			query := lit[1]
+
+			for _, m := range reInsertInto.FindAllStringSubmatch(query, -1) {
+				table := strings.ToLower(m[1])
+				if _, ok := schema[table]; !ok {
+					t.Errorf("%s: inserts into %s, which no migration creates", rel, table)
+					continue
+				}
+				inserts++
+				for _, c := range strings.Split(m[2], ",") {
+					name := strings.TrimSpace(c)
+					if !reIdent.MatchString(name) {
+						continue
+					}
+					if !schema[table][name] {
+						t.Errorf("%s: INSERT names %s.%s but no migration defines it", rel, table, name)
+					}
+				}
+			}
+
+			for _, m := range reUpdateSet.FindAllStringSubmatch(query, -1) {
+				table := strings.ToLower(m[1])
+				if _, ok := schema[table]; !ok {
+					t.Errorf("%s: updates %s, which no migration creates", rel, table)
+					continue
+				}
+				updates++
+				for _, a := range reAssignment.FindAllStringSubmatch(m[2], -1) {
+					name := a[1]
+					if !schema[table][name] {
+						t.Errorf("%s: UPDATE sets %s.%s but no migration defines it", rel, table, name)
+					}
+				}
+			}
+		}
+	}
+
+	if inserts < 20 || updates < 20 {
+		t.Errorf("only %d INSERT and %d UPDATE statements checked; the extractor is probably missing queries",
+			inserts, updates)
+	}
+	t.Logf("verified %d INSERT and %d UPDATE statements", inserts, updates)
+}

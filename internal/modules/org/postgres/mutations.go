@@ -87,7 +87,7 @@ func (r *Repository) DeleteBranch(ctx context.Context, id, orgID int64) error {
 // UpdateMemberRole changes a member's role in the organization.
 func (r *Repository) UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		tag, err := tx.Exec(txCtx, `UPDATE org.members SET role = $1 WHERE organization_id = $2 AND user_id = $3;`, role, orgID, userID)
+		tag, err := tx.Exec(txCtx, `UPDATE org.members SET role_key = $1 WHERE organization_id = $2 AND user_id = $3;`, role, orgID, userID)
 		if err != nil {
 			return err
 		}
