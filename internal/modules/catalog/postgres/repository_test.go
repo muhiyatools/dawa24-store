@@ -1,0 +1,356 @@
+package postgres_test
+
+import (
+	"context"
+	"os"
+
+	"testing"
+	"time"
+
+	"github.com/jackc/pgx/v5"
+
+	dbfs "github.com/muhiya/dawa24-store/db"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
+	"github.com/muhiya/dawa24-store/internal/platform/config"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+)
+
+func getTestDB(t *testing.T) *database.DB {
+	t.Helper()
+	if testing.Short() {
+		t.Skip("skipping database integration test in short mode")
+	}
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		dbURL = os.Getenv("TEST_DATABASE_URL")
+	}
+	if dbURL == "" {
+		t.Skip("DATABASE_URL not set; skipping integration test")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cfg := config.Database{
+		URL:              dbURL,
+		MaxConns:         5,
+		MinConns:         1,
+		MaxConnLifetime:  time.Hour,
+		MaxConnIdleTime:  30 * time.Minute,
+		StatementTimeout: 10 * time.Second,
+	}
+
+	db, err := database.Open(ctx, cfg)
+	if err != nil {
+		t.Skipf("cannot connect to database: %v", err)
+	}
+
+	migrations, err := database.LoadMigrations(dbfs.Migrations, "migrations")
+	if err != nil {
+		t.Fatalf("failed to load migrations: %v", err)
+	}
+
+	var isSuper bool
+	if err := db.Pool().QueryRow(ctx, `SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&isSuper); err == nil && isSuper {
+		t.Skip("connected as a superuser")
+	}
+
+	pending, err := db.PendingCount(ctx, migrations)
+	if err != nil {
+		t.Fatalf("cannot read migration state: %v", err)
+	}
+	if pending > 0 {
+		t.Fatalf("%d migrations pending", pending)
+	}
+	return db
+}
+
+func resetFixtures(t *testing.T, db *database.DB, orgID int64) {
+	t.Helper()
+	ctx := database.AsSystem(context.Background())
+	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		// Clean catalog tables
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.product_alerts WHERE product_id IN (SELECT id FROM catalog.products WHERE organization_id = $1)`, orgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.customer_product_mappings WHERE organization_id = $1`, orgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.product_variants WHERE organization_id = $1`, orgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgID)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id >= 88100 AND id <= 88199`)
+		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id >= 88100 AND id <= 88199`)
+		// Setup org
+		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Catalog Test Org"}') ON CONFLICT DO NOTHING`, orgID)
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("reset fixtures failed: %v", err)
+	}
+}
+
+func TestCatalogRepository(t *testing.T) {
+	db := getTestDB(t)
+	if db == nil {
+		return
+	}
+	defer db.Close()
+
+	const orgID int64 = 88101
+	resetFixtures(t, db, orgID)
+
+	ctx := database.WithTenant(context.Background(), orgID)
+	repo := postgres.NewRepository(db)
+
+	t.Run("Categories", func(t *testing.T) {
+		cat := &catalog.Category{
+			ID:     88100,
+			Name:   i18n.Text{"en": "Test Category"},
+			Status: "active",
+		}
+		err := repo.CreateCategory(ctx, cat)
+		if err != nil {
+			t.Fatalf("CreateCategory failed: %v", err)
+		}
+
+		got, err := repo.GetCategoryByID(ctx, 88100)
+		if err != nil {
+			t.Fatalf("GetCategoryByID failed: %v", err)
+		}
+		if got.Name["en"] != "Test Category" {
+			t.Errorf("expected name 'Test Category', got %q", got.Name["en"])
+		}
+
+		cat.Name = i18n.Text{"en": "Updated Category"}
+		err = repo.UpdateCategory(ctx, cat)
+		if err != nil {
+			t.Fatalf("UpdateCategory failed: %v", err)
+		}
+
+		list, err := repo.ListCategories(ctx)
+		if err != nil {
+			t.Fatalf("ListCategories failed: %v", err)
+		}
+		if len(list) == 0 {
+			t.Error("expected at least 1 category in list")
+		}
+
+		count, err := repo.CountProductsInCategory(ctx, 88100)
+		if err != nil {
+			t.Fatalf("CountProductsInCategory failed: %v", err)
+		}
+		if count != 0 {
+			t.Errorf("expected 0 products, got %d", count)
+		}
+
+		// Keep it around for product tests
+	})
+
+	t.Run("Brands", func(t *testing.T) {
+		brand := &catalog.Brand{
+			ID:     88101,
+			Name:   i18n.Text{"en": "Test Brand"},
+			Status: "active",
+		}
+		err := repo.CreateBrand(ctx, brand)
+		if err != nil {
+			t.Fatalf("CreateBrand failed: %v", err)
+		}
+
+		got, err := repo.GetBrandByID(ctx, 88101)
+		if err != nil {
+			t.Fatalf("GetBrandByID failed: %v", err)
+		}
+		if got.Name["en"] != "Test Brand" {
+			t.Errorf("expected name 'Test Brand', got %q", got.Name["en"])
+		}
+
+		brand.Name = i18n.Text{"en": "Updated Brand"}
+		err = repo.UpdateBrand(ctx, brand)
+		if err != nil {
+			t.Fatalf("UpdateBrand failed: %v", err)
+		}
+
+		list, err := repo.ListBrands(ctx)
+		if err != nil {
+			t.Fatalf("ListBrands failed: %v", err)
+		}
+		if len(list) == 0 {
+			t.Error("expected at least 1 brand in list")
+		}
+
+		count, err := repo.CountProductsInBrand(ctx, 88101)
+		if err != nil {
+			t.Fatalf("CountProductsInBrand failed: %v", err)
+		}
+		if count != 0 {
+			t.Errorf("expected 0 products, got %d", count)
+		}
+	})
+
+	t.Run("Products", func(t *testing.T) {
+		catID := int64(88100)
+		brandID := int64(88101)
+		p := &catalog.Product{
+			ID:             88102,
+			OrganizationID: orgID,
+			CategoryID:     &catID,
+			BrandID:        &brandID,
+			Name:           i18n.Text{"en": "Test Product"},
+			Price:          money.FromMinor(1050), // 10.50
+			Status:         catalog.StatusActive,
+			Description:    i18n.Text{}, // Nullable equivalent
+		}
+		err := repo.CreateProduct(ctx, p)
+		if err != nil {
+			t.Fatalf("CreateProduct failed: %v", err)
+		}
+
+		got, err := repo.GetProductByID(ctx, 88102)
+		if err != nil {
+			t.Fatalf("GetProductByID failed: %v", err)
+		}
+		if got.Price.Minor() != 1050 {
+			t.Errorf("money round-trip failed: got %v", got.Price)
+		}
+		if got.CategoryID == nil || *got.CategoryID != catID {
+			t.Errorf("nullable column read failed")
+		}
+
+		p.Name = i18n.Text{"en": "Updated Product"}
+		err = repo.UpdateProduct(ctx, p)
+		if err != nil {
+			t.Fatalf("UpdateProduct failed: %v", err)
+		}
+
+		list, err := repo.ListProducts(ctx, string(catalog.StatusActive), 10, 0)
+		if err != nil {
+			t.Fatalf("ListProducts failed: %v", err)
+		}
+		if len(list) == 0 {
+			t.Error("expected at least 1 product")
+		}
+
+		orgIDPtr := orgID
+		search, err := repo.SearchProducts(ctx, catalog.SearchParams{
+			OrganizationID: &orgIDPtr,
+			Limit:          10,
+		})
+		if err != nil {
+			t.Fatalf("SearchProducts failed: %v", err)
+		}
+		if len(search) == 0 {
+			t.Error("expected at least 1 product in search")
+		}
+
+		updated, err := repo.SetProductsStatus(ctx, []int64{88102}, catalog.StatusInactive)
+		if err != nil {
+			t.Fatalf("SetProductsStatus failed: %v", err)
+		}
+		if updated != 1 {
+			t.Errorf("expected 1 row updated, got %d", updated)
+		}
+	})
+
+	t.Run("Variants", func(t *testing.T) {
+		v := &catalog.ProductVariant{
+			ID:             88103,
+			OrganizationID: orgID,
+			ProductID:      88102,
+			Name:           i18n.Text{"en": "Variant 1"},
+			Price:          money.FromMinor(500),
+			CostPrice:      money.FromMinor(300),
+			Status:         catalog.StatusActive,
+		}
+		err := repo.CreateVariant(ctx, v)
+		if err != nil {
+			t.Fatalf("CreateVariant failed: %v", err)
+		}
+
+		got, err := repo.GetVariantByID(ctx, 88103)
+		if err != nil {
+			t.Fatalf("GetVariantByID failed: %v", err)
+		}
+		if got.Price.Minor() != 500 {
+			t.Errorf("money round-trip failed: got %v", got.Price)
+		}
+
+		v.Name = i18n.Text{"en": "Updated Variant"}
+		err = repo.UpdateVariant(ctx, v)
+		if err != nil {
+			t.Fatalf("UpdateVariant failed: %v", err)
+		}
+
+		variants, err := repo.ListVariantsByProduct(ctx, 88102)
+		if err != nil {
+			t.Fatalf("ListVariantsByProduct failed: %v", err)
+		}
+		if len(variants) == 0 {
+			t.Error("expected at least 1 variant")
+		}
+
+		err = repo.DeleteVariant(ctx, 88103)
+		if err != nil {
+			t.Fatalf("DeleteVariant failed: %v", err)
+		}
+	})
+
+	t.Run("CustomerPricing", func(t *testing.T) {
+		m := &catalog.CustomerProductMapping{
+			ID:             88104,
+			OrganizationID: orgID,
+			CustomerOrgID:  88105,
+			ProductID:      88102,
+			CustomPrice:    money.FromMinor(800),
+			IsActive:       true,
+		}
+		err := repo.SetCustomerPricing(ctx, m)
+		if err != nil {
+			t.Fatalf("SetCustomerPricing failed: %v", err)
+		}
+
+		got, err := repo.GetCustomerPricing(ctx, orgID, 88105, 88102)
+		if err != nil {
+			t.Fatalf("GetCustomerPricing failed: %v", err)
+		}
+		if got.CustomPrice.Minor() != 800 {
+			t.Errorf("money round-trip failed for custom price: got %v", got.CustomPrice)
+		}
+	})
+
+	t.Run("ProductAlerts", func(t *testing.T) {
+		a := &catalog.ProductAlert{
+			ID:          88106,
+			UserID:      88107,
+			ProductID:   88102,
+			AlertType:   "price_drop",
+			TargetPrice: money.FromMinor(900),
+		}
+		err := repo.CreateProductAlert(ctx, a)
+		if err != nil {
+			t.Fatalf("CreateProductAlert failed: %v", err)
+		}
+
+		alerts, err := repo.ListProductAlertsByUser(ctx, 88107)
+		if err != nil {
+			t.Fatalf("ListProductAlertsByUser failed: %v", err)
+		}
+		if len(alerts) == 0 {
+			t.Error("expected at least 1 alert")
+		}
+	})
+
+	t.Run("Cleanup", func(t *testing.T) {
+		err := repo.DeleteProduct(ctx, 88102)
+		if err != nil {
+			t.Fatalf("DeleteProduct failed: %v", err)
+		}
+		err = repo.DeleteCategory(ctx, 88100)
+		if err != nil {
+			t.Fatalf("DeleteCategory failed: %v", err)
+		}
+		err = repo.DeleteBrand(ctx, 88101)
+		if err != nil {
+			t.Fatalf("DeleteBrand failed: %v", err)
+		}
+	})
+}
