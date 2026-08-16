@@ -172,9 +172,15 @@ func newRouter(
 			"No such endpoint. Try /health, /ready, /api/v1/status, or /."))
 	})
 
+	// 405, not 422: the request body was never the problem, the verb was.
+	// apperr has no method-not-allowed kind, so this writes the envelope
+	// directly rather than mapping onto a kind that means something else.
 	r.MethodNotAllowed(func(w http.ResponseWriter, req *http.Request) {
-		httpx.Error(w, req, log, apperr.New(apperr.KindValidation, "route.method_not_allowed",
-			"That endpoint exists but does not accept this HTTP method."))
+		var body httpx.ErrorBody
+		body.Error.Code = "route.method_not_allowed"
+		body.Error.Message = "That endpoint exists but does not accept this HTTP method."
+		body.Error.RequestID = observability.RequestIDFrom(req.Context())
+		httpx.JSON(w, http.StatusMethodNotAllowed, body)
 	})
 
 	// Mount all domain module endpoints
