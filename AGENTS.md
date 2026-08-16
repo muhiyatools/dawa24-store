@@ -2,6 +2,10 @@
 
 Read this before changing anything. It is short on purpose.
 
+> **Continuing this project?** Start with [`HANDOFF.md`](HANDOFF.md) — it records
+> exactly what is built, what is not, every reference path, and the remaining
+> phases in order.
+
 ## What this is
 
 Dawa24 is a **B2B pharmaceutical marketplace** for the Egyptian market: pharmacies
