@@ -13,7 +13,18 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-func AdminSettings(lang, dir string) templ.Component {
+// AdminSettingsValues carries the stored platform settings into the form.
+//
+// The fields used to be hardcoded in the markup — support@dawa24.eg and 1.5 —
+// and the submit handler logged the post and redirected without writing
+// anything. The form showed the same two values back after every save, so it
+// looked like it was working.
+type AdminSettingsValues struct {
+	SupportEmail   string
+	CommissionRate string
+}
+
+func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -54,7 +65,33 @@ func AdminSettings(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h2 class=\"card-title\" style=\"margin:0;\">الإعدادات العامة وبيانات منظومة دواء 24</h2></div><form action=\"/admin/settings\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\"><label class=\"form-label\">العملة الافتراضية للمعاملات</label> <input type=\"text\" name=\"currency\" value=\"EGP (الجنيه المصري)\" disabled class=\"form-input\" style=\"background:var(--neutral-50); color:var(--neutral-500);\"></div><div class=\"form-group\"><label class=\"form-label\">اللغات المعتمدة في النظام</label> <input type=\"text\" name=\"languages\" value=\"العربية (الرئيسية)، English\" disabled class=\"form-input\" style=\"background:var(--neutral-50); color:var(--neutral-500);\"></div><div class=\"form-group\"><label class=\"form-label\">بريد الدعم الفني والإشعارات</label> <input type=\"email\" name=\"support_email\" value=\"support@dawa24.eg\" class=\"form-input\"></div><div class=\"form-group\"><label class=\"form-label\">نسبة عمولة المنصة الافتراضية (%)</label> <input type=\"number\" name=\"commission_rate\" value=\"1.5\" step=\"0.1\" class=\"form-input tabular-nums\"></div><div style=\"display:flex; justify-content:flex-end; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.65rem 1.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h2 class=\"card-title\" style=\"margin:0;\">الإعدادات العامة وبيانات منظومة دواء 24</h2></div><form action=\"/admin/settings\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\"><label class=\"form-label\" for=\"currency\">العملة الافتراضية للمعاملات</label> <input id=\"currency\" type=\"text\" name=\"currency\" value=\"EGP (الجنيه المصري)\" disabled class=\"form-input\" style=\"background:var(--neutral-50); color:var(--neutral-500);\"><p class=\"dropzone-hint\" style=\"margin-top:0.35rem;\">العملة ثابتة على مستوى المنصة ولا يمكن تغييرها من هنا.</p></div><div class=\"form-group\"><label class=\"form-label\" for=\"languages\">اللغات المعتمدة في النظام</label> <input id=\"languages\" type=\"text\" name=\"languages\" value=\"العربية (الرئيسية)، English\" disabled class=\"form-input\" style=\"background:var(--neutral-50); color:var(--neutral-500);\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"support_email\">بريد الدعم الفني والإشعارات</label> <input id=\"support_email\" type=\"email\" name=\"support_email\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SupportEmail)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 50, Col: 33}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" required class=\"form-input\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"commission_rate\">نسبة عمولة المنصة الافتراضية (%)</label> <input id=\"commission_rate\" type=\"number\" name=\"commission_rate\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.CommissionRate)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 63, Col: 35}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" step=\"0.1\" min=\"0\" max=\"100\" required class=\"form-input tabular-nums\"></div><div style=\"display:flex; justify-content:flex-end; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.65rem 1.75rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -62,7 +99,7 @@ func AdminSettings(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>حفظ التعديلات</span></button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>حفظ التعديلات</span></button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

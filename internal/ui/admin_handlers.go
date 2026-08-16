@@ -4,10 +4,12 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -97,20 +99,92 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Platform settings keys. These live in platform_admin.system_settings.
+const (
+	settingSupportEmail   = "platform.support_email"
+	settingCommissionRate = "platform.commission_rate"
+)
+
 func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	// The form used to carry these two values as literals in the markup, so it
+	// always displayed the defaults regardless of what had been saved.
+	values := pages.AdminSettingsValues{
+		SupportEmail:   "support@dawa24.eg",
+		CommissionRate: "1.5",
+	}
+	if h.adminSvc != nil {
+		if s, err := h.adminSvc.GetSetting(ctx, settingSupportEmail); err == nil && s != nil {
+			if v, ok := s.Value["value"].(string); ok && v != "" {
+				values.SupportEmail = v
+			}
+		}
+		if s, err := h.adminSvc.GetSetting(ctx, settingCommissionRate); err == nil && s != nil {
+			if v, ok := s.Value["value"].(string); ok && v != "" {
+				values.CommissionRate = v
+			}
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminSettings(lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminSettings(values, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin settings page", "error", err)
 	}
 }
 
+// AdminSettingsSubmit persists the platform settings.
+//
+// This previously logged the submitted values and redirected with
+// ?saved=true, writing nothing. The page then re-rendered its hardcoded
+// defaults, which happened to match what had just been typed often enough that
+// the form looked like it worked.
 func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	h.log.InfoContext(ctx, "admin updated platform settings", "support_email", r.PostFormValue("support_email"))
-	http.Redirect(w, r, "/admin/settings?saved=true", http.StatusSeeOther)
+
+	if h.adminSvc == nil {
+		h.renderError(w, r, apperr.Unavailable("platform_admin", nil))
+		return
+	}
+
+	supportEmail := strings.TrimSpace(r.PostFormValue("support_email"))
+	commissionRate := strings.TrimSpace(r.PostFormValue("commission_rate"))
+
+	if supportEmail == "" || !strings.Contains(supportEmail, "@") {
+		h.redirectWithNotice(w, r, "/admin/settings", "error", "بريد الدعم الفني غير صالح.")
+		return
+	}
+	rate, err := strconv.ParseFloat(commissionRate, 64)
+	if err != nil || rate < 0 || rate > 100 {
+		h.redirectWithNotice(w, r, "/admin/settings", "error", "نسبة العمولة يجب أن تكون بين 0 و 100.")
+		return
+	}
+
+	settings := []*platformadmin.SystemSetting{
+		{
+			Key:         settingSupportEmail,
+			Value:       map[string]any{"value": supportEmail},
+			Description: "Support and notification email address",
+			IsPublic:    true,
+		},
+		{
+			Key:         settingCommissionRate,
+			Value:       map[string]any{"value": commissionRate},
+			Description: "Default platform commission rate, percent",
+			IsPublic:    false,
+		},
+	}
+	for _, s := range settings {
+		if err := h.adminSvc.SetSetting(ctx, s); err != nil {
+			h.log.ErrorContext(ctx, "save platform setting", "error", err, "key", s.Key)
+			h.redirectWithNotice(w, r, "/admin/settings", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.log.InfoContext(ctx, "platform settings updated", "support_email", supportEmail, "commission_rate", commissionRate)
+	h.redirectWithNotice(w, r, "/admin/settings", "success", "تم حفظ الإعدادات بنجاح.")
 }
 
 // Administrative actions on user accounts.
