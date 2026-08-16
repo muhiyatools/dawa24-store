@@ -68,7 +68,7 @@ func VendorOrders(shipments []*commerce.OrderShipment, lang, dir string, isParti
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.VendorShell("طلبيات الموردين والشحنات | Orders & Shipments", "shipments", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.VendorShell("طلبيات الموردين والشحنات | Orders & Shipments", "orders", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -107,12 +107,12 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:hidden;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.9rem;\"><thead><tr style=\"background:var(--neutral-50); border-bottom:1px solid var(--neutral-200);\"><th style=\"padding:0.75rem 1rem;\">رقم الشحنة</th><th style=\"padding:0.75rem 1rem;\">الطلب الرئيسي</th><th style=\"padding:0.75rem 1rem;\">قيمة الشحنة</th><th style=\"padding:0.75rem 1rem;\">الحالة الحالية</th><th style=\"padding:0.75rem 1rem;\">التاريخ</th><th style=\"padding:0.75rem 1rem; text-align:end;\">تحديث الحالة</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"padding:0; overflow:hidden; margin-bottom:0;\"><table class=\"data-table\"><thead><tr><th>رقم الشحنة</th><th>الطلب الرئيسي</th><th>قيمة الشحنة</th><th>الحالة الحالية</th><th>التاريخ</th><th style=\"text-align:end;\">تحديث الحالة</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, sh := range shipments {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<tr style=\"border-bottom:1px solid var(--neutral-100);\"><td style=\"padding:0.75rem 1rem; font-weight:700; color:var(--primary-700);\" class=\"tabular-nums\">#")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<tr><td style=\"font-weight:700; color:var(--primary-700);\" class=\"tabular-nums\">#")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -125,7 +125,7 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</td><td style=\"padding:0.75rem 1rem; color:var(--neutral-600);\">Order #")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</td><td style=\"color:var(--neutral-600);\">Order #")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -138,7 +138,7 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</td><td style=\"padding:0.75rem 1rem; font-weight:700; color:var(--neutral-900);\" class=\"tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</td><td style=\"font-weight:700; color:var(--neutral-900);\" class=\"tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -151,7 +151,7 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " EGP</td><td style=\"padding:0.75rem 1rem;\"><span style=\"font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px; background:var(--primary-50); color:var(--primary-700); font-weight:600;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " EGP</td><td><span class=\"badge badge-sky\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -164,7 +164,7 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></td><td style=\"padding:0.75rem 1rem; color:var(--neutral-500);\" class=\"tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></td><td style=\"color:var(--neutral-500);\" class=\"tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -177,7 +177,7 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td style=\"padding:0.75rem 1rem; text-align:end;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td style=\"text-align:end;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -195,12 +195,20 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" method=\"POST\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"status\" value=\"confirmed\"> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-size:0.75rem; padding:0.25rem 0.6rem;\">تأكيد الطلب ✓</button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" method=\"POST\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"status\" value=\"confirmed\"> <button type=\"submit\" class=\"btn btn-primary btn-sm\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>تأكيد الطلب</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else if sh.Status == commerce.StatusConfirmed {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<form action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -213,12 +221,20 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" method=\"POST\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"status\" value=\"shipped\"> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-size:0.75rem; padding:0.25rem 0.6rem;\">بدء الشحن 🚚</button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" method=\"POST\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"status\" value=\"shipped\"> <button type=\"submit\" class=\"btn btn-primary btn-sm\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconTruck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>بدء الشحن</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else if sh.Status == commerce.StatusShipped {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<form action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<form action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -231,22 +247,38 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" method=\"POST\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"status\" value=\"delivered\"> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-size:0.75rem; padding:0.25rem 0.6rem;\">تم التسليم ✅</button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" method=\"POST\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"status\" value=\"delivered\"> <button type=\"submit\" class=\"btn btn-primary btn-sm\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconCheckCircle("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>تم التسليم</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span style=\"font-size:0.8rem; color:var(--neutral-500);\">مكتمل</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-emerald\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>مكتمل</span></span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</tbody></table></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</tbody></table></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

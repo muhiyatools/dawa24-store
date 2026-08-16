@@ -8,7 +8,10 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
 
 func PrivacyPolicy() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -43,13 +46,21 @@ func PrivacyPolicy() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"content card\" dir=\"rtl\" style=\"max-width: 800px; margin: 2rem auto; padding: 2rem;\"><h1 style=\"margin-bottom: 1rem; color: var(--primary-700);\">سياسة الخصوصية — Dawa24</h1><p style=\"color: var(--neutral-700); line-height: 1.8;\">نحن في منصة دواء24 نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية والتجارية. تهدف هذه الوثيقة إلى توضيح كيفية جمع واستخدام وحماية البيانات الخاصة بالصيدليات والموردين والعملاء.</p><h2 style=\"margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.25rem;\">جمع البيانات</h2><p style=\"color: var(--neutral-600); line-height: 1.7;\">يتم جمع البيانات الأساسية للتسجيل والتحقق من التراخيص الطبية والتجارية لضمان أمان المعاملات الدوائية.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"max-width:880px; margin:2rem auto; padding:2.5rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconShield("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;\">سياسة الخصوصية — دواء 24</h1></div><p style=\"color:var(--neutral-700); line-height:1.9; margin-bottom:1.5rem; font-size:0.95rem;\">نحن في منصة دواء 24 نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية والتجارية. تهدف هذه الوثيقة إلى توضيح كيفية جمع واستخدام وحماية البيانات الخاصة بالصيدليات والموردين والمؤسسات الطبية المعتمدة.</p><h2 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-top:1.75rem; margin-bottom:0.75rem;\">جمع واستخدام البيانات</h2><p style=\"color:var(--neutral-600); line-height:1.8; font-size:0.925rem;\">يتم جمع البيانات الأساسية للتسجيل والتحقق من التراخيص الطبية والتجارية لضمان أمان المعاملات الدوائية ومطابقتها للمواصفات والقوانين المصرية.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("سياسة الخصوصية", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("سياسة الخصوصية | Privacy Policy", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -90,13 +101,21 @@ func TermsOfService() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"content card\" dir=\"rtl\" style=\"max-width: 800px; margin: 2rem auto; padding: 2rem;\"><h1 style=\"margin-bottom: 1rem; color: var(--primary-700);\">شروط الاستخدام والخدمة — Dawa24</h1><p style=\"color: var(--neutral-700); line-height: 1.8;\">باستخدامك لمنصة دواء24 لتوزيع الأدوية والمستلزمات الصيدلانية، فإنك توافق على الالتزام بجميع القوانين واللوائح المنظمة لتداول الأدوية المعمول بها في جمهورية مصر العربية.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"max-width:880px; margin:2rem auto; padding:2.5rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFileText("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;\">شروط الاستخدام والخدمة — دواء 24</h1></div><p style=\"color:var(--neutral-700); line-height:1.9; font-size:0.95rem;\">باستخدامك لمنصة دواء 24 لتوزيع الأدوية والمستلزمات الصيدلانية، فإنك توافق على الالتزام بجميع القوانين واللوائح المنظمة لتداول الأدوية المعمول بها في جمهورية مصر العربية، والالتزام بمعايير الحفظ والتخزين والتسليم المعتمدة.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("شروط الخدمة", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("شروط الخدمة | Terms of Service", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

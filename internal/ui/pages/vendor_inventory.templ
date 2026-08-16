@@ -12,17 +12,19 @@ templ VendorInventory(stocks []*inventory.Stock, lang, dir string, isPartial boo
 		@VendorInventoryTable(stocks)
 	} else {
 		@layouts.VendorShell("المخزون والأرصدة | Inventory & Stock", "inventory", lang, dir) {
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">أرصدة المخازن والفروع</h2>
 					<p style="font-size:0.875rem; color:var(--neutral-500);">مراقبة الكميات المتاحة والمحجوزة للطلبيات في الوقت الفعلي</p>
 				</div>
 				<div style="display:flex; gap:0.75rem;">
 					<a href="/vendor/transfers" class="btn btn-secondary">
-						🔄 تحويل بين المخازن
+						@components.IconRefresh("icon-xs")
+						<span>تحويل بين المخازن</span>
 					</a>
 					<a href="/vendor/ingest" class="btn btn-primary">
-						📥 استيراد ملف أرصدة
+						@components.IconUpload("icon-xs")
+						<span>استيراد ملف أرصدة</span>
 					</a>
 				</div>
 			</div>
@@ -39,33 +41,37 @@ templ VendorInventoryTable(stocks []*inventory.Stock) {
 		@components.EmptyState(components.EmptyStateProps{
 			Title:       "لا توجد أرصدة مسجلة بالمخزن",
 			Message:     "لم يتم تسجيل أي تشغيلات أو كميات مخزون بعد.",
-			ActionLabel: "📥 رفع ملف مخزون",
+			ActionLabel: "رفع ملف مخزون",
 		})
 	} else {
-		<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:hidden;">
-			<table style="width:100%; border-collapse:collapse; text-align:start; font-size:0.9rem;">
+		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
+			<table class="data-table">
 				<thead>
-					<tr style="background:var(--neutral-50); border-bottom:1px solid var(--neutral-200);">
-						<th style="padding:0.75rem 1rem;">المنتج / العبوة</th>
-						<th style="padding:0.75rem 1rem;">المخزن / الفرع</th>
-						<th style="padding:0.75rem 1rem;">الرصيد المتاح</th>
-						<th style="padding:0.75rem 1rem;">حد إعادة الطلب</th>
+					<tr>
+						<th>المنتج / العبوة</th>
+						<th>المخزن / الفرع</th>
+						<th>الرصيد المتاح</th>
+						<th>حد إعادة الطلب</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, s := range stocks {
-						<tr style="border-bottom:1px solid var(--neutral-100);">
-							<td style="padding:0.75rem 1rem; font-weight:700; color:var(--neutral-900);">
+						<tr>
+							<td style="font-weight:700; color:var(--neutral-900);">
 								Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }
 							</td>
-							<td style="padding:0.75rem 1rem; color:var(--neutral-600);">
+							<td style="color:var(--neutral-600);">
 								Warehouse #{ fmt.Sprintf("%d", s.WarehouseID) }
 							</td>
-							<td style="padding:0.75rem 1rem; font-weight:700; color:var(--success-700);" class="tabular-nums">
-								{ fmt.Sprintf("%d", s.Quantity) }
+							<td>
+								<span class="badge badge-emerald tabular-nums" style="font-size:0.85rem; font-weight:700;">
+									{ fmt.Sprintf("%d", s.Quantity) } عبوة
+								</span>
 							</td>
-							<td style="padding:0.75rem 1rem; color:var(--warning-700);" class="tabular-nums">
-								{ fmt.Sprintf("%d", s.MinThreshold) }
+							<td>
+								<span class="badge badge-amber tabular-nums" style="font-size:0.85rem;">
+									{ fmt.Sprintf("%d", s.MinThreshold) }
+								</span>
 							</td>
 						</tr>
 					}

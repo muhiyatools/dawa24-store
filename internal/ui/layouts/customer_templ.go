@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 func CustomerShell(title string, lang string, dir string) templ.Component {
@@ -45,42 +46,114 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"top-navbar\" style=\"border-block-end:1px solid var(--neutral-200); position:sticky; top:0; z-index:50; background:#fff; padding:0.75rem 2rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);\"><div style=\"display:flex; align-items:center; gap:2rem;\"><a href=\"/\" style=\"font-weight:800; font-size:1.4rem; color:var(--primary-700); text-decoration:none; display:flex; align-items:center; gap:0.5rem;\"><span>💊 دواء 24</span></a><nav style=\"display:flex; gap:1.25rem; font-size:0.95rem;\"><a href=\"/catalog\" class=\"nav-link\" style=\"color:var(--neutral-700); text-decoration:none; font-weight:600;\">الأدوية والمستلزمات</a> <a href=\"/vendor/offers\" class=\"nav-link\" style=\"color:var(--neutral-700); text-decoration:none; font-weight:600;\">العروض الخاصة</a></nav></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><a href=\"/cart\" class=\"btn btn-secondary\" style=\"display:flex; align-items:center; gap:0.4rem; padding:0.5rem 0.85rem;\">🛒 <span>السلة</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"top-navbar\"><div style=\"display:flex; align-items:center; gap:2.5rem;\"><a href=\"/\" style=\"display:flex; align-items:center; gap:0.6rem; text-decoration:none; color:var(--primary-700); font-weight:800; font-size:1.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-xs);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPill("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><span>دواء 24</span></a><nav style=\"display:flex; gap:1.25rem;\"><a href=\"/catalog\" class=\"nav-link\" style=\"color:var(--neutral-700); font-weight:600; font-size:0.925rem; display:flex; align-items:center; gap:0.4rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSearch("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>الأدوية والمستلزمات</span></a> <a href=\"/vendor/offers\" class=\"nav-link\" style=\"color:var(--neutral-700); font-weight:600; font-size:0.925rem; display:flex; align-items:center; gap:0.4rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconMegaphone("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>العروض الحصرية</span></a></nav></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><a href=\"/cart\" class=\"btn btn-secondary\" style=\"padding:0.5rem 0.875rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCart("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>السلة</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if actor, ok := authctx.From(ctx); ok {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"/orders\" class=\"btn btn-secondary\" style=\"display:flex; align-items:center; gap:0.4rem; padding:0.5rem 0.85rem;\">📦 <span>طلبياتي</span></a> <a href=\"/notifications\" class=\"btn btn-secondary\" style=\"display:flex; align-items:center; gap:0.4rem; padding:0.5rem 0.85rem;\">🔔 <span>الإشعارات</span></a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<a href=\"/orders\" class=\"btn btn-secondary\" style=\"padding:0.5rem 0.875rem;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconPackage("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>طلبياتي</span></a> <a href=\"/notifications\" class=\"btn btn-secondary\" style=\"padding:0.5rem 0.875rem;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconBell("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>الإشعارات</span></a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if actor.Role == "admin" || actor.Role == "super_admin" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/admin/dashboard\" class=\"btn btn-secondary\" style=\"color:var(--primary-700); font-weight:600; padding:0.5rem 0.85rem;\">🛡️ لوحة الإدارة</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"/admin/dashboard\" class=\"btn btn-secondary\" style=\"color:var(--primary-700); font-weight:600;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconShield("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>لوحة الإدارة</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<a href=\"/vendor/products\" class=\"btn btn-secondary\" style=\"color:var(--primary-700); font-weight:600; padding:0.5rem 0.85rem;\">🏢 بوابة المورد</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<a href=\"/vendor/products\" class=\"btn btn-secondary\" style=\"color:var(--primary-700); font-weight:600;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>بوابة المورد</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " <form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary\" style=\"color:var(--danger-700); border-color:var(--danger-200); padding:0.5rem 0.85rem;\">خروج</button></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary\" style=\"color:var(--danger); border-color:var(--danger-border); padding:0.5rem 0.875rem;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconLogout("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>خروج</span></button></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"padding:0.5rem 1rem;\">تسجيل الدخول</a> <a href=\"/onboarding\" class=\"btn btn-primary\" style=\"padding:0.5rem 1rem;\">انضم كشريك</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"padding:0.55rem 1.125rem;\">تسجيل الدخول</a> <a href=\"/onboarding\" class=\"btn btn-primary\" style=\"padding:0.55rem 1.25rem;\">انضم كشريك</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></header><main class=\"page-container\" style=\"flex:1; min-height:calc(100vh - 140px); padding:2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></header><main class=\"page-container\" style=\"flex:1; min-height:calc(100vh - 140px);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -88,7 +161,15 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</main><footer style=\"background-color:#ffffff; border-block-start:1px solid var(--neutral-200); padding:2rem 1.5rem; text-align:center; color:var(--neutral-500); font-size:0.875rem;\"><p>© 2026 دواء 24 — سوق الأدوية والمستلزمات الصيدلانية الموحد. جميع الحقوق محفوظة.</p></footer>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</main><footer style=\"background-color:#ffffff; border-block-start:1px solid var(--border-card); padding:2.5rem 2rem; color:var(--neutral-500); font-size:0.875rem;\"><div style=\"max-width:1320px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--primary-800); font-weight:700; font-size:1.1rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPill("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>دواء 24 — سوق الأدوية والمستلزمات الصيدلانية الموحد</span></div><div style=\"display:flex; gap:1.5rem; color:var(--neutral-600);\"><a href=\"/terms\" style=\"color:inherit;\">الشروط والأحكام</a> <a href=\"/privacy\" style=\"color:inherit;\">سياسة الخصوصية</a> <a href=\"/onboarding\" style=\"color:inherit;\">انضمام الموردين</a></div><div><p>© 2026 دواء 24. جميع الحقوق محفوظة لجمهورية مصر العربية.</p></div></div></footer>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

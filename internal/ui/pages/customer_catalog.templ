@@ -12,25 +12,30 @@ templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Categor
 		@CustomerCatalogList(products, lang)
 	} else {
 		@layouts.CustomerShell("كتالوج الأدوية والمستلزمات | Catalog", lang, dir) {
-			<div class="catalog-page-container" style="display:grid; grid-template-columns:260px 1fr; gap:2rem; margin-top:1.5rem;">
-				<aside class="catalog-filters" style="background:#fff; padding:1.25rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); height:fit-content;">
-					<h3 style="font-size:1.125rem; font-weight:700; color:var(--neutral-900); margin-bottom:1rem; border-bottom:1px solid var(--neutral-100); padding-bottom:0.5rem;">
-						الأقسام والتصنيفات
-					</h3>
-					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem;">
+			<div class="catalog-page-container" style="display:grid; grid-template-columns:260px 1fr; gap:2rem; margin-top:1rem;">
+				<aside class="catalog-filters" style="background:#fff; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border-card); height:fit-content; box-shadow:var(--shadow-xs);">
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--neutral-100); padding-bottom:0.75rem;">
+						@components.IconPill("icon-sm")
+						<h3 style="font-size:1.1rem; font-weight:700; color:var(--neutral-900); margin:0;">
+							الأقسام الدوائية
+						</h3>
+					</div>
+					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.35rem;">
 						<li>
-							<a href="/catalog" class="filter-link active" style="color:var(--primary-700); font-weight:600; text-decoration:none; display:block; padding:0.25rem 0.5rem; border-radius:4px; background:var(--primary-50);">
-								جميع الأدوية
+							<a href="/catalog" class="sidebar-link" style="color:var(--primary-700); font-weight:700; background:var(--primary-50); border-radius:var(--radius-md); padding:0.5rem 0.75rem;">
+								<span>جميع الأدوية والمستلزمات</span>
 							</a>
 						</li>
 						for _, cat := range categories {
 							<li>
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="filter-link" style="color:var(--neutral-700); text-decoration:none; display:block; padding:0.25rem 0.5rem; border-radius:4px;">
-									if cat.Name["ar"] != "" {
-										{ cat.Name["ar"] }
-									} else {
-										{ cat.Name["en"] }
-									}
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="sidebar-link" style="color:var(--neutral-700); border-radius:var(--radius-md); padding:0.5rem 0.75rem;">
+									<span>
+										if cat.Name["ar"] != "" {
+											{ cat.Name["ar"] }
+										} else {
+											{ cat.Name["en"] }
+										}
+									</span>
 								</a>
 							</li>
 						}
@@ -39,18 +44,20 @@ templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Categor
 
 				<main class="catalog-content">
 					<div class="catalog-search-bar" style="margin-bottom:1.5rem; display:flex; gap:0.75rem;">
-						<input
-							type="search"
-							name="q"
-							value={ query }
-							placeholder="ابحث بالاسم التجاري، المادة الفعالة، أو الباركود..."
-							class="form-input"
-							style="flex:1; font-size:1rem; padding:0.75rem 1rem;"
-							hx-get="/catalog"
-							hx-trigger="keyup changed delay:300ms, search"
-							hx-target="#catalog-results"
-							hx-push-url="true"
-						/>
+						<div style="position:relative; flex:1;">
+							<input
+								type="search"
+								name="q"
+								value={ query }
+								placeholder="ابحث بالاسم التجاري، المادة الفعالة، أو الباركود..."
+								class="form-input"
+								style="font-size:0.95rem; padding:0.75rem 1rem; border-radius:var(--radius-lg);"
+								hx-get="/catalog"
+								hx-trigger="keyup changed delay:300ms, search"
+								hx-target="#catalog-results"
+								hx-push-url="true"
+							/>
+						</div>
 					</div>
 
 					<div id="catalog-results">
@@ -70,33 +77,43 @@ templ CustomerCatalogList(products []*catalog.Product, lang string) {
 			ActionLabel: "عرض كل المنتجات",
 		})
 	} else {
-		<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:1.25rem;">
+		<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:1.25rem;">
 			for _, p := range products {
-				<div class="card product-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); background:#fff;">
+				<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; margin-bottom:0;">
 					<div>
-						<span style="font-size:0.75rem; color:var(--primary-700); font-weight:700; background:var(--primary-50); padding:0.2rem 0.5rem; border-radius:4px;">
-							{ p.DosageForm }
-						</span>
-						<h4 style="font-size:1.05rem; font-weight:700; margin-top:0.5rem; margin-bottom:0.25rem; color:var(--neutral-900);">
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+							<span class="badge badge-slate" style="font-size:0.725rem;">
+								@components.IconPill("icon-xs")
+								<span>{ p.DosageForm }</span>
+							</span>
+							<span class="badge badge-emerald" style="font-size:0.725rem;">متوفر</span>
+						</div>
+						<h4 style="font-size:1.05rem; font-weight:700; margin-bottom:0.25rem; color:var(--neutral-900);">
 							if p.Name["ar"] != "" {
 								{ p.Name["ar"] }
 							} else {
 								{ p.Name["en"] }
 							}
 						</h4>
-						<p style="font-size:0.825rem; color:var(--neutral-500); margin-bottom:0.75rem;">
+						<p style="font-size:0.8rem; color:var(--neutral-500); margin-bottom:0.5rem;">
 							{ p.Name["en"] }
 						</p>
 						if p.ManufacturingCompanies != "" {
-							<p style="font-size:0.8rem; color:var(--neutral-600);">
+							<p style="font-size:0.775rem; color:var(--neutral-600); margin-bottom:0.25rem;">
 								الشركة: { p.ManufacturingCompanies }
+							</p>
+						}
+						if p.Barcode != "" {
+							<p style="font-size:0.75rem; color:var(--neutral-400);" class="tabular-nums">
+								باركود: { p.Barcode }
 							</p>
 						}
 					</div>
 
-					<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.5rem;">
-						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-secondary" style="text-align:center; font-size:0.875rem; width:100%;">
-							عرض التفاصيل والأسعار
+					<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-secondary" style="width:100%; font-size:0.85rem; justify-content:center;">
+							@components.IconFileText("icon-xs")
+							<span>التفاصيل والأسعار</span>
 						</a>
 					</div>
 				</div>

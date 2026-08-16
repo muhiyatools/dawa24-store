@@ -35,11 +35,15 @@ templ VendorOffersList(offers []*promo.Offer, packages []*promo.OfferPackage) {
 	} else {
 		<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
 			for _, o := range offers {
-				<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between;">
+				<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
 					<div>
-						<span style="font-size:0.75rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:4px; background:var(--primary-50); color:var(--primary-700);">
-							{ string(o.DiscountType) }
-						</span>
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+							<span class="badge badge-amber">
+								@components.IconMegaphone("icon-xs")
+								<span>{ string(o.DiscountType) }</span>
+							</span>
+							<span class="badge badge-emerald">نشط</span>
+						</div>
 						<h3 style="font-size:1.1rem; font-weight:700; color:var(--neutral-900); margin:0.5rem 0 0.25rem 0;">
 							if o.Title["ar"] != "" {
 								{ o.Title["ar"] }
@@ -47,12 +51,13 @@ templ VendorOffersList(offers []*promo.Offer, packages []*promo.OfferPackage) {
 								{ o.Title["en"] }
 							}
 						</h3>
-						<p style="font-size:0.85rem; color:var(--neutral-600); margin-bottom:1rem;">
-							قيمة الخصم: <strong class="tabular-nums">{ o.DiscountValue.String() }</strong>
+						<p style="font-size:0.875rem; color:var(--neutral-600); margin-bottom:1rem;">
+							قيمة الخصم: <strong class="tabular-nums" style="color:var(--primary-700);">{ o.DiscountValue.String() }</strong>
 						</p>
 					</div>
-					<div style="font-size:0.75rem; color:var(--neutral-500); border-top:1px solid var(--neutral-100); padding-top:0.75rem;">
-						صالح حتى: <span class="tabular-nums">{ o.ExpiresAt.Format("2006-01-02") }</span> | المشاهدات: <span class="tabular-nums">{ fmt.Sprintf("%d", o.ViewsCount) }</span>
+					<div style="font-size:0.775rem; color:var(--neutral-400); border-top:1px solid var(--neutral-100); padding-top:0.75rem; display:flex; justify-content:space-between;">
+						<span>صالح حتى: <strong class="tabular-nums">{ o.ExpiresAt.Format("2006-01-02") }</strong></span>
+						<span>المشاهدات: <strong class="tabular-nums">{ fmt.Sprintf("%d", o.ViewsCount) }</strong></span>
 					</div>
 				</div>
 			}

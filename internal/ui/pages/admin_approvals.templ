@@ -3,55 +3,74 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ AdminApprovals(pending []*org.Organization, lang, dir string) {
-	@layouts.AdminShell("Tenant Approval Queue", "approvals", lang, dir) {
-		<div class="card">
-			<h2 class="card-title">Pending Organizations ({ fmt.Sprintf("%d", len(pending)) })</h2>
+	@layouts.AdminShell("طلبات اعتماد الشركاء | Partner Approvals", "approvals", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div style="display:flex; align-items:center; gap:0.6rem;">
+					@components.IconBuilding("icon-md")
+					<h2 class="card-title" style="margin:0;">
+						طلبات المؤسسات والصيدليات المعلقة ({ fmt.Sprintf("%d", len(pending)) })
+					</h2>
+				</div>
+			</div>
+
 			if len(pending) == 0 {
-				<p style="color:var(--neutral-500); font-size:0.875rem;">No pending organization applications at this time.</p>
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد طلبات اعتماد معلقة",
+					Message: "تمت مراجعة واعتماد جميع طلبات انضمام الشركات والصيدليات بنجاح.",
+				})
 			} else {
 				<div class="table-container">
 					<table class="data-table">
 						<thead>
 							<tr>
-								<th>Legal Name</th>
-								<th>Trade Name</th>
-								<th>Tax Number</th>
-								<th>CR Number</th>
-								<th>Type</th>
-								<th>Actions</th>
+								<th>الاسم القانوني</th>
+								<th>الاسم التجاري</th>
+								<th>البطاقة الضريبية</th>
+								<th>السجل التجاري</th>
+								<th>نوع المؤسسة</th>
+								<th style="text-align:end;">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, o := range pending {
 								<tr id={ fmt.Sprintf("org-row-%d", o.ID) }>
-									<td>{ o.LegalName }</td>
-									<td>{ o.TradeName["ar"] }</td>
-									<td>{ o.TaxNumber }</td>
-									<td>{ o.CommercialRegister }</td>
-									<td>{ string(o.Type) }</td>
+									<td style="font-weight:700; color:var(--neutral-900);">{ o.LegalName }</td>
 									<td>
-										<div style="display:flex; gap:0.5rem;">
+										if o.TradeName["ar"] != "" {
+											{ o.TradeName["ar"] }
+										} else {
+											{ o.TradeName["en"] }
+										}
+									</td>
+									<td class="tabular-nums">{ o.TaxNumber }</td>
+									<td class="tabular-nums">{ o.CommercialRegister }</td>
+									<td>
+										<span class="badge badge-slate">{ string(o.Type) }</span>
+									</td>
+									<td style="text-align:end;">
+										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
 											<button
-												class="btn btn-primary"
-												style="padding:0.25rem 0.5rem; font-size:0.75rem;"
+												class="btn btn-primary btn-sm"
 												hx-post={ fmt.Sprintf("/api/v1/admin/org/%d/approve", o.ID) }
 												hx-target={ fmt.Sprintf("#org-row-%d", o.ID) }
 												hx-swap="outerHTML"
 											>
-												Approve
+												@components.IconCheck("icon-xs")
+												<span>اعتماد</span>
 											</button>
 											<button
-												class="btn btn-danger"
-												style="padding:0.25rem 0.5rem; font-size:0.75rem;"
+												class="btn btn-danger btn-sm"
 												hx-post={ fmt.Sprintf("/api/v1/admin/org/%d/reject", o.ID) }
 												hx-target={ fmt.Sprintf("#org-row-%d", o.ID) }
 												hx-swap="outerHTML"
 											>
-												Reject
+												<span>رفض</span>
 											</button>
 										</div>
 									</td>

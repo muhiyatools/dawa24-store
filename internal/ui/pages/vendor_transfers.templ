@@ -11,7 +11,7 @@ templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string
 	if isPartial {
 		@VendorTransfersTable(transfers)
 	} else {
-		@layouts.VendorShell("التحويلات المخزنية | Stock Transfers", "inventory", lang, dir) {
+		@layouts.VendorShell("التحويلات المخزنية | Stock Transfers", "transfers", lang, dir) {
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
 				<div>
 					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">سجل التحويلات بين المخازن</h2>
@@ -33,39 +33,41 @@ templ VendorTransfersTable(transfers []*inventory.WarehouseTransfer) {
 			Message: "لم يتم إنشاء أي عمليات نقل بضائع بين المخازن حتى الآن.",
 		})
 	} else {
-		<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:hidden;">
-			<table style="width:100%; border-collapse:collapse; text-align:start; font-size:0.9rem;">
+		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
+			<table class="data-table">
 				<thead>
-					<tr style="background:var(--neutral-50); border-bottom:1px solid var(--neutral-200);">
-						<th style="padding:0.75rem 1rem;">التحويل</th>
-						<th style="padding:0.75rem 1rem;">من مخزن</th>
-						<th style="padding:0.75rem 1rem;">إلى مخزن</th>
-						<th style="padding:0.75rem 1rem;">الكمية</th>
-						<th style="padding:0.75rem 1rem;">الحالة</th>
-						<th style="padding:0.75rem 1rem;">التاريخ</th>
+					<tr>
+						<th>رقم التحويل</th>
+						<th>من مخزن</th>
+						<th>إلى مخزن</th>
+						<th>الكمية</th>
+						<th>الحالة</th>
+						<th>التاريخ</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, t := range transfers {
-						<tr style="border-bottom:1px solid var(--neutral-100);">
-							<td style="padding:0.75rem 1rem; font-weight:700; color:var(--primary-700);" class="tabular-nums">
+						<tr>
+							<td style="font-weight:700; color:var(--primary-700);" class="tabular-nums">
 								#{ fmt.Sprintf("%d", t.ID) }
 							</td>
-							<td style="padding:0.75rem 1rem; color:var(--neutral-600);">
+							<td style="color:var(--neutral-600);">
 								Warehouse #{ fmt.Sprintf("%d", t.FromWarehouseID) }
 							</td>
-							<td style="padding:0.75rem 1rem; color:var(--neutral-600);">
+							<td style="color:var(--neutral-600);">
 								Warehouse #{ fmt.Sprintf("%d", t.ToWarehouseID) }
 							</td>
-							<td style="padding:0.75rem 1rem; font-weight:700;" class="tabular-nums">
-								{ fmt.Sprintf("%d", t.Quantity) }
+							<td>
+								<span class="badge badge-slate tabular-nums" style="font-size:0.85rem; font-weight:700;">
+									{ fmt.Sprintf("%d", t.Quantity) } عبوة
+								</span>
 							</td>
-							<td style="padding:0.75rem 1rem;">
-								<span style="font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px; background:var(--primary-50); color:var(--primary-700); font-weight:600;">
+							<td>
+								<span class="badge badge-sky">
 									{ string(t.Status) }
 								</span>
 							</td>
-							<td style="padding:0.75rem 1rem; color:var(--neutral-500);" class="tabular-nums">
+							<td style="color:var(--neutral-500);" class="tabular-nums">
 								{ t.CreatedAt.Format("2006-01-02 15:04") }
 							</td>
 						</tr>

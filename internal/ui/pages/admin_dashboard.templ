@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
@@ -13,41 +14,68 @@ type AdminDashboardStats struct {
 }
 
 templ AdminDashboard(stats AdminDashboardStats, lang, dir string) {
-	@layouts.AdminShell("Platform Overview", "dashboard", lang, dir) {
+	@layouts.AdminShell("لوحة المعلومات الرئيسية | Dashboard", "dashboard", lang, dir) {
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem; margin-bottom:2rem;">
-			<div class="card">
-				<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:500;">Total Users</span>
-				<div style="font-size:1.875rem; font-weight:700; color:var(--neutral-900); margin-top:0.5rem;">
+			<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+				<div style="display:flex; justify-content:space-between; align-items:center;">
+					<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:600;">إجمالي المستخدمين</span>
+					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--neutral-100); color:var(--neutral-700); display:flex; align-items:center; justify-content:center;">
+						@components.IconUsers("icon-sm")
+					</div>
+				</div>
+				<div style="font-size:2rem; font-weight:900; color:var(--neutral-900); margin-top:0.75rem;" class="tabular-nums">
 					{ fmt.Sprintf("%d", stats.TotalUsers) }
 				</div>
 			</div>
-			<div class="card">
-				<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:500;">Active Organizations</span>
-				<div style="font-size:1.875rem; font-weight:700; color:var(--primary-600); margin-top:0.5rem;">
+
+			<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+				<div style="display:flex; justify-content:space-between; align-items:center;">
+					<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:600;">المؤسسات والشركاء</span>
+					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+						@components.IconBuilding("icon-sm")
+					</div>
+				</div>
+				<div style="font-size:2rem; font-weight:900; color:var(--primary-700); margin-top:0.75rem;" class="tabular-nums">
 					{ fmt.Sprintf("%d", stats.TotalOrganizations) }
 				</div>
 			</div>
-			<div class="card">
-				<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:500;">Pending Approvals</span>
-				<div style="font-size:1.875rem; font-weight:700; color:var(--warning); margin-top:0.5rem;">
+
+			<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+				<div style="display:flex; justify-content:space-between; align-items:center;">
+					<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:600;">طلبات الاعتماد المعلقة</span>
+					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--warning-light); color:var(--warning); display:flex; align-items:center; justify-content:center;">
+						@components.IconShield("icon-sm")
+					</div>
+				</div>
+				<div style="font-size:2rem; font-weight:900; color:var(--warning); margin-top:0.75rem;" class="tabular-nums">
 					{ fmt.Sprintf("%d", stats.PendingApprovals) }
 				</div>
 			</div>
-			<div class="card">
-				<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:500;">Total Orders</span>
-				<div style="font-size:1.875rem; font-weight:700; color:var(--info); margin-top:0.5rem;">
+
+			<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+				<div style="display:flex; justify-content:space-between; align-items:center;">
+					<span style="font-size:0.875rem; color:var(--neutral-500); font-weight:600;">إجمالي الطلبيات</span>
+					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--info-light); color:var(--info); display:flex; align-items:center; justify-content:center;">
+						@components.IconPackage("icon-sm")
+					</div>
+				</div>
+				<div style="font-size:2rem; font-weight:900; color:var(--info); margin-top:0.75rem;" class="tabular-nums">
 					{ fmt.Sprintf("%d", stats.TotalOrders) }
 				</div>
 			</div>
 		</div>
 
 		<div class="card">
-			<h2 class="card-title">System Status & Observability</h2>
-			<p style="color:var(--neutral-600); font-size:0.875rem; margin-bottom:1rem;">
-				PostgreSQL Connection Pool, River Queue Workers, and Redis Session Cache are healthy and operational.
+			<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem;">
+				@components.IconCheckCircle("icon-sm")
+				<h2 class="card-title" style="margin:0;">حالة النظام وجاهزية الخدمات</h2>
+			</div>
+			<p style="color:var(--neutral-600); font-size:0.9rem; margin-bottom:1.25rem;">
+				مجمع اتصالات PostgreSQL، وقوائم River Queue، وذاكرة الجلسات Redis تعمل بكفاءة تامة.
 			</p>
-			<a href="/ready" target="_blank" class="btn btn-secondary">
-				Inspect /ready Status
+			<a href="/ready" target="_blank" class="btn btn-secondary btn-sm" style="font-weight:600;">
+				@components.IconRefresh("icon-xs")
+				<span>فحص فوري لنقطة /ready</span>
 			</a>
 		</div>
 	}

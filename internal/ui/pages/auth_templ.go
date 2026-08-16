@@ -8,7 +8,10 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
 
 func LoginPage(lang, dir, errorMsg string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -43,36 +46,52 @@ func LoginPage(lang, dir, errorMsg string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem;\"><div class=\"card\" style=\"width:100%; max-width:420px;\"><div style=\"text-align:center; margin-bottom:1.5rem;\"><h1 style=\"font-size:1.5rem; font-weight:700; color:var(--primary-700);\">Dawa24 Store</h1><p style=\"color:var(--neutral-500); font-size:0.875rem; margin-top:0.25rem;\">Sign in to your account</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-50) 0%, var(--bg-app) 100%);\"><div class=\"card hover-lift\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.25rem;\"><div style=\"text-align:center; margin-bottom:2rem;\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; box-shadow:var(--shadow-md);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPill("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900);\">منصة دواء 24</h1><p style=\"color:var(--neutral-500); font-size:0.9rem; margin-top:0.35rem;\">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if errorMsg != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"background-color:var(--danger-bg); color:var(--danger); padding:0.75rem; border-radius:var(--radius-md); font-size:0.875rem; margin-bottom:1rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"background-color:var(--danger-light); color:var(--danger); border:1px solid var(--danger-border); padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.875rem; margin-bottom:1.25rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 16, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 22, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/api/v1/auth/login\"><div class=\"form-group\"><label class=\"form-label\" for=\"email\">Email Address</label> <input type=\"email\" id=\"email\" name=\"email\" required class=\"form-input\" placeholder=\"pharmacist@dawa24.eg\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"password\">Password</label> <input type=\"password\" id=\"password\" name=\"password\" required class=\"form-input\" placeholder=\"â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; margin-top:0.5rem;\">Sign In</button></form><div style=\"text-align:center; margin-top:1.25rem; font-size:0.875rem; color:var(--neutral-600);\">Don't have an account? <a href=\"/auth/register\">Register your pharmacy or store</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form method=\"POST\" action=\"/auth/login\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"email\">البريد الإلكتروني أو اسم المستخدم</label> <input type=\"email\" id=\"email\" name=\"email\" required class=\"form-input\" placeholder=\"pharmacist@dawa24.eg\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;\"><label class=\"form-label\" for=\"password\" style=\"margin:0;\">كلمة المرور</label> <a href=\"/auth/forgot\" style=\"font-size:0.8rem;\">نسيت كلمة المرور؟</a></div><input type=\"password\" id=\"password\" name=\"password\" required class=\"form-input\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; font-size:0.95rem; margin-top:0.5rem; justify-content:center;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>دخول للنظام</span></button></form><div style=\"text-align:center; margin-top:1.75rem; font-size:0.875rem; color:var(--neutral-600); border-top:1px solid var(--neutral-100); padding-top:1.25rem;\">ليس لديك حساب؟ <a href=\"/auth/register\" style=\"font-weight:700;\">تسجيل حساب صيدلية جديد</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("Sign In", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("تسجيل الدخول | Sign In", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

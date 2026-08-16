@@ -12,13 +12,16 @@ templ Notifications(logs []*notifications.NotificationLog, unreadCount int, lang
 		@NotificationsList(logs)
 	} else {
 		@layouts.CustomerShell("الإشعارات والتنبيهات | Notifications", lang, dir) {
-			<div class="notifications-page-container" style="max-width:800px; margin:2rem auto;">
+			<div class="notifications-page-container" style="max-width:880px; margin:1.5rem auto;">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-					<h1 style="font-size:1.75rem; font-weight:800; color:var(--neutral-900);">
-						الإشعارات والتنبيهات
-					</h1>
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						@components.IconBell("icon-md")
+						<h1 style="font-size:1.75rem; font-weight:900; color:var(--neutral-900); margin:0;">
+							الإشعارات والتنبيهات
+						</h1>
+					</div>
 					if unreadCount > 0 {
-						<span style="background:var(--primary-600); color:#fff; font-size:0.8rem; font-weight:700; padding:0.25rem 0.75rem; border-radius:20px;">
+						<span class="badge badge-emerald" style="font-size:0.85rem; padding:0.35rem 0.85rem;">
 							{ fmt.Sprintf("%d غير مقروء", unreadCount) }
 						</span>
 					}
@@ -39,22 +42,22 @@ templ NotificationsList(logs []*notifications.NotificationLog) {
 			Message: "أنت على اطلاع دائم بجميع الطلبات وتحديثات الأسعار والمخزون.",
 		})
 	} else {
-		<div style="display:flex; flex-direction:column; gap:0.75rem;">
+		<div style="display:flex; flex-direction:column; gap:0.875rem;">
 			for _, l := range logs {
-				<div style={ fmt.Sprintf("background:%s; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1rem; display:flex; justify-content:space-between; align-items:flex-start;", ifReadBg(l.IsRead)) }>
+				<div class="card hover-lift" style={ fmt.Sprintf("padding:1.25rem; margin-bottom:0; display:flex; justify-content:space-between; align-items:flex-start; background:%s;", ifReadBg(l.IsRead)) }>
 					<div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
 							if !l.IsRead {
 								<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--primary-600);"></span>
 							}
-							<h4 style="font-weight:700; font-size:0.95rem; color:var(--neutral-900); margin:0;">
+							<h4 style="font-weight:700; font-size:1rem; color:var(--neutral-900); margin:0;">
 								{ l.Title }
 							</h4>
 						</div>
-						<p style="font-size:0.875rem; color:var(--neutral-600); margin:0 0 0.5rem 0;">
+						<p style="font-size:0.9rem; color:var(--neutral-600); margin:0 0 0.5rem 0;">
 							{ l.Body }
 						</p>
-						<span class="tabular-nums" style="font-size:0.75rem; color:var(--neutral-400);">
+						<span class="tabular-nums" style="font-size:0.775rem; color:var(--neutral-400);">
 							{ l.CreatedAt.Format("2006-01-02 15:04") }
 						</span>
 					</div>
@@ -63,10 +66,11 @@ templ NotificationsList(logs []*notifications.NotificationLog) {
 						<form action={ templ.SafeURL(fmt.Sprintf("/notifications/%d/read", l.ID)) } method="POST" style="margin:0;">
 							<button
 								type="submit"
-								class="btn btn-secondary"
-								style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+								class="btn btn-secondary btn-sm"
+								style="font-size:0.8rem; padding:0.35rem 0.75rem;"
 							>
-								تحديد كمقروء ✓
+								@components.IconCheck("icon-xs")
+								<span>تحديد كمقروء</span>
 							</button>
 						</form>
 					}

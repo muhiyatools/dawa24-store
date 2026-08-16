@@ -11,7 +11,7 @@ templ VendorOrders(shipments []*commerce.OrderShipment, lang, dir string, isPart
 	if isPartial {
 		@VendorOrdersTable(shipments)
 	} else {
-		@layouts.VendorShell("طلبيات الموردين والشحنات | Orders & Shipments", "shipments", lang, dir) {
+		@layouts.VendorShell("طلبيات الموردين والشحنات | Orders & Shipments", "orders", lang, dir) {
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
 				<div>
 					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">طلبيات الصيدليات والشحنات</h2>
@@ -33,48 +33,48 @@ templ VendorOrdersTable(shipments []*commerce.OrderShipment) {
 			Message: "ستظهر هنا أي طلبيات جديدة يتم إجراؤها من الصيدليات والعملاء.",
 		})
 	} else {
-		<div style="background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-lg); overflow:hidden;">
-			<table style="width:100%; border-collapse:collapse; text-align:start; font-size:0.9rem;">
+		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
+			<table class="data-table">
 				<thead>
-					<tr style="background:var(--neutral-50); border-bottom:1px solid var(--neutral-200);">
-						<th style="padding:0.75rem 1rem;">رقم الشحنة</th>
-						<th style="padding:0.75rem 1rem;">الطلب الرئيسي</th>
-						<th style="padding:0.75rem 1rem;">قيمة الشحنة</th>
-						<th style="padding:0.75rem 1rem;">الحالة الحالية</th>
-						<th style="padding:0.75rem 1rem;">التاريخ</th>
-						<th style="padding:0.75rem 1rem; text-align:end;">تحديث الحالة</th>
+					<tr>
+						<th>رقم الشحنة</th>
+						<th>الطلب الرئيسي</th>
+						<th>قيمة الشحنة</th>
+						<th>الحالة الحالية</th>
+						<th>التاريخ</th>
+						<th style="text-align:end;">تحديث الحالة</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, sh := range shipments {
-						<tr style="border-bottom:1px solid var(--neutral-100);">
-							<td style="padding:0.75rem 1rem; font-weight:700; color:var(--primary-700);" class="tabular-nums">
+						<tr>
+							<td style="font-weight:700; color:var(--primary-700);" class="tabular-nums">
 								#{ sh.ShipmentNumber }
 							</td>
-							<td style="padding:0.75rem 1rem; color:var(--neutral-600);">
+							<td style="color:var(--neutral-600);">
 								Order #{ fmt.Sprintf("%d", sh.OrderID) }
 							</td>
-							<td style="padding:0.75rem 1rem; font-weight:700; color:var(--neutral-900);" class="tabular-nums">
+							<td style="font-weight:700; color:var(--neutral-900);" class="tabular-nums">
 								{ sh.TotalAmount.String() } EGP
 							</td>
-							<td style="padding:0.75rem 1rem;">
-								<span style="font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px; background:var(--primary-50); color:var(--primary-700); font-weight:600;">
+							<td>
+								<span class="badge badge-sky">
 									{ string(sh.Status) }
 								</span>
 							</td>
-							<td style="padding:0.75rem 1rem; color:var(--neutral-500);" class="tabular-nums">
+							<td style="color:var(--neutral-500);" class="tabular-nums">
 								{ sh.CreatedAt.Format("2006-01-02 15:04") }
 							</td>
-							<td style="padding:0.75rem 1rem; text-align:end;">
+							<td style="text-align:end;">
 								if sh.Status == commerce.StatusPending {
 									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
 										<input type="hidden" name="status" value="confirmed" />
 										<button
 											type="submit"
-											class="btn btn-primary"
-											style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+											class="btn btn-primary btn-sm"
 										>
-											تأكيد الطلب ✓
+											@components.IconCheck("icon-xs")
+											<span>تأكيد الطلب</span>
 										</button>
 									</form>
 								} else if sh.Status == commerce.StatusConfirmed {
@@ -82,10 +82,10 @@ templ VendorOrdersTable(shipments []*commerce.OrderShipment) {
 										<input type="hidden" name="status" value="shipped" />
 										<button
 											type="submit"
-											class="btn btn-primary"
-											style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+											class="btn btn-primary btn-sm"
 										>
-											بدء الشحن 🚚
+											@components.IconTruck("icon-xs")
+											<span>بدء الشحن</span>
 										</button>
 									</form>
 								} else if sh.Status == commerce.StatusShipped {
@@ -93,14 +93,17 @@ templ VendorOrdersTable(shipments []*commerce.OrderShipment) {
 										<input type="hidden" name="status" value="delivered" />
 										<button
 											type="submit"
-											class="btn btn-primary"
-											style="font-size:0.75rem; padding:0.25rem 0.6rem;"
+											class="btn btn-primary btn-sm"
 										>
-											تم التسليم ✅
+											@components.IconCheckCircle("icon-xs")
+											<span>تم التسليم</span>
 										</button>
 									</form>
 								} else {
-									<span style="font-size:0.8rem; color:var(--neutral-500);">مكتمل</span>
+									<span class="badge badge-emerald">
+										@components.IconCheck("icon-xs")
+										<span>مكتمل</span>
+									</span>
 								}
 							</td>
 						</tr>

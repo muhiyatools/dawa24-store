@@ -3,27 +3,31 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ VendorProductEditor(product *catalog.Product, categories []*catalog.Category, brands []*catalog.Brand, isNew bool, lang, dir string) {
 	@layouts.VendorShell(editorTitle(isNew), "products", lang, dir) {
-		<div style="max-width:800px; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); padding:2rem;">
-			<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
-				if isNew {
-					إضافة صنف دوائي جديد
-				} else {
-					تعديل بيانات الصنف الدوائي
-				}
-			</h2>
+		<div class="card" style="max-width:880px; margin:0 auto;">
+			<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem;">
+				@components.IconPill("icon-md")
+				<h2 class="card-title" style="margin:0;">
+					if isNew {
+						إضافة صنف دوائي جديد
+					} else {
+						تعديل بيانات الصنف الدوائي
+					}
+				</h2>
+			</div>
 
 			<form action="/vendor/products" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
 				if !isNew && product != nil {
 					<input type="hidden" name="id" value={ fmt.Sprintf("%d", product.ID) } />
 				}
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-					<div>
-						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label">
 							الاسم التجاري (عربي) *
 						</label>
 						<input
@@ -32,11 +36,10 @@ templ VendorProductEditor(product *catalog.Product, categories []*catalog.Catego
 							value={ getProdNameAr(product) }
 							required
 							class="form-input"
-							style="width:100%;"
 						/>
 					</div>
-					<div>
-						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label">
 							الاسم التجاري (إنجليزي) *
 						</label>
 						<input
@@ -45,14 +48,13 @@ templ VendorProductEditor(product *catalog.Product, categories []*catalog.Catego
 							value={ getProdNameEn(product) }
 							required
 							class="form-input"
-							style="width:100%;"
 						/>
 					</div>
 				</div>
 
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-					<div>
-						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label">
 							الشكل الصيدلي (Dosage Form) *
 						</label>
 						<input
@@ -62,11 +64,10 @@ templ VendorProductEditor(product *catalog.Product, categories []*catalog.Catego
 							placeholder="أقراص / كبسولات / شراب / أمبولات..."
 							required
 							class="form-input"
-							style="width:100%;"
 						/>
 					</div>
-					<div>
-						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label">
 							الشركة المصنعة (Manufacturing Company)
 						</label>
 						<input
@@ -74,44 +75,42 @@ templ VendorProductEditor(product *catalog.Product, categories []*catalog.Catego
 							name="manufacturing_companies"
 							value={ getProdManufacturer(product) }
 							class="form-input"
-							style="width:100%;"
 						/>
 					</div>
 				</div>
 
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-					<div>
-						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
-							الاسم العلمي (Scientific Name)
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label">
+							الاسم العلمي / المادة الفعالة
 						</label>
 						<input
 							type="text"
 							name="scientific_name"
 							value={ getProdActiveIng(product) }
 							class="form-input"
-							style="width:100%;"
 						/>
 					</div>
-					<div>
-						<label style="display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label">
 							الباركود الدولي (Barcode)
 						</label>
 						<input
 							type="text"
 							name="barcode"
 							value={ getProdBarcode(product) }
-							class="form-input"
-							style="width:100%;"
+							class="form-input tabular-nums"
 						/>
 					</div>
 				</div>
 
-				<div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
+				<div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;">
 					<a href="/vendor/products" class="btn btn-secondary">
 						إلغاء
 					</a>
-					<button type="submit" class="btn btn-primary">
-						حفظ المنتج
+					<button type="submit" class="btn btn-primary" style="padding:0.65rem 1.75rem;">
+						@components.IconCheck("icon-xs")
+						<span>حفظ بيانات الصنف</span>
 					</button>
 				</div>
 			</form>
@@ -121,9 +120,9 @@ templ VendorProductEditor(product *catalog.Product, categories []*catalog.Catego
 
 func editorTitle(isNew bool) string {
 	if isNew {
-		return "إضافة صنف جديد"
+		return "إضافة منتج جديد"
 	}
-	return "تعديل الصنف"
+	return "تعديل المنتج"
 }
 
 func getProdNameAr(p *catalog.Product) string {

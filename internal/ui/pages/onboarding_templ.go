@@ -8,7 +8,10 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/muhiya/dawa24-store/internal/ui/layouts"
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
 
 func Onboarding() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -43,13 +46,29 @@ func Onboarding() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"container\"><h1>Register Organization</h1><form action=\"/onboarding\" method=\"post\"><input type=\"text\" name=\"orgName\" placeholder=\"Organization Name\" required> <input type=\"text\" name=\"taxId\" placeholder=\"Tax ID\" required> <button type=\"submit\" class=\"btn btn-primary\">Complete Registration</button></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"max-width:720px; margin:2rem auto; padding:2.5rem;\"><div style=\"text-align:center; margin-bottom:2rem;\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconBuilding("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.75rem; font-weight:900; color:var(--neutral-900);\">انضمام شريك توريد أو صيدلية</h1><p style=\"color:var(--neutral-500); font-size:0.925rem; margin-top:0.35rem;\">سجل بيانات مؤسستك للانضمام إلى شبكة التوزيع الدوائي الموحدة</p></div><form action=\"/onboarding\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">الاسم التجاري للمؤسسة / الصيدلية *</label> <input type=\"text\" name=\"tradeName\" placeholder=\"مثال: صيدلية الأمل الحديثة\" required class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">الاسم القانوني المسجل بالسجل التجاري *</label> <input type=\"text\" name=\"legalName\" placeholder=\"مثال: شركة الأمل لتجارة وتوزيع الأدوية ذ.م.م\" required class=\"form-input\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم البطاقة الضريبية *</label> <input type=\"text\" name=\"taxId\" placeholder=\"123-456-789\" required class=\"form-input tabular-nums\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم السجل التجاري *</label> <input type=\"text\" name=\"crNumber\" placeholder=\"987654\" required class=\"form-input tabular-nums\"></div></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">نوع النشاط</label> <select name=\"type\" class=\"form-select\"><option value=\"pharmacy\">صيدلية مرخصة</option> <option value=\"supplier\">موزع أدوية معتمد</option> <option value=\"company\">شركة أدوية مصنعة</option> <option value=\"clinic\">مستشفى / مركز طبي</option></select></div><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.875rem; font-size:1rem; font-weight:700; margin-top:0.75rem; justify-content:center;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>تقديم طلب الاعتماد والتسجيل</span></button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("Onboarding", "en", "ltr").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("انضمام الشركاء والموردين | Partner Onboarding", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

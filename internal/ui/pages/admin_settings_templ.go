@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
@@ -45,7 +46,23 @@ func AdminSettings(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:800px; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); padding:2rem;\"><h2 style=\"font-size:1.5rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">الإعدادات العامة وبيانات النظام</h2><form action=\"/admin/settings\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">العملة الافتراضية</label> <input type=\"text\" name=\"currency\" value=\"EGP (الجنيه المصري)\" disabled class=\"form-input\" style=\"width:100%; background:var(--neutral-50);\"></div><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">اللغات المدعومة</label> <input type=\"text\" name=\"languages\" value=\"العربية (الرئيسية)، English\" disabled class=\"form-input\" style=\"width:100%; background:var(--neutral-50);\"></div><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">بريد الدعم الفني والإشعارات</label> <input type=\"email\" name=\"support_email\" value=\"support@dawa24.eg\" class=\"form-input\" style=\"width:100%;\"></div><div><label style=\"display:block; font-size:0.875rem; font-weight:600; margin-bottom:0.4rem;\">نسبة عمولة المنصة الافتراضية (%)</label> <input type=\"number\" name=\"commission_rate\" value=\"1.5\" step=\"0.1\" class=\"form-input\" style=\"width:100%;\"></div><div style=\"display:flex; justify-content:flex-end; margin-top:1rem;\"><button type=\"submit\" class=\"btn btn-primary\">حفظ التغييرات</button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"max-width:840px; margin:0 auto;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSettings("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h2 class=\"card-title\" style=\"margin:0;\">الإعدادات العامة وبيانات منظومة دواء 24</h2></div><form action=\"/admin/settings\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\"><label class=\"form-label\">العملة الافتراضية للمعاملات</label> <input type=\"text\" name=\"currency\" value=\"EGP (الجنيه المصري)\" disabled class=\"form-input\" style=\"background:var(--neutral-50); color:var(--neutral-500);\"></div><div class=\"form-group\"><label class=\"form-label\">اللغات المعتمدة في النظام</label> <input type=\"text\" name=\"languages\" value=\"العربية (الرئيسية)، English\" disabled class=\"form-input\" style=\"background:var(--neutral-50); color:var(--neutral-500);\"></div><div class=\"form-group\"><label class=\"form-label\">بريد الدعم الفني والإشعارات</label> <input type=\"email\" name=\"support_email\" value=\"support@dawa24.eg\" class=\"form-input\"></div><div class=\"form-group\"><label class=\"form-label\">نسبة عمولة المنصة الافتراضية (%)</label> <input type=\"number\" name=\"commission_rate\" value=\"1.5\" step=\"0.1\" class=\"form-input tabular-nums\"></div><div style=\"display:flex; justify-content:flex-end; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.65rem 1.75rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>حفظ التعديلات</span></button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
