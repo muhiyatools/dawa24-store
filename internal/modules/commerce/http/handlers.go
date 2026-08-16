@@ -90,10 +90,11 @@ func (h *Handler) GetOrder(w http.ResponseWriter, r *http.Request) {
 
 // ListCustomerOrders returns orders for a customer.
 func (h *Handler) ListCustomerOrders(w http.ResponseWriter, r *http.Request) {
-	customerIDStr := r.URL.Query().Get("customer_id")
-	customerID, err := strconv.ParseInt(customerIDStr, 10, 64)
-	if err != nil || customerID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("customer_id.invalid", "Valid customer_id query parameter required", nil))
+	// The customer is whoever is authenticated. Taking it from ?customer_id=
+	// let any caller read any buyer's order history by changing a number.
+	customerID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 

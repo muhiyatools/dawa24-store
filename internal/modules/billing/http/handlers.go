@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -201,10 +202,12 @@ func (h *Handler) GetInvoice(w http.ResponseWriter, r *http.Request) {
 
 // ListInvoices lists invoices for an organization.
 func (h *Handler) ListInvoices(w http.ResponseWriter, r *http.Request) {
-	orgIDStr := r.URL.Query().Get("org_id")
-	orgID, err := strconv.ParseInt(orgIDStr, 10, 64)
-	if err != nil || orgID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("org_id.invalid", "Valid org_id is required", nil))
+	// The organization is the caller's active tenant, resolved by middleware
+	// after verifying membership. Reading it from ?org_id= let any caller name
+	// any organization and read its invoices.
+	orgID, ok := database.TenantFrom(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, database.ErrNoTenant)
 		return
 	}
 

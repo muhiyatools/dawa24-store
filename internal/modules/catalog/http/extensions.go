@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -58,7 +59,14 @@ func (h *Handler) SetCustomerPricing(w http.ResponseWriter, r *http.Request) {
 
 // GetCustomerPricing gets custom pricing.
 func (h *Handler) GetCustomerPricing(w http.ResponseWriter, r *http.Request) {
-	vendorOrgID, _ := strconv.ParseInt(r.URL.Query().Get("vendor_org_id"), 10, 64)
+	// The vendor is the caller's active tenant. Accepting it from the query
+	// string let one supplier read the private per-customer pricing another
+	// supplier had negotiated.
+	vendorOrgID, ok := database.TenantFrom(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, database.ErrNoTenant)
+		return
+	}
 	customerOrgID, _ := strconv.ParseInt(r.URL.Query().Get("customer_org_id"), 10, 64)
 	productID, _ := strconv.ParseInt(r.URL.Query().Get("product_id"), 10, 64)
 
