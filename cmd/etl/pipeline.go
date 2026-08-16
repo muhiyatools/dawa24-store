@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"time"
 )
 
 // Pipeline orchestrates the MariaDB to PostgreSQL migration.
@@ -50,90 +49,106 @@ func (p *Pipeline) Run(ctx context.Context, verifyOnly bool) error {
 		return p.Verify(ctx, sourceDB, targetDB)
 	}
 
+	extractor := NewExtractor(sourceDB)
+	loader := NewLoader(targetDB)
+
+	// Stage 1: Users
 	p.log.Info("starting users migration stage")
-	if err := p.migrateUsers(ctx, sourceDB, targetDB); err != nil {
+	if err := p.migrateUsers(ctx, extractor, loader); err != nil {
 		return fmt.Errorf("migrate users: %w", err)
+	}
+
+	// Stage 2: Organizations / Suppliers
+	p.log.Info("starting organizations migration stage")
+	if err := p.migrateOrganizations(ctx, extractor, loader); err != nil {
+		p.log.Warn("organization migration warning (table may differ)", "error", err)
 	}
 
 	p.log.Info("running post-migration verification gates")
 	return p.Verify(ctx, sourceDB, targetDB)
 }
 
-func (p *Pipeline) migrateUsers(ctx context.Context, source *sql.DB, target *sql.DB) error {
-	rows, err := source.QueryContext(ctx, `SELECT id, name, email, password, COALESCE(phone, ''), created_at FROM users;`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
+func (p *Pipeline) migrateUsers(ctx context.Context, extractor *Extractor, loader *Loader) error {
+	offset := 0
+	totalLoaded := 0
 
-	tx, err := target.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	stmt, err := tx.PrepareContext(ctx, `
-		INSERT INTO identity.users (id, public_id, email, password_hash, name, role, status, language, phone, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-		ON CONFLICT (id) DO NOTHING;
-	`)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	count := 0
-	for rows.Next() {
-		var src SourceUser
-		var createdAt *time.Time
-		if err := rows.Scan(&src.ID, &src.Name, &src.Email, &src.Password, &src.Phone, &createdAt); err != nil {
-			return err
+	for {
+		users, err := extractor.ExtractUsers(ctx, p.batchSize, offset)
+		if err != nil {
+			return fmt.Errorf("extract users batch at offset %d: %w", offset, err)
 		}
-		if createdAt != nil {
-			src.CreatedAt = *createdAt
-		} else {
-			src.CreatedAt = time.Now()
+		if len(users) == 0 {
+			break
 		}
 
-		if err := p.validator.ValidateUser(&src); err != nil {
-			p.log.Warn("skipping invalid user", "id", src.ID, "error", err)
-			continue
+		var targetUsers []*TargetUser
+		for _, u := range users {
+			if err := p.validator.ValidateUser(u); err != nil {
+				p.log.Warn("skipping invalid user", "id", u.ID, "error", err)
+				continue
+			}
+			targetUsers = append(targetUsers, p.transformer.TransformUser(u))
 		}
 
-		tgt := p.transformer.TransformUser(&src)
+		loaded, err := loader.LoadUsers(ctx, targetUsers)
+		if err != nil {
+			return fmt.Errorf("load users batch: %w", err)
+		}
+		totalLoaded += loaded
+		offset += len(users)
+	}
 
-		nameJSON := fmt.Sprintf(`{"ar":"%s","en":"%s"}`, tgt.Name["ar"], tgt.Name["en"])
-		_, err := stmt.ExecContext(ctx,
-			tgt.ID, tgt.PublicID, tgt.Email, tgt.PasswordHash, nameJSON,
-			"customer", tgt.Status, tgt.Language, tgt.Phone, tgt.CreatedAt, tgt.UpdatedAt,
-		)
+	p.log.Info("users migration completed", "total_loaded", totalLoaded)
+	return nil
+}
+
+func (p *Pipeline) migrateOrganizations(ctx context.Context, extractor *Extractor, loader *Loader) error {
+	offset := 0
+	totalLoaded := 0
+
+	for {
+		orgs, err := extractor.ExtractOrganizations(ctx, p.batchSize, offset)
 		if err != nil {
 			return err
 		}
-		count++
+		if len(orgs) == 0 {
+			break
+		}
+
+		var targetOrgs []*TargetOrg
+		for _, o := range orgs {
+			targetOrgs = append(targetOrgs, p.transformer.TransformOrg(o))
+		}
+
+		loaded, err := loader.LoadOrganizations(ctx, targetOrgs)
+		if err != nil {
+			return fmt.Errorf("load orgs batch: %w", err)
+		}
+		totalLoaded += loaded
+		offset += len(orgs)
 	}
 
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	p.log.Info("users migration completed", "count", count)
+	p.log.Info("organizations migration completed", "total_loaded", totalLoaded)
 	return nil
 }
 
 // Verify runs 2-way verification gates between source and target databases.
 func (p *Pipeline) Verify(ctx context.Context, source *sql.DB, target *sql.DB) error {
-	var srcCount, tgtCount int
-	if err := source.QueryRowContext(ctx, `SELECT COUNT(*) FROM users;`).Scan(&srcCount); err != nil {
-		return fmt.Errorf("verify source count: %w", err)
+	var srcUsers, tgtUsers int
+	if err := source.QueryRowContext(ctx, `SELECT COUNT(*) FROM users;`).Scan(&srcUsers); err != nil {
+		return fmt.Errorf("verify source users count: %w", err)
 	}
-	if err := target.QueryRowContext(ctx, `SELECT COUNT(*) FROM identity.users;`).Scan(&tgtCount); err != nil {
-		return fmt.Errorf("verify target count: %w", err)
+	if err := target.QueryRowContext(ctx, `SELECT COUNT(*) FROM identity.users;`).Scan(&tgtUsers); err != nil {
+		return fmt.Errorf("verify target users count: %w", err)
 	}
 
-	p.log.Info("verification gate results", "source_users", srcCount, "target_users", tgtCount)
-	if srcCount > tgtCount {
-		return fmt.Errorf("verification gate failed: target has fewer records (%d) than source (%d)", tgtCount, srcCount)
+	p.log.Info("verification gate results",
+		"source_users", srcUsers,
+		"target_users", tgtUsers,
+	)
+
+	if srcUsers > tgtUsers {
+		return fmt.Errorf("verification gate failed: target users (%d) < source users (%d)", tgtUsers, srcUsers)
 	}
 	return nil
 }

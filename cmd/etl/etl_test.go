@@ -69,3 +69,29 @@ func TestETLProductTransformationAndMoneyConversion(t *testing.T) {
 		t.Fatalf("expected money amount 4550 minor units (45.50 EGP), got %d", vObj.Price.Minor())
 	}
 }
+
+func TestETLOrgTransformation(t *testing.T) {
+	tr := NewTransformer()
+
+	src := &SourceOrg{
+		ID:                 501,
+		Name:               "شركة المتحدة للأدوية",
+		TaxNumber:          "123-456-789",
+		CommercialRegister: "CR-998877",
+		Phone:              "+2022345678",
+		Status:             "active",
+		CreatedAt:          time.Now(),
+	}
+
+	tgt := tr.TransformOrg(src)
+
+	if tgt.ID != 501 {
+		t.Fatalf("expected ID 501, got %d", tgt.ID)
+	}
+	if tgt.TaxNumber != "123-456-789" {
+		t.Fatalf("expected TaxNumber '123-456-789', got '%s'", tgt.TaxNumber)
+	}
+	if tgt.Type != "supplier" {
+		t.Fatalf("expected type 'supplier', got '%s'", tgt.Type)
+	}
+}

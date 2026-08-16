@@ -1,0 +1,107 @@
+package main
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+)
+
+// Loader handles transactional data loading into PostgreSQL.
+type Loader struct {
+	db *sql.DB
+}
+
+// NewLoader creates a new PostgreSQL data loader.
+func NewLoader(db *sql.DB) *Loader {
+	return &Loader{db: db}
+}
+
+// LoadUsers inserts transformed users into identity.users.
+func (l *Loader) LoadUsers(ctx context.Context, users []*TargetUser) (int, error) {
+	if len(users) == 0 {
+		return 0, nil
+	}
+
+	tx, err := l.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, fmt.Errorf("begin load tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareContext(ctx, `
+		INSERT INTO identity.users (id, public_id, email, password_hash, name, role, status, language, phone, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		ON CONFLICT (id) DO UPDATE SET
+			email = EXCLUDED.email,
+			password_hash = EXCLUDED.password_hash,
+			name = EXCLUDED.name,
+			updated_at = EXCLUDED.updated_at;
+	`)
+	if err != nil {
+		return 0, fmt.Errorf("prepare user load stmt: %w", err)
+	}
+	defer stmt.Close()
+
+	loaded := 0
+	for _, u := range users {
+		nameJSON := fmt.Sprintf(`{"ar":"%s","en":"%s"}`, u.Name["ar"], u.Name["en"])
+		_, err := stmt.ExecContext(ctx,
+			u.ID, u.PublicID, u.Email, u.PasswordHash, nameJSON,
+			u.Role, u.Status, u.Language, u.Phone, u.CreatedAt, u.UpdatedAt,
+		)
+		if err != nil {
+			return loaded, fmt.Errorf("insert user %d: %w", u.ID, err)
+		}
+		loaded++
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("commit user load: %w", err)
+	}
+	return loaded, nil
+}
+
+// LoadOrganizations inserts transformed organizations into org.organizations.
+func (l *Loader) LoadOrganizations(ctx context.Context, orgs []*TargetOrg) (int, error) {
+	if len(orgs) == 0 {
+		return 0, nil
+	}
+
+	tx, err := l.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, fmt.Errorf("begin load tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareContext(ctx, `
+		INSERT INTO org.organizations (id, public_id, name, legal_name, trade_name, tax_number, commercial_register, type, status, credit_limit, payment_terms_days, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		ON CONFLICT (id) DO UPDATE SET
+			name = EXCLUDED.name,
+			legal_name = EXCLUDED.legal_name,
+			updated_at = EXCLUDED.updated_at;
+	`)
+	if err != nil {
+		return 0, fmt.Errorf("prepare org load stmt: %w", err)
+	}
+	defer stmt.Close()
+
+	loaded := 0
+	for _, o := range orgs {
+		nameJSON := fmt.Sprintf(`{"ar":"%s","en":"%s"}`, o.LegalName["ar"], o.LegalName["en"])
+		_, err := stmt.ExecContext(ctx,
+			o.ID, o.PublicID, nameJSON, nameJSON, nameJSON,
+			o.TaxNumber, o.CommercialRegister, o.Type, o.Status,
+			o.CreditLimit.String(), o.PaymentTermsDays, o.CreatedAt, o.UpdatedAt,
+		)
+		if err != nil {
+			return loaded, fmt.Errorf("insert org %d: %w", o.ID, err)
+		}
+		loaded++
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("commit org load: %w", err)
+	}
+	return loaded, nil
+}

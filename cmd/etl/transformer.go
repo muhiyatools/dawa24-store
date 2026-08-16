@@ -36,6 +36,33 @@ type TargetUser struct {
 	UpdatedAt    time.Time
 }
 
+// SourceOrg represents a supplier/organization from MariaDB.
+type SourceOrg struct {
+	ID                 int64
+	Name               string
+	TaxNumber          string
+	CommercialRegister string
+	Phone              string
+	Status             string
+	CreatedAt          time.Time
+}
+
+// TargetOrg represents an organization for PostgreSQL.
+type TargetOrg struct {
+	ID                 int64
+	PublicID           string
+	LegalName          i18n.Text
+	TradeName          i18n.Text
+	TaxNumber          string
+	CommercialRegister string
+	Type               string
+	Status             string
+	CreditLimit        money.Amount
+	PaymentTermsDays   int
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
 // SourceProduct represents a product from MariaDB.
 type SourceProduct struct {
 	ID          int64
@@ -89,7 +116,7 @@ func (t *Transformer) TransformUser(src *SourceUser) *TargetUser {
 
 	return &TargetUser{
 		ID:           src.ID,
-		PublicID:     generateUUID(),
+		PublicID:     fmt.Sprintf("usr_%d", src.ID),
 		Email:        cleanEmail,
 		PasswordHash: src.Password, // Laravel bcrypt hashes ($2y$) are 100% compatible with Go bcrypt
 		Name: i18n.Text{
@@ -100,8 +127,32 @@ func (t *Transformer) TransformUser(src *SourceUser) *TargetUser {
 		Status:    "active",
 		Language:  "ar",
 		Phone:     cleanPhone(src.Phone),
-		CreatedAt: src.CreatedAt,
-		UpdatedAt: src.CreatedAt,
+		CreatedAt: src.CreatedAt.UTC(),
+		UpdatedAt: src.CreatedAt.UTC(),
+	}
+}
+
+func (t *Transformer) TransformOrg(src *SourceOrg) *TargetOrg {
+	normName := arabic.Normalize(src.Name)
+	return &TargetOrg{
+		ID:       src.ID,
+		PublicID: fmt.Sprintf("org_%d", src.ID),
+		LegalName: i18n.Text{
+			"ar": normName,
+			"en": src.Name,
+		},
+		TradeName: i18n.Text{
+			"ar": normName,
+			"en": src.Name,
+		},
+		TaxNumber:          src.TaxNumber,
+		CommercialRegister: src.CommercialRegister,
+		Type:               "supplier",
+		Status:             "approved",
+		CreditLimit:        money.Zero,
+		PaymentTermsDays:   30,
+		CreatedAt:          src.CreatedAt.UTC(),
+		UpdatedAt:          src.CreatedAt.UTC(),
 	}
 }
 
@@ -111,7 +162,7 @@ func (t *Transformer) TransformProduct(src *SourceProduct) (*TargetProduct, *Tar
 
 	p := &TargetProduct{
 		ID:         src.ID,
-		PublicID:   generateUUID(),
+		PublicID:   fmt.Sprintf("prd_%d", src.ID),
 		CategoryID: src.CategoryID,
 		Name: i18n.Text{
 			"ar": normAr,
@@ -124,19 +175,19 @@ func (t *Transformer) TransformProduct(src *SourceProduct) (*TargetProduct, *Tar
 		},
 		DosageForm:           "tablet",
 		RequiresPrescription: false,
-		CreatedAt:            src.CreatedAt,
-		UpdatedAt:            src.CreatedAt,
+		CreatedAt:            src.CreatedAt.UTC(),
+		UpdatedAt:            src.CreatedAt.UTC(),
 	}
 
 	v := &TargetVariant{
 		ID:        src.ID,
-		PublicID:  generateUUID(),
+		PublicID:  fmt.Sprintf("var_%d", src.ID),
 		ProductID: src.ID,
 		SKU:       src.Slug + "-DEFAULT",
 		Price:     amount,
 		Stock:     src.Stock,
-		CreatedAt: src.CreatedAt,
-		UpdatedAt: src.CreatedAt,
+		CreatedAt: src.CreatedAt.UTC(),
+		UpdatedAt: src.CreatedAt.UTC(),
 	}
 
 	return p, v
@@ -146,8 +197,4 @@ func cleanPhone(phone string) string {
 	cleaned := strings.ReplaceAll(phone, " ", "")
 	cleaned = strings.ReplaceAll(cleaned, "-", "")
 	return cleaned
-}
-
-func generateUUID() string {
-	return "etl_" + time.Now().Format("20060102150405")
 }
