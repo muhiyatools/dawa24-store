@@ -183,6 +183,18 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 			orgID = input.OrgID
 		}
 	}
+	// No organization named - and the web sign-in form has no field for one, so
+	// this is the usual case. Fall back to the user's own membership rather
+	// than leaving the session on organization 0, which every tenant-scoped
+	// query then filters against and finds nothing.
+	if orgID == 0 {
+		if defaultOrg, err := s.repo.DefaultOrgForUser(ctx, user.ID); err == nil {
+			orgID = defaultOrg
+		} else {
+			s.log.WarnContext(ctx, "could not resolve default organization at login",
+				"error", err, "user_id", user.ID)
+		}
+	}
 
 	permissions, err := s.repo.GetPermissionsForUser(ctx, user.ID, orgID)
 	if err != nil {

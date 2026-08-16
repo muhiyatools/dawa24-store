@@ -315,3 +315,5 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 }
 
 func (m *mockRepo) AdminCountUsers(_ context.Context) (int, error) { return 0, nil }
+
+func (m *mockRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) { return 0, nil }

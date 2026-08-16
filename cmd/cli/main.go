@@ -32,6 +32,7 @@ Usage:
   cli migrate-status    Show applied and pending migrations
   cli migrate-data      Run legacy MariaDB to PostgreSQL ETL pipeline
   cli seed              Seed default platform reference data
+  cli seed-users        Create development sign-in accounts (non-prod only)
   cli health            Verify database and cache connectivity
 `
 }
@@ -100,6 +101,17 @@ func run() error {
 
 	case "seed":
 		return runSeed(ctx, db, log)
+
+	case "seed-users":
+		// A known password on a live platform is a back door, not a convenience.
+		if cfg.Env == "prod" {
+			return errors.New("seed-users refuses to run with APP_ENV=prod")
+		}
+		if err := runSeedUsers(ctx, db, log); err != nil {
+			return err
+		}
+		fmt.Print(seedUsersSummary())
+		return nil
 
 	case "health":
 		if err := db.Health(ctx); err != nil {

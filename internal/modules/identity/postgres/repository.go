@@ -328,6 +328,38 @@ func (r *Repository) GetRolesForUser(ctx context.Context, userID int64) ([]strin
 	return roles, nil
 }
 
+// DefaultOrgForUser returns the organization to make active at sign-in.
+//
+// Login only set an active organization when the caller named one, and the web
+// sign-in form has no field for it, so every user arrived with organization 0.
+// The vendor screens filter on the actor's organization, so a supplier logged
+// in through the UI saw an empty catalogue of their own products.
+//
+// A user in exactly one organization has no choice to make, so it is chosen for
+// them. A user in several gets their oldest membership as the opening context
+// and can switch with X-Dawa-Org-ID, which is verified against membership.
+// Returns 0 when the user belongs to none, which is correct for a customer
+// buying as an individual.
+func (r *Repository) DefaultOrgForUser(ctx context.Context, userID int64) (int64, error) {
+	var orgID int64
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT organization_id
+			FROM org.members
+			WHERE user_id = $1 AND status = 'active'
+			ORDER BY id ASC
+			LIMIT 1;
+		`
+		err := tx.QueryRow(txCtx, query, userID).Scan(&orgID)
+		if err != nil && database.IsNotFound(err) {
+			orgID = 0
+			return nil
+		}
+		return err
+	})
+	return orgID, err
+}
+
 // UserBelongsToOrg checks whether a user has active membership in an organization.
 func (r *Repository) UserBelongsToOrg(ctx context.Context, userID int64, orgID int64) (bool, error) {
 	var belongs bool

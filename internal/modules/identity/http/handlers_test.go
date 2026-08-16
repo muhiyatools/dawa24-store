@@ -390,3 +390,10 @@ func (r stubRepo) AdminCountUsers(_ context.Context) (int, error) {
 }
 
 func (happyRepo) AdminCountUsers(_ context.Context) (int, error) { return 3, nil }
+
+func (r stubRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) {
+	r.fail("DefaultOrgForUser")
+	return 0, nil
+}
+
+func (happyRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) { return 1, nil }
