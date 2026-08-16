@@ -143,8 +143,12 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// Form actions in this package always answer with a redirect, so a refresh
+	// cannot resubmit and the reader lands back on a real page. An error is
+	// carried as a notice rather than rendered as an error page.
 	if h.adminSvc == nil {
-		h.renderError(w, r, apperr.Unavailable("platform_admin", nil))
+		h.redirectWithNotice(w, r, "/admin/settings", "error",
+			"خدمة الإعدادات غير متاحة حالياً.")
 		return
 	}
 
