@@ -71,6 +71,47 @@ func mountModuleRoutes(
 	idSvc := identity.NewService(idRepo, sessionStore, log)
 	identityHttp.NewHandler(idSvc, cfg.Session, log).RegisterRoutes(r)
 
+	// Everything from here on requires an authenticated caller.
+	//
+	// Until this group existed, every module route was reachable anonymously
+	// and each handler took the acting user from a `?user_id=` query parameter
+	// — so any caller could read any wallet, cart or notification feed, and
+	// withdraw from any wallet, simply by changing a number.
+	//
+	// RequireAuth establishes who is calling; ResolveTenant establishes which
+	// organization they are acting within, verifying membership before honouring
+	// the X-Dawa-Org-ID header. Row-level security then scopes queries to a
+	// tenant the caller has actually been proven to belong to.
+	r.Group(func(protected chi.Router) {
+		protected.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		protected.Use(identityHttp.ResolveTenant(idSvc, log))
+
+		mountAuthenticatedModules(protected, log, deps, ai)
+	})
+
+	// 13. Templ SSR Frontend & Static Assets
+	catRepoUI := catalogPostgres.NewRepository(db)
+	orgRepoUI := orgPostgres.NewRepository(db)
+	ingRepoUI := ingestPostgres.NewRepository(db)
+	uiHandler := ui.NewUIHandler(
+		catalog.NewService(catRepoUI, log),
+		org.NewService(orgRepoUI, log),
+		ingest.NewService(ingRepoUI, log),
+	)
+	uiHandler.RegisterPageRoutes(r)
+}
+
+// mountAuthenticatedModules registers every module whose endpoints require a
+// logged-in caller. It is a separate function so the authentication group above
+// reads as one decision rather than being repeated per module.
+func mountAuthenticatedModules(
+	r chi.Router,
+	log *slog.Logger,
+	deps *dependencies,
+	ai gateway.Client,
+) {
+	db, _ := deps.DB()
+
 	// 2. Catalog
 	catRepo := catalogPostgres.NewRepository(db)
 	catSvc := catalog.NewService(catRepo, log)
@@ -128,7 +169,4 @@ func mountModuleRoutes(
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
 
-	// 13. Templ SSR Frontend & Static Assets
-	uiHandler := ui.NewUIHandler(catSvc, orgSvc, ingSvc)
-	uiHandler.RegisterPageRoutes(r)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -44,10 +45,12 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 // GetWallet retrieves wallet details.
 func (h *Handler) GetWallet(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("user_id")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("user_id.invalid", "Valid user_id required", nil))
+	// The acting user comes from the authenticated session, never from the
+	// request. Reading it from the query string let any caller act as any
+	// user by changing a number.
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 
@@ -139,8 +142,14 @@ func (h *Handler) Subscribe(w http.ResponseWriter, r *http.Request) {
 // CheckEntitlement checks feature key access.
 func (h *Handler) CheckEntitlement(w http.ResponseWriter, r *http.Request) {
 	key := chi.URLParam(r, "key")
-	userIDStr := r.URL.Query().Get("user_id")
-	userID, _ := strconv.ParseInt(userIDStr, 10, 64)
+	// The acting user comes from the authenticated session, never from the
+	// request. Reading it from the query string let any caller act as any
+	// user by changing a number.
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
 
 	allowed, val, err := h.service.CheckEntitlement(r.Context(), userID, key)
 	if err != nil {
@@ -246,10 +255,12 @@ func (h *Handler) AddPaymentMethod(w http.ResponseWriter, r *http.Request) {
 
 // ListPaymentMethods returns saved payment methods.
 func (h *Handler) ListPaymentMethods(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("user_id")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("user_id.invalid", "Valid user_id is required", nil))
+	// The acting user comes from the authenticated session, never from the
+	// request. Reading it from the query string let any caller act as any
+	// user by changing a number.
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 

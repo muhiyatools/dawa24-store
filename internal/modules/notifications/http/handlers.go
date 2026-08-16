@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -32,10 +33,12 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 // ListNotifications returns in-app notification feed.
 func (h *Handler) ListNotifications(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("user_id")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("user_id.invalid", "Valid user_id required", nil))
+	// The acting user comes from the authenticated session, never from the
+	// request. Reading it from the query string let any caller act as any
+	// user by changing a number.
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 
@@ -63,8 +66,14 @@ func (h *Handler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userIDStr := r.URL.Query().Get("user_id")
-	userID, _ := strconv.ParseInt(userIDStr, 10, 64)
+	// The acting user comes from the authenticated session, never from the
+	// request. Reading it from the query string let any caller act as any
+	// user by changing a number.
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
 
 	if err := h.service.MarkRead(r.Context(), id, userID); err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -76,10 +85,12 @@ func (h *Handler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 
 // GetUnreadCount returns total unread messages count.
 func (h *Handler) GetUnreadCount(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("user_id")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("user_id.invalid", "Valid user_id required", nil))
+	// The acting user comes from the authenticated session, never from the
+	// request. Reading it from the query string let any caller act as any
+	// user by changing a number.
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
 		return
 	}
 
