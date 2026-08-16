@@ -229,6 +229,16 @@ func (s *Service) ValidateSession(ctx context.Context, token string) (*Session, 
 	return s.sessionStore.Get(ctx, token)
 }
 
+// UserBelongsToOrg reports whether a user is a member of an organization.
+//
+// This backs the tenant-switch check in ResolveTenant. Without it, a caller
+// could name any organization in the X-Dawa-Org-ID header and row-level
+// security would faithfully scope every query to that tenant's data — the
+// isolation mechanism working perfectly against an attacker-supplied input.
+func (s *Service) UserBelongsToOrg(ctx context.Context, userID, orgID int64) (bool, error) {
+	return s.repo.UserBelongsToOrg(ctx, userID, orgID)
+}
+
 // ResolvePermissions computes effective permissions for a user within an org.
 func (s *Service) ResolvePermissions(ctx context.Context, userID int64, orgID int64) ([]string, error) {
 	return s.repo.GetPermissionsForUser(ctx, userID, orgID)

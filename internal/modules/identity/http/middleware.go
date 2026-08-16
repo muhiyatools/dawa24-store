@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -47,6 +48,15 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 			}
 
 			ctx := WithSession(r.Context(), sess)
+			// Publish the caller through the platform-level actor context so
+			// other modules can identify them without importing this one, and
+			// without trusting anything in the request.
+			ctx = authctx.WithActor(ctx, authctx.Actor{
+				UserID:         sess.UserID,
+				OrganizationID: sess.ActiveOrgID,
+				Role:           sess.Role,
+				Permissions:    sess.Permissions,
+			})
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
@@ -90,23 +100,46 @@ func RequirePermission(permissionKey string, log *slog.Logger) func(http.Handler
 }
 
 // ResolveTenant resolves the active tenant organization and binds it to database context.
-func ResolveTenant(service *identity.Service) func(http.Handler) http.Handler {
+func ResolveTenant(service *identity.Service, log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			sess, hasSession := SessionFrom(ctx)
 
+			// The session's active organization is the trusted default.
 			var orgID int64
-			// Check X-Dawa-Org-ID header first
-			if headerOrg := strings.TrimSpace(r.Header.Get("X-Dawa-Org-ID")); headerOrg != "" {
-				if parsed, err := strconv.ParseInt(headerOrg, 10, 64); err == nil && parsed > 0 {
-					orgID = parsed
-				}
+			if hasSession {
+				orgID = sess.ActiveOrgID
 			}
 
-			// Fallback to session active org
-			if orgID == 0 && hasSession {
-				orgID = sess.ActiveOrgID
+			// X-Dawa-Org-ID lets a user who belongs to several organizations
+			// switch between them. It is a request-supplied value, so it is
+			// honoured only after confirming membership. Trusting it directly
+			// would hand any caller another tenant's data, because row-level
+			// security scopes to whatever organization it is told.
+			if headerOrg := strings.TrimSpace(r.Header.Get("X-Dawa-Org-ID")); headerOrg != "" {
+				requested, err := strconv.ParseInt(headerOrg, 10, 64)
+				switch {
+				case err != nil || requested <= 0:
+					httpx.Error(w, r, log, apperr.Validation("org.invalid",
+						"X-Dawa-Org-ID must be a positive integer.", nil))
+					return
+				case !hasSession:
+					httpx.Error(w, r, log, apperr.Unauthorized())
+					return
+				case requested != orgID:
+					belongs, err := service.UserBelongsToOrg(ctx, sess.UserID, requested)
+					if err != nil {
+						httpx.Error(w, r, log, err)
+						return
+					}
+					if !belongs {
+						httpx.Error(w, r, log, apperr.Forbidden("org.not_a_member",
+							"You are not a member of that organization."))
+						return
+					}
+					orgID = requested
+				}
 			}
 
 			if orgID > 0 {
