@@ -9,14 +9,32 @@ type Repository interface {
 	CreateWarehouse(ctx context.Context, w *Warehouse) error
 	GetWarehouseByID(ctx context.Context, id int64) (*Warehouse, error)
 	ListWarehouses(ctx context.Context) ([]*Warehouse, error)
+	UpdateWarehouse(ctx context.Context, w *Warehouse) error
+	SoftDeleteWarehouse(ctx context.Context, id int64) error
+	// CountStockInWarehouse backs the refusal to delete a warehouse that still
+	// holds goods. Soft-deleting one would orphan its stock rows: they would
+	// keep counting toward sellable inventory while belonging to a warehouse no
+	// screen lists any more.
+	CountStockInWarehouse(ctx context.Context, warehouseID int64) (int, error)
 
 	GetStock(ctx context.Context, warehouseID, variantID int64) (*Stock, error)
 	UpsertStock(ctx context.Context, s *Stock) error
 	AdjustStock(ctx context.Context, stockID int64, delta int, movement StockMovement) (*Stock, error)
 	ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*Stock, error)
 	ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error)
+	// ListLowStock returns rows at or below their reorder threshold, which is
+	// what the vendor replenishment screen is built on.
+	ListLowStock(ctx context.Context, limit, offset int) ([]*Stock, error)
+	// ListMovementsByOrg is the organisation-wide ledger, newest first.
+	ListMovementsByOrg(ctx context.Context, limit, offset int) ([]*StockMovement, error)
 
 	CreateTransfer(ctx context.Context, t *WarehouseTransfer) error
 	GetTransferByID(ctx context.Context, id int64) (*WarehouseTransfer, error)
-	UpdateTransferStatus(ctx context.Context, id int64, status TransferStatus) error
+	// UpdateTransferStatus is a compare-and-swap: it only applies when the row
+	// is still in the `from` state. Two concurrent receives would otherwise
+	// both read `in_transit`, both pass the in-memory state check, and both
+	// credit the destination — creating stock out of nothing. The loser of the
+	// race gets zero rows affected and a conflict.
+	UpdateTransferStatus(ctx context.Context, id int64, from, to TransferStatus) error
+	ListTransfers(ctx context.Context, status string, limit, offset int) ([]*WarehouseTransfer, error)
 }

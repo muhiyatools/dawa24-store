@@ -110,52 +110,28 @@ func (s *Service) TransferStock(ctx context.Context, t *WarehouseTransfer) (*War
 		return nil, apperr.Validation("transfer.insufficient_source", "Source warehouse has insufficient stock.", nil)
 	}
 
-	// 2. Ensure destination stock row exists
-	toStock, err := s.repo.GetStock(ctx, t.ToWarehouseID, t.ProductVariantID)
-	if err != nil && apperr.KindOf(err) == apperr.KindNotFound {
-		toStock = &Stock{
-			OrganizationID:   orgID,
-			WarehouseID:      t.ToWarehouseID,
-			ProductID:        t.ProductID,
-			ProductVariantID: t.ProductVariantID,
-			Quantity:         0,
-			MinThreshold:     1,
-		}
-		if err := s.repo.UpsertStock(ctx, toStock); err != nil {
-			return nil, err
-		}
-	} else if err != nil {
-		return nil, err
-	}
-
-	// 3. Execute source deduction
+	// 2. Deduct the source only. The destination is credited on receipt, not
+	//    on dispatch — see transfer_state.go. Goods on a van belong to neither
+	//    warehouse's sellable quantity, and crediting early would let the
+	//    destination sell medicine it has not received.
 	_, err = s.repo.AdjustStock(ctx, fromStock.ID, -t.Quantity, StockMovement{
 		Type:          MovementTransfer,
 		QuantityDelta: -t.Quantity,
-		Details:       "Outbound transfer to warehouse",
+		Details:       "Outbound transfer dispatched",
 		UserID:        t.InitiatedBy,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// 4. Execute destination credit
-	_, err = s.repo.AdjustStock(ctx, toStock.ID, t.Quantity, StockMovement{
-		Type:          MovementTransfer,
-		QuantityDelta: t.Quantity,
-		Details:       "Inbound transfer from warehouse",
-		UserID:        t.InitiatedBy,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	t.Status = TransferCompleted
+	t.Status = TransferInTransit
 	if err := s.repo.CreateTransfer(ctx, t); err != nil {
 		return nil, err
 	}
 
-	s.log.InfoContext(ctx, "warehouse transfer completed", "transfer_id", t.ID, "quantity", t.Quantity)
+	s.log.InfoContext(ctx, "warehouse transfer dispatched",
+		"transfer_id", t.ID, "quantity", t.Quantity,
+		"from", t.FromWarehouseID, "to", t.ToWarehouseID)
 	return t, nil
 }
 

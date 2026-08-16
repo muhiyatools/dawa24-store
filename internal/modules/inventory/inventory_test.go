@@ -130,15 +130,27 @@ func (m *mockInventoryRepo) GetTransferByID(_ context.Context, id int64) (*inven
 	if !ok {
 		return nil, apperr.NotFound("warehouse_transfer")
 	}
-	return t, nil
+	// Return a copy, as a real repository does when it scans a row into a fresh
+	// struct. Handing back the stored pointer would let a caller's in-memory
+	// TransitionTo mutate the "database" before the compare-and-swap ran,
+	// making the CAS impossible to test.
+	copied := *t
+	return &copied, nil
 }
 
-func (m *mockInventoryRepo) UpdateTransferStatus(_ context.Context, id int64, status inventory.TransferStatus) error {
+// UpdateTransferStatus mirrors the PostgreSQL compare-and-swap. The `from`
+// check is not decoration: without it here, the tests would pass while the real
+// implementation was the only thing preventing a double credit.
+func (m *mockInventoryRepo) UpdateTransferStatus(_ context.Context, id int64, from, to inventory.TransferStatus) error {
 	t, ok := m.transfers[id]
 	if !ok {
 		return apperr.NotFound("warehouse_transfer")
 	}
-	t.Status = status
+	if t.Status != from {
+		return apperr.Conflict("transfer.state_changed",
+			"This transfer was already updated by someone else. Reload and try again.")
+	}
+	t.Status = to
 	t.UpdatedAt = time.Now()
 	return nil
 }
@@ -235,8 +247,15 @@ func TestInterWarehouseTransfer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("TransferStock failed: %v", err)
 	}
-	if res.Status != inventory.TransferCompleted {
-		t.Errorf("Transfer status = %s; want completed", res.Status)
+	// Transfers are two-phase: dispatch deducts the source and leaves the goods
+	// in transit. The destination is credited by ReceiveTransfer, not here.
+	// See inventory/transfer_state.go.
+	if res.Status != inventory.TransferInTransit {
+		t.Errorf("Transfer status = %s; want in_transit", res.Status)
+	}
+
+	if _, err := svc.ReceiveTransfer(ctx, res.ID); err != nil {
+		t.Fatalf("ReceiveTransfer failed: %v", err)
 	}
 
 	// Check WH1 balance = 70

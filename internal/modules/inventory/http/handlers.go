@@ -27,11 +27,23 @@ func NewHandler(service *inventory.Service, log *slog.Logger) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/inventory/warehouses", h.ListWarehouses)
 	r.Post("/api/v1/inventory/warehouses", h.CreateWarehouse)
+	r.Get("/api/v1/inventory/warehouses/{id}", h.GetWarehouse)
+	r.Put("/api/v1/inventory/warehouses/{id}", h.UpdateWarehouse)
+	r.Delete("/api/v1/inventory/warehouses/{id}", h.DeleteWarehouse)
 
 	r.Get("/api/v1/inventory/warehouses/{id}/stocks", h.ListStocks)
 	r.Post("/api/v1/inventory/stocks/adjust", h.AdjustStock)
-	r.Post("/api/v1/inventory/transfers", h.TransferStock)
+	r.Get("/api/v1/inventory/stocks/low", h.ListLowStock)
 	r.Get("/api/v1/inventory/stocks/{id}/movements", h.ListMovements)
+	r.Get("/api/v1/inventory/movements", h.ListOrgMovements)
+
+	// Transfers are two-phase: POST dispatches (source deducted), receive
+	// credits the destination. See inventory/transfer_state.go.
+	r.Post("/api/v1/inventory/transfers", h.TransferStock)
+	r.Get("/api/v1/inventory/transfers", h.ListTransfers)
+	r.Get("/api/v1/inventory/transfers/{id}", h.GetTransfer)
+	r.Post("/api/v1/inventory/transfers/{id}/receive", h.ReceiveTransfer)
+	r.Post("/api/v1/inventory/transfers/{id}/cancel", h.CancelTransfer)
 }
 
 // CreateWarehouse handles warehouse creation.

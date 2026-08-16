@@ -1,0 +1,196 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+)
+
+// Warehouse lifecycle and reporting queries. Kept out of repository.go to stay
+// within the 400-line file limit.
+//
+// Every statement here relies on row-level security for tenant scoping — the
+// transaction helpers set app.current_org_id, and the policies compare against
+// it. A missing organization_id predicate therefore returns zero rows rather
+// than another tenant's data.
+
+// UpdateWarehouse persists mutable warehouse fields.
+func (r *Repository) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE inventory.warehouses
+			SET name = $2, code = $3, address = $4, phone = $5,
+			    latitude = $6, longitude = $7, is_active = $8, branch_id = $9,
+			    updated_at = now()
+			WHERE id = $1 AND deleted_at IS NULL
+			RETURNING updated_at;
+		`
+		err := tx.QueryRow(txCtx, query,
+			w.ID, w.Name, w.Code, w.Address, w.Phone,
+			w.Latitude, w.Longitude, w.IsActive, w.BranchID,
+		).Scan(&w.UpdatedAt)
+
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return apperr.NotFound("warehouse")
+			}
+			return fmt.Errorf("inventory postgres: update warehouse: %w", err)
+		}
+		return nil
+	})
+}
+
+// SoftDeleteWarehouse marks a warehouse deleted, preserving its history.
+//
+// Hard deletion would cascade into the stock movement ledger, which is an
+// append-only audit record and must survive the warehouse it describes.
+func (r *Repository) SoftDeleteWarehouse(ctx context.Context, id int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE inventory.warehouses
+			SET deleted_at = now(), is_active = false, updated_at = now()
+			WHERE id = $1 AND deleted_at IS NULL;
+		`
+		res, err := tx.Exec(txCtx, query, id)
+		if err != nil {
+			return fmt.Errorf("inventory postgres: soft delete warehouse: %w", err)
+		}
+		if res.RowsAffected() == 0 {
+			return apperr.NotFound("warehouse")
+		}
+		return nil
+	})
+}
+
+// CountStockInWarehouse counts stock rows still holding quantity.
+func (r *Repository) CountStockInWarehouse(ctx context.Context, warehouseID int64) (int, error) {
+	var count int
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT COUNT(*) FROM inventory.stocks
+			WHERE warehouse_id = $1 AND deleted_at IS NULL AND quantity > 0;
+		`
+		return tx.QueryRow(txCtx, query, warehouseID).Scan(&count)
+	})
+	if err != nil {
+		return 0, fmt.Errorf("inventory postgres: count stock in warehouse: %w", err)
+	}
+	return count, nil
+}
+
+// ListLowStock returns stock at or below its reorder threshold.
+func (r *Repository) ListLowStock(ctx context.Context, limit, offset int) ([]*inventory.Stock, error) {
+	var list []*inventory.Stock
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
+			       quantity, min_threshold, negotiation, created_at, updated_at, deleted_at
+			FROM inventory.stocks
+			WHERE deleted_at IS NULL AND quantity <= min_threshold
+			ORDER BY (quantity - min_threshold) ASC, id ASC
+			LIMIT $1 OFFSET $2;
+		`
+		rows, err := tx.Query(txCtx, query, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var s inventory.Stock
+			if err := rows.Scan(
+				&s.ID, &s.OrganizationID, &s.WarehouseID, &s.ProductID, &s.ProductVariantID,
+				&s.Quantity, &s.MinThreshold, &s.Negotiation,
+				&s.CreatedAt, &s.UpdatedAt, &s.DeletedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &s)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("inventory postgres: list low stock: %w", err)
+	}
+	return list, nil
+}
+
+// ListMovementsByOrg returns the organisation-wide movement ledger.
+func (r *Repository) ListMovementsByOrg(ctx context.Context, limit, offset int) ([]*inventory.StockMovement, error) {
+	var list []*inventory.StockMovement
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, organization_id, stock_id, type, quantity_delta, balance_after,
+			       details, reference_type, reference_id, user_id, created_at
+			FROM inventory.stock_movements
+			ORDER BY created_at DESC, id DESC
+			LIMIT $1 OFFSET $2;
+		`
+		rows, err := tx.Query(txCtx, query, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var m inventory.StockMovement
+			if err := rows.Scan(
+				&m.ID, &m.OrganizationID, &m.StockID, &m.Type, &m.QuantityDelta,
+				&m.BalanceAfter, &m.Details, &m.ReferenceType, &m.ReferenceID,
+				&m.UserID, &m.CreatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &m)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("inventory postgres: list org movements: %w", err)
+	}
+	return list, nil
+}
+
+// ListTransfers returns warehouse transfers, optionally filtered by status.
+func (r *Repository) ListTransfers(ctx context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, error) {
+	var list []*inventory.WarehouseTransfer
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		// An empty status means "all". Passing it as a parameter rather than
+		// concatenating keeps this one prepared statement instead of two.
+		query := `
+			SELECT id, organization_id, from_warehouse_id, to_warehouse_id,
+			       product_id, product_variant_id, quantity, status,
+			       initiated_by, notes, created_at, updated_at
+			FROM inventory.warehouse_transfers
+			WHERE ($1 = '' OR status = $1)
+			ORDER BY created_at DESC, id DESC
+			LIMIT $2 OFFSET $3;
+		`
+		rows, err := tx.Query(txCtx, query, status, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var t inventory.WarehouseTransfer
+			if err := rows.Scan(
+				&t.ID, &t.OrganizationID, &t.FromWarehouseID, &t.ToWarehouseID,
+				&t.ProductID, &t.ProductVariantID, &t.Quantity, &t.Status,
+				&t.InitiatedBy, &t.Notes, &t.CreatedAt, &t.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &t)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("inventory postgres: list transfers: %w", err)
+	}
+	return list, nil
+}

@@ -329,15 +329,25 @@ func (r *Repository) GetTransferByID(ctx context.Context, id int64) (*inventory.
 }
 
 // UpdateTransferStatus updates the transfer lifecycle state.
-func (r *Repository) UpdateTransferStatus(ctx context.Context, id int64, status inventory.TransferStatus) error {
+func (r *Repository) UpdateTransferStatus(ctx context.Context, id int64, from, to inventory.TransferStatus) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `UPDATE inventory.warehouse_transfers SET status = $2, updated_at = now() WHERE id = $1;`
-		res, err := tx.Exec(txCtx, query, id, string(status))
+		// The `status = $2` predicate is the compare half of the swap. Without
+		// it, two concurrent receives both succeed and the destination is
+		// credited twice.
+		query := `
+			UPDATE inventory.warehouse_transfers
+			SET status = $3, updated_at = now()
+			WHERE id = $1 AND status = $2;
+		`
+		res, err := tx.Exec(txCtx, query, id, string(from), string(to))
 		if err != nil {
 			return fmt.Errorf("inventory postgres: update transfer status: %w", err)
 		}
 		if res.RowsAffected() == 0 {
-			return apperr.NotFound("warehouse_transfer")
+			// Either the transfer does not exist, or another request changed
+			// its state first. Both mean this caller must not proceed.
+			return apperr.Conflict("transfer.state_changed",
+				"This transfer was already updated by someone else. Reload and try again.")
 		}
 		return nil
 	})
