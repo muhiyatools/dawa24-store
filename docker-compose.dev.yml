@@ -1,4 +1,10 @@
-# Local development stack. Mirrors the Elest.io topology: PostgreSQL, Redis and
+# LOCAL DEVELOPMENT ONLY.
+#
+# Named .dev.yml so it cannot be mistaken for the Elest.io deployment compose,
+# which lives in dawa24-ops/03-store/ and runs migrate + server + worker from
+# the built image. Elest.io generates its own docker-compose.yml at the repo
+# root during deploy; a dev compose sitting there would be overwritten or, worse,
+# deployed. Mirrors the Elest.io topology: PostgreSQL, Redis and
 # S3-compatible object storage, with the app talking to all three.
 #
 # The AI Gateway is deliberately absent. It runs as its own Elest.io service at

@@ -13,17 +13,17 @@ help: ## Show available targets
 
 .PHONY: up
 up: ## Start postgres, redis and minio
-	docker compose up -d
-	@echo "waiting for postgres..." && until docker compose exec -T postgres pg_isready -U dawa24 -d dawa24_store >/dev/null 2>&1; do sleep 1; done
+	docker compose -f docker-compose.dev.yml up -d
+	@echo "waiting for postgres..." && until docker compose -f docker-compose.dev.yml exec -T postgres pg_isready -U dawa24 -d dawa24_store >/dev/null 2>&1; do sleep 1; done
 	@echo "ready"
 
 .PHONY: down
 down: ## Stop local infrastructure
-	docker compose down
+	docker compose -f docker-compose.dev.yml down
 
 .PHONY: reset
 reset: ## Destroy local data and rebuild the schema from scratch
-	docker compose down -v
+	docker compose -f docker-compose.dev.yml down -v
 	rm -rf .data
 	$(MAKE) up
 	$(MAKE) migrate
