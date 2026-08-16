@@ -26,8 +26,8 @@ func RegisterStaticRoutes(r chi.Router) {
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 		fsHandler := http.StripPrefix(pathPrefix, fileServer)
 
-		// Cache static assets aggressively in production
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		// Ensure client always receives up-to-date static assets
+		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
 		fsHandler.ServeHTTP(w, r)
 	})
 
