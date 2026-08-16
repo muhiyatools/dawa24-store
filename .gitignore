@@ -1,0 +1,28 @@
+# Secrets — never commit. The legacy project had four .env variants in its
+# working tree with live credentials; that must not repeat here.
+.env
+.env.*
+!.env.example
+
+# Build output
+/bin/
+/tmp/
+*.exe
+dawa24-store
+dawa24-worker
+
+# Local infrastructure state
+/.data/
+
+# Coverage
+*.out
+coverage.html
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# NOTE: *_templ.go is deliberately NOT ignored. The Dockerfile does not run
+# `templ generate`, so the generated files must be committed or the container
+# build fails on missing symbols.
