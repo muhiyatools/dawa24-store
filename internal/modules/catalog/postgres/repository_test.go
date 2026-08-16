@@ -53,10 +53,15 @@ func getTestDB(t *testing.T) *database.DB {
 		t.Fatalf("failed to load migrations: %v", err)
 	}
 
-	var isSuper bool
-	if err := db.Pool().QueryRow(ctx, `SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&isSuper); err == nil && isSuper {
-		t.Skip("connected as a superuser")
-	}
+	// Deliberately no superuser skip.
+	//
+	// The RLS suite skips for a superuser because a superuser bypasses
+	// row-level security, so it cannot prove isolation either way. That
+	// reasoning does not transfer here: these tests check that the SQL is
+	// correct -- columns exist, types scan, money round-trips -- and a
+	// superuser answers those questions perfectly well. Copying the skip meant
+	// these tests reported `ok` while executing nothing, which is the exact
+	// failure mode they were written to prevent.
 
 	pending, err := db.PendingCount(ctx, migrations)
 	if err != nil {
@@ -67,6 +72,13 @@ func getTestDB(t *testing.T) *database.DB {
 	}
 	return db
 }
+
+// Fixture ids sit far above anything the application will generate, so a
+// failed run leaves them behind for inspection and the next run clears them.
+const (
+	testCustomerOrgID int64 = 88190
+	testUserID        int64 = 88191
+)
 
 func resetFixtures(t *testing.T, db *database.DB, orgID int64) {
 	t.Helper()
@@ -79,8 +91,18 @@ func resetFixtures(t *testing.T, db *database.DB, orgID int64) {
 		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgID)
 		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.categories WHERE id >= 88100 AND id <= 88199`)
 		_, _ = tx.Exec(txCtx, `DELETE FROM catalog.brands WHERE id >= 88100 AND id <= 88199`)
-		// Setup org
-		_, _ = tx.Exec(txCtx, `INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Catalog Test Org"}') ON CONFLICT DO NOTHING`, orgID)
+		// Prerequisites for the foreign keys these tests exercise: the vendor
+		// organization, a separate customer organization for per-customer
+		// pricing, and a user for product alerts. Without them the subtests
+		// fail on a constraint instead of on the behaviour under test.
+		_, _ = tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Catalog Test Org"}') ON CONFLICT DO NOTHING`, orgID)
+		_, _ = tx.Exec(txCtx,
+			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"en":"Catalog Test Customer"}') ON CONFLICT DO NOTHING`, testCustomerOrgID)
+		_, _ = tx.Exec(txCtx,
+			`INSERT INTO identity.users (id, email, password_hash, name)
+			 VALUES ($1, 'catalog-fixture@dawa24.test', '$2y$10$fixture', '{"en":"Catalog Fixture"}')
+			 ON CONFLICT (id) DO NOTHING`, testUserID)
 		return nil
 	})
 	if err != nil {
@@ -101,9 +123,20 @@ func TestCatalogRepository(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), orgID)
 	repo := postgres.NewRepository(db)
 
+	// Ids are assigned by PostgreSQL and scanned back by the repository, so
+	// they cannot be pinned in the test. Subtests share what was actually
+	// created. The original version hardcoded 88100+ and then looked those ids
+	// up, which found nothing and cascaded into foreign-key failures on every
+	// later subtest.
+	var (
+		categoryID int64
+		brandID    int64
+		productID  int64
+		variantID  int64
+	)
+
 	t.Run("Categories", func(t *testing.T) {
 		cat := &catalog.Category{
-			ID:     88100,
 			Name:   i18n.Text{"en": "Test Category"},
 			Status: "active",
 		}
@@ -111,8 +144,12 @@ func TestCatalogRepository(t *testing.T) {
 		if err != nil {
 			t.Fatalf("CreateCategory failed: %v", err)
 		}
+		if cat.ID == 0 {
+			t.Fatal("CreateCategory did not return a generated id")
+		}
+		categoryID = cat.ID
 
-		got, err := repo.GetCategoryByID(ctx, 88100)
+		got, err := repo.GetCategoryByID(ctx, categoryID)
 		if err != nil {
 			t.Fatalf("GetCategoryByID failed: %v", err)
 		}
@@ -134,7 +171,7 @@ func TestCatalogRepository(t *testing.T) {
 			t.Error("expected at least 1 category in list")
 		}
 
-		count, err := repo.CountProductsInCategory(ctx, 88100)
+		count, err := repo.CountProductsInCategory(ctx, categoryID)
 		if err != nil {
 			t.Fatalf("CountProductsInCategory failed: %v", err)
 		}
@@ -147,7 +184,6 @@ func TestCatalogRepository(t *testing.T) {
 
 	t.Run("Brands", func(t *testing.T) {
 		brand := &catalog.Brand{
-			ID:     88101,
 			Name:   i18n.Text{"en": "Test Brand"},
 			Status: "active",
 		}
@@ -156,7 +192,12 @@ func TestCatalogRepository(t *testing.T) {
 			t.Fatalf("CreateBrand failed: %v", err)
 		}
 
-		got, err := repo.GetBrandByID(ctx, 88101)
+		if brand.ID == 0 {
+			t.Fatal("CreateBrand did not return a generated id")
+		}
+		brandID = brand.ID
+
+		got, err := repo.GetBrandByID(ctx, brandID)
 		if err != nil {
 			t.Fatalf("GetBrandByID failed: %v", err)
 		}
@@ -178,7 +219,7 @@ func TestCatalogRepository(t *testing.T) {
 			t.Error("expected at least 1 brand in list")
 		}
 
-		count, err := repo.CountProductsInBrand(ctx, 88101)
+		count, err := repo.CountProductsInBrand(ctx, brandID)
 		if err != nil {
 			t.Fatalf("CountProductsInBrand failed: %v", err)
 		}
@@ -188,10 +229,8 @@ func TestCatalogRepository(t *testing.T) {
 	})
 
 	t.Run("Products", func(t *testing.T) {
-		catID := int64(88100)
-		brandID := int64(88101)
+		catID := categoryID
 		p := &catalog.Product{
-			ID:             88102,
 			OrganizationID: orgID,
 			CategoryID:     &catID,
 			BrandID:        &brandID,
@@ -205,7 +244,9 @@ func TestCatalogRepository(t *testing.T) {
 			t.Fatalf("CreateProduct failed: %v", err)
 		}
 
-		got, err := repo.GetProductByID(ctx, 88102)
+		productID = p.ID
+
+		got, err := repo.GetProductByID(ctx, productID)
 		if err != nil {
 			t.Fatalf("GetProductByID failed: %v", err)
 		}
@@ -242,7 +283,7 @@ func TestCatalogRepository(t *testing.T) {
 			t.Error("expected at least 1 product in search")
 		}
 
-		updated, err := repo.SetProductsStatus(ctx, []int64{88102}, catalog.StatusInactive)
+		updated, err := repo.SetProductsStatus(ctx, []int64{productID}, catalog.StatusInactive)
 		if err != nil {
 			t.Fatalf("SetProductsStatus failed: %v", err)
 		}
@@ -253,9 +294,8 @@ func TestCatalogRepository(t *testing.T) {
 
 	t.Run("Variants", func(t *testing.T) {
 		v := &catalog.ProductVariant{
-			ID:             88103,
 			OrganizationID: orgID,
-			ProductID:      88102,
+			ProductID:      productID,
 			Name:           i18n.Text{"en": "Variant 1"},
 			Price:          money.FromMinor(500),
 			CostPrice:      money.FromMinor(300),
@@ -266,7 +306,9 @@ func TestCatalogRepository(t *testing.T) {
 			t.Fatalf("CreateVariant failed: %v", err)
 		}
 
-		got, err := repo.GetVariantByID(ctx, 88103)
+		variantID = v.ID
+
+		got, err := repo.GetVariantByID(ctx, variantID)
 		if err != nil {
 			t.Fatalf("GetVariantByID failed: %v", err)
 		}
@@ -280,7 +322,7 @@ func TestCatalogRepository(t *testing.T) {
 			t.Fatalf("UpdateVariant failed: %v", err)
 		}
 
-		variants, err := repo.ListVariantsByProduct(ctx, 88102)
+		variants, err := repo.ListVariantsByProduct(ctx, productID)
 		if err != nil {
 			t.Fatalf("ListVariantsByProduct failed: %v", err)
 		}
@@ -288,7 +330,7 @@ func TestCatalogRepository(t *testing.T) {
 			t.Error("expected at least 1 variant")
 		}
 
-		err = repo.DeleteVariant(ctx, 88103)
+		err = repo.DeleteVariant(ctx, variantID)
 		if err != nil {
 			t.Fatalf("DeleteVariant failed: %v", err)
 		}
@@ -296,10 +338,9 @@ func TestCatalogRepository(t *testing.T) {
 
 	t.Run("CustomerPricing", func(t *testing.T) {
 		m := &catalog.CustomerProductMapping{
-			ID:             88104,
 			OrganizationID: orgID,
-			CustomerOrgID:  88105,
-			ProductID:      88102,
+			CustomerOrgID:  testCustomerOrgID,
+			ProductID:      productID,
 			CustomPrice:    money.FromMinor(800),
 			IsActive:       true,
 		}
@@ -308,7 +349,7 @@ func TestCatalogRepository(t *testing.T) {
 			t.Fatalf("SetCustomerPricing failed: %v", err)
 		}
 
-		got, err := repo.GetCustomerPricing(ctx, orgID, 88105, 88102)
+		got, err := repo.GetCustomerPricing(ctx, orgID, testCustomerOrgID, productID)
 		if err != nil {
 			t.Fatalf("GetCustomerPricing failed: %v", err)
 		}
@@ -319,9 +360,8 @@ func TestCatalogRepository(t *testing.T) {
 
 	t.Run("ProductAlerts", func(t *testing.T) {
 		a := &catalog.ProductAlert{
-			ID:          88106,
-			UserID:      88107,
-			ProductID:   88102,
+			UserID:      testUserID,
+			ProductID:   productID,
 			AlertType:   "price_drop",
 			TargetPrice: money.FromMinor(900),
 		}
@@ -330,7 +370,7 @@ func TestCatalogRepository(t *testing.T) {
 			t.Fatalf("CreateProductAlert failed: %v", err)
 		}
 
-		alerts, err := repo.ListProductAlertsByUser(ctx, 88107)
+		alerts, err := repo.ListProductAlertsByUser(ctx, testUserID)
 		if err != nil {
 			t.Fatalf("ListProductAlertsByUser failed: %v", err)
 		}
@@ -340,15 +380,15 @@ func TestCatalogRepository(t *testing.T) {
 	})
 
 	t.Run("Cleanup", func(t *testing.T) {
-		err := repo.DeleteProduct(ctx, 88102)
+		err := repo.DeleteProduct(ctx, productID)
 		if err != nil {
 			t.Fatalf("DeleteProduct failed: %v", err)
 		}
-		err = repo.DeleteCategory(ctx, 88100)
+		err = repo.DeleteCategory(ctx, categoryID)
 		if err != nil {
 			t.Fatalf("DeleteCategory failed: %v", err)
 		}
-		err = repo.DeleteBrand(ctx, 88101)
+		err = repo.DeleteBrand(ctx, brandID)
 		if err != nil {
 			t.Fatalf("DeleteBrand failed: %v", err)
 		}

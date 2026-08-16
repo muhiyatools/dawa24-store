@@ -50,10 +50,15 @@ func getTestDB(t *testing.T) *database.DB {
 		t.Fatalf("failed to load migrations: %v", err)
 	}
 
-	var isSuper bool
-	if err := db.Pool().QueryRow(ctx, `SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&isSuper); err == nil && isSuper {
-		t.Skip("connected as a superuser")
-	}
+	// Deliberately no superuser skip.
+	//
+	// The RLS suite skips for a superuser because a superuser bypasses
+	// row-level security, so it cannot prove isolation either way. That
+	// reasoning does not transfer here: these tests check that the SQL is
+	// correct -- columns exist, types scan, money round-trips -- and a
+	// superuser answers those questions perfectly well. Copying the skip meant
+	// these tests reported `ok` while executing nothing, which is the exact
+	// failure mode they were written to prevent.
 
 	pending, err := db.PendingCount(ctx, migrations)
 	if err != nil {

@@ -21,11 +21,18 @@ func main() {
 	scopeDSN := flag.String("scoping", "", "report scoping columns of unprotected tables")
 	colsDSN := flag.String("cols", "", "print columns of tables given as arguments")
 	provisionDSN := flag.String("provision", "", "create the least-privilege app role at this DSN")
+	rehashDSN := flag.String("rehash", "", "report applied migrations whose recorded hash differs only by line endings")
+	rehashApply := flag.Bool("rehash-apply", false, "write the corrected hashes")
 	roleName := flag.String("role", "dawa24_app", "application role name")
 	rolePass := flag.String("password", "", "application role password")
 	target := flag.String("db", "dawa24-store", "target database name")
 	admin := flag.String("admin", "", "admin connection string (to the postgres database)")
 	flag.Parse()
+
+	if *rehashDSN != "" {
+		rehash(*rehashDSN, "db/migrations", *rehashApply)
+		return
+	}
 
 	if *provisionDSN != "" {
 		if *rolePass == "" {
