@@ -8,11 +8,9 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 	@Base(title, lang, dir) {
 		<div class="app-shell">
 			<aside class="sidebar">
-				<div class="sidebar-header">
-					<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--primary-700); color:#fff; display:flex; align-items:center; justify-content:center;">
-						@components.IconShield("icon-sm")
-					</div>
-					<span>إدارة دواء 24</span>
+				<div class="sidebar-header" style="padding:1.25rem 1.5rem; display:flex; align-items:center; gap:0.75rem; border-bottom:1px solid var(--neutral-800);">
+					<img src="/static/img/logo.png" alt="DAWA24" style="height:36px; object-fit:contain;" />
+					<span style="font-weight:800; font-size:1.1rem; color:#ffffff;">لوحة الإدارة</span>
 				</div>
 				<nav class="sidebar-nav">
 					<a href="/admin/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
@@ -21,7 +19,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 					</a>
 					<a href="/admin/approvals" class={ "sidebar-link", templ.KV("active", activeNav == "approvals") }>
 						@components.IconBuilding("icon-sm")
-						<span>اعتماد الشركاء</span>
+						<span>اعتماد الشركاء والموردين</span>
 					</a>
 					<a href="/admin/users" class={ "sidebar-link", templ.KV("active", activeNav == "users") }>
 						@components.IconUsers("icon-sm")
@@ -35,7 +33,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 				<div style="border-top:1px solid var(--neutral-800); padding:1rem; display:flex; flex-direction:column; gap:0.5rem;">
 					<a href="/catalog" style="color:var(--neutral-400); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; text-decoration:none;">
 						@components.IconArrowLeft("icon-xs")
-						<span>العودة للسوق</span>
+						<span>العودة للمتجر الدوائي</span>
 					</a>
 				</div>
 			</aside>
@@ -43,7 +41,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 			<main class="main-content">
 				<header class="top-navbar">
 					<div>
-						<h1 style="font-size:1.15rem; font-weight:700; color:var(--neutral-900);">{ title }</h1>
+						<h1 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900);">{ title }</h1>
 					</div>
 					<div style="display:flex; align-items:center; gap:1rem;">
 						<span class="badge badge-sky">
@@ -51,7 +49,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							<span>مدير المنصة العام</span>
 						</span>
 						<form action="/auth/logout" method="POST" style="margin:0; display:inline;">
-							<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">
+							<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border); font-weight:700;">
 								@components.IconLogout("icon-xs")
 								<span>خروج</span>
 							</button>

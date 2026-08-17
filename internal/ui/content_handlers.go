@@ -37,9 +37,14 @@ func (h *UIHandler) HowItWorksPage(w http.ResponseWriter, r *http.Request) {
 	h.renderCmsBlock(w, r, "how-it-works", "كيف يعمل")
 }
 
-// FaqPage renders the FAQ content block.
+// FaqPage renders the dedicated interactive FAQ page.
 func (h *UIHandler) FaqPage(w http.ResponseWriter, r *http.Request) {
-	h.renderCmsBlock(w, r, "faq", "الأسئلة الشائعة")
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.FAQPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render faq page", "error", err)
+	}
 }
 
 // HelpPage renders the help content block.

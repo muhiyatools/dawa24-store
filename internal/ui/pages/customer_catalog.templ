@@ -16,19 +16,19 @@ templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Categor
 				<aside class="catalog-filters" style="background:#fff; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border-card); height:fit-content; box-shadow:var(--shadow-xs);">
 					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--neutral-100); padding-bottom:0.75rem;">
 						@components.IconPill("icon-sm")
-						<h3 style="font-size:1.1rem; font-weight:700; color:var(--neutral-900); margin:0;">
+						<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0;">
 							الأقسام الدوائية
 						</h3>
 					</div>
 					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.35rem;">
 						<li>
-							<a href="/catalog" class="sidebar-link" style="color:var(--primary-700); font-weight:700; background:var(--primary-50); border-radius:var(--radius-md); padding:0.5rem 0.75rem;">
+							<a href="/catalog" class="sidebar-link" style="color:var(--primary-700); font-weight:700; background:var(--primary-50); border-radius:var(--radius-md); padding:0.5rem 0.75rem; display:block;">
 								<span>جميع الأدوية والمستلزمات</span>
 							</a>
 						</li>
 						for _, cat := range categories {
 							<li>
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="sidebar-link" style="color:var(--neutral-700); border-radius:var(--radius-md); padding:0.5rem 0.75rem;">
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="sidebar-link" style="color:var(--neutral-700); border-radius:var(--radius-md); padding:0.5rem 0.75rem; display:block;">
 									<span>
 										if cat.Name["ar"] != "" {
 											{ cat.Name["ar"] }
@@ -43,8 +43,8 @@ templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Categor
 				</aside>
 
 				<main class="catalog-content">
-					<div class="catalog-search-bar" style="margin-bottom:1.5rem; display:flex; gap:0.75rem;">
-						<div style="position:relative; flex:1;">
+					<div class="catalog-search-bar" style="margin-bottom:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+						<div style="position:relative; flex:1; min-width:260px;">
 							<input
 								type="search"
 								name="q"
@@ -65,41 +65,10 @@ templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Categor
 							<option value="newest">الأحدث</option>
 							<option value="name">الاسم</option>
 						</select>
-						<input type="number" name="min_price" class="form-input" placeholder="أدنى سعر" style="width:110px;" onchange="applyFilters()" />
-						<input type="number" name="max_price" class="form-input" placeholder="أعلى سعر" style="width:110px;" onchange="applyFilters()" />
-						<button type="button" class="btn btn-secondary btn-sm" onclick="document.body.classList.toggle('list-view')" aria-label="تبديل طريقة العرض">قائمة / شبكة</button>
 					</div>
-					<script>
-						function catalogParams() {
-							var q = document.querySelector('input[name=q]').value;
-							var sort = document.querySelector('select[name=sort]').value;
-							var min = document.querySelector('input[name=min_price]').value;
-							var max = document.querySelector('input[name=max_price]').value;
-							var params = new URLSearchParams(window.location.search);
-							if (q) params.set('q', q); else params.delete('q');
-							if (sort) params.set('sort', sort); else params.delete('sort');
-							if (min) params.set('min_price', min); else params.delete('min_price');
-							if (max) params.set('max_price', max); else params.delete('max_price');
-							return params;
-						}
-						function applyFilters() {
-							window.location = '/catalog?' + catalogParams().toString();
-						}
-						function page(delta) {
-							var params = catalogParams();
-							var offset = parseInt(params.get('offset') || '0', 10);
-							var next = Math.max(0, offset + delta * 20);
-							if (next > 0) params.set('offset', next); else params.delete('offset');
-							window.location = '/catalog?' + params.toString();
-						}
-					</script>
 
 					<div id="catalog-results">
 						@CustomerCatalogList(products, lang)
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem;">
-							<button type="button" class="btn btn-secondary btn-sm" onclick="page(-1)">السابق</button>
-							<button type="button" class="btn btn-secondary btn-sm" onclick="page(1)">التالي</button>
-						</div>
 					</div>
 				</main>
 			</div>
@@ -115,69 +84,53 @@ templ CustomerCatalogList(products []*catalog.Product, lang string) {
 			ActionLabel: "عرض كل المنتجات",
 		})
 	} else {
-		<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:1.25rem;">
+		<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:1.5rem;">
 			for _, p := range products {
-				<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; margin-bottom:0;">
+				<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;">
 					<div>
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-							<span class="badge badge-slate" style="font-size:0.725rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+							<span class="badge badge-slate" style="font-size:0.75rem;">
 								@components.IconPill("icon-xs")
 								<span>{ p.DosageForm }</span>
 							</span>
-							<span class="badge badge-emerald" style="font-size:0.725rem;">متوفر</span>
+
+							<!-- Favorite Heart Button -->
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", p.ID)) } style="margin:0;">
+								<button type="submit" class="btn btn-secondary btn-icon" style="width:30px; height:30px; color:var(--primary-600);" title="حفظ في المفضلة">
+									@components.IconHeart("icon-xs")
+								</button>
+							</form>
 						</div>
-						<h4 style="font-size:1.05rem; font-weight:700; margin-bottom:0.25rem; color:var(--neutral-900);">
+
+						<h4 style="font-size:1.1rem; font-weight:800; margin-bottom:0.25rem; color:var(--neutral-900); line-height:1.4;">
 							if p.Name["ar"] != "" {
 								{ p.Name["ar"] }
 							} else {
 								{ p.Name["en"] }
 							}
 						</h4>
-						<p style="font-size:0.8rem; color:var(--neutral-500); margin-bottom:0.5rem;">
+						<p style="font-size:0.825rem; color:var(--neutral-500); margin-bottom:0.5rem;">
 							{ p.Name["en"] }
 						</p>
 						if p.ManufacturingCompanies != "" {
-							<p style="font-size:0.775rem; color:var(--neutral-600); margin-bottom:0.25rem;">
+							<div style="font-size:0.8rem; color:var(--neutral-600); margin-bottom:0.25rem;">
 								الشركة: { p.ManufacturingCompanies }
-							</p>
+							</div>
 						}
 						if p.Barcode != "" {
-							<p style="font-size:0.75rem; color:var(--neutral-400);" class="tabular-nums">
+							<div style="font-size:0.75rem; color:var(--neutral-400);" class="tabular-nums">
 								باركود: { p.Barcode }
-							</p>
+							</div>
 						}
 					</div>
 
-					<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem; display:flex; gap:0.5rem;">
-						@components.ModalTrigger(fmt.Sprintf("quick-%d", p.ID), "btn btn-secondary") {
-							عرض سريع
-						}
-						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary" style="flex:1; font-size:0.85rem; justify-content:center;">
-							التفاصيل والأسعار
+					<div style="margin-top:1.5rem; border-top:1px solid var(--neutral-100); padding-top:1rem;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary" style="width:100%; font-size:0.875rem; font-weight:700; justify-content:center;">
+							@components.IconFileText("icon-xs")
+							<span>التفاصيل والطلب</span>
 						</a>
 					</div>
 				</div>
-
-				@components.Modal(components.ModalProps{ ID: fmt.Sprintf("quick-%d", p.ID), Title: p.Name["ar"], Size: "sm" }) {
-					<div style="display:flex; flex-direction:column; gap:0.6rem;">
-						if p.Name["en"] != "" {
-							<div style="font-size:0.9rem; color:var(--neutral-600);" dir="ltr">{ p.Name["en"] }</div>
-						}
-						if p.DosageForm != "" {
-							<div style="font-size:0.9rem;"><span style="color:var(--neutral-500);">الشكل الصيدلي: </span>{ p.DosageForm }</div>
-						}
-						if p.ManufacturingCompanies != "" {
-							<div style="font-size:0.9rem;"><span style="color:var(--neutral-500);">الشركة: </span>{ p.ManufacturingCompanies }</div>
-						}
-						if p.ScientificName != "" {
-							<div style="font-size:0.9rem;"><span style="color:var(--neutral-500);">المادة الفعالة: </span>{ p.ScientificName }</div>
-						}
-						if p.Barcode != "" {
-							<div style="font-size:0.9rem;" class="tabular-nums"><span style="color:var(--neutral-500);">باركود: </span>{ p.Barcode }</div>
-						}
-						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary" style="justify-content:center;">التفاصيل الكاملة</a>
-					</div>
-				}
 			}
 		</div>
 	}

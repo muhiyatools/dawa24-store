@@ -111,5 +111,75 @@ func (h *UIHandler) FavoriteRemoveSubmit(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	http.Redirect(w, r, "/favorites", http.StatusSeeOther)
+	redirect := r.Header.Get("Referer")
+	if redirect == "" {
+		redirect = "/favorites"
+	}
+	http.Redirect(w, r, redirect, http.StatusSeeOther)
+}
+
+// FavoriteAddSubmit adds a product to the user's favourites.
+func (h *UIHandler) FavoriteAddSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/favorites", http.StatusSeeOther)
+		return
+	}
+
+	productID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if productID <= 0 {
+		productID, _ = strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
+	}
+
+	if h.idSvc != nil && productID > 0 {
+		_ = h.idSvc.AddFavorite(ctx, actor.UserID, productID)
+	}
+
+	redirect := r.Header.Get("Referer")
+	if redirect == "" {
+		redirect = "/favorites"
+	}
+	http.Redirect(w, r, redirect, http.StatusSeeOther)
+}
+
+// FavoriteToggleSubmit toggles a product in the user's favourites.
+func (h *UIHandler) FavoriteToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/favorites", http.StatusSeeOther)
+		return
+	}
+
+	productID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if productID <= 0 {
+		productID, _ = strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
+	}
+
+	if h.idSvc != nil && productID > 0 {
+		favs, err := h.idSvc.ListFavorites(ctx, actor.UserID)
+		isFav := false
+		if err == nil {
+			for _, id := range favs {
+				if id == productID {
+					isFav = true
+					break
+				}
+			}
+		}
+		if isFav {
+			_ = h.idSvc.RemoveFavorite(ctx, actor.UserID, productID)
+		} else {
+			_ = h.idSvc.AddFavorite(ctx, actor.UserID, productID)
+		}
+	}
+
+	redirect := r.Header.Get("Referer")
+	if redirect == "" {
+		redirect = "/favorites"
+	}
+	http.Redirect(w, r, redirect, http.StatusSeeOther)
 }

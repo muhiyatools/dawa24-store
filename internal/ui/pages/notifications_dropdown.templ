@@ -2,43 +2,57 @@ package pages
 
 import (
 	"fmt"
-
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 // NotificationsDropdownPanel is the bell dropdown content, returned as an
 // HTMX partial so the header stays light and the list is always fresh.
 templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread int) {
-	<div style="min-width:360px;">
-		<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 1rem; border-bottom:1px solid var(--neutral-100);">
-			<span style="font-weight:800; color:var(--neutral-900); font-size:0.9rem;">الإشعارات</span>
+	<div style="min-width:320px; max-width:380px;">
+		<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);">
+			<div style="display:flex; align-items:center; gap:0.4rem;">
+				@components.IconBell("icon-xs")
+				<span style="font-weight:800; color:var(--neutral-900); font-size:0.9rem;">الإشعارات</span>
+			</div>
 			if unread > 0 {
-				<span class="badge badge-rose">{ fmt.Sprintf("%d", unread) } غير مقروء</span>
+				<span class="badge badge-rose tabular-nums">{ fmt.Sprintf("%d", unread) } غير مقروء</span>
 			}
 		</div>
+
 		if len(logs) == 0 {
-			<div style="padding:1.5rem 1rem; text-align:center; color:var(--neutral-500); font-size:0.85rem;">لا توجد إشعارات بعد.</div>
-		} else {
-			for _, n := range logs {
-				<div style="padding:0.7rem 1rem; border-bottom:1px solid var(--neutral-50); display:flex; gap:0.6rem; align-items:flex-start;">
-					if !n.IsRead {
-						<span style="width:8px; height:8px; border-radius:50%; background:var(--primary-500); margin-top:0.4rem; flex-shrink:0;"></span>
-					} else {
-						<span style="width:8px; height:8px; margin-top:0.4rem; flex-shrink:0;"></span>
-					}
-					<div style="flex:1;">
-						<div style="font-weight:700; color:var(--neutral-900); font-size:0.88rem;">{ n.Title }</div>
-						<div style="font-size:0.8rem; color:var(--neutral-600);">{ n.Body }</div>
-						<div style="font-size:0.72rem; color:var(--neutral-400); margin-top:0.2rem;">{ RelTime(n.CreatedAt) }</div>
-					</div>
+			<div style="padding:2rem 1rem; text-align:center; color:var(--neutral-500); font-size:0.875rem;">
+				<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin:0 auto 0.5rem auto;">
+					@components.IconBell("icon-sm")
 				</div>
-			}
+				<div>لا توجد إشعارات جديدة</div>
+			</div>
+		} else {
+			<div style="max-height:300px; overflow-y:auto;">
+				for _, n := range logs {
+					<div style="padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-50); display:flex; gap:0.6rem; align-items:flex-start;">
+						if !n.IsRead {
+							<span style="width:8px; height:8px; border-radius:50%; background:var(--primary-600); margin-top:0.4rem; flex-shrink:0;"></span>
+						} else {
+							<span style="width:8px; height:8px; margin-top:0.4rem; flex-shrink:0;"></span>
+						}
+						<div style="flex:1;">
+							<div style="font-weight:700; color:var(--neutral-900); font-size:0.875rem;">{ n.Title }</div>
+							<div style="font-size:0.8rem; color:var(--neutral-600); margin-top:0.15rem;">{ n.Body }</div>
+							<div style="font-size:0.72rem; color:var(--neutral-400); margin-top:0.25rem;" class="tabular-nums">{ RelTime(n.CreatedAt) }</div>
+						</div>
+					</div>
+				}
+			</div>
 		}
-		<div style="display:flex; border-top:1px solid var(--neutral-100);">
-			<a href="/notifications" style="flex:1; display:block; text-align:center; padding:0.65rem; font-size:0.85rem; font-weight:600;">عرض كل الإشعارات</a>
-			<form method="POST" action="/notifications/read-all" style="margin:0; flex:1;">
-				<button type="submit" class="btn btn-secondary btn-sm" style="width:100%; border:none; background:none; color:var(--primary-700);">تعليم الكل كمقروء</button>
-			</form>
+
+		<div style="display:flex; border-top:1px solid var(--neutral-100); background:var(--neutral-50);">
+			<a href="/notifications" style="flex:1; display:block; text-align:center; padding:0.65rem; font-size:0.825rem; font-weight:700; color:var(--neutral-700);">عرض كل الإشعارات</a>
+			if unread > 0 {
+				<form method="POST" action="/notifications/read-all" hx-post="/notifications/read-all" hx-target="closest .dropdown-menu" style="margin:0; flex:1; border-inline-start:1px solid var(--neutral-200);">
+					<button type="submit" class="btn btn-secondary btn-sm" style="width:100%; border:none; background:none; color:var(--primary-700); font-size:0.825rem; font-weight:700; justify-content:center;">تعليم الكل كمقروء</button>
+				</form>
+			}
 		</div>
 	</div>
 }
@@ -46,6 +60,8 @@ templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread i
 // NotificationsUnreadBadge is the tiny polled badge on the bell.
 templ NotificationsUnreadBadge(unread int) {
 	if unread > 0 {
-		<span class="badge badge-rose" style="margin-inline-start:0.25rem;">{ fmt.Sprintf("%d", unread) }</span>
+		<span class="badge badge-rose tabular-nums" style="position:absolute; top:-4px; inset-inline-end:-4px; padding:0.15rem 0.4rem; font-size:0.7rem; font-weight:800; border-radius:var(--radius-full);">
+			{ fmt.Sprintf("%d", unread) }
+		</span>
 	}
 }

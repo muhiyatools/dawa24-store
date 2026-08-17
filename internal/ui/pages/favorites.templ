@@ -2,52 +2,87 @@ package pages
 
 import (
 	"fmt"
-
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ FavoritesPage(lang, dir string, products []*catalog.Product) {
-	@layouts.CustomerShell("المفضلة | Favorites", lang, dir) {
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-			<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">منتجاتك المفضلة</h2>
-			<a href="/catalog" class="btn btn-secondary btn-sm">تصفح الكتالوج</a>
-		</div>
-		if len(products) == 0 {
-			@components.EmptyState(components.EmptyStateProps{
-				Title:       "قائمة المفضلة فارغة",
-				Message:     "لم تحفظ أي منتجات بعد. اضغط على القلب في أي منتج لإضافته هنا.",
-				ActionLabel: "تصفح الكتالوج",
-			})
-		} else {
-			<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:1.25rem;">
-				for _, p := range products {
-					<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; margin-bottom:0;">
-						<div>
-							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-								<span class="badge badge-slate" style="font-size:0.725rem;">{ p.DosageForm }</span>
-								<form method="POST" action={ fmt.Sprintf("/favorites/%d/remove", p.ID) } style="margin:0;">
-									<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);" aria-label="إزالة من المفضلة">
-										@components.IconClose("icon-xs")
-									</button>
-								</form>
-							</div>
-							<h4 style="font-size:1.05rem; font-weight:700; margin-bottom:0.25rem; color:var(--neutral-900);">
-								if p.Name["ar"] != "" {
-									{ p.Name["ar"] }
-								} else {
-									{ p.Name["en"] }
-								}
-							</h4>
-							<p style="font-size:0.8rem; color:var(--neutral-500);">{ p.Name["en"] }</p>
-						</div>
-						<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
-							<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-secondary" style="width:100%; font-size:0.85rem; justify-content:center;">التفاصيل والأسعار</a>
-						</div>
+	@layouts.CustomerShell("قائمة المفضلة | Favorites", lang, dir) {
+		<div style="max-width:1120px; margin:1rem auto 3rem auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+				<div style="display:flex; align-items:center; gap:0.6rem;">
+					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+						@components.IconHeart("icon-sm")
 					</div>
-				}
+					<div>
+						<h1 style="font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;">
+							الأدوية والمستلزمات المفضلة
+						</h1>
+						<p style="font-size:0.875rem; color:var(--neutral-500); margin:0;">
+							قائمة الأصناف المحفوظة للطلب السريع
+						</p>
+					</div>
+				</div>
+				<a href="/catalog" class="btn btn-secondary btn-sm" style="font-weight:700;">
+					@components.IconSearch("icon-xs")
+					<span>تصفح الكتالوج الدوائي</span>
+				</a>
 			</div>
-		}
+
+			if len(products) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:       "قائمة المفضلة فارغة",
+					Message:     "لم تقم بحفظ أي أدوية بعد. يمكنك الضغط على رمز القلب في صفحة الصنف لحفظه هنا.",
+					ActionLabel: "تصفح الكتالوج الدوائي",
+				})
+			} else {
+				<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.5rem;">
+					for _, p := range products {
+						<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;">
+							<div>
+								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+									<span class="badge badge-slate" style="font-size:0.75rem;">
+										@components.IconPill("icon-xs")
+										<span>{ p.DosageForm }</span>
+									</span>
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/remove", p.ID)) } style="margin:0;">
+										<button type="submit" class="btn btn-secondary btn-icon" style="color:var(--danger); border-color:var(--danger-border); width:32px; height:32px;" title="إزالة من المفضلة">
+											@components.IconTrash("icon-xs")
+										</button>
+									</form>
+								</div>
+
+								<h3 style="font-size:1.1rem; font-weight:800; margin-bottom:0.25rem; color:var(--neutral-900); line-height:1.4;">
+									if p.Name["ar"] != "" {
+										{ p.Name["ar"] }
+									} else {
+										{ p.Name["en"] }
+									}
+								</h3>
+
+								if p.ScientificName != "" {
+									<p style="font-size:0.8rem; color:var(--neutral-500); margin-bottom:0.5rem;">
+										{ p.ScientificName }
+									</p>
+								}
+								if p.ManufacturingCompanies != "" {
+									<div style="font-size:0.8rem; color:var(--neutral-600);">
+										الشركة: { p.ManufacturingCompanies }
+									</div>
+								}
+							</div>
+
+							<div style="margin-top:1.5rem; border-top:1px solid var(--neutral-100); padding-top:1rem;">
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary btn-sm" style="width:100%; font-size:0.85rem; font-weight:700; justify-content:center;">
+									@components.IconFileText("icon-xs")
+									<span>التفاصيل والطلب</span>
+								</a>
+							</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
 	}
 }

@@ -9,62 +9,71 @@ import (
 
 templ CustomerProductDetail(product *catalog.Product, variants []*catalog.ProductVariant, lang, dir string) {
 	@layouts.CustomerShell(productTitle(product), lang, dir) {
-		<div class="product-detail-container" style="max-width:1080px; margin:1.5rem auto; display:flex; flex-direction:column; gap:2rem;">
-			<div class="card" style="margin-bottom:0; display:grid; grid-template-columns:1.2fr 0.8fr; gap:2.5rem; align-items:start;">
+		<div class="product-detail-container" style="max-width:1120px; margin:1rem auto 3rem auto; display:flex; flex-direction:column; gap:2rem;">
+			<div class="card" style="margin-bottom:0; display:grid; grid-template-columns:1.2fr 0.8fr; gap:2.5rem; align-items:start; padding:2.25rem;">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
-						<span class="badge badge-slate" style="font-size:0.8rem; padding:0.3rem 0.75rem;">
-							@components.IconPill("icon-xs")
-							<span>{ product.DosageForm }</span>
-						</span>
-						<span class="badge badge-emerald" style="font-size:0.8rem; padding:0.3rem 0.75rem;">
-							@components.IconCheck("icon-xs")
-							<span>صنف مسجل ومعتمد</span>
-						</span>
+					<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<span class="badge badge-slate" style="font-size:0.8rem; padding:0.35rem 0.8rem;">
+								@components.IconPill("icon-xs")
+								<span>{ product.DosageForm }</span>
+							</span>
+							<span class="badge badge-emerald" style="font-size:0.8rem; padding:0.35rem 0.8rem;">
+								@components.IconCheck("icon-xs")
+								<span>صنف مسجل ومعتمد</span>
+							</span>
+						</div>
+
+						<!-- Favorite Toggle Button -->
+						<form action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", product.ID)) } method="POST" style="margin:0;">
+							<button type="submit" class="btn btn-secondary btn-icon" title="إضافة للمفضلة" style="color:var(--primary-600);">
+								@components.IconHeart("icon-md")
+							</button>
+						</form>
 					</div>
 
-					<h1 style="font-size:1.85rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.35rem;">
+					<h1 style="font-size:2rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.35rem; line-height:1.3;">
 						if product.Name["ar"] != "" {
 							{ product.Name["ar"] }
 						} else {
 							{ product.Name["en"] }
 						}
 					</h1>
-					<h2 style="font-size:1.1rem; color:var(--neutral-500); font-weight:500; margin-bottom:1.5rem;">
+					<h2 style="font-size:1.15rem; color:var(--neutral-500); font-weight:600; margin-bottom:1.75rem;">
 						{ product.Name["en"] }
 					</h2>
 
-					<div style="background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
+					<div style="background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem; display:flex; flex-direction:column; gap:0.875rem; font-size:0.925rem;">
 						if product.ScientificName != "" {
-							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.5rem;">
+							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.6rem;">
 								<span style="color:var(--neutral-500);">المادة الفعالة (Active Ingredient):</span>
-								<span style="font-weight:700; color:var(--neutral-900);">{ product.ScientificName }</span>
+								<strong style="color:var(--neutral-900);">{ product.ScientificName }</strong>
 							</div>
 						}
 						if product.ManufacturingCompanies != "" {
-							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.5rem;">
+							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.6rem;">
 								<span style="color:var(--neutral-500);">الشركة المنتجة:</span>
-								<span style="font-weight:700; color:var(--neutral-900);">{ product.ManufacturingCompanies }</span>
+								<strong style="color:var(--neutral-900);">{ product.ManufacturingCompanies }</strong>
 							</div>
 						}
 						if product.Barcode != "" {
 							<div style="display:flex; justify-content:space-between;">
 								<span style="color:var(--neutral-500);">الباركود الدولي (GTIN):</span>
-								<span style="font-weight:700; color:var(--neutral-900);" class="tabular-nums">{ product.Barcode }</span>
+								<strong style="color:var(--neutral-900);" class="tabular-nums">{ product.Barcode }</strong>
 							</div>
 						}
 					</div>
 				</div>
 
-				<div style="background:linear-gradient(135deg, var(--neutral-50) 0%, #ffffff 100%); padding:1.75rem; border-radius:var(--radius-xl); border:1px solid var(--border-card); display:flex; flex-direction:column; gap:1.25rem;">
-					<div style="display:flex; align-items:center; gap:0.6rem; color:var(--primary-800); font-weight:700; font-size:1.1rem;">
+				<div style="background:#ffffff; padding:1.75rem; border-radius:var(--radius-xl); border:1px solid var(--border-card); display:flex; flex-direction:column; gap:1.25rem; box-shadow:var(--shadow-xs);">
+					<div style="display:flex; align-items:center; gap:0.6rem; color:var(--primary-800); font-weight:800; font-size:1.1rem;">
 						@components.IconTruck("icon-sm")
-						<span>شروط التوريد والشحن</span>
+						<span>ضمانات التوريد والشحن</span>
 					</div>
-					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem; color:var(--neutral-600);">
+					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem; color:var(--neutral-700);">
 						<li style="display:flex; align-items:center; gap:0.5rem;">
 							@components.IconCheckCircle("icon-xs")
-							<span>التوريد متاح للصيدليات والمستشفيات المرخصة</span>
+							<span>التوريد مقتصر على الصيدليات والمستشفيات المرخصة</span>
 						</li>
 						<li style="display:flex; align-items:center; gap:0.5rem;">
 							@components.IconCheckCircle("icon-xs")
@@ -72,21 +81,25 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</li>
 						<li style="display:flex; align-items:center; gap:0.5rem;">
 							@components.IconCheckCircle("icon-xs")
-							<span>فواتير ضريبية إلكترونية فورية</span>
+							<span>فواتير ضريبية إلكترونية فورية مطابقة للضرائب</span>
+						</li>
+						<li style="display:flex; align-items:center; gap:0.5rem;">
+							@components.IconCheckCircle("icon-xs")
+							<span>إمكانية الدفع عند الاستلام أو التسهيلات الائتمانية</span>
 						</li>
 					</ul>
-					<a href="/cart" class="btn btn-secondary" style="width:100%; justify-content:center; padding:0.75rem;">
+					<a href="/cart" class="btn btn-secondary" style="width:100%; justify-content:center; padding:0.75rem; font-weight:700;">
 						@components.IconCart("icon-sm")
-						<span>عرض سلة الطلبيات</span>
+						<span>عرض سلة الطلبيات الحالية</span>
 					</a>
 				</div>
 			</div>
 
-			<div class="card" style="margin-bottom:0;">
-				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem;">
+			<div class="card" style="margin-bottom:0; padding:2rem;">
+				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem;">
 					@components.IconPackage("icon-md")
-					<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">
-						العبوات والتشغيلات المتاحة للطلب
+					<h3 style="font-size:1.35rem; font-weight:800; color:var(--neutral-900); margin:0;">
+						العبوات والتشغيلات المتاحة للطلب الفوري
 					</h3>
 				</div>
 
@@ -96,34 +109,68 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						Message: "هذا الدواء غير متوفر في المخزون المباشر حالياً.",
 					})
 				} else {
-					<div style="display:flex; flex-direction:column; gap:0.875rem;">
+					<div style="display:flex; flex-direction:column; gap:1rem;">
 						for _, v := range variants {
-							<div style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem; background:#fff; border:1px solid var(--border-card); border-radius:var(--radius-lg); box-shadow:var(--shadow-xs);">
+							<div
+								x-data="{ qty: 1, maxStock: 500 }"
+								style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; background:#fff; border:1px solid var(--border-card); border-radius:var(--radius-lg); box-shadow:var(--shadow-xs); flex-wrap:wrap; gap:1rem;"
+							>
 								<div>
-									<div style="font-weight:700; font-size:1rem; color:var(--neutral-900); margin-bottom:0.25rem;">
+									<div style="font-weight:800; font-size:1.05rem; color:var(--neutral-900); margin-bottom:0.25rem;">
 										if v.Name["ar"] != "" {
 											{ v.Name["ar"] }
 										} else {
 											{ v.Name["en"] }
 										}
 									</div>
-									<div style="font-size:0.8rem; color:var(--neutral-500); display:flex; gap:1rem;">
-										<span>SKU: <strong class="tabular-nums">{ v.SKU }</strong></span>
+									<div style="font-size:0.825rem; color:var(--neutral-500); display:flex; gap:1.25rem;">
+										<span>SKU: <strong class="tabular-nums" style="color:var(--neutral-800);">{ v.SKU }</strong></span>
 										if v.Barcode != "" {
-											<span>باركود: <strong class="tabular-nums">{ v.Barcode }</strong></span>
+											<span>باركود: <strong class="tabular-nums" style="color:var(--neutral-800);">{ v.Barcode }</strong></span>
 										}
+										<span class="badge badge-emerald" style="font-size:0.75rem;">متوفر بالمخزن</span>
 									</div>
 								</div>
 
 								<div style="display:flex; align-items:center; gap:1rem;">
-									<form action="/cart/add" method="POST" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+									<form action="/cart/add" method="POST" style="display:flex; align-items:center; gap:0.75rem; margin:0;">
 										<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 										<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.ID) } />
 										<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", product.OrganizationID) } />
-										<input type="number" name="quantity" value="1" min="1" class="form-input tabular-nums" style="width:75px; text-align:center; padding:0.5rem;" />
-										<button type="submit" class="btn btn-primary" style="padding:0.55rem 1.25rem;">
-											@components.IconPlus("icon-xs")
-											<span>أضف للسلة</span>
+
+										<!-- Quantity Counter with limits -->
+										<div class="quantity-control">
+											<button
+												type="button"
+												class="quantity-btn"
+												@click="if (qty > 1) qty--"
+												:disabled="qty <= 1"
+												title="تقليل الكمية"
+											>
+												@components.IconMinus("icon-xs")
+											</button>
+											<input
+												type="number"
+												name="quantity"
+												x-model="qty"
+												min="1"
+												:max="maxStock"
+												class="quantity-input tabular-nums"
+											/>
+											<button
+												type="button"
+												class="quantity-btn"
+												@click="if (qty < maxStock) qty++"
+												:disabled="qty >= maxStock"
+												title="زيادة الكمية"
+											>
+												@components.IconPlus("icon-xs")
+											</button>
+										</div>
+
+										<button type="submit" class="btn btn-primary" style="padding:0.6rem 1.5rem; font-weight:800;">
+											@components.IconCart("icon-xs")
+											<span>أضف للطلبية</span>
 										</button>
 									</form>
 								</div>

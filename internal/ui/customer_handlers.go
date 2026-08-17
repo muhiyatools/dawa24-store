@@ -274,6 +274,47 @@ func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request)
 
 	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
 	_, _ = h.commSvc.RemoveFromCart(ctx, userID, variantID)
+
+	if h.isHTMX(r) {
+		cart, _ := h.commSvc.GetCart(ctx, userID)
+		lang, _ := h.localeAndDir(r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+		return
+	}
+
+	http.Redirect(w, r, "/cart", http.StatusSeeOther)
+}
+
+func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, err := authctx.UserID(ctx)
+	if err != nil {
+		http.Redirect(w, r, "/auth/login?redirect=/cart", http.StatusSeeOther)
+		return
+	}
+
+	if h.commSvc == nil {
+		http.Redirect(w, r, "/cart", http.StatusSeeOther)
+		return
+	}
+
+	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
+	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
+	if qty < 0 {
+		qty = 0
+	}
+
+	_, _ = h.commSvc.SetCartQuantity(ctx, userID, variantID, qty)
+
+	if h.isHTMX(r) {
+		cart, _ := h.commSvc.GetCart(ctx, userID)
+		lang, _ := h.localeAndDir(r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+		return
+	}
+
 	http.Redirect(w, r, "/cart", http.StatusSeeOther)
 }
 

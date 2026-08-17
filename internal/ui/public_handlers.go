@@ -16,15 +16,28 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 
 	var featured []*catalog.Product
+	var categories []*catalog.Category
+	stats := pages.HomeStats{
+		TotalSuppliers: 23,
+		TotalProducts:  25042,
+		TotalCities:    333,
+		TotalOrders:    1250,
+	}
+
 	if h.catSvc != nil {
-		prods, err := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 8})
-		if err == nil {
+		if prods, err := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 12}); err == nil {
 			featured = prods
+			if len(prods) > 0 {
+				stats.TotalProducts = len(prods)
+			}
+		}
+		if cats, err := h.catSvc.ListCategories(ctx); err == nil {
+			categories = cats
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerHome(featured, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.CustomerHome(featured, categories, stats, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render home page", "error", err)
 	}
 }

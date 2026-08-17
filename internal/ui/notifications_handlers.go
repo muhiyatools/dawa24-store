@@ -8,20 +8,20 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// NotificationsDropdownPartial renders the bell dropdown panel as an HTMX
-// partial.
+// NotificationsDropdownPartial renders the bell dropdown panel as an HTMX partial.
 func (h *UIHandler) NotificationsDropdownPartial(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.NotificationsDropdownPanel(nil, 0).Render(ctx, w)
 		return
 	}
 
 	var logs []*notifications.NotificationLog
 	unread := 0
 	if h.notifSvc != nil {
-		logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 10, 0)
+		logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 8, 0)
 		unread, _ = h.notifSvc.GetUnreadCount(ctx, userID)
 	}
 
@@ -36,7 +36,8 @@ func (h *UIHandler) NotificationsUnreadBadgePartial(w http.ResponseWriter, r *ht
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.NotificationsUnreadBadge(0).Render(ctx, w)
 		return
 	}
 
@@ -57,7 +58,8 @@ func (h *UIHandler) NotificationsReadAllSubmit(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.NotificationsDropdownPanel(nil, 0).Render(ctx, w)
 		return
 	}
 
@@ -65,15 +67,11 @@ func (h *UIHandler) NotificationsReadAllSubmit(w http.ResponseWriter, r *http.Re
 		_, _ = h.notifSvc.MarkAllRead(ctx, userID)
 	}
 
-	// Re-render the panel so the badge and unread dots disappear in place.
 	var logs []*notifications.NotificationLog
-	unread := 0
 	if h.notifSvc != nil {
-		logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 10, 0)
-		unread, _ = h.notifSvc.GetUnreadCount(ctx, userID)
+		logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 8, 0)
 	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.NotificationsDropdownPanel(logs, unread).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render notifications dropdown after read-all", "error", err)
-	}
+	_ = pages.NotificationsDropdownPanel(logs, 0).Render(ctx, w)
 }

@@ -8,71 +8,122 @@ import (
 templ CustomerShell(title string, lang string, dir string) {
 	@Base(title, lang, dir) {
 		<header class="top-navbar">
-			<div style="display:flex; align-items:center; gap:2.5rem;">
-				<a href="/" style="display:flex; align-items:center; gap:0.6rem; text-decoration:none; color:var(--primary-700); font-weight:800; font-size:1.35rem;">
-					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-xs);">
-						@components.IconPill("icon-md")
-					</div>
-					<span>دواء 24</span>
+			<div style="display:flex; align-items:center; gap:2rem;">
+				<a href="/" style="display:flex; align-items:center; gap:0.75rem; text-decoration:none;">
+					<img src="/static/img/logo.png" alt="DAWA24.com" style="height:42px; object-fit:contain; border-radius:var(--radius-sm);" />
 				</a>
-				<nav style="display:flex; gap:1.25rem;">
-					<a href="/catalog" class="nav-link" style="color:var(--neutral-700); font-weight:600; font-size:0.925rem; display:flex; align-items:center; gap:0.4rem;">
-						@components.IconSearch("icon-sm")
-						<span>الأدوية والمستلزمات</span>
-					</a>
-					<a href="/vendor/offers" class="nav-link" style="color:var(--neutral-700); font-weight:600; font-size:0.925rem; display:flex; align-items:center; gap:0.4rem;">
-						@components.IconMegaphone("icon-sm")
-						<span>العروض الحصرية</span>
-					</a>
-				</nav>
 			</div>
 
 			<div style="display:flex; align-items:center; gap:0.75rem;">
+				<!-- Language Selector with Clean SVG Flags -->
 				if lang == "en" {
-					<a href="/lang/ar" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">عربي</a>
+					<a href="/lang/ar" class="btn btn-secondary btn-icon" title="اللغة العربية" style="border-radius:var(--radius-md);">
+						@components.IconFlagEG("icon-md")
+					</a>
 				} else {
-					<a href="/lang/en" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">EN</a>
+					<a href="/lang/en" class="btn btn-secondary btn-icon" title="English Language" style="border-radius:var(--radius-md);">
+						@components.IconFlagGB("icon-md")
+					</a>
 				}
-				<a href="/cart" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">
-					@components.IconCart("icon-sm")
-					<span>السلة</span>
+
+				<!-- Cart Button: Icon-only with badge -->
+				<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
+					@components.IconCart("icon-md")
 				</a>
 
 				if actor, ok := authctx.From(ctx); ok {
-					<a href="/orders" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">
-						@components.IconPackage("icon-sm")
-						<span>طلبياتي</span>
-					</a>
+					<!-- Notifications Popover -->
 					<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
-						<button type="button" class="btn btn-secondary" style="padding:0.5rem 0.875rem;" @click="open = !open">
-							@components.IconBell("icon-sm")
-							<span>الإشعارات</span>
+						<button type="button" class="btn btn-secondary btn-icon" title="الإشعارات" @click="open = !open">
+							@components.IconBell("icon-md")
 							<span hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
 						</button>
-						<div class="dropdown-menu" x-show="open" x-cloak x-transition.opacity style="inset-inline-start:auto; inset-inline-end:0;" hx-get="/notifications/dropdown" hx-trigger="load once" hx-swap="innerHTML">
-							<div class="dropdown-item" style="color:var(--neutral-500);">جارٍ التحميل…</div>
+						<div
+							class="dropdown-menu"
+							x-show="open"
+							x-cloak
+							x-transition.opacity
+							style="inset-inline-start:auto; inset-inline-end:0; min-width:320px;"
+							hx-get="/notifications/dropdown"
+							hx-trigger="click from:button, load"
+							hx-swap="innerHTML"
+						>
+							<div class="dropdown-item" style="color:var(--neutral-500); justify-content:center;">
+								@components.IconRefresh("icon-xs")
+								<span>جاري التحميل...</span>
+							</div>
 						</div>
 					</div>
 
-					if actor.Role == "admin" || actor.Role == "super_admin" {
-						<a href="/admin/dashboard" class="btn btn-secondary" style="color:var(--primary-700); font-weight:600;">
-							@components.IconShield("icon-sm")
-							<span>لوحة الإدارة</span>
-						</a>
-					}
-					if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" {
-						<a href="/vendor/products" class="btn btn-secondary" style="color:var(--primary-700); font-weight:600;">
-							@components.IconBuilding("icon-sm")
-							<span>بوابة المورد</span>
-						</a>
-					}
-
-					<form action="/auth/logout" method="POST" style="margin:0; display:inline;">
-						<button type="submit" class="btn btn-secondary" style="color:var(--danger); border-color:var(--danger-border); padding:0.5rem 0.875rem;">
-							@components.IconLogout("icon-sm")
-							<span>خروج</span>
+					<!-- User Avatar Dropdown -->
+					<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							style="padding:0.4rem 0.75rem; display:flex; align-items:center; gap:0.5rem; border-radius:var(--radius-md);"
+							@click="open = !open"
+						>
+							<div style="width:28px; height:28px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+								@components.IconUser("icon-xs")
+							</div>
+							<span style="font-weight:700; font-size:0.875rem; color:var(--neutral-800); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+								حسابي
+							</span>
+							@components.IconChevronDown("icon-xs")
 						</button>
-					</form>
+
+						<div
+							class="dropdown-menu"
+							x-show="open"
+							x-cloak
+							x-transition.opacity
+							style="inset-inline-start:auto; inset-inline-end:0; min-width:220px;"
+						>
+							<a href="/settings/profile" class="dropdown-item">
+								@components.IconUser("icon-xs")
+								<span>الملف الشخصي</span>
+							</a>
+							<a href="/orders" class="dropdown-item">
+								@components.IconPackage("icon-xs")
+								<span>طلبياتي</span>
+							</a>
+							<a href="/favorites" class="dropdown-item">
+								@components.IconHeart("icon-xs")
+								<span>المفضلة</span>
+							</a>
+							<a href="/settings" class="dropdown-item">
+								@components.IconSettings("icon-xs")
+								<span>إعدادات الحساب</span>
+							</a>
+
+							<!-- Dynamic Dashboard link based on role -->
+							if actor.Role == "admin" || actor.Role == "super_admin" {
+								<a href="/admin/dashboard" class="dropdown-item" style="color:var(--primary-700); font-weight:700;">
+									@components.IconChart("icon-xs")
+									<span>لوحة الإدارة</span>
+								</a>
+							} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" {
+								<a href="/vendor/products" class="dropdown-item" style="color:var(--primary-700); font-weight:700;">
+									@components.IconChart("icon-xs")
+									<span>بوابة المورد</span>
+								</a>
+							} else if actor.Role == "pharmacy" {
+								<a href="/pharmacy/dashboard" class="dropdown-item" style="color:var(--primary-700); font-weight:700;">
+									@components.IconChart("icon-xs")
+									<span>لوحة الصيدلية</span>
+								</a>
+							}
+
+							<div class="dropdown-divider"></div>
+
+							<form action="/auth/logout" method="POST" style="margin:0;">
+								<button type="submit" class="dropdown-item" style="color:var(--danger);">
+									@components.IconLogout("icon-xs")
+									<span>تسجيل الخروج</span>
+								</button>
+							</form>
+						</div>
+					</div>
 				} else {
 					<a href="/auth/login" class="btn btn-secondary" style="padding:0.55rem 1.125rem;">
 						تسجيل الدخول
@@ -84,23 +135,69 @@ templ CustomerShell(title string, lang string, dir string) {
 			</div>
 		</header>
 
-		<main class="page-container" style="flex:1; min-height:calc(100vh - 140px);">
+		<main class="page-container" style="flex:1; min-height:calc(100vh - 200px);">
 			{ children... }
 		</main>
 
-		<footer style="background-color:#ffffff; border-block-start:1px solid var(--border-card); padding:2.5rem 2rem; color:var(--neutral-500); font-size:0.875rem;">
-			<div style="max-width:1320px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
-				<div style="display:flex; align-items:center; gap:0.5rem; color:var(--primary-800); font-weight:700; font-size:1.1rem;">
-					@components.IconPill("icon-sm")
-					<span>دواء 24 — سوق الأدوية والمستلزمات الصيدلانية الموحد</span>
-				</div>
-				<div style="display:flex; gap:1.5rem; color:var(--neutral-600);">
-					<a href="/terms" style="color:inherit;">الشروط والأحكام</a>
-					<a href="/privacy" style="color:inherit;">سياسة الخصوصية</a>
-					<a href="/onboarding" style="color:inherit;">انضمام الموردين</a>
-				</div>
+		<!-- Redesigned Production Footer with generous spacing -->
+		<footer class="site-footer">
+			<div class="footer-content">
+				<!-- Brand and description -->
 				<div>
-					<p>© 2026 دواء 24. جميع الحقوق محفوظة لجمهورية مصر العربية.</p>
+					<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+						<img src="/static/img/logo.png" alt="DAWA24.com" style="height:44px; object-fit:contain;" />
+					</div>
+					<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.75rem;">
+						شركة DAWA24
+					</h3>
+					<p style="color:var(--neutral-600); font-size:0.9rem; line-height:1.8; max-width:540px;">
+						منصة التوريد الذكية توفر تجربة شاملة وآمنة لربط العملاء بالموردين، مع نظام موثوق يسهل عمليات الشراء والتوريد، ويدعم التواصل المباشر، التحليلات المتقدمة، والدعم الفني المتواصل 24/7 لتحقيق كفاءة وأمان أعلى.
+					</p>
+				</div>
+
+				<!-- Quick Links -->
+				<div>
+					<h4 style="font-size:1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;">
+						روابط المنصة
+					</h4>
+					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
+						<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
+						<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>
+						<li><a href="/onboarding">انضمام الشركاء والموردين</a></li>
+						<li><a href="/privacy">سياسة الخصوصية</a></li>
+						<li><a href="/terms">الشروط والأحكام</a></li>
+					</ul>
+				</div>
+
+				<!-- Contact & Support -->
+				<div>
+					<h4 style="font-size:1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;">
+						التواصل والدعم الفني
+					</h4>
+					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--neutral-700);">
+						<li style="display:flex; align-items:center; gap:0.6rem;">
+							@components.IconMail("icon-sm")
+							<a href="mailto:info@dawa24.com" style="direction:ltr; font-weight:600;">info@dawa24.com</a>
+						</li>
+						<li style="display:flex; align-items:center; gap:0.6rem;">
+							@components.IconPhone("icon-sm")
+							<a href="tel:01065397000" class="tabular-nums" style="direction:ltr; font-weight:600;">01065397000</a>
+						</li>
+						<li style="font-size:0.825rem; color:var(--neutral-500); margin-top:0.5rem;">
+							الدعم الفني متاح 24 ساعة طوال أيام الأسبوع للمؤسسات والصيدليات المعتمدة.
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="footer-bottom">
+				<div>
+					<p>جميع الحقوق محفوظة © 2026 لدى دوا 24</p>
+				</div>
+				<div style="display:flex; gap:1.5rem;">
+					<a href="/faq">الأسئلة الشائعة</a>
+					<a href="/privacy">الخصوصية</a>
+					<a href="/terms">الشروط</a>
 				</div>
 			</div>
 		</footer>
