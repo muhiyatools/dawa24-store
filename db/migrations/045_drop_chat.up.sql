@@ -1,4 +1,4 @@
--- 037_drop_chat (up)
+-- 045_drop_chat (up)
 BEGIN;
 
 -- Add avatar_url to identity.users

@@ -1,4 +1,4 @@
--- 037_drop_chat (down)
+-- 045_drop_chat (down)
 BEGIN;
 
 ALTER TABLE identity.users DROP COLUMN IF EXISTS avatar_url;
