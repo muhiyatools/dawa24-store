@@ -113,3 +113,28 @@ type PrivacyPolicy struct {
 	PublishedAt time.Time `json:"published_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+
+// Visitor is one analytics row: a unique visitor on a unique day.
+type Visitor struct {
+	ID         int64     `json:"id"`
+	VisitorKey string    `json:"visitor_key"`
+	IP         string    `json:"ip"`
+	UserAgent  string    `json:"user_agent"`
+	Browser    string    `json:"browser"`
+	Device     string    `json:"device"`
+	OS         string    `json:"os"`
+	Country    string    `json:"country"`
+	City       string    `json:"city"`
+	VisitedAt  time.Time `json:"visited_at"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+// VisitorAnalytics is the aggregate view for the admin analytics page.
+type VisitorAnalytics struct {
+	Total     int
+	Today     int
+	ByDevice  map[string]int
+	ByOS      map[string]int
+	ByBrowser map[string]int
+	Recent    []*Visitor
+}

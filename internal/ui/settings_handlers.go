@@ -146,3 +146,40 @@ func (h *UIHandler) SettingsAddressDeleteSubmit(w http.ResponseWriter, r *http.R
 	}
 	h.redirectWithNotice(w, r, "/settings/addresses", "success", "تم حذف العنوان.")
 }
+
+// SettingsSecurityPage renders the active-sessions security tab.
+func (h *UIHandler) SettingsSecurityPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/security", http.StatusSeeOther)
+		return
+	}
+
+	var sessions []*identity.Session
+	if h.idSvc != nil {
+		sessions, _ = h.idSvc.ListSessions(ctx, actor.UserID)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.SettingsSecurity(lang, dir, sessions).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render settings security", "error", err)
+	}
+}
+
+// SettingsSessionRevokeSubmit revokes one of the user's sessions.
+func (h *UIHandler) SettingsSessionRevokeSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/security", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc != nil {
+		_ = h.idSvc.RevokeSession(ctx, r.PostFormValue("token"), actor.UserID)
+	}
+	http.Redirect(w, r, "/settings/security", http.StatusSeeOther)
+}

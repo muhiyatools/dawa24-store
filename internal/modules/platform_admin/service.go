@@ -96,3 +96,16 @@ func (s *Service) UpsertContentBlock(ctx context.Context, b *ContentBlock) error
 func (s *Service) GetPublishedPolicy(ctx context.Context, slug string) (*PrivacyPolicy, error) {
 	return s.repo.GetPublishedPolicy(ctx, slug)
 }
+
+// RecordVisitor records one visitor-session-day, deduplicated by key+day.
+func (s *Service) RecordVisitor(ctx context.Context, v *Visitor) error {
+	if v.VisitorKey == "" {
+		return nil
+	}
+	return s.repo.RecordVisitor(ctx, v)
+}
+
+// VisitorAnalytics returns the aggregate traffic view for the admin page.
+func (s *Service) VisitorAnalytics(ctx context.Context, limit int) (*VisitorAnalytics, error) {
+	return s.repo.VisitorAnalytics(ctx, limit)
+}

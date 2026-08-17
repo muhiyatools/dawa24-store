@@ -17,6 +17,7 @@ templ settingsTabs(active string) {
 		Tabs: []components.Tab{
 			{ ID: "profile", Label: "الملف الشخصي", URL: "/settings/profile" },
 			{ ID: "addresses", Label: "العناوين", URL: "/settings/addresses" },
+			{ ID: "security", Label: "الأمان", URL: "/settings/security" },
 		},
 		ActiveID: active,
 	}) {
@@ -167,6 +168,43 @@ templ SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, cit
 							</div>
 						</div>
 					}
+				}
+			</div>
+		</div>
+	}
+}
+
+
+templ SettingsSecurity(lang, dir string, sessions []*identity.Session) {
+	@layouts.CustomerShell("الإعدادات", lang, dir) {
+		<div style="max-width:720px;">
+			@settingsTabs("security")
+			<div class="card" style="margin-top:1rem;">
+				<h2 class="card-title" style="margin:0 0 0.75rem;">الجلسات النشطة</h2>
+				<p style="color:var(--neutral-500); font-size:0.85rem; margin:0 0 1rem;">هذه الأجهزة مسجلة الدخول حالياً بحسابك. يمكنك إلغاء أي جلسة منها.</p>
+				if len(sessions) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد جلسات نشطة.</p>
+				} else {
+					<div class="table-container">
+						<table class="data-table">
+							<thead><tr><th>الجهاز</th><th>IP</th><th>آخر دخول</th><th></th></tr></thead>
+							<tbody>
+								for _, s := range sessions {
+									<tr>
+										<td>{ s.UserAgent }</td>
+										<td class="tabular-nums" dir="ltr">{ s.IP }</td>
+										<td>{ s.CreatedAt.Format("2006-01-02 15:04") }</td>
+										<td>
+											<form method="POST" action="/settings/security/revoke" style="margin:0;">
+												<input type="hidden" name="token" value={ s.Token } />
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">إلغاء</button>
+											</form>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
 				}
 			</div>
 		</div>

@@ -203,16 +203,17 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 	}
 
 	sess := &Session{
-		UserID:      user.ID,
-		PublicID:    user.PublicID,
-		Email:       user.Email,
-		Role:        user.Role,
-		ActiveOrgID: orgID,
-		OrgType:     orgType,
-		OrgStatus:   orgStatus,
-		Permissions: permissions,
-		IP:          input.IP,
-		UserAgent:   input.UserAgent,
+		UserID:           user.ID,
+		PublicID:         user.PublicID,
+		Email:            user.Email,
+		Role:             user.Role,
+		ActiveOrgID:      orgID,
+		OrgType:          orgType,
+		OrgStatus:        orgStatus,
+		Permissions:      permissions,
+		IP:               input.IP,
+		UserAgent:        input.UserAgent,
+		MaxLoginSessions: sec.MaxLoginSessions,
 	}
 
 	if s.sessionStore != nil {
@@ -232,6 +233,29 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 func (s *Service) Logout(ctx context.Context, token string) error {
 	if s.sessionStore == nil {
 		return nil
+	}
+	return s.sessionStore.Delete(ctx, token)
+}
+
+// ListSessions returns the user's active sessions, newest first.
+func (s *Service) ListSessions(ctx context.Context, userID int64) ([]*Session, error) {
+	if s.sessionStore == nil {
+		return nil, nil
+	}
+	return s.sessionStore.ListForUser(ctx, userID)
+}
+
+// RevokeSession invalidates one of the user's own sessions.
+func (s *Service) RevokeSession(ctx context.Context, token string, userID int64) error {
+	if s.sessionStore == nil {
+		return nil
+	}
+	sess, err := s.sessionStore.Get(ctx, token)
+	if err != nil {
+		return err
+	}
+	if sess.UserID != userID {
+		return apperr.Forbidden("session.not_owner", "You can only revoke your own sessions.")
 	}
 	return s.sessionStore.Delete(ctx, token)
 }

@@ -90,6 +90,14 @@ func (m *mockPlatformAdminRepo) GetPublishedPolicy(_ context.Context, _ string) 
 	return nil, nil
 }
 
+func (m *mockPlatformAdminRepo) RecordVisitor(_ context.Context, _ *Visitor) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) VisitorAnalytics(_ context.Context, _ int) (*VisitorAnalytics, error) {
+	return &VisitorAnalytics{}, nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

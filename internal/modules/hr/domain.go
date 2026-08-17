@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -51,4 +52,44 @@ func (e *Employee) Validate() error {
 		return apperr.Validation("employee.title_required", "Job title is required.", nil)
 	}
 	return nil
+}
+
+// JobOffer is a published vacancy (hr.job_offers).
+type JobOffer struct {
+	ID             int64        `json:"id"`
+	PublicID       string       `json:"public_id"`
+	OrganizationID int64        `json:"organization_id"`
+	CategoryID     *int64       `json:"category_id,omitempty"`
+	Title          i18n.Text    `json:"title"`
+	Description    string       `json:"description"`
+	Requirements   string       `json:"requirements"`
+	SalaryMin      money.Amount `json:"salary_min,omitempty"`
+	SalaryMax      money.Amount `json:"salary_max,omitempty"`
+	Location       string       `json:"location"`
+	Status         string       `json:"status"` // published, closed
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
+}
+
+// JobCategory is a grouping of job offers (hr.job_categories).
+type JobCategory struct {
+	ID   int64     `json:"id"`
+	Name i18n.Text `json:"name"`
+	Slug string    `json:"slug"`
+}
+
+// JobApplication is an application to a vacancy (hr.job_applications).
+type JobApplication struct {
+	ID             int64     `json:"id"`
+	PublicID       string    `json:"public_id"`
+	JobOfferID     int64     `json:"job_offer_id"`
+	OrganizationID int64     `json:"organization_id"`
+	ApplicantName  string    `json:"applicant_name"`
+	ApplicantEmail string    `json:"applicant_email"`
+	ApplicantPhone string    `json:"applicant_phone"`
+	CVStorageKey   string    `json:"cv_storage_key"`
+	Status         string    `json:"status"` // pending, reviewed, hired, rejected
+	Notes          string    `json:"notes"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }

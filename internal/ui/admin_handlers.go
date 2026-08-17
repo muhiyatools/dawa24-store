@@ -332,3 +332,25 @@ func (h *UIHandler) AdminRejectOrgSubmit(w http.ResponseWriter, r *http.Request)
 		return h.orgSvc.RejectOrganization(ctx, orgID)
 	})
 }
+
+// AdminAnalyticsPage renders the visitor analytics dashboard.
+func (h *UIHandler) AdminAnalyticsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	analytics := &platformadmin.VisitorAnalytics{
+		ByDevice:  map[string]int{},
+		ByOS:      map[string]int{},
+		ByBrowser: map[string]int{},
+	}
+	if h.adminSvc != nil {
+		if a, err := h.adminSvc.VisitorAnalytics(ctx, 20); err == nil && a != nil {
+			analytics = a
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminAnalytics(lang, dir, analytics).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin analytics", "error", err)
+	}
+}

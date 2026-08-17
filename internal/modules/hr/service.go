@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // Service coordinates HR operations, payroll configuration, and business hours.
@@ -69,4 +70,49 @@ func (s *Service) SaveWorkTimes(ctx context.Context, times []*WorkTime) error {
 // ListWorkTimes returns business operating hours.
 func (s *Service) ListWorkTimes(ctx context.Context) ([]*WorkTime, error) {
 	return s.repo.ListWorkTimes(ctx)
+}
+
+// ListPublishedJobs returns published vacancies for the public job board.
+func (s *Service) ListPublishedJobs(ctx context.Context, limit, offset int) ([]*JobOffer, error) {
+	return s.repo.ListPublishedJobs(ctx, limit, offset)
+}
+
+// GetJobOffer returns one vacancy.
+func (s *Service) GetJobOffer(ctx context.Context, id int64) (*JobOffer, error) {
+	return s.repo.GetJobOfferByID(ctx, id)
+}
+
+// CreateJobOffer publishes a vacancy for the tenant organization.
+func (s *Service) CreateJobOffer(ctx context.Context, j *JobOffer) (*JobOffer, error) {
+	orgID, ok := database.TenantFrom(ctx)
+	if !ok {
+		return nil, database.ErrNoTenant
+	}
+	j.OrganizationID = orgID
+	if j.Status == "" {
+		j.Status = "published"
+	}
+	if err := s.repo.CreateJobOffer(ctx, j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+// ListOrgJobs returns a tenant's own postings.
+func (s *Service) ListOrgJobs(ctx context.Context, orgID int64, limit, offset int) ([]*JobOffer, error) {
+	return s.repo.ListJobsByOrg(ctx, orgID, limit, offset)
+}
+
+// ApplyToJob records an application for a vacancy.
+func (s *Service) ApplyToJob(ctx context.Context, a *JobApplication) error {
+	if a.ApplicantName == "" || a.ApplicantEmail == "" {
+		return apperr.Validation("job.apply_required", "Name and email are required.", nil)
+	}
+	a.Status = "pending"
+	return s.repo.CreateJobApplication(ctx, a)
+}
+
+// ListApplications returns applications for a vacancy.
+func (s *Service) ListApplications(ctx context.Context, offerID int64, limit, offset int) ([]*JobApplication, error) {
+	return s.repo.ListApplicationsByOffer(ctx, offerID, limit, offset)
 }

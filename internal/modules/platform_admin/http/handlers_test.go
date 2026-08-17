@@ -85,6 +85,16 @@ func (r stubRepo) GetPublishedPolicy(context.Context, string) (*platformadmin.Pr
 	return nil, nil
 }
 
+func (r stubRepo) RecordVisitor(context.Context, *platformadmin.Visitor) error {
+	r.fail("RecordVisitor")
+	return nil
+}
+
+func (r stubRepo) VisitorAnalytics(context.Context, int) (*platformadmin.VisitorAnalytics, error) {
+	r.fail("VisitorAnalytics")
+	return nil, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) GetSetting(ctx context.Context, key string) (*platformadmin.SystemSetting, error) {
@@ -131,6 +141,15 @@ func (happyRepo) UpsertContentBlock(ctx context.Context, b *platformadmin.Conten
 
 func (happyRepo) GetPublishedPolicy(ctx context.Context, slug string) (*platformadmin.PrivacyPolicy, error) {
 	return &platformadmin.PrivacyPolicy{ID: 1, Slug: slug, Title: i18n.Text{"ar": "سياسة"}, Content: i18n.Text{"ar": "نص"}}, nil
+}
+
+func (happyRepo) RecordVisitor(ctx context.Context, v *platformadmin.Visitor) error {
+	v.ID = 1
+	return nil
+}
+
+func (happyRepo) VisitorAnalytics(ctx context.Context, limit int) (*platformadmin.VisitorAnalytics, error) {
+	return &platformadmin.VisitorAnalytics{Total: 10, Today: 2, ByDevice: map[string]int{"desktop": 8}, ByOS: map[string]int{"android": 6}, ByBrowser: map[string]int{"chrome": 9}}, nil
 }
 
 const testCookieName = "dawa24_session"

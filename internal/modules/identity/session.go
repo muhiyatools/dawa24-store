@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -32,6 +33,9 @@ type Session struct {
 	ExpiresAt   time.Time `json:"expires_at"`
 	IP          string    `json:"ip,omitempty"`
 	UserAgent   string    `json:"user_agent,omitempty"`
+	// MaxLoginSessions, when set, is the concurrent-sign-in limit enforced by
+	// SessionStore.Create (evicting the oldest session beyond the limit).
+	MaxLoginSessions *int `json:"max_login_sessions,omitempty"`
 }
 
 // SessionStore handles session persistence in Redis.
@@ -104,7 +108,68 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 	if _, err := pipe.Exec(ctx); err != nil {
 		return apperr.Unavailable("redis", err)
 	}
+
+	// Enforce the concurrent-sign-in limit: if this session exceeds it, evict
+	// the oldest sessions until the user is back within budget. This is the
+	// licensing boundary for the session plans (Phase 4.6).
+	if sess.MaxLoginSessions != nil && *sess.MaxLoginSessions > 0 {
+		if err := s.enforceLimit(ctx, sess.UserID, *sess.MaxLoginSessions); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+// enforceLimit keeps the user's live session count at or below max by evicting
+// the oldest sessions first.
+func (s *SessionStore) enforceLimit(ctx context.Context, userID int64, max int) error {
+	rdb, err := s.client()
+	if err != nil {
+		return err
+	}
+	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
+	if err != nil || len(tokens) <= max {
+		return err
+	}
+
+	type live struct {
+		token   string
+		created time.Time
+	}
+	var sessions []live
+	for _, tok := range tokens {
+		if sess, err := s.Get(ctx, tok); err == nil && sess != nil {
+			sessions = append(sessions, live{token: tok, created: sess.CreatedAt})
+		}
+	}
+	sort.Slice(sessions, func(i, j int) bool { return sessions[i].created.Before(sessions[j].created) })
+
+	toEvict := len(sessions) - max
+	for i := 0; i < toEvict && i < len(sessions); i++ {
+		_ = rdb.SRem(ctx, userSessionsKey(userID), sessions[i].token)
+		_ = rdb.Del(ctx, sessionKey(sessions[i].token))
+	}
+	return nil
+}
+
+// ListForUser returns the user's live sessions, newest first.
+func (s *SessionStore) ListForUser(ctx context.Context, userID int64) ([]*Session, error) {
+	rdb, err := s.client()
+	if err != nil {
+		return nil, err
+	}
+	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return nil, apperr.Unavailable("redis", err)
+	}
+	var list []*Session
+	for _, tok := range tokens {
+		if sess, err := s.Get(ctx, tok); err == nil && sess != nil {
+			list = append(list, sess)
+		}
+	}
+	sort.Slice(list, func(i, j int) bool { return list[i].CreatedAt.After(list[j].CreatedAt) })
+	return list, nil
 }
 
 // Get retrieves a session by token.

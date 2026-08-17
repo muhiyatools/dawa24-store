@@ -57,6 +57,32 @@ func (m *mockHRRepo) ListWorkTimes(_ context.Context) ([]*hr.WorkTime, error) {
 	return m.workTimes, nil
 }
 
+func (m *mockHRRepo) ListPublishedJobs(_ context.Context, _, _ int) ([]*hr.JobOffer, error) {
+	return nil, nil
+}
+
+func (m *mockHRRepo) GetJobOfferByID(_ context.Context, _ int64) (*hr.JobOffer, error) {
+	return nil, nil
+}
+
+func (m *mockHRRepo) CreateJobOffer(_ context.Context, j *hr.JobOffer) error {
+	j.ID = 1
+	return nil
+}
+
+func (m *mockHRRepo) ListJobsByOrg(_ context.Context, _ int64, _, _ int) ([]*hr.JobOffer, error) {
+	return nil, nil
+}
+
+func (m *mockHRRepo) CreateJobApplication(_ context.Context, a *hr.JobApplication) error {
+	a.ID = 1
+	return nil
+}
+
+func (m *mockHRRepo) ListApplicationsByOffer(_ context.Context, _ int64, _, _ int) ([]*hr.JobApplication, error) {
+	return nil, nil
+}
+
 func TestHREmployeesAndWorkTimes(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 30)
 	repo := newMockHRRepo()

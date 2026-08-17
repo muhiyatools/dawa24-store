@@ -78,6 +78,7 @@ func NewUIHandler(
 
 // RegisterPageRoutes registers HTML view endpoints across all screens.
 func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
+	r.Use(h.visitorMiddleware)
 	RegisterStaticRoutes(r)
 
 	// Public & Auth (8 screens)
@@ -122,6 +123,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/settings", h.SettingsIndex)
 	r.Get("/settings/profile", h.SettingsProfilePage)
 	r.Get("/settings/addresses", h.SettingsAddressesPage)
+	r.Get("/settings/security", h.SettingsSecurityPage)
 
 	// Vendor Supplier Experience (8 screens)
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
@@ -145,6 +147,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/admin/settings", h.AdminSettingsPage)
 	r.Get("/admin/messages", h.AdminMessagesPage)
 	r.Get("/admin/content", h.AdminContentPage)
+	r.Get("/admin/analytics", h.AdminAnalyticsPage)
 
 	// Interactive Form & Action Handlers
 	r.Post("/auth/login", h.LoginSubmit)
@@ -159,6 +162,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/settings/profile", h.SettingsProfileSubmit)
 	r.Post("/settings/addresses", h.SettingsAddressSubmit)
 	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
+	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
 	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
 	r.Post("/offers/{id}/click", h.OfferClickSubmit)
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)

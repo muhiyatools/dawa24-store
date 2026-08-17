@@ -18,6 +18,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -49,6 +50,31 @@ func (r stubRepo) ListWorkTimes(context.Context) ([]*hr.WorkTime, error) {
 	return nil, nil
 }
 
+func (r stubRepo) ListPublishedJobs(context.Context, int, int) ([]*hr.JobOffer, error) {
+	r.fail("ListPublishedJobs")
+	return nil, nil
+}
+func (r stubRepo) GetJobOfferByID(context.Context, int64) (*hr.JobOffer, error) {
+	r.fail("GetJobOfferByID")
+	return nil, nil
+}
+func (r stubRepo) CreateJobOffer(context.Context, *hr.JobOffer) error {
+	r.fail("CreateJobOffer")
+	return nil
+}
+func (r stubRepo) ListJobsByOrg(context.Context, int64, int, int) ([]*hr.JobOffer, error) {
+	r.fail("ListJobsByOrg")
+	return nil, nil
+}
+func (r stubRepo) CreateJobApplication(context.Context, *hr.JobApplication) error {
+	r.fail("CreateJobApplication")
+	return nil
+}
+func (r stubRepo) ListApplicationsByOffer(context.Context, int64, int, int) ([]*hr.JobApplication, error) {
+	r.fail("ListApplicationsByOffer")
+	return nil, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) CreateEmployee(ctx context.Context, e *hr.Employee) error {
@@ -66,6 +92,27 @@ func (happyRepo) SaveWorkTimes(ctx context.Context, times []*hr.WorkTime) error 
 }
 func (happyRepo) ListWorkTimes(ctx context.Context) ([]*hr.WorkTime, error) {
 	return []*hr.WorkTime{{ID: 1, DayNameEn: "Monday", DayNameAr: "الاثنين", OpenTime: "09:00", CloseTime: "17:00"}}, nil
+}
+
+func (happyRepo) ListPublishedJobs(ctx context.Context, limit, offset int) ([]*hr.JobOffer, error) {
+	return []*hr.JobOffer{{ID: 1, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, nil
+}
+func (happyRepo) GetJobOfferByID(ctx context.Context, id int64) (*hr.JobOffer, error) {
+	return &hr.JobOffer{ID: id, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}, nil
+}
+func (happyRepo) CreateJobOffer(ctx context.Context, j *hr.JobOffer) error {
+	j.ID = 1
+	return nil
+}
+func (happyRepo) ListJobsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*hr.JobOffer, error) {
+	return []*hr.JobOffer{{ID: 1, OrganizationID: orgID, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, nil
+}
+func (happyRepo) CreateJobApplication(ctx context.Context, a *hr.JobApplication) error {
+	a.ID = 1
+	return nil
+}
+func (happyRepo) ListApplicationsByOffer(ctx context.Context, offerID int64, limit, offset int) ([]*hr.JobApplication, error) {
+	return []*hr.JobApplication{{ID: 1, JobOfferID: offerID, ApplicantName: "أحمد", ApplicantEmail: "a@example.com"}}, nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {
