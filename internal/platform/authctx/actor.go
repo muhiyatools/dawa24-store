@@ -27,6 +27,33 @@ type Actor struct {
 	OrganizationID int64
 	Role           string
 	Permissions    []string
+	Email          string
+	Name           string
+}
+
+// DisplayName returns a user-friendly name to display in the navbar.
+func (a Actor) DisplayName() string {
+	if a.Name != "" {
+		return a.Name
+	}
+	if a.Email != "" {
+		for i, r := range a.Email {
+			if r == '@' {
+				return a.Email[:i]
+			}
+		}
+		return a.Email
+	}
+	if a.Role == "pharmacy" {
+		return "صيدلي معتمد"
+	}
+	if a.Role == "supplier" || a.Role == "vendor" {
+		return "مورّد أدوية"
+	}
+	if a.Role == "admin" || a.Role == "super_admin" {
+		return "مدير المنصة"
+	}
+	return "صيدلي معتمد"
 }
 
 // Can reports whether the actor holds a permission.

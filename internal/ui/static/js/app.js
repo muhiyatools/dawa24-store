@@ -23,6 +23,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   showNoticeFromQuery();
+
+  // Universal Dropdown Toggle Handler (Native Vanilla JS support)
+  document.addEventListener('click', (e) => {
+    const dropdownBtn = e.target.closest('.dropdown > button, .dropdown > .btn, [data-dropdown-toggle]');
+    const clickedDropdown = dropdownBtn ? dropdownBtn.closest('.dropdown') : null;
+
+    // Close all dropdowns that are not the currently clicked one
+    document.querySelectorAll('.dropdown.open').forEach((d) => {
+      if (d !== clickedDropdown) {
+        d.classList.remove('open');
+        const menu = d.querySelector('.dropdown-menu');
+        if (menu) menu.classList.remove('is-active');
+      }
+    });
+
+    if (clickedDropdown) {
+      e.stopPropagation();
+      const isOpen = clickedDropdown.classList.toggle('open');
+      const menu = clickedDropdown.querySelector('.dropdown-menu');
+      if (menu) {
+        menu.classList.toggle('is-active', isOpen);
+      }
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.dropdown.open').forEach((d) => {
+        d.classList.remove('open');
+        const menu = d.querySelector('.dropdown-menu');
+        if (menu) menu.classList.remove('is-active');
+      });
+    }
+  });
 });
 
 // Renders the ?notice=&msg= pair that redirectWithNotice attaches after a form

@@ -7,7 +7,7 @@ import (
 
 templ CustomerShell(title string, lang string, dir string) {
 	@Base(title, lang, dir) {
-		<header class="top-navbar" x-data="{ userMenuOpen: false, notifMenuOpen: false }" @click.outside="userMenuOpen = false; notifMenuOpen = false" @keydown.escape.window="userMenuOpen = false; notifMenuOpen = false">
+		<header class="top-navbar">
 			<div style="display:flex; align-items:center; gap:2.5rem;">
 				<a href="/" style="display:flex; align-items:center; gap:0.75rem; text-decoration:none;">
 					<img src="/static/img/logo.png" alt="DAWA24.com" style="height:52px; max-height:56px; object-fit:contain; border-radius:var(--radius-sm);" />
@@ -17,11 +17,11 @@ templ CustomerShell(title string, lang string, dir string) {
 			<div style="display:flex; align-items:center; gap:0.875rem;">
 				<!-- Language Selector with Clean SVG Flags -->
 				if lang == "en" {
-					<a href="/lang/ar" class="btn btn-secondary btn-icon" title="اللغة العربية" style="border-radius:var(--radius-md);">
+					<a href="/lang/ar" class="btn btn-secondary btn-icon" title="اللغة العربية">
 						@components.IconFlagEG("icon-md")
 					</a>
 				} else {
-					<a href="/lang/en" class="btn btn-secondary btn-icon" title="English Language" style="border-radius:var(--radius-md);">
+					<a href="/lang/en" class="btn btn-secondary btn-icon" title="English Language">
 						@components.IconFlagGB("icon-md")
 					</a>
 				}
@@ -33,12 +33,12 @@ templ CustomerShell(title string, lang string, dir string) {
 
 				if actor, ok := authctx.From(ctx); ok {
 					<!-- Notifications Popover -->
-					<div class="dropdown" style="position:relative;">
+					<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
 						<button
 							type="button"
 							class="btn btn-secondary btn-icon"
 							title="الإشعارات"
-							@click.stop="notifMenuOpen = !notifMenuOpen; userMenuOpen = false"
+							@click="open = !open"
 							hx-get="/notifications/dropdown"
 							hx-target="#notif-dropdown-content"
 							hx-trigger="click"
@@ -50,7 +50,8 @@ templ CustomerShell(title string, lang string, dir string) {
 
 						<div
 							class="dropdown-menu"
-							x-show="notifMenuOpen"
+							:class="{ 'is-active': open }"
+							x-show="open"
 							x-cloak
 							x-transition.opacity
 							style="inset-inline-start:auto; inset-inline-end:0; min-width:340px; padding:0; overflow:hidden;"
@@ -64,25 +65,26 @@ templ CustomerShell(title string, lang string, dir string) {
 					</div>
 
 					<!-- User Avatar Dropdown -->
-					<div class="dropdown" style="position:relative;">
+					<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
 						<button
 							type="button"
 							class="btn btn-secondary"
-							style="padding:0.45rem 0.85rem; display:flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md);"
-							@click.stop="userMenuOpen = !userMenuOpen; notifMenuOpen = false"
+							style="padding:0.45rem 0.85rem; display:inline-flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md); height:42px;"
+							@click="open = !open"
 						>
-							<div style="width:30px; height:30px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+							<div style="width:28px; height:28px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
 								@components.IconUser("icon-xs")
 							</div>
-							<span style="font-weight:700; font-size:0.875rem; color:var(--neutral-800);">
-								حسابي
+							<span style="font-weight:700; font-size:0.875rem; color:var(--neutral-800); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+								{ actor.DisplayName() }
 							</span>
 							@components.IconChevronDown("icon-xs")
 						</button>
 
 						<div
 							class="dropdown-menu"
-							x-show="userMenuOpen"
+							:class="{ 'is-active': open }"
+							x-show="open"
 							x-cloak
 							x-transition.opacity
 							style="inset-inline-start:auto; inset-inline-end:0; min-width:240px; padding:0.5rem 0;"

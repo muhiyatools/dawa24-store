@@ -1835,7 +1835,7 @@ func IconFlagEG(class string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3);\"><path fill=\"#ce1126\" d=\"M0 0h640v160H0z\"></path> <path fill=\"#ffffff\" d=\"M0 160h640v160H0z\"></path> <path fill=\"#000000\" d=\"M0 320h640v160H0z\"></path> <circle cx=\"320\" cy=\"240\" r=\"28\" fill=\"#c69214\"></circle></svg>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"width:20px !important; height:15px !important; border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3); display:block; margin:auto;\"><path fill=\"#ce1126\" d=\"M0 0h640v160H0z\"></path> <path fill=\"#ffffff\" d=\"M0 160h640v160H0z\"></path> <path fill=\"#000000\" d=\"M0 320h640v160H0z\"></path> <circle cx=\"320\" cy=\"240\" r=\"28\" fill=\"#c69214\"></circle></svg>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1882,7 +1882,7 @@ func IconFlagGB(class string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3);\"><path fill=\"#012169\" d=\"M0 0h640v480H0z\"></path> <path fill=\"#ffffff\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#fff\" stroke-width=\"60\"></path> <path fill=\"#c8102e\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#c8102e\" stroke-width=\"40\"></path> <path fill=\"#ffffff\" d=\"M280 0h80v480h-80zM0 200h640v80H0z\"></path> <path fill=\"#c8102e\" d=\"M296 0h48v480h-48zM0 216h640v48H0z\"></path></svg>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"width:20px !important; height:15px !important; border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3); display:block; margin:auto;\"><path fill=\"#012169\" d=\"M0 0h640v480H0z\"></path> <path fill=\"#ffffff\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#fff\" stroke-width=\"60\"></path> <path fill=\"#c8102e\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#c8102e\" stroke-width=\"40\"></path> <path fill=\"#ffffff\" d=\"M280 0h80v480h-80zM0 200h640v80H0z\"></path> <path fill=\"#c8102e\" d=\"M296 0h48v480h-48zM0 216h640v48H0z\"></path></svg>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

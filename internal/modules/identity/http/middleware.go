@@ -56,6 +56,7 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 				OrganizationID: sess.ActiveOrgID,
 				Role:           sess.Role,
 				Permissions:    sess.Permissions,
+				Email:          sess.Email,
 			})
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -84,6 +85,7 @@ func OptionalAuth(service *identity.Service, cookieName string) func(http.Handle
 				OrganizationID: sess.ActiveOrgID,
 				Role:           sess.Role,
 				Permissions:    sess.Permissions,
+				Email:          sess.Email,
 			})
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
