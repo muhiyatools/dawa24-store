@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
@@ -40,6 +41,7 @@ type UIHandler struct {
 	billSvc  *billing.Service
 	chatSvc  *chat.Service
 	wfSvc    *workflow.Service
+	hrSvc    *hr.Service
 	log      *slog.Logger
 }
 
@@ -57,6 +59,7 @@ func NewUIHandler(
 	billSvc *billing.Service,
 	chatSvc *chat.Service,
 	wfSvc *workflow.Service,
+	hrSvc *hr.Service,
 	log *slog.Logger,
 ) *UIHandler {
 	return &UIHandler{
@@ -72,6 +75,7 @@ func NewUIHandler(
 		billSvc:  billSvc,
 		chatSvc:  chatSvc,
 		wfSvc:    wfSvc,
+		hrSvc:    hrSvc,
 		log:      log,
 	}
 }
