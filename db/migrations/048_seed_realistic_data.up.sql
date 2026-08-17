@@ -1,6 +1,6 @@
 -- Migration 048: Seed Realistic Egyptian Pharmaceutical Mock Data
 -- Populates real-world pharma suppliers, licensed pharmacies, comprehensive categories,
--- registered drugs, variants, batches, and professional job postings.
+-- registered drugs, variants, warehouses, stocks, and professional job postings.
 
 BEGIN;
 
@@ -173,10 +173,11 @@ VALUES
     ('{"ar":"ميرك (Merck)","en":"Merck Healthcare"}'::jsonb, '{"ar":"ريادة في أدوية القلب والأورام والسكري","en":"Global science and tech company"}'::jsonb, 'active')
 ON CONFLICT DO NOTHING;
 
--- 6. Insert Top Essential Registered Products
+-- 6. Insert Top Essential Registered Products & Stocks
 DO $$
 DECLARE
     v_supplier_id BIGINT;
+    v_warehouse_id BIGINT;
     v_cat_antibiotics BIGINT;
     v_cat_analgesics BIGINT;
     v_cat_cardio BIGINT;
@@ -191,10 +192,19 @@ DECLARE
     v_brand_amoun BIGINT;
     v_brand_merck BIGINT;
     v_prod_id BIGINT;
+    v_var_id BIGINT;
 BEGIN
     SELECT id INTO v_supplier_id FROM org.organizations WHERE organization_number = 'ORG-EGY-1001' LIMIT 1;
     IF v_supplier_id IS NULL THEN
         SELECT id INTO v_supplier_id FROM org.organizations LIMIT 1;
+    END IF;
+
+    -- Ensure a warehouse exists for inventory stocks
+    SELECT id INTO v_warehouse_id FROM inventory.warehouses WHERE organization_id = v_supplier_id LIMIT 1;
+    IF v_warehouse_id IS NULL THEN
+        INSERT INTO inventory.warehouses (organization_id, name, code, address, is_active)
+        VALUES (v_supplier_id, 'المستودع الرئيسي - العبور', 'WH-MAIN-01', 'المنطقة الصناعية، العبور، القاهرة', true)
+        RETURNING id INTO v_warehouse_id;
     END IF;
 
     SELECT id INTO v_cat_antibiotics FROM catalog.categories WHERE name->>'ar' = 'المضادات الحيوية' LIMIT 1;
@@ -223,12 +233,17 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, stock_qty, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 14 قرص","en":"Box of 14 Tablets"}'::jsonb,
-        'AUG-1G-14T-V1', '6221008291048', 135.00, 115.00, 'AUG-2849', '2028-06-30'::timestamptz, 5, 850, 'active', true
-    );
+        'AUG-1G-14T-V1', '6221008291048', 135.00, 115.00, 'active', true
+    ) RETURNING id INTO v_var_id;
+
+    IF v_warehouse_id IS NOT NULL THEN
+        INSERT INTO inventory.stocks (organization_id, warehouse_id, product_id, product_variant_id, quantity, min_threshold)
+        VALUES (v_supplier_id, v_warehouse_id, v_prod_id, v_var_id, 850, 10);
+    END IF;
 
     -- Product 2: Panadol Extra
     INSERT INTO catalog.products (
@@ -241,12 +256,17 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, stock_qty, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"شريطين 24 قرص","en":"2 Strips 24 Tablets"}'::jsonb,
-        'PAN-EXT-24T-V1', '6221004928103', 45.00, 38.00, 'PAN-9921', '2028-11-30'::timestamptz, 10, 2400, 'active', true
-    );
+        'PAN-EXT-24T-V1', '6221004928103', 45.00, 38.00, 'active', true
+    ) RETURNING id INTO v_var_id;
+
+    IF v_warehouse_id IS NOT NULL THEN
+        INSERT INTO inventory.stocks (organization_id, warehouse_id, product_id, product_variant_id, quantity, min_threshold)
+        VALUES (v_supplier_id, v_warehouse_id, v_prod_id, v_var_id, 2400, 20);
+    END IF;
 
     -- Product 3: Concor 5mg
     INSERT INTO catalog.products (
@@ -259,12 +279,17 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, stock_qty, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 30 قرص","en":"Box of 30 Tablets"}'::jsonb,
-        'CON-5MG-30T-V1', '6221003819201', 62.50, 53.00, 'CON-5820', '2028-09-30'::timestamptz, 3, 1100, 'active', true
-    );
+        'CON-5MG-30T-V1', '6221003819201', 62.50, 53.00, 'active', true
+    ) RETURNING id INTO v_var_id;
+
+    IF v_warehouse_id IS NOT NULL THEN
+        INSERT INTO inventory.stocks (organization_id, warehouse_id, product_id, product_variant_id, quantity, min_threshold)
+        VALUES (v_supplier_id, v_warehouse_id, v_prod_id, v_var_id, 1100, 10);
+    END IF;
 
     -- Product 4: Glucophage 1000mg
     INSERT INTO catalog.products (
@@ -277,12 +302,17 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, stock_qty, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 30 قرص","en":"Box of 30 Tablets"}'::jsonb,
-        'GLU-1000-30T-V1', '6221007419482', 70.00, 59.50, 'GLU-4819', '2028-04-30'::timestamptz, 5, 950, 'active', true
-    );
+        'GLU-1000-30T-V1', '6221007419482', 70.00, 59.50, 'active', true
+    ) RETURNING id INTO v_var_id;
+
+    IF v_warehouse_id IS NOT NULL THEN
+        INSERT INTO inventory.stocks (organization_id, warehouse_id, product_id, product_variant_id, quantity, min_threshold)
+        VALUES (v_supplier_id, v_warehouse_id, v_prod_id, v_var_id, 950, 10);
+    END IF;
 
     -- Product 5: Cataflam 50mg
     INSERT INTO catalog.products (
@@ -295,12 +325,17 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, stock_qty, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"شريطين 20 قرص","en":"20 Tablets"}'::jsonb,
-        'CAT-50MG-20T-V1', '6221005829104', 58.00, 49.00, 'CAT-3819', '2027-12-31'::timestamptz, 5, 1400, 'active', true
-    );
+        'CAT-50MG-20T-V1', '6221005829104', 58.00, 49.00, 'active', true
+    ) RETURNING id INTO v_var_id;
+
+    IF v_warehouse_id IS NOT NULL THEN
+        INSERT INTO inventory.stocks (organization_id, warehouse_id, product_id, product_variant_id, quantity, min_threshold)
+        VALUES (v_supplier_id, v_warehouse_id, v_prod_id, v_var_id, 1400, 15);
+    END IF;
 
     -- Product 6: Ventolin Inhaler
     INSERT INTO catalog.products (
@@ -313,12 +348,17 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, stock_qty, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"عبوة 200 جرعة","en":"200 Doses Inhaler"}'::jsonb,
-        'VEN-INH-200D-V1', '6221009182736', 68.00, 57.00, 'VEN-7410', '2028-08-31'::timestamptz, 3, 620, 'active', true
-    );
+        'VEN-INH-200D-V1', '6221009182736', 68.00, 57.00, 'active', true
+    ) RETURNING id INTO v_var_id;
+
+    IF v_warehouse_id IS NOT NULL THEN
+        INSERT INTO inventory.stocks (organization_id, warehouse_id, product_id, product_variant_id, quantity, min_threshold)
+        VALUES (v_supplier_id, v_warehouse_id, v_prod_id, v_var_id, 620, 5);
+    END IF;
 
     -- Product 7: Lantus SoloStar
     INSERT INTO catalog.products (
@@ -331,12 +371,17 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, stock_qty, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 5 أقلام معبأة","en":"Box of 5 Prefilled Pens"}'::jsonb,
-        'LAN-SOLO-5P-V1', '6221001928374', 680.00, 595.00, 'LAN-9182', '2027-10-31'::timestamptz, 2, 280, 'active', true
-    );
+        'LAN-SOLO-5P-V1', '6221001928374', 680.00, 595.00, 'active', true
+    ) RETURNING id INTO v_var_id;
+
+    IF v_warehouse_id IS NOT NULL THEN
+        INSERT INTO inventory.stocks (organization_id, warehouse_id, product_id, product_variant_id, quantity, min_threshold)
+        VALUES (v_supplier_id, v_warehouse_id, v_prod_id, v_var_id, 280, 5);
+    END IF;
 
 END $$;
 
