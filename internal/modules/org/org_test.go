@@ -219,7 +219,41 @@ func (m *mockOrgRepo) ListHighlightItems(_ context.Context, _ int64) ([]*Highlig
 	return nil, nil
 }
 
+func (m *mockOrgRepo) CreateRole(_ context.Context, role *Role) error {
+	role.ID = 1
+	return nil
+}
+
+func (m *mockOrgRepo) ListRolesByOrg(_ context.Context, _ int64) ([]*Role, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) GetDeliveryBands(_ context.Context, _ int64) ([]*DeliveryBand, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) SaveDeliveryBands(_ context.Context, _ int64, _ []*DeliveryBand) error {
+	return nil
+}
+
+func (m *mockOrgRepo) AddReviewWithRatings(_ context.Context, r *Review, ratings []ReviewRating) error {
+	r.ID = m.nextID
+	m.nextID++
+	r.Ratings = ratings
+	m.reviews[r.OrganizationID] = append(m.reviews[r.OrganizationID], r)
+	return nil
+}
+
+func (m *mockOrgRepo) GetReviewCriteria(_ context.Context, _ string) ([]*ReviewCriterion, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) ReplyToReview(_ context.Context, reviewID, orgID int64, response string, responderID int64) error {
+	return nil
+}
+
 func TestOrgLifecycleAndBranches(t *testing.T) {
+
 	ctx := context.Background()
 	repo := newMockOrgRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

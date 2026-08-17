@@ -188,6 +188,36 @@ func (c *Client) PresignPut(ctx context.Context, key string, contentType string,
 	return req.URL, nil
 }
 
+// HeadObject checks if an object exists and returns its ContentLength and ContentType.
+func (c *Client) HeadObject(ctx context.Context, key string) (int64, string, error) {
+	if strings.TrimSpace(key) == "" {
+		return 0, "", ErrInvalidKey
+	}
+
+	out, err := c.s3Client.HeadObject(ctx, &s3.HeadObjectInput{
+		Bucket: aws.String(c.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		var nsk *types.NoSuchKey
+		var nf *types.NotFound
+		if errors.As(err, &nsk) || errors.As(err, &nf) {
+			return 0, "", apperr.NotFound("file")
+		}
+		return 0, "", fmt.Errorf("storage: head %s: %w", key, err)
+	}
+
+	var size int64
+	if out.ContentLength != nil {
+		size = *out.ContentLength
+	}
+	var contentType string
+	if out.ContentType != nil {
+		contentType = *out.ContentType
+	}
+	return size, contentType, nil
+}
+
 // PublicURL returns the public URL for an object if PublicBaseURL is configured.
 // If PublicBaseURL is empty, it returns an empty string.
 func (c *Client) PublicURL(key string) string {
@@ -197,3 +227,4 @@ func (c *Client) PublicURL(key string) string {
 	clean := strings.TrimPrefix(strings.TrimSpace(key), "/")
 	return fmt.Sprintf("%s/%s", c.publicBaseURL, url.PathEscape(clean))
 }
+

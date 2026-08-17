@@ -145,6 +145,34 @@ func (r stubRepo) ReviewOrganization(ctx context.Context, id int64, status org.O
 	r.fail("ReviewOrganization")
 	return nil
 }
+func (r stubRepo) CreateRole(ctx context.Context, role *org.Role) error {
+	r.fail("CreateRole")
+	return nil
+}
+func (r stubRepo) ListRolesByOrg(ctx context.Context, orgID int64) ([]*org.Role, error) {
+	r.fail("ListRolesByOrg")
+	return nil, nil
+}
+func (r stubRepo) GetDeliveryBands(ctx context.Context, orgID int64) ([]*org.DeliveryBand, error) {
+	r.fail("GetDeliveryBands")
+	return nil, nil
+}
+func (r stubRepo) SaveDeliveryBands(ctx context.Context, orgID int64, bands []*org.DeliveryBand) error {
+	r.fail("SaveDeliveryBands")
+	return nil
+}
+func (r stubRepo) AddReviewWithRatings(ctx context.Context, rev *org.Review, ratings []org.ReviewRating) error {
+	r.fail("AddReviewWithRatings")
+	return nil
+}
+func (r stubRepo) GetReviewCriteria(ctx context.Context, contextType string) ([]*org.ReviewCriterion, error) {
+	r.fail("GetReviewCriteria")
+	return nil, nil
+}
+func (r stubRepo) ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error {
+	r.fail("ReplyToReview")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -184,7 +212,7 @@ func (happyRepo) DeleteBranch(ctx context.Context, id, orgID int64) error {
 	return nil
 }
 func (happyRepo) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org.Branch, error) {
-	return []*org.Branch{{ID: 1, OrganizationID: orgID, Code: "BR-01"}}, nil
+	return []*org.Branch{{ID: 1, OrganizationID: orgID, Code: "BR-01", Name: i18n.Text{"en": "Main"}}}, nil
 }
 func (happyRepo) UnsetMainBranches(ctx context.Context, orgID int64) error {
 	return nil
@@ -239,6 +267,29 @@ func (happyRepo) AddHighlightItem(ctx context.Context, item *org.HighlightSectio
 }
 func (happyRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*org.HighlightSectionItem, error) {
 	return nil, nil
+}
+func (happyRepo) CreateRole(ctx context.Context, role *org.Role) error {
+	role.ID = 1
+	return nil
+}
+func (happyRepo) ListRolesByOrg(ctx context.Context, orgID int64) ([]*org.Role, error) {
+	return nil, nil
+}
+func (happyRepo) GetDeliveryBands(ctx context.Context, orgID int64) ([]*org.DeliveryBand, error) {
+	return nil, nil
+}
+func (happyRepo) SaveDeliveryBands(ctx context.Context, orgID int64, bands []*org.DeliveryBand) error {
+	return nil
+}
+func (happyRepo) AddReviewWithRatings(ctx context.Context, rev *org.Review, ratings []org.ReviewRating) error {
+	rev.ID = 1
+	return nil
+}
+func (happyRepo) GetReviewCriteria(ctx context.Context, contextType string) ([]*org.ReviewCriterion, error) {
+	return nil, nil
+}
+func (happyRepo) ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error {
+	return nil
 }
 
 const testCookieName = "dawa24_session"

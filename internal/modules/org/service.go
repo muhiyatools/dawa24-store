@@ -205,8 +205,10 @@ func (s *Service) AddReview(ctx context.Context, orgID, userID int64, rating int
 		UserID:         userID,
 		Rating:         rating,
 		ReviewText:     text,
-		IsApproved:     true,
+		Status:         "approved",
+		IsVerified:     true,
 	}
+
 
 	if err := s.repo.AddReview(ctx, rev); err != nil {
 		return nil, err
@@ -299,3 +301,48 @@ func (s *Service) DeleteBranch(ctx context.Context, id, orgID int64) error {
 func (s *Service) UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error {
 	return s.repo.UpdateMemberRole(ctx, orgID, userID, role)
 }
+
+// CreateRole adds a custom organization role.
+func (s *Service) CreateRole(ctx context.Context, role *Role) error {
+	if role.OrganizationID <= 0 || role.Key == "" {
+		return apperr.Validation("role.invalid", "Organization and role key are required.", nil)
+	}
+	return s.repo.CreateRole(ctx, role)
+}
+
+// ListRoles retrieves all roles for an organization.
+func (s *Service) ListRoles(ctx context.Context, orgID int64) ([]*Role, error) {
+	return s.repo.ListRolesByOrg(ctx, orgID)
+}
+
+// GetDeliveryBands retrieves delivery bands for distance pricing.
+func (s *Service) GetDeliveryBands(ctx context.Context, orgID int64) ([]*DeliveryBand, error) {
+	return s.repo.GetDeliveryBands(ctx, orgID)
+}
+
+// SaveDeliveryBands updates the delivery bands for an organization.
+func (s *Service) SaveDeliveryBands(ctx context.Context, orgID int64, bands []*DeliveryBand) error {
+	return s.repo.SaveDeliveryBands(ctx, orgID, bands)
+}
+
+// GetReviewCriteria returns review criteria for a given context.
+func (s *Service) GetReviewCriteria(ctx context.Context, contextType string) ([]*ReviewCriterion, error) {
+	return s.repo.GetReviewCriteria(ctx, contextType)
+}
+
+// AddReviewWithRatings adds a multi-criteria review with verified rating weights.
+func (s *Service) AddReviewWithRatings(ctx context.Context, rev *Review, ratings []ReviewRating) error {
+	if rev.Rating < 1 || rev.Rating > 5 {
+		return apperr.Validation("review.rating_invalid", "Rating must be between 1 and 5.", nil)
+	}
+	return s.repo.AddReviewWithRatings(ctx, rev, ratings)
+}
+
+// ReplyToReview adds a vendor response to a review.
+func (s *Service) ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error {
+	if response == "" {
+		return apperr.Validation("review.reply_empty", "Reply cannot be empty.", nil)
+	}
+	return s.repo.ReplyToReview(ctx, reviewID, orgID, response, responderID)
+}
+

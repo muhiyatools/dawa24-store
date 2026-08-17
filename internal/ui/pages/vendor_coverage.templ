@@ -1,0 +1,106 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+
+
+templ VendorCoverage(coverages []*workflow.WeeklyCoverage, bands []*org.DeliveryBand, lang, dir string) {
+	@layouts.VendorShell("نطاق التغطية والتوصيل الأسبوعي", "coverage", lang, dir) {
+
+		<div class="card" style="margin-bottom:var(--space-6);">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5); gap:var(--space-4); flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:var(--space-3);">
+					@components.IconTruck("icon-lg")
+					<div>
+						<h2 class="card-title" style="margin:0; font-size:var(--text-xl);">
+							جدول التغطية الجغرافية والتوصيل الأسبوعي
+						</h2>
+						<p style="font-size:var(--text-sm); color:var(--text-secondary); margin-top:2px;">
+							تحديد المركز الجغرافي ونصف قطر التوصيل (بالمتر) لكل يوم من أيام الأسبوع لحساب طلبات عروض الأسعار بدقة.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:var(--space-5);">
+				<!-- 1. Weekly Grid -->
+				<div style="background:var(--surface-sunken); padding:var(--space-4); border-radius:var(--radius-lg); border:1px solid var(--border);">
+					<h3 style="font-size:var(--text-base); font-weight:700; margin-top:0; margin-bottom:var(--space-3); color:var(--text);">
+						أيام التغطية المجدولة
+					</h3>
+					{{
+						dayNames := []string{"الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"}
+					}}
+					<div style="display:grid; gap:var(--space-2);">
+						for dayIdx, dName := range dayNames {
+							<div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-3); background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
+								<div style="display:flex; align-items:center; gap:var(--space-2);">
+									<span class="badge badge-sky" style="width:28px; text-align:center; font-weight:700;">{ fmt.Sprintf("%d", dayIdx+1) }</span>
+									<span style="font-weight:600; color:var(--text);">{ dName }</span>
+								</div>
+								<div style="display:flex; align-items:center; gap:var(--space-3);">
+									<span style="font-size:var(--text-xs); color:var(--text-secondary); font-variant-numeric:tabular-nums;">
+										نطاق: 25 كم (25,000 م)
+									</span>
+									<span class="badge badge-emerald">مفعل</span>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+
+				<!-- 2. Delivery Bands (Distance-tiered Pricing) -->
+				<div style="background:var(--surface-sunken); padding:var(--space-4); border-radius:var(--radius-lg); border:1px solid var(--border);">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3);">
+						<h3 style="font-size:var(--text-base); font-weight:700; margin:0; color:var(--text);">
+							شرائح رسوم الشحن والتوصيل
+						</h3>
+						<span class="text-xs" style="color:var(--text-secondary);">حسب المسافة الفعلية</span>
+					</div>
+
+					<div style="display:grid; gap:var(--space-2); margin-bottom:var(--space-4);">
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-3); background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
+							<div>
+								<div style="font-weight:600; font-size:var(--text-sm); color:var(--text);">من 0 إلى 10 كم</div>
+								<div class="text-xs" style="color:var(--text-secondary);">توصيل محلي سريع</div>
+							</div>
+							<div style="font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;">
+								30.00 ج.م
+							</div>
+						</div>
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-3); background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
+							<div>
+								<div style="font-weight:600; font-size:var(--text-sm); color:var(--text);">من 10 إلى 30 كم</div>
+								<div class="text-xs" style="color:var(--text-secondary);">توصيل المحافظة والمراكز</div>
+							</div>
+							<div style="font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;">
+								50.00 ج.م
+							</div>
+						</div>
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-3); background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
+							<div>
+								<div style="font-weight:600; font-size:var(--text-sm); color:var(--text);">أكثر من 30 كم</div>
+								<div class="text-xs" style="color:var(--text-secondary);">شحن المحافظات البعيدة</div>
+							</div>
+							<div style="font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;">
+								80.00 ج.م
+							</div>
+						</div>
+					</div>
+
+					@components.MapPicker(components.MapPickerProps{
+						Label:        "تعديل إحداثيات مركز التغطية الرئيسي",
+						RadiusMeters: 25000,
+						NamePrefix:   "coverage",
+					})
+				</div>
+			</div>
+		</div>
+	}
+}

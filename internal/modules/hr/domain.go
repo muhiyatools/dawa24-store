@@ -94,3 +94,19 @@ type JobApplication struct {
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 }
+
+// JobSeekerProfile represents an individual professional seeking pharmacy/medical employment.
+type JobSeekerProfile struct {
+	ID              int64        `json:"id"`
+	UserID          int64        `json:"user_id"`
+	Specialisation  string       `json:"specialisation"` // pharmacist, assistant_pharmacist, sales_rep, accountant, warehouse_keeper
+	YearsExperience int          `json:"years_experience"`
+	CVDocumentID    *int64       `json:"cv_document_id,omitempty"`
+	IsOpenToWork    bool         `json:"is_open_to_work"`
+	ExpectedSalary  money.Amount `json:"expected_salary"`
+	PreferredCityID *int64       `json:"preferred_city_id,omitempty"`
+	Bio             string       `json:"bio"`
+	CreatedAt       time.Time    `json:"created_at"`
+	UpdatedAt       time.Time    `json:"updated_at"`
+}
+

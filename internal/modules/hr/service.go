@@ -129,3 +129,17 @@ func (s *Service) UpdateApplicationStatus(ctx context.Context, appID int64, stat
 func (s *Service) ListApplications(ctx context.Context, offerID int64, limit, offset int) ([]*JobApplication, error) {
 	return s.repo.ListApplicationsByOffer(ctx, offerID, limit, offset)
 }
+
+// GetJobSeekerProfile retrieves the seeker profile for a user.
+func (s *Service) GetJobSeekerProfile(ctx context.Context, userID int64) (*JobSeekerProfile, error) {
+	return s.repo.GetJobSeekerProfile(ctx, userID)
+}
+
+// SaveJobSeekerProfile saves or updates a job seeker profile.
+func (s *Service) SaveJobSeekerProfile(ctx context.Context, p *JobSeekerProfile) error {
+	if p.UserID <= 0 {
+		return apperr.Validation("seeker.user_required", "User ID is required.", nil)
+	}
+	return s.repo.UpsertJobSeekerProfile(ctx, p)
+}
+

@@ -21,4 +21,8 @@ type Repository interface {
 	ListApplicationsByOffer(ctx context.Context, offerID int64, limit, offset int) ([]*JobApplication, error)
 	ListApplicationsByUser(ctx context.Context, userID int64) ([]*JobApplication, error)
 	UpdateApplicationStatus(ctx context.Context, appID int64, status string, notes string) error
+
+	GetJobSeekerProfile(ctx context.Context, userID int64) (*JobSeekerProfile, error)
+	UpsertJobSeekerProfile(ctx context.Context, p *JobSeekerProfile) error
 }
+

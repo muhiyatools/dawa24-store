@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	attachmentsPostgres "github.com/muhiya/dawa24-store/internal/modules/attachments/postgres"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	chatPostgres "github.com/muhiya/dawa24-store/internal/modules/chat/postgres"
@@ -21,6 +22,8 @@ import (
 	workflowPostgres "github.com/muhiya/dawa24-store/internal/modules/workflow/postgres"
 
 	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
+	attachmentsHttp "github.com/muhiya/dawa24-store/internal/modules/attachments/http"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingHttp "github.com/muhiya/dawa24-store/internal/modules/billing/http"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -48,6 +51,7 @@ import (
 	workflowHttp "github.com/muhiya/dawa24-store/internal/modules/workflow/http"
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
+	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui"
@@ -63,31 +67,38 @@ func mountModuleRoutes(
 ) {
 	db := deps.Handle()
 
-	// 1. Identity & Auth
+	// Initialize dynamic feature flags engine
+	if _, err := features.Init(context.Background(), db, log); err != nil {
+		log.Warn("failed to initialize features engine", "error", err)
+	}
+
+	// 1. Storage & Attachments
+	var storageClient *storage.Client
+	if sClient, err := storage.New(context.Background(), cfg.Storage); err == nil {
+		storageClient = sClient
+		log.Info("object storage client initialized", "bucket", cfg.Storage.Bucket)
+	} else {
+		log.Warn("object storage client not initialized", "error", err)
+	}
+
+	attachRepo := attachmentsPostgres.NewRepository(db)
+	attachSvc := attachments.NewService(attachRepo, storageClient, log)
+
+	// 2. Identity & Auth
 	idRepo := identityPostgres.NewRepository(db)
-	// The cache handle is stable from construction and gains its client when
-	// Redis connects, so the session store resolves a live client per call
-	// rather than capturing nil at mount time.
 	sessionStore := identity.NewSessionStore(deps.CacheHandle(), cfg.Session)
 	idSvc := identity.NewService(idRepo, sessionStore, log)
 	identityHttp.NewHandler(idSvc, cfg.Session, log).RegisterRoutes(r)
 
-	// Everything from here on requires an authenticated caller.
-	//
-	// Until this group existed, every module route was reachable anonymously
-	// and each handler took the acting user from a `?user_id=` query parameter
-	// — so any caller could read any wallet, cart or notification feed, and
-	// withdraw from any wallet, simply by changing a number.
-	//
-	// RequireAuth establishes who is calling; ResolveTenant establishes which
-	// organization they are acting within, verifying membership before honouring
-	// the X-Dawa-Org-ID header. Row-level security then scopes queries to a
-	// tenant the caller has actually been proven to belong to.
+	// Authenticated API routes
 	r.Group(func(protected chi.Router) {
 		protected.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		protected.Use(identityHttp.ResolveTenant(idSvc, log))
 
-		mountAuthenticatedModules(protected, cfg, log, deps, ai)
+		// Attachments API
+		attachmentsHttp.NewHandler(attachSvc, log).RegisterRoutes(protected)
+
+		mountAuthenticatedModules(protected, cfg, log, deps, ai, storageClient)
 	})
 
 	// 13. Templ SSR Frontend & Static Assets
@@ -126,15 +137,14 @@ func mountModuleRoutes(
 	})
 }
 
-// mountAuthenticatedModules registers every module whose endpoints require a
-// logged-in caller. It is a separate function so the authentication group above
-// reads as one decision rather than being repeated per module.
+// mountAuthenticatedModules registers every module whose endpoints require a logged-in caller.
 func mountAuthenticatedModules(
 	r chi.Router,
 	cfg *config.Config,
 	log *slog.Logger,
 	deps *dependencies,
 	ai gateway.Client,
+	storageClient *storage.Client,
 ) {
 	db := deps.Handle()
 
@@ -163,11 +173,8 @@ func mountAuthenticatedModules(
 	ingRepo := ingestPostgres.NewRepository(db)
 	ingSvc := ingest.NewService(ingRepo, log)
 	ingSvc.SetAIMatcher(aiSvc)
-	if storageClient, err := storage.New(context.Background(), cfg.Storage); err == nil {
+	if storageClient != nil {
 		ingSvc.SetStorage(storageClient)
-		log.Info("object storage client initialized for ingest", "bucket", cfg.Storage.Bucket)
-	} else {
-		log.Warn("object storage client not initialized", "error", err)
 	}
 	ingestHttp.NewHandler(ingSvc, log).RegisterRoutes(r)
 
@@ -200,5 +207,4 @@ func mountAuthenticatedModules(
 	orgRepo := orgPostgres.NewRepository(db)
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
-
 }

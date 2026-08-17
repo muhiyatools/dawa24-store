@@ -82,6 +82,14 @@ func (r stubRepo) UpdateApplicationStatus(context.Context, int64, string, string
 	r.fail("UpdateApplicationStatus")
 	return nil
 }
+func (r stubRepo) GetJobSeekerProfile(context.Context, int64) (*hr.JobSeekerProfile, error) {
+	r.fail("GetJobSeekerProfile")
+	return nil, nil
+}
+func (r stubRepo) UpsertJobSeekerProfile(context.Context, *hr.JobSeekerProfile) error {
+	r.fail("UpsertJobSeekerProfile")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -128,6 +136,14 @@ func (happyRepo) ListApplicationsByUser(ctx context.Context, userID int64) ([]*h
 func (happyRepo) UpdateApplicationStatus(ctx context.Context, appID int64, status, notes string) error {
 	return nil
 }
+func (happyRepo) GetJobSeekerProfile(ctx context.Context, userID int64) (*hr.JobSeekerProfile, error) {
+	return &hr.JobSeekerProfile{ID: 1, UserID: userID, Specialisation: "pharmacist"}, nil
+}
+func (happyRepo) UpsertJobSeekerProfile(ctx context.Context, p *hr.JobSeekerProfile) error {
+	p.ID = 1
+	return nil
+}
+
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

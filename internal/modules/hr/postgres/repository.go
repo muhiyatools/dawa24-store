@@ -145,3 +145,55 @@ func (r *Repository) ListWorkTimes(ctx context.Context) ([]*hr.WorkTime, error) 
 	})
 	return list, err
 }
+
+// GetJobSeekerProfile retrieves the seeker profile for a user.
+func (r *Repository) GetJobSeekerProfile(ctx context.Context, userID int64) (*hr.JobSeekerProfile, error) {
+	var p hr.JobSeekerProfile
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, user_id, specialisation, years_experience, cv_document_id,
+			       is_open_to_work, expected_salary, preferred_city_id, bio, created_at, updated_at
+			FROM hr.job_seeker_profiles
+			WHERE user_id = $1;
+		`
+		return tx.QueryRow(txCtx, query, userID).Scan(
+			&p.ID, &p.UserID, &p.Specialisation, &p.YearsExperience, &p.CVDocumentID,
+			&p.IsOpenToWork, &p.ExpectedSalary, &p.PreferredCityID, &p.Bio, &p.CreatedAt, &p.UpdatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("job_seeker_profile")
+		}
+		return nil, err
+	}
+	return &p, nil
+}
+
+// UpsertJobSeekerProfile saves or updates the job seeker profile.
+func (r *Repository) UpsertJobSeekerProfile(ctx context.Context, p *hr.JobSeekerProfile) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO hr.job_seeker_profiles (
+				user_id, specialisation, years_experience, cv_document_id,
+				is_open_to_work, expected_salary, preferred_city_id, bio
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			ON CONFLICT (user_id) DO UPDATE
+			SET specialisation = EXCLUDED.specialisation,
+			    years_experience = EXCLUDED.years_experience,
+			    cv_document_id = EXCLUDED.cv_document_id,
+			    is_open_to_work = EXCLUDED.is_open_to_work,
+			    expected_salary = EXCLUDED.expected_salary,
+			    preferred_city_id = EXCLUDED.preferred_city_id,
+			    bio = EXCLUDED.bio,
+			    updated_at = now()
+			RETURNING id, created_at, updated_at;
+		`
+		return tx.QueryRow(txCtx, query,
+			p.UserID, p.Specialisation, p.YearsExperience, p.CVDocumentID,
+			p.IsOpenToWork, p.ExpectedSalary, p.PreferredCityID, p.Bio,
+		).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
+	})
+}
+
+

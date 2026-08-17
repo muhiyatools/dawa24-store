@@ -91,7 +91,17 @@ func (m *mockHRRepo) UpdateApplicationStatus(_ context.Context, _ int64, _, _ st
 	return nil
 }
 
+func (m *mockHRRepo) GetJobSeekerProfile(_ context.Context, userID int64) (*hr.JobSeekerProfile, error) {
+	return &hr.JobSeekerProfile{ID: 1, UserID: userID, Specialisation: "pharmacist"}, nil
+}
+
+func (m *mockHRRepo) UpsertJobSeekerProfile(_ context.Context, p *hr.JobSeekerProfile) error {
+	p.ID = 1
+	return nil
+}
+
 func TestHREmployeesAndWorkTimes(t *testing.T) {
+
 	ctx := database.WithTenant(context.Background(), 30)
 	repo := newMockHRRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

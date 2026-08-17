@@ -1,0 +1,110 @@
+package components
+
+import (
+	"fmt"
+)
+
+// MapPickerProps defines configuration for the geographic coordinate and radius picker.
+type MapPickerProps struct {
+	Lat          *float64
+	Lon          *float64
+	RadiusMeters int
+	NamePrefix   string
+	Label        string
+	ReadOnly     bool
+}
+
+templ MapPicker(props MapPickerProps) {
+	{{
+		latVal := 30.0444
+		if props.Lat != nil && *props.Lat != 0 {
+			latVal = *props.Lat
+		}
+		lonVal := 31.2357
+		if props.Lon != nil && *props.Lon != 0 {
+			lonVal = *props.Lon
+		}
+		radiusVal := props.RadiusMeters
+		if radiusVal <= 0 {
+			radiusVal = 10000
+		}
+		namePrefix := props.NamePrefix
+		if namePrefix == "" {
+			namePrefix = "geo"
+		}
+	}}
+	<div class="map-picker-container" style="border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); background: var(--surface-raised);" data-map-picker>
+		if props.Label != "" {
+			<label class="form-label" style="font-weight:600; margin-bottom:var(--space-2); display:block; color:var(--text);">
+				{ props.Label }
+			</label>
+		}
+		
+		<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-3);">
+			<div>
+				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط العرض (Latitude)</label>
+				<input
+					type="number"
+					step="0.00000001"
+					name={ fmt.Sprintf("%s_lat", namePrefix) }
+					value={ fmt.Sprintf("%.8f", latVal) }
+					class="form-control"
+					style="font-variant-numeric: tabular-nums; width:100%;"
+					data-map-lat
+					if props.ReadOnly {
+						readonly
+					}
+				/>
+			</div>
+			<div>
+				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط الطول (Longitude)</label>
+				<input
+					type="number"
+					step="0.00000001"
+					name={ fmt.Sprintf("%s_lon", namePrefix) }
+					value={ fmt.Sprintf("%.8f", lonVal) }
+					class="form-control"
+					style="font-variant-numeric: tabular-nums; width:100%;"
+					data-map-lon
+					if props.ReadOnly {
+						readonly
+					}
+				/>
+			</div>
+			<div>
+				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">نصف قطر التغطية (بالمتر)</label>
+				<input
+					type="number"
+					step="500"
+					min="500"
+					max="500000"
+					name={ fmt.Sprintf("%s_radius", namePrefix) }
+					value={ fmt.Sprintf("%d", radiusVal) }
+					class="form-control"
+					style="font-variant-numeric: tabular-nums; width:100%;"
+					data-map-radius
+					if props.ReadOnly {
+						readonly
+					}
+				/>
+			</div>
+		</div>
+
+		<!-- Interactive Map Canvas / Fallback Banner -->
+		<div
+			class="map-canvas"
+			data-lat={ fmt.Sprintf("%.8f", latVal) }
+			data-lon={ fmt.Sprintf("%.8f", lonVal) }
+			data-radius={ fmt.Sprintf("%d", radiusVal) }
+			style="width: 100%; height: 260px; border-radius: var(--radius-md); background: var(--surface-sunken); border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;"
+		>
+			<div style="text-align: center; color: var(--text-secondary); padding: var(--space-4);">
+				<div style="font-size: 1.75rem; margin-bottom: var(--space-2);">📍</div>
+				<div style="font-weight: 600; color: var(--text); margin-bottom: 4px;">نطاق الموقع الجغرافي النشط</div>
+				<div class="text-xs" style="color: var(--text-muted);">
+					مركز النطاق: { fmt.Sprintf("%.4f, %.4f", latVal, lonVal) } | القطر: { fmt.Sprintf("%d م", radiusVal) }
+				</div>
+			</div>
+		</div>
+	</div>
+}

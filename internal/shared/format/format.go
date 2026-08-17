@@ -13,11 +13,12 @@ import (
 // Money formats a monetary amount with thousands separators and proper currency suffix.
 // Example: 1234567.89 -> "1,234,567.89 ج.م" (ar) or "1,234,567.89 EGP" (en).
 func Money(a money.Amount, lang string) string {
-	minor := a.MinorUnits()
+	minor := a.Minor()
 	isNegative := minor < 0
 	if isNegative {
 		minor = -minor
 	}
+
 
 	whole := minor / 100
 	cents := minor % 100

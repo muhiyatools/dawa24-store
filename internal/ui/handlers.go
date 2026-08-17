@@ -143,6 +143,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/settings/addresses", h.SettingsAddressesPage)
 	r.Get("/settings/security", h.SettingsSecurityPage)
 	r.Get("/settings/organization", h.SettingsOrganizationPage)
+	r.Get("/settings/employees", h.SettingsEmployeesPage)
 	r.Get("/settings/preferences", h.SettingsPreferencesPage)
 	r.Get("/settings/payment-methods", h.SettingsPaymentMethodsPage)
 
@@ -160,6 +161,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/vendor/team/new", h.VendorTeamNewSubmit)
 	r.Post("/vendor/team/{id}/toggle", h.VendorTeamToggleSubmit)
 	r.Get("/vendor/inventory", h.VendorInventoryPage)
+	r.Get("/vendor/coverage", h.VendorCoveragePage)
 	r.Get("/vendor/transfers", h.VendorTransfersPage)
 	r.Get("/vendor/ingest", h.VendorIngestPage)
 	r.Get("/vendor/orders", h.VendorOrdersPage)
@@ -170,6 +172,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	// User / Individual Experience
 	r.Get("/user/dashboard", h.UserDashboardPage)
 	r.Get("/user/applications", h.UserDashboardPage)
+	r.Get("/my-applications", h.UserDashboardPage)
 
 	// Pharmacy Buyer Experience
 	r.Get("/pharmacy/dashboard", h.PharmacyDashboardPage)
@@ -177,6 +180,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	// Platform Admin Experience
 	r.Get("/admin/dashboard", h.AdminDashboardPage)
 	r.Get("/admin/approvals", h.AdminApprovalsPage)
+	r.Get("/admin/documents", h.AdminDocumentsPage)
 	r.Get("/admin/users", h.AdminUsersPage)
 	r.Get("/admin/settings", h.AdminSettingsPage)
 	r.Get("/admin/messages", h.AdminMessagesPage)
@@ -195,6 +199,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/admin/finder", h.AdminFinderPage)
 	r.Get("/admin/services", h.AdminServicesPage)
 	r.Get("/admin/plans", h.AdminPlansPage)
+
 
 	// Interactive Form & Action Handlers
 	r.Post("/auth/login", h.LoginSubmit)

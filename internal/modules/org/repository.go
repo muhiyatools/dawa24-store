@@ -27,8 +27,20 @@ type Repository interface {
 	ListMembersByOrg(ctx context.Context, orgID int64) ([]*Member, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
 
+	// Custom Roles
+	CreateRole(ctx context.Context, role *Role) error
+	ListRolesByOrg(ctx context.Context, orgID int64) ([]*Role, error)
+
+	// Delivery Bands
+	GetDeliveryBands(ctx context.Context, orgID int64) ([]*DeliveryBand, error)
+	SaveDeliveryBands(ctx context.Context, orgID int64, bands []*DeliveryBand) error
+
+	// Multi-criteria Reviews
 	AddReview(ctx context.Context, r *Review) error
+	AddReviewWithRatings(ctx context.Context, r *Review, ratings []ReviewRating) error
 	ListReviewsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Review, error)
+	GetReviewCriteria(ctx context.Context, contextType string) ([]*ReviewCriterion, error)
+	ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error
 
 	ToggleFollower(ctx context.Context, orgID, userID int64) (bool, error)
 	IsFollowing(ctx context.Context, orgID, userID int64) (bool, error)

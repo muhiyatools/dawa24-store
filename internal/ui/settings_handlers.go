@@ -508,3 +508,37 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 
 	h.redirectWithNotice(w, r, "/settings/payment-methods", "success", "تم حفظ وتفعيل وسيلة الدفع بنجاح.")
 }
+
+// SettingsEmployeesPage renders the employee roster and role assignments.
+func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/employees", http.StatusSeeOther)
+		return
+	}
+
+	var members []*org.Member
+	var branches []*org.Branch
+	var roles []*org.Role
+
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		if m, err := h.orgSvc.ListMembers(ctx, actor.OrganizationID); err == nil {
+			members = m
+		}
+		if b, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
+			branches = b
+		}
+		if rl, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID); err == nil {
+			roles = rl
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.SettingsEmployees(members, branches, roles, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render settings employees", "error", err)
+	}
+}
+

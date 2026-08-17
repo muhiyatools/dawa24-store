@@ -1,15 +1,11 @@
 package components
 
-import "github.com/muhiya/dawa24-store/internal/shared/money"
+import (
+	"github.com/muhiya/dawa24-store/internal/shared/format"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+)
 
-// MoneyDisplayProps renders a monetary amount.
-//
-// Amount is a money.Amount — int64 minor units — not a float64. The previous
-// version took a float64 and formatted it with %.2f, which is the one thing
-// this codebase does not do with money anywhere else: binary floating point
-// cannot represent 0.10 exactly, and a catalogue of prices summed through that
-// type drifts by cents. money.Amount is the project-wide representation and
-// the only thing that should reach a price on screen.
+// MoneyDisplayProps renders a monetary amount with thousand-grouping and localized currency.
 type MoneyDisplayProps struct {
 	Amount   money.Amount
 	Currency string
@@ -19,7 +15,7 @@ type MoneyDisplayProps struct {
 }
 
 templ MoneyDisplay(props MoneyDisplayProps) {
-	<span style="display:inline-flex; align-items:baseline; gap:0.15rem;">
+	<span style="display:inline-flex; align-items:baseline; gap:0.25rem;">
 		switch props.State {
 			case "loading":
 				<span class="skeleton" style="display:inline-block; height:1.1em; width:4.5rem;"></span>
@@ -29,15 +25,9 @@ templ MoneyDisplay(props MoneyDisplayProps) {
 				<span
 					class={ "money", templ.KV("money-lg", props.Large),
 						templ.KV("money-negative", props.Amount.Minor() < 0) }
+					style="font-variant-numeric: tabular-nums;"
 				>
-					{ props.Amount.String() }
-				</span>
-				<span class="money-currency">
-					if props.Currency != "" {
-						{ props.Currency }
-					} else {
-						ج.م
-					}
+					{ format.Money(props.Amount, "ar") }
 				</span>
 		}
 	</span>

@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -20,6 +21,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
 
 // VendorProductsPage renders the vendor's supply variants/offers.
 func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
@@ -609,3 +611,31 @@ func (h *UIHandler) VendorStockAdjustSubmit(w http.ResponseWriter, r *http.Reque
 	}
 	http.Redirect(w, r, "/vendor/inventory", http.StatusSeeOther)
 }
+
+// VendorCoveragePage renders the weekly geographic coverage grid and distance delivery tiers.
+func (h *UIHandler) VendorCoveragePage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
+		return
+	}
+
+	var coverages []*workflow.WeeklyCoverage
+	var bands []*org.DeliveryBand
+
+
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		if b, err := h.orgSvc.GetDeliveryBands(ctx, actor.OrganizationID); err == nil {
+			bands = b
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.VendorCoverage(coverages, bands, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor coverage", "error", err)
+	}
+}
+

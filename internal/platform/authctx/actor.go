@@ -25,11 +25,19 @@ const ctxKeyActor ctxKey = iota
 type Actor struct {
 	UserID         int64
 	OrganizationID int64
+	OrgID          int64 // Alias for OrganizationID
+	BranchID       *int64
 	Role           string
 	Permissions    []string
 	Email          string
 	Name           string
 }
+
+// IsPlatformAdmin reports whether the actor has super_admin or admin role.
+func (a Actor) IsPlatformAdmin() bool {
+	return a.Role == "super_admin" || a.Role == "admin"
+}
+
 
 // DisplayName returns a user-friendly name to display in the navbar.
 func (a Actor) DisplayName() string {
@@ -75,8 +83,21 @@ func WithActor(ctx context.Context, a Actor) context.Context {
 // From returns the authenticated caller, if any.
 func From(ctx context.Context) (Actor, bool) {
 	a, ok := ctx.Value(ctxKeyActor).(Actor)
+	if ok && a.OrgID == 0 && a.OrganizationID > 0 {
+		a.OrgID = a.OrganizationID
+	}
+	if ok && a.OrganizationID == 0 && a.OrgID > 0 {
+		a.OrganizationID = a.OrgID
+	}
 	return a, ok && a.UserID > 0
 }
+
+// FromContext returns the authenticated caller from context, or an empty Actor.
+func FromContext(ctx context.Context) Actor {
+	a, _ := From(ctx)
+	return a
+}
+
 
 // UserID returns the authenticated user id, or an Unauthorized error.
 //

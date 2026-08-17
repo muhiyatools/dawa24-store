@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -21,6 +22,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
 
 func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -890,4 +892,33 @@ func (h *UIHandler) AdminPolicyPublishSubmit(w http.ResponseWriter, r *http.Requ
 
 	h.redirectWithNotice(w, r, "/admin/policies", "success", "تم نشر الإصدار وتفعيله للجمهور.")
 }
+
+// AdminDocumentsPage renders the official documents audit registry.
+func (h *UIHandler) AdminDocumentsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	statusParam := r.URL.Query().Get("status")
+	var statusFilter *attachments.DocumentStatus
+	if statusParam != "" {
+		st := attachments.DocumentStatus(statusParam)
+		statusFilter = &st
+	}
+
+	filter := attachments.DocumentFilter{
+		Status: statusFilter,
+		Search: r.URL.Query().Get("q"),
+		Limit:  50,
+		Offset: 0,
+	}
+
+	docs := make([]*attachments.Document, 0)
+	total := 0
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminDocuments(docs, total, filter, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin documents page", "error", err)
+	}
+}
+
 
