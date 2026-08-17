@@ -76,6 +76,19 @@ func (r stubRepo) UpdateRequestStatus(context.Context, int64, workflow.RequestSt
 	return nil
 }
 
+func (r stubRepo) CreateService(context.Context, *workflow.InstitutionalService) error {
+	r.fail("CreateService")
+	return nil
+}
+func (r stubRepo) GetServiceByID(context.Context, int64) (*workflow.InstitutionalService, error) {
+	r.fail("GetServiceByID")
+	return nil, nil
+}
+func (r stubRepo) ListServices(context.Context, *int64) ([]*workflow.InstitutionalService, error) {
+	r.fail("ListServices")
+	return nil, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) CreatePriorityRequest(ctx context.Context, r *workflow.PurchasePriorityRequest) error {
@@ -119,6 +132,17 @@ func (happyRepo) ListRequestsByOrg(ctx context.Context, orgID int64, status stri
 
 func (happyRepo) UpdateRequestStatus(ctx context.Context, id int64, status workflow.RequestStatus) error {
 	return nil
+}
+
+func (happyRepo) CreateService(ctx context.Context, s *workflow.InstitutionalService) error {
+	s.ID = 1
+	return nil
+}
+func (happyRepo) GetServiceByID(ctx context.Context, id int64) (*workflow.InstitutionalService, error) {
+	return &workflow.InstitutionalService{ID: id, Title: i18n.Text{"ar": "خدمة"}, PricingType: workflow.PricingFree, IsActive: true}, nil
+}
+func (happyRepo) ListServices(ctx context.Context, parentID *int64) ([]*workflow.InstitutionalService, error) {
+	return []*workflow.InstitutionalService{{ID: 1, Title: i18n.Text{"ar": "خدمة"}, PricingType: workflow.PricingFree, IsActive: true}}, nil
 }
 
 const testCookieName = "dawa24_session"

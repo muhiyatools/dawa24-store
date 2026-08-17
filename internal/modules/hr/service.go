@@ -82,12 +82,8 @@ func (s *Service) GetJobOffer(ctx context.Context, id int64) (*JobOffer, error) 
 	return s.repo.GetJobOfferByID(ctx, id)
 }
 
-// CreateJobOffer publishes a vacancy for the tenant organization.
-func (s *Service) CreateJobOffer(ctx context.Context, j *JobOffer) (*JobOffer, error) {
-	orgID, ok := database.TenantFrom(ctx)
-	if !ok {
-		return nil, database.ErrNoTenant
-	}
+// CreateJobOffer publishes a vacancy for an organization.
+func (s *Service) CreateJobOffer(ctx context.Context, orgID int64, j *JobOffer) (*JobOffer, error) {
 	j.OrganizationID = orgID
 	if j.Status == "" {
 		j.Status = "published"

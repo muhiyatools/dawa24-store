@@ -1,0 +1,87 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/hr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ JobsPage(lang, dir string, jobs []*hr.JobOffer) {
+	@layouts.CustomerShell("الوظائف | Jobs", lang, dir) {
+		<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0 0 1.5rem;">الوظائف المتاحة</h2>
+		if len(jobs) == 0 {
+			@components.EmptyState(components.EmptyStateProps{
+				Title:       "لا توجد وظائف حالياً",
+				Message:     "لم يتم نشر أي وظائف شاغرة بعد.",
+				ActionLabel: "تصفح المنتجات",
+			})
+		} else {
+			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+				for _, j := range jobs {
+					<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+						<div>
+							<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0 0 0.25rem;">{ j.Title.Get(i18n.Lang(lang)) }</h3>
+							<p style="font-size:0.85rem; color:var(--neutral-600); margin:0 0 0.5rem;">{ j.Location }</p>
+							<p style="font-size:0.85rem; color:var(--neutral-500); margin:0; white-space:pre-line;">{ j.Description }</p>
+						</div>
+						<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.ID)) } class="btn btn-secondary" style="width:100%; justify-content:center;">التفاصيل والتقديم</a>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	}
+}
+
+templ JobDetail(lang, dir string, j *hr.JobOffer, submitted bool) {
+	@layouts.CustomerShell("وظيفة | Job", lang, dir) {
+		<div style="max-width:680px;">
+			<div class="card" style="margin-bottom:1.25rem;">
+				<h2 style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin:0 0 0.5rem;">{ j.Title.Get(i18n.Lang(lang)) }</h2>
+				<p style="color:var(--neutral-500); margin:0 0 1rem;">{ j.Location }</p>
+				<div style="white-space:pre-line; color:var(--neutral-700); line-height:1.8;">{ j.Description }</div>
+				if j.Requirements != "" {
+					<h3 style="font-size:1rem; font-weight:800; color:var(--neutral-900); margin:1rem 0 0.5rem;">المتطلبات</h3>
+					<div style="white-space:pre-line; color:var(--neutral-700); line-height:1.8;">{ j.Requirements }</div>
+				}
+				if !j.SalaryMin.IsZero() || !j.SalaryMax.IsZero() {
+					<div style="margin-top:1rem; font-weight:700; color:var(--primary-700);">
+						<span>الراتب: </span>
+						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.SalaryMin })
+						<span> - </span>
+						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.SalaryMax })
+					</div>
+				}
+			</div>
+
+			<div class="card" style="margin-bottom:0;">
+				<h3 class="card-title" style="margin:0 0 0.75rem;">تقديم طلب</h3>
+				if submitted {
+					<div style="background:var(--success-light); color:var(--primary-800); border:1px solid var(--success-border); padding:1rem; border-radius:var(--radius-md);">تم استلام طلبك بنجاح.</div>
+				} else {
+					<form method="POST" action={ fmt.Sprintf("/jobs/%d/apply", j.ID) } style="display:flex; flex-direction:column; gap:0.9rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="a-name">الاسم</label>
+								<input type="text" id="a-name" name="applicant_name" required class="form-input" />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="a-email">البريد الإلكتروني</label>
+								<input type="email" id="a-email" name="applicant_email" required class="form-input" />
+							</div>
+						</div>
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="a-phone">الهاتف</label>
+							<input type="tel" id="a-phone" name="applicant_phone" class="form-input tabular-nums" />
+						</div>
+						<button type="submit" class="btn btn-primary" style="justify-content:center;">تقديم الطلب</button>
+					</form>
+				}
+			</div>
+		</div>
+	}
+}

@@ -121,6 +121,8 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/offers/{id}", h.OfferDetailPage)
 	r.Get("/messages", h.MessagesPage)
 	r.Get("/messages/{id}", h.MessagesConversationPage)
+	r.Get("/jobs", h.JobsPage)
+	r.Get("/jobs/{id}", h.JobDetailPage)
 	r.Get("/requests", h.RequestsPage)
 
 	// Settings (account surface)
@@ -140,6 +142,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/vendor/orders", h.VendorOrdersPage)
 	r.Get("/vendor/offers", h.VendorOffersPage)
 	r.Get("/vendor/storefront", h.VendorStorefrontPage)
+	r.Get("/vendor/jobs", h.VendorJobsPage)
 
 	// Pharmacy Buyer Experience
 	r.Get("/pharmacy/dashboard", h.PharmacyDashboardPage)
@@ -170,6 +173,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
 	r.Post("/offers/{id}/click", h.OfferClickSubmit)
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
+	r.Post("/jobs/{id}/apply", h.JobApplySubmit)
 	r.Post("/requests", h.RequestCreateSubmit)
 	r.Post("/requests/{id}/respond", h.RequestRespondSubmit)
 	r.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
@@ -182,6 +186,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
 	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
 	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)
+	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
 	r.Post("/admin/content", h.AdminContentSubmit)
 	r.Post("/admin/users/{id}/suspend", h.AdminUserSuspendSubmit)

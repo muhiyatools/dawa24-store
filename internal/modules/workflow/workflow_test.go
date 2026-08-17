@@ -92,6 +92,19 @@ func (m *mockWorkflowRepo) UpdateRequestStatus(_ context.Context, _ int64, _ Req
 	return nil
 }
 
+func (m *mockWorkflowRepo) CreateService(_ context.Context, s *InstitutionalService) error {
+	s.ID = 1
+	return nil
+}
+
+func (m *mockWorkflowRepo) GetServiceByID(_ context.Context, _ int64) (*InstitutionalService, error) {
+	return nil, nil
+}
+
+func (m *mockWorkflowRepo) ListServices(_ context.Context, _ *int64) ([]*InstitutionalService, error) {
+	return nil, nil
+}
+
 func TestWorkflowPurchasePriorityAndCoverage(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 20)
 	repo := newMockWorkflowRepo()

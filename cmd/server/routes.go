@@ -102,6 +102,7 @@ func mountModuleRoutes(
 	billRepoUI := billingPostgres.NewRepository(db)
 	chatRepoUI := chatPostgres.NewRepository(db)
 	wfRepoUI := workflowPostgres.NewRepository(db)
+	hrRepoUI := hrPostgres.NewRepository(db)
 
 	uiHandler := ui.NewUIHandler(
 		catalog.NewService(catRepoUI, log),
@@ -116,6 +117,7 @@ func mountModuleRoutes(
 		billing.NewService(billRepoUI, log),
 		chat.NewService(chatRepoUI, log),
 		workflow.NewService(wfRepoUI, log),
+		hr.NewService(hrRepoUI, log),
 		log,
 	)
 	r.Group(func(uiRouter chi.Router) {
