@@ -12,6 +12,8 @@ type MapPickerProps struct {
 	NamePrefix   string
 	Label        string
 	ReadOnly     bool
+	ShowRadius   bool
+	Height       string
 }
 
 templ MapPicker(props MapPickerProps) {
@@ -32,24 +34,101 @@ templ MapPicker(props MapPickerProps) {
 		if namePrefix == "" {
 			namePrefix = "geo"
 		}
-	}}
-	<div class="map-picker-container" style="border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); background: var(--surface-raised);" data-map-picker>
-		if props.Label != "" {
-			<label class="form-label" style="font-weight:600; margin-bottom:var(--space-2); display:block; color:var(--text);">
-				{ props.Label }
-			</label>
+		mapHeight := props.Height
+		if mapHeight == "" {
+			mapHeight = "280px"
 		}
-		
-		<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-3);">
+		mapID := fmt.Sprintf("leaflet-map-%s-%d", namePrefix, int(latVal*1000)%100000)
+	}}
+	<div class="map-picker-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-4); background:var(--surface-raised); display:flex; flex-direction:column; gap:var(--space-3);" data-map-picker>
+		<!-- Header Toolbar -->
+		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-2);">
 			<div>
-				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط العرض (Latitude)</label>
+				<div style="display:flex; align-items:center; gap:var(--space-2);">
+					<span style="color:var(--accent); font-weight:700; font-size:var(--text-sm);">
+						if props.Label != "" {
+							{ props.Label }
+						} else {
+							تحديد الموقع الجغرافي والإحداثيات (GPS)
+						}
+					</span>
+					<span class="badge badge-sky" style="font-size:11px; font-variant-numeric:tabular-nums;" data-map-badge>
+						{ fmt.Sprintf("%.4f, %.4f", latVal, lonVal) }
+					</span>
+				</div>
+				<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;">
+					انقر على الخريطة أو اسحب المؤشر 📍 لتحديد موقع المنشأة بدقة
+				</div>
+			</div>
+
+			<!-- Toolbar Buttons -->
+			<div style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;">
+				<!-- City Jump Selector -->
+				<select class="form-select text-xs" style="padding:0.25rem 0.5rem; font-size:11px; width:auto;" data-city-selector>
+					<option value="">-- انتقال لمدينة --</option>
+					<option value="30.0444,31.2357">القاهرة (Cairo)</option>
+					<option value="30.0131,31.2089">الجيزة (Giza)</option>
+					<option value="31.2001,29.9187">الإسكندرية (Alexandria)</option>
+					<option value="31.0409,31.3785">المنصورة (Mansoura)</option>
+					<option value="30.7865,31.0004">طنطا (Tanta)</option>
+					<option value="30.5877,31.5020">الزقازيق (Zagazig)</option>
+					<option value="31.2653,32.3019">بورسعيد (Port Said)</option>
+					<option value="30.5965,32.2715">الإسماعيلية (Ismailia)</option>
+					<option value="29.9668,32.5498">السويس (Suez)</option>
+					<option value="27.1801,31.1837">أسيوط (Asyut)</option>
+					<option value="26.5569,31.6948">سوهاج (Sohag)</option>
+					<option value="25.6872,32.6396">الأقصر (Luxor)</option>
+					<option value="24.0889,32.8998">أسوان (Aswan)</option>
+					<option value="27.2579,33.8116">الغردقة (Hurghada)</option>
+					<option value="27.9158,34.3299">شرم الشيخ (Sharm El-Sheikh)</option>
+					<option value="29.9870,30.9500">6 أكتوبر (6th October)</option>
+					<option value="30.3000,31.7333">العاشر من رمضان (10th Ramadan)</option>
+					<option value="30.0300,31.4700">القاهرة الجديدة والتجمع</option>
+					<option value="30.2200,31.4600">مدينة العبور</option>
+				</select>
+
+				<!-- Current Location GPS Button -->
+				<button type="button" class="btn btn-secondary btn-sm" style="padding:0.25rem 0.6rem; font-size:11px; gap:4px;" data-locate-me-btn title="تحديد موقعي الحالي">
+					<span>📍 موقعي الحالي</span>
+				</button>
+
+				<!-- Google Maps Link Button -->
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.8f,%.8f", latVal, lonVal)) }
+					target="_blank"
+					rel="noopener"
+					class="btn btn-secondary btn-sm"
+					style="padding:0.25rem 0.6rem; font-size:11px; gap:4px; text-decoration:none;"
+					data-google-maps-link
+					title="فتح الموقع على خرائط Google"
+				>
+					<span>🗺️ خرائط Google</span>
+				</a>
+			</div>
+		</div>
+
+		<!-- Interactive Map Canvas -->
+		<div
+			id={ mapID }
+			class="map-canvas"
+			data-lat={ fmt.Sprintf("%.8f", latVal) }
+			data-lon={ fmt.Sprintf("%.8f", lonVal) }
+			data-radius={ fmt.Sprintf("%d", radiusVal) }
+			style={ fmt.Sprintf("width: 100%%; height: %s; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; z-index: 1;", mapHeight) }
+		>
+		</div>
+
+		<!-- Coordinate Inputs Matrix -->
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);">
+			<div>
+				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط العرض (Latitude) *</label>
 				<input
 					type="number"
 					step="0.00000001"
 					name={ fmt.Sprintf("%s_lat", namePrefix) }
 					value={ fmt.Sprintf("%.8f", latVal) }
-					class="form-control"
-					style="font-variant-numeric: tabular-nums; width:100%;"
+					class="form-control tabular-nums"
+					style="width:100%; font-size:var(--text-xs);"
 					data-map-lat
 					if props.ReadOnly {
 						readonly
@@ -57,54 +136,52 @@ templ MapPicker(props MapPickerProps) {
 				/>
 			</div>
 			<div>
-				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط الطول (Longitude)</label>
+				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط الطول (Longitude) *</label>
 				<input
 					type="number"
 					step="0.00000001"
 					name={ fmt.Sprintf("%s_lon", namePrefix) }
 					value={ fmt.Sprintf("%.8f", lonVal) }
-					class="form-control"
-					style="font-variant-numeric: tabular-nums; width:100%;"
+					class="form-control tabular-nums"
+					style="width:100%; font-size:var(--text-xs);"
 					data-map-lon
 					if props.ReadOnly {
 						readonly
 					}
 				/>
 			</div>
-			<div>
-				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">نصف قطر التغطية (بالمتر)</label>
-				<input
-					type="number"
-					step="500"
-					min="500"
-					max="500000"
-					name={ fmt.Sprintf("%s_radius", namePrefix) }
-					value={ fmt.Sprintf("%d", radiusVal) }
-					class="form-control"
-					style="font-variant-numeric: tabular-nums; width:100%;"
-					data-map-radius
-					if props.ReadOnly {
-						readonly
-					}
-				/>
-			</div>
-		</div>
-
-		<!-- Interactive Map Canvas / Fallback Banner -->
-		<div
-			class="map-canvas"
-			data-lat={ fmt.Sprintf("%.8f", latVal) }
-			data-lon={ fmt.Sprintf("%.8f", lonVal) }
-			data-radius={ fmt.Sprintf("%d", radiusVal) }
-			style="width: 100%; height: 260px; border-radius: var(--radius-md); background: var(--surface-sunken); border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;"
-		>
-			<div style="text-align: center; color: var(--text-secondary); padding: var(--space-4);">
-				<div style="font-size: 1.75rem; margin-bottom: var(--space-2);">📍</div>
-				<div style="font-weight: 600; color: var(--text); margin-bottom: 4px;">نطاق الموقع الجغرافي النشط</div>
-				<div class="text-xs" style="color: var(--text-muted);">
-					مركز النطاق: { fmt.Sprintf("%.4f, %.4f", latVal, lonVal) } | القطر: { fmt.Sprintf("%d م", radiusVal) }
+			if props.ShowRadius {
+				<div>
+					<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">نصف قطر التغطية (بالمتر)</label>
+					<input
+						type="number"
+						step="500"
+						min="500"
+						max="500000"
+						name={ fmt.Sprintf("%s_radius", namePrefix) }
+						value={ fmt.Sprintf("%d", radiusVal) }
+						class="form-control tabular-nums"
+						style="width:100%; font-size:var(--text-xs);"
+						data-map-radius
+						if props.ReadOnly {
+							readonly
+						}
+					/>
 				</div>
+			}
+			<div style="grid-column: 1 / -1;">
+				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">رابط الموقع على خرائط Google Maps</label>
+				<input
+					type="url"
+					name={ fmt.Sprintf("%s_google_maps_url", namePrefix) }
+					value={ fmt.Sprintf("https://www.google.com/maps?q=%.8f,%.8f", latVal, lonVal) }
+					class="form-control tabular-nums text-xs"
+					style="width:100%;"
+					placeholder="https://maps.google.com/?q=..."
+					data-map-google-url
+				/>
 			</div>
 		</div>
 	</div>
 }
+

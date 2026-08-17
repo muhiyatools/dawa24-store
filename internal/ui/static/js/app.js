@@ -43,7 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 9. Scroll Reveal (brand surfaces only)
   initScrollReveal();
+
+  // 10. Universal Leaflet & Google Maps Interactive Engine
+  initMapPickers();
 });
+
 
 // Theme Management System
 function initThemeSystem() {
@@ -151,7 +155,12 @@ window.openModal = function(id) {
     el.classList.remove('hidden');
     el.style.display = 'flex';
   }
+  setTimeout(() => {
+    initMapPickers();
+    window.dispatchEvent(new Event('resize'));
+  }, 100);
 };
+
 
 window.closeModal = function(id) {
   if (!id) return;
@@ -442,4 +451,196 @@ function initScrollReveal() {
 
   targets.forEach(function(el) { observer.observe(el); });
 }
+
+// Universal Leaflet & Google Maps Interactive Engine
+function initMapPickers() {
+  const containers = document.querySelectorAll('[data-map-picker]');
+  containers.forEach((container) => {
+    if (container.dataset.mapInitialized === 'true') return;
+
+    const canvas = container.querySelector('.map-canvas');
+    if (!canvas) return;
+
+    const latInput = container.querySelector('[data-map-lat]');
+    const lonInput = container.querySelector('[data-map-lon]');
+    const radiusInput = container.querySelector('[data-map-radius]');
+    const gmapsInput = container.querySelector('[data-map-google-url]');
+    const badge = container.querySelector('[data-map-badge]');
+    const gmapsLink = container.querySelector('[data-google-maps-link]');
+    const citySelect = container.querySelector('[data-city-selector]');
+    const locateBtn = container.querySelector('[data-locate-me-btn]');
+
+    let initialLat = parseFloat(canvas.dataset.lat || (latInput ? latInput.value : '30.0444')) || 30.0444;
+    let initialLon = parseFloat(canvas.dataset.lon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
+    let initialRadius = parseInt(canvas.dataset.radius || (radiusInput ? radiusInput.value : '10000'), 10) || 10000;
+
+    // Check if Leaflet is loaded
+    if (typeof L === 'undefined') {
+      console.warn('Leaflet map library is loading or unavailable.');
+      return;
+    }
+
+    container.dataset.mapInitialized = 'true';
+
+    // Initialize Leaflet Map
+    const map = L.map(canvas, {
+      center: [initialLat, initialLon],
+      zoom: 13,
+      zoomControl: true,
+      scrollWheelZoom: true,
+    });
+
+    // Add OpenStreetMap standard tiles
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Custom pulse marker icon
+    const customIcon = L.divIcon({
+      className: 'custom-map-pin',
+      html: `<div style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:#0ea5e9; color:#fff; border-radius:50%; box-shadow:0 4px 12px rgba(14,165,233,0.4); border:2px solid #ffffff; font-size:16px; cursor:grab;">📍</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+    });
+
+    const marker = L.marker([initialLat, initialLon], {
+      draggable: true,
+      icon: customIcon,
+    }).addTo(map);
+
+    let circle = null;
+    if (radiusInput || canvas.dataset.radius) {
+      circle = L.circle([initialLat, initialLon], {
+        radius: initialRadius,
+        color: '#0ea5e9',
+        fillColor: '#0ea5e9',
+        fillOpacity: 0.15,
+        weight: 2,
+      }).addTo(map);
+    }
+
+    function updateCoordinates(lat, lon, zoom = null) {
+      const fixedLat = parseFloat(lat.toFixed(6));
+      const fixedLon = parseFloat(lon.toFixed(6));
+
+      marker.setLatLng([fixedLat, fixedLon]);
+      if (circle) circle.setLatLng([fixedLat, fixedLon]);
+
+      if (zoom !== null) {
+        map.setView([fixedLat, fixedLon], zoom, { animate: true });
+      } else {
+        map.panTo([fixedLat, fixedLon], { animate: true });
+      }
+
+      if (latInput) latInput.value = fixedLat.toFixed(6);
+      if (lonInput) lonInput.value = fixedLon.toFixed(6);
+
+      const gmapsUrl = `https://www.google.com/maps?q=${fixedLat},${fixedLon}`;
+      if (gmapsInput) gmapsInput.value = gmapsUrl;
+      if (gmapsLink) gmapsLink.href = gmapsUrl;
+      if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
+    }
+
+    // Map Click Handler
+    map.on('click', (e) => {
+      updateCoordinates(e.latlng.lat, e.latlng.lng);
+    });
+
+    // Marker Drag Handler
+    marker.on('dragend', () => {
+      const pos = marker.getLatLng();
+      updateCoordinates(pos.lat, pos.lng);
+    });
+
+    // Lat / Lon Input Change Handlers
+    if (latInput && lonInput) {
+      const onManualInputChange = () => {
+        const parsedLat = parseFloat(latInput.value);
+        const parsedLon = parseFloat(lonInput.value);
+        if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+          updateCoordinates(parsedLat, parsedLon, map.getZoom());
+        }
+      };
+      latInput.addEventListener('input', onManualInputChange);
+      lonInput.addEventListener('input', onManualInputChange);
+    }
+
+    // Radius Input Change Handler
+    if (radiusInput && circle) {
+      radiusInput.addEventListener('input', () => {
+        const rad = parseInt(radiusInput.value, 10);
+        if (!isNaN(rad) && rad > 0) {
+          circle.setRadius(rad);
+        }
+      });
+    }
+
+    // City Preset Selector
+    if (citySelect) {
+      citySelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (!val) return;
+        const [cLat, cLon] = val.split(',').map((v) => parseFloat(v.trim()));
+        if (!isNaN(cLat) && !isNaN(cLon)) {
+          updateCoordinates(cLat, cLon, 13);
+        }
+      });
+    }
+
+    // GPS Locate Me Button
+    if (locateBtn) {
+      locateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!navigator.geolocation) {
+          showToast('خاصية تحديد الموقع غير مدعومة في متصفحك.', 'warning');
+          return;
+        }
+
+        locateBtn.disabled = true;
+        locateBtn.innerHTML = '<span>⏳ جارٍ التحديد...</span>';
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            locateBtn.disabled = false;
+            locateBtn.innerHTML = '<span>📍 موقعي الحالي</span>';
+            const userLat = pos.coords.latitude;
+            const userLon = pos.coords.longitude;
+            updateCoordinates(userLat, userLon, 15);
+            showToast('تم تحديد موقعك الجغرافي بنجاح.', 'success');
+          },
+          (err) => {
+            locateBtn.disabled = false;
+            locateBtn.innerHTML = '<span>📍 موقعي الحالي</span>';
+            console.warn('Geolocation error:', err.message);
+            showToast('تعذر جلب موقع GPS. يرجى تفعيل إذن الوصول للموقع في المتصفح.', 'warning');
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+      });
+    }
+
+    // Modal Invalidate Size Resizer
+    const modalParent = container.closest('.modal-backdrop, .modal-overlay, dialog');
+    if (modalParent) {
+      const resizeObserver = new MutationObserver(() => {
+        if (getComputedStyle(modalParent).display !== 'none' || modalParent.hasAttribute('open')) {
+          setTimeout(() => map.invalidateSize(), 150);
+          setTimeout(() => map.invalidateSize(), 350);
+        }
+      });
+      resizeObserver.observe(modalParent, { attributes: true, attributeFilter: ['style', 'class', 'open'] });
+    }
+
+    // Window Resize Invalidate
+    window.addEventListener('resize', () => {
+      map.invalidateSize();
+    });
+
+    // Initial resize triggers
+    setTimeout(() => map.invalidateSize(), 200);
+    setTimeout(() => map.invalidateSize(), 500);
+  });
+}
+
 

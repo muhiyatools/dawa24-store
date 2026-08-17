@@ -472,15 +472,20 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</button></div><form method=\"POST\" action=\"/vendor/branches/new\" style=\"display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><!-- Interactive GPS & Map Picker --><div style=\"background:var(--neutral-900); color:#ffffff; padding:1.25rem; border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:1rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-weight:800; font-size:0.875rem; color:var(--primary-300);\">تحديد الموقع الجغرافي والإحداثيات (GPS)</span> <span style=\"font-size:0.75rem; color:var(--neutral-400);\">انقر لتحديد موقع الفرع</span></div><!-- Mock Mini Map Visual Selector --><div style=\"height:140px; border-radius:var(--radius-lg); background:#1e293b url('/static/img/map-placeholder.png') center/cover no-repeat; border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;\"><div style=\"background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); padding:0.5rem 1rem; border-radius:var(--radius-md); font-size:0.8rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</button></div><form method=\"POST\" action=\"/vendor/branches/new\" style=\"display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><!-- Interactive GPS & Map Picker -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.MapPicker(components.MapPickerProps{
+				NamePrefix: "branch",
+				Label:      "تحديد الموقع الجغرافي والإحداثيات (GPS)",
+				Height:     "220px",
+				ShowRadius: false,
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>القاهرة، مصر (30.0444° N, 31.2357° E)</span></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label class=\"form-label\" style=\"color:var(--neutral-300); font-size:0.8rem;\">خط العرض (Latitude)</label> <input type=\"number\" step=\"0.000001\" name=\"latitude\" class=\"form-input\" placeholder=\"30.044420\" value=\"30.044420\" style=\"background:rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.15);\"></div><div><label class=\"form-label\" style=\"color:var(--neutral-300); font-size:0.8rem;\">خط الطول (Longitude)</label> <input type=\"number\" step=\"0.000001\" name=\"longitude\" class=\"form-input\" placeholder=\"31.235712\" value=\"31.235712\" style=\"background:rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.15);\"></div></div><div><label class=\"form-label\" style=\"color:var(--neutral-300); font-size:0.8rem;\">رابط الموقع على خرائط Google Maps</label> <input type=\"url\" name=\"google_maps_url\" class=\"form-input\" placeholder=\"https://maps.google.com/?q=...\" style=\"background:rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.15);\"></div></div><!-- Basic Info --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div><label class=\"form-label\" for=\"br-name-ar\">اسم الفرع / المستودع (عربي) *</label> <input type=\"text\" id=\"br-name-ar\" name=\"name_ar\" class=\"form-input\" placeholder=\"مثال: مستودع العبور المركزي\" required></div><div><label class=\"form-label\" for=\"br-code\">كود الفرع الداخلي (Code)</label> <input type=\"text\" id=\"br-code\" name=\"code\" class=\"form-input tabular-nums\" placeholder=\"مثال: WH-OBR-01\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div><label class=\"form-label\" for=\"br-type\">نوع المنشأة / المستودع *</label> <select id=\"br-type\" name=\"warehouse_type\" class=\"form-select\"><option value=\"warehouse\">مستودع أدوية مركزي رئيسي</option> <option value=\"fast_hub\">نقطة توزيع وتوريد سريعة (Hub)</option> <option value=\"cold_depot\">مستودع أدوية مبرد بالكامل (Cold Depot)</option> <option value=\"pharmacy_branch\">صيدلية فرعية</option></select></div><div><label class=\"form-label\" for=\"br-city\">المحافظة / المدينة *</label> <select id=\"br-city\" name=\"city_id\" class=\"form-select\" required><option value=\"\" disabled selected>اختر المحافظة</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<!-- Basic Info --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div><label class=\"form-label\" for=\"br-name-ar\">اسم الفرع / المستودع (عربي) *</label> <input type=\"text\" id=\"br-name-ar\" name=\"name_ar\" class=\"form-input\" placeholder=\"مثال: مستودع العبور المركزي\" required></div><div><label class=\"form-label\" for=\"br-code\">كود الفرع الداخلي (Code)</label> <input type=\"text\" id=\"br-code\" name=\"code\" class=\"form-input tabular-nums\" placeholder=\"مثال: WH-OBR-01\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div><label class=\"form-label\" for=\"br-type\">نوع المنشأة / المستودع *</label> <select id=\"br-type\" name=\"warehouse_type\" class=\"form-select\"><option value=\"warehouse\">مستودع أدوية مركزي رئيسي</option> <option value=\"fast_hub\">نقطة توزيع وتوريد سريعة (Hub)</option> <option value=\"cold_depot\">مستودع أدوية مبرد بالكامل (Cold Depot)</option> <option value=\"pharmacy_branch\">صيدلية فرعية</option></select></div><div><label class=\"form-label\" for=\"br-city\">المحافظة / المدينة *</label> <select id=\"br-city\" name=\"city_id\" class=\"form-select\" required><option value=\"\" disabled selected>اختر المحافظة</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -492,7 +497,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 262, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 239, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 				if templ_7745c5c3_Err != nil {
@@ -505,7 +510,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 262, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 239, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {

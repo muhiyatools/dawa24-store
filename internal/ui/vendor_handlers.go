@@ -243,16 +243,30 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 	capSQM, _ := strconv.ParseFloat(r.PostFormValue("capacity_sqm"), 64)
 
 	var latPtr, lngPtr *float64
-	if latStr := r.PostFormValue("latitude"); latStr != "" {
+	latStr := r.PostFormValue("latitude")
+	if latStr == "" {
+		latStr = r.PostFormValue("branch_lat")
+	}
+	if latStr != "" {
 		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
 			latPtr = &lat
 		}
 	}
-	if lngStr := r.PostFormValue("longitude"); lngStr != "" {
+
+	lngStr := r.PostFormValue("longitude")
+	if lngStr == "" {
+		lngStr = r.PostFormValue("branch_lon")
+	}
+	if lngStr != "" {
 		if lng, err := strconv.ParseFloat(lngStr, 64); err == nil {
 			lngPtr = &lng
 		}
 	}
+
+	if gmaps == "" {
+		gmaps = r.PostFormValue("branch_google_maps_url")
+	}
+
 
 	b := &org.Branch{
 		OrganizationID: actor.OrganizationID,
