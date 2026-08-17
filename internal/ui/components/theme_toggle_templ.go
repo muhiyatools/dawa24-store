@@ -29,7 +29,31 @@ func ThemeToggle() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"theme-toggle-group\" style=\"display:flex; align-items:center; justify-content:space-between; background:var(--neutral-100); padding:0.25rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); gap:0.25rem; width:100%;\"><button type=\"button\" data-set-theme=\"light\" class=\"btn-theme-toggle\" title=\"المظهر الفاتح\" style=\"flex:1; border:1px solid transparent; padding:0.35rem 0.4rem; border-radius:var(--radius-md); cursor:pointer; font-size:0.775rem; display:flex; align-items:center; justify-content:center; gap:0.25rem; transition:all 0.15s ease;\"><span>☀️</span> <span>فاتح</span></button> <button type=\"button\" data-set-theme=\"dark\" class=\"btn-theme-toggle\" title=\"المظهر الداكن\" style=\"flex:1; border:1px solid transparent; padding:0.35rem 0.4rem; border-radius:var(--radius-md); cursor:pointer; font-size:0.775rem; display:flex; align-items:center; justify-content:center; gap:0.25rem; transition:all 0.15s ease;\"><span>🌙</span> <span>داكن</span></button> <button type=\"button\" data-set-theme=\"system\" class=\"btn-theme-toggle\" title=\"تلقائي حسب نظام الجهاز\" style=\"flex:1; border:1px solid transparent; padding:0.35rem 0.4rem; border-radius:var(--radius-md); cursor:pointer; font-size:0.775rem; display:flex; align-items:center; justify-content:center; gap:0.25rem; transition:all 0.15s ease;\"><span>💻</span> <span>تلقائي</span></button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"theme-toggle-group\" style=\"display:inline-flex; align-items:center; background:var(--surface-sunken); padding:2px; border-radius:var(--radius-full); border:1px solid var(--border); gap:2px;\"><button type=\"button\" data-set-theme=\"light\" class=\"btn-theme-toggle\" title=\"المظهر الفاتح\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconSun("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>فاتح</span></button> <button type=\"button\" data-set-theme=\"dark\" class=\"btn-theme-toggle\" title=\"المظهر الداكن\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconMoon("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>داكن</span></button> <button type=\"button\" data-set-theme=\"system\" class=\"btn-theme-toggle\" title=\"تلقائي حسب نظام الجهاز\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconMonitor("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تلقائي</span></button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

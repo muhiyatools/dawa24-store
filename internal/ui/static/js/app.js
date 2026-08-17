@@ -170,19 +170,25 @@ window.closeDialog = window.closeModal;
 
 // Animated Sidebar Toggle Handler
 function initSidebarToggle() {
+  const isMobile = () => window.innerWidth <= 768;
   const isCollapsed = localStorage.getItem('dawa_sidebar_collapsed') === 'true';
   const sidebar = document.querySelector('.sidebar');
-  if (sidebar && isCollapsed) {
+  if (sidebar && isCollapsed && !isMobile()) {
     sidebar.classList.add('collapsed');
   }
 
   document.addEventListener('click', (e) => {
     const toggleBtn = e.target.closest('[data-sidebar-toggle]');
     if (toggleBtn) {
+      e.preventDefault();
       const sb = document.querySelector('.sidebar');
       if (sb) {
-        const collapsed = sb.classList.toggle('collapsed');
-        localStorage.setItem('dawa_sidebar_collapsed', collapsed ? 'true' : 'false');
+        if (isMobile()) {
+          sb.classList.toggle('mobile-open');
+        } else {
+          const collapsed = sb.classList.toggle('collapsed');
+          localStorage.setItem('dawa_sidebar_collapsed', collapsed ? 'true' : 'false');
+        }
       }
     }
   });

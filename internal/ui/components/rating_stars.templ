@@ -21,9 +21,9 @@ templ RatingStars(score float64, count int) {
 				}
 			}
 		</div>
-		<span style="font-weight:800; color:var(--neutral-800);" class="tabular-nums">{ fmt.Sprintf("%.1f", score) }</span>
+		<span style="font-weight:600; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%.1f", score) }</span>
 		if count > 0 {
-			<span style="color:var(--neutral-400); font-size:0.75rem;" class="tabular-nums">({ fmt.Sprintf("%d", count) })</span>
+			<span style="color:var(--text-muted); font-size:var(--text-xs);" class="tabular-nums">({ fmt.Sprintf("%d", count) })</span>
 		}
 	</div>
 }

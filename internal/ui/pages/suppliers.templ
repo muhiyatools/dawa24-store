@@ -11,22 +11,22 @@ templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
 	@layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", lang, dir) {
 		<div class="suppliers-page-container" style="max-width:1160px; margin:1.5rem auto 5rem auto;">
 			
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
+			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4); margin-bottom:var(--space-8);">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-						<div style="width:38px; height:38px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+					<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-1);">
+						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<h1 style="font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin:0;">
+						<h1 style="font-size:var(--text-2xl); font-weight:700; color:var(--text); margin:0;">
 							دليل شركات وموردي الأدوية المعتمدين
 						</h1>
 					</div>
-					<p style="color:var(--neutral-500); font-size:0.925rem; margin:0;">
-						شبكة كبرى مستودعات التوزيع الدوائي والمستلزمات الطبية في مصر مع ضمانات التبريد والشحن خلال 24 ساعة
+					<p style="color:var(--text-muted); font-size:var(--text-sm); margin:0;">
+						شبكة مستودعات التوزيع الدوائي والمستلزمات الطبية في مصر مع ضمانات التبريد والشحن المعتمد
 					</p>
 				</div>
 
-				<a href="/suppliers/followed" class="btn btn-secondary" style="font-weight:700;">
+				<a href="/suppliers/followed" class="btn btn-secondary" style="font-weight:600;">
 					@components.IconHeart("icon-xs")
 					<span>الموردون المتابعون</span>
 				</a>
@@ -39,38 +39,38 @@ templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
 					ActionLabel: "تصفح كتالوج الأدوية",
 				})
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;">
+				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:var(--space-6);">
 					for _, s := range data.Suppliers {
-						<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; margin-bottom:0; padding:1.75rem; border:1px solid var(--border-card); border-radius:var(--radius-2xl); background:#ffffff;">
+						<div class="card" style="display:flex; flex-direction:column; justify-content:space-between; margin-bottom:0; padding:var(--space-6); border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
 							<div>
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-									<div style="display:flex; align-items:center; gap:0.875rem;">
-										<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center; border:1px solid var(--primary-100);">
+								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:var(--space-4);">
+									<div style="display:flex; align-items:center; gap:var(--space-3);">
+										<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">
 											@components.IconBuilding("icon-md")
 										</div>
 										<div>
-											<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin:0;">{ s.TradeName.Get(i18n.Lang(lang)) }</h3>
-											<span class="badge badge-emerald" style="font-size:0.72rem; margin-top:0.25rem;">{ OrgTypeLabel(s.Type) }</span>
+											<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">{ s.TradeName.Get(i18n.Lang(lang)) }</h3>
+											<span class="badge badge-emerald" style="font-size:var(--text-xs); margin-top:2px;">{ OrgTypeLabel(s.Type) }</span>
 										</div>
 									</div>
 								</div>
 
-								<div style="font-size:0.85rem; color:var(--neutral-600); line-height:1.6; margin-bottom:1rem;">
+								<div style="font-size:var(--text-sm); color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-4);">
 									<div><strong>الاسم القانوني:</strong> { s.LegalName }</div>
 									if s.CommercialRegister != "" {
-										<div style="margin-top:0.35rem; color:var(--neutral-500);"><strong>السجل التجاري:</strong> <span class="tabular-nums">{ s.CommercialRegister }</span></div>
+										<div style="margin-top:2px; color:var(--text-muted);"><strong>السجل التجاري:</strong> <span class="tabular-nums">{ s.CommercialRegister }</span></div>
 									}
 								</div>
 
-								<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:1.25rem;">
-									<span class="badge badge-sky" style="font-size:0.75rem;">توصيل 24 ساعة</span>
-									<span class="badge badge-amber" style="font-size:0.75rem;">شحن مبرد 2°-8°C</span>
-									<span class="badge badge-emerald" style="font-size:0.75rem;">فواتير إلكترونية</span>
+								<div style="display:flex; gap:var(--space-1); flex-wrap:wrap; margin-bottom:var(--space-4);">
+									<span class="badge badge-sky">توصيل 24 ساعة</span>
+									<span class="badge badge-amber">شحن مبرد</span>
+									<span class="badge badge-emerald">فواتير إلكترونية</span>
 								</div>
 							</div>
 
-							<div style="border-top:1px solid var(--neutral-100); padding-top:1rem;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary" style="width:100%; justify-content:center; font-weight:800;">
+							<div style="border-top:1px solid var(--border); padding-top:var(--space-4);">
+								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary" style="width:100%; justify-content:center; font-weight:600;">
 									@components.IconBuilding("icon-xs")
 									<span>عرض ملف المورد والكتالوج</span>
 								</a>
@@ -85,91 +85,92 @@ templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
 
 templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 	@layouts.CustomerShell(fmt.Sprintf("%s | ملف المورد المعتمد", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir) {
-		<div class="supplier-profile-container" style="max-width:1160px; margin:1rem auto 5rem auto; display:flex; flex-direction:column; gap:2rem;">
+		<div class="supplier-profile-container" style="max-width:1160px; margin:1rem auto 5rem auto; display:flex; flex-direction:column; gap:var(--space-6);">
 			
 			<!-- Breadcrumbs -->
-			<nav style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--neutral-500);">
-				<a href="/" style="color:var(--neutral-600); text-decoration:none;">الرئيسية</a>
+			<nav style="display:flex; align-items:center; gap:var(--space-2); font-size:var(--text-sm); color:var(--text-muted);">
+				<a href="/" style="color:var(--text-secondary); text-decoration:none;">الرئيسية</a>
 				<span>/</span>
-				<a href="/suppliers" style="color:var(--neutral-600); text-decoration:none;">دليل الموردين</a>
+				<a href="/suppliers" style="color:var(--text-secondary); text-decoration:none;">دليل الموردين</a>
 				<span>/</span>
-				<span style="color:var(--neutral-900); font-weight:700;">{ data.Org.TradeName.Get(i18n.Lang(lang)) }</span>
+				<span style="color:var(--text); font-weight:600;">{ data.Org.TradeName.Get(i18n.Lang(lang)) }</span>
 			</nav>
 
 			<!-- 1. Hero Verified Supplier Flagship Banner -->
-			<div class="card" style="margin-bottom:0; padding:2.5rem; background:linear-gradient(135deg, #ffffff 0%, var(--primary-50) 100%); border:1.5px solid var(--primary-200); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:2rem;">
+			<div class="card" style="margin-bottom:0; padding:var(--space-8); background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg);">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-6);">
 					
 					<!-- Left Info -->
-					<div style="display:flex; align-items:flex-start; gap:1.5rem; flex:1; min-width:300px;">
-						<div style="width:76px; height:76px; border-radius:var(--radius-2xl); background:#ffffff; color:var(--primary-700); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md); border:2px solid var(--primary-200); flex-shrink:0;">
-							@components.IconBuilding("icon-lg")
+					<div style="display:flex; align-items:flex-start; gap:var(--space-4); flex:1; min-width:280px;">
+						<div style="width:68px; height:68px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); flex-shrink:0;">
+							@components.IconBuilding("icon-xl")
 						</div>
 						<div>
-							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.4rem;">
-								<h1 style="font-size:2rem; font-weight:900; color:var(--neutral-900); margin:0;">
+							<div style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-1);">
+								<h1 style="font-size:var(--text-2xl); font-weight:700; color:var(--text); margin:0;">
 									{ data.Org.TradeName.Get(i18n.Lang(lang)) }
 								</h1>
-								<span class="badge badge-emerald" style="font-size:0.8rem; padding:0.3rem 0.75rem; font-weight:800;">
-									@components.IconCheck("icon-xs")
+								<span class="badge badge-emerald" style="font-weight:600;">
+									@components.IconCheckCircle("icon-xs")
 									<span>موزع أدوية معتمد</span>
 								</span>
 							</div>
 
-							<p style="color:var(--neutral-600); font-size:1rem; margin:0 0 0.85rem 0;">
+							<p style="color:var(--text-secondary); font-size:var(--text-sm); margin:0 0 var(--space-3) 0;">
 								{ data.Org.LegalName }
 							</p>
 
 							<!-- Credentials & Rating Strip -->
-							<div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; font-size:0.875rem; color:var(--neutral-600);">
-								<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div style="display:flex; align-items:center; gap:var(--space-4); flex-wrap:wrap; font-size:var(--text-sm); color:var(--text-secondary);">
+								<div style="display:flex; align-items:center; gap:var(--space-1);">
 									@components.RatingStars(data.Rating, data.ReviewCount)
 								</div>
 								if data.Org.CommercialRegister != "" {
-									<span style="color:var(--neutral-300);">•</span>
-									<span class="tabular-nums">السجل التجاري: <strong style="color:var(--neutral-800);">{ data.Org.CommercialRegister }</strong></span>
+									<span style="color:var(--border-strong);">•</span>
+									<span class="tabular-nums">السجل التجاري: <strong style="color:var(--text);">{ data.Org.CommercialRegister }</strong></span>
 								}
 								if data.Org.TaxNumber != "" {
-									<span style="color:var(--neutral-300);">•</span>
-									<span class="tabular-nums">البطاقة الضريبية: <strong style="color:var(--neutral-800);">{ data.Org.TaxNumber }</strong></span>
+									<span style="color:var(--border-strong);">•</span>
+									<span class="tabular-nums">البطاقة الضريبية: <strong style="color:var(--text);">{ data.Org.TaxNumber }</strong></span>
 								}
 							</div>
 						</div>
 					</div>
 
-					<!-- Right Action Buttons (Hotlines & Quote Request) -->
-					<div style="display:flex; flex-direction:column; gap:0.75rem; min-width:240px;">
+					<!-- Right Action Buttons -->
+					<div style="display:flex; flex-direction:column; gap:var(--space-2); min-width:220px;">
 						<!-- Request Quote Modal Trigger Button -->
 						<button
 							type="button"
 							class="btn btn-primary"
 							data-modal-open={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }
-							style="width:100%; padding:0.75rem 1.25rem; font-weight:900; justify-content:center;"
+							style="width:100%; justify-content:center; font-weight:600;"
 						>
 							@components.IconPlus("icon-xs")
-							<span>طلب عرض سعر خاص للكميات</span>
+							<span>طلب عرض سعر خاص</span>
 						</button>
 
 						<!-- Direct Phone Contact Hotline -->
-						<a href="tel:+201012345678" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:800; color:var(--neutral-900);">
+						<a href="tel:+201012345678" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:600;">
 							@components.IconPhone("icon-xs")
 							<span>اتصال هاتفي (01012345678)</span>
 						</a>
-						<a href="https://wa.me/201012345678" target="_blank" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:800; color:var(--emerald-700); background:var(--emerald-50); border-color:var(--emerald-200);">
-							<span>💬 واتساب إدارة المبيعات</span>
+						<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:600; color:var(--success-text); background:var(--success-surface); border-color:var(--success-border);">
+							@components.IconWhatsApp("icon-xs")
+							<span>واتساب إدارة المبيعات</span>
 						</a>
 
 						<!-- Follow / Unfollow Toggle -->
 						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) } style="margin:0;">
 							if data.IsFollowing {
-								<button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:700; color:var(--danger); border-color:var(--danger-border);">
+								<button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:600; color:var(--danger-text); border-color:var(--danger-border);">
 									@components.IconHeart("icon-xs")
 									<span>إلغاء المتابعة</span>
 								</button>
 							} else {
-								<button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:700; color:var(--primary-700);">
+								<button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:600; color:var(--accent);">
 									@components.IconHeart("icon-xs")
-									<span>متابعة المورد والحصول على العروض</span>
+									<span>متابعة المورد</span>
 								</button>
 							}
 						</form>
@@ -177,79 +178,79 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				</div>
 			</div>
 
-			<!-- 2. Operational SLAs & Capabilities Bar -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
-				<div class="card" style="margin-bottom:0; padding:1.25rem; background:#ffffff; border-radius:var(--radius-xl); border:1px solid var(--border-card); display:flex; align-items:center; gap:1rem;">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+			<!-- 2. Operational Capabilities Bar -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:var(--space-4);">
+				<div class="card" style="margin-bottom:0; padding:var(--space-4); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border); display:flex; align-items:center; gap:var(--space-3);">
+					<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 						@components.IconTruck("icon-sm")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">توريد سريع 24 ساعة</div>
-						<div style="font-size:0.8rem; color:var(--neutral-500);">توصيل يومي مباشر لمقر الصيدلية</div>
+						<div style="font-weight:600; font-size:var(--text-sm); color:var(--text);">توريد سريع 24 ساعة</div>
+						<div style="font-size:var(--text-xs); color:var(--text-muted);">توصيل مباشر لمقر الصيدلية</div>
 					</div>
 				</div>
 
-				<div class="card" style="margin-bottom:0; padding:1.25rem; background:#ffffff; border-radius:var(--radius-xl); border:1px solid var(--border-card); display:flex; align-items:center; gap:1rem;">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--sky-50); color:var(--sky-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+				<div class="card" style="margin-bottom:0; padding:var(--space-4); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border); display:flex; align-items:center; gap:var(--space-3);">
+					<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--info-surface); color:var(--info-text); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 						@components.IconShield("icon-sm")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">سلسلة تبريد مجهزة</div>
-						<div style="font-size:0.8rem; color:var(--neutral-500);">درجات حرارة مضبوطة (2° - 8°C)</div>
+						<div style="font-weight:600; font-size:var(--text-sm); color:var(--text);">سلسلة تبريد مجهزة</div>
+						<div style="font-size:var(--text-xs); color:var(--text-muted);">درجات حرارة مضبوطة (2° - 8°C)</div>
 					</div>
 				</div>
 
-				<div class="card" style="margin-bottom:0; padding:1.25rem; background:#ffffff; border-radius:var(--radius-xl); border:1px solid var(--border-card); display:flex; align-items:center; gap:1rem;">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--emerald-50); color:var(--emerald-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+				<div class="card" style="margin-bottom:0; padding:var(--space-4); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border); display:flex; align-items:center; gap:var(--space-3);">
+					<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--success-surface); color:var(--success-text); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 						@components.IconWallet("icon-sm")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">تسهيلات سداد وائتمان</div>
-						<div style="font-size:0.8rem; color:var(--neutral-500);">ائتمان حتى 30 يوماً ومحفظة فورية</div>
+						<div style="font-weight:600; font-size:var(--text-sm); color:var(--text);">تسهيلات سداد وائتمان</div>
+						<div style="font-size:var(--text-xs); color:var(--text-muted);">ائتمان ومحفظة فورية</div>
 					</div>
 				</div>
 
-				<div class="card" style="margin-bottom:0; padding:1.25rem; background:#ffffff; border-radius:var(--radius-xl); border:1px solid var(--border-card); display:flex; align-items:center; gap:1rem;">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--amber-50); color:var(--amber-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+				<div class="card" style="margin-bottom:0; padding:var(--space-4); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border); display:flex; align-items:center; gap:var(--space-3);">
+					<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--warning-surface); color:var(--warning-text); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 						@components.IconCheckCircle("icon-sm")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">فواتير إلكترونية معتمدة</div>
-						<div style="font-size:0.8rem; color:var(--neutral-500);">متوافقة 100% مع مصلحة الضرائب</div>
+						<div style="font-weight:600; font-size:var(--text-sm); color:var(--text);">فواتير إلكترونية معتمدة</div>
+						<div style="font-size:var(--text-xs); color:var(--text-muted);">متوافقة مع الضرائب المصرية</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- 3. Main Content: Product Catalog (2 Cols) & Policies/Reviews Sidebar (1 Col) -->
-			<div style="display:grid; grid-template-columns:2.2fr 1fr; gap:2rem; align-items:start;">
+			<!-- 3. Main Content: Product Catalog (2 Cols) & Policies Sidebar (1 Col) -->
+			<div style="display:grid; grid-template-columns:2.2fr 1fr; gap:var(--space-6); align-items:start;">
 				
 				<!-- Left: Supplier Product Catalog -->
 				<div>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:var(--space-2);">
 						<div>
-							<h2 style="font-size:1.35rem; font-weight:900; color:var(--neutral-900); margin:0;">
+							<h2 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">
 								كتالوج الأدوية والمستلزمات المتاحة
 							</h2>
-							<span style="font-size:0.85rem; color:var(--neutral-500);">الأسعار والأرصدة المتاحة فورياً للتوريد</span>
+							<span style="font-size:var(--text-xs); color:var(--text-muted);">الأسعار والأرصدة المتاحة فورياً للتوريد</span>
 						</div>
 					</div>
 
 					if len(data.Products) == 0 {
-						<div class="card" style="padding:3rem 2rem; text-align:center; background:#ffffff; border-radius:var(--radius-2xl);">
+						<div class="card" style="padding:var(--space-10); text-align:center; background:var(--surface-raised); border-radius:var(--radius-lg);">
 							@components.IconPill("icon-lg")
-							<h3 style="font-size:1.2rem; font-weight:800; color:var(--neutral-900); margin:1rem 0 0.5rem 0;">لا توجد أصناف معروضة حالياً</h3>
-							<p style="color:var(--neutral-500); font-size:0.9rem; margin:0;">يقوم المورد بتحديث قائمة الأدوية والأسعار بانتظام.</p>
+							<h3 style="font-size:var(--text-base); font-weight:600; color:var(--text); margin:var(--space-3) 0 var(--space-1) 0;">لا توجد أصناف معروضة حالياً</h3>
+							<p style="color:var(--text-muted); font-size:var(--text-sm); margin:0;">يقوم المورد بتحديث قائمة الأدوية والأسعار بانتظام.</p>
 						</div>
 					} else {
-						<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem;">
+						<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:var(--space-4);">
 							for _, p := range data.Products {
-								<div class="card hover-lift" style="margin-bottom:0; padding:1.5rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); display:flex; flex-direction:column; justify-content:space-between;">
+								<div class="card" style="margin-bottom:0; padding:var(--space-5); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between;">
 									<div>
-										<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
-											<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+										<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:var(--space-2);">
+											<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 												@components.IconPill("icon-sm")
 											</div>
-											<span class="badge badge-sky" style="font-size:0.72rem;">
+											<span class="badge badge-sky" style="font-size:10px;">
 												if p.DosageForm != "" {
 													{ p.DosageForm }
 												} else {
@@ -258,18 +259,18 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											</span>
 										</div>
 
-										<h3 style="font-size:1.05rem; font-weight:800; margin:0 0 0.35rem 0; color:var(--neutral-900); line-height:1.35;">
+										<h3 style="font-size:var(--text-sm); font-weight:600; margin:0 0 2px 0; color:var(--text); line-height:1.35;">
 											if p.Name["ar"] != "" {
 												{ p.Name["ar"] }
 											} else {
 												{ p.Name["en"] }
 											}
 										</h3>
-										<div style="font-size:0.8rem; color:var(--neutral-400); margin-bottom:0.85rem;">
+										<div style="font-size:var(--text-xs); color:var(--text-muted); margin-bottom:var(--space-2);">
 											{ p.Name["en"] }
 										</div>
 
-										<div style="font-size:1.35rem; font-weight:900; color:var(--primary-700); margin-bottom:0.85rem;" class="tabular-nums">
+										<div style="font-size:var(--text-lg); font-weight:700; color:var(--accent); margin-bottom:var(--space-3);" class="tabular-nums">
 											if p.EffectivePrice().IsPositive() {
 												{ p.EffectivePrice().String() } ج.م
 											} else {
@@ -278,13 +279,13 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										</div>
 									</div>
 
-									<div style="border-top:1px solid var(--neutral-100); padding-top:0.875rem; display:flex; gap:0.5rem;">
+									<div style="border-top:1px solid var(--border); padding-top:var(--space-3); display:flex; gap:var(--space-2);">
 										<form action="/cart/add" method="POST" style="flex:1; margin:0;">
 											<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", p.ID) } />
 											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", p.ID) } />
 											<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", data.Org.ID) } />
 											<input type="hidden" name="quantity" value="1" />
-											<button type="submit" class="btn btn-primary btn-sm" style="width:100%; justify-content:center; font-weight:800;">
+											<button type="submit" class="btn btn-primary btn-sm" style="width:100%; justify-content:center; font-weight:600;">
 												@components.IconCart("icon-xs")
 												<span>إضافة للسلة</span>
 											</button>
@@ -300,36 +301,36 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				</div>
 
 				<!-- Right: Policies & Pharmacist Reviews -->
-				<div style="display:flex; flex-direction:column; gap:1.75rem;">
+				<div style="display:flex; flex-direction:column; gap:var(--space-6);">
 					
 					<!-- Commercial Terms & Policies Card -->
-					<div class="card" style="margin-bottom:0; padding:1.75rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card);">
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
-							<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+					<div class="card" style="margin-bottom:0; padding:var(--space-6); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-3);">
+							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 								@components.IconShield("icon-xs")
 							</div>
-							<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0;">
+							<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">
 								شروط وسياسات التوريد
 							</h3>
 						</div>
 
 						if len(data.Policies) == 0 {
-							<div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.85rem; color:var(--neutral-600);">
-								<div style="padding:0.75rem; background:var(--neutral-50); border-radius:var(--radius-md); border:1px solid var(--neutral-200);">
-									<strong style="color:var(--neutral-900); display:block; margin-bottom:0.2rem;">سياسة الشحن والتسليم:</strong>
+							<div style="display:flex; flex-direction:column; gap:var(--space-3); font-size:var(--text-sm); color:var(--text-secondary);">
+								<div style="padding:var(--space-3); background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
+									<strong style="color:var(--text); display:block; margin-bottom:2px;">سياسة الشحن والتسليم:</strong>
 									توصيل يومي مجاني للطلبيات التي تتجاوز 1,000 ج.م، مع المحافظة على معايير سلسلة التبريد.
 								</div>
-								<div style="padding:0.75rem; background:var(--neutral-50); border-radius:var(--radius-md); border:1px solid var(--neutral-200);">
-									<strong style="color:var(--neutral-900); display:block; margin-bottom:0.2rem;">سياسة المرتجعات والراكد:</strong>
+								<div style="padding:var(--space-3); background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
+									<strong style="color:var(--text); display:block; margin-bottom:2px;">سياسة المرتجعات والراكد:</strong>
 									قبول مرتجعات الأدوية الصالحة خلال 14 يوماً من تاريخ الفاتورة الإلكترونية وفقاً لتعليمات هيئة الدواء.
 								</div>
 							</div>
 						} else {
-							<div style="display:flex; flex-direction:column; gap:0.75rem;">
+							<div style="display:flex; flex-direction:column; gap:var(--space-3);">
 								for _, pol := range data.Policies {
-									<div style="padding:0.85rem; background:var(--neutral-50); border-radius:var(--radius-md); border:1px solid var(--neutral-200);">
-										<strong style="color:var(--neutral-900); font-size:0.9rem; display:block; margin-bottom:0.25rem;">{ pol.Title }</strong>
-										<p style="font-size:0.825rem; color:var(--neutral-600); margin:0; line-height:1.5;">{ pol.Content }</p>
+									<div style="padding:var(--space-3); background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
+										<strong style="color:var(--text); font-size:var(--text-sm); display:block; margin-bottom:2px;">{ pol.Title }</strong>
+										<p style="font-size:var(--text-xs); color:var(--text-secondary); margin:0; line-height:1.5;">{ pol.Content }</p>
 									</div>
 								}
 							</div>
@@ -337,32 +338,32 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</div>
 
 					<!-- Reviews Card -->
-					<div class="card" style="margin-bottom:0; padding:1.75rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card);">
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-							<div style="display:flex; align-items:center; gap:0.5rem;">
-								<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+					<div class="card" style="margin-bottom:0; padding:var(--space-6); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3);">
+							<div style="display:flex; align-items:center; gap:var(--space-2);">
+								<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 									@components.IconUser("icon-xs")
 								</div>
-								<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0;">
+								<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">
 									تقييمات الصيادلة
 								</h3>
 							</div>
 						</div>
 
 						if len(data.Reviews) == 0 {
-							<div style="padding:1.5rem; text-align:center; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
-								<div style="font-weight:700; color:var(--neutral-800); font-size:0.95rem; margin-bottom:0.25rem;">مورد معتمد حديثاً</div>
-								<p style="font-size:0.8rem; color:var(--neutral-500); margin:0;">احصل على أول طلبية وكن أول من يقيم أداء التوريد والخدمة.</p>
+							<div style="padding:var(--space-4); text-align:center; background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
+								<div style="font-weight:600; color:var(--text); font-size:var(--text-sm); margin-bottom:2px;">مورد معتمد حديثاً</div>
+								<p style="font-size:var(--text-xs); color:var(--text-muted); margin:0;">احصل على أول طلبية وكن أول من يقيم أداء التوريد والخدمة.</p>
 							</div>
 						} else {
-							<div style="display:flex; flex-direction:column; gap:1rem;">
+							<div style="display:flex; flex-direction:column; gap:var(--space-3);">
 								for _, rv := range data.Reviews {
-									<div style="padding-bottom:0.875rem; border-bottom:1px solid var(--neutral-100);">
-										<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-											<strong style="font-size:0.875rem; color:var(--neutral-900);">صيدلية معتمدة</strong>
-											@components.Rating(float64(rv.Rating))
+									<div style="padding-bottom:var(--space-2); border-bottom:1px solid var(--border);">
+										<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+											<strong style="font-size:var(--text-xs); color:var(--text);">صيدلية معتمدة</strong>
+											@components.RatingStars(float64(rv.Rating), 0)
 										</div>
-										<p style="font-size:0.825rem; color:var(--neutral-600); margin:0; line-height:1.5;">{ rv.ReviewText }</p>
+										<p style="font-size:var(--text-xs); color:var(--text-secondary); margin:0; line-height:1.5;">{ rv.ReviewText }</p>
 									</div>
 								}
 							</div>
@@ -374,12 +375,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 4. Universal Quote Request Modal -->
 			<div id={ fmt.Sprintf("quote-modal-%d", data.Org.ID) } class="modal-overlay hidden">
 				<div class="modal-card" style="max-width:540px;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-3);">
+						<div style="display:flex; align-items:center; gap:var(--space-2);">
+							<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 								@components.IconBuilding("icon-xs")
 							</div>
-							<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin:0;">
+							<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">
 								طلب عرض سعر مخصص من { data.Org.TradeName.Get(i18n.Lang(lang)) }
 							</h3>
 						</div>
@@ -388,7 +389,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						</button>
 					</div>
 
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } style="display:flex; flex-direction:column; gap:1.25rem;">
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } style="display:flex; flex-direction:column; gap:var(--space-4);">
 						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" for="q-product">اختر الصنف الدوائي (اختياري)</label>
 							<select id="q-product" name="product_id" class="form-select">
@@ -415,13 +416,13 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							<textarea id="q-notes" name="notes" rows="3" placeholder="حدد شروط السداد المطلوبة أو مواعيد التسليم المفضلة..." class="form-textarea"></textarea>
 						</div>
 
-						<div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;">
+						<div style="display:flex; gap:var(--space-3); justify-content:flex-end; margin-top:var(--space-2);">
 							<button type="button" class="btn btn-secondary" data-modal-close={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }>
 								إلغاء
 							</button>
-							<button type="submit" class="btn btn-primary" style="padding:0.75rem 1.5rem; font-weight:800;">
+							<button type="submit" class="btn btn-primary" style="font-weight:600;">
 								@components.IconCheck("icon-xs")
-								<span>إرسال طلب عرض السعر للمورد</span>
+								<span>إرسال طلب عرض السعر</span>
 							</button>
 						</div>
 					</form>

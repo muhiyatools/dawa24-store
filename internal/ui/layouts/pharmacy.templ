@@ -54,36 +54,37 @@ templ PharmacyShell(title string, activeNav string, lang string, dir string, per
 					</a>
 				</nav>
 
-				<div style="border-top:1px solid rgba(255,255,255,0.08); padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.5rem; margin-top:auto;">
-					<a href="/catalog" class="btn btn-primary" style="width:100%; justify-content:center; font-weight:600; padding:0.65rem;">
-						@components.IconSearch("icon-xs")
-						<span>الكتالوج الدوائي الموحد</span>
+				<div style="border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem; margin-top:auto;">
+					<a href="/catalog" class="btn sidebar-footer-btn" style="width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md);" title="كتالوج المنتجات">
+						@components.IconPackage("icon-sm")
+						<span>كتالوج المنتجات</span>
 					</a>
 				</div>
 			</aside>
 
 			<!-- Main Workspace -->
 			<main class="main-content">
-				<header class="top-navbar" style="padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border-bottom:1px solid var(--neutral-200); position:sticky; top:0; z-index:var(--z-dropdown);">
-					<div>
-						<h1 style="font-size:1.35rem; font-weight:700; color:var(--neutral-900); margin:0;">{ title }</h1>
+				<header class="top-navbar" style="padding:0 var(--space-6); height:var(--header-height); display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:var(--z-sticky);">
+					<div style="display:flex; align-items:center; gap:var(--space-3);">
+						<button type="button" class="btn btn-secondary btn-icon" data-sidebar-toggle style="width:36px; height:36px;" title="طي / توسيع القائمة">
+							@components.IconMenu("icon-xs")
+						</button>
+						<h1 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">{ title }</h1>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem;">
-						<div style="width:190px;">
-							@components.ThemeToggle()
-						</div>
+					<div style="display:flex; align-items:center; gap:var(--space-3);">
+						@components.ThemeToggle()
 						<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
 							@components.IconCart("icon-sm")
 						</a>
 
-						<a href="/wallet" class="btn btn-secondary" style="font-weight:600; background:var(--primary-50); color:var(--primary-800); border-color:var(--primary-200);">
+						<a href="/wallet" class="btn btn-secondary" style="font-weight:600; background:var(--accent-subtle); color:var(--accent-text); border-color:var(--border);">
 							@components.IconWallet("icon-xs")
 							<span class="tabular-nums">5,420.00 ج.م</span>
 						</a>
 
 						<form action="/auth/logout" method="POST" style="margin:0; display:inline;">
-							<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border); font-weight:600;">
+							<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text); border-color:var(--danger-border); font-weight:600;">
 								@components.IconLogout("icon-xs")
 								<span>خروج</span>
 							</button>

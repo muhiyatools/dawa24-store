@@ -79,34 +79,32 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					</a>
 				</nav>
 
-				<div style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.5rem;">
-					<a href="/catalog" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:600; padding:0.65rem; color:var(--text); background:var(--surface-raised); border-color:transparent;">
-						@components.IconSearch("icon-xs")
-						<span>استعراض المتجر الدوائي</span>
+				<div style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem;">
+					<a href="/catalog" class="btn sidebar-footer-btn" style="width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md);" title="كتالوج المنتجات">
+						@components.IconPackage("icon-sm")
+						<span>كتالوج المنتجات</span>
 					</a>
 				</div>
 			</aside>
 
 			<!-- Main Content -->
 			<main class="main-content">
-				<header class="top-navbar" style="border-bottom:1px solid var(--border-subtle); background:var(--surface-raised); padding:0 2rem; height:4.25rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-dropdown);">
-					<div style="display:flex; align-items:center; gap:1rem;">
+				<header class="top-navbar" style="border-bottom:1px solid var(--border); background:var(--surface-raised); padding:0 var(--space-6); height:var(--header-height); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-sticky);">
+					<div style="display:flex; align-items:center; gap:var(--space-3);">
 						<button type="button" class="btn btn-secondary btn-icon" data-sidebar-toggle style="width:36px; height:36px;" title="طي / توسيع القائمة">
 							@components.IconMenu("icon-xs")
 						</button>
-						<h1 style="font-size:1.3rem; font-weight:700; color:var(--text); margin:0;">{ title }</h1>
+						<h1 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">{ title }</h1>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem;">
-						<div style="width:190px;">
-							@components.ThemeToggle()
-						</div>
-						<span class="badge badge-emerald" style="padding:0.35rem 0.75rem; font-weight:600; font-size:0.8rem;">
+					<div style="display:flex; align-items:center; gap:var(--space-3);">
+						@components.ThemeToggle()
+						<span class="badge badge-emerald" style="padding:0.3rem 0.65rem; font-weight:600; font-size:var(--text-xs);">
 							@components.IconCheckCircle("icon-xs")
 							<span>مورد معتمد</span>
 						</span>
 						<form action="/auth/logout" method="POST" style="margin:0; display:inline;">
-							<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border); font-weight:600;">
+							<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text); border-color:var(--danger-border); font-weight:600;">
 								@components.IconLogout("icon-xs")
 								<span>تسجيل الخروج</span>
 							</button>
