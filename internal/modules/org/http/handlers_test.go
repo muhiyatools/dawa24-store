@@ -173,10 +173,26 @@ func (r stubRepo) ReplyToReview(ctx context.Context, reviewID, orgID int64, resp
 	r.fail("ReplyToReview")
 	return nil
 }
+func (r stubRepo) AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error {
+	r.fail("AssignBranchManager")
+	return nil
+}
+func (r stubRepo) ListEmployees(ctx context.Context, orgID int64) ([]*org.EmployeeView, error) {
+	r.fail("ListEmployees")
+	return nil, nil
+}
 
 type happyRepo struct{}
 
+func (happyRepo) AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error {
+	return nil
+}
+func (happyRepo) ListEmployees(ctx context.Context, orgID int64) ([]*org.EmployeeView, error) {
+	return nil, nil
+}
+
 func (happyRepo) CreateOrganization(ctx context.Context, o *org.Organization) error {
+
 	o.ID = 1
 	return nil
 }

@@ -125,7 +125,6 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 										type="button"
 										class="btn btn-primary btn-sm"
 										data-modal-open={ fmt.Sprintf("review-modal-%d", o.ID) }
-										onclick={ fmt.Sprintf("window.openModal('review-modal-%d')", o.ID) }
 									>
 										@components.IconCheck("icon-xs")
 										<span>تدقيق واعتماد</span>
@@ -184,7 +183,6 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 													type="button"
 													class="btn btn-secondary"
 													data-modal-close={ fmt.Sprintf("review-modal-%d", o.ID) }
-													onclick={ fmt.Sprintf("window.closeModal('review-modal-%d')", o.ID) }
 												>
 													إلغاء
 												</button>
@@ -195,6 +193,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 											</div>
 										</form>
 									}
+
 								</div>
 							</td>
 						</tr>

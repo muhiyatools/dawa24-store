@@ -125,7 +125,29 @@ func (m *mockOrgRepo) UnsetMainBranches(_ context.Context, orgID int64) error {
 	return nil
 }
 
+func (m *mockOrgRepo) AssignBranchManager(_ context.Context, orgID, branchID int64, managerUserID *int64) error {
+	for _, b := range m.branches[orgID] {
+		if b.ID == branchID {
+			b.ManagerID = managerUserID
+		}
+	}
+	return nil
+}
+
+func (m *mockOrgRepo) ListEmployees(_ context.Context, orgID int64) ([]*EmployeeView, error) {
+	var list []*EmployeeView
+	for _, mem := range m.members[orgID] {
+		list = append(list, &EmployeeView{
+			Member:    mem,
+			UserName:  "Test User",
+			UserEmail: "user@example.com",
+		})
+	}
+	return list, nil
+}
+
 func (m *mockOrgRepo) AddMember(_ context.Context, mem *Member) error {
+
 	mem.ID = m.nextID
 	m.nextID++
 	m.members[mem.OrganizationID] = append(m.members[mem.OrganizationID], mem)
