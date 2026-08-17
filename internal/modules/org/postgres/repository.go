@@ -319,7 +319,8 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 		query := `
 			SELECT b.id, b.public_id, b.organization_id, b.name,
 			       COALESCE(b.code, ''), b.address, b.city_id, b.latitude, b.longitude,
-			       COALESCE(b.google_maps_url, ''), b.manager_id, COALESCE(b.manager_name, ''),
+			       COALESCE(b.google_maps_url, ''), b.manager_id,
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), b.manager_name, ''),
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''),
 			       COALESCE(b.warehouse_type, 'warehouse'), COALESCE(b.has_cold_storage, false),
 			       COALESCE(b.capacity_sqm, 0), COALESCE(b.operating_hours, ''),
@@ -369,7 +370,8 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 		query := `
 			SELECT b.id, b.public_id, b.organization_id, b.name,
 			       COALESCE(b.code, ''), b.address, b.city_id, b.latitude, b.longitude,
-			       COALESCE(b.google_maps_url, ''), b.manager_id, COALESCE(b.manager_name, ''),
+			       COALESCE(b.google_maps_url, ''), b.manager_id,
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), b.manager_name, ''),
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''),
 			       COALESCE(b.warehouse_type, 'warehouse'), COALESCE(b.has_cold_storage, false),
 			       COALESCE(b.capacity_sqm, 0), COALESCE(b.operating_hours, ''),
@@ -378,6 +380,7 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 			LEFT JOIN identity.users u ON u.id = b.manager_id
 			WHERE b.organization_id = $1 AND b.deleted_at IS NULL
 			ORDER BY b.is_main DESC, b.id ASC;
+
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {
@@ -427,16 +430,19 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 			SELECT m.id, m.organization_id, m.user_id, m.branch_id, m.role_id, m.role_key,
 			       m.org_role_id, COALESCE(m.employee_code, ''), COALESCE(m.job_title, ''),
 			       m.base_salary, m.variable_salary, m.is_active, m.created_at, m.updated_at,
-			       COALESCE(u.name->>'ar', u.name->>'en', ''), COALESCE(u.email, ''), COALESCE(u.phone, ''), COALESCE(u.status, 'active'),
-			       COALESCE(r.name->>'ar', r.name->>'en', m.role_key),
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email),
+			       COALESCE(u.email, ''), COALESCE(u.phone, ''), COALESCE(u.status, 'active'),
+			       COALESCE(NULLIF(r.name->>'ar', ''), NULLIF(r.name->>'en', ''), NULLIF(ir.name->>'ar', ''), NULLIF(ir.name->>'en', ''), m.role_key),
 			       COALESCE(b.name->>'ar', b.name->>'en', ''),
 			       CASE WHEN b.manager_id = m.user_id THEN true ELSE false END AS is_manager
 			FROM org.members m
 			JOIN identity.users u ON u.id = m.user_id
 			LEFT JOIN org.roles r ON r.id = m.org_role_id
+			LEFT JOIN identity.roles ir ON ir.key = m.role_key
 			LEFT JOIN org.branches b ON b.id = m.branch_id
 			WHERE m.organization_id = $1
 			ORDER BY m.id DESC;
+
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {

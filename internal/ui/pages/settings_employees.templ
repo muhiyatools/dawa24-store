@@ -143,19 +143,19 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 						</div>
 					</div>
 
-					<div style="background:var(--surface-sunken); padding:0.9rem 1.1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
-						<label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:0.825rem; font-weight:700; color:var(--text);">
-							<input type="checkbox" name="is_manager" value="1" style="width:17px; height:17px; accent-color:var(--accent);"/>
-							<span>⭐ تعيين هذا الموظف مديراً مسؤولاً للفرع المختار</span>
-						</label>
+					<div style="background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+						<div style="font-size:0.8rem; color:var(--text-muted); display:flex; align-items:center; gap:0.5rem;">
+							<span>ℹ️ سيتم تطبيق الصلاحيات والوصول للفرع المحدد تلقائياً وفقاً للدور المختار.</span>
+						</div>
 
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem 1.5rem;">
+						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem 1.75rem;">
 							@components.IconCheck("icon-xs")
 							<span>حفظ وإضافة الموظف الآن</span>
 						</button>
 					</div>
 				</form>
 			</div>
+
 
 			<!-- Section 1: Branch Managers Assignment (توزيع وتعيين مدراء الفروع) -->
 			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;">

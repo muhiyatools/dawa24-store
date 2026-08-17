@@ -288,6 +288,19 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 
 	instWorks := r.Form["institutional_works"]
 
+	var managerName string
+	if managerID != nil && h.idSvc != nil {
+		if u, err := h.idSvc.GetUserByID(ctx, *managerID); err == nil && u != nil {
+			managerName = u.Name.Get("ar")
+			if managerName == "" {
+				managerName = u.Name.Get("en")
+			}
+			if managerName == "" {
+				managerName = u.Email
+			}
+		}
+	}
+
 	b := &org.Branch{
 		OrganizationID:     actor.OrganizationID,
 		Name:               i18n.New(nameAr, nameEn),
@@ -296,6 +309,7 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 		Address:            address,
 		Phone:              phone,
 		ManagerID:          managerID,
+		ManagerName:        managerName,
 		GoogleMapsURL:      gmaps,
 		OperatingHours:     hours,
 		HasColdStorage:     hasCold,
@@ -307,6 +321,7 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 		Status:             "active",
 		InstitutionalWorks: instWorks,
 	}
+
 
 	if h.orgSvc != nil {
 		if err := h.orgSvc.CreateBranch(ctx, b); err != nil {

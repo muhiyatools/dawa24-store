@@ -558,6 +558,8 @@ func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
+	_ = r.ParseForm()
+
 	email := r.PostFormValue("email")
 	name := r.PostFormValue("name")
 	phone := r.PostFormValue("phone")
@@ -618,12 +620,12 @@ func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// 3. If designated as branch manager, assign to branch
-	if r.PostFormValue("is_manager") == "1" && branchID != nil {
+	// 3. If role is org_manager and branch is specified, assign as branch manager
+	if roleKey == "org_manager" && branchID != nil {
 		_ = h.orgSvc.AssignBranchManager(ctx, actor.OrganizationID, *branchID, &targetUserID)
 	}
 
-	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم إنشاء وتعيين الموظف بنجاح في المنظومة.")
+	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم إنشاء وتعيين الموظف وتطبيق الصلاحيات بنجاح.")
 }
 
 // SettingsBranchManagerAssignSubmit assigns a designated employee user as the branch manager.
@@ -635,14 +637,19 @@ func (h *UIHandler) SettingsBranchManagerAssignSubmit(w http.ResponseWriter, r *
 		return
 	}
 
-	branchID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil || branchID <= 0 {
+	_ = r.ParseForm()
+
+	branchID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if branchID <= 0 {
+		branchID, _ = strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64)
+	}
+	if branchID <= 0 {
 		h.redirectWithNotice(w, r, "/settings/employees", "error", "معرف الفرع غير صالح.")
 		return
 	}
 
 	var managerUserID *int64
-	if mStr := r.PostFormValue("manager_user_id"); mStr != "" {
+	if mStr := r.PostFormValue("manager_user_id"); mStr != "" && mStr != "0" {
 		if mID, err := strconv.ParseInt(mStr, 10, 64); err == nil && mID > 0 {
 			managerUserID = &mID
 		}
@@ -655,6 +662,7 @@ func (h *UIHandler) SettingsBranchManagerAssignSubmit(w http.ResponseWriter, r *
 
 	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم تعيين وتثبيت مدير الفرع بنجاح.")
 }
+
 
 // SettingsEmployeeDeleteSubmit removes an employee member from the organization.
 func (h *UIHandler) SettingsEmployeeDeleteSubmit(w http.ResponseWriter, r *http.Request) {

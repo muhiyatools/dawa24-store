@@ -466,21 +466,21 @@ function initMapPickers() {
   containers.forEach((container) => {
     if (container.dataset.mapInitialized === 'true') return;
 
-    const canvas = container.querySelector('.map-canvas');
+    const canvas = container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') || container;
     if (!canvas) return;
 
-    const latInput = container.querySelector('[data-map-lat]');
-    const lonInput = container.querySelector('[data-map-lon]');
-    const radiusInput = container.querySelector('[data-map-radius]');
-    const gmapsInput = container.querySelector('[data-map-google-url]');
-    const badge = container.querySelector('[data-map-badge]');
+    const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"]') || document.querySelector('[data-map-input="lat"], input[name="latitude"]');
+    const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"]') || document.querySelector('[data-map-input="lon"], input[name="longitude"]');
+    const radiusInput = container.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"]') || document.querySelector('[data-map-radius], [data-map-input="radius"]');
+    const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"]') || document.querySelector('[data-map-input="google_url"], input[name="google_maps_url"]');
+    const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]');
     const gmapsLinks = container.querySelectorAll('[data-google-maps-link]');
-    const citySelect = container.querySelector('[data-city-selector]');
-    const locateBtn = container.querySelector('[data-locate-me-btn]');
+    const citySelect = container.querySelector('[data-city-selector], [data-map-city], select[name="city_id"]') || document.querySelector('[data-map-city]');
+    const locateBtn = container.querySelector('[data-locate-me-btn], [data-map-locate], .btn-locate');
 
-    let initialLat = parseFloat(canvas.dataset.lat || (latInput ? latInput.value : '30.0444')) || 30.0444;
-    let initialLon = parseFloat(canvas.dataset.lon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
-    let initialRadius = parseInt(canvas.dataset.radius || (radiusInput ? radiusInput.value : '10000'), 10) || 10000;
+    let initialLat = parseFloat(canvas.dataset.lat || container.dataset.defaultLat || (latInput ? latInput.value : '30.0444')) || 30.0444;
+    let initialLon = parseFloat(canvas.dataset.lon || container.dataset.defaultLon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
+    let initialRadius = parseInt(canvas.dataset.radius || container.dataset.defaultRadius || (radiusInput ? radiusInput.value : '1000'), 10) || 1000;
 
     container.dataset.mapInitialized = 'true';
 
@@ -497,6 +497,7 @@ function initMapPickers() {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
+
 
     // Custom pulse marker icon (matches Laravel reference)
     const customIcon = L.divIcon({
