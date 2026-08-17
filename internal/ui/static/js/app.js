@@ -198,14 +198,39 @@ function initRegistrationStepper() {
       if (badgeLabel) {
         if (type === 'supplier') badgeLabel.textContent = 'نوع الحساب: مورّد أدوية ومستودع';
         else if (type === 'chain_pharmacy') badgeLabel.textContent = 'نوع الحساب: مجموعة وسلسلة صيدليات';
+        else if (type === 'individual') badgeLabel.textContent = 'نوع الحساب: حساب مهني فردي (صيدلي / باحث عن عمل)';
         else badgeLabel.textContent = 'نوع الحساب: صيدلية مرخصة';
       }
 
       // Conditionally show/hide type specific fields
       document.querySelectorAll('[data-type-visibility]').forEach((el) => {
         const allowed = el.getAttribute('data-type-visibility').split(' ');
-        el.style.display = allowed.includes(type) ? 'block' : 'none';
+        const isVisible = allowed.includes(type);
+        el.style.display = isVisible ? 'block' : 'none';
+        const input = el.querySelector('input, select');
+        if (input && el.hasAttribute('data-was-required')) {
+          input.required = isVisible;
+        }
       });
+
+      // For individual account, legal name & commercial register are not mandatory
+      const legalNameInput = document.getElementById('reg-legal-name');
+      const crInput = document.getElementById('reg-cr');
+      const legalNameGroup = legalNameInput ? legalNameInput.closest('.form-group') : null;
+      const tradeNameGroup = document.getElementById('reg-trade-ar') ? document.getElementById('reg-trade-ar').closest('.grid-group, div') : null;
+      const crGroup = crInput ? crInput.closest('.grid-group, div') : null;
+
+      if (type === 'individual') {
+        if (legalNameInput) { legalNameInput.required = false; if (legalNameGroup) legalNameGroup.style.display = 'none'; }
+        if (crInput) { crInput.required = false; }
+        if (tradeNameGroup) { tradeNameGroup.style.display = 'none'; }
+        if (crGroup) { crGroup.style.display = 'none'; }
+      } else {
+        if (legalNameInput) { legalNameInput.required = true; if (legalNameGroup) legalNameGroup.style.display = 'block'; }
+        if (crInput) { crInput.required = true; }
+        if (tradeNameGroup) { tradeNameGroup.style.display = 'grid'; }
+        if (crGroup) { crGroup.style.display = 'grid'; }
+      }
 
       // Switch steps
       step1.classList.remove('active');

@@ -99,11 +99,11 @@ func (r *Repository) ListJobsByOrg(ctx context.Context, orgID int64, limit, offs
 func (r *Repository) CreateJobApplication(ctx context.Context, a *hr.JobApplication) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `
-			INSERT INTO hr.job_applications (job_offer_id, organization_id, applicant_name, applicant_email, applicant_phone, cv_storage_key, status)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			INSERT INTO hr.job_applications (job_offer_id, organization_id, applicant_user_id, applicant_name, applicant_email, applicant_phone, cv_storage_key, status)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 			RETURNING id, public_id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query, a.JobOfferID, a.OrganizationID, a.ApplicantName, a.ApplicantEmail, a.ApplicantPhone, a.CVStorageKey, a.Status).
+		return tx.QueryRow(txCtx, query, a.JobOfferID, a.OrganizationID, a.ApplicantUserID, a.ApplicantName, a.ApplicantEmail, a.ApplicantPhone, a.CVStorageKey, a.Status).
 			Scan(&a.ID, &a.PublicID, &a.CreatedAt, &a.UpdatedAt)
 	})
 }
@@ -112,7 +112,7 @@ func (r *Repository) CreateJobApplication(ctx context.Context, a *hr.JobApplicat
 func (r *Repository) ListApplicationsByOffer(ctx context.Context, offerID int64, limit, offset int) ([]*hr.JobApplication, error) {
 	var list []*hr.JobApplication
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `SELECT id, public_id, job_offer_id, organization_id, applicant_name, applicant_email, applicant_phone, cv_storage_key, status, notes, created_at, updated_at FROM hr.job_applications WHERE job_offer_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;`
+		const query = `SELECT id, public_id, job_offer_id, organization_id, applicant_user_id, applicant_name, applicant_email, applicant_phone, cv_storage_key, status, notes, created_at, updated_at FROM hr.job_applications WHERE job_offer_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;`
 		if limit <= 0 || limit > 100 {
 			limit = 20
 		}
@@ -123,7 +123,7 @@ func (r *Repository) ListApplicationsByOffer(ctx context.Context, offerID int64,
 		defer rows.Close()
 		for rows.Next() {
 			var a hr.JobApplication
-			if err := rows.Scan(&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey, &a.Status, &a.Notes, &a.CreatedAt, &a.UpdatedAt); err != nil {
+			if err := rows.Scan(&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantUserID, &a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey, &a.Status, &a.Notes, &a.CreatedAt, &a.UpdatedAt); err != nil {
 				return err
 			}
 			list = append(list, &a)
@@ -131,4 +131,35 @@ func (r *Repository) ListApplicationsByOffer(ctx context.Context, offerID int64,
 		return rows.Err()
 	})
 	return list, err
+}
+
+// ListApplicationsByUser returns all applications submitted by a user.
+func (r *Repository) ListApplicationsByUser(ctx context.Context, userID int64) ([]*hr.JobApplication, error) {
+	var list []*hr.JobApplication
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `SELECT id, public_id, job_offer_id, organization_id, applicant_user_id, applicant_name, applicant_email, applicant_phone, cv_storage_key, status, notes, created_at, updated_at FROM hr.job_applications WHERE applicant_user_id = $1 ORDER BY created_at DESC;`
+		rows, err := tx.Query(txCtx, query, userID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var a hr.JobApplication
+			if err := rows.Scan(&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantUserID, &a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey, &a.Status, &a.Notes, &a.CreatedAt, &a.UpdatedAt); err != nil {
+				return err
+			}
+			list = append(list, &a)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// UpdateApplicationStatus modifies an application status and notes.
+func (r *Repository) UpdateApplicationStatus(ctx context.Context, appID int64, status string, notes string) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `UPDATE hr.job_applications SET status = $1, notes = $2, updated_at = now() WHERE id = $3;`
+		_, err := tx.Exec(txCtx, query, status, notes, appID)
+		return err
+	})
 }

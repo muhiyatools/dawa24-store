@@ -54,8 +54,28 @@ type Branch struct {
 	Code           string    `json:"code"`
 	Address        string    `json:"address"`
 	CityID         *int64    `json:"city_id,omitempty"`
+	Latitude       *float64  `json:"latitude,omitempty"`
+	Longitude      *float64  `json:"longitude,omitempty"`
+	GoogleMapsURL  string    `json:"google_maps_url,omitempty"`
+	ManagerName    string    `json:"manager_name,omitempty"`
+	WarehouseType  string    `json:"warehouse_type,omitempty"` // warehouse, fast_hub, pharmacy_branch, cold_depot
+	HasColdStorage bool      `json:"has_cold_storage"`
+	CapacitySQM    float64   `json:"capacity_sqm"`
+	OperatingHours string    `json:"operating_hours,omitempty"`
+	Status         string    `json:"status"` // active, inactive
 	IsMain         bool      `json:"is_main"`
 	Phone          string    `json:"phone,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+// CustomRole represents an organization-defined role with custom permissions.
+type CustomRole struct {
+	ID             int64     `json:"id"`
+	OrganizationID int64     `json:"organization_id"`
+	Name           i18n.Text `json:"name"`
+	Description    string    `json:"description"`
+	Permissions    []string  `json:"permissions"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }

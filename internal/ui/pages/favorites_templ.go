@@ -48,7 +48,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1120px; margin:1rem auto 3rem auto;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:100%; margin:0 0 3rem 0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -56,7 +56,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;\">الأدوية والمستلزمات المفضلة</h1><p style=\"font-size:0.875rem; color:var(--neutral-500); margin:0;\">قائمة الأصناف المحفوظة للطلب السريع</p></div></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الأدوية والمستلزمات المفضلة</h2><p style=\"font-size:0.875rem; color:var(--neutral-500); margin:0;\">قائمة الأصناف المحفوظة للطلب السريع</p></div></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -229,7 +229,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("قائمة المفضلة | Favorites", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PharmacyShell("الأدوية والمستلزمات المفضلة", "favorites", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

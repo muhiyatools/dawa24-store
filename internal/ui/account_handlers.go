@@ -24,10 +24,10 @@ func (h *UIHandler) WalletPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.WalletViewData{
-		Available:    "5,420.00 ج.م",
-		Pending:      "0.00 ج.م",
-		TotalInflows: "18,500.00 ج.م",
-		TotalOutflows: "13,080.00 ج.م",
+		CurrentBalance: "5,420.00 ج.م",
+		PendingBalance: "0.00 ج.م",
+		TotalInflows:   "18,500.00 ج.م",
+		TotalOutflows:  "13,080.00 ج.م",
 	}
 
 	if h.billSvc != nil {

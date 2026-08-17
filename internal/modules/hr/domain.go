@@ -80,16 +80,17 @@ type JobCategory struct {
 
 // JobApplication is an application to a vacancy (hr.job_applications).
 type JobApplication struct {
-	ID             int64     `json:"id"`
-	PublicID       string    `json:"public_id"`
-	JobOfferID     int64     `json:"job_offer_id"`
-	OrganizationID int64     `json:"organization_id"`
-	ApplicantName  string    `json:"applicant_name"`
-	ApplicantEmail string    `json:"applicant_email"`
-	ApplicantPhone string    `json:"applicant_phone"`
-	CVStorageKey   string    `json:"cv_storage_key"`
-	Status         string    `json:"status"` // pending, reviewed, hired, rejected
-	Notes          string    `json:"notes"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID              int64     `json:"id"`
+	PublicID        string    `json:"public_id"`
+	JobOfferID      int64     `json:"job_offer_id"`
+	OrganizationID  int64     `json:"organization_id"`
+	ApplicantUserID *int64    `json:"applicant_user_id,omitempty"`
+	ApplicantName   string    `json:"applicant_name"`
+	ApplicantEmail  string    `json:"applicant_email"`
+	ApplicantPhone  string    `json:"applicant_phone"`
+	CVStorageKey    string    `json:"cv_storage_key"`
+	Status          string    `json:"status"` // pending, reviewed, hired, rejected
+	Notes           string    `json:"notes"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }

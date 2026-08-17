@@ -268,6 +268,11 @@ func (s *Service) ValidateSession(ctx context.Context, token string) (*Session, 
 	return s.sessionStore.Get(ctx, token)
 }
 
+// GetUserByID looks up a user by ID.
+func (s *Service) GetUserByID(ctx context.Context, id int64) (*User, error) {
+	return s.repo.GetUserByID(ctx, id)
+}
+
 // GetUserByEmail looks up a user by email address.
 func (s *Service) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	return s.repo.GetUserByEmail(ctx, email)

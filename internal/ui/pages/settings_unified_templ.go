@@ -54,7 +54,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1160px; margin:1rem auto 4rem auto;\"><!-- Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:100%; margin:0 0 4rem 0;\"><!-- Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -62,7 +62,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin:0;\">إعدادات الحساب والمنشأة</h1></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">إدارة البيانات الشخصية، المحفظة، طرق الدفع، التراخيص، والأمان</p></div><a href=\"/wallet\" class=\"btn btn-primary\" style=\"padding:0.6rem 1.25rem; font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">إعدادات الحساب والمنشأة</h2></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">إدارة البيانات الشخصية، المحفظة، طرق الدفع، التراخيص، والأمان</p></div><a href=\"/wallet\" class=\"btn btn-primary\" style=\"padding:0.6rem 1.25rem; font-weight:800;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -511,7 +511,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("إعدادات الحساب | Account Settings", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PharmacyShell("إعدادات الحساب والمنشأة", "settings", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

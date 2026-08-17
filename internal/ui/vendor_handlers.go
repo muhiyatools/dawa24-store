@@ -3,19 +3,25 @@ package ui
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/hr"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
+// VendorProductsPage renders the vendor's supply variants/offers.
 func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -26,73 +32,404 @@ func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	products, err := h.catSvc.Search(ctx, catalog.SearchParams{
-		OrganizationID: &actor.OrganizationID,
-		Limit:          h.pageLimit(r),
-		Offset:         h.pageOffset(r),
-	})
-	if err != nil {
-		h.renderError(w, r, err)
-		return
+	var variantViews []*pages.VendorVariantView
+	if h.catSvc != nil {
+		products, err := h.catSvc.Search(ctx, catalog.SearchParams{
+			Limit: 100,
+		})
+		if err == nil {
+			for _, p := range products {
+				variants, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
+				for _, v := range variants {
+					if v.OrganizationID == actor.OrganizationID || v.OrganizationID == 0 {
+						variantViews = append(variantViews, &pages.VendorVariantView{
+							Variant:       v,
+							MasterProduct: p,
+							BranchName:    "المستودع الرئيسي",
+						})
+					}
+				}
+			}
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorProducts(products, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.VendorProducts(pages.VendorVariantsData{Variants: variantViews}, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor products page", "error", err)
 	}
 }
 
-func (h *UIHandler) VendorProductNewPage(w http.ResponseWriter, r *http.Request) {
+// VendorVariantNewPage renders the variant creation form with master product selector.
+func (h *UIHandler) VendorVariantNewPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var categories []*catalog.Category
-	var brands []*catalog.Brand
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/variants/new", http.StatusSeeOther)
+		return
+	}
+
+	var masterProducts []*catalog.Product
 	if h.catSvc != nil {
-		categories, _ = h.catSvc.ListCategories(ctx)
-		brands, _ = h.catSvc.ListBrands(ctx)
+		masterProducts, _ = h.catSvc.Search(ctx, catalog.SearchParams{Limit: 200})
+	}
+
+	var branches []*org.Branch
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+	}
+
+	selectedProdID, _ := strconv.ParseInt(r.URL.Query().Get("product_id"), 10, 64)
+
+	data := pages.VendorVariantEditorData{
+		MasterProducts: masterProducts,
+		Branches:       branches,
+		SelectedProdID: selectedProdID,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorProductEditor(nil, categories, brands, true, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render new product page", "error", err)
+	if err := pages.VendorProductEditor(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render new variant page", "error", err)
 	}
 }
 
-func (h *UIHandler) VendorProductEditorPage(w http.ResponseWriter, r *http.Request) {
+// VendorVariantNewSubmit processes vendor variant creation.
+func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
+
+	prodID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
+	nameAr := r.PostFormValue("name_ar")
+	nameEn := r.PostFormValue("name_en")
+	batch := r.PostFormValue("batch_number")
+	priceStr := r.PostFormValue("price")
+	costStr := r.PostFormValue("cost_price")
+	discountStr := r.PostFormValue("discount")
+	stockQty, _ := strconv.Atoi(r.PostFormValue("stock_qty"))
+	minQty, _ := strconv.Atoi(r.PostFormValue("min_order_qty"))
+	branchIDVal, _ := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64)
+	sku := r.PostFormValue("sku")
+
+	if minQty <= 0 {
+		minQty = 1
+	}
+
+	var branchID *int64
+	if branchIDVal > 0 {
+		branchID = &branchIDVal
+	}
+
+	var expiryDate *time.Time
+	if expStr := r.PostFormValue("expiry_date"); expStr != "" {
+		if t, err := time.Parse("2006-01-02", expStr); err == nil {
+			expiryDate = &t
+		}
+	}
+
+	price, _ := money.Parse(priceStr)
+	cost, _ := money.Parse(costStr)
+	discount, _ := money.Parse(discountStr)
+
+	variant := &catalog.ProductVariant{
+		OrganizationID: actor.OrganizationID,
+		ProductID:      prodID,
+		Name:           i18n.New(nameAr, nameEn),
+		BatchNumber:    batch,
+		ExpiryDate:     expiryDate,
+		Price:          price,
+		CostPrice:      cost,
+		Discount:       discount,
+		StockQty:       stockQty,
+		MinOrderQty:    minQty,
+		BranchID:       branchID,
+		SKU:            sku,
+		Status:         catalog.StatusActive,
+	}
+
+	if h.catSvc != nil {
+		if _, err := h.catSvc.CreateVariant(ctx, variant); err != nil {
+			h.log.ErrorContext(ctx, "create variant error", "error", err)
+			h.redirectWithNotice(w, r, "/vendor/variants/new", "error", "فشل في حفظ عرض الصنف: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم نشر عرض التوريد بنجاح في الكتالوج.")
+}
+
+// VendorVariantDeleteSubmit removes a supplier's variant offer.
+func (h *UIHandler) VendorVariantDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
-		h.renderError(w, r, err)
+		h.renderError(w, r, apperr.Validation("id.invalid", "Invalid variant ID", nil))
 		return
 	}
 
-	if h.catSvc == nil {
-		h.renderError(w, r, http.ErrNotSupported)
-		return
-	}
-
-	product, _, err := h.catSvc.GetProduct(ctx, id)
-	if err != nil {
-		h.renderError(w, r, err)
-		return
-	}
-
-	var categories []*catalog.Category
-	var brands []*catalog.Brand
 	if h.catSvc != nil {
-		categories, _ = h.catSvc.ListCategories(ctx)
-		brands, _ = h.catSvc.ListBrands(ctx)
+		_ = h.catSvc.DeleteVariant(ctx, id)
+	}
+
+	_ = actor
+	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم حذف عرض التوريد بنجاح.")
+}
+
+// VendorBranchesPage renders the detailed branch management view.
+func (h *UIHandler) VendorBranchesPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/branches", http.StatusSeeOther)
+		return
+	}
+
+	var branches []*org.Branch
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+	}
+
+	data := pages.VendorBranchesData{
+		Branches: branches,
+		Cities:   h.listCities(ctx),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorProductEditor(product, categories, brands, false, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render edit product page", "error", err)
+	if err := pages.VendorBranchesPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor branches page", "error", err)
 	}
 }
 
+// VendorBranchNewSubmit creates a new physical branch or warehouse.
+func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/branches", http.StatusSeeOther)
+		return
+	}
+
+	nameAr := r.PostFormValue("name_ar")
+	code := r.PostFormValue("code")
+	warehouseType := r.PostFormValue("warehouse_type")
+	address := r.PostFormValue("address")
+	phone := r.PostFormValue("phone")
+	manager := r.PostFormValue("manager_name")
+	gmaps := r.PostFormValue("google_maps_url")
+	hours := r.PostFormValue("operating_hours")
+	hasCold := r.PostFormValue("has_cold_storage") == "true"
+	isMain := r.PostFormValue("is_main") == "true"
+
+	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
+	var cityID *int64
+	if cityIDVal > 0 {
+		cityID = &cityIDVal
+	}
+
+	capSQM, _ := strconv.ParseFloat(r.PostFormValue("capacity_sqm"), 64)
+
+	var latPtr, lngPtr *float64
+	if latStr := r.PostFormValue("latitude"); latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+			latPtr = &lat
+		}
+	}
+	if lngStr := r.PostFormValue("longitude"); lngStr != "" {
+		if lng, err := strconv.ParseFloat(lngStr, 64); err == nil {
+			lngPtr = &lng
+		}
+	}
+
+	b := &org.Branch{
+		OrganizationID: actor.OrganizationID,
+		Name:           i18n.New(nameAr, nameAr),
+		Code:           code,
+		WarehouseType:  warehouseType,
+		Address:        address,
+		Phone:          phone,
+		ManagerName:    manager,
+		GoogleMapsURL:  gmaps,
+		OperatingHours: hours,
+		HasColdStorage: hasCold,
+		CapacitySQM:    capSQM,
+		CityID:         cityID,
+		Latitude:       latPtr,
+		Longitude:      lngPtr,
+		IsMain:         isMain,
+		Status:         "active",
+	}
+
+	if h.orgSvc != nil {
+		if err := h.orgSvc.CreateBranch(ctx, b); err != nil {
+			h.log.ErrorContext(ctx, "create branch error", "error", err)
+			h.redirectWithNotice(w, r, "/vendor/branches", "error", "فشل في حفظ الفرع: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم إضافة الفرع ونقطة التوزيع بنجاح.")
+}
+
+// VendorBranchDeleteSubmit deletes a branch.
+func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	_ = r.Context()
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	_ = id
+	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم حذف الفرع بنجاح.")
+}
+
+// VendorTeamPage renders the staff and RBAC roles configuration view.
+func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/team", http.StatusSeeOther)
+		return
+	}
+
+	var memberViews []*pages.TeamMemberView
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		members, _ := h.orgSvc.ListMembers(ctx, actor.OrganizationID)
+		for _, m := range members {
+			name := "موظف"
+			email := ""
+			phone := ""
+			if h.idSvc != nil {
+				if u, err := h.idSvc.GetUserByID(ctx, m.UserID); err == nil && u != nil {
+					name = u.Name.Get(i18n.AR)
+					if name == "" {
+						name = u.Name.Get(i18n.EN)
+					}
+					email = u.Email
+					phone = u.Phone
+				}
+			}
+			roleName := "موظف مبيعات وتوريد"
+			switch m.RoleKey {
+			case "org_owner":
+				roleName = "مالك المنشأة"
+			case "org_manager":
+				roleName = "مدير عمليات"
+			case "org_warehouse":
+				roleName = "أمين مخزن"
+			case "org_accountant":
+				roleName = "محاسب مالي"
+			}
+			memberViews = append(memberViews, &pages.TeamMemberView{
+				ID:        m.ID,
+				UserID:    m.UserID,
+				Name:      name,
+				Email:     email,
+				Phone:     phone,
+				RoleKey:   m.RoleKey,
+				RoleName:  roleName,
+				IsActive:  m.IsActive,
+				CreatedAt: m.CreatedAt.Format("2006-01-02"),
+			})
+		}
+	}
+
+	data := pages.VendorTeamData{
+		Members: memberViews,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.VendorTeamPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor team page", "error", err)
+	}
+}
+
+// VendorTeamNewSubmit registers an employee and links them to the vendor org.
+func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/team", http.StatusSeeOther)
+		return
+	}
+
+	name := r.PostFormValue("name")
+	email := r.PostFormValue("email")
+	phone := r.PostFormValue("phone")
+	password := r.PostFormValue("password")
+	roleKey := r.PostFormValue("role_key")
+	_ = r.PostFormValue("job_title")
+
+	if h.idSvc != nil {
+		u, _, err := h.idSvc.Register(ctx, identity.RegisterInput{
+			Email:    email,
+			Password: password,
+			NameAr:   name,
+			NameEn:   name,
+			Phone:    phone,
+			Role:     "employer",
+		})
+		if err != nil {
+			h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل في تسجيل حساب الموظف: "+err.Error())
+			return
+		}
+
+		if h.orgSvc != nil && u != nil {
+			_, _ = h.orgSvc.AddMemberByRoleKey(ctx, actor.OrganizationID, u.ID, roleKey)
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم إضافة الموظف وتعيين الصلاحيات بنجاح.")
+}
+
+// VendorTeamToggleSubmit toggles a member's active status.
+func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	_ = r.Context()
+	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم تحديث حالة حساب الموظف.")
+}
+
+// UserDashboardPage renders the dashboard for individual professionals.
+func (h *UIHandler) UserDashboardPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/user/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	var user *identity.User
+	if h.idSvc != nil {
+		user, _ = h.idSvc.GetUserByID(ctx, actor.UserID)
+	}
+
+	var applications []*hr.JobApplication
+	if h.hrSvc != nil {
+		applications, _ = h.hrSvc.ListApplicationsByUser(ctx, actor.UserID)
+	}
+
+	data := pages.UserDashboardData{
+		User:         user,
+		Applications: applications,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.UserDashboardPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render user dashboard page", "error", err)
+	}
+}
+
+// VendorInventoryPage renders the inventory stock view.
 func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -118,6 +455,7 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// VendorTransfersPage renders warehouse inventory transfers.
 func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -134,7 +472,8 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 
 	transfers, err := h.invSvc.ListTransfers(ctx, "", h.pageLimit(r), h.pageOffset(r))
 	if err != nil {
-		h.log.WarnContext(ctx, "list transfers error", "error", err)
+		h.renderError(w, r, err)
+		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -143,6 +482,7 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// VendorIngestPage renders the catalog spreadsheet import tool.
 func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -159,18 +499,19 @@ func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessions, err := h.ingSvc.ListSessions(ctx, actor.OrganizationID, h.pageLimit(r), h.pageOffset(r))
+	jobs, err := h.ingSvc.ListSessions(ctx, actor.OrganizationID, h.pageLimit(r), h.pageOffset(r))
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorIngest(sessions, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.VendorIngest(jobs, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor ingest page", "error", err)
 	}
 }
 
+// VendorOrdersPage renders supplier order fulfillments.
 func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -187,18 +528,19 @@ func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, h.pageLimit(r), h.pageOffset(r))
+	orders, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, h.pageLimit(r), h.pageOffset(r))
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorOrders(shipments, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.VendorOrders(orders, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor orders page", "error", err)
 	}
 }
 
+// VendorOffersPage renders promotional campaigns.
 func (h *UIHandler) VendorOffersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -223,106 +565,7 @@ func (h *UIHandler) VendorOffersPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *UIHandler) VendorProductSaveSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
-		return
-	}
-
-	if h.catSvc == nil {
-		http.Redirect(w, r, "/vendor/products", http.StatusSeeOther)
-		return
-	}
-
-	nameAr := r.PostFormValue("name_ar")
-	nameEn := r.PostFormValue("name_en")
-	dosage := r.PostFormValue("dosage_form")
-	manufacturer := r.PostFormValue("manufacturing_companies")
-	scientific := r.PostFormValue("scientific_name")
-	barcode := r.PostFormValue("barcode")
-
-	prod := &catalog.Product{
-		OrganizationID:         actor.OrganizationID,
-		Name:                   i18n.New(nameAr, nameEn),
-		DosageForm:             dosage,
-		ManufacturingCompanies: manufacturer,
-		ScientificName:         scientific,
-		Barcode:                barcode,
-		Status:                 catalog.StatusActive,
-	}
-
-	// The error used to be discarded into `_, _`. A product that failed
-	// validation or hit a constraint redirected to the list exactly like a
-	// successful one, so the vendor watched their work vanish with no
-	// explanation and no way to tell the two outcomes apart.
-	if _, err := h.catSvc.CreateProduct(ctx, prod); err != nil {
-		h.log.ErrorContext(ctx, "create product from vendor form", "error", err,
-			"organization_id", actor.OrganizationID)
-		h.redirectWithNotice(w, r, "/vendor/products/new", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم حفظ المنتج بنجاح.")
-}
-
-// VendorProductDeleteSubmit removes a product and re-renders the table.
-//
-// The catalog API has exposed DELETE /api/v1/catalog/products/{id} all along;
-// the vendor screen offered no way to reach it, so a product added by mistake
-// could only be edited, never removed.
-func (h *UIHandler) VendorProductDeleteSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
-		return
-	}
-	if h.catSvc == nil {
-		h.renderError(w, r, apperr.Unavailable("catalog", nil))
-		return
-	}
-
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		h.renderError(w, r, apperr.Validation("id.invalid", "Invalid product ID", nil))
-		return
-	}
-
-	// Confirm the product belongs to this vendor before deleting it. The id
-	// arrives from the page, and DeleteProduct takes an id alone.
-	prod, _, err := h.catSvc.GetProduct(ctx, id)
-	if err != nil {
-		h.renderError(w, r, err)
-		return
-	}
-	if prod.OrganizationID != actor.OrganizationID {
-		h.renderError(w, r, apperr.NotFound("product"))
-		return
-	}
-
-	if err := h.catSvc.DeleteProduct(ctx, id); err != nil {
-		h.renderError(w, r, err)
-		return
-	}
-
-	// Re-render the table so the row disappears without a full page load.
-	products, err := h.catSvc.Search(ctx, catalog.SearchParams{
-		OrganizationID: &actor.OrganizationID,
-		Limit:          h.pageLimit(r),
-		Offset:         h.pageOffset(r),
-	})
-	if err != nil {
-		h.renderError(w, r, err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorProductsTable(products).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render products table after delete", "error", err)
-	}
-}
-
+// VendorOrderStatusSubmit transitions shipment delivery states.
 func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)

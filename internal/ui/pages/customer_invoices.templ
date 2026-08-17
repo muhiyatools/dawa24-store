@@ -7,17 +7,17 @@ import (
 )
 
 templ InvoicesPage(lang, dir string, data InvoicesData) {
-	@layouts.CustomerShell("الفواتير الضريبية | Invoices", lang, dir) {
-		<div style="max-width:1120px; margin:1rem auto 4rem auto;">
+	@layouts.PharmacyShell("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, nil) {
+		<div style="max-width:100%; margin:0 0 4rem 0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
 				<div>
 					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
 						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
 							@components.IconFileText("icon-sm")
 						</div>
-						<h1 style="font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin:0;">
+						<h2 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">
 							الفواتير الضريبية والإلكترونية
-						</h1>
+						</h2>
 					</div>
 					<p style="color:var(--neutral-500); font-size:0.925rem; margin:0;">
 						الفواتير الرسمية المعتمدة من منظومة الضرائب المصرية (ETA e-Invoicing)

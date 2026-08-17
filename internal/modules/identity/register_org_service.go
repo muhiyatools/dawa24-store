@@ -132,8 +132,11 @@ func validateOrgInput(in RegisterOrgInput) error {
 		if in.BranchCount == nil || *in.BranchCount < 2 {
 			return apperr.Validation("org.branch_count_required", "A chain pharmacy needs at least 2 branches.", nil)
 		}
+	case "individual":
+		// Individual professionals have no required commercial register or tax card
+		return nil
 	default:
-		return apperr.Validation("org.type_invalid", "Choose an account type: supplier, pharmacy or chain pharmacy.", nil)
+		return apperr.Validation("org.type_invalid", "Choose an account type: supplier, pharmacy, chain pharmacy, or individual.", nil)
 	}
 	return nil
 }

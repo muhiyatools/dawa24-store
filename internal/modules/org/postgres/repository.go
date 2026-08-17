@@ -148,12 +148,21 @@ func (r *Repository) ListOrganizations(
 func (r *Repository) CreateBranch(ctx context.Context, b *org.Branch) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO org.branches (organization_id, name, code, address, city_id, is_main, phone)
-			VALUES ($1, COALESCE($2, '{"ar":"الفرع","en":"Branch"}'::jsonb), NULLIF($3, ''), $4, $5, $6, $7)
+			INSERT INTO org.branches (
+				organization_id, name, code, address, city_id, latitude, longitude,
+				google_maps_url, manager_name, warehouse_type, has_cold_storage,
+				capacity_sqm, operating_hours, status, is_main, phone
+			) VALUES (
+				$1, COALESCE($2, '{"ar":"الفرع","en":"Branch"}'::jsonb), NULLIF($3, ''), $4, $5, $6, $7,
+				COALESCE($8, ''), COALESCE($9, ''), COALESCE(NULLIF($10, ''), 'warehouse'), COALESCE($11, false),
+				COALESCE($12, 0), COALESCE($13, ''), COALESCE(NULLIF($14, ''), 'active'), $15, $16
+			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
-			b.OrganizationID, b.Name, b.Code, b.Address, b.CityID, b.IsMain, b.Phone,
+			b.OrganizationID, b.Name, b.Code, b.Address, b.CityID, b.Latitude, b.Longitude,
+			b.GoogleMapsURL, b.ManagerName, b.WarehouseType, b.HasColdStorage,
+			b.CapacitySQM, b.OperatingHours, b.Status, b.IsMain, b.Phone,
 		).Scan(&b.ID, &b.PublicID, &b.CreatedAt, &b.UpdatedAt)
 	})
 }
@@ -173,14 +182,20 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, name,
-			       -- code carries a unique index, so it stays nullable: NULLs do not
-			       -- collide but empty strings would, and most branches have no code.
-			       -- COALESCE keeps the Go field a plain string without that risk.
-			       COALESCE(code, ''), address, city_id, is_main, phone, created_at, updated_at
+			       COALESCE(code, ''), address, city_id, latitude, longitude,
+			       COALESCE(google_maps_url, ''), COALESCE(manager_name, ''),
+			       COALESCE(warehouse_type, 'warehouse'), COALESCE(has_cold_storage, false),
+			       COALESCE(capacity_sqm, 0), COALESCE(operating_hours, ''),
+			       COALESCE(status, 'active'), is_main, COALESCE(phone, ''), created_at, updated_at
 			FROM org.branches WHERE id = $1;
 		`
 		err := tx.QueryRow(txCtx, query, id).Scan(
-			&b.ID, &b.PublicID, &b.OrganizationID, &b.Name, &b.Code, &b.Address, &b.CityID, &b.IsMain, &b.Phone, &b.CreatedAt, &b.UpdatedAt,
+			&b.ID, &b.PublicID, &b.OrganizationID, &b.Name,
+			&b.Code, &b.Address, &b.CityID, &b.Latitude, &b.Longitude,
+			&b.GoogleMapsURL, &b.ManagerName,
+			&b.WarehouseType, &b.HasColdStorage,
+			&b.CapacitySQM, &b.OperatingHours,
+			&b.Status, &b.IsMain, &b.Phone, &b.CreatedAt, &b.UpdatedAt,
 		)
 		if err != nil {
 			if database.IsNotFound(err) {
@@ -202,10 +217,11 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, name,
-			       -- code carries a unique index, so it stays nullable: NULLs do not
-			       -- collide but empty strings would, and most branches have no code.
-			       -- COALESCE keeps the Go field a plain string without that risk.
-			       COALESCE(code, ''), address, city_id, is_main, phone, created_at, updated_at
+			       COALESCE(code, ''), address, city_id, latitude, longitude,
+			       COALESCE(google_maps_url, ''), COALESCE(manager_name, ''),
+			       COALESCE(warehouse_type, 'warehouse'), COALESCE(has_cold_storage, false),
+			       COALESCE(capacity_sqm, 0), COALESCE(operating_hours, ''),
+			       COALESCE(status, 'active'), is_main, COALESCE(phone, ''), created_at, updated_at
 			FROM org.branches WHERE organization_id = $1 ORDER BY is_main DESC, id ASC;
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
@@ -217,7 +233,12 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 		for rows.Next() {
 			var b org.Branch
 			if err := rows.Scan(
-				&b.ID, &b.PublicID, &b.OrganizationID, &b.Name, &b.Code, &b.Address, &b.CityID, &b.IsMain, &b.Phone, &b.CreatedAt, &b.UpdatedAt,
+				&b.ID, &b.PublicID, &b.OrganizationID, &b.Name,
+				&b.Code, &b.Address, &b.CityID, &b.Latitude, &b.Longitude,
+				&b.GoogleMapsURL, &b.ManagerName,
+				&b.WarehouseType, &b.HasColdStorage,
+				&b.CapacitySQM, &b.OperatingHours,
+				&b.Status, &b.IsMain, &b.Phone, &b.CreatedAt, &b.UpdatedAt,
 			); err != nil {
 				return err
 			}

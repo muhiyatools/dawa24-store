@@ -143,11 +143,19 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/settings/preferences", h.SettingsPreferencesPage)
 	r.Get("/settings/payment-methods", h.SettingsPaymentMethodsPage)
 
-	// Vendor Supplier Experience (8 screens)
+	// Vendor Supplier Experience
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
 	r.Get("/vendor/products", h.VendorProductsPage)
-	r.Get("/vendor/products/new", h.VendorProductNewPage)
-	r.Get("/vendor/products/{id}", h.VendorProductEditorPage)
+	r.Get("/vendor/products/new", h.VendorVariantNewPage)
+	r.Get("/vendor/variants/new", h.VendorVariantNewPage)
+	r.Post("/vendor/variants/new", h.VendorVariantNewSubmit)
+	r.Post("/vendor/variants/{id}/delete", h.VendorVariantDeleteSubmit)
+	r.Get("/vendor/branches", h.VendorBranchesPage)
+	r.Post("/vendor/branches/new", h.VendorBranchNewSubmit)
+	r.Post("/vendor/branches/{id}/delete", h.VendorBranchDeleteSubmit)
+	r.Get("/vendor/team", h.VendorTeamPage)
+	r.Post("/vendor/team/new", h.VendorTeamNewSubmit)
+	r.Post("/vendor/team/{id}/toggle", h.VendorTeamToggleSubmit)
 	r.Get("/vendor/inventory", h.VendorInventoryPage)
 	r.Get("/vendor/transfers", h.VendorTransfersPage)
 	r.Get("/vendor/ingest", h.VendorIngestPage)
@@ -155,6 +163,10 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/vendor/offers", h.VendorOffersPage)
 	r.Get("/vendor/storefront", h.VendorStorefrontPage)
 	r.Get("/vendor/jobs", h.VendorJobsPage)
+
+	// User / Individual Experience
+	r.Get("/user/dashboard", h.UserDashboardPage)
+	r.Get("/user/applications", h.UserDashboardPage)
 
 	// Pharmacy Buyer Experience
 	r.Get("/pharmacy/dashboard", h.PharmacyDashboardPage)
@@ -220,8 +232,6 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/notifications/dropdown", h.NotificationsDropdownPartial)
 	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
 	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
-	r.Post("/vendor/products", h.VendorProductSaveSubmit)
-	r.Delete("/vendor/products/{id}", h.VendorProductDeleteSubmit)
 	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
 	r.Post("/vendor/inventory/{id}/adjust", h.VendorStockAdjustSubmit)
 	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)

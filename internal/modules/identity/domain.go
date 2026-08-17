@@ -23,6 +23,17 @@ const (
 	StatusPending   UserStatus = "pending"
 )
 
+const (
+	RoleSuperAdmin = "super_admin"
+	RoleAdmin      = "admin"
+	RoleSupplier   = "supplier"
+	RoleVendor     = "vendor"
+	RolePharmacy   = "pharmacy"
+	RoleEmployer   = "employer"
+	RoleIndividual = "individual"
+	RoleCustomer   = "customer"
+)
+
 // MaxFailedLoginsBeforeLockout defines when an account is temporarily locked.
 const (
 	MaxFailedLoginsBeforeLockout = 5

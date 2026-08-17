@@ -11,13 +11,19 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 	if isPartial {
 		@CustomerOrdersList(orders)
 	} else {
-		@layouts.CustomerShell("سجل الطلبات | My Orders", lang, dir) {
-			<div class="orders-page-container" style="max-width:1040px; margin:1.5rem auto;">
-				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem;">
-					@components.IconPackage("icon-md")
-					<h1 style="font-size:1.75rem; font-weight:900; color:var(--neutral-900); margin:0;">
-						سجل طلبات التوريد
-					</h1>
+		@layouts.PharmacyShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
+			<div class="orders-page-container" style="max-width:100%;">
+				<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						@components.IconPackage("icon-md")
+						<h2 style="font-size:1.5rem; font-weight:900; color:var(--neutral-900); margin:0;">
+							سجل طلبيات وأوامر التوريد
+						</h2>
+					</div>
+					<a href="/catalog" class="btn btn-primary btn-sm" style="font-weight:800;">
+						@components.IconPlus("icon-xs")
+						<span>طلب توريد جديد</span>
+					</a>
 				</div>
 				<div id="orders-list">
 					@CustomerOrdersList(orders)
@@ -30,7 +36,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 templ CustomerOrdersList(orders []*commerce.Order) {
 	if len(orders) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
-			Title:       "لا توجد طلبات سابقة",
+			Title:       "لا توجد طلبيات سابقة",
 			Message:     "لم تقم بإجراء أي طلبات شراء حتى الآن عبر منصة دواء 24.",
 			ActionLabel: "تصفح الكتالوج الدوائي",
 		})
@@ -48,21 +54,20 @@ templ CustomerOrdersList(orders []*commerce.Order) {
 							</span>
 						</div>
 						<div style="font-size:0.85rem; color:var(--neutral-500); display:flex; gap:1.25rem;">
-							<span>التاريخ: <strong class="tabular-nums">{ o.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
-							<span>طريقة الدفع: <strong>{ o.PaymentMethod }</strong></span>
+							<span>التاريخ: { o.CreatedAt.Format("2006-01-02 15:04") }</span>
+							<span>طريقة الدفع: { string(o.PaymentMethod) }</span>
 						</div>
 					</div>
-
-					<div style="display:flex; align-items:center; gap:1.5rem;">
-						<div style="text-align:end;">
-							<div style="font-size:0.8rem; color:var(--neutral-500);">إجمالي الفاتورة</div>
-							<div style="font-weight:800; font-size:1.15rem; color:var(--neutral-900);" class="tabular-nums">
-								{ o.TotalAmount.String() } EGP
+					<div style="text-align:inline-end; display:flex; align-items:center; gap:1.5rem;">
+						<div>
+							<div style="font-size:0.75rem; color:var(--neutral-400); font-weight:700;">إجمالي الطلب</div>
+							<div style="font-weight:900; font-size:1.2rem; color:var(--neutral-900);" class="tabular-nums">
+								{ o.TotalAmount.String() } ج.م
 							</div>
 						</div>
-						<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:600;">
-							@components.IconFileText("icon-xs")
+						<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:800;">
 							<span>تفاصيل الطلب</span>
+							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 				</div>

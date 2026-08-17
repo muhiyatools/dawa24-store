@@ -83,6 +83,14 @@ func (m *mockHRRepo) ListApplicationsByOffer(_ context.Context, _ int64, _, _ in
 	return nil, nil
 }
 
+func (m *mockHRRepo) ListApplicationsByUser(_ context.Context, _ int64) ([]*hr.JobApplication, error) {
+	return nil, nil
+}
+
+func (m *mockHRRepo) UpdateApplicationStatus(_ context.Context, _ int64, _, _ string) error {
+	return nil
+}
+
 func TestHREmployeesAndWorkTimes(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 30)
 	repo := newMockHRRepo()

@@ -8,17 +8,17 @@ import (
 )
 
 templ FavoritesPage(lang, dir string, products []*catalog.Product) {
-	@layouts.CustomerShell("قائمة المفضلة | Favorites", lang, dir) {
-		<div style="max-width:1120px; margin:1rem auto 3rem auto;">
+	@layouts.PharmacyShell("الأدوية والمستلزمات المفضلة", "favorites", lang, dir, nil) {
+		<div style="max-width:100%; margin:0 0 3rem 0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">
 					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
 						@components.IconHeart("icon-sm")
 					</div>
 					<div>
-						<h1 style="font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;">
+						<h2 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">
 							الأدوية والمستلزمات المفضلة
-						</h1>
+						</h2>
 						<p style="font-size:0.875rem; color:var(--neutral-500); margin:0;">
 							قائمة الأصناف المحفوظة للطلب السريع
 						</p>

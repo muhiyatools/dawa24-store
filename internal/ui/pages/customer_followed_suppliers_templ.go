@@ -49,7 +49,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"followed-suppliers-container\" style=\"max-width:1160px; margin:1.5rem auto 5rem auto;\"><!-- Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"followed-suppliers-container\" style=\"max-width:100%;\"><!-- Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -57,7 +57,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin:0;\">الموردون المتابعون وقائمتك المعتمدة</h1></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">متابعة تحديثات المخزون، العروض الخاصة، والأسعار الحصرية من شركات التوزيع المفضلة لصيدليتك</p></div><a href=\"/suppliers\" class=\"btn btn-secondary\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الموردون المتابعون وقائمتك المعتمدة</h2></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">متابعة تحديثات المخزون، العروض الخاصة، والأسعار الحصرية من شركات التوزيع المفضلة لصيدليتك</p></div><a href=\"/suppliers\" class=\"btn btn-secondary\" style=\"font-weight:700;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,7 +219,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الموردون المتابعون | Followed Suppliers", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PharmacyShell("الموردون المتابعون", "followed", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

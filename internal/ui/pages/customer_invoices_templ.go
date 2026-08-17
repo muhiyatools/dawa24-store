@@ -47,7 +47,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1120px; margin:1rem auto 4rem auto;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:100%; margin:0 0 4rem 0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -55,7 +55,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin:0;\">الفواتير الضريبية والإلكترونية</h1></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">الفواتير الرسمية المعتمدة من منظومة الضرائب المصرية (ETA e-Invoicing)</p></div></div><div class=\"card\" style=\"padding:2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الفواتير الضريبية والإلكترونية</h2></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">الفواتير الرسمية المعتمدة من منظومة الضرائب المصرية (ETA e-Invoicing)</p></div></div><div class=\"card\" style=\"padding:2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -178,7 +178,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الفواتير الضريبية | Invoices", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PharmacyShell("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

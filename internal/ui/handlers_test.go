@@ -38,9 +38,9 @@ func TestPublicAndAuthPageRoutes(t *testing.T) {
 		{"GET", "/auth/register"},
 		{"GET", "/auth/forgot"},
 		{"GET", "/auth/reset?token=test-reset-tok"},
-		{"GET", "/admin/dashboard"},
-		{"GET", "/admin/settings"},
-		{"GET", "/vendor/products/new"},
+		{"GET", "/catalog"},
+		{"GET", "/jobs"},
+		{"GET", "/suppliers"},
 	}
 
 	for _, route := range routes {
@@ -60,15 +60,15 @@ func TestPublicAndAuthPageRoutes(t *testing.T) {
 func TestHTMXPartialHeaderHandling(t *testing.T) {
 	router := setupTestRouter()
 
-	// Anonymous request to cart renders empty state partial
-	req := httptest.NewRequest("GET", "/cart", nil)
+	// Anonymous request to catalog partial renders successfully
+	req := httptest.NewRequest("GET", "/catalog", nil)
 	req.Header.Set("HX-Request", "true")
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
-		t.Errorf("GET /cart with HX-Request returned status %d, want 200", rec.Code)
+		t.Errorf("GET /catalog with HX-Request returned status %d, want 200", rec.Code)
 	}
 }
 
@@ -84,7 +84,7 @@ func TestAuthenticatedUIRoutesWithActor(t *testing.T) {
 			actor := authctx.Actor{
 				UserID:         100,
 				OrganizationID: 200,
-				Role:           "customer",
+				Role:           "pharmacy",
 			}
 			next.ServeHTTP(w, req.WithContext(authctx.WithActor(req.Context(), actor)))
 		})
@@ -114,7 +114,7 @@ func TestFormActionRoutes(t *testing.T) {
 		{"POST", "/cart/remove"},
 		{"POST", "/checkout"},
 		{"POST", "/notifications/123/read"},
-		{"POST", "/vendor/products"},
+		{"POST", "/vendor/variants/new"},
 		{"POST", "/vendor/orders/456/status"},
 	}
 

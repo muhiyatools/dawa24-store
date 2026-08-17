@@ -118,15 +118,24 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	userID, err := authctx.UserID(ctx)
-	if err != nil || h.commSvc == nil {
-		// If unauthenticated or commSvc not wired, show empty cart
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/cart", http.StatusSeeOther)
+		return
+	}
+
+	if actor.Role != "pharmacy" && actor.Role != "chain_pharmacy" && actor.Role != "customer" {
+		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، الشراء وسلة الطلبات متاحة حصرياً للصيدليات المرخصة.")
+		return
+	}
+
+	if h.commSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_ = pages.CustomerCart(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
 		return
 	}
 
-	cart, err := h.commSvc.GetCart(ctx, userID)
+	cart, err := h.commSvc.GetCart(ctx, actor.UserID)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
@@ -142,11 +151,18 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	userID, err := authctx.UserID(ctx)
-	if err != nil {
+	actor, ok := authctx.From(ctx)
+	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/checkout", http.StatusSeeOther)
 		return
 	}
+
+	if actor.Role != "pharmacy" && actor.Role != "chain_pharmacy" && actor.Role != "customer" {
+		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، إتمام الشراء والتوريد متاح حصرياً للصيدليات المرخصة.")
+		return
+	}
+
+	userID := actor.UserID
 
 	if h.commSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -283,12 +299,18 @@ func (h *UIHandler) NotificationsPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, err := authctx.UserID(ctx)
-	if err != nil {
+	actor, ok := authctx.From(ctx)
+	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/cart", http.StatusSeeOther)
 		return
 	}
 
+	if actor.Role != "pharmacy" && actor.Role != "chain_pharmacy" && actor.Role != "customer" {
+		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، إضافة الأدوية وطلب التوريد متاح حصرياً للصيدليات المرخصة.")
+		return
+	}
+
+	userID := actor.UserID
 	if h.commSvc == nil {
 		http.Redirect(w, r, "/cart", http.StatusSeeOther)
 		return

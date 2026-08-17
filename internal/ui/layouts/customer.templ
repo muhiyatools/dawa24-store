@@ -18,15 +18,14 @@ templ CustomerShell(title string, lang string, dir string) {
 			</div>
 
 			<div style="display:flex; align-items:center; gap:0.875rem;">
-				<!-- Language Toggle Switch (Sleek pill switch: عربي | EN) -->
-				@components.LanguageToggle(lang)
-
-				<!-- Cart Button: Clean Icon-only with badge -->
-				<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
-					@components.IconCart("icon-md")
-				</a>
-
 				if actor, ok := authctx.From(ctx); ok {
+					<!-- Cart Button: Restricted strictly to licensed pharmacies -->
+					if actor.Role == "pharmacy" || actor.Role == "chain_pharmacy" {
+						<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
+							@components.IconCart("icon-md")
+						</a>
+					}
+
 					<!-- Notifications Popover -->
 					<div class="dropdown">
 						<button
@@ -101,8 +100,12 @@ templ CustomerShell(title string, lang string, dir string) {
 										<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.1rem;">
 											if actor.Role == "admin" || actor.Role == "super_admin" {
 												<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مدير النظام العام</span>
-											} else if actor.Role == "vendor" || actor.Role == "supplier" {
+											} else if actor.Role == "vendor" || actor.Role == "supplier" || actor.Role == "company" {
 												<span class="badge badge-emerald" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
+											} else if actor.Role == "employer" {
+												<span class="badge badge-amber" style="font-size:0.675rem; padding:0.1rem 0.4rem;">موظف منشأة</span>
+											} else if actor.Role == "individual" {
+												<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">حساب مهني فردي</span>
 											} else {
 												<span class="badge badge-slate" style="font-size:0.675rem; padding:0.1rem 0.4rem;">صيدلية معتمدة</span>
 											}
@@ -111,56 +114,97 @@ templ CustomerShell(title string, lang string, dir string) {
 								</div>
 							</div>
 
-							<!-- 1. Wallet Balance Snapshot -->
-							<a href="/wallet" class="dropdown-item" style="background:var(--primary-50); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800) !important; font-weight:800; justify-content:space-between; padding:0.65rem 0.85rem;">
-								<div style="display:flex; align-items:center; gap:0.45rem;">
-									@components.IconWallet("icon-xs")
-									<span style="font-size:0.825rem;">رصيد المحفظة</span>
-								</div>
-								<span class="tabular-nums" style="color:var(--primary-700); font-weight:900; font-size:0.95rem;">5,420.00 ج.م</span>
-							</a>
+							<!-- 1. Wallet Balance Snapshot (for non-individual users) -->
+							if actor.Role != "individual" {
+								<a href="/wallet" class="dropdown-item" style="background:var(--primary-50); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800) !important; font-weight:800; justify-content:space-between; padding:0.65rem 0.85rem;">
+									<div style="display:flex; align-items:center; gap:0.45rem;">
+										@components.IconWallet("icon-xs")
+										<span style="font-size:0.825rem;">رصيد المحفظة</span>
+									</div>
+									<span class="tabular-nums" style="color:var(--primary-700); font-weight:900; font-size:0.95rem;">5,420.00 ج.م</span>
+								</a>
+							}
 
 							<!-- 2. Dashboard -->
 							if actor.Role == "admin" || actor.Role == "super_admin" {
 								<a href="/admin/dashboard" class="dropdown-item" style="font-weight:800;">
 									@components.IconChart("icon-xs")
-									<span>لوحة التحكم (Dashboard)</span>
+									<span>لوحة التحكم الرئيسية</span>
 								</a>
-							} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" {
-								<a href="/vendor/products" class="dropdown-item" style="font-weight:800;">
+							} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" || actor.Role == "employer" {
+								<a href="/vendor/dashboard" class="dropdown-item" style="font-weight:800;">
 									@components.IconChart("icon-xs")
-									<span>لوحة التحكم (Dashboard)</span>
+									<span>لوحة تحكم المورد</span>
+								</a>
+							} else if actor.Role == "individual" {
+								<a href="/user/dashboard" class="dropdown-item" style="font-weight:800;">
+									@components.IconChart("icon-xs")
+									<span>لوحة تحكم الحساب المهني</span>
 								</a>
 							} else {
 								<a href="/pharmacy/dashboard" class="dropdown-item" style="font-weight:800;">
 									@components.IconChart("icon-xs")
-									<span>لوحة التحكم (Dashboard)</span>
+									<span>لوحة تحكم الصيدلية</span>
 								</a>
 							}
 
-							<!-- 3. My Profile -->
-							<a href="/pharmacy/dashboard#profile" class="dropdown-item">
-								@components.IconUser("icon-xs")
-								<span>الملف الشخصي (My Profile)</span>
-							</a>
+							<!-- 3. Profile -->
+							if actor.Role == "admin" || actor.Role == "super_admin" {
+								<a href="/admin/dashboard" class="dropdown-item">
+									@components.IconUser("icon-xs")
+									<span>الملف الشخصي والحساب</span>
+								</a>
+							} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "company" || actor.Role == "employer" {
+								<a href="/vendor/dashboard" class="dropdown-item">
+									@components.IconUser("icon-xs")
+									<span>الملف الشخصي والحساب</span>
+								</a>
+							} else if actor.Role == "individual" {
+								<a href="/user/dashboard" class="dropdown-item">
+									@components.IconUser("icon-xs")
+									<span>الملف المهني والسيرة الذاتية</span>
+								</a>
+							} else {
+								<a href="/pharmacy/dashboard" class="dropdown-item">
+									@components.IconUser("icon-xs")
+									<span>الملف الشخصي والحساب</span>
+								</a>
+							}
 
-							<!-- 4. My Orders -->
-							<a href="/orders" class="dropdown-item">
-								@components.IconPackage("icon-xs")
-								<span>طلبياتي (My Orders)</span>
-							</a>
+							<!-- 4. Orders (for pharmacies and vendors) -->
+							if actor.Role == "pharmacy" || actor.Role == "chain_pharmacy" {
+								<a href="/orders" class="dropdown-item">
+									@components.IconPackage("icon-xs")
+									<span>طلبياتي وأوامر التوريد</span>
+								</a>
+							} else if actor.Role == "vendor" || actor.Role == "supplier" {
+								<a href="/vendor/orders" class="dropdown-item">
+									@components.IconTruck("icon-xs")
+									<span>أوامر التوريد والشحنات</span>
+								</a>
+							}
 
 							<!-- 5. Favourites -->
 							<a href="/favorites" class="dropdown-item">
 								@components.IconHeart("icon-xs")
-								<span>المفضلة (Favourites)</span>
+								<span>قائمة المفضلة</span>
 							</a>
 
-							<!-- 6. Followed Suppliers -->
-							<a href="/suppliers/followed" class="dropdown-item">
-								@components.IconBuilding("icon-xs")
-								<span>الموردين المتابعين</span>
-							</a>
+							<!-- 6. Followed Suppliers (for pharmacies) -->
+							if actor.Role == "pharmacy" || actor.Role == "chain_pharmacy" {
+								<a href="/suppliers/followed" class="dropdown-item">
+									@components.IconBuilding("icon-xs")
+									<span>الموردون المتابعون</span>
+								</a>
+							}
+
+							<!-- Jobs Applied (for individuals) -->
+							if actor.Role == "individual" {
+								<a href="/user/applications" class="dropdown-item">
+									@components.IconFile("icon-xs")
+									<span>طلبات التوظيف المقدمة</span>
+								</a>
+							}
 
 							<div class="dropdown-divider"></div>
 
@@ -168,7 +212,7 @@ templ CustomerShell(title string, lang string, dir string) {
 							<form action="/auth/logout" method="POST" style="margin:0;">
 								<button type="submit" class="dropdown-item" style="color:var(--danger) !important; font-weight:800;">
 									@components.IconLogout("icon-xs")
-									<span>تسجيل الخروج (Logout)</span>
+									<span>تسجيل الخروج</span>
 								</button>
 							</form>
 						</div>
@@ -178,7 +222,7 @@ templ CustomerShell(title string, lang string, dir string) {
 						تسجيل الدخول
 					</a>
 					<a href="/auth/register" class="btn btn-primary" style="padding:0.55rem 1.25rem;">
-						إنشاء حساب صيدلية
+						إنشاء حساب جديد
 					</a>
 				}
 			</div>

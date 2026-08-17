@@ -153,6 +153,24 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
+
+							<!-- Option 4: Individual Account -->
+							<div
+								class="type-card hover-lift"
+								data-account-type="individual"
+								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; cursor:pointer; transition:all 0.15s ease;"
+							>
+								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+									@components.IconUser("icon-sm")
+								</div>
+								<div style="flex:1;">
+									<div style="font-weight:900; color:var(--neutral-900); font-size:1rem;">حساب فردي / صيدلي وباحث عن عمل</div>
+									<div style="font-size:0.825rem; color:var(--neutral-600); margin-top:0.15rem;">إنشاء ملف مهني شخصي والتقديم المباشر على وظائف الصيدليات والشركات</div>
+								</div>
+								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;">
+									@components.IconCheck("icon-xs")
+								</div>
+							</div>
 						</div>
 					</section>
 

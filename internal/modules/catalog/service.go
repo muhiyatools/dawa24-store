@@ -105,6 +105,11 @@ func (s *Service) CreateVariant(ctx context.Context, v *ProductVariant) (*Produc
 	return v, nil
 }
 
+// ListVariantsByProduct retrieves all variants for a parent product.
+func (s *Service) ListVariantsByProduct(ctx context.Context, productID int64) ([]*ProductVariant, error) {
+	return s.repo.ListVariantsByProduct(ctx, productID)
+}
+
 // ListCategories returns all categories.
 func (s *Service) ListCategories(ctx context.Context) ([]*Category, error) {
 	return s.repo.ListCategories(ctx)

@@ -45,7 +45,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--neutral-800);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:900; font-size:1.1rem; color:#ffffff; line-height:1.2;\">دواء 24</span> <span style=\"font-size:0.75rem; color:var(--primary-400); font-weight:700;\">بوابة الموردين</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--neutral-800);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"/static/img/logo.png\" alt=\"دواء 24\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:900; font-size:1.15rem; color:#ffffff; line-height:1.2; font-family:'Cairo', sans-serif;\">دواء <span style=\"color:var(--primary-400);\">24</span></span> <span style=\"font-size:0.75rem; color:var(--neutral-400); font-weight:700;\">بوابة الموردين والمستودعات</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -79,15 +79,15 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconChart("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconHome("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>لوحة التحكم</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>لوحة التحكم الرئيسية</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 = []any{"sidebar-link", templ.KV("active", activeNav == "products")}
+			var templ_7745c5c3_Var5 = []any{"sidebar-link", templ.KV("active", activeNav == "products" || activeNav == "variants")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -113,16 +113,16 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>قائمة المنتجات</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>عروض وأصناف التوريد</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 = []any{"sidebar-link", templ.KV("active", activeNav == "new_product")}
+			var templ_7745c5c3_Var7 = []any{"sidebar-link", templ.KV("active", activeNav == "new_variant")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"/vendor/products/new\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"/vendor/variants/new\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -143,7 +143,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>إضافة صنف جديد</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>إضافة عرض توريد لصنف</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -177,12 +177,12 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 = []any{"sidebar-link", templ.KV("active", activeNav == "transfers")}
+			var templ_7745c5c3_Var11 = []any{"sidebar-link", templ.KV("active", activeNav == "branches")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<a href=\"/vendor/transfers\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<a href=\"/vendor/branches\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -199,20 +199,20 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconRefresh("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>التحويلات المخزنية</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>الفروع ونقاط التوزيع</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var13 = []any{"sidebar-link", templ.KV("active", activeNav == "ingest")}
+			var templ_7745c5c3_Var13 = []any{"sidebar-link", templ.KV("active", activeNav == "team")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<a href=\"/vendor/ingest\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<a href=\"/vendor/team\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -229,11 +229,11 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconUpload("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconUsers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>استيراد ملفات الكتالوج</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>الموظفين وصلاحيات الفريق</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -263,16 +263,16 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>الشحنات والتوريد</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>أوامر التوريد والشحنات</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var17 = []any{"sidebar-link", templ.KV("active", activeNav == "offers")}
+			var templ_7745c5c3_Var17 = []any{"sidebar-link", templ.KV("active", activeNav == "jobs")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var17...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<a href=\"/vendor/offers\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<a href=\"/vendor/jobs\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -289,19 +289,109 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = components.IconFile("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>وظائف المنشأة والتوظيف</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 = []any{"sidebar-link", templ.KV("active", activeNav == "transfers")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var19...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<a href=\"/vendor/transfers\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var19).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/vendor.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconRefresh("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>التحويلات المخزنية</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var21 = []any{"sidebar-link", templ.KV("active", activeNav == "ingest")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var21...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<a href=\"/vendor/ingest\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var22 string
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var21).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/vendor.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconUpload("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>استيراد ملفات الكتالوج</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var23 = []any{"sidebar-link", templ.KV("active", activeNav == "offers")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var23...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<a href=\"/vendor/offers\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var24 string
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var23).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/vendor.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = components.IconMegaphone("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>العروض والإعلانات</span></a></nav><div style=\"margin-top:auto; border-top:1px solid var(--neutral-800); padding:1rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" style=\"color:var(--neutral-400); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; text-decoration:none; border-radius:var(--radius-md); transition:background 0.15s ease;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>العروض والخصومات</span></a></nav><div style=\"margin-top:auto; border-top:1px solid var(--neutral-800); padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" class=\"btn btn-secondary\" style=\"width:100%; justify-content:center; font-weight:800; padding:0.65rem; color:#ffffff; background:rgba(255,255,255,0.08); border-color:transparent;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconArrowLeft("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>العودة للمتجر الدوائي</span></a></div></aside><main class=\"main-content\"><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border-subtle); background:#ffffff; padding:0 2rem; height:4rem; display:flex; align-items:center; justify-content:space-between;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" data-sidebar-toggle style=\"width:36px; height:36px;\" title=\"طي / توسيع القائمة\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span>استعراض المتجر الدوائي</span></a></div></aside><!-- Main Content --><main class=\"main-content\"><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border-subtle); background:#ffffff; padding:0 2rem; height:4.25rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" data-sidebar-toggle style=\"width:36px; height:36px;\" title=\"طي / توسيع القائمة\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -309,20 +399,20 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</button><h1 style=\"font-size:1.2rem; font-weight:800; color:var(--neutral-900); margin:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</button><h1 style=\"font-size:1.3rem; font-weight:900; color:var(--neutral-900); margin:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var19 string
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+			var templ_7745c5c3_Var25 string
+			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/vendor.templ`, Line: 72, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/vendor.templ`, Line: 97, Col: 96}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</h1></div><div style=\"display:flex; align-items:center; gap:1rem;\"><span class=\"badge badge-emerald\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</h1></div><div style=\"display:flex; align-items:center; gap:1rem;\"><span class=\"badge badge-emerald\" style=\"padding:0.35rem 0.75rem; font-weight:800; font-size:0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -330,7 +420,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>مورد معتمد</span></span><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>مورد معتمد</span></span><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:800;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -338,7 +428,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>خروج</span></button></form></div></header><div class=\"page-container\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span>تسجيل الخروج</span></button></form></div></header><div class=\"page-container\" style=\"padding:2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -346,7 +436,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div></main></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></main></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

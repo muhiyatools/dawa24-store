@@ -292,6 +292,11 @@ func landingPathForSession(sess *identity.Session) string {
 		return "/vendor/dashboard"
 	case "pharmacy", "chain_pharmacy":
 		return "/pharmacy/dashboard"
+	case "individual":
+		return "/user/dashboard"
+	}
+	if sess.Role == "individual" {
+		return "/user/dashboard"
 	}
 	return "/catalog"
 }

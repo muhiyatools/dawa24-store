@@ -28,6 +28,19 @@ import (
 func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User, orgIn identity.RegisterOrgInput) (*identity.RegisterOrgResult, error) {
 	result := &identity.RegisterOrgResult{}
 
+	if orgIn.Type == "individual" {
+		u.Role = "individual"
+		if orgIn.LegalName == "" {
+			orgIn.LegalName = u.Name.Get(i18n.AR)
+			if orgIn.LegalName == "" {
+				orgIn.LegalName = u.Email
+			}
+		}
+		if orgIn.TradeNameAr == "" {
+			orgIn.TradeNameAr = orgIn.LegalName
+		}
+	}
+
 	// trade_name is NOT NULL in the schema; an empty trade name falls back to
 	// the legal name, matching CreateOrganization's reader-facing behaviour.
 	tradeName := i18n.New(orgIn.TradeNameAr, orgIn.TradeNameEn)
@@ -55,13 +68,22 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			return fmt.Errorf("identity postgres: register security: %w", err)
 		}
 
-		// 2. The organization, pending approval.
+		// 2. The organization (individual accounts are active by default).
+		orgStatus := "pending"
+		cr := orgIn.CommercialRegister
+		if orgIn.Type == "individual" {
+			orgStatus = "active"
+			if cr == "" {
+				cr = fmt.Sprintf("IND-%d", u.ID)
+			}
+		}
+
 		var status string
 		err = tx.QueryRow(txCtx, `INSERT INTO org.organizations (name, legal_name, trade_name, tax_number, commercial_register, type, status, pharmacist_license, branch_count, owner_id)`+
-			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), $4, $5, 'pending', NULLIF($6, ''), $7, $8)`+
+			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), $4, $5, $6, NULLIF($7, ''), $8, $9)`+
 			`RETURNING id, public_id, type, status;`,
-			orgIn.LegalName, tradeName, orgIn.TaxNumber, orgIn.CommercialRegister,
-			orgIn.Type, orgIn.PharmacistLicense, orgIn.BranchCount, u.ID,
+			orgIn.LegalName, tradeName, orgIn.TaxNumber, cr,
+			orgIn.Type, orgStatus, orgIn.PharmacistLicense, orgIn.BranchCount, u.ID,
 		).Scan(&result.OrganizationID, &result.OrganizationPublicID, &result.OrganizationType, &status)
 		if err != nil {
 			if database.IsUniqueViolation(err) {

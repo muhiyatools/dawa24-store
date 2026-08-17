@@ -104,8 +104,25 @@ func (s *Service) ApplyToJob(ctx context.Context, a *JobApplication) error {
 	if a.ApplicantName == "" || a.ApplicantEmail == "" {
 		return apperr.Validation("job.apply_required", "Name and email are required.", nil)
 	}
-	a.Status = "pending"
+	if a.Status == "" {
+		a.Status = "pending"
+	}
 	return s.repo.CreateJobApplication(ctx, a)
+}
+
+// ListApplicationsByOffer returns applications for a specific job offer.
+func (s *Service) ListApplicationsByOffer(ctx context.Context, offerID int64, limit, offset int) ([]*JobApplication, error) {
+	return s.repo.ListApplicationsByOffer(ctx, offerID, limit, offset)
+}
+
+// ListApplicationsByUser returns applications submitted by a user.
+func (s *Service) ListApplicationsByUser(ctx context.Context, userID int64) ([]*JobApplication, error) {
+	return s.repo.ListApplicationsByUser(ctx, userID)
+}
+
+// UpdateApplicationStatus updates application review status.
+func (s *Service) UpdateApplicationStatus(ctx context.Context, appID int64, status, notes string) error {
+	return s.repo.UpdateApplicationStatus(ctx, appID, status, notes)
 }
 
 // ListApplications returns applications for a vacancy.

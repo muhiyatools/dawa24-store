@@ -95,6 +95,11 @@ type ProductVariant struct {
 	Discount       money.Amount  `json:"discount"`
 	Unit           string        `json:"unit,omitempty"`
 	Image          string        `json:"image,omitempty"`
+	BatchNumber    string        `json:"batch_number,omitempty"`
+	ExpiryDate     *time.Time    `json:"expiry_date,omitempty"`
+	MinOrderQty    int           `json:"min_order_qty"`
+	BranchID       *int64        `json:"branch_id,omitempty"`
+	StockQty       int           `json:"stock_qty"`
 	Status         ProductStatus `json:"status"`
 	IsFeatured     bool          `json:"is_featured"`
 	CreatedAt      time.Time     `json:"created_at"`
