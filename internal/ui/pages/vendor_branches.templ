@@ -335,11 +335,12 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<select name="city_id" data-map-city class="form-input" style="width:100%;">
 									<option value="">-- اختر المدينة --</option>
 									for _, c := range data.Cities {
-										<option value={ fmt.Sprintf("%d", c.ID) } data-coords={ fmt.Sprintf("%.6f,%.6f", c.Latitude, c.Longitude) }>
+										<option value={ fmt.Sprintf("%d", c.ID) }>
 											{ c.Name.Get(i18n.Lang(lang)) }
 										</option>
 									}
 								</select>
+
 							</div>
 
 							<div>

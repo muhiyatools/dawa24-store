@@ -48,9 +48,9 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 						<span>الفروع ونقاط التوزيع</span>
 					</a>
 
-					<a href="/vendor/team" class={ "sidebar-link", templ.KV("active", activeNav == "team") }>
+					<a href="/settings/employees" class={ "sidebar-link", templ.KV("active", activeNav == "employees" || activeNav == "team") }>
 						@components.IconUsers("icon-sm")
-						<span>الموظفين وصلاحيات الفريق</span>
+						<span>الموظفين ومدراء الفروع</span>
 					</a>
 
 					<a href="/vendor/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
@@ -74,10 +74,11 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					</a>
 
 					<a href="/vendor/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
-						@components.IconMegaphone("icon-sm")
-						<span>العروض والخصومات</span>
+						@components.IconTag("icon-sm")
+						<span>العروض الخاصة والتغطية</span>
 					</a>
 				</nav>
+
 
 				<div style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem;">
 					<a href="/catalog" class="btn sidebar-footer-btn" style="width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md);" title="كتالوج المنتجات">

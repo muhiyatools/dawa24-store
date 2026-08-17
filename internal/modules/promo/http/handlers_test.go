@@ -84,6 +84,30 @@ func (r stubRepo) ExpirePromotions(context.Context) (int64, error) {
 	r.fail("ExpirePromotions")
 	return 0, nil
 }
+func (r stubRepo) CreateSpecialOffer(context.Context, *promo.SpecialOffer) error {
+	r.fail("CreateSpecialOffer")
+	return nil
+}
+func (r stubRepo) GetSpecialOfferByID(context.Context, int64) (*promo.SpecialOffer, error) {
+	r.fail("GetSpecialOfferByID")
+	return nil, nil
+}
+func (r stubRepo) ListSpecialOffersByOrg(context.Context, int64) ([]*promo.SpecialOffer, error) {
+	r.fail("ListSpecialOffersByOrg")
+	return nil, nil
+}
+func (r stubRepo) DeleteSpecialOffer(context.Context, int64, int64) error {
+	r.fail("DeleteSpecialOffer")
+	return nil
+}
+func (r stubRepo) AddSpecialOfferLocation(context.Context, *promo.SpecialOfferLocation) error {
+	r.fail("AddSpecialOfferLocation")
+	return nil
+}
+func (r stubRepo) ListSpecialOfferLocations(context.Context, int64) ([]*promo.SpecialOfferLocation, error) {
+	r.fail("ListSpecialOfferLocations")
+	return nil, nil
+}
 
 type happyRepo struct{}
 
@@ -148,6 +172,27 @@ func (happyRepo) ListHighlightSections(ctx context.Context) ([]*promo.HighlightS
 func (happyRepo) ExpirePromotions(ctx context.Context) (int64, error) {
 	return 0, nil
 }
+func (happyRepo) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
+	o.ID = 1
+	return nil
+}
+func (happyRepo) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.SpecialOffer, error) {
+	return &promo.SpecialOffer{ID: id, Title: i18n.New("عرض خاص", "Special Offer")}, nil
+}
+func (happyRepo) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*promo.SpecialOffer, error) {
+	return []*promo.SpecialOffer{{ID: 1, Title: i18n.New("عرض خاص", "Special Offer")}}, nil
+}
+func (happyRepo) DeleteSpecialOffer(ctx context.Context, id, orgID int64) error {
+	return nil
+}
+func (happyRepo) AddSpecialOfferLocation(ctx context.Context, loc *promo.SpecialOfferLocation) error {
+	loc.ID = 1
+	return nil
+}
+func (happyRepo) ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*promo.SpecialOfferLocation, error) {
+	return []*promo.SpecialOfferLocation{{ID: 1, Radius: 1000}}, nil
+}
+
 
 const testCookieName = "dawa24_session"
 

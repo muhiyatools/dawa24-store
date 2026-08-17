@@ -166,8 +166,14 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/vendor/ingest", h.VendorIngestPage)
 	r.Get("/vendor/orders", h.VendorOrdersPage)
 	r.Get("/vendor/offers", h.VendorOffersPage)
+	r.Get("/vendor/offers/new", h.VendorOfferNewPage)
+	r.Post("/vendor/offers/new", h.VendorOfferNewSubmit)
+	r.Get("/vendor/offers/{id}/locations", h.VendorOfferLocationsPage)
+	r.Post("/vendor/offers/{id}/locations/new", h.VendorOfferLocationNewSubmit)
+	r.Post("/vendor/offers/{id}/delete", h.VendorOfferDeleteSubmit)
 	r.Get("/vendor/storefront", h.VendorStorefrontPage)
 	r.Get("/vendor/jobs", h.VendorJobsPage)
+
 
 	// User / Individual Experience
 	r.Get("/user/dashboard", h.UserDashboardPage)

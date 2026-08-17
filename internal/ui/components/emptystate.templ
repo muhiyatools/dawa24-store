@@ -4,17 +4,26 @@ type EmptyStateProps struct {
 	Title       string
 	Message     string
 	ActionLabel string
+	ActionURL   string
 }
 
 templ EmptyState(props EmptyStateProps) {
-	<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3rem 2rem; text-align:center; border:2px dashed var(--neutral-300); border-radius:var(--radius-xl); background:var(--neutral-50); margin:1.5rem 0;">
-		<div style="width:56px; height:56px; border-radius:var(--radius-xl); background:var(--neutral-100); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+	<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3.5rem 2rem; text-align:center; border:2px dashed var(--border); border-radius:var(--radius-2xl); background:var(--surface-sunken); margin:1.5rem 0;">
+		<div style="width:56px; height:56px; border-radius:var(--radius-xl); background:var(--surface-raised); border:1px solid var(--border); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
 			@IconPackage("icon-xl")
 		</div>
-		<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.35rem;">{ props.Title }</h3>
-		<p style="font-size:0.9rem; color:var(--neutral-500); margin-bottom:1.25rem; max-width:420px; line-height:1.6;">{ props.Message }</p>
+		<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.35rem;">{ props.Title }</h3>
+		<p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem; max-width:420px; line-height:1.6;">{ props.Message }</p>
 		if props.ActionLabel != "" {
-			<a href="/catalog" class="btn btn-primary" style="padding:0.6rem 1.5rem; font-size:0.9rem;">
+			<a
+				if props.ActionURL != "" {
+					href={ templ.SafeURL(props.ActionURL) }
+				} else {
+					href="/catalog"
+				}
+				class="btn btn-primary"
+				style="padding:0.65rem 1.75rem; font-size:0.875rem; font-weight:700;"
+			>
 				{ props.ActionLabel }
 			</a>
 		}

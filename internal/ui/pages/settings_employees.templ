@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/format"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
 
 templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, roles []*org.Role, lang, dir string) {
 	@layouts.VendorShell("إدارة الموظفين ومدراء الفروع | Team & Managers", "employees", lang, dir) {

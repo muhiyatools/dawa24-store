@@ -141,6 +141,28 @@ func (m *mockPromoRepo) ExpirePromotions(_ context.Context) (int64, error) {
 	return 0, nil
 }
 
+func (m *mockPromoRepo) CreateSpecialOffer(_ context.Context, o *SpecialOffer) error {
+	o.ID = 1
+	return nil
+}
+func (m *mockPromoRepo) GetSpecialOfferByID(_ context.Context, id int64) (*SpecialOffer, error) {
+	return &SpecialOffer{ID: id, Title: i18n.New("عرض تجريبي", "Demo Special Offer")}, nil
+}
+func (m *mockPromoRepo) ListSpecialOffersByOrg(_ context.Context, _ int64) ([]*SpecialOffer, error) {
+	return []*SpecialOffer{{ID: 1, Title: i18n.New("عرض تجريبي", "Demo Special Offer")}}, nil
+}
+func (m *mockPromoRepo) DeleteSpecialOffer(_ context.Context, _, _ int64) error {
+	return nil
+}
+func (m *mockPromoRepo) AddSpecialOfferLocation(_ context.Context, loc *SpecialOfferLocation) error {
+	loc.ID = 1
+	return nil
+}
+func (m *mockPromoRepo) ListSpecialOfferLocations(_ context.Context, _ int64) ([]*SpecialOfferLocation, error) {
+	return []*SpecialOfferLocation{{ID: 1, Radius: 1000}}, nil
+}
+
+
 func TestPromoServiceLifecycle(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 42)
 	repo := newMockPromoRepo()

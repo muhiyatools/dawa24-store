@@ -57,7 +57,9 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 			Title:       "لا توجد أصناف توريد مسجلة",
 			Message:     "قم باختيار الأدوية من الكتالوج المعتمد وإضافة عروض الأسعار والكميات المتاحة لديك.",
 			ActionLabel: "+ إضافة عرض توريد جديد",
+			ActionURL:   "/vendor/variants/new",
 		})
+
 	} else {
 		<div class="card" style="padding:0; overflow:hidden; border:1px solid var(--border); border-radius:var(--radius-xl);">
 			<div class="table-container" style="margin:0; border:none;">
