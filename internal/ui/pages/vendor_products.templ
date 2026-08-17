@@ -28,10 +28,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				<!-- Header Bar -->
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
 					<div>
-						<h2 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">
+						<h2 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0;">
 							قائمة أصناف وعروض التوريد
 						</h2>
-						<p style="color:var(--neutral-500); font-size:0.925rem; margin:0.25rem 0 0 0;">
+						<p style="color:var(--text-secondary); font-size:0.925rem; margin:0.25rem 0 0 0;">
 							إدارة أسعار التوريد، العبوات، تواريخ الصلاحية، والأرصدة المتاحة للطلب من الصيدليات
 						</p>
 					</div>
@@ -59,7 +59,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 			ActionLabel: "+ إضافة عرض توريد جديد",
 		})
 	} else {
-		<div class="card" style="padding:0; overflow:hidden; border:1px solid var(--neutral-200); border-radius:var(--radius-xl);">
+		<div class="card" style="padding:0; overflow:hidden; border:1px solid var(--border); border-radius:var(--radius-xl);">
 			<div class="table-container" style="margin:0; border:none;">
 				<table class="table" style="margin:0;">
 					<thead>
@@ -80,7 +80,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							<tr id={ fmt.Sprintf("variant-row-%d", v.Variant.ID) }>
 								<td>
 									<div style="display:flex; align-items:center; gap:0.75rem;">
-										<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); border:1px solid var(--neutral-200); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+										<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
 											if v.MasterProduct != nil && v.MasterProduct.Image != "" {
 												<img src={ v.MasterProduct.Image } alt="Product" style="width:100%; height:100%; object-fit:cover;" />
 											} else {
@@ -88,7 +88,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 											}
 										</div>
 										<div>
-											<div style="font-weight:800; color:var(--neutral-900);">
+											<div style="font-weight:800; color:var(--text);">
 												if v.MasterProduct != nil {
 													{ v.MasterProduct.Name.Get(i18n.Lang(lang)) }
 												} else {
@@ -96,42 +96,42 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 												}
 											</div>
 											if v.MasterProduct != nil && v.MasterProduct.DosageForm != "" {
-												<div style="font-size:0.75rem; color:var(--neutral-500);">{ v.MasterProduct.DosageForm }</div>
+												<div style="font-size:0.75rem; color:var(--text-muted);">{ v.MasterProduct.DosageForm }</div>
 											}
 										</div>
 									</div>
 								</td>
 								<td>
-									<strong style="color:var(--neutral-800);">{ v.Variant.Name.Get(i18n.Lang(lang)) }</strong>
+									<strong style="color:var(--text);">{ v.Variant.Name.Get(i18n.Lang(lang)) }</strong>
 									if v.Variant.SKU != "" {
-										<div style="font-size:0.75rem; color:var(--neutral-500);" class="tabular-nums">SKU: { v.Variant.SKU }</div>
+										<div style="font-size:0.75rem; color:var(--text-muted);" class="tabular-nums">SKU: { v.Variant.SKU }</div>
 									}
 								</td>
-								<td class="tabular-nums" style="font-weight:700; color:var(--neutral-700);">
+								<td class="tabular-nums" style="font-weight:700; color:var(--text-secondary);">
 									if v.Variant.BatchNumber != "" {
 										{ v.Variant.BatchNumber }
 									} else {
-										<span style="color:var(--neutral-400); font-weight:normal;">-</span>
+										<span style="color:var(--text-muted); font-weight:normal;">-</span>
 									}
 								</td>
-								<td class="tabular-nums" style="font-weight:900; color:var(--primary-800); font-size:1.05rem;">
+								<td class="tabular-nums" style="font-weight:800; color:var(--accent); font-size:1.05rem;">
 									{ v.Variant.Price.String() } ج.م
 								</td>
-								<td class="tabular-nums" style="font-weight:800; color:var(--neutral-900);">
+								<td class="tabular-nums" style="font-weight:800; color:var(--text);">
 									{ fmt.Sprintf("%d عبوة", v.Variant.StockQty) }
 								</td>
-								<td class="tabular-nums" style="color:var(--neutral-600); font-size:0.85rem;">
+								<td class="tabular-nums" style="color:var(--text-secondary); font-size:0.85rem;">
 									if v.Variant.ExpiryDate != nil {
 										{ v.Variant.ExpiryDate.Format("2006-01-02") }
 									} else {
-										<span style="color:var(--neutral-400);">-</span>
+										<span style="color:var(--text-muted);">-</span>
 									}
 								</td>
 								<td>
 									if v.BranchName != "" {
 										<span class="badge badge-slate" style="font-weight:700;">{ v.BranchName }</span>
 									} else {
-										<span style="color:var(--neutral-400); font-size:0.85rem;">المستودع الرئيسي</span>
+										<span style="color:var(--text-muted); font-size:0.85rem;">المستودع الرئيسي</span>
 									}
 								</td>
 								<td>
@@ -141,6 +141,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 										<span class="badge badge-slate" style="font-weight:800;">غير متاح</span>
 									}
 								</td>
+
 								<td>
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } style="margin:0;" onsubmit="return confirm('هل تريد إزالة هذا العرض من الكتالوج؟');">
 										<button type="submit" class="btn btn-icon" style="color:var(--danger); background:transparent; border:none; width:32px; height:32px;" title="حذف العرض">

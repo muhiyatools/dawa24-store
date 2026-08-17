@@ -452,9 +452,17 @@ function initScrollReveal() {
   targets.forEach(function(el) { observer.observe(el); });
 }
 
-// Universal Google Maps Interactive Engine (iframe embed — no API key required)
+// Universal Leaflet & Interactive Map Engine
 function initMapPickers() {
   const containers = document.querySelectorAll('[data-map-picker]');
+  if (!containers.length) return;
+
+  // If Leaflet is not yet defined on window, retry shortly
+  if (typeof L === 'undefined') {
+    setTimeout(initMapPickers, 100);
+    return;
+  }
+
   containers.forEach((container) => {
     if (container.dataset.mapInitialized === 'true') return;
 
@@ -470,19 +478,62 @@ function initMapPickers() {
     const citySelect = container.querySelector('[data-city-selector]');
     const locateBtn = container.querySelector('[data-locate-me-btn]');
 
-    let currentLat = parseFloat(canvas.dataset.lat || (latInput ? latInput.value : '30.0444')) || 30.0444;
-    let currentLon = parseFloat(canvas.dataset.lon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
-    let currentZoom = 13;
+    let initialLat = parseFloat(canvas.dataset.lat || (latInput ? latInput.value : '30.0444')) || 30.0444;
+    let initialLon = parseFloat(canvas.dataset.lon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
+    let initialRadius = parseInt(canvas.dataset.radius || (radiusInput ? radiusInput.value : '10000'), 10) || 10000;
 
     container.dataset.mapInitialized = 'true';
 
-    function updateCoordinates(lat, lon, zoom) {
+    // Initialize Leaflet Map
+    const map = L.map(canvas, {
+      center: [initialLat, initialLon],
+      zoom: 13,
+      zoomControl: true,
+      scrollWheelZoom: true,
+    });
+
+    // Add standard OpenStreetMap tiles
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
+
+    // Custom pulse marker icon (matches Laravel reference)
+    const customIcon = L.divIcon({
+      className: 'custom-map-pin',
+      html: `<div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#0ea5e9; color:#fff; border-radius:50%; box-shadow:0 4px 14px rgba(14,165,233,0.5); border:3px solid #ffffff; font-size:18px; cursor:grab; transform:translate(-50%, -50%);">📍</div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
+    });
+
+    const marker = L.marker([initialLat, initialLon], {
+      draggable: true,
+      icon: customIcon,
+    }).addTo(map);
+
+    let circle = null;
+    if (radiusInput || canvas.dataset.radius) {
+      circle = L.circle([initialLat, initialLon], {
+        radius: initialRadius,
+        color: '#0ea5e9',
+        fillColor: '#0ea5e9',
+        fillOpacity: 0.18,
+        weight: 2,
+      }).addTo(map);
+    }
+
+    function updateCoordinates(lat, lon, zoom = null) {
       const fixedLat = parseFloat(lat.toFixed(6));
       const fixedLon = parseFloat(lon.toFixed(6));
 
-      currentLat = fixedLat;
-      currentLon = fixedLon;
-      if (zoom != null) currentZoom = zoom;
+      marker.setLatLng([fixedLat, fixedLon]);
+      if (circle) circle.setLatLng([fixedLat, fixedLon]);
+
+      if (zoom !== null) {
+        map.setView([fixedLat, fixedLon], zoom, { animate: true });
+      } else {
+        map.panTo([fixedLat, fixedLon], { animate: true });
+      }
 
       if (latInput) latInput.value = fixedLat.toFixed(6);
       if (lonInput) lonInput.value = fixedLon.toFixed(6);
@@ -491,45 +542,40 @@ function initMapPickers() {
       if (gmapsInput) gmapsInput.value = gmapsUrl;
       gmapsLinks.forEach((link) => { link.href = gmapsUrl; });
       if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
-
-      refreshMapIframe(fixedLat, fixedLon, currentZoom);
     }
 
-    function refreshMapIframe(lat, lon, zoom) {
-      // Embed API mode: rebuild the official embed URL from the server-provided
-      // template ({lat}/{lon}/{zoom} placeholders carry the API key).
-      const tmpl = canvas.dataset.mapEmbedTemplate;
-      if (tmpl) {
-        const iframe = canvas.querySelector('iframe[data-map-iframe]');
-        if (!iframe) return;
-        const z = zoom || currentZoom;
-        const newSrc = tmpl
-          .replace('{lat}', lat.toFixed(8))
-          .replace('{lon}', lon.toFixed(8))
-          .replace('{zoom}', String(z));
-        if (iframe.src !== newSrc) iframe.src = newSrc;
-        return;
-      }
-      // Fallback mode (no API key): keep the coordinate readout moving instead.
-      const fallbackCoords = canvas.querySelector('[data-map-fallback-coords]');
-      if (fallbackCoords) fallbackCoords.textContent = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
-    }
+    // Map Click Handler
+    map.on('click', (e) => {
+      updateCoordinates(e.latlng.lat, e.latlng.lng);
+    });
 
-    // Lat / Lon Input Change Handlers — update map iframe when typed manually
+    // Marker Drag Handler
+    marker.on('dragend', () => {
+      const pos = marker.getLatLng();
+      updateCoordinates(pos.lat, pos.lng);
+    });
+
+    // Manual Lat / Lon Input Change Handlers
     if (latInput && lonInput) {
-      let inputDebounce = null;
       const onManualInputChange = () => {
-        clearTimeout(inputDebounce);
-        inputDebounce = setTimeout(() => {
-          const parsedLat = parseFloat(latInput.value);
-          const parsedLon = parseFloat(lonInput.value);
-          if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
-            updateCoordinates(parsedLat, parsedLon, currentZoom);
-          }
-        }, 500);
+        const parsedLat = parseFloat(latInput.value);
+        const parsedLon = parseFloat(lonInput.value);
+        if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+          updateCoordinates(parsedLat, parsedLon, map.getZoom());
+        }
       };
       latInput.addEventListener('input', onManualInputChange);
       lonInput.addEventListener('input', onManualInputChange);
+    }
+
+    // Radius Input Change Handler
+    if (radiusInput && circle) {
+      radiusInput.addEventListener('input', () => {
+        const rad = parseInt(radiusInput.value, 10);
+        if (!isNaN(rad) && rad > 0) {
+          circle.setRadius(rad);
+        }
+      });
     }
 
     // City Preset Selector
@@ -575,7 +621,22 @@ function initMapPickers() {
         );
       });
     }
+
+    // Auto Invalidate Size for Modals and Tabs
+    const modalParent = container.closest('.modal-overlay, .modal-backdrop, dialog, .tab-pane');
+    if (modalParent) {
+      const resizeObserver = new MutationObserver(() => {
+        if (getComputedStyle(modalParent).display !== 'none' || modalParent.hasAttribute('open') || modalParent.classList.contains('active')) {
+          setTimeout(() => map.invalidateSize(), 150);
+          setTimeout(() => map.invalidateSize(), 350);
+        }
+      });
+      resizeObserver.observe(modalParent, { attributes: true, attributeFilter: ['style', 'class', 'open'] });
+    }
+
+    window.addEventListener('resize', () => map.invalidateSize());
+
+    setTimeout(() => map.invalidateSize(), 150);
+    setTimeout(() => map.invalidateSize(), 400);
   });
 }
-
-
