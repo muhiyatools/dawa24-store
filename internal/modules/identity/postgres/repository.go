@@ -64,14 +64,14 @@ func (r *Repository) GetUserByID(ctx context.Context, id int64) (*identity.User,
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, email, password_hash, name, role, status, language, timezone,
-			       phone, email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
+			       phone, COALESCE(avatar_url, ''), email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
 			FROM identity.users
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		var statusStr, langStr string
 		err := tx.QueryRow(txCtx, query, id).Scan(
 			&u.ID, &u.PublicID, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
-			&statusStr, &langStr, &u.Timezone, &u.Phone, &u.EmailVerifiedAt,
+			&statusStr, &langStr, &u.Timezone, &u.Phone, &u.AvatarURL, &u.EmailVerifiedAt,
 			&u.PhoneVerifiedAt, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt,
 		)
 		if err != nil {
@@ -96,14 +96,14 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*identit
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, email, password_hash, name, role, status, language, timezone,
-			       phone, email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
+			       phone, COALESCE(avatar_url, ''), email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
 			FROM identity.users
 			WHERE email = $1 AND deleted_at IS NULL;
 		`
 		var statusStr, langStr string
 		err := tx.QueryRow(txCtx, query, identity.NormalizeEmail(email)).Scan(
 			&u.ID, &u.PublicID, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
-			&statusStr, &langStr, &u.Timezone, &u.Phone, &u.EmailVerifiedAt,
+			&statusStr, &langStr, &u.Timezone, &u.Phone, &u.AvatarURL, &u.EmailVerifiedAt,
 			&u.PhoneVerifiedAt, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt,
 		)
 		if err != nil {
@@ -131,13 +131,13 @@ func (r *Repository) UpdateUser(ctx context.Context, u *identity.User) error {
 			    -- Same NOT NULL guard as CreateUser: an empty i18n.Text marshals to
 			    -- NULL, which the column rejects rather than defaulting.
 			    name = COALESCE($4, '{"ar":"","en":""}'::jsonb), role = $5, status = $6,
-			    language = $7, timezone = $8, phone = $9, email_verified_at = $10,
-			    phone_verified_at = $11, updated_at = now()
+			    language = $7, timezone = $8, phone = $9, avatar_url = $10, email_verified_at = $11,
+			    phone_verified_at = $12, updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		res, err := tx.Exec(txCtx, query,
 			u.ID, identity.NormalizeEmail(u.Email), u.PasswordHash, u.Name, u.Role,
-			string(u.Status), string(u.Language), u.Timezone, u.Phone,
+			string(u.Status), string(u.Language), u.Timezone, u.Phone, u.AvatarURL,
 			u.EmailVerifiedAt, u.PhoneVerifiedAt,
 		)
 		if err != nil {

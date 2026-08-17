@@ -114,8 +114,9 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/invoices", h.InvoicesPage)
 	r.Get("/favorites", h.FavoritesPage)
 
-	// Public directory
+	// Public & Followed suppliers directory
 	r.Get("/suppliers", h.SuppliersPage)
+	r.Get("/suppliers/followed", h.FollowedSuppliersPage)
 	r.Get("/suppliers/{id}", h.SupplierProfilePage)
 	r.Get("/offers", h.OffersPage)
 	r.Get("/offers/{id}", h.OfferDetailPage)

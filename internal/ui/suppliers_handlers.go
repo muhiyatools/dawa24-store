@@ -31,6 +31,28 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// FollowedSuppliersPage renders the list of suppliers followed by the current user.
+func (h *UIHandler) FollowedSuppliersPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	userID, err := authctx.UserID(ctx)
+	if err != nil {
+		http.Redirect(w, r, "/auth/login?redirect=/suppliers/followed", http.StatusSeeOther)
+		return
+	}
+
+	var suppliers []*org.Organization
+	if h.orgSvc != nil {
+		suppliers, _ = h.orgSvc.ListFollowedOrganizations(ctx, userID)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.CustomerFollowedSuppliers(suppliers, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render followed suppliers page", "error", err)
+	}
+}
+
 // SupplierProfilePage renders a supplier's public profile: catalogue, reviews
 // and policies.
 func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) {

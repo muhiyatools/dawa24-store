@@ -222,6 +222,11 @@ func (s *Service) IsFollowing(ctx context.Context, orgID, userID int64) (bool, e
 	return s.repo.IsFollowing(ctx, orgID, userID)
 }
 
+// ListFollowedOrganizations returns the list of organizations followed by a user.
+func (s *Service) ListFollowedOrganizations(ctx context.Context, userID int64) ([]*Organization, error) {
+	return s.repo.ListFollowedOrgs(ctx, userID)
+}
+
 // ListPolicies returns an organization's active policies.
 func (s *Service) ListPolicies(ctx context.Context, orgID int64) ([]*Policy, error) {
 	return s.repo.ListPoliciesByOrg(ctx, orgID)

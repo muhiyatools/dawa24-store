@@ -31,6 +31,7 @@ type Repository interface {
 
 	ToggleFollower(ctx context.Context, orgID, userID int64) (bool, error)
 	IsFollowing(ctx context.Context, orgID, userID int64) (bool, error)
+	ListFollowedOrgs(ctx context.Context, userID int64) ([]*Organization, error)
 
 	CreatePolicy(ctx context.Context, p *Policy) error
 	ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*Policy, error)

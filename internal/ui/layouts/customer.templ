@@ -9,8 +9,11 @@ templ CustomerShell(title string, lang string, dir string) {
 	@Base(title, lang, dir) {
 		<header class="top-navbar">
 			<div style="display:flex; align-items:center; gap:2.5rem;">
-				<a href="/" style="display:flex; align-items:center; gap:0.75rem; text-decoration:none;">
-					<img src="/static/img/logo.png" alt="DAWA24.com" style="height:52px; max-height:56px; object-fit:contain; border-radius:var(--radius-sm);" />
+				<a href="/" style="display:flex; align-items:center; gap:0.85rem; text-decoration:none;">
+					<img src="/static/img/logo.png" alt="دواء 24" style="height:46px; max-height:48px; object-fit:contain; border-radius:var(--radius-sm);" />
+					<span style="font-size:1.45rem; font-weight:900; color:var(--neutral-900); letter-spacing:-0.5px; font-family:'Cairo', sans-serif;">
+						دواء <span style="color:var(--primary-600);">24</span>
+					</span>
 				</a>
 			</div>
 
@@ -70,12 +73,12 @@ templ CustomerShell(title string, lang string, dir string) {
 						<button
 							type="button"
 							class="btn btn-secondary"
-							style="padding:0.45rem 0.85rem; display:inline-flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md); height:42px;"
+							style="padding:0.35rem 0.85rem; display:inline-flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md); height:42px;"
 						>
-							<div style="width:28px; height:28px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+							<div style="width:30px; height:30px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; border:1px solid var(--primary-200);">
 								@components.IconUser("icon-xs")
 							</div>
-							<span style="font-weight:700; font-size:0.875rem; color:var(--neutral-800); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+							<span style="font-weight:800; font-size:0.875rem; color:var(--neutral-800); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
 								{ actor.DisplayName() }
 							</span>
 							@components.IconChevronDown("icon-xs")
@@ -86,22 +89,29 @@ templ CustomerShell(title string, lang string, dir string) {
 							style="inset-inline-start:auto; inset-inline-end:0; min-width:260px; padding:0.5rem 0;"
 						>
 							<!-- User Header Card -->
-							<div style="padding:0.75rem 1rem 0.5rem 1rem; border-bottom:1px solid var(--neutral-100);">
-								<div style="font-weight:900; font-size:0.95rem; color:var(--neutral-900);">
-									{ actor.DisplayName() }
-								</div>
-								<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.15rem;">
-									if actor.Role == "admin" || actor.Role == "super_admin" {
-										<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مدير النظام العام</span>
-									} else if actor.Role == "vendor" || actor.Role == "supplier" {
-										<span class="badge badge-emerald" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
-									} else {
-										<span class="badge badge-slate" style="font-size:0.675rem; padding:0.1rem 0.4rem;">صيدلية معتمدة</span>
-									}
+							<div style="padding:0.75rem 1rem 0.6rem 1rem; border-bottom:1px solid var(--neutral-100);">
+								<div style="display:flex; align-items:center; gap:0.75rem;">
+									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+										@components.IconUser("icon-sm")
+									</div>
+									<div style="flex:1; overflow:hidden;">
+										<div style="font-weight:900; font-size:0.95rem; color:var(--neutral-900); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+											{ actor.DisplayName() }
+										</div>
+										<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.1rem;">
+											if actor.Role == "admin" || actor.Role == "super_admin" {
+												<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مدير النظام العام</span>
+											} else if actor.Role == "vendor" || actor.Role == "supplier" {
+												<span class="badge badge-emerald" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
+											} else {
+												<span class="badge badge-slate" style="font-size:0.675rem; padding:0.1rem 0.4rem;">صيدلية معتمدة</span>
+											}
+										</div>
+									</div>
 								</div>
 							</div>
 
-							<!-- Wallet Balance Snapshot in dropdown -->
+							<!-- 1. Wallet Balance Snapshot -->
 							<a href="/wallet" class="dropdown-item" style="background:var(--primary-50); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800) !important; font-weight:800; justify-content:space-between; padding:0.65rem 0.85rem;">
 								<div style="display:flex; align-items:center; gap:0.45rem;">
 									@components.IconWallet("icon-xs")
@@ -110,57 +120,55 @@ templ CustomerShell(title string, lang string, dir string) {
 								<span class="tabular-nums" style="color:var(--primary-700); font-weight:900; font-size:0.95rem;">5,420.00 ج.م</span>
 							</a>
 
-							<a href="/settings#profile" class="dropdown-item">
-								@components.IconUser("icon-xs")
-								<span>الملف الشخصي والحساب</span>
-							</a>
-							<a href="/wallet" class="dropdown-item">
-								@components.IconWallet("icon-xs")
-								<span>المحفظة والمعاملات</span>
-							</a>
-							<a href="/orders" class="dropdown-item">
-								@components.IconPackage("icon-xs")
-								<span>طلبياتي</span>
-							</a>
-							<a href="/favorites" class="dropdown-item">
-								@components.IconHeart("icon-xs")
-								<span>المفضلة</span>
-							</a>
-							<a href="/settings#payments" class="dropdown-item">
-								@components.IconShield("icon-xs")
-								<span>طرق الدفع المحفوظة</span>
-							</a>
-
-							<div class="dropdown-divider"></div>
-
-							<!-- Dynamic Dashboard link based on role -->
+							<!-- 2. Dashboard -->
 							if actor.Role == "admin" || actor.Role == "super_admin" {
-								<a href="/admin/dashboard" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800; background:var(--primary-50); border-radius:var(--radius-md); margin:0.25rem 0.5rem;">
+								<a href="/admin/dashboard" class="dropdown-item" style="font-weight:800;">
 									@components.IconChart("icon-xs")
-									<span>لوحة الإدارة العامة</span>
+									<span>لوحة التحكم (Dashboard)</span>
 								</a>
 							} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" {
-								<a href="/vendor/products" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800; background:var(--primary-50); border-radius:var(--radius-md); margin:0.25rem 0.5rem;">
+								<a href="/vendor/products" class="dropdown-item" style="font-weight:800;">
 									@components.IconChart("icon-xs")
-									<span>لوحة تحكم المورد والمبيعات</span>
-								</a>
-								<a href="/vendor/inventory" class="dropdown-item">
-									@components.IconBuilding("icon-xs")
-									<span>مخازن وأرصدة المورد</span>
+									<span>لوحة التحكم (Dashboard)</span>
 								</a>
 							} else {
-								<a href="/pharmacy/dashboard" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800; background:var(--primary-50); border-radius:var(--radius-md); margin:0.25rem 0.5rem;">
+								<a href="/pharmacy/dashboard" class="dropdown-item" style="font-weight:800;">
 									@components.IconChart("icon-xs")
-									<span>لوحة تحكم الصيدلية</span>
+									<span>لوحة التحكم (Dashboard)</span>
 								</a>
 							}
 
+							<!-- 3. My Profile -->
+							<a href="/pharmacy/dashboard#profile" class="dropdown-item">
+								@components.IconUser("icon-xs")
+								<span>الملف الشخصي (My Profile)</span>
+							</a>
+
+							<!-- 4. My Orders -->
+							<a href="/orders" class="dropdown-item">
+								@components.IconPackage("icon-xs")
+								<span>طلبياتي (My Orders)</span>
+							</a>
+
+							<!-- 5. Favourites -->
+							<a href="/favorites" class="dropdown-item">
+								@components.IconHeart("icon-xs")
+								<span>المفضلة (Favourites)</span>
+							</a>
+
+							<!-- 6. Followed Suppliers -->
+							<a href="/suppliers/followed" class="dropdown-item">
+								@components.IconBuilding("icon-xs")
+								<span>الموردين المتابعين</span>
+							</a>
+
 							<div class="dropdown-divider"></div>
 
+							<!-- 7. Logout -->
 							<form action="/auth/logout" method="POST" style="margin:0;">
 								<button type="submit" class="dropdown-item" style="color:var(--danger) !important; font-weight:800;">
 									@components.IconLogout("icon-xs")
-									<span>تسجيل الخروج</span>
+									<span>تسجيل الخروج (Logout)</span>
 								</button>
 							</form>
 						</div>
@@ -169,8 +177,8 @@ templ CustomerShell(title string, lang string, dir string) {
 					<a href="/auth/login" class="btn btn-secondary" style="padding:0.55rem 1.125rem;">
 						تسجيل الدخول
 					</a>
-					<a href="/onboarding" class="btn btn-primary" style="padding:0.55rem 1.25rem;">
-						انضم كشريك
+					<a href="/auth/register" class="btn btn-primary" style="padding:0.55rem 1.25rem;">
+						إنشاء حساب صيدلية
 					</a>
 				}
 			</div>

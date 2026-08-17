@@ -348,6 +348,42 @@ func (r *Repository) IsFollowing(ctx context.Context, orgID, userID int64) (bool
 	return exists, err
 }
 
+// ListFollowedOrgs returns all organizations followed by a user.
+func (r *Repository) ListFollowedOrgs(ctx context.Context, userID int64) ([]*org.Organization, error) {
+	var orgs []*org.Organization
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT o.id, o.public_id, o.legal_name, o.trade_name, o.tax_number, o.commercial_register,
+			       o.type, o.status, o.credit_limit, o.payment_terms_days, o.created_at, o.updated_at
+			FROM org.organizations o
+			JOIN org.organization_followers f ON o.id = f.organization_id
+			WHERE f.user_id = $1
+			ORDER BY f.created_at DESC;
+		`
+		rows, err := tx.Query(txCtx, query, userID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var o org.Organization
+			var typeStr, statusStr string
+			if err := rows.Scan(
+				&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
+				&typeStr, &statusStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			o.Type = org.OrganizationType(typeStr)
+			o.Status = org.OrganizationStatus(statusStr)
+			orgs = append(orgs, &o)
+		}
+		return rows.Err()
+	})
+	return orgs, err
+}
+
 // CreatePolicy creates an organization policy.
 func (r *Repository) CreatePolicy(ctx context.Context, p *org.Policy) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {

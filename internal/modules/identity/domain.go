@@ -41,6 +41,7 @@ type User struct {
 	Language        i18n.Lang  `json:"language"`
 	Timezone        string     `json:"timezone"`
 	Phone           string     `json:"phone,omitempty"`
+	AvatarURL       string     `json:"avatar_url,omitempty"`
 	EmailVerifiedAt *time.Time `json:"email_verified_at,omitempty"`
 	PhoneVerifiedAt *time.Time `json:"phone_verified_at,omitempty"`
 	CreatedAt       time.Time  `json:"created_at"`

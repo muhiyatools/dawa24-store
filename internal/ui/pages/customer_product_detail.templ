@@ -20,8 +20,84 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 				<span style="color:var(--neutral-900); font-weight:700;">{ productTitle(product) }</span>
 			</nav>
 
-			<!-- 1. Hero Product Specifications Card -->
-			<div class="card" style="margin-bottom:0; display:grid; grid-template-columns:1.3fr 0.7fr; gap:2.5rem; align-items:start; padding:2.5rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);">
+			<!-- 1. Hero Product Specifications & Image Gallery Card -->
+			<div class="card" style="margin-bottom:0; display:grid; grid-template-columns:360px 1fr 340px; gap:2rem; align-items:start; padding:2.5rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);" x-data="{ activeImage: 0 }">
+				
+				<!-- Col 1: Product Multi-Image Gallery -->
+				<div style="display:flex; flex-direction:column; gap:1rem;">
+					<!-- Main High-Res Preview Box -->
+					<div style="width:100%; height:320px; border-radius:var(--radius-xl); background:linear-gradient(135deg, var(--neutral-50) 0%, #ffffff 100%); border:1.5px solid var(--neutral-200); display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+						
+						<!-- Badge on top of image -->
+						<div style="position:absolute; top:12px; inset-inline-start:12px;">
+							<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>منتج دوائي أصلي 100%</span>
+							</span>
+						</div>
+
+						<!-- Image 0: Main Package -->
+						<div x-show="activeImage === 0" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1.5rem;">
+							if product.Image != "" {
+								<img src={ product.Image } alt={ productTitle(product) } style="max-height:220px; max-width:100%; object-fit:contain;" />
+							} else {
+								<div style="width:96px; height:96px; border-radius:var(--radius-2xl); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin-bottom:1rem; box-shadow:var(--shadow-md);">
+									@components.IconPill("icon-lg")
+								</div>
+								<div style="font-weight:900; font-size:1.1rem; color:var(--neutral-900);">العبوة الرسمية المعتمدة</div>
+								<span style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.25rem;">مسجلة ومختومة من هيئة الدواء</span>
+							}
+						</div>
+
+						<!-- Image 1: Blister / Strip -->
+						<div x-show="activeImage === 1" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1.5rem;" style="display:none;">
+							<div style="width:96px; height:96px; border-radius:var(--radius-2xl); background:var(--sky-100); color:var(--sky-700); display:flex; align-items:center; justify-content:center; margin-bottom:1rem; box-shadow:var(--shadow-md);">
+								@components.IconPackage("icon-lg")
+							</div>
+							<div style="font-weight:900; font-size:1.1rem; color:var(--neutral-900);">شريط الأقراص / الوحدات</div>
+							<span style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.25rem;">أقراص مغلفة ومحكمة الغلق</span>
+						</div>
+
+						<!-- Image 2: Leaflet & Batch Specs -->
+						<div x-show="activeImage === 2" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1.5rem;" style="display:none;">
+							<div style="width:96px; height:96px; border-radius:var(--radius-2xl); background:var(--amber-100); color:var(--amber-700); display:flex; align-items:center; justify-content:center; margin-bottom:1rem; box-shadow:var(--shadow-md);">
+								@components.IconFile("icon-lg")
+							</div>
+							<div style="font-weight:900; font-size:1.1rem; color:var(--neutral-900);">بيانات التشغيلة والنشرة</div>
+							<span style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.25rem;">دواعي الاستعمال والجرعات الدوائية</span>
+						</div>
+					</div>
+
+					<!-- Thumbnails Selector Strip -->
+					<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.5rem;">
+						<button
+							type="button"
+							@click="activeImage = 0"
+							:style="activeImage === 0 ? 'border-color:var(--primary-600); background:var(--primary-50);' : 'border-color:var(--neutral-200); background:#ffffff;'"
+							style="padding:0.5rem 0.25rem; border-radius:var(--radius-lg); border:1.5px solid; cursor:pointer; font-size:0.75rem; font-weight:800; text-align:center; color:var(--neutral-700); transition:all 0.15s ease;"
+						>
+							العبوة الخارجية
+						</button>
+						<button
+							type="button"
+							@click="activeImage = 1"
+							:style="activeImage === 1 ? 'border-color:var(--primary-600); background:var(--primary-50);' : 'border-color:var(--neutral-200); background:#ffffff;'"
+							style="padding:0.5rem 0.25rem; border-radius:var(--radius-lg); border:1.5px solid; cursor:pointer; font-size:0.75rem; font-weight:800; text-align:center; color:var(--neutral-700); transition:all 0.15s ease;"
+						>
+							شريط الأقراص
+						</button>
+						<button
+							type="button"
+							@click="activeImage = 2"
+							:style="activeImage === 2 ? 'border-color:var(--primary-600); background:var(--primary-50);' : 'border-color:var(--neutral-200); background:#ffffff;'"
+							style="padding:0.5rem 0.25rem; border-radius:var(--radius-lg); border:1.5px solid; cursor:pointer; font-size:0.75rem; font-weight:800; text-align:center; color:var(--neutral-700); transition:all 0.15s ease;"
+						>
+							النشرة والتشغيلة
+						</button>
+					</div>
+				</div>
+
+				<!-- Col 2: Specifications and Details -->
 				<div>
 					<!-- Badges & Ratings Header -->
 					<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
@@ -51,47 +127,47 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 					</div>
 
 					<!-- Titles -->
-					<h1 style="font-size:2.15rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.35rem; line-height:1.25;">
+					<h1 style="font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.35rem; line-height:1.25;">
 						if product.Name["ar"] != "" {
 							{ product.Name["ar"] }
 						} else {
 							{ product.Name["en"] }
 						}
 					</h1>
-					<h2 style="font-size:1.15rem; color:var(--neutral-500); font-weight:700; margin-bottom:1rem;">
+					<h2 style="font-size:1.05rem; color:var(--neutral-500); font-weight:700; margin-bottom:1rem;">
 						{ product.Name["en"] }
 					</h2>
 
 					<!-- Rating Stars -->
-					<div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.75rem; padding-bottom:1rem; border-bottom:1px solid var(--neutral-100);">
+					<div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:0.85rem; border-bottom:1px solid var(--neutral-100);">
 						@components.RatingStars(4.9, 148)
 						<span style="color:var(--neutral-300);">•</span>
 						<span style="font-size:0.85rem; color:var(--emerald-600); font-weight:700;">98% تقييم إيجابي من الصيادلة</span>
 					</div>
 
 					<!-- Medical Specifications Matrix -->
-					<div style="background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-xl); padding:1.5rem; display:flex; flex-direction:column; gap:0.875rem; font-size:0.925rem;">
+					<div style="background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem;">
 						if product.ScientificName != "" {
-							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.65rem;">
-								<span style="color:var(--neutral-500); font-weight:600;">المادة الفعالة (Active Ingredient):</span>
+							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.5rem;">
+								<span style="color:var(--neutral-500); font-weight:600;">المادة الفعالة:</span>
 								<strong style="color:var(--neutral-900);">{ product.ScientificName }</strong>
 							</div>
 						}
 						if product.ManufacturingCompanies != "" {
-							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.65rem;">
+							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.5rem;">
 								<span style="color:var(--neutral-500); font-weight:600;">الشركة المصنعة:</span>
 								<strong style="color:var(--neutral-900);">{ product.ManufacturingCompanies }</strong>
 							</div>
 						}
 						if product.Barcode != "" {
-							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.65rem;">
-								<span style="color:var(--neutral-500); font-weight:600;">الباركود الدولي (GTIN / Barcode):</span>
+							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--neutral-200); padding-bottom:0.5rem;">
+								<span style="color:var(--neutral-500); font-weight:600;">الباركود الدولي:</span>
 								<strong style="color:var(--neutral-900);" class="tabular-nums">{ product.Barcode }</strong>
 							</div>
 						}
 						<div style="display:flex; justify-content:space-between;">
-							<span style="color:var(--neutral-500); font-weight:600;">اشتراطات الحفظ والتخزين:</span>
-							<strong style="color:var(--neutral-800);">يحفظ في درجة حرارة 15° - 25° مئوية، بعيداً عن أشعة الشمس المباشرة</strong>
+							<span style="color:var(--neutral-500); font-weight:600;">اشتراطات الحفظ:</span>
+							<strong style="color:var(--neutral-800);">15° - 25° مئوية، بعيداً عن الرطوبة</strong>
 						</div>
 					</div>
 				</div>

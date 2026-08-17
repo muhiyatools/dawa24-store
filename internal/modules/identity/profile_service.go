@@ -63,6 +63,19 @@ func (s *Service) UpdateProfile(ctx context.Context, userID int64, nameAr, nameE
 	return user, nil
 }
 
+// UpdateAvatar updates user's profile avatar URL.
+func (s *Service) UpdateAvatar(ctx context.Context, userID int64, avatarURL string) (*User, error) {
+	user, err := s.repo.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	user.AvatarURL = avatarURL
+	if err := s.repo.UpdateUser(ctx, user); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 // CreateAddress saves an address for a user.
 func (s *Service) CreateAddress(ctx context.Context, addr *UserAddress) (*UserAddress, error) {
 	if addr.Recipient == "" || addr.Address == "" || addr.CityID <= 0 {

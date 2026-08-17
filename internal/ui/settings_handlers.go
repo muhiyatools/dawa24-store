@@ -91,31 +91,46 @@ func (h *UIHandler) SettingsProfilePage(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// SettingsProfileSubmit saves name, phone, timezone and language.
+// SettingsProfileSubmit saves name, phone, timezone, language, and avatar.
 func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/profile", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
 		return
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings/profile", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings#profile", "error", "الخدمة غير متاحة حالياً.")
 		return
 	}
 
+	name := r.PostFormValue("name")
+	nameAr := r.PostFormValue("name_ar")
+	if nameAr == "" && name != "" {
+		nameAr = name
+	}
+	nameEn := r.PostFormValue("name_en")
+	if nameEn == "" && name != "" {
+		nameEn = name
+	}
+
 	_, err := h.idSvc.UpdateProfile(ctx, actor.UserID,
-		r.PostFormValue("name_ar"), r.PostFormValue("name_en"),
+		nameAr, nameEn,
 		r.PostFormValue("phone"), r.PostFormValue("timezone"),
 		r.PostFormValue("lang"),
 	)
 	if err != nil {
 		h.log.WarnContext(ctx, "profile update failed", "user_id", actor.UserID, "error", err)
-		h.redirectWithNotice(w, r, "/settings/profile", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings#profile", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/settings/profile", "success", "تم حفظ التغييرات بنجاح.")
+
+	if avatarURL := r.PostFormValue("avatar_url"); avatarURL != "" {
+		_, _ = h.idSvc.UpdateAvatar(ctx, actor.UserID, avatarURL)
+	}
+
+	h.redirectWithNotice(w, r, "/settings#profile", "success", "تم حفظ التغييرات وتحديث الملف الشخصي بنجاح.")
 }
 
 // SettingsAddressesPage renders the saved-address list and the add form.

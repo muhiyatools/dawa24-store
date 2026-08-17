@@ -167,6 +167,18 @@ func (m *mockOrgRepo) IsFollowing(_ context.Context, orgID, userID int64) (bool,
 	return m.followers[orgID][userID], nil
 }
 
+func (m *mockOrgRepo) ListFollowedOrgs(_ context.Context, userID int64) ([]*Organization, error) {
+	var list []*Organization
+	for orgID, users := range m.followers {
+		if users[userID] {
+			if o := m.orgs[orgID]; o != nil {
+				list = append(list, o)
+			}
+		}
+	}
+	return list, nil
+}
+
 func (m *mockOrgRepo) CreatePolicy(_ context.Context, p *Policy) error {
 	p.ID = m.nextID
 	m.nextID++

@@ -111,6 +111,10 @@ func (r stubRepo) IsFollowing(ctx context.Context, orgID, userID int64) (bool, e
 	r.fail("IsFollowing")
 	return false, nil
 }
+func (r stubRepo) ListFollowedOrgs(ctx context.Context, userID int64) ([]*org.Organization, error) {
+	r.fail("ListFollowedOrgs")
+	return nil, nil
+}
 func (r stubRepo) CreatePolicy(ctx context.Context, p *org.Policy) error {
 	r.fail("CreatePolicy")
 	return nil
@@ -202,6 +206,9 @@ func (happyRepo) ToggleFollower(ctx context.Context, orgID, userID int64) (bool,
 }
 func (happyRepo) IsFollowing(ctx context.Context, orgID, userID int64) (bool, error) {
 	return true, nil
+}
+func (happyRepo) ListFollowedOrgs(ctx context.Context, userID int64) ([]*org.Organization, error) {
+	return []*org.Organization{{ID: 1, LegalName: "Al-Amal Pharmacy", CommercialRegister: "CR-101", Status: org.StatusApproved}}, nil
 }
 func (happyRepo) CreatePolicy(ctx context.Context, p *org.Policy) error {
 	p.ID = 1

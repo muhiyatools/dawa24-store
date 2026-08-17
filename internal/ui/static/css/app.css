@@ -567,30 +567,57 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--success-border);
 }
 
-/* Modals */
+/* Modals & Dialogs */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  z-index: 1000;
+  z-index: 10000;
   animation: fadeIn 0.15s ease-out;
 }
 
+.modal-overlay.hidden,
+.modal.hidden {
+  display: none !important;
+}
+
+dialog.modal {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: auto;
+  max-width: min(94vw, 680px);
+  width: 100%;
+  z-index: 10000;
+}
+
+dialog.modal::backdrop {
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.modal-box,
 .modal-card {
   background-color: #ffffff;
   border-radius: var(--radius-2xl);
   border: 1px solid var(--border-card);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-2xl);
   width: 100%;
-  max-width: 540px;
+  max-width: 580px;
   max-height: 90vh;
   overflow-y: auto;
   padding: 2rem;
+  animation: modalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlide {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* Quantity Counter Component */

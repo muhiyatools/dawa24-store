@@ -29,12 +29,87 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Resilient Registration Stepper
   initRegistrationStepper();
 
+  // 5. Universal Modal System (Deposit, Withdraw, Quotes, Addresses, Tracking)
+  initModalManager();
+
   // 6. Universal Dropdown Toggle Handler
   initDropdowns();
 
   // 7. Animated Sidebar Toggle
   initSidebarToggle();
 });
+
+// Universal Modal & Dialog Manager
+function initModalManager() {
+  document.addEventListener('click', (e) => {
+    // Open trigger: data-modal-open, data-modal-target, data-dialog-target, data-open-modal
+    const openBtn = e.target.closest('[data-modal-open], [data-modal-target], [data-dialog-target], [data-open-modal]');
+    if (openBtn) {
+      e.preventDefault();
+      const modalId = openBtn.getAttribute('data-modal-open') ||
+                      openBtn.getAttribute('data-modal-target') ||
+                      openBtn.getAttribute('data-dialog-target') ||
+                      openBtn.getAttribute('data-open-modal');
+      window.openModal(modalId);
+      return;
+    }
+
+    // Close trigger: data-modal-close, .modal-close, [data-dialog-close]
+    const closeBtn = e.target.closest('[data-modal-close], .modal-close, [data-dialog-close], .btn-modal-close');
+    if (closeBtn) {
+      e.preventDefault();
+      const targetId = closeBtn.getAttribute('data-modal-close') || closeBtn.getAttribute('data-dialog-close');
+      if (targetId) {
+        window.closeModal(targetId);
+      } else {
+        const parentModal = closeBtn.closest('.modal-overlay, dialog.modal, .modal, [id$="-modal"]');
+        if (parentModal) {
+          window.closeModal(parentModal.id);
+        }
+      }
+      return;
+    }
+
+    // Click outside modal card to close
+    if (e.target.classList.contains('modal-overlay')) {
+      window.closeModal(e.target.id);
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay:not(.hidden)').forEach((m) => window.closeModal(m.id));
+      document.querySelectorAll('dialog.modal[open]').forEach((d) => window.closeModal(d.id));
+    }
+  });
+}
+
+window.openModal = function(id) {
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.tagName === 'DIALOG' && typeof el.showModal === 'function') {
+    try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
+  } else {
+    el.classList.remove('hidden');
+    el.style.display = 'flex';
+  }
+};
+
+window.closeModal = function(id) {
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.tagName === 'DIALOG' && typeof el.close === 'function') {
+    try { el.close(); } catch (_) { el.removeAttribute('open'); }
+  } else {
+    el.classList.add('hidden');
+    el.style.display = 'none';
+  }
+};
+
+window.openDialog = window.openModal;
+window.closeDialog = window.closeModal;
 
 // Animated Sidebar Toggle Handler
 function initSidebarToggle() {
@@ -168,39 +243,6 @@ function initRegistrationStepper() {
   }
 }
 
-// Modal Open/Close Manager
-function initModalManager() {
-  document.addEventListener('click', (e) => {
-    const openBtn = e.target.closest('[data-modal-open]');
-    if (openBtn) {
-      const modalId = openBtn.getAttribute('data-modal-open');
-      const modal = document.getElementById(modalId);
-      if (modal) {
-        modal.classList.remove('hidden');
-      }
-    }
-
-    const closeBtn = e.target.closest('[data-modal-close]');
-    if (closeBtn) {
-      const modal = closeBtn.closest('.modal-overlay');
-      if (modal) {
-        modal.classList.add('hidden');
-      }
-    }
-
-    // Click outside modal card to close
-    if (e.target.classList.contains('modal-overlay')) {
-      e.target.classList.add('hidden');
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay').forEach((m) => m.classList.add('hidden'));
-    }
-  });
-}
-
 // Universal Dropdown Toggle
 function initDropdowns() {
   document.addEventListener('click', (e) => {
@@ -258,46 +300,34 @@ function messageForStatus(status) {
     case 401: return 'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.';
     case 403: return 'ليس لديك صلاحية لتنفيذ هذا الإجراء.';
     case 404: return 'العنصر المطلوب غير موجود.';
-    case 409: return 'تم تعديل هذا السجل من مكان آخر. أعد تحميل الصفحة.';
-    case 422: return 'البيانات المدخلة غير صالحة.';
-    default:  return 'تعذر إتمام العملية. يرجى المحاولة مرة أخرى.';
+    case 409: return 'تعارض في البيانات المدخلة.';
+    case 422: return 'بيانات غير صحيحة، يرجى مراجعة الحقول.';
+    case 500: return 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.';
+    default: return 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
   }
 }
 
-function showToast(message, type) {
-  let stack = document.querySelector('.toast-stack');
-  if (!stack) {
-    stack = document.createElement('div');
-    stack.className = 'toast-stack';
-    stack.setAttribute('aria-live', 'polite');
-    stack.setAttribute('aria-atomic', 'true');
-    document.body.appendChild(stack);
+function showToast(message, type = 'info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
   }
 
   const toast = document.createElement('div');
-  toast.className = 'toast toast-' + (type || 'info');
-  toast.setAttribute('role', 'status');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
 
-  const text = document.createElement('div');
-  text.style.flex = '1';
-  text.textContent = message;
-
-  const close = document.createElement('button');
-  close.className = 'toast-close';
-  close.setAttribute('aria-label', 'إغلاق');
-  close.textContent = '✕';
-  close.addEventListener('click', () => toast.remove());
-
-  toast.appendChild(text);
-  toast.appendChild(close);
-  stack.appendChild(toast);
-
-  if (type !== 'error') {
-    setTimeout(() => toast.remove(), 4500);
-  }
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
 }
 
 function getCookie(name) {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
+  return match ? match[2] : null;
 }
