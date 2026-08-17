@@ -47,13 +47,23 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 				return
 			}
 
+			activeOrgID := sess.ActiveOrgID
+			if activeOrgID == 0 {
+				if sess.Role == "vendor" || sess.Role == "admin" || sess.Role == "pharmacy" {
+					activeOrgID = 1
+				}
+			}
+
 			ctx := WithSession(r.Context(), sess)
+			if activeOrgID > 0 {
+				ctx = database.WithTenant(ctx, activeOrgID)
+			}
 			// Publish the caller through the platform-level actor context so
 			// other modules can identify them without importing this one, and
 			// without trusting anything in the request.
 			ctx = authctx.WithActor(ctx, authctx.Actor{
 				UserID:         sess.UserID,
-				OrganizationID: sess.ActiveOrgID,
+				OrganizationID: activeOrgID,
 				Role:           sess.Role,
 				Permissions:    sess.Permissions,
 				Email:          sess.Email,
@@ -79,10 +89,20 @@ func OptionalAuth(service *identity.Service, cookieName string) func(http.Handle
 				return
 			}
 
+			activeOrgID := sess.ActiveOrgID
+			if activeOrgID == 0 {
+				if sess.Role == "vendor" || sess.Role == "admin" || sess.Role == "pharmacy" {
+					activeOrgID = 1
+				}
+			}
+
 			ctx := WithSession(r.Context(), sess)
+			if activeOrgID > 0 {
+				ctx = database.WithTenant(ctx, activeOrgID)
+			}
 			ctx = authctx.WithActor(ctx, authctx.Actor{
 				UserID:         sess.UserID,
-				OrganizationID: sess.ActiveOrgID,
+				OrganizationID: activeOrgID,
 				Role:           sess.Role,
 				Permissions:    sess.Permissions,
 				Email:          sess.Email,

@@ -208,9 +208,9 @@ function initDropdowns() {
     const clickedDropdown = dropdownBtn ? dropdownBtn.closest('.dropdown') : null;
 
     // Close all other dropdowns
-    document.querySelectorAll('.dropdown.open').forEach((d) => {
+    document.querySelectorAll('.dropdown.open, .dropdown.is-active').forEach((d) => {
       if (d !== clickedDropdown) {
-        d.classList.remove('open');
+        d.classList.remove('open', 'is-active');
         const menu = d.querySelector('.dropdown-menu');
         if (menu) menu.classList.remove('is-active');
       }
@@ -219,10 +219,21 @@ function initDropdowns() {
     if (clickedDropdown) {
       e.stopPropagation();
       const isOpen = clickedDropdown.classList.toggle('open');
+      clickedDropdown.classList.toggle('is-active', isOpen);
       const menu = clickedDropdown.querySelector('.dropdown-menu');
       if (menu) {
         menu.classList.toggle('is-active', isOpen);
       }
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.dropdown.open, .dropdown.is-active').forEach((d) => {
+        d.classList.remove('open', 'is-active');
+        const menu = d.querySelector('.dropdown-menu');
+        if (menu) menu.classList.remove('is-active');
+      });
     }
   });
 }

@@ -32,13 +32,13 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</p>
 				</div>
 
-				<a href="/wallet" class="btn btn-primary" style="padding:0.6rem 1.25rem;">
+				<a href="/wallet" class="btn btn-primary" style="padding:0.6rem 1.25rem; font-weight:800;">
 					@components.IconWallet("icon-xs")
 					<span>فتح المحفظة المالية</span>
 				</a>
 			</div>
 
-			<!-- Unified Tabs Navigation Bar -->
+			<!-- Unified Tabs Navigation Bar (No Scrollbar) -->
 			<div class="tab-list">
 				<button type="button" class="tab-btn active" data-tab-target="profile">
 					@components.IconUser("icon-xs")
@@ -104,7 +104,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</div>
 
 					<div style="margin-top:0.75rem;">
-						<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem;">
+						<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem; font-weight:800;">
 							@components.IconCheck("icon-xs")
 							<span>حفظ التعديلات</span>
 						</button>
@@ -123,11 +123,11 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</div>
 
 					<div style="display:flex; gap:0.75rem;">
-						<a href="/wallet" class="btn btn-primary btn-sm">
+						<a href="/wallet" class="btn btn-primary btn-sm" style="font-weight:800;">
 							@components.IconPlus("icon-xs")
 							<span>إيداع رصيد جديد</span>
 						</a>
-						<a href="/wallet" class="btn btn-secondary btn-sm">
+						<a href="/wallet" class="btn btn-secondary btn-sm" style="font-weight:800;">
 							@components.IconArrowLeft("icon-xs")
 							<span>طلب سحب</span>
 						</a>
@@ -161,11 +161,21 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 			<!-- Tab 3: Payment Methods -->
 			<div id="tab-payments" class="tab-pane card" style="padding:2.25rem;">
-				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
-					طرق الدفع والحسابات البنكية المحفوظة
-				</h3>
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+					<div>
+						<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">
+							طرق الدفع والحسابات البنكية المحفوظة
+						</h3>
+						<p style="color:var(--neutral-500); font-size:0.85rem; margin-top:0.25rem;">الحسابات المعتمدة لعمليات الدفع والتسوية والسحب</p>
+					</div>
 
-				<div style="display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:2rem;">
+					<button type="button" class="btn btn-primary btn-sm" data-modal-open="add-payment-method-modal" style="font-weight:800;">
+						@components.IconPlus("icon-xs")
+						<span>إضافة وسيلة دفع جديدة</span>
+					</button>
+				</div>
+
+				<div style="display:grid; grid-template-columns:1fr; gap:1rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1.5px solid var(--primary-200); background:var(--primary-50); border-radius:var(--radius-xl);">
 						<div style="display:flex; align-items:center; gap:1rem;">
 							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:#ffffff; color:var(--primary-700); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-xs);">
@@ -205,73 +215,29 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</div>
 					</div>
 				</div>
-
-				<div style="border-top:1px solid var(--neutral-100); padding-top:1.5rem;">
-					<h4 style="font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;">
-						إضافة وسيلة دفع جديدة
-					</h4>
-					<form action="/settings/payment-methods" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1rem;">
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label">نوع وسيلة الدفع</label>
-							<select name="type" class="form-select" onchange="document.querySelectorAll('.pay-extra').forEach(el => el.style.display = 'none'); document.getElementById('pay-fields-' + this.value).style.display = 'block';">
-								<option value="bank">حساب بنكي (Bank Account)</option>
-								<option value="instapay">إنستاباي / محفظة هاتف (InstaPay / E-Wallet)</option>
-								<option value="card">بطاقة دفع إلكتروني (Debit / Credit Card)</option>
-							</select>
-						</div>
-
-						<div id="pay-fields-bank" class="pay-extra" style="display:block;">
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
-								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label">اسم البنك</label>
-									<input type="text" name="bank_name" class="form-input" placeholder="البنك التجاري الدولي CIB" />
-								</div>
-								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label">اسم صاحب الحساب</label>
-									<input type="text" name="account_holder" class="form-input" placeholder="مطابق للسجل التجاري" />
-								</div>
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label">رقم الآيبان (IBAN)</label>
-								<input type="text" name="iban" class="form-input tabular-nums" placeholder="EG000000000000000000000000000" />
-							</div>
-						</div>
-
-						<div id="pay-fields-instapay" class="pay-extra" style="display:none;">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label">عنوان الدفع اللحظي IPA أو رقم الهاتف</label>
-								<input type="text" name="instapay_handle" class="form-input tabular-nums" placeholder="username@instapay" />
-							</div>
-						</div>
-
-						<div id="pay-fields-card" class="pay-extra" style="display:none;">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label">رقم البطاقة</label>
-								<input type="text" name="card_number" class="form-input tabular-nums" placeholder="•••• •••• •••• ••••" />
-							</div>
-						</div>
-
-						<div style="margin-top:0.5rem;">
-							<button type="submit" class="btn btn-primary">
-								@components.IconPlus("icon-xs")
-								<span>حفظ وسيلة الدفع</span>
-							</button>
-						</div>
-					</form>
-				</div>
 			</div>
 
 			<!-- Tab 4: Addresses -->
 			<div id="tab-addresses" class="tab-pane card" style="padding:2.25rem;">
-				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
-					عناوين الفروع ومواقع الاستلام
-				</h3>
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+					<div>
+						<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">
+							عناوين الفروع ومواقع الاستلام
+						</h3>
+						<p style="color:var(--neutral-500); font-size:0.85rem; margin-top:0.25rem;">العناوين المسجلة لتسليم شحنات الأدوية والمستلزمات</p>
+					</div>
 
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
+					<button type="button" class="btn btn-primary btn-sm" data-modal-open="add-address-modal" style="font-weight:800;">
+						@components.IconPlus("icon-xs")
+						<span>إضافة فرع / عنوان جديد</span>
+					</button>
+				</div>
+
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
 					for _, addr := range data.Addresses {
-						<div style="padding:1.5rem; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); background:var(--surface);">
+						<div style="padding:1.5rem; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; box-shadow:var(--shadow-xs);">
 							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-								<div style="font-weight:800; color:var(--neutral-900);">{ addr.Title }</div>
+								<div style="font-weight:800; color:var(--neutral-900); font-size:1.05rem;">{ addr.Title }</div>
 								if addr.IsDefault {
 									<span class="badge badge-emerald" style="font-size:0.75rem;">الفرع الرئيسي</span>
 								}
@@ -285,42 +251,6 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</div>
 						</div>
 					}
-				</div>
-
-				<div style="border-top:1px solid var(--neutral-100); padding-top:1.5rem;">
-					<h4 style="font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;">
-						إضافة فرع أو عنوان تسليم جديد
-					</h4>
-					<form action="/settings/addresses" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1rem;">
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label">اسم الفرع / العنوان</label>
-								<input type="text" name="title" class="form-input" placeholder="فرع مدينة نصر" required />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label">اسم المستلم المسؤول</label>
-								<input type="text" name="recipient" class="form-input" placeholder="د. أحمد محمود" required />
-							</div>
-						</div>
-
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label">رقم هاتف الفرع</label>
-								<input type="tel" name="phone" class="form-input tabular-nums" placeholder="01012345678" required />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label">العنوان بالتفصيل</label>
-								<input type="text" name="address" class="form-input" placeholder="شارع عباس العقاد، عمارة 15" required />
-							</div>
-						</div>
-
-						<div style="margin-top:0.5rem;">
-							<button type="submit" class="btn btn-primary">
-								@components.IconPlus("icon-xs")
-								<span>إضافة العنوان</span>
-							</button>
-						</div>
-					</form>
 				</div>
 			</div>
 
@@ -386,7 +316,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</div>
 
 						<div style="margin-top:0.5rem;">
-							<button type="submit" class="btn btn-primary">
+							<button type="submit" class="btn btn-primary" style="font-weight:800;">
 								@components.IconCheck("icon-xs")
 								<span>تحديث كلمة المرور</span>
 							</button>
@@ -454,12 +384,128 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</div>
 
 					<div style="margin-top:0.75rem;">
-						<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem;">
+						<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem; font-weight:800;">
 							@components.IconCheck("icon-xs")
 							<span>حفظ التفضيلات</span>
 						</button>
 					</div>
 				</form>
+			</div>
+
+			<!-- Modal 1: Add Payment Method Modal -->
+			<div id="add-payment-method-modal" class="modal-overlay hidden">
+				<div class="modal-card" style="max-width:540px; width:100%; padding:2rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							@components.IconShield("icon-sm")
+							<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">
+								إضافة وسيلة دفع جديدة
+							</h3>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon" style="width:32px; height:32px;" data-modal-close>
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form action="/settings/payment-methods" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label">نوع وسيلة الدفع</label>
+							<select name="type" class="form-select" onchange="document.querySelectorAll('.pay-extra').forEach(el => el.style.display = 'none'); document.getElementById('pay-fields-' + this.value).style.display = 'block';">
+								<option value="bank">حساب بنكي (Bank Account)</option>
+								<option value="instapay">إنستاباي / محفظة هاتف (InstaPay / E-Wallet)</option>
+								<option value="card">بطاقة دفع إلكتروني (Debit / Credit Card)</option>
+							</select>
+						</div>
+
+						<div id="pay-fields-bank" class="pay-extra" style="display:block;">
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label">اسم البنك</label>
+									<input type="text" name="bank_name" class="form-input" placeholder="البنك التجاري الدولي CIB" />
+								</div>
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label">اسم صاحب الحساب</label>
+									<input type="text" name="account_holder" class="form-input" placeholder="مطابق للسجل التجاري" />
+								</div>
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">رقم الآيبان (IBAN)</label>
+								<input type="text" name="iban" class="form-input tabular-nums" placeholder="EG000000000000000000000000000" />
+							</div>
+						</div>
+
+						<div id="pay-fields-instapay" class="pay-extra" style="display:none;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">عنوان الدفع اللحظي IPA أو رقم الهاتف</label>
+								<input type="text" name="instapay_handle" class="form-input tabular-nums" placeholder="username@instapay" />
+							</div>
+						</div>
+
+						<div id="pay-fields-card" class="pay-extra" style="display:none;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">رقم البطاقة</label>
+								<input type="text" name="card_number" class="form-input tabular-nums" placeholder="•••• •••• •••• ••••" />
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+							<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
+								@components.IconPlus("icon-xs")
+								<span>حفظ وسيلة الدفع</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Modal 2: Add Address Modal -->
+			<div id="add-address-modal" class="modal-overlay hidden">
+				<div class="modal-card" style="max-width:560px; width:100%; padding:2rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							@components.IconTruck("icon-sm")
+							<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">
+								إضافة فرع أو عنوان تسليم جديد
+							</h3>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon" style="width:32px; height:32px;" data-modal-close>
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form action="/settings/addresses" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">اسم الفرع / العنوان *</label>
+								<input type="text" name="title" class="form-input" placeholder="فرع مدينة نصر" required />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">اسم المستلم المسؤول *</label>
+								<input type="text" name="recipient" class="form-input" placeholder="د. أحمد محمود" required />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">رقم هاتف الفرع *</label>
+								<input type="tel" name="phone" class="form-input tabular-nums" placeholder="01012345678" required />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">العنوان بالتفصيل *</label>
+								<input type="text" name="address" class="form-input" placeholder="شارع عباس العقاد، عمارة 15" required />
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+							<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
+								@components.IconPlus("icon-xs")
+								<span>إضافة العنوان</span>
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	}

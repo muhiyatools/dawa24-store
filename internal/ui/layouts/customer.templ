@@ -83,24 +83,34 @@ templ CustomerShell(title string, lang string, dir string) {
 
 						<div
 							class="dropdown-menu"
-							:class="{ 'is-active': open }"
-							x-show="open"
-							x-cloak
-							x-transition.opacity
-							style="inset-inline-start:auto; inset-inline-end:0; min-width:240px; padding:0.5rem 0;"
+							style="inset-inline-start:auto; inset-inline-end:0; min-width:260px; padding:0.5rem 0;"
 						>
-							<!-- Wallet Balance Snapshot in dropdown -->
-							<a href="/wallet" class="dropdown-item" style="background:var(--primary-50); border-radius:var(--radius-md); margin:0.25rem 0.5rem; color:var(--primary-800) !important; font-weight:800; justify-content:space-between;">
-								<div style="display:flex; align-items:center; gap:0.5rem;">
-									@components.IconWallet("icon-xs")
-									<span>رصيد المحفظة</span>
+							<!-- User Header Card -->
+							<div style="padding:0.75rem 1rem 0.5rem 1rem; border-bottom:1px solid var(--neutral-100);">
+								<div style="font-weight:900; font-size:0.95rem; color:var(--neutral-900);">
+									{ actor.DisplayName() }
 								</div>
-								<span class="tabular-nums" style="color:var(--primary-700); font-weight:900;">5,420.00 ج.م</span>
+								<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.15rem;">
+									if actor.Role == "admin" || actor.Role == "super_admin" {
+										<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مدير النظام العام</span>
+									} else if actor.Role == "vendor" || actor.Role == "supplier" {
+										<span class="badge badge-emerald" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
+									} else {
+										<span class="badge badge-slate" style="font-size:0.675rem; padding:0.1rem 0.4rem;">صيدلية معتمدة</span>
+									}
+								</div>
+							</div>
+
+							<!-- Wallet Balance Snapshot in dropdown -->
+							<a href="/wallet" class="dropdown-item" style="background:var(--primary-50); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800) !important; font-weight:800; justify-content:space-between; padding:0.65rem 0.85rem;">
+								<div style="display:flex; align-items:center; gap:0.45rem;">
+									@components.IconWallet("icon-xs")
+									<span style="font-size:0.825rem;">رصيد المحفظة</span>
+								</div>
+								<span class="tabular-nums" style="color:var(--primary-700); font-weight:900; font-size:0.95rem;">5,420.00 ج.م</span>
 							</a>
 
-							<div class="dropdown-divider"></div>
-
-							<a href="/settings" class="dropdown-item">
+							<a href="/settings#profile" class="dropdown-item">
 								@components.IconUser("icon-xs")
 								<span>الملف الشخصي والحساب</span>
 							</a>
@@ -142,7 +152,7 @@ templ CustomerShell(title string, lang string, dir string) {
 							<div class="dropdown-divider"></div>
 
 							<form action="/auth/logout" method="POST" style="margin:0;">
-								<button type="submit" class="dropdown-item" style="color:var(--danger) !important;">
+								<button type="submit" class="dropdown-item" style="color:var(--danger) !important; font-weight:800;">
 									@components.IconLogout("icon-xs")
 									<span>تسجيل الخروج</span>
 								</button>

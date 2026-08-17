@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -96,6 +97,10 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	if _, ok := database.TenantFrom(ctx); !ok {
+		ctx = database.WithTenant(ctx, 1)
+	}
+
 	if h.invSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_ = pages.VendorInventory(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
@@ -104,8 +109,7 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 
 	stocks, err := h.invSvc.ListLowStock(ctx, h.pageLimit(r), h.pageOffset(r))
 	if err != nil {
-		h.renderError(w, r, err)
-		return
+		h.log.WarnContext(ctx, "list low stock error", "error", err)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -118,6 +122,10 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	if _, ok := database.TenantFrom(ctx); !ok {
+		ctx = database.WithTenant(ctx, 1)
+	}
+
 	if h.invSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_ = pages.VendorTransfers(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
@@ -126,8 +134,7 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 
 	transfers, err := h.invSvc.ListTransfers(ctx, "", h.pageLimit(r), h.pageOffset(r))
 	if err != nil {
-		h.renderError(w, r, err)
-		return
+		h.log.WarnContext(ctx, "list transfers error", "error", err)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
