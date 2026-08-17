@@ -163,3 +163,7 @@ func TestCatalogServiceCustomerPricingAndAlerts(t *testing.T) {
 		t.Fatalf("ListProductAlerts failed: %v", err)
 	}
 }
+
+func (m *mockCatalogRepo) CountProductsByOrg(_ context.Context, _ int64, _ string) (int, error) {
+	return 0, nil
+}

@@ -49,7 +49,15 @@ func TestConversationVisibleToBothOrgsAndUnread(t *testing.T) {
 	// Create two users and two organizations.
 	createUser := func(email string) int64 {
 		var id int64
-		err := db.Pool().QueryRow(ctx, `INSERT INTO identity.users (email, password_hash, name, role, status) VALUES ($1, 'x', '{"ar":"","en":""}', 'customer', 'active') RETURNING id;`, email).Scan(&id)
+		// Re-runnable: the previous run's rows are still there, and a plain
+		// INSERT fails the second time on users_email_key. The partial unique
+		// index carries WHERE deleted_at IS NULL, so the arbiter needs it too.
+		err := db.Pool().QueryRow(ctx, `
+			INSERT INTO identity.users (email, password_hash, name, role, status)
+			VALUES ($1, 'x', '{"ar":"","en":""}', 'customer', 'active')
+			ON CONFLICT (email) WHERE deleted_at IS NULL
+			DO UPDATE SET updated_at = now()
+			RETURNING id;`, email).Scan(&id)
 		if err != nil {
 			t.Fatalf("create user: %v", err)
 		}

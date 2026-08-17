@@ -230,3 +230,9 @@ func (s *Service) CreateFinderResult(ctx context.Context, r *FinderResult) error
 func (s *Service) ListFinderResults(ctx context.Context) ([]*FinderResult, error) {
 	return s.repo.ListFinderResults(ctx)
 }
+
+// CountProductsByOrg returns an organization's product total for a status.
+// Pass an empty status for every product.
+func (s *Service) CountProductsByOrg(ctx context.Context, orgID int64, status string) (int, error) {
+	return s.repo.CountProductsByOrg(ctx, orgID, status)
+}

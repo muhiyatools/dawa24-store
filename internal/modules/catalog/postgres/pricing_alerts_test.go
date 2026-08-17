@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -19,9 +21,12 @@ func TestCustomerPricingAndAlerts(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	orgID := int64(1001)
-	customerOrgID := int64(1002)
-	userID := int64(2001)
+	// These ids were pinned without ever being created, so every insert failed
+	// on products_organization_id_fkey. Create the rows the foreign keys need.
+	orgID := int64(88901)
+	customerOrgID := int64(88902)
+	userID := int64(88903)
+	seedPricingFixtures(t, db, orgID, customerOrgID, userID)
 	ctx = database.WithTenant(ctx, orgID)
 
 	prod := &catalog.Product{
@@ -74,4 +79,29 @@ func TestCustomerPricingAndAlerts(t *testing.T) {
 			t.Error("expected at least 1 alert")
 		}
 	})
+}
+
+// seedPricingFixtures creates the organization, customer organization and user
+// that this suite's foreign keys require.
+func seedPricingFixtures(t *testing.T, db *database.DB, orgID, customerOrgID, userID int64) {
+	t.Helper()
+	ctx := database.AsSystem(context.Background())
+	err := db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		for _, id := range []int64{orgID, customerOrgID} {
+			if _, err := tx.Exec(txCtx, `
+				INSERT INTO org.organizations (id, name, legal_name)
+				VALUES ($1, '{"ar":"مؤسسة التسعير","en":"Pricing Fixture Org"}'::jsonb, 'Pricing Fixture Org')
+				ON CONFLICT (id) DO NOTHING;`, id); err != nil {
+				return err
+			}
+		}
+		_, err := tx.Exec(txCtx, `
+			INSERT INTO identity.users (id, email, password_hash, name)
+			VALUES ($1, 'pricing-fixture@dawa24.test', 'x', '{"ar":"مستخدم","en":"Pricing User"}'::jsonb)
+			ON CONFLICT (id) DO NOTHING;`, userID)
+		return err
+	})
+	if err != nil {
+		t.Fatalf("seed pricing fixtures: %v", err)
+	}
 }

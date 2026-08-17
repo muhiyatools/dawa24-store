@@ -45,6 +45,7 @@ type Repository interface {
 	// CountProductsInCategory backs the refusal to delete a taxonomy row that
 	// products still reference; deleting one would leave them uncategorised
 	// with no way to find them in the vendor UI.
+	CountProductsByOrg(ctx context.Context, orgID int64, status string) (int, error)
 	CountProductsInCategory(ctx context.Context, categoryID int64) (int, error)
 
 	CreateBrand(ctx context.Context, b *Brand) error

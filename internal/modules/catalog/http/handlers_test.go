@@ -309,3 +309,8 @@ func TestHandlerRejectsMalformedBody(t *testing.T) {
 		t.Errorf("got %d, want 422 for a malformed body", rec.Code)
 	}
 }
+
+func (r stubRepo) CountProductsByOrg(_ context.Context, _ int64, _ string) (int, error) {
+	r.fail("CountProductsByOrg")
+	return 0, nil
+}

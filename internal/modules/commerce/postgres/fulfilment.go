@@ -167,3 +167,17 @@ func (r *Repository) SetShipmentTracking(ctx context.Context, id int64, carrier,
 		return err
 	})
 }
+
+// CountVendorShipmentsByStatus counts a vendor's shipments in the given
+// statuses. Counting a capped page instead reports the cap, not the total.
+func (r *Repository) CountVendorShipmentsByStatus(ctx context.Context, orgID int64, statuses []string) (int, error) {
+	var total int
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT COUNT(*) FROM commerce.order_shipments
+			WHERE organization_id = $1 AND status = ANY($2);
+		`
+		return tx.QueryRow(txCtx, query, orgID, statuses).Scan(&total)
+	})
+	return total, err
+}

@@ -63,3 +63,7 @@ func (m *mockCommerceRepo) RateOrder(_ context.Context, orderID, customerID int6
 }
 
 func (m *mockCommerceRepo) CountOrders(_ context.Context) (int, error) { return len(m.orders), nil }
+
+func (m *mockCommerceRepo) CountVendorShipmentsByStatus(_ context.Context, _ int64, _ []string) (int, error) {
+	return 0, nil
+}

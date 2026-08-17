@@ -147,7 +147,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			  AND ($3::bigint IS NULL OR brand_id = $3)
 			  AND ($6::numeric IS NULL OR price >= $6)
 			  AND ($7::numeric IS NULL OR price <= $7)
-		` + catalogOrderBy(params.Sort) + `
+			ORDER BY ` + catalogOrderBy(params.Sort) + `
 			LIMIT $4 OFFSET $5;
 		`
 		limit := params.Limit
@@ -187,6 +187,10 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 
 // catalogOrderBy maps a whitelisted sort key onto a safe ORDER BY clause.
 func catalogOrderBy(sort string) string {
+	// Returns the ORDER BY *expression* only, without the keyword - the caller
+	// supplies "ORDER BY". Pasted in without it, the SQL read
+	// "... price <= $7 sold_times DESC" and every product search failed with a
+	// syntax error at "sold_times".
 	switch sort {
 	case "price_asc":
 		return "price ASC, created_at DESC"
@@ -199,4 +203,23 @@ func catalogOrderBy(sort string) string {
 	default:
 		return "sold_times DESC, created_at DESC"
 	}
+}
+
+// CountProductsByOrg returns how many products an organization has in a status.
+//
+// The supplier dashboard previously derived this by iterating a page capped at
+// 100 rows, so a supplier with more products than that saw "100" and no way to
+// tell it was a ceiling rather than a count.
+func (r *Repository) CountProductsByOrg(ctx context.Context, orgID int64, status string) (int, error) {
+	var total int
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT COUNT(*) FROM catalog.products
+			WHERE organization_id = $1
+			  AND deleted_at IS NULL
+			  AND ($2::text = '' OR status = $2);
+		`
+		return tx.QueryRow(txCtx, query, orgID, status).Scan(&total)
+	})
+	return total, err
 }

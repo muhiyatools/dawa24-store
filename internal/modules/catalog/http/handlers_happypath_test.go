@@ -211,3 +211,5 @@ func TestCatalogHandler_HappyPaths(t *testing.T) {
 		})
 	}
 }
+
+func (happyRepo) CountProductsByOrg(_ context.Context, _ int64, _ string) (int, error) { return 3, nil }

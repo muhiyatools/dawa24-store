@@ -284,3 +284,9 @@ func (s *Service) ListQuoteRequests(ctx context.Context, orgID int64, isVendor b
 func (s *Service) SetShipmentTracking(ctx context.Context, id int64, carrier, tracking string) error {
 	return s.repo.SetShipmentTracking(ctx, id, carrier, tracking)
 }
+
+// CountVendorShipmentsByStatus returns a vendor's shipment total in the given
+// statuses, for dashboards that need a figure rather than a page.
+func (s *Service) CountVendorShipmentsByStatus(ctx context.Context, orgID int64, statuses []string) (int, error) {
+	return s.repo.CountVendorShipmentsByStatus(ctx, orgID, statuses)
+}

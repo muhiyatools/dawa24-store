@@ -23,25 +23,28 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 	data := pages.VendorDashboardData{}
 
 	if h.catSvc != nil {
-		if products, err := h.catSvc.Search(ctx, catalog.SearchParams{
-			OrganizationID: &actor.OrganizationID, Limit: 100,
-		}); err == nil {
-			for _, p := range products {
-				if p.Status == catalog.StatusActive {
-					data.ActiveProducts++
-				}
-			}
+		// A COUNT, not the length of a page. Counting a page capped at 100 rows
+		// reports the cap once a supplier passes it, and reads as a real figure.
+		if n, err := h.catSvc.CountProductsByOrg(ctx, actor.OrganizationID, string(catalog.StatusActive)); err != nil {
+			h.log.ErrorContext(ctx, "vendor dashboard: count products", "error", err)
+		} else {
+			data.ActiveProducts = n
 		}
 	}
 
 	if h.commSvc != nil {
-		if shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 100, 0); err == nil {
-			for _, s := range shipments {
-				if s.Status == commerce.StatusPending || s.Status == commerce.StatusConfirmed {
-					data.PendingShipments++
-					if len(data.Shipments) < 10 {
-						data.Shipments = append(data.Shipments, s)
-					}
+		// The total is counted; the panel below shows only the newest ten, so
+		// the list stays a page while the figure stays a figure.
+		if n, err := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID,
+			[]string{string(commerce.StatusPending), string(commerce.StatusConfirmed)}); err != nil {
+			h.log.ErrorContext(ctx, "vendor dashboard: count shipments", "error", err)
+		} else {
+			data.PendingShipments = n
+		}
+		if shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 10, 0); err == nil {
+			for _, sh := range shipments {
+				if sh.Status == commerce.StatusPending || sh.Status == commerce.StatusConfirmed {
+					data.Shipments = append(data.Shipments, sh)
 				}
 			}
 		}

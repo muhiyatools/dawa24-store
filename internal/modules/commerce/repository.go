@@ -25,6 +25,7 @@ type Repository interface {
 	UpdateOrderStatus(ctx context.Context, orderID int64, toStatus OrderStatus, history OrderStatusHistory) error
 	ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*Order, error)
 	CountOrders(ctx context.Context) (int, error)
+	CountVendorShipmentsByStatus(ctx context.Context, orgID int64, statuses []string) (int, error)
 	// MonthSalesByVendor sums a vendor's sold order-line totals for the current
 	// month, for the supplier dashboard's "sales this month" metric.
 	MonthSalesByVendor(ctx context.Context, vendorOrgID int64) (money.Amount, error)

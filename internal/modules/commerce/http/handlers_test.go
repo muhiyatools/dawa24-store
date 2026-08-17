@@ -421,3 +421,12 @@ func (r stubRepo) SetShipmentTracking(context.Context, int64, string, string) er
 func (happyRepo) SetShipmentTracking(context.Context, int64, string, string) error {
 	return nil
 }
+
+func (r stubRepo) CountVendorShipmentsByStatus(_ context.Context, _ int64, _ []string) (int, error) {
+	r.fail("CountVendorShipmentsByStatus")
+	return 0, nil
+}
+
+func (happyRepo) CountVendorShipmentsByStatus(_ context.Context, _ int64, _ []string) (int, error) {
+	return 2, nil
+}
