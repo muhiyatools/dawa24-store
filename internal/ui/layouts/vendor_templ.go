@@ -45,7 +45,15 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.5rem; display:flex; align-items:center; gap:0.75rem; border-bottom:1px solid var(--neutral-800);\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:48px; max-height:50px; object-fit:contain;\"> <span style=\"font-weight:800; font-size:1.1rem; color:#ffffff;\">بوابة الموردين</span></div><nav class=\"sidebar-nav\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--neutral-800);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:900; font-size:1.1rem; color:#ffffff; line-height:1.2;\">دواء 24</span> <span style=\"font-size:0.75rem; color:var(--primary-400); font-weight:700;\">بوابة الموردين</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconMenu("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</button></div><nav class=\"sidebar-nav\" style=\"padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -54,7 +62,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"/vendor/dashboard\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/vendor/dashboard\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -67,7 +75,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -75,7 +83,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>لوحة التحكم</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>لوحة التحكم</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -84,7 +92,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<a href=\"/vendor/products\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<a href=\"/vendor/products\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -97,7 +105,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -105,7 +113,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>قائمة المنتجات</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>قائمة المنتجات</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -114,7 +122,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<a href=\"/vendor/products/new\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"/vendor/products/new\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -127,7 +135,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -135,7 +143,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>إضافة صنف جديد</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>إضافة صنف جديد</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -144,7 +152,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<a href=\"/vendor/inventory\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<a href=\"/vendor/inventory\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -157,7 +165,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -165,7 +173,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>الأرصدة والمخازن</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>الأرصدة والمخازن</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -174,7 +182,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<a href=\"/vendor/transfers\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<a href=\"/vendor/transfers\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -187,7 +195,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -195,7 +203,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>التحويلات المخزنية</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>التحويلات المخزنية</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -204,7 +212,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<a href=\"/vendor/ingest\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<a href=\"/vendor/ingest\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -217,7 +225,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -225,7 +233,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>استيراد ملفات الكتالوج</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>استيراد ملفات الكتالوج</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -234,7 +242,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<a href=\"/vendor/orders\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"/vendor/orders\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -247,7 +255,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -255,7 +263,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>الشحنات والتوريد</span></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>الشحنات والتوريد</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -264,7 +272,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<a href=\"/vendor/offers\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<a href=\"/vendor/offers\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -277,7 +285,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -285,7 +293,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>العروض والإعلانات</span></a></nav><div style=\"border-top:1px solid var(--neutral-800); padding:1rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" style=\"color:var(--neutral-400); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; text-decoration:none;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>العروض والإعلانات</span></a></nav><div style=\"margin-top:auto; border-top:1px solid var(--neutral-800); padding:1rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" style=\"color:var(--neutral-400); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; text-decoration:none; border-radius:var(--radius-md); transition:background 0.15s ease;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -293,20 +301,28 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>العودة للمتجر الدوائي</span></a></div></aside><main class=\"main-content\"><header class=\"top-navbar\"><div><h1 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-900);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>العودة للمتجر الدوائي</span></a></div></aside><main class=\"main-content\"><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border-subtle); background:#ffffff; padding:0 2rem; height:4rem; display:flex; align-items:center; justify-content:space-between;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" data-sidebar-toggle style=\"width:36px; height:36px;\" title=\"طي / توسيع القائمة\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconMenu("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</button><h1 style=\"font-size:1.2rem; font-weight:800; color:var(--neutral-900); margin:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/vendor.templ`, Line: 60, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/vendor.templ`, Line: 72, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</h1></div><div style=\"display:flex; align-items:center; gap:1rem;\"><span class=\"badge badge-emerald\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</h1></div><div style=\"display:flex; align-items:center; gap:1rem;\"><span class=\"badge badge-emerald\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -314,7 +330,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>مورد معتمد</span></span><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>مورد معتمد</span></span><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:700;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -322,7 +338,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>خروج</span></button></form></div></header><div class=\"page-container\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>خروج</span></button></form></div></header><div class=\"page-container\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -330,7 +346,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></main></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div></main></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

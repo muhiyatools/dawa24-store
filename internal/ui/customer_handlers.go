@@ -19,31 +19,47 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	query := r.URL.Query().Get("q")
 	lang, dir := h.localeAndDir(r)
 
-	if h.catSvc == nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.CustomerCatalog(nil, nil, query, lang, dir, h.isHTMX(r)).Render(ctx, w)
-		return
+	var categoryID *int64
+	if v := r.URL.Query().Get("category_id"); v != "" {
+		if id, err := strconv.ParseInt(v, 10, 64); err == nil {
+			categoryID = &id
+		}
 	}
 
 	var minPrice, maxPrice *money.Amount
-	if v := r.URL.Query().Get("min_price"); v != "" {
-		if a, err := money.Parse(v); err == nil {
+	minPriceStr := r.URL.Query().Get("min_price")
+	maxPriceStr := r.URL.Query().Get("max_price")
+	if minPriceStr != "" {
+		if a, err := money.Parse(minPriceStr); err == nil {
 			minPrice = &a
 		}
 	}
-	if v := r.URL.Query().Get("max_price"); v != "" {
-		if a, err := money.Parse(v); err == nil {
+	if maxPriceStr != "" {
+		if a, err := money.Parse(maxPriceStr); err == nil {
 			maxPrice = &a
 		}
 	}
 
+	dosageForm := r.URL.Query().Get("dosage_form")
+	sort := r.URL.Query().Get("sort")
+	inStock := r.URL.Query().Get("in_stock") == "true"
+
+	if h.catSvc == nil {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.CustomerCatalog(pages.CatalogPageData{
+			Query: query,
+		}, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		return
+	}
+
 	products, err := h.catSvc.Search(ctx, catalog.SearchParams{
-		Query:    query,
-		Sort:     r.URL.Query().Get("sort"),
-		MinPrice: minPrice,
-		MaxPrice: maxPrice,
-		Limit:    h.pageLimit(r),
-		Offset:   h.pageOffset(r),
+		Query:      query,
+		CategoryID: categoryID,
+		Sort:       sort,
+		MinPrice:   minPrice,
+		MaxPrice:   maxPrice,
+		Limit:      h.pageLimit(r),
+		Offset:     h.pageOffset(r),
 	})
 	if err != nil {
 		h.renderError(w, r, err)
@@ -52,8 +68,20 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	categories, _ := h.catSvc.ListCategories(ctx)
 
+	viewData := pages.CatalogPageData{
+		Products:   products,
+		Categories: categories,
+		Query:      query,
+		CategoryID: categoryID,
+		MinPrice:   minPriceStr,
+		MaxPrice:   maxPriceStr,
+		DosageForm: dosageForm,
+		Sort:       sort,
+		InStock:    inStock,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerCatalog(products, categories, query, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.CustomerCatalog(viewData, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render catalog page", "error", err)
 	}
 }
@@ -244,6 +272,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 
 	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
 	productID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
+	vendorOrgID, _ := strconv.ParseInt(r.PostFormValue("vendor_org_id"), 10, 64)
 	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
 	if qty <= 0 {
 		qty = 1
@@ -252,6 +281,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	item := &commerce.CartItem{
 		ProductID:        productID,
 		ProductVariantID: variantID,
+		OrganizationID:   vendorOrgID,
 		Quantity:         qty,
 	}
 

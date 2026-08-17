@@ -29,12 +29,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Resilient Registration Stepper
   initRegistrationStepper();
 
-  // 5. Resilient Modal Manager
-  initModalManager();
-
   // 6. Universal Dropdown Toggle Handler
   initDropdowns();
+
+  // 7. Animated Sidebar Toggle
+  initSidebarToggle();
 });
+
+// Animated Sidebar Toggle Handler
+function initSidebarToggle() {
+  const isCollapsed = localStorage.getItem('dawa_sidebar_collapsed') === 'true';
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar && isCollapsed) {
+    sidebar.classList.add('collapsed');
+  }
+
+  document.addEventListener('click', (e) => {
+    const toggleBtn = e.target.closest('[data-sidebar-toggle]');
+    if (toggleBtn) {
+      const sb = document.querySelector('.sidebar');
+      if (sb) {
+        const collapsed = sb.classList.toggle('collapsed');
+        localStorage.setItem('dawa_sidebar_collapsed', collapsed ? 'true' : 'false');
+      }
+    }
+  });
+}
 
 // Tab Switcher with URL hash and pushState support
 function initTabSystem() {

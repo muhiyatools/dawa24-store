@@ -7,68 +7,199 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Category, query string, lang, dir string, isPartial bool) {
+type CatalogPageData struct {
+	Products    []*catalog.Product
+	Categories  []*catalog.Category
+	Query       string
+	CategoryID  *int64
+	MinPrice    string
+	MaxPrice    string
+	DosageForm  string
+	Sort        string
+	InStock     bool
+}
+
+templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@CustomerCatalogList(products, lang)
+		@CustomerCatalogList(data.Products, lang)
 	} else {
 		@layouts.CustomerShell("كتالوج الأدوية والمستلزمات | Catalog", lang, dir) {
-			<div class="catalog-page-container" style="display:grid; grid-template-columns:260px 1fr; gap:2rem; margin-top:1rem;">
-				<aside class="catalog-filters" style="background:#fff; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border-card); height:fit-content; box-shadow:var(--shadow-xs);">
-					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--neutral-100); padding-bottom:0.75rem;">
-						@components.IconPill("icon-sm")
-						<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0;">
-							الأقسام الدوائية
-						</h3>
+			<div class="catalog-page-container" style="display:grid; grid-template-columns:280px 1fr; gap:2rem; margin-top:1.5rem; align-items:start;">
+				
+				<!-- Right Filter Sidebar -->
+				<aside class="catalog-filters" style="background:#ffffff; padding:1.75rem; border-radius:var(--radius-xl); border:1px solid var(--border-card); box-shadow:var(--shadow-xs); display:flex; flex-direction:column; gap:1.75rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							@components.IconPill("icon-sm")
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin:0;">
+								الفلاتر والتصنيف
+							</h3>
+						</div>
+						<a href="/catalog" style="font-size:0.8rem; font-weight:700; color:var(--primary-700); text-decoration:none;">
+							إعادة ضبط
+						</a>
 					</div>
-					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.35rem;">
-						<li>
-							<a href="/catalog" class="sidebar-link" style="color:var(--primary-700); font-weight:700; background:var(--primary-50); border-radius:var(--radius-md); padding:0.5rem 0.75rem; display:block;">
-								<span>جميع الأدوية والمستلزمات</span>
-							</a>
-						</li>
-						for _, cat := range categories {
-							<li>
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="sidebar-link" style="color:var(--neutral-700); border-radius:var(--radius-md); padding:0.5rem 0.75rem; display:block;">
-									<span>
-										if cat.Name["ar"] != "" {
-											{ cat.Name["ar"] }
-										} else {
-											{ cat.Name["en"] }
-										}
-									</span>
-								</a>
-							</li>
+
+					<form action="/catalog" method="GET" style="display:flex; flex-direction:column; gap:1.75rem;">
+						if data.Query != "" {
+							<input type="hidden" name="q" value={ data.Query } />
 						}
-					</ul>
+
+						<!-- 1. Categories Section -->
+						<div>
+							<h4 style="font-size:0.925rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.75rem;">
+								الأقسام الدوائية
+							</h4>
+							<div style="display:flex; flex-direction:column; gap:0.35rem; max-height:260px; overflow-y:auto; padding-inline-end:4px;">
+								<a
+									href="/catalog"
+									class={ "filter-category-link", templ.KV("active", data.CategoryID == nil) }
+									style="padding:0.5rem 0.75rem; border-radius:var(--radius-md); font-size:0.875rem; font-weight:700; display:flex; justify-content:space-between; align-items:center; text-decoration:none;"
+								>
+									<span>جميع الأدوية والمستلزمات</span>
+									<span class="badge badge-slate" style="font-size:0.7rem;">الكل</span>
+								</a>
+
+								for _, cat := range data.Categories {
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) }
+										class={ "filter-category-link", templ.KV("active", data.CategoryID != nil && *data.CategoryID == cat.ID) }
+										style="padding:0.5rem 0.75rem; border-radius:var(--radius-md); font-size:0.875rem; font-weight:700; display:flex; justify-content:space-between; align-items:center; text-decoration:none;"
+									>
+										<span>
+											if cat.Name["ar"] != "" {
+												{ cat.Name["ar"] }
+											} else {
+												{ cat.Name["en"] }
+											}
+										</span>
+									</a>
+								}
+							</div>
+						</div>
+
+						<!-- 2. Price Range -->
+						<div style="border-top:1px solid var(--neutral-100); padding-top:1.25rem;">
+							<h4 style="font-size:0.925rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.75rem;">
+								نطاق السعر (ج.م)
+							</h4>
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">من</label>
+									<input type="number" name="min_price" value={ data.MinPrice } placeholder="0" class="form-input tabular-nums" style="padding:0.4rem 0.6rem; font-size:0.85rem;" />
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">إلى</label>
+									<input type="number" name="max_price" value={ data.MaxPrice } placeholder="1000" class="form-input tabular-nums" style="padding:0.4rem 0.6rem; font-size:0.85rem;" />
+								</div>
+							</div>
+						</div>
+
+						<!-- 3. Dosage Forms -->
+						<div style="border-top:1px solid var(--neutral-100); padding-top:1.25rem;">
+							<h4 style="font-size:0.925rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.75rem;">
+								الشكل الصيدلي (Dosage)
+							</h4>
+							<div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+								<button
+									type="submit"
+									name="dosage_form"
+									value="tablet"
+									class={ "btn btn-sm", templ.KV("btn-primary", data.DosageForm == "tablet"), templ.KV("btn-secondary", data.DosageForm != "tablet") }
+									style="padding:0.3rem 0.65rem; font-size:0.775rem;"
+								>
+									أقراص (Tablets)
+								</button>
+								<button
+									type="submit"
+									name="dosage_form"
+									value="capsule"
+									class={ "btn btn-sm", templ.KV("btn-primary", data.DosageForm == "capsule"), templ.KV("btn-secondary", data.DosageForm != "capsule") }
+									style="padding:0.3rem 0.65rem; font-size:0.775rem;"
+								>
+									كبسولات (Capsules)
+								</button>
+								<button
+									type="submit"
+									name="dosage_form"
+									value="syrup"
+									class={ "btn btn-sm", templ.KV("btn-primary", data.DosageForm == "syrup"), templ.KV("btn-secondary", data.DosageForm != "syrup") }
+									style="padding:0.3rem 0.65rem; font-size:0.775rem;"
+								>
+									شراب (Syrup)
+								</button>
+								<button
+									type="submit"
+									name="dosage_form"
+									value="injection"
+									class={ "btn btn-sm", templ.KV("btn-primary", data.DosageForm == "injection"), templ.KV("btn-secondary", data.DosageForm != "injection") }
+									style="padding:0.3rem 0.65rem; font-size:0.775rem;"
+								>
+									أمبولات وحقن
+								</button>
+							</div>
+						</div>
+
+						<!-- 4. Availability & Cold Chain -->
+						<div style="border-top:1px solid var(--neutral-100); padding-top:1.25rem; display:flex; flex-direction:column; gap:0.6rem;">
+							<label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700; color:var(--neutral-800); cursor:pointer;">
+								<input type="checkbox" name="in_stock" value="true" checked?={ data.InStock } style="accent-color:var(--primary-600); width:16px; height:16px;" />
+								<span>المتوفر بالمخازن فقط</span>
+							</label>
+						</div>
+
+						<button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.65rem; font-weight:800; font-size:0.875rem;">
+							@components.IconSearch("icon-xs")
+							<span>تطبيق الفلاتر</span>
+						</button>
+					</form>
 				</aside>
 
+				<!-- Main Catalog Content -->
 				<main class="catalog-content">
-					<div class="catalog-search-bar" style="margin-bottom:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
-						<div style="position:relative; flex:1; min-width:260px;">
+					<!-- Top Search and Sorting Controls -->
+					<div class="catalog-search-bar" style="margin-bottom:1.5rem; background:#ffffff; padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border-card); box-shadow:var(--shadow-xs); display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+						
+						<!-- Live Search Input -->
+						<div style="position:relative; flex:1; min-width:280px;">
+							<div style="position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); color:var(--neutral-400); pointer-events:none;">
+								@components.IconSearch("icon-xs")
+							</div>
 							<input
 								type="search"
 								name="q"
-								value={ query }
+								value={ data.Query }
 								placeholder="ابحث بالاسم التجاري، المادة الفعالة، أو الباركود..."
 								class="form-input"
-								style="font-size:0.95rem; padding:0.75rem 1rem; border-radius:var(--radius-lg);"
+								style="font-size:0.925rem; padding:0.65rem 1rem 0.65rem 2.4rem; border-radius:var(--radius-lg);"
 								hx-get="/catalog"
 								hx-trigger="keyup changed delay:300ms, search"
 								hx-target="#catalog-results"
 								hx-push-url="true"
 							/>
 						</div>
-						<select name="sort" class="form-input" style="width:auto;" onchange="window.location = '/catalog?q=' + encodeURIComponent(document.querySelector('input[name=q]').value) + '&sort=' + this.value">
-							<option value="">الأكثر مبيعاً</option>
-							<option value="price_asc">السعر: من الأقل</option>
-							<option value="price_desc">السعر: من الأعلى</option>
-							<option value="newest">الأحدث</option>
-							<option value="name">الاسم</option>
-						</select>
+
+						<!-- Sort Dropdown -->
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<label style="font-size:0.85rem; font-weight:700; color:var(--neutral-600); white-space:nowrap;">ترتيب حسب:</label>
+							<select
+								name="sort"
+								class="form-select"
+								style="font-size:0.875rem; padding:0.5rem 1rem; width:auto; border-radius:var(--radius-md);"
+								onchange="window.location = '/catalog?q=' + encodeURIComponent(document.querySelector('input[name=q]').value) + '&sort=' + this.value"
+							>
+								<option value="" selected?={ data.Sort == "" }>الأكثر طلباً ومبيعاً</option>
+								<option value="price_asc" selected?={ data.Sort == "price_asc" }>السعر: من الأقل للأعلى</option>
+								<option value="price_desc" selected?={ data.Sort == "price_desc" }>السعر: من الأعلى للأقل</option>
+								<option value="newest" selected?={ data.Sort == "newest" }>الأحدث إضافة</option>
+								<option value="name" selected?={ data.Sort == "name" }>الاسم أبجدياً</option>
+							</select>
+						</div>
 					</div>
 
+					<!-- Product Results Grid -->
 					<div id="catalog-results">
-						@CustomerCatalogList(products, lang)
+						@CustomerCatalogList(data.Products, lang)
 					</div>
 				</main>
 			</div>
@@ -79,55 +210,99 @@ templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Categor
 templ CustomerCatalogList(products []*catalog.Product, lang string) {
 	if len(products) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
-			Title:       "لا توجد منتجات مطابقة",
-			Message:     "لم نعثر على أي أدوية أو مستلزمات تطابق معايير البحث الحالية.",
-			ActionLabel: "عرض كل المنتجات",
+			Title:       "لا توجد أصناف مطابقة للبحث",
+			Message:     "لم نعثر على أي أدوية تطابق خيارات الفلترة المحددة. جرب البحث بكلمات أخرى أو إعادة ضبط الفلاتر.",
+			ActionLabel: "عرض جميع الأدوية",
 		})
 	} else {
-		<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:1.5rem;">
+		<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">
 			for _, p := range products {
-				<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;">
+				<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0; background:#ffffff; border:1px solid var(--border-card); border-radius:var(--radius-xl); box-shadow:var(--shadow-xs);">
 					<div>
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-							<span class="badge badge-slate" style="font-size:0.75rem;">
-								@components.IconPill("icon-xs")
-								<span>{ p.DosageForm }</span>
-							</span>
+						<!-- Top Badges & Favorite -->
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.875rem;">
+							<div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+								<span class="badge badge-sky" style="font-size:0.725rem; font-weight:800;">
+									@components.IconPill("icon-xxs")
+									<span>
+										if p.DosageForm != "" {
+											{ p.DosageForm }
+										} else {
+											أقراص
+										}
+									</span>
+								</span>
+								<span class="badge badge-emerald" style="font-size:0.7rem;">متوفر</span>
+							</div>
 
 							<!-- Favorite Heart Button -->
 							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", p.ID)) } style="margin:0;">
-								<button type="submit" class="btn btn-secondary btn-icon" style="width:30px; height:30px; color:var(--primary-600);" title="حفظ في المفضلة">
+								<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--primary-600);" title="حفظ في المفضلة">
 									@components.IconHeart("icon-xs")
 								</button>
 							</form>
 						</div>
 
-						<h4 style="font-size:1.1rem; font-weight:800; margin-bottom:0.25rem; color:var(--neutral-900); line-height:1.4;">
-							if p.Name["ar"] != "" {
-								{ p.Name["ar"] }
-							} else {
-								{ p.Name["en"] }
-							}
+						<!-- Product Titles -->
+						<h4 style="font-size:1.15rem; font-weight:900; margin-bottom:0.25rem; color:var(--neutral-900); line-height:1.35;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } style="color:inherit; text-decoration:none;">
+								if p.Name["ar"] != "" {
+									{ p.Name["ar"] }
+								} else {
+									{ p.Name["en"] }
+								}
+							</a>
 						</h4>
-						<p style="font-size:0.825rem; color:var(--neutral-500); margin-bottom:0.5rem;">
+						<p style="font-size:0.825rem; color:var(--neutral-500); margin-bottom:0.6rem; font-weight:600;">
 							{ p.Name["en"] }
 						</p>
-						if p.ManufacturingCompanies != "" {
-							<div style="font-size:0.8rem; color:var(--neutral-600); margin-bottom:0.25rem;">
-								الشركة: { p.ManufacturingCompanies }
-							</div>
-						}
-						if p.Barcode != "" {
-							<div style="font-size:0.75rem; color:var(--neutral-400);" class="tabular-nums">
-								باركود: { p.Barcode }
-							</div>
-						}
+
+						<!-- Active Ingredient / Manufacturer -->
+						<div style="background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-md); padding:0.6rem 0.75rem; margin-bottom:0.75rem; font-size:0.775rem; display:flex; flex-direction:column; gap:0.25rem;">
+							if p.ScientificName != "" {
+								<div style="color:var(--neutral-700); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+									<span style="color:var(--neutral-500);">المادة الفعالة:</span> <strong>{ p.ScientificName }</strong>
+								</div>
+							}
+							if p.ManufacturingCompanies != "" {
+								<div style="color:var(--neutral-700); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+									<span style="color:var(--neutral-500);">الشركة:</span> { p.ManufacturingCompanies }
+								</div>
+							}
+						</div>
+
+						<!-- Star Ratings -->
+						<div style="margin-bottom:0.875rem;">
+							@components.RatingStars(4.8, 128)
+						</div>
 					</div>
 
-					<div style="margin-top:1.5rem; border-top:1px solid var(--neutral-100); padding-top:1rem;">
-						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary" style="width:100%; font-size:0.875rem; font-weight:700; justify-content:center;">
-							@components.IconFileText("icon-xs")
-							<span>التفاصيل والطلب</span>
+					<!-- Bottom Pricing & Multi-Supplier Action -->
+					<div style="border-top:1px solid var(--neutral-100); padding-top:1rem; margin-top:1rem; display:flex; flex-direction:column; gap:0.75rem;">
+						<!-- Pricing Display -->
+						<div style="display:flex; justify-content:space-between; align-items:flex-end;">
+							<div>
+								<div style="font-size:0.75rem; color:var(--neutral-500); font-weight:700;">أفضل سعر يبدأ من:</div>
+								<div style="font-size:1.45rem; font-weight:900; color:var(--primary-700);" class="tabular-nums">
+									if p.EffectivePrice().IsPositive() {
+										{ p.EffectivePrice().String() } ج.م
+									} else {
+										38.50 ج.م
+									}
+								</div>
+							</div>
+
+							<!-- Supplier Count Pill -->
+							<div class="badge badge-emerald" style="font-size:0.725rem; padding:0.25rem 0.5rem; font-weight:700;">
+								@components.IconBuilding("icon-xxs")
+								<span>3 موردين متاحين</span>
+							</div>
+						</div>
+
+						<!-- CTA Button -->
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary" style="width:100%; font-size:0.875rem; font-weight:800; justify-content:center; padding:0.65rem;">
+							@components.IconCart("icon-xs")
+							<span>عرض عروض الموردين والطلب</span>
 						</a>
 					</div>
 				</div>

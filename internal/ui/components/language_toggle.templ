@@ -1,0 +1,22 @@
+package components
+
+templ LanguageToggle(currentLang string) {
+	<div class="lang-toggle-switch" style="display:inline-flex; align-items:center; background:var(--neutral-100); border:1px solid var(--neutral-300); border-radius:var(--radius-full); padding:3px; gap:2px; user-select:none;">
+		<a
+			href="/lang/ar"
+			class={ "lang-toggle-opt", templ.KV("active", currentLang == "ar" || currentLang == "") }
+			style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); font-size:0.775rem; font-weight:800; text-decoration:none !important; transition:all 0.15s ease;"
+		>
+			<span style="display:inline-flex; align-items:center;">@IconFlagEG("icon-xxs")</span>
+			<span>عربي</span>
+		</a>
+		<a
+			href="/lang/en"
+			class={ "lang-toggle-opt", templ.KV("active", currentLang == "en") }
+			style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); font-size:0.775rem; font-weight:800; text-decoration:none !important; transition:all 0.15s ease;"
+		>
+			<span style="display:inline-flex; align-items:center;">@IconFlagGB("icon-xxs")</span>
+			<span>EN</span>
+		</a>
+	</div>
+}

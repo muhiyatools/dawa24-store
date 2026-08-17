@@ -15,16 +15,8 @@ templ CustomerShell(title string, lang string, dir string) {
 			</div>
 
 			<div style="display:flex; align-items:center; gap:0.875rem;">
-				<!-- Language Selector with Clean SVG Flags -->
-				if lang == "en" {
-					<a href="/lang/ar" class="btn btn-secondary btn-icon" title="اللغة العربية">
-						@components.IconFlagEG("icon-md")
-					</a>
-				} else {
-					<a href="/lang/en" class="btn btn-secondary btn-icon" title="English Language">
-						@components.IconFlagGB("icon-md")
-					</a>
-				}
+				<!-- Language Toggle Switch (Sleek pill switch: عربي | EN) -->
+				@components.LanguageToggle(lang)
 
 				<!-- Cart Button: Clean Icon-only with badge -->
 				<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
@@ -175,10 +167,10 @@ templ CustomerShell(title string, lang string, dir string) {
 		<!-- Redesigned Production Footer with clean links and ample spacing -->
 		<footer class="site-footer">
 			<div class="footer-content">
-				<!-- Brand and description -->
+				<!-- Company Info & Mission -->
 				<div>
 					<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;">
-						<img src="/static/img/logo.png" alt="DAWA24.com" style="height:54px; object-fit:contain;" />
+						<img src="/static/img/logo.png" alt="DAWA24.com" style="height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:#ffffff; padding:4px;" />
 					</div>
 					<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.75rem;">
 						شركة DAWA24
@@ -197,7 +189,7 @@ templ CustomerShell(title string, lang string, dir string) {
 						<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
 						<li><a href="/about">من نحن (عن دواء 24)</a></li>
 						<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>
-						<li><a href="/onboarding">انضمام الشركاء والموردين</a></li>
+						<li><a href="/auth/register">انضمام الشركاء والموردين</a></li>
 						<li><a href="/privacy">سياسة الخصوصية</a></li>
 						<li><a href="/terms">الشروط والأحكام</a></li>
 					</ul>
