@@ -15,6 +15,10 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					<span>بوابة الموردين</span>
 				</div>
 				<nav class="sidebar-nav">
+					<a href="/vendor/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
+						@components.IconChart("icon-sm")
+						<span>لوحة التحكم</span>
+					</a>
 					<a href="/vendor/products" class={ "sidebar-link", templ.KV("active", activeNav == "products") }>
 						@components.IconPill("icon-sm")
 						<span>قائمة المنتجات</span>

@@ -56,6 +56,26 @@ func (r stubRepo) ListIssues(context.Context, int, int) ([]*workflow.ReportIssue
 	return nil, nil
 }
 
+func (r stubRepo) CreateRequest(context.Context, *workflow.Request) error {
+	r.fail("CreateRequest")
+	return nil
+}
+
+func (r stubRepo) GetRequestByID(context.Context, int64) (*workflow.Request, error) {
+	r.fail("GetRequestByID")
+	return nil, nil
+}
+
+func (r stubRepo) ListRequestsByOrg(context.Context, int64, string, int, int) ([]*workflow.Request, error) {
+	r.fail("ListRequestsByOrg")
+	return nil, nil
+}
+
+func (r stubRepo) UpdateRequestStatus(context.Context, int64, workflow.RequestStatus) error {
+	r.fail("UpdateRequestStatus")
+	return nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) CreatePriorityRequest(ctx context.Context, r *workflow.PurchasePriorityRequest) error {
@@ -82,6 +102,23 @@ func (happyRepo) GetIssueByID(ctx context.Context, id int64) (*workflow.ReportIs
 }
 func (happyRepo) ListIssues(ctx context.Context, limit, offset int) ([]*workflow.ReportIssue, error) {
 	return []*workflow.ReportIssue{{ID: 1, ReportedBy: 1, IssueType: "quality", Description: "Broken seal"}}, nil
+}
+
+func (happyRepo) CreateRequest(ctx context.Context, r *workflow.Request) error {
+	r.ID = 1
+	return nil
+}
+
+func (happyRepo) GetRequestByID(ctx context.Context, id int64) (*workflow.Request, error) {
+	return &workflow.Request{ID: id, Type: workflow.RequestDocument, Status: workflow.RequestPending}, nil
+}
+
+func (happyRepo) ListRequestsByOrg(ctx context.Context, orgID int64, status string, limit, offset int) ([]*workflow.Request, error) {
+	return []*workflow.Request{{ID: 1, Type: workflow.RequestDocument, Status: workflow.RequestPending}}, nil
+}
+
+func (happyRepo) UpdateRequestStatus(ctx context.Context, id int64, status workflow.RequestStatus) error {
+	return nil
 }
 
 const testCookieName = "dawa24_session"

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -68,6 +69,55 @@ func (r *ReportIssue) Validate() error {
 	}
 	if r.Description == "" {
 		return apperr.Validation("issue.description_required", "Description is required.", nil)
+	}
+	return nil
+}
+
+// RequestType classifies a document/action request.
+type RequestType string
+
+const (
+	RequestDocument RequestType = "document"
+	RequestAction   RequestType = "action"
+	RequestApproval RequestType = "approval"
+)
+
+// RequestStatus is the lifecycle state of a request.
+type RequestStatus string
+
+const (
+	RequestPending   RequestStatus = "pending"
+	RequestAccepted  RequestStatus = "accepted"
+	RequestDeclined  RequestStatus = "declined"
+	RequestCancelled RequestStatus = "cancelled"
+)
+
+// Request is a document/action request between parties (legacy ask_fors).
+type Request struct {
+	ID          int64         `json:"id"`
+	PublicID    string        `json:"public_id"`
+	Type        RequestType   `json:"type"`
+	Title       i18n.Text     `json:"title"`
+	Description string        `json:"description"`
+	Status      RequestStatus `json:"status"`
+	ActionURL   string        `json:"action_url,omitempty"`
+	FromUserID  int64         `json:"from_user_id"`
+	FromOrgID   int64         `json:"from_org_id"`
+	ToOrgID     int64         `json:"to_org_id"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+}
+
+// Validate ensures a request names both parties and a type.
+func (r *Request) Validate() error {
+	if r.FromOrgID <= 0 || r.ToOrgID <= 0 {
+		return apperr.Validation("request.org_required", "Both request parties are required.", nil)
+	}
+	if r.FromOrgID == r.ToOrgID {
+		return apperr.Validation("request.same_org", "Cannot send a request to your own organization.", nil)
+	}
+	if r.Type == "" {
+		r.Type = RequestDocument
 	}
 	return nil
 }

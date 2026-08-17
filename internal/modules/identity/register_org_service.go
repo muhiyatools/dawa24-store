@@ -1,0 +1,139 @@
+package identity
+
+import (
+	"context"
+
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+)
+
+// RegisterOrganizationInput combines the account and organization details for a
+// signup that creates both in one step.
+type RegisterOrganizationInput struct {
+	Email    string
+	Password string
+	NameAr   string
+	NameEn   string
+	Phone    string
+	Language i18n.Lang
+	Timezone string
+	Org      RegisterOrgInput
+}
+
+// RegisterOrganization creates a user and their organization in one transaction
+// and issues a session scoped to the new organization.
+//
+// The platform role on identity.users stays 'customer'; the owner membership
+// (role_key 'org_owner') is what carries capability. Registration returns the
+// user, a session whose ActiveOrgID and OrgType point at the new tenant, and a
+// summary of what was created so the caller can route to the right dashboard.
+func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrganizationInput) (*User, *Session, *RegisterOrgResult, error) {
+	cleanEmail := NormalizeEmail(input.Email)
+	if cleanEmail == "" || !stringsContains(cleanEmail, "@") {
+		return nil, nil, nil, apperr.Validation("email.invalid", "A valid email address is required.", nil)
+	}
+
+	hash, err := HashPassword(input.Password)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Per-type required fields. A pharmacy that omits its licence number must
+	// not become a supplier-shaped record; the CHECK constraints and downstream
+	// screens rely on the type being complete.
+	if err := validateOrgInput(input.Org); err != nil {
+		return nil, nil, nil, err
+	}
+
+	lang := input.Language
+	if lang == "" {
+		lang = i18n.Default
+	}
+	tz := input.Timezone
+	if tz == "" {
+		tz = "Africa/Cairo"
+	}
+
+	user := &User{
+		Email:        cleanEmail,
+		PasswordHash: hash,
+		Name:         i18n.New(input.NameAr, input.NameEn),
+		Role:         "customer",
+		Status:       StatusActive,
+		Language:     lang,
+		Timezone:     tz,
+		Phone:        input.Phone,
+	}
+
+	result, err := s.repo.RegisterOrganization(ctx, user, input.Org)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	permissions, err := s.repo.GetPermissionsForUser(ctx, user.ID, result.OrganizationID)
+	if err != nil {
+		permissions = []string{}
+	}
+
+	sess := &Session{
+		UserID:      user.ID,
+		PublicID:    user.PublicID,
+		Email:       user.Email,
+		Role:        user.Role,
+		ActiveOrgID: result.OrganizationID,
+		OrgType:     result.OrganizationType,
+		OrgStatus:   result.OrganizationStatus,
+		Permissions: permissions,
+	}
+
+	if s.sessionStore != nil {
+		if err := s.sessionStore.Create(ctx, sess); err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	s.log.InfoContext(ctx, "organization registered",
+		"user_id", user.ID, "org_id", result.OrganizationID,
+		"org_type", result.OrganizationType, "org_status", result.OrganizationStatus)
+	return user, sess, result, nil
+}
+
+// validateOrgInput enforces the per-account-type required fields described in
+// the registration form.
+func validateOrgInput(in RegisterOrgInput) error {
+	switch in.Type {
+	case OrgTypeSupplier:
+		if in.LegalName == "" {
+			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
+		}
+		if in.CommercialRegister == "" {
+			return apperr.Validation("org.cr_required", "Commercial registration number is required.", nil)
+		}
+		if in.TaxNumber == "" {
+			return apperr.Validation("org.tax_required", "Tax number is required for suppliers.", nil)
+		}
+	case OrgTypePharmacy:
+		if in.LegalName == "" {
+			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
+		}
+		if in.CommercialRegister == "" {
+			return apperr.Validation("org.cr_required", "Commercial registration number is required.", nil)
+		}
+		if in.PharmacistLicense == "" {
+			return apperr.Validation("org.license_required", "Pharmacist licence number is required for pharmacies.", nil)
+		}
+	case OrgTypeChainPharmacy:
+		if in.LegalName == "" {
+			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
+		}
+		if in.PharmacistLicense == "" {
+			return apperr.Validation("org.license_required", "Pharmacist licence number is required for pharmacies.", nil)
+		}
+		if in.BranchCount == nil || *in.BranchCount < 2 {
+			return apperr.Validation("org.branch_count_required", "A chain pharmacy needs at least 2 branches.", nil)
+		}
+	default:
+		return apperr.Validation("org.type_invalid", "Choose an account type: supplier, pharmacy or chain pharmacy.", nil)
+	}
+	return nil
+}

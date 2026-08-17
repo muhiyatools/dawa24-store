@@ -75,6 +75,23 @@ func (m *mockWorkflowRepo) ListIssues(_ context.Context, limit, offset int) ([]*
 	return list, nil
 }
 
+func (m *mockWorkflowRepo) CreateRequest(_ context.Context, r *Request) error {
+	r.ID = 1
+	return nil
+}
+
+func (m *mockWorkflowRepo) GetRequestByID(_ context.Context, _ int64) (*Request, error) {
+	return nil, apperr.NotFound("request")
+}
+
+func (m *mockWorkflowRepo) ListRequestsByOrg(_ context.Context, _ int64, _ string, _, _ int) ([]*Request, error) {
+	return nil, nil
+}
+
+func (m *mockWorkflowRepo) UpdateRequestStatus(_ context.Context, _ int64, _ RequestStatus) error {
+	return nil
+}
+
 func TestWorkflowPurchasePriorityAndCoverage(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 20)
 	repo := newMockWorkflowRepo()

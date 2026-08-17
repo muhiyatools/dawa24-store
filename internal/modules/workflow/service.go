@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Service coordinates purchasing optimization, weekly coverage, and issue resolution.
@@ -78,4 +80,38 @@ func (s *Service) ReportIssue(ctx context.Context, i *ReportIssue) (*ReportIssue
 // ListIssues retrieves issues with pagination.
 func (s *Service) ListIssues(ctx context.Context, limit, offset int) ([]*ReportIssue, error) {
 	return s.repo.ListIssues(ctx, limit, offset)
+}
+
+// CreateRequest sends a document/action request to another organization.
+func (s *Service) CreateRequest(ctx context.Context, fromUserID, fromOrgID, toOrgID int64, typ RequestType, title i18n.Text, description string) (*Request, error) {
+	r := &Request{
+		FromUserID:  fromUserID,
+		FromOrgID:   fromOrgID,
+		ToOrgID:     toOrgID,
+		Type:        typ,
+		Title:       title,
+		Description: description,
+		Status:      RequestPending,
+	}
+	if err := r.Validate(); err != nil {
+		return nil, err
+	}
+	if err := s.repo.CreateRequest(ctx, r); err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "request created", "request_id", r.ID, "from", fromOrgID, "to", toOrgID)
+	return r, nil
+}
+
+// ListInbox returns requests sent to or from the caller's organization.
+func (s *Service) ListInbox(ctx context.Context, orgID int64, status string, limit, offset int) ([]*Request, error) {
+	return s.repo.ListRequestsByOrg(ctx, orgID, status, limit, offset)
+}
+
+// RespondRequest accepts or declines a request.
+func (s *Service) RespondRequest(ctx context.Context, id int64, status RequestStatus) error {
+	if status != RequestAccepted && status != RequestDeclined && status != RequestCancelled {
+		return apperr.Validation("request.status_invalid", "Invalid request status.", nil)
+	}
+	return s.repo.UpdateRequestStatus(ctx, id, status)
 }

@@ -16,7 +16,7 @@ import (
 func setupTestRouter() http.Handler {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	handler := ui.NewUIHandler(
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
 	)
 
 	r := chi.NewRouter()
@@ -76,7 +76,7 @@ func TestHTMXPartialHeaderHandling(t *testing.T) {
 func TestAuthenticatedUIRoutesWithActor(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	handler := ui.NewUIHandler(
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
 	)
 
 	r := chi.NewRouter()

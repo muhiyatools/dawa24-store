@@ -3,6 +3,8 @@ package platformadmin
 import (
 	"context"
 	"log/slog"
+
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // Service manages system configurations and geographical data.
@@ -70,4 +72,27 @@ func (s *Service) SubmitContactMessage(ctx context.Context, m *ContactMessage) e
 // ListContactMessages returns contact inquiries.
 func (s *Service) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*ContactMessage, error) {
 	return s.repo.ListContactMessages(ctx, status, limit, offset)
+}
+
+// ListContentBlocks returns all CMS content blocks.
+func (s *Service) ListContentBlocks(ctx context.Context) ([]*ContentBlock, error) {
+	return s.repo.ListContentBlocks(ctx)
+}
+
+// GetContentBlockByKey returns one CMS block by key.
+func (s *Service) GetContentBlockByKey(ctx context.Context, key string) (*ContentBlock, error) {
+	return s.repo.GetContentBlockByKey(ctx, key)
+}
+
+// UpsertContentBlock creates or updates a CMS block.
+func (s *Service) UpsertContentBlock(ctx context.Context, b *ContentBlock) error {
+	if b.Key == "" {
+		return apperr.Validation("content.key_required", "A content block key is required.", nil)
+	}
+	return s.repo.UpsertContentBlock(ctx, b)
+}
+
+// GetPublishedPolicy returns the latest published policy for a slug.
+func (s *Service) GetPublishedPolicy(ctx context.Context, slug string) (*PrivacyPolicy, error) {
+	return s.repo.GetPublishedPolicy(ctx, slug)
 }

@@ -1,0 +1,16 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// CmsPage renders a single database-driven content page (about, help, faq,
+// privacy, terms) from its bilingual title and body.
+templ CmsPage(lang, dir, title, body string) {
+	@layouts.CustomerShell(title, lang, dir) {
+		<div style="max-width:760px;">
+			<h1 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0 0 1rem;">{ title }</h1>
+			<div style="color:var(--neutral-700); line-height:1.9; font-size:0.98rem; white-space:pre-line;">{ body }</div>
+		</div>
+	}
+}

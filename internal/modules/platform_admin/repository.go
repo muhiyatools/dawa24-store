@@ -17,4 +17,9 @@ type Repository interface {
 	ListLanguages(ctx context.Context) ([]*Language, error)
 	CreateContactMessage(ctx context.Context, m *ContactMessage) error
 	ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*ContactMessage, error)
+
+	ListContentBlocks(ctx context.Context) ([]*ContentBlock, error)
+	GetContentBlockByKey(ctx context.Context, key string) (*ContentBlock, error)
+	UpsertContentBlock(ctx context.Context, b *ContentBlock) error
+	GetPublishedPolicy(ctx context.Context, slug string) (*PrivacyPolicy, error)
 }

@@ -178,6 +178,24 @@ func (m *mockOrgRepo) ListPoliciesByOrg(_ context.Context, orgID int64) ([]*Poli
 	return m.policies[orgID], nil
 }
 
+func (m *mockOrgRepo) CreateHighlightSection(_ context.Context, s *HighlightSection) error {
+	s.ID = 1
+	return nil
+}
+
+func (m *mockOrgRepo) ListHighlightSections(_ context.Context, _ int64) ([]*HighlightSection, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) AddHighlightItem(_ context.Context, item *HighlightSectionItem) error {
+	item.ID = 1
+	return nil
+}
+
+func (m *mockOrgRepo) ListHighlightItems(_ context.Context, _ int64) ([]*HighlightSectionItem, error) {
+	return nil, nil
+}
+
 func TestOrgLifecycleAndBranches(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockOrgRepo()

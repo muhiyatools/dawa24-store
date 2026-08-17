@@ -74,6 +74,22 @@ func (m *mockPlatformAdminRepo) ListContactMessages(_ context.Context, status st
 	return m.messages, nil
 }
 
+func (m *mockPlatformAdminRepo) ListContentBlocks(_ context.Context) ([]*ContentBlock, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) GetContentBlockByKey(_ context.Context, _ string) (*ContentBlock, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) UpsertContentBlock(_ context.Context, _ *ContentBlock) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) GetPublishedPolicy(_ context.Context, _ string) (*PrivacyPolicy, error) {
+	return nil, nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

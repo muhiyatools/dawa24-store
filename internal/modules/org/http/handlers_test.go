@@ -120,6 +120,23 @@ func (r stubRepo) ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*org.Po
 	return nil, nil
 }
 
+func (r stubRepo) CreateHighlightSection(ctx context.Context, s *org.HighlightSection) error {
+	r.fail("CreateHighlightSection")
+	return nil
+}
+func (r stubRepo) ListHighlightSections(ctx context.Context, orgID int64) ([]*org.HighlightSection, error) {
+	r.fail("ListHighlightSections")
+	return nil, nil
+}
+func (r stubRepo) AddHighlightItem(ctx context.Context, item *org.HighlightSectionItem) error {
+	r.fail("AddHighlightItem")
+	return nil
+}
+func (r stubRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*org.HighlightSectionItem, error) {
+	r.fail("ListHighlightItems")
+	return nil, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) CreateOrganization(ctx context.Context, o *org.Organization) error {
@@ -192,6 +209,21 @@ func (happyRepo) CreatePolicy(ctx context.Context, p *org.Policy) error {
 }
 func (happyRepo) ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*org.Policy, error) {
 	return []*org.Policy{{ID: 1, OrganizationID: orgID, Title: "Refund Policy"}}, nil
+}
+
+func (happyRepo) CreateHighlightSection(ctx context.Context, s *org.HighlightSection) error {
+	s.ID = 1
+	return nil
+}
+func (happyRepo) ListHighlightSections(ctx context.Context, orgID int64) ([]*org.HighlightSection, error) {
+	return []*org.HighlightSection{{ID: 1, OrganizationID: orgID, Title: i18n.Text{"ar": "الأكثر مبيعاً"}, IsActive: true}}, nil
+}
+func (happyRepo) AddHighlightItem(ctx context.Context, item *org.HighlightSectionItem) error {
+	item.ID = 1
+	return nil
+}
+func (happyRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*org.HighlightSectionItem, error) {
+	return nil, nil
 }
 
 const testCookieName = "dawa24_session"

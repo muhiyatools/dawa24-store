@@ -191,10 +191,52 @@ type UserFavorite struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// UserAddressHistory is one append-only record of an address change.
+type UserAddressHistory struct {
+	ID        int64          `json:"id"`
+	UserID    int64          `json:"user_id"`
+	AddressID *int64         `json:"address_id,omitempty"`
+	Event     string         `json:"event"` // created, updated, deleted
+	Snapshot  map[string]any `json:"snapshot"`
+	ChangedAt time.Time      `json:"changed_at"`
+}
+
 // MeResponse represents the authenticated user's profile and active session context.
 type MeResponse struct {
 	User        *User    `json:"user"`
 	ActiveOrgID *int64   `json:"active_org_id,omitempty"`
 	Role        string   `json:"role"`
 	Permissions []string `json:"permissions"`
+}
+
+// Organization account types accepted at registration. These mirror
+// internal/modules/org but are re-declared here so identity can validate the
+// input without importing another module (module boundary: modules/A must not
+// import modules/B).
+const (
+	OrgTypeSupplier      = "supplier"
+	OrgTypePharmacy      = "pharmacy"
+	OrgTypeChainPharmacy = "chain_pharmacy"
+)
+
+// RegisterOrgInput carries the organization details a signup collects, per the
+// account type chosen in step 1 of the registration form.
+type RegisterOrgInput struct {
+	Type               string `json:"type"`
+	LegalName          string `json:"legal_name"`
+	TradeNameAr        string `json:"trade_name_ar"`
+	TradeNameEn        string `json:"trade_name_en"`
+	CommercialRegister string `json:"commercial_register"`
+	TaxNumber          string `json:"tax_number,omitempty"`
+	PharmacistLicense  string `json:"pharmacist_license,omitempty"`
+	CityID             *int64 `json:"city_id,omitempty"`
+	BranchCount        *int   `json:"branch_count,omitempty"`
+}
+
+// RegisterOrgResult reports what the one-transaction signup created.
+type RegisterOrgResult struct {
+	OrganizationID       int64  `json:"organization_id"`
+	OrganizationPublicID string `json:"organization_public_id"`
+	OrganizationType     string `json:"organization_type"`
+	OrganizationStatus   string `json:"organization_status"`
 }

@@ -28,6 +28,11 @@ templ CustomerShell(title string, lang string, dir string) {
 			</div>
 
 			<div style="display:flex; align-items:center; gap:0.75rem;">
+				if lang == "en" {
+					<a href="/lang/ar" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">عربي</a>
+				} else {
+					<a href="/lang/en" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">EN</a>
+				}
 				<a href="/cart" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">
 					@components.IconCart("icon-sm")
 					<span>السلة</span>
@@ -38,10 +43,16 @@ templ CustomerShell(title string, lang string, dir string) {
 						@components.IconPackage("icon-sm")
 						<span>طلبياتي</span>
 					</a>
-					<a href="/notifications" class="btn btn-secondary" style="padding:0.5rem 0.875rem;">
-						@components.IconBell("icon-sm")
-						<span>الإشعارات</span>
-					</a>
+					<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+						<button type="button" class="btn btn-secondary" style="padding:0.5rem 0.875rem;" @click="open = !open">
+							@components.IconBell("icon-sm")
+							<span>الإشعارات</span>
+							<span hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
+						</button>
+						<div class="dropdown-menu" x-show="open" x-cloak x-transition.opacity style="inset-inline-start:auto; inset-inline-end:0;" hx-get="/notifications/dropdown" hx-trigger="load once" hx-swap="innerHTML">
+							<div class="dropdown-item" style="color:var(--neutral-500);">جارٍ التحميل…</div>
+						</div>
+					</div>
 
 					if actor.Role == "admin" || actor.Role == "super_admin" {
 						<a href="/admin/dashboard" class="btn btn-secondary" style="color:var(--primary-700); font-weight:600;">

@@ -15,4 +15,9 @@ type Repository interface {
 	CreateIssue(ctx context.Context, i *ReportIssue) error
 	GetIssueByID(ctx context.Context, id int64) (*ReportIssue, error)
 	ListIssues(ctx context.Context, limit, offset int) ([]*ReportIssue, error)
+
+	CreateRequest(ctx context.Context, r *Request) error
+	GetRequestByID(ctx context.Context, id int64) (*Request, error)
+	ListRequestsByOrg(ctx context.Context, orgID int64, status string, limit, offset int) ([]*Request, error)
+	UpdateRequestStatus(ctx context.Context, id int64, status RequestStatus) error
 }

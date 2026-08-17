@@ -1,0 +1,92 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ WalletPage(lang, dir string, data WalletData) {
+	@layouts.CustomerShell("المحفظة والفواتير", lang, dir) {
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
+			<div class="card hover-lift" style="margin-bottom:0;">
+				<span style="font-size:0.85rem; color:var(--neutral-500); font-weight:600;">رصيد المحفظة</span>
+				<div style="font-size:2rem; font-weight:900; color:var(--primary-700); margin-top:0.5rem;" class="tabular-nums">
+					@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.Balance, Currency: data.Currency, Large: true })
+				</div>
+				<a href="/invoices" class="btn btn-secondary btn-sm" style="margin-top:1rem;">عرض الفواتير</a>
+			</div>
+		</div>
+
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
+			<div class="card">
+				<h2 class="card-title" style="margin:0 0 0.75rem;">سجل المعاملات</h2>
+				if len(data.Transactions) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد معاملات بعد.</p>
+				} else {
+					<div class="table-container">
+						<table class="data-table">
+							<thead><tr><th>النوع</th><th>البيان</th><th>المبلغ</th><th>الرصيد بعد</th></tr></thead>
+							<tbody>
+								for _, t := range data.Transactions {
+									<tr>
+										<td><span class="badge badge-emerald">{ TxLabel(t.Type) }</span></td>
+										<td>{ t.Description }</td>
+										<td class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: t.Amount })</td>
+										<td class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: t.BalanceAfter })</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<div class="card">
+				<h2 class="card-title" style="margin:0 0 0.75rem;">وسائل الدفع</h2>
+				if len(data.PaymentMethods) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد وسائل دفع محفوظة.</p>
+				} else {
+					for _, pm := range data.PaymentMethods {
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+							<div>
+								<div style="font-weight:700; color:var(--neutral-900);">{ pm.Provider }</div>
+								<div style="font-size:0.8rem; color:var(--neutral-500);" dir="ltr">{ pm.AccountIdentifier }</div>
+							</div>
+							if pm.IsDefault {
+								<span class="badge badge-emerald">افتراضي</span>
+							}
+						</div>
+					}
+				}
+			</div>
+		</div>
+	}
+}
+
+templ InvoicesPage(lang, dir string, data InvoicesData) {
+	@layouts.CustomerShell("الفواتير", lang, dir) {
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">فواتيرك</h2>
+			if len(data.Invoices) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد فواتير بعد.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>رقم الفاتورة</th><th>تاريخ الإصدار</th><th>الاستحقاق</th><th>الإجمالي</th><th>الحالة</th></tr></thead>
+						<tbody>
+							for _, inv := range data.Invoices {
+								<tr>
+									<td>{ inv.InvoiceNumber }</td>
+									<td>{ inv.IssueDate.Format("2006-01-02") }</td>
+									<td>{ inv.DueDate.Format("2006-01-02") }</td>
+									<td class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: inv.TotalAmount })</td>
+									<td><span class={ "badge", InvoiceBadgeClass(inv.Status) }>{ InvoiceLabel(inv.Status) }</span></td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

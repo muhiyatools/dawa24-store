@@ -397,3 +397,30 @@ func (r stubRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) {
 }
 
 func (happyRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) { return 1, nil }
+
+func (r stubRepo) DefaultOrgInfoForUser(_ context.Context, _ int64) (int64, string, string, error) {
+	r.fail("DefaultOrgInfoForUser")
+	return 0, "", "", nil
+}
+
+func (happyRepo) DefaultOrgInfoForUser(_ context.Context, _ int64) (int64, string, string, error) {
+	return 1, "pharmacy", "approved", nil
+}
+
+func (r stubRepo) RegisterOrganization(_ context.Context, _ *identity.User, _ identity.RegisterOrgInput) (*identity.RegisterOrgResult, error) {
+	r.fail("RegisterOrganization")
+	return nil, nil
+}
+
+func (happyRepo) RegisterOrganization(_ context.Context, _ *identity.User, _ identity.RegisterOrgInput) (*identity.RegisterOrgResult, error) {
+	return &identity.RegisterOrgResult{OrganizationID: 1, OrganizationType: "pharmacy", OrganizationStatus: "approved"}, nil
+}
+
+func (r stubRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*identity.UserAddressHistory, error) {
+	r.fail("ListAddressHistory")
+	return nil, nil
+}
+
+func (happyRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*identity.UserAddressHistory, error) {
+	return []*identity.UserAddressHistory{}, nil
+}

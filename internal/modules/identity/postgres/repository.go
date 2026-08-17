@@ -341,23 +341,33 @@ func (r *Repository) GetRolesForUser(ctx context.Context, userID int64) ([]strin
 // Returns 0 when the user belongs to none, which is correct for a customer
 // buying as an individual.
 func (r *Repository) DefaultOrgForUser(ctx context.Context, userID int64) (int64, error) {
+	orgID, _, _, err := r.DefaultOrgInfoForUser(ctx, userID)
+	return orgID, err
+}
+
+// DefaultOrgInfoForUser returns the organization to make active at sign-in,
+// together with its type and status so the session can carry them and the shell
+// can route to the right dashboard without a query per request.
+func (r *Repository) DefaultOrgInfoForUser(ctx context.Context, userID int64) (int64, string, string, error) {
 	var orgID int64
+	var orgType, orgStatus string
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `
-			SELECT organization_id
-			FROM org.members
-			WHERE user_id = $1 AND status = 'active'
-			ORDER BY id ASC
+			SELECT o.id, o.type, o.status
+			FROM org.organizations o
+			JOIN org.members m ON m.organization_id = o.id
+			WHERE m.user_id = $1 AND m.status = 'active'
+			ORDER BY m.id ASC
 			LIMIT 1;
 		`
-		err := tx.QueryRow(txCtx, query, userID).Scan(&orgID)
+		err := tx.QueryRow(txCtx, query, userID).Scan(&orgID, &orgType, &orgStatus)
 		if err != nil && database.IsNotFound(err) {
 			orgID = 0
 			return nil
 		}
 		return err
 	})
-	return orgID, err
+	return orgID, orgType, orgStatus, err
 }
 
 // UserBelongsToOrg checks whether a user has active membership in an organization.

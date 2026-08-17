@@ -8,6 +8,7 @@ import (
 
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
+	chatPostgres "github.com/muhiya/dawa24-store/internal/modules/chat/postgres"
 	commercePostgres "github.com/muhiya/dawa24-store/internal/modules/commerce/postgres"
 	hrPostgres "github.com/muhiya/dawa24-store/internal/modules/hr/postgres"
 	identityPostgres "github.com/muhiya/dawa24-store/internal/modules/identity/postgres"
@@ -24,6 +25,7 @@ import (
 	billingHttp "github.com/muhiya/dawa24-store/internal/modules/billing/http"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	catalogHttp "github.com/muhiya/dawa24-store/internal/modules/catalog/http"
+	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	commerceHttp "github.com/muhiya/dawa24-store/internal/modules/commerce/http"
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
@@ -97,6 +99,9 @@ func mountModuleRoutes(
 	notifRepoUI := notificationsPostgres.NewRepository(db)
 	promoRepoUI := promoPostgres.NewRepository(db)
 	adminRepoUI := platformadminPostgres.NewRepository(db)
+	billRepoUI := billingPostgres.NewRepository(db)
+	chatRepoUI := chatPostgres.NewRepository(db)
+	wfRepoUI := workflowPostgres.NewRepository(db)
 
 	uiHandler := ui.NewUIHandler(
 		catalog.NewService(catRepoUI, log),
@@ -108,6 +113,9 @@ func mountModuleRoutes(
 		notifications.NewService(notifRepoUI, log),
 		promo.NewService(promoRepoUI, log),
 		platformadmin.NewService(adminRepoUI, log),
+		billing.NewService(billRepoUI, log),
+		chat.NewService(chatRepoUI, log),
+		workflow.NewService(wfRepoUI, log),
 		log,
 	)
 	r.Group(func(uiRouter chi.Router) {

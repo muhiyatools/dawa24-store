@@ -317,3 +317,15 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 func (m *mockRepo) AdminCountUsers(_ context.Context) (int, error) { return 0, nil }
 
 func (m *mockRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) { return 0, nil }
+
+func (m *mockRepo) DefaultOrgInfoForUser(_ context.Context, _ int64) (int64, string, string, error) {
+	return 0, "", "", nil
+}
+
+func (m *mockRepo) RegisterOrganization(_ context.Context, _ *User, _ RegisterOrgInput) (*RegisterOrgResult, error) {
+	return &RegisterOrgResult{}, nil
+}
+
+func (m *mockRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*UserAddressHistory, error) {
+	return nil, nil
+}

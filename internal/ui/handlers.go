@@ -5,10 +5,13 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
@@ -17,6 +20,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -33,6 +37,9 @@ type UIHandler struct {
 	notifSvc *notifications.Service
 	promoSvc *promo.Service
 	adminSvc *platformadmin.Service
+	billSvc  *billing.Service
+	chatSvc  *chat.Service
+	wfSvc    *workflow.Service
 	log      *slog.Logger
 }
 
@@ -47,6 +54,9 @@ func NewUIHandler(
 	notifSvc *notifications.Service,
 	promoSvc *promo.Service,
 	adminSvc *platformadmin.Service,
+	billSvc *billing.Service,
+	chatSvc *chat.Service,
+	wfSvc *workflow.Service,
 	log *slog.Logger,
 ) *UIHandler {
 	return &UIHandler{
@@ -59,6 +69,9 @@ func NewUIHandler(
 		notifSvc: notifSvc,
 		promoSvc: promoSvc,
 		adminSvc: adminSvc,
+		billSvc:  billSvc,
+		chatSvc:  chatSvc,
+		wfSvc:    wfSvc,
 		log:      log,
 	}
 }
@@ -71,11 +84,18 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/", h.HomePage)
 	r.Get("/privacy", h.PrivacyPage)
 	r.Get("/terms", h.TermsPage)
+	r.Get("/about", h.AboutPage)
+	r.Get("/how-it-works", h.HowItWorksPage)
+	r.Get("/faq", h.FaqPage)
+	r.Get("/help", h.HelpPage)
+	r.Get("/contact", h.ContactPage)
 	r.Get("/auth/login", h.LoginPage)
 	r.Get("/auth/register", h.RegisterPage)
 	r.Get("/auth/forgot", h.ForgotPasswordPage)
 	r.Get("/auth/reset", h.ResetPasswordPage)
 	r.Get("/onboarding", h.OnboardingPage)
+	r.Get("/lang/{code}", h.SetLanguage)
+	r.Get("/onboarding/pending", h.OnboardingPendingPage)
 
 	// Customer Buyer Experience (7 screens)
 	r.Get("/catalog", h.CustomerCatalogPage)
@@ -85,8 +105,26 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/orders", h.CustomerOrdersPage)
 	r.Get("/orders/{id}", h.CustomerOrderDetailPage)
 	r.Get("/notifications", h.NotificationsPage)
+	r.Get("/wallet", h.WalletPage)
+	r.Get("/invoices", h.InvoicesPage)
+	r.Get("/favorites", h.FavoritesPage)
+
+	// Public directory
+	r.Get("/suppliers", h.SuppliersPage)
+	r.Get("/suppliers/{id}", h.SupplierProfilePage)
+	r.Get("/offers", h.OffersPage)
+	r.Get("/offers/{id}", h.OfferDetailPage)
+	r.Get("/messages", h.MessagesPage)
+	r.Get("/messages/{id}", h.MessagesConversationPage)
+	r.Get("/requests", h.RequestsPage)
+
+	// Settings (account surface)
+	r.Get("/settings", h.SettingsIndex)
+	r.Get("/settings/profile", h.SettingsProfilePage)
+	r.Get("/settings/addresses", h.SettingsAddressesPage)
 
 	// Vendor Supplier Experience (8 screens)
+	r.Get("/vendor/dashboard", h.VendorDashboardPage)
 	r.Get("/vendor/products", h.VendorProductsPage)
 	r.Get("/vendor/products/new", h.VendorProductNewPage)
 	r.Get("/vendor/products/{id}", h.VendorProductEditorPage)
@@ -95,26 +133,49 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/vendor/ingest", h.VendorIngestPage)
 	r.Get("/vendor/orders", h.VendorOrdersPage)
 	r.Get("/vendor/offers", h.VendorOffersPage)
+	r.Get("/vendor/storefront", h.VendorStorefrontPage)
+
+	// Pharmacy Buyer Experience
+	r.Get("/pharmacy/dashboard", h.PharmacyDashboardPage)
 
 	// Platform Admin Experience (4 screens)
 	r.Get("/admin/dashboard", h.AdminDashboardPage)
 	r.Get("/admin/approvals", h.AdminApprovalsPage)
 	r.Get("/admin/users", h.AdminUsersPage)
 	r.Get("/admin/settings", h.AdminSettingsPage)
+	r.Get("/admin/messages", h.AdminMessagesPage)
+	r.Get("/admin/content", h.AdminContentPage)
 
 	// Interactive Form & Action Handlers
 	r.Post("/auth/login", h.LoginSubmit)
 	r.Post("/auth/logout", h.LogoutSubmit)
 	r.Get("/auth/logout", h.LogoutSubmit)
 	r.Post("/auth/register", h.RegisterSubmit)
+	r.Post("/contact", h.ContactSubmit)
 	r.Post("/cart/add", h.AddToCartSubmit)
 	r.Post("/cart/remove", h.RemoveFromCartSubmit)
 	r.Post("/checkout", h.CheckoutSubmit)
+	r.Post("/favorites/{id}/remove", h.FavoriteRemoveSubmit)
+	r.Post("/settings/profile", h.SettingsProfileSubmit)
+	r.Post("/settings/addresses", h.SettingsAddressSubmit)
+	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
+	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
+	r.Post("/offers/{id}/click", h.OfferClickSubmit)
+	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
+	r.Post("/requests", h.RequestCreateSubmit)
+	r.Post("/requests/{id}/respond", h.RequestRespondSubmit)
+	r.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
 	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
+	r.Get("/notifications/dropdown", h.NotificationsDropdownPartial)
+	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
+	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
 	r.Post("/vendor/products", h.VendorProductSaveSubmit)
 	r.Delete("/vendor/products/{id}", h.VendorProductDeleteSubmit)
 	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
+	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
+	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
+	r.Post("/admin/content", h.AdminContentSubmit)
 	r.Post("/admin/users/{id}/suspend", h.AdminUserSuspendSubmit)
 	r.Post("/admin/users/{id}/reactivate", h.AdminUserReactivateSubmit)
 	r.Post("/admin/users/{id}/reset-mfa", h.AdminUserResetMFASubmit)
@@ -207,6 +268,28 @@ func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, p
 	http.Redirect(w, r, path+"?"+q.Encode(), http.StatusSeeOther)
 }
 
+// SetLanguage persists the chosen UI language in the dawa24_lang cookie and
+// returns the user to where they were. Signed-in users get the same choice
+// written to their profile preference via UpdateProfile when they save settings.
+func (h *UIHandler) SetLanguage(w http.ResponseWriter, r *http.Request) {
+	code := chi.URLParam(r, "code")
+	if code != "en" {
+		code = "ar"
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:     "dawa24_lang",
+		Value:    code,
+		Path:     "/",
+		MaxAge:   86400 * 365,
+		SameSite: http.SameSiteLaxMode,
+	})
+	back := r.Header.Get("Referer")
+	if back == "" {
+		back = "/"
+	}
+	http.Redirect(w, r, back, http.StatusSeeOther)
+}
+
 // langOf is the language alone, for callers that do not need the direction.
 func langOf(r *http.Request) string {
 	if r.URL.Query().Get("lang") == "en" {
@@ -235,10 +318,46 @@ func (h *UIHandler) isHTMX(r *http.Request) bool {
 	return r.Header.Get("HX-Request") == "true"
 }
 
+// localeAndDir resolves the request language and text direction.
+//
+// Precedence: query ?lang= → dawa24_lang cookie → Accept-Language → Arabic.
+// (User preference from profile.user_preferences is layered in later once the
+// settings surface exists; the cookie already persists the choice for signed-out
+// visitors.) Arabic is the default and the primary language of the marketplace.
 func (h *UIHandler) localeAndDir(r *http.Request) (string, string) {
-	lang := r.URL.Query().Get("lang")
+	if lang := r.URL.Query().Get("lang"); lang != "" {
+		return dirForLang(lang)
+	}
+	if cookie, err := r.Cookie("dawa24_lang"); err == nil && cookie.Value != "" {
+		return dirForLang(cookie.Value)
+	}
+	if header := r.Header.Get("Accept-Language"); header != "" {
+		if lang := acceptLanguage(header); lang != "" {
+			return dirForLang(lang)
+		}
+	}
+	return "ar", "rtl"
+}
+
+// dirForLang returns the language and the matching text direction. Unknown
+// values fall back to Arabic rather than erroring — language is a display
+// preference, never a request failure.
+func dirForLang(lang string) (string, string) {
 	if lang == "en" {
 		return "en", "ltr"
 	}
 	return "ar", "rtl"
+}
+
+// acceptLanguage maps an Accept-Language header onto a supported language by
+// taking the first weighted entry, ignoring the rest. It is a best effort: a
+// browser sending "fr-CH, fr;q=0.9" simply gets Arabic.
+func acceptLanguage(header string) string {
+	for _, part := range strings.Split(header, ",") {
+		lang := strings.TrimSpace(strings.SplitN(part, ";", 2)[0])
+		if lang == "en" || lang == "ar" {
+			return lang
+		}
+	}
+	return ""
 }

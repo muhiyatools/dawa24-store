@@ -65,6 +65,26 @@ func (r stubRepo) ListContactMessages(context.Context, string, int, int) ([]*pla
 	return nil, nil
 }
 
+func (r stubRepo) ListContentBlocks(context.Context) ([]*platformadmin.ContentBlock, error) {
+	r.fail("ListContentBlocks")
+	return nil, nil
+}
+
+func (r stubRepo) GetContentBlockByKey(context.Context, string) (*platformadmin.ContentBlock, error) {
+	r.fail("GetContentBlockByKey")
+	return nil, nil
+}
+
+func (r stubRepo) UpsertContentBlock(context.Context, *platformadmin.ContentBlock) error {
+	r.fail("UpsertContentBlock")
+	return nil
+}
+
+func (r stubRepo) GetPublishedPolicy(context.Context, string) (*platformadmin.PrivacyPolicy, error) {
+	r.fail("GetPublishedPolicy")
+	return nil, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) GetSetting(ctx context.Context, key string) (*platformadmin.SystemSetting, error) {
@@ -94,6 +114,23 @@ func (happyRepo) CreateContactMessage(ctx context.Context, m *platformadmin.Cont
 }
 func (happyRepo) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, error) {
 	return []*platformadmin.ContactMessage{{ID: 1, Name: "User", Email: "u@example.com", Message: "Help"}}, nil
+}
+
+func (happyRepo) ListContentBlocks(ctx context.Context) ([]*platformadmin.ContentBlock, error) {
+	return []*platformadmin.ContentBlock{{ID: 1, Key: "about", Title: i18n.Text{"ar": "من نحن"}, Body: i18n.Text{"ar": "نص"}}}, nil
+}
+
+func (happyRepo) GetContentBlockByKey(ctx context.Context, key string) (*platformadmin.ContentBlock, error) {
+	return &platformadmin.ContentBlock{ID: 1, Key: key, Title: i18n.Text{"ar": key}, Body: i18n.Text{"ar": "نص"}}, nil
+}
+
+func (happyRepo) UpsertContentBlock(ctx context.Context, b *platformadmin.ContentBlock) error {
+	b.ID = 1
+	return nil
+}
+
+func (happyRepo) GetPublishedPolicy(ctx context.Context, slug string) (*platformadmin.PrivacyPolicy, error) {
+	return &platformadmin.PrivacyPolicy{ID: 1, Slug: slug, Title: i18n.Text{"ar": "سياسة"}, Content: i18n.Text{"ar": "نص"}}, nil
 }
 
 const testCookieName = "dawa24_session"

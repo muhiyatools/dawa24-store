@@ -1,0 +1,136 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
+	@layouts.CustomerShell("الموردون | Suppliers", lang, dir) {
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">دليل الموردين</h2>
+		</div>
+		if len(data.Suppliers) == 0 {
+			@components.EmptyState(components.EmptyStateProps{
+				Title:       "لا يوجد موردون بعد",
+				Message:     "لم يتم اعتماد أي موردين على المنصة حتى الآن.",
+				ActionLabel: "تصفح المنتجات",
+			})
+		} else {
+			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem;">
+				for _, s := range data.Suppliers {
+					<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; margin-bottom:0;">
+						<div>
+							<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+								<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+									@components.IconBuilding("icon-sm")
+								</div>
+								<div>
+									<div style="font-weight:800; color:var(--neutral-900);">{ s.TradeName.Get(i18n.Lang(lang)) }</div>
+									<span class="badge badge-emerald" style="font-size:0.72rem;">{ OrgTypeLabel(s.Type) }</span>
+								</div>
+							</div>
+							<p style="font-size:0.85rem; color:var(--neutral-600); margin:0;">{ s.LegalName }</p>
+						</div>
+						<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-secondary" style="width:100%; justify-content:center;">عرض الملف</a>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	}
+}
+
+templ SupplierProfile(lang, dir string, data SupplierProfileData) {
+	@layouts.CustomerShell("ملف المورد | Supplier", lang, dir) {
+		<div class="card" style="margin-bottom:1.5rem;">
+			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+				<div style="display:flex; align-items:center; gap:1rem;">
+					<div style="width:56px; height:56px; border-radius:var(--radius-lg); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+						@components.IconBuilding("icon-md")
+					</div>
+					<div>
+						<h2 style="font-size:1.3rem; font-weight:900; color:var(--neutral-900); margin:0;">{ data.Org.TradeName.Get(i18n.Lang(lang)) }</h2>
+						<div style="display:flex; align-items:center; gap:0.75rem; margin-top:0.3rem;">
+							<span class="badge badge-emerald">{ OrgTypeLabel(data.Org.Type) }</span>
+							<span style="font-size:0.85rem; color:var(--neutral-500);">التقييم { fmt.Sprintf("%.1f", data.Rating) } · { fmt.Sprintf("%d", data.ReviewCount) } مراجعة</span>
+						</div>
+					</div>
+				</div>
+				<div style="display:flex; gap:0.75rem;">
+					<form method="POST" action={ fmt.Sprintf("/suppliers/%d/message", data.Org.ID) } style="margin:0;">
+						<button type="submit" class="btn btn-secondary">راسل المورّد</button>
+					</form>
+					if data.IsFollowing {
+						<form method="POST" action={ fmt.Sprintf("/suppliers/%d/follow", data.Org.ID) } style="margin:0;">
+							<button type="submit" class="btn btn-secondary">إلغاء المتابعة</button>
+						</form>
+					} else {
+						<form method="POST" action={ fmt.Sprintf("/suppliers/%d/follow", data.Org.ID) } style="margin:0;">
+							<button type="submit" class="btn btn-primary">متابعة</button>
+						</form>
+					}
+				</div>
+			</div>
+		</div>
+
+		<div style="display:grid; grid-template-columns:2fr 1fr; gap:1.5rem;">
+			<div>
+				<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0 0 0.75rem;">كتالوج المنتجات</h3>
+				if len(data.Products) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لم يضف هذا المورد منتجات بعد.</p>
+				} else {
+					<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:1rem;">
+						for _, p := range data.Products {
+							<div class="card hover-lift" style="margin-bottom:0; padding:1rem;">
+								<h4 style="font-size:0.95rem; font-weight:700; margin:0 0 0.25rem; color:var(--neutral-900);">
+									if p.Name["ar"] != "" {
+										{ p.Name["ar"] }
+									} else {
+										{ p.Name["en"] }
+									}
+								</h4>
+								<p style="font-size:0.78rem; color:var(--neutral-500); margin:0 0 0.75rem;">{ p.DosageForm }</p>
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-secondary btn-sm" style="width:100%; justify-content:center;">التفاصيل</a>
+							</div>
+						}
+					</div>
+				}
+			</div>
+
+			<div style="display:flex; flex-direction:column; gap:1.5rem;">
+				<div class="card">
+					<h3 style="font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin:0 0 0.75rem;">التقييمات</h3>
+					if len(data.Reviews) == 0 {
+						<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد مراجعات بعد.</p>
+					} else {
+						for _, rv := range data.Reviews {
+							<div style="padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+								<div style="font-weight:700; color:var(--warning);">★ { fmt.Sprintf("%d", rv.Rating) }/5</div>
+								<div style="font-size:0.85rem; color:var(--neutral-600);">{ rv.ReviewText }</div>
+							</div>
+						}
+					}
+				</div>
+
+				<div class="card">
+					<h3 style="font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin:0 0 0.75rem;">السياسات</h3>
+					if len(data.Policies) == 0 {
+						<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد سياسات معلنة.</p>
+					} else {
+						for _, p := range data.Policies {
+							<div style="padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+								<div style="font-weight:700; color:var(--neutral-900);">{ p.Title }</div>
+								<div style="font-size:0.82rem; color:var(--neutral-600);">{ p.Content }</div>
+							</div>
+						}
+					}
+				</div>
+			</div>
+		</div>
+	}
+}

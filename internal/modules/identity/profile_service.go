@@ -89,6 +89,11 @@ func (s *Service) DeleteAddress(ctx context.Context, id, userID int64) error {
 	return s.repo.DeleteAddress(ctx, id, userID)
 }
 
+// ListAddressHistory returns the append-only change trail for a user's addresses.
+func (s *Service) ListAddressHistory(ctx context.Context, userID int64, limit int) ([]*UserAddressHistory, error) {
+	return s.repo.ListAddressHistory(ctx, userID, limit)
+}
+
 // AddFavorite adds a product to user favorites.
 func (s *Service) AddFavorite(ctx context.Context, userID, productID int64) error {
 	if productID <= 0 {

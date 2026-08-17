@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/jackc/pgx/v5"
 
@@ -9,6 +10,18 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
+
+// writeAddressHistory appends one row to the address audit trail, in the same
+// transaction as the change it describes.
+func writeAddressHistory(ctx context.Context, tx pgx.Tx, userID, addressID int64, event string, snapshot any) error {
+	b, err := json.Marshal(snapshot)
+	if err != nil {
+		return err
+	}
+	const query = `INSERT INTO identity.user_address_histories (user_id, address_id, event, snapshot) VALUES ($1, $2, $3, $4);`
+	_, err = tx.Exec(ctx, query, userID, addressID, event, b)
+	return err
+}
 
 // CreateAddress saves a new user shipping/billing address.
 func (r *Repository) CreateAddress(ctx context.Context, addr *identity.UserAddress) error {
@@ -25,10 +38,13 @@ func (r *Repository) CreateAddress(ctx context.Context, addr *identity.UserAddre
 			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), now())
 			RETURNING id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query,
+		if err := tx.QueryRow(txCtx, query,
 			addr.UserID, addr.Title, addr.Recipient, addr.Phone, addr.CityID,
 			addr.Address, addr.Building, addr.Floor, addr.Apartment, addr.IsDefault,
-		).Scan(&addr.ID, &addr.CreatedAt, &addr.UpdatedAt)
+		).Scan(&addr.ID, &addr.CreatedAt, &addr.UpdatedAt); err != nil {
+			return err
+		}
+		return writeAddressHistory(txCtx, tx, addr.UserID, addr.ID, "created", addr)
 	})
 }
 
@@ -135,7 +151,7 @@ func (r *Repository) UpdateAddress(ctx context.Context, addr *identity.UserAddre
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("user_address")
 		}
-		return nil
+		return writeAddressHistory(txCtx, tx, addr.UserID, addr.ID, "updated", addr)
 	})
 }
 
@@ -149,7 +165,7 @@ func (r *Repository) DeleteAddress(ctx context.Context, id, userID int64) error 
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("user_address")
 		}
-		return nil
+		return writeAddressHistory(txCtx, tx, userID, id, "deleted", map[string]any{"address_id": id})
 	})
 }
 
@@ -195,4 +211,29 @@ func (r *Repository) ListFavorites(ctx context.Context, userID int64) ([]int64, 
 		return rows.Err()
 	})
 	return ids, err
+}
+
+// ListAddressHistory returns the append-only change trail for a user's addresses.
+func (r *Repository) ListAddressHistory(ctx context.Context, userID int64, limit int) ([]*identity.UserAddressHistory, error) {
+	var list []*identity.UserAddressHistory
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `SELECT id, user_id, address_id, event, snapshot, changed_at FROM identity.user_address_histories WHERE user_id = $1 ORDER BY changed_at DESC LIMIT $2;`
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		rows, err := tx.Query(txCtx, query, userID, limit)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var h identity.UserAddressHistory
+			if err := rows.Scan(&h.ID, &h.UserID, &h.AddressID, &h.Event, &h.Snapshot, &h.ChangedAt); err != nil {
+				return err
+			}
+			list = append(list, &h)
+		}
+		return rows.Err()
+	})
+	return list, err
 }

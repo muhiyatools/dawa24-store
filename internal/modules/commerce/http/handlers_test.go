@@ -394,3 +394,21 @@ func (r stubRepo) CountOrders(_ context.Context) (int, error) {
 }
 
 func (happyRepo) CountOrders(_ context.Context) (int, error) { return 5, nil }
+
+func (r stubRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, error) {
+	r.fail("MonthSalesByVendor")
+	return money.Zero, nil
+}
+
+func (happyRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, error) {
+	return money.MustParse("1250.00"), nil
+}
+
+func (r stubRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
+	r.fail("MonthSpendByCustomer")
+	return money.Zero, nil
+}
+
+func (happyRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
+	return money.MustParse("800.00"), nil
+}

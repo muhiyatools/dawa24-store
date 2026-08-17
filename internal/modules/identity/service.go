@@ -177,6 +177,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 
 	// Resolve organization context & permissions
 	var orgID int64
+	var orgType, orgStatus string
 	if input.OrgID > 0 {
 		belongs, err := s.repo.UserBelongsToOrg(ctx, user.ID, input.OrgID)
 		if err == nil && belongs {
@@ -188,8 +189,8 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 	// than leaving the session on organization 0, which every tenant-scoped
 	// query then filters against and finds nothing.
 	if orgID == 0 {
-		if defaultOrg, err := s.repo.DefaultOrgForUser(ctx, user.ID); err == nil {
-			orgID = defaultOrg
+		if o, t, st, err := s.repo.DefaultOrgInfoForUser(ctx, user.ID); err == nil {
+			orgID, orgType, orgStatus = o, t, st
 		} else {
 			s.log.WarnContext(ctx, "could not resolve default organization at login",
 				"error", err, "user_id", user.ID)
@@ -207,6 +208,8 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		Email:       user.Email,
 		Role:        user.Role,
 		ActiveOrgID: orgID,
+		OrgType:     orgType,
+		OrgStatus:   orgStatus,
 		Permissions: permissions,
 		IP:          input.IP,
 		UserAgent:   input.UserAgent,

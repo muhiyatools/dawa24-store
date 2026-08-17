@@ -186,6 +186,14 @@ func (m *mockCommerceRepo) AdminSearchOrders(_ context.Context, query string, li
 	return list, nil
 }
 
+func (m *mockCommerceRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, error) {
+	return money.Zero, nil
+}
+
+func (m *mockCommerceRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
+	return money.Zero, nil
+}
+
 func TestCheckoutCalculationsAndSplitting(t *testing.T) {
 	repo := newMockCommerceRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

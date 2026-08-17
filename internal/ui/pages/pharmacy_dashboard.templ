@@ -1,0 +1,84 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []string) {
+	@layouts.PharmacyShell("لوحة التحكم", "dashboard", lang, dir, perms) {
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+			<div class="card hover-lift" style="margin-bottom:0;">
+				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">طلبات مفتوحة</span>
+				<div style="font-size:1.9rem; font-weight:900; color:var(--warning); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.OpenOrders) }</div>
+			</div>
+			<div class="card hover-lift" style="margin-bottom:0;">
+				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">إنفاق الشهر</span>
+				<div style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin-top:0.6rem;" class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthSpend })</div>
+			</div>
+			if data.HasWallet {
+				<div class="card hover-lift" style="margin-bottom:0;">
+					<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">رصيد المحفظة</span>
+					<div style="font-size:1.4rem; font-weight:900; color:var(--info); margin-top:0.6rem;" class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })</div>
+				</div>
+			}
+			<div class="card hover-lift" style="margin-bottom:0;">
+				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">المفضلة</span>
+				<div style="font-size:1.9rem; font-weight:900; color:var(--primary-700); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.Favorites) }</div>
+			</div>
+			<div class="card hover-lift" style="margin-bottom:0;">
+				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">عروض متاحة</span>
+				<div style="font-size:1.9rem; font-weight:900; color:var(--neutral-800); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.ActiveOffers) }</div>
+			</div>
+		</div>
+
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
+			<div class="card">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+					<h2 class="card-title" style="margin:0;">متابعة الطلبات</h2>
+					<a href="/orders" class="btn btn-secondary btn-sm">كل الطلبات</a>
+				</div>
+				if len(data.Orders) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد طلبات بعد. ابدأ التصفح وأضف منتجات لسلتك.</p>
+				} else {
+					<div class="table-container">
+						<table class="data-table">
+							<thead><tr><th>الطلب</th><th>الحالة</th><th>الإجمالي</th></tr></thead>
+							<tbody>
+								for _, o := range data.Orders {
+									<tr>
+										<td><a href={ fmt.Sprintf("/orders/%d", o.ID) }>{ o.OrderNumber }</a></td>
+										<td><span class="badge badge-emerald">{ o.Status }</span></td>
+										<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: o.TotalAmount })</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<div class="card">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+					<h2 class="card-title" style="margin:0;">عروض لك</h2>
+					<a href="/offers" class="btn btn-secondary btn-sm">كل العروض</a>
+				</div>
+				if len(data.Offers) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد عروض نشطة في منطقتك حالياً.</p>
+				} else {
+					for _, o := range data.Offers {
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+							<div>
+								<div style="font-weight:700; color:var(--neutral-900);">{ o.Title.Get(i18n.Lang(lang)) }</div>
+								<div style="font-size:0.8rem; color:var(--neutral-500);">خصم { o.DiscountValue.String() }</div>
+							</div>
+						</div>
+					}
+				}
+			</div>
+		</div>
+	}
+}

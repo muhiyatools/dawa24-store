@@ -25,6 +25,8 @@ type Session struct {
 	Email       string    `json:"email"`
 	Role        string    `json:"role"`
 	ActiveOrgID int64     `json:"active_org_id,omitempty"`
+	OrgType     string    `json:"org_type,omitempty"`
+	OrgStatus   string    `json:"org_status,omitempty"`
 	Permissions []string  `json:"permissions"`
 	CreatedAt   time.Time `json:"created_at"`
 	ExpiresAt   time.Time `json:"expires_at"`

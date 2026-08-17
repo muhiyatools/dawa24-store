@@ -187,6 +187,16 @@ func (s *Service) ListVendorShipments(ctx context.Context, vendorOrgID int64, li
 	return s.repo.ListShipmentsByVendor(ctx, vendorOrgID, limit, offset)
 }
 
+// MonthSalesByVendor returns the vendor's sales total for the current month.
+func (s *Service) MonthSalesByVendor(ctx context.Context, vendorOrgID int64) (money.Amount, error) {
+	return s.repo.MonthSalesByVendor(ctx, vendorOrgID)
+}
+
+// MonthSpendByCustomer returns the buyer's spend total for the current month.
+func (s *Service) MonthSpendByCustomer(ctx context.Context, customerID int64) (money.Amount, error) {
+	return s.repo.MonthSpendByCustomer(ctx, customerID)
+}
+
 // AddToWishlist adds a product to customer's wishlist.
 func (s *Service) AddToWishlist(ctx context.Context, userID int64, productID int64) error {
 	return s.repo.AddToWishlist(ctx, userID, productID)

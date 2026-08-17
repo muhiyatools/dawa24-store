@@ -143,3 +143,25 @@ func (b *Branch) Validate() error {
 	}
 	return nil
 }
+
+// HighlightSection is a supplier-curated merchandising row on its storefront
+// (legacy organization_highlight_sections).
+type HighlightSection struct {
+	ID             int64     `json:"id"`
+	OrganizationID int64     `json:"organization_id"`
+	Title          i18n.Text `json:"title"`
+	Slug           string    `json:"slug,omitempty"`
+	DisplayOrder   int       `json:"display_order"`
+	IsActive       bool      `json:"is_active"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+// HighlightSectionItem is one product or offer inside a highlight section.
+type HighlightSectionItem struct {
+	ID           int64  `json:"id"`
+	SectionID    int64  `json:"section_id"`
+	ProductID    *int64 `json:"product_id,omitempty"`
+	OfferID      *int64 `json:"offer_id,omitempty"`
+	DisplayOrder int    `json:"display_order"`
+}

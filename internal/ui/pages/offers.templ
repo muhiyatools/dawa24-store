@@ -1,0 +1,76 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ OffersPage(lang, dir string, offers []*promo.Offer) {
+	@layouts.CustomerShell("العروض | Offers", lang, dir) {
+		<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0 0 1.5rem;">العروض الحصرية</h2>
+		if len(offers) == 0 {
+			@components.EmptyState(components.EmptyStateProps{
+				Title:       "لا توجد عروض نشطة",
+				Message:     "لم يتم نشر أي عروض في منطقتك حالياً. عد لاحقاً.",
+				ActionLabel: "تصفح المنتجات",
+			})
+		} else {
+			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+				for _, o := range offers {
+					<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+						<div>
+							<span class="badge badge-emerald">عرض نشط</span>
+							<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0.6rem 0 0.25rem;">{ o.Title.Get(i18n.Lang(lang)) }</h3>
+							<p style="font-size:0.85rem; color:var(--neutral-600); margin:0 0 0.75rem;">{ o.Description.Get(i18n.Lang(lang)) }</p>
+							<div style="font-size:0.9rem; font-weight:700; color:var(--primary-700);">
+								خصم { o.DiscountValue.String() }
+								if o.DiscountType == promo.DiscountPercentage {
+									{ "%" }
+								}
+							</div>
+						</div>
+						<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem; display:flex; gap:0.75rem;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/offers/%d", o.ID)) } class="btn btn-primary" style="flex:1; justify-content:center;">التفاصيل</a>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	}
+}
+
+templ OfferDetail(lang, dir string, o *promo.Offer) {
+	@layouts.CustomerShell("عرض | Offer", lang, dir) {
+		<div style="max-width:640px;">
+			<div class="card" style="margin-bottom:0;">
+				<span class="badge badge-emerald">عرض نشط</span>
+				<h2 style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin:0.75rem 0 0.5rem;">{ o.Title.Get(i18n.Lang(lang)) }</h2>
+				<p style="font-size:0.95rem; color:var(--neutral-600); line-height:1.7;">{ o.Description.Get(i18n.Lang(lang)) }</p>
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.25rem 0;">
+					<div style="background:var(--neutral-50); border-radius:var(--radius-md); padding:1rem;">
+						<div style="font-size:0.75rem; color:var(--neutral-500);">الخصم</div>
+						<div style="font-size:1.3rem; font-weight:900; color:var(--primary-700);">{ o.DiscountValue.String() }
+							if o.DiscountType == promo.DiscountPercentage {
+								{ "%" }
+							}
+						</div>
+					</div>
+					<div style="background:var(--neutral-50); border-radius:var(--radius-md); padding:1rem;">
+						<div style="font-size:0.75rem; color:var(--neutral-500);">ينتهي في</div>
+						<div style="font-size:1rem; font-weight:800; color:var(--neutral-800);">{ o.ExpiresAt.Format("2006-01-02") }</div>
+					</div>
+				</div>
+				<form method="POST" action={ fmt.Sprintf("/offers/%d/click", o.ID) } style="margin:0;">
+					<button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+						@components.IconMegaphone("icon-sm")
+						<span>استفد من العرض</span>
+					</button>
+				</form>
+			</div>
+		</div>
+	}
+}

@@ -1,0 +1,37 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) {
+	@layouts.AdminShell("رسائل التواصل | Messages", "messages", lang, dir) {
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">رسائل التواصل الواردة</h2>
+			if len(messages) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد رسائل بعد.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>المرسل</th><th>الموضوع</th><th>الرسالة</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+						<tbody>
+							for _, m := range messages {
+								<tr>
+									<td>
+										<div style="font-weight:700; color:var(--neutral-900);">{ m.Name }</div>
+										<div style="font-size:0.75rem; color:var(--neutral-500);" dir="ltr">{ m.Email }</div>
+									</td>
+									<td>{ m.Subject }</td>
+									<td style="max-width:320px;">{ m.Message }</td>
+									<td><span class={ "badge", msgStatusBadge(m.Status) }>{ msgStatusLabel(m.Status) }</span></td>
+									<td>{ m.CreatedAt.Format("2006-01-02") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
