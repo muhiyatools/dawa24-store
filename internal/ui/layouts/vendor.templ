@@ -91,9 +91,6 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 			<main class="main-content">
 				<header class="top-navbar" style="border-bottom:1px solid var(--border); background:var(--surface-raised); padding:0 var(--space-6); height:var(--header-height); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-sticky);">
 					<div style="display:flex; align-items:center; gap:var(--space-3);">
-						<button type="button" class="btn btn-secondary btn-icon" data-sidebar-toggle style="width:36px; height:36px;" title="طي / توسيع القائمة">
-							@components.IconMenu("icon-xs")
-						</button>
 						<h1 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">{ title }</h1>
 					</div>
 
