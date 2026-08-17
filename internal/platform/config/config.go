@@ -37,6 +37,7 @@ type Config struct {
 	Redis    Redis
 	Storage  Storage
 	Gateway  Gateway
+	Maps     Maps
 	Session  Session
 	Observ   Observability
 	Worker   Worker
@@ -87,6 +88,15 @@ type Gateway struct {
 	ClientApp  string        // populates request_logs.client_app on the Gateway
 	Timeout    time.Duration // per-request ceiling; capabilities may lower it
 	Enabled    bool          // false => every capability serves its fallback
+}
+
+// Maps is the Google Maps Embed API configuration. The key is optional: without
+// it, MapPicker renders a coordinate-entry fallback instead of an embedded map.
+// The key ships to browsers inside iframe URLs by design, so it MUST be
+// restricted by HTTP referrer in Google Cloud Console — an unrestricted key is
+// a billing incident waiting to happen.
+type Maps struct {
+	GoogleMapsAPIKey string
 }
 
 type Session struct {
@@ -181,6 +191,10 @@ func load(cliOnly bool) (*Config, error) {
 			ClientApp:  getStr("GATEWAY_CLIENT_APP", "dawa24-store"),
 			Timeout:    getDuration("GATEWAY_TIMEOUT", 60*time.Second),
 			Enabled:    getBool("GATEWAY_ENABLED", false),
+		},
+
+		Maps: Maps{
+			GoogleMapsAPIKey: getStr("GOOGLE_MAPS_API_KEY", ""),
 		},
 
 		Session: Session{

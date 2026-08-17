@@ -466,7 +466,7 @@ function initMapPickers() {
     const radiusInput = container.querySelector('[data-map-radius]');
     const gmapsInput = container.querySelector('[data-map-google-url]');
     const badge = container.querySelector('[data-map-badge]');
-    const gmapsLink = container.querySelector('[data-google-maps-link]');
+    const gmapsLinks = container.querySelectorAll('[data-google-maps-link]');
     const citySelect = container.querySelector('[data-city-selector]');
     const locateBtn = container.querySelector('[data-locate-me-btn]');
 
@@ -489,20 +489,30 @@ function initMapPickers() {
 
       const gmapsUrl = `https://www.google.com/maps?q=${fixedLat},${fixedLon}`;
       if (gmapsInput) gmapsInput.value = gmapsUrl;
-      if (gmapsLink) gmapsLink.href = gmapsUrl;
+      gmapsLinks.forEach((link) => { link.href = gmapsUrl; });
       if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
 
       refreshMapIframe(fixedLat, fixedLon, currentZoom);
     }
 
     function refreshMapIframe(lat, lon, zoom) {
-      const iframe = canvas.querySelector('iframe[data-map-iframe]');
-      if (!iframe) return;
-      const z = zoom || currentZoom;
-      const newSrc = `https://maps.google.com/maps?q=${lat.toFixed(8)},${lon.toFixed(8)}&z=${z}&output=embed`;
-      if (iframe.src !== newSrc) {
-        iframe.src = newSrc;
+      // Embed API mode: rebuild the official embed URL from the server-provided
+      // template ({lat}/{lon}/{zoom} placeholders carry the API key).
+      const tmpl = canvas.dataset.mapEmbedTemplate;
+      if (tmpl) {
+        const iframe = canvas.querySelector('iframe[data-map-iframe]');
+        if (!iframe) return;
+        const z = zoom || currentZoom;
+        const newSrc = tmpl
+          .replace('{lat}', lat.toFixed(8))
+          .replace('{lon}', lon.toFixed(8))
+          .replace('{zoom}', String(z));
+        if (iframe.src !== newSrc) iframe.src = newSrc;
+        return;
       }
+      // Fallback mode (no API key): keep the coordinate readout moving instead.
+      const fallbackCoords = canvas.querySelector('[data-map-fallback-coords]');
+      if (fallbackCoords) fallbackCoords.textContent = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
     }
 
     // Lat / Lon Input Change Handlers — update map iframe when typed manually

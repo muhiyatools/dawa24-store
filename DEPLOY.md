@@ -147,6 +147,12 @@ GATEWAY_BASE_URL=https://api.muhiya.com
 GATEWAY_VIRTUAL_KEY=REPLACE_ME_WITH_VIRTUAL_KEY_FROM_GATEWAY_ADMIN
 GATEWAY_CLIENT_APP=dawa24-store
 
+# Google Maps Embed API key (optional). Without it the location picker renders a
+# coordinate-entry fallback. Get a key in Google Cloud Console → APIs & Services
+# → enable "Maps Embed API" → Credentials. The key is visible in iframe URLs, so
+# restrict it to your domain via "HTTP referrers" application restrictions.
+GOOGLE_MAPS_API_KEY=
+
 LOG_LEVEL=info
 LOG_FORMAT=json
 ```

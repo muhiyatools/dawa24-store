@@ -55,6 +55,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 // mountModuleRoutes registers domain handlers across all platform bounded contexts.
@@ -102,6 +103,10 @@ func mountModuleRoutes(
 	})
 
 	// 13. Templ SSR Frontend & Static Assets
+	// MapPicker embeds need the Google Maps Embed API key before the first page
+	// renders; without it the picker falls back to coordinate entry + deep links.
+	components.SetGoogleMapsAPIKey(cfg.Maps.GoogleMapsAPIKey)
+
 	catRepoUI := catalogPostgres.NewRepository(db)
 	orgRepoUI := orgPostgres.NewRepository(db)
 	ingRepoUI := ingestPostgres.NewRepository(db)

@@ -39,7 +39,9 @@ templ MapPicker(props MapPickerProps) {
 			mapHeight = "280px"
 		}
 		mapID := fmt.Sprintf("gmap-picker-%s-%d", namePrefix, int(latVal*1000)%100000)
-		iframeSrc := fmt.Sprintf("https://maps.google.com/maps?q=%.8f,%.8f&z=13&output=embed", latVal, lonVal)
+		embedURL := GoogleMapsEmbedURL(latVal, lonVal, 13)
+		embedTemplate := GoogleMapsEmbedURLTemplate()
+		gmapsLinkURL := fmt.Sprintf("https://www.google.com/maps?q=%.8f,%.8f", latVal, lonVal)
 	}}
 	<div class="map-picker-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-4); background:var(--surface-raised); display:flex; flex-direction:column; gap:var(--space-3);" data-map-picker>
 		<!-- Header Toolbar -->
@@ -93,31 +95,34 @@ templ MapPicker(props MapPickerProps) {
 					<span>📍 موقعي الحالي</span>
 				</button>
 
-				<!-- Google Maps Link Button -->
-				<a
-					href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.8f,%.8f", latVal, lonVal)) }
-					target="_blank"
-					rel="noopener"
-					class="btn btn-secondary btn-sm"
-					style="padding:0.25rem 0.6rem; font-size:11px; gap:4px; text-decoration:none;"
-					data-google-maps-link
-					title="فتح الموقع على خرائط Google"
-				>
-					<span>🗺️ خرائط Google</span>
-				</a>
-			</div>
+			<!-- Google Maps Link Button -->
+			<a
+				href={ templ.SafeURL(gmapsLinkURL) }
+				target="_blank"
+				rel="noopener"
+				class="btn btn-secondary btn-sm"
+				style="padding:0.25rem 0.6rem; font-size:11px; gap:4px; text-decoration:none;"
+				data-google-maps-link
+				title="فتح الموقع على خرائط Google"
+			>
+				<span>🗺️ خرائط Google</span>
+			</a>
 		</div>
+	</div>
 
-		<!-- Google Maps Embed -->
-		<div
-			id={ mapID }
-			class="map-canvas"
-			data-lat={ fmt.Sprintf("%.8f", latVal) }
-			data-lon={ fmt.Sprintf("%.8f", lonVal) }
-			data-radius={ fmt.Sprintf("%d", radiusVal) }
-			data-map-mode="iframe"
-			style={ fmt.Sprintf("width: 100%%; height: %s; border-radius: var(--radius-lg); border: none; overflow: hidden; position: relative; z-index: 1;", mapHeight) }
-		>
+	<!-- Google Maps Embed (official Embed API; maps.google.com iframes are blocked by Google) -->
+	<div
+		id={ mapID }
+		class="map-canvas"
+		data-lat={ fmt.Sprintf("%.8f", latVal) }
+		data-lon={ fmt.Sprintf("%.8f", lonVal) }
+		data-radius={ fmt.Sprintf("%d", radiusVal) }
+		if embedTemplate != "" {
+			data-map-embed-template={ embedTemplate }
+		}
+		style={ fmt.Sprintf("width: 100%%; height: %s; border-radius: var(--radius-lg); border: none; overflow: hidden; position: relative; z-index: 1;", mapHeight) }
+	>
+		if embedURL != "" {
 			<iframe
 				width="100%"
 				height="100%"
@@ -125,10 +130,32 @@ templ MapPicker(props MapPickerProps) {
 				loading="lazy"
 				referrerpolicy="no-referrer-when-downgrade"
 				data-map-iframe
-				src={ iframeSrc }
+				src={ templ.SafeURL(embedURL) }
 				allowfullscreen
 			></iframe>
-		</div>
+		} else {
+			<div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-2); text-align:center; padding:var(--space-4); background:var(--surface-muted, #f6f8fa); border:1px dashed var(--border); border-radius:var(--radius-lg);">
+				<div style="font-size:28px; line-height:1;">📍</div>
+				<div class="tabular-nums" style="font-weight:700; color:var(--text); font-size:var(--text-sm);" data-map-fallback-coords>
+					{ fmt.Sprintf("%.6f, %.6f", latVal, lonVal) }
+				</div>
+				<div style="font-size:var(--text-xs); color:var(--text-muted); max-width:420px;">
+					معاينة الخريطة غير مفعّلة — يجب إضافة مفتاح Google Maps Embed API عبر متغير البيئة GOOGLE_MAPS_API_KEY.
+					اختر المدينة أو استخدم زر «موقعي الحالي» أو أدخل الإحداثيات يدويًا.
+				</div>
+				<a
+					href={ templ.SafeURL(gmapsLinkURL) }
+					target="_blank"
+					rel="noopener"
+					class="btn btn-secondary btn-sm"
+					style="padding:0.35rem 0.8rem; font-size:12px; gap:4px; text-decoration:none;"
+					data-google-maps-link
+				>
+					<span>🗺️ فتح الموقع على خرائط Google</span>
+				</a>
+			</div>
+		}
+	</div>
 
 		<!-- Coordinate Inputs Matrix -->
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);">

@@ -58,6 +58,12 @@ x-app-env: &app-env
   GATEWAY_CLIENT_APP: ${GATEWAY_CLIENT_APP:-dawa24-store}
   GATEWAY_TIMEOUT: ${GATEWAY_TIMEOUT:-60s}
 
+  # Google Maps Embed API. Optional; without a key the location picker renders a
+  # coordinate-entry fallback (Google blocks framing maps.google.com without the
+  # official Embed API). The key is browser-public — restrict it by HTTP
+  # referrer in Google Cloud Console.
+  GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+
   LOG_LEVEL: ${LOG_LEVEL:-info}
   LOG_FORMAT: json
   TRACE_SAMPLING: ${TRACE_SAMPLING:-0.05}
