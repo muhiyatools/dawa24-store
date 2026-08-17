@@ -396,7 +396,7 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 			       l.day_of_week, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
 			       l.status, l.admin_status, l.created_at
 			FROM promo.special_offer_locations l
-			LEFT JOIN org.cities c ON c.id = l.city_id
+			LEFT JOIN platform_admin.cities c ON c.id = l.city_id
 			WHERE l.offer_id = $1;
 		`, id)
 		if lRows != nil {
@@ -506,7 +506,7 @@ func (r *Repository) ListSpecialOfferLocations(ctx context.Context, offerID int6
 			       l.day_of_week, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
 			       l.status, l.admin_status, l.created_at
 			FROM promo.special_offer_locations l
-			LEFT JOIN org.cities c ON c.id = l.city_id
+			LEFT JOIN platform_admin.cities c ON c.id = l.city_id
 			WHERE l.offer_id = $1
 			ORDER BY l.day_of_week ASC, l.id ASC;
 		`

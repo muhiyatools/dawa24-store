@@ -68,8 +68,9 @@ CREATE INDEX IF NOT EXISTS idx_special_offer_prods_var   ON promo.special_offer_
 CREATE TABLE IF NOT EXISTS promo.special_offer_locations (
     id                  BIGSERIAL PRIMARY KEY,
     offer_id            BIGINT NOT NULL REFERENCES promo.special_offers(id) ON DELETE CASCADE,
-    city_id             BIGINT REFERENCES org.cities(id) ON DELETE SET NULL,
+    city_id             BIGINT REFERENCES platform_admin.cities(id) ON DELETE SET NULL,
     address_ar          TEXT NOT NULL DEFAULT '',
+
     address_en          TEXT NOT NULL DEFAULT '',
     latitude            NUMERIC(10,8) NOT NULL DEFAULT 30.0444,
     longitude           NUMERIC(11,8) NOT NULL DEFAULT 31.2357,
