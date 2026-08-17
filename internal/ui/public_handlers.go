@@ -116,11 +116,7 @@ func (h *UIHandler) ResetPasswordPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UIHandler) OnboardingPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.Onboarding().Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render onboarding page", "error", err)
-	}
+	http.Redirect(w, r, "/auth/register", http.StatusFound)
 }
 
 func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {

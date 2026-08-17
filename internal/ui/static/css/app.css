@@ -5,8 +5,22 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
-/* Critical: Alpine.js Cloak to prevent flashing/stuck dropdowns before JS init */
-[x-cloak] {
+/* Resilient Component Visibility Rules */
+.tab-pane {
+  display: none;
+}
+.tab-pane.active {
+  display: block !important;
+}
+
+.form-step {
+  display: none;
+}
+.form-step.active {
+  display: block !important;
+}
+
+.modal-overlay.hidden {
   display: none !important;
 }
 

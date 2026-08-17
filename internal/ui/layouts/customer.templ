@@ -33,44 +33,52 @@ templ CustomerShell(title string, lang string, dir string) {
 
 				if actor, ok := authctx.From(ctx); ok {
 					<!-- Notifications Popover -->
-					<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+					<div class="dropdown">
 						<button
 							type="button"
 							class="btn btn-secondary btn-icon"
 							title="الإشعارات"
-							@click="open = !open"
 							hx-get="/notifications/dropdown"
 							hx-target="#notif-dropdown-content"
 							hx-trigger="click"
 							hx-swap="innerHTML"
+							style="position:relative;"
 						>
 							@components.IconBell("icon-md")
-							<span hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
+							<span hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this" style="position:absolute; top:4px; inset-inline-end:4px; pointer-events:none;"></span>
 						</button>
 
 						<div
 							class="dropdown-menu"
-							:class="{ 'is-active': open }"
-							x-show="open"
-							x-cloak
-							x-transition.opacity
 							style="inset-inline-start:auto; inset-inline-end:0; min-width:340px; padding:0; overflow:hidden;"
 							id="notif-dropdown-content"
 						>
-							<div style="padding:1.5rem; text-align:center; color:var(--neutral-500); display:flex; align-items:center; justify-content:center; gap:0.5rem;">
-								@components.IconRefresh("icon-xs")
-								<span>جاري تحميل الإشعارات...</span>
+							<div style="min-width:320px; max-width:380px;">
+								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);">
+									<div style="display:flex; align-items:center; gap:0.4rem;">
+										@components.IconBell("icon-xs")
+										<span style="font-weight:800; color:var(--neutral-900); font-size:0.9rem;">الإشعارات</span>
+									</div>
+								</div>
+								<div style="padding:2rem 1rem; text-align:center; color:var(--neutral-500); font-size:0.875rem;">
+									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin:0 auto 0.5rem auto;">
+										@components.IconBell("icon-sm")
+									</div>
+									<div>لا توجد إشعارات جديدة</div>
+								</div>
+								<div style="display:flex; border-top:1px solid var(--neutral-100); background:var(--neutral-50);">
+									<a href="/notifications" style="flex:1; display:block; text-align:center; padding:0.65rem; font-size:0.825rem; font-weight:700; color:var(--neutral-700);">عرض كل الإشعارات</a>
+								</div>
 							</div>
 						</div>
 					</div>
 
 					<!-- User Avatar Dropdown -->
-					<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+					<div class="dropdown">
 						<button
 							type="button"
 							class="btn btn-secondary"
 							style="padding:0.45rem 0.85rem; display:inline-flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md); height:42px;"
-							@click="open = !open"
 						>
 							<div style="width:28px; height:28px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
 								@components.IconUser("icon-xs")

@@ -38,7 +38,6 @@ func TestPublicAndAuthPageRoutes(t *testing.T) {
 		{"GET", "/auth/register"},
 		{"GET", "/auth/forgot"},
 		{"GET", "/auth/reset?token=test-reset-tok"},
-		{"GET", "/onboarding"},
 		{"GET", "/admin/dashboard"},
 		{"GET", "/admin/settings"},
 		{"GET", "/vendor/products/new"},

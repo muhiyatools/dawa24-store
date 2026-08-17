@@ -79,7 +79,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, s
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تسجيل صيدلية جديدة</span></a> <a href=\"/onboarding\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تسجيل صيدلية جديدة</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -430,7 +430,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, s
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>تسجيل صيدلية الآن مجاناً</span></a> <a href=\"/onboarding\" class=\"btn\" style=\"background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.4); font-size:1rem; font-weight:700; padding:0.75rem 2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>تسجيل صيدلية الآن مجاناً</span></a> <a href=\"/auth/register\" class=\"btn\" style=\"background:rgba(255,255,255,0.15); color:#ffffff; border:1px solid rgba(255,255,255,0.4); font-size:1rem; font-weight:700; padding:0.75rem 2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

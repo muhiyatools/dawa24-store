@@ -60,7 +60,6 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 			<div
 				class="card hover-lift"
 				style="width:100%; max-width:620px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl);"
-				x-data={ form.AlpineState() }
 			>
 				<!-- Brand Header -->
 				<div style="text-align:center; margin-bottom:1.75rem;">
@@ -73,13 +72,13 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 				<!-- Step Indicator -->
 				<div style="display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:1.75rem; padding:0.5rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
-					<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800;" :style="step === 1 ? 'color:var(--primary-700);' : 'color:var(--neutral-500);'">
-						<span style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem;" :style="step === 1 ? 'background:var(--primary-600); color:#fff;' : 'background:var(--neutral-200); color:var(--neutral-700);'">1</span>
+					<div id="step-indicator-1" style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800; color:var(--primary-700);">
+						<span class="step-num" style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; background:var(--primary-600); color:#fff;">1</span>
 						<span>نوع الحساب</span>
 					</div>
 					<span style="color:var(--neutral-300);">—</span>
-					<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800;" :style="step === 2 ? 'color:var(--primary-700);' : 'color:var(--neutral-500);'">
-						<span style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem;" :style="step === 2 ? 'background:var(--primary-600); color:#fff;' : 'background:var(--neutral-200); color:var(--neutral-700);'">2</span>
+					<div id="step-indicator-2" style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800; color:var(--neutral-500);">
+						<span class="step-num" style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; background:var(--neutral-200); color:var(--neutral-700);">2</span>
 						<span>بيانات المنشأة والتراخيص</span>
 					</div>
 				</div>
@@ -92,10 +91,10 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 				}
 
 				<form method="POST" action="/auth/register" style="display:flex; flex-direction:column; gap:1.15rem;">
-					<input type="hidden" name="account_type" x-bind:value="accountType" />
+					<input type="hidden" name="account_type" id="reg-account-type-input" value="pharmacy" />
 
 					<!-- STEP 1: Select Account Type -->
-					<section x-show="step === 1" x-cloak x-transition.opacity>
+					<section id="reg-step-1" class="form-step active">
 						<h2 style="font-size:1rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem; text-align:center;">
 							يرجى تحديد نوع حساب المنشأة للبدء:
 						</h2>
@@ -103,10 +102,9 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						<div style="display:flex; flex-direction:column; gap:0.9rem;">
 							<!-- Option 1: Supplier / Pharma Company -->
 							<div
-								class="hover-lift"
+								class="type-card hover-lift"
+								data-account-type="supplier"
 								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; cursor:pointer; transition:all 0.15s ease;"
-								:style="accountType === 'supplier' ? 'border-color:var(--primary-600); background:var(--primary-50);' : ''"
-								@click="accountType = 'supplier'; step = 2"
 							>
 								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 									@components.IconBuilding("icon-sm")
@@ -115,17 +113,16 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									<div style="font-weight:900; color:var(--neutral-900); font-size:1rem;">مورّد / شركة ومستودع أدوية</div>
 									<div style="font-size:0.825rem; color:var(--neutral-600); margin-top:0.15rem;">توريد وبيع الأصناف الدوائية والمستلزمات للصيدليات والمستشفيات</div>
 								</div>
-								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;" :style="accountType === 'supplier' ? 'border-color:var(--primary-600); background:var(--primary-600); color:#fff;' : ''">
+								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
 
 							<!-- Option 2: Community Pharmacy -->
 							<div
-								class="hover-lift"
-								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; cursor:pointer; transition:all 0.15s ease;"
-								:style="accountType === 'pharmacy' ? 'border-color:var(--primary-600); background:var(--primary-50);' : ''"
-								@click="accountType = 'pharmacy'; step = 2"
+								class="type-card hover-lift"
+								data-account-type="pharmacy"
+								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--primary-600); border-radius:var(--radius-xl); background:var(--primary-50); cursor:pointer; transition:all 0.15s ease;"
 							>
 								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 									@components.IconPill("icon-sm")
@@ -134,17 +131,16 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									<div style="font-weight:900; color:var(--neutral-900); font-size:1rem;">صيدلية مجتمعية مرخصة</div>
 									<div style="font-size:0.825rem; color:var(--neutral-600); margin-top:0.15rem;">طلب وتوريد الأدوية والمستلزمات الصيدلانية مباشرة بأفضل الخصومات</div>
 								</div>
-								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;" :style="accountType === 'pharmacy' ? 'border-color:var(--primary-600); background:var(--primary-600); color:#fff;' : ''">
+								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--primary-600); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center;">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
 
 							<!-- Option 3: Chain Pharmacy -->
 							<div
-								class="hover-lift"
+								class="type-card hover-lift"
+								data-account-type="chain_pharmacy"
 								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; cursor:pointer; transition:all 0.15s ease;"
-								:style="accountType === 'chain_pharmacy' ? 'border-color:var(--primary-600); background:var(--primary-50);' : ''"
-								@click="accountType = 'chain_pharmacy'; step = 2"
 							>
 								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 									@components.IconBuilding("icon-sm")
@@ -153,7 +149,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									<div style="font-weight:900; color:var(--neutral-900); font-size:1rem;">سلسلة صيدليات ومراكز طبية</div>
 									<div style="font-size:0.825rem; color:var(--neutral-600); margin-top:0.15rem;">إدارة التوريد والمشتريات لعدة فروع ومستودعات مركزية مشتركة</div>
 								</div>
-								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;" :style="accountType === 'chain_pharmacy' ? 'border-color:var(--primary-600); background:var(--primary-600); color:#fff;' : ''">
+								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
@@ -161,12 +157,12 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					</section>
 
 					<!-- STEP 2: Registration Details -->
-					<section x-show="step === 2" x-cloak x-transition.opacity style="display:flex; flex-direction:column; gap:1.15rem;">
+					<section id="reg-step-2" class="form-step" style="display:flex; flex-direction:column; gap:1.15rem;">
 						<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--neutral-100);">
 							<div style="display:flex; align-items:center; gap:0.5rem;">
-								<span class="badge badge-sky" style="font-size:0.8rem;" x-text="accountType === 'supplier' ? 'نوع الحساب: مورّد أدوية' : (accountType === 'chain_pharmacy' ? 'نوع الحساب: سلسلة صيدليات' : 'نوع الحساب: صيدلية')"></span>
+								<span id="reg-selected-badge" class="badge badge-sky" style="font-size:0.8rem;">نوع الحساب: صيدلية مرخصة</span>
 							</div>
-							<button type="button" class="btn btn-secondary btn-sm" @click="step = 1" style="font-weight:700;">
+							<button type="button" id="reg-back-to-step-1" class="btn btn-secondary btn-sm" style="font-weight:700;">
 								@components.IconArrowRight("icon-xs")
 								<span>تغيير النوع</span>
 							</button>
@@ -209,13 +205,13 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								<label class="form-label" for="reg-cr">رقم السجل التجاري *</label>
 								<input type="text" id="reg-cr" name="commercial_register" required class="form-input tabular-nums" value={ form.CommercialRegister } placeholder="CR-94819" />
 							</div>
-							<div class="form-group" style="margin-bottom:0;" x-show="accountType === 'supplier' || accountType === 'chain_pharmacy'">
+							<div class="form-group" style="margin-bottom:0;" data-type-visibility="supplier chain_pharmacy">
 								<label class="form-label" for="reg-tax">الرقم الضريبي (الفاتورة الإلكترونية)</label>
 								<input type="text" id="reg-tax" name="tax_number" class="form-input tabular-nums" value={ form.TaxNumber } placeholder="984-210-941" />
 							</div>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;" x-show="accountType === 'pharmacy' || accountType === 'chain_pharmacy'">
+						<div class="form-group" style="margin-bottom:0;" data-type-visibility="pharmacy chain_pharmacy">
 							<label class="form-label" for="reg-license">رقم ترخيص المؤسسة الصيدلية (نقابة الصيادلة / هيئة الدواء)</label>
 							<input type="text" id="reg-license" name="pharmacist_license" class="form-input tabular-nums" value={ form.PharmacistLicense } placeholder="EDA-LIC-2024-884" />
 						</div>
@@ -230,7 +226,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									}
 								</select>
 							</div>
-							<div class="form-group" style="margin-bottom:0;" x-show="accountType === 'chain_pharmacy'">
+							<div class="form-group" style="margin-bottom:0; display:none;" data-type-visibility="chain_pharmacy">
 								<label class="form-label" for="reg-branches">عدد الفروع</label>
 								<input type="number" id="reg-branches" name="branch_count" min="2" class="form-input tabular-nums" value={ form.BranchCount } />
 							</div>

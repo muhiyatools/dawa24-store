@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -16,17 +15,7 @@ type UnifiedSettingsData struct {
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 	@layouts.CustomerShell("إعدادات الحساب | Account Settings", lang, dir) {
-		<div
-			style="max-width:1160px; margin:1rem auto 4rem auto;"
-			x-data="{
-				tab: window.location.hash ? window.location.hash.substring(1) : 'profile',
-				payType: 'bank_account',
-				setTab(t) {
-					this.tab = t;
-					window.location.hash = t;
-				}
-			}"
-		>
+		<div style="max-width:1160px; margin:1rem auto 4rem auto;">
 			<!-- Page Header -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
 				<div>
@@ -51,44 +40,44 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 			<!-- Unified Tabs Navigation Bar -->
 			<div class="tab-list">
-				<button type="button" class="tab-btn" :class="{ 'active': tab === 'profile' }" @click="setTab('profile')">
+				<button type="button" class="tab-btn active" data-tab-target="profile">
 					@components.IconUser("icon-xs")
 					<span>الملف الشخصي</span>
 				</button>
 
-				<button type="button" class="tab-btn" :class="{ 'active': tab === 'wallet' }" @click="setTab('wallet')">
+				<button type="button" class="tab-btn" data-tab-target="wallet">
 					@components.IconWallet("icon-xs")
 					<span>المحفظة والرصيد</span>
 				</button>
 
-				<button type="button" class="tab-btn" :class="{ 'active': tab === 'payments' }" @click="setTab('payments')">
+				<button type="button" class="tab-btn" data-tab-target="payments">
 					@components.IconShield("icon-xs")
 					<span>طرق الدفع</span>
 				</button>
 
-				<button type="button" class="tab-btn" :class="{ 'active': tab === 'addresses' }" @click="setTab('addresses')">
+				<button type="button" class="tab-btn" data-tab-target="addresses">
 					@components.IconTruck("icon-xs")
 					<span>العناوين والفروع</span>
 				</button>
 
-				<button type="button" class="tab-btn" :class="{ 'active': tab === 'organization' }" @click="setTab('organization')">
+				<button type="button" class="tab-btn" data-tab-target="organization">
 					@components.IconBuilding("icon-xs")
 					<span>المنشأة والتراخيص</span>
 				</button>
 
-				<button type="button" class="tab-btn" :class="{ 'active': tab === 'security' }" @click="setTab('security')">
+				<button type="button" class="tab-btn" data-tab-target="security">
 					@components.IconSettings("icon-xs")
 					<span>الأمان والجلسات</span>
 				</button>
 
-				<button type="button" class="tab-btn" :class="{ 'active': tab === 'preferences' }" @click="setTab('preferences')">
+				<button type="button" class="tab-btn" data-tab-target="preferences">
 					@components.IconBell("icon-xs")
 					<span>الإشعارات والتفضيلات</span>
 				</button>
 			</div>
 
 			<!-- Tab 1: Profile -->
-			<div x-show="tab === 'profile'" x-cloak class="card" style="padding:2.25rem;">
+			<div id="tab-profile" class="tab-pane active card" style="padding:2.25rem;">
 				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
 					البيانات الشخصية والحساب
 				</h3>
@@ -124,192 +113,146 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Tab 2: Wallet Snapshot -->
-			<div x-show="tab === 'wallet'" x-cloak class="card" style="padding:2.25rem;">
+			<div id="tab-wallet" class="tab-pane card" style="padding:2.25rem;">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 					<div>
 						<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">
-							رصيد المحفظة والمعاملات
+							المحفظة الإلكترونية والرصيد
 						</h3>
-						<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.2rem;">
-							نظرة سريعة على رصيد حسابك المالي
-						</p>
+						<p style="color:var(--neutral-500); font-size:0.875rem; margin-top:0.25rem;">الرصيد المتاح للطلبيات وسجل المعاملات</p>
 					</div>
-					<a href="/wallet" class="btn btn-primary">
-						<span>فتح صفحة المحفظة الكاملة</span>
-						@components.IconArrowLeft("icon-xs")
-					</a>
+
+					<div style="display:flex; gap:0.75rem;">
+						<a href="/wallet" class="btn btn-primary btn-sm">
+							@components.IconPlus("icon-xs")
+							<span>إيداع رصيد جديد</span>
+						</a>
+						<a href="/wallet" class="btn btn-secondary btn-sm">
+							@components.IconArrowLeft("icon-xs")
+							<span>طلب سحب</span>
+						</a>
+					</div>
 				</div>
 
 				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
-					<div style="background:var(--primary-50); border:1px solid var(--primary-200); border-radius:var(--radius-lg); padding:1.5rem;">
-						<div style="font-size:0.85rem; font-weight:700; color:var(--primary-800);">الرصيد المتاح</div>
-						<div style="font-size:1.85rem; font-weight:900; color:var(--primary-700); margin-top:0.25rem;" class="tabular-nums">5,420.00 ج.م</div>
+					<div style="padding:1.5rem; background:var(--primary-50); border:1px solid var(--primary-200); border-radius:var(--radius-xl);">
+						<div style="font-size:0.85rem; color:var(--primary-800); font-weight:700;">الرصيد المتاح</div>
+						<div style="font-size:1.85rem; font-weight:900; color:var(--primary-900); margin-top:0.5rem;" class="tabular-nums">5,420.00 <span style="font-size:1rem; font-weight:700;">ج.م</span></div>
 					</div>
 
-					<div style="background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;">
-						<div style="font-size:0.85rem; font-weight:700; color:var(--neutral-600);">الرصيد المعلق</div>
-						<div style="font-size:1.85rem; font-weight:900; color:var(--neutral-800); margin-top:0.25rem;" class="tabular-nums">0.00 ج.م</div>
+					<div style="padding:1.5rem; background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-xl);">
+						<div style="font-size:0.85rem; color:var(--neutral-600); font-weight:700;">الرصيد المعلق (أوامر جارية)</div>
+						<div style="font-size:1.85rem; font-weight:900; color:var(--neutral-800); margin-top:0.5rem;" class="tabular-nums">1,250.00 <span style="font-size:1rem; font-weight:700;">ج.م</span></div>
+					</div>
+
+					<div style="padding:1.5rem; background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-xl);">
+						<div style="font-size:0.85rem; color:var(--neutral-600); font-weight:700;">إجمالي الإيداعات</div>
+						<div style="font-size:1.85rem; font-weight:900; color:var(--neutral-800); margin-top:0.5rem;" class="tabular-nums">48,900.00 <span style="font-size:1rem; font-weight:700;">ج.م</span></div>
 					</div>
 				</div>
 
-				<div style="display:flex; gap:1rem;">
-					<a href="/wallet" class="btn btn-secondary">
-						@components.IconPlus("icon-xs")
-						<span>شحن الرصيد (Deposit)</span>
-					</a>
-					<a href="/wallet" class="btn btn-secondary">
+				<div style="text-align:start;">
+					<a href="/wallet" class="btn btn-secondary" style="font-weight:700;">
+						<span>عرض كشف الحساب الكامل والمعاملات</span>
 						@components.IconArrowLeft("icon-xs")
-						<span>طلب سحب رصيد (Withdraw)</span>
 					</a>
 				</div>
 			</div>
 
 			<!-- Tab 3: Payment Methods -->
-			<div x-show="tab === 'payments'" x-cloak class="card" style="padding:2.25rem;">
-				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;">
-					طرق الدفع المحفوظة (Payment Methods)
+			<div id="tab-payments" class="tab-pane card" style="padding:2.25rem;">
+				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
+					طرق الدفع والحسابات البنكية المحفوظة
 				</h3>
-				<p style="font-size:0.875rem; color:var(--neutral-500); margin-bottom:2rem;">
-					إدارة حساباتك البنكية، محافظ إنستاباي، والبطاقات المستخدمة في السحب والإيداع
-				</p>
 
-				<!-- Saved Methods List -->
-				<div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:2.5rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff; box-shadow:var(--shadow-xs);">
+				<div style="display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:2rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1.5px solid var(--primary-200); background:var(--primary-50); border-radius:var(--radius-xl);">
 						<div style="display:flex; align-items:center; gap:1rem;">
-							<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:#ffffff; color:var(--primary-700); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-xs);">
 								@components.IconBuilding("icon-sm")
 							</div>
 							<div>
-								<div style="font-weight:800; color:var(--neutral-900); font-size:1rem;">
-									البنك الأهلي المصري (حساب جاري)
+								<div style="font-weight:800; color:var(--neutral-900); display:flex; align-items:center; gap:0.5rem;">
+									<span>البنك الأهلي المصري (NBE)</span>
+									<span class="badge badge-emerald" style="font-size:0.75rem;">الحساب الافتراضي</span>
 								</div>
-								<div style="font-size:0.825rem; color:var(--neutral-500); display:flex; gap:1rem; margin-top:0.2rem;">
-									<span>رقم الحساب: <strong class="tabular-nums" style="color:var(--neutral-800);">•••• 4920</strong></span>
-									<span class="badge badge-emerald">معتمد للسحب والإيداع</span>
-									<span class="badge badge-sky">افتراضي</span>
+								<div style="font-size:0.85rem; color:var(--neutral-600); margin-top:0.25rem;" class="tabular-nums">
+									IBAN: EG380003000012345678901234567 • باسم: صيدلية الأمل الحديثة
 								</div>
 							</div>
 						</div>
-						<button type="button" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">
-							@components.IconTrash("icon-xs")
-							<span>حذف</span>
-						</button>
+						<div>
+							<span class="badge badge-sky">معتمد</span>
+						</div>
 					</div>
 
-					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff; box-shadow:var(--shadow-xs);">
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--neutral-200); background:#ffffff; border-radius:var(--radius-xl);">
 						<div style="display:flex; align-items:center; gap:1rem;">
-							<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
-								@components.IconPhone("icon-sm")
+							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--neutral-100); color:var(--neutral-700); display:flex; align-items:center; justify-content:center;">
+								@components.IconWallet("icon-sm")
 							</div>
 							<div>
-								<div style="font-weight:800; color:var(--neutral-900); font-size:1rem;">
-									محفظة إنستاباي (InstaPay / فودافون كاش)
+								<div style="font-weight:800; color:var(--neutral-900);">
+									<span>InstaPay (إنستاباي)</span>
 								</div>
-								<div style="font-size:0.825rem; color:var(--neutral-500); display:flex; gap:1rem; margin-top:0.2rem;">
-									<span>المعرف / الهاتف: <strong class="tabular-nums" style="color:var(--neutral-800);">01065397000</strong></span>
-									<span class="badge badge-emerald">معتمد للتحويل الفوري</span>
+								<div style="font-size:0.85rem; color:var(--neutral-600); margin-top:0.25rem;" class="tabular-nums">
+									معرف الدفع IPA: elamal.pharmacy@instapay
 								</div>
 							</div>
 						</div>
-						<button type="button" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">
-							@components.IconTrash("icon-xs")
-							<span>حذف</span>
-						</button>
+						<div>
+							<span class="badge badge-sky">معتمد</span>
+						</div>
 					</div>
 				</div>
 
-				<!-- Dynamic Add Payment Method Form -->
-				<div style="border-top:2px solid var(--neutral-100); padding-top:2rem;">
-					<h4 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;">
-						إضافة طريقة دفع جديدة
+				<div style="border-top:1px solid var(--neutral-100); padding-top:1.5rem;">
+					<h4 style="font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;">
+						إضافة وسيلة دفع جديدة
 					</h4>
-
-					<form action="/settings/payment-methods" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1.25rem;">
+					<form action="/settings/payment-methods" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1rem;">
 						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" for="pm-type">نوع وسيلة الدفع *</label>
-							<select id="pm-type" name="type" class="form-select" x-model="payType">
-								<option value="bank_account">حساب بنكي (Bank Account)</option>
-								<option value="instapay_wallet">إنستاباي ومحافظ إلكترونية (InstaPay / E-Wallet)</option>
-								<option value="credit_card">بطاقة بنكية (Credit / Debit Card)</option>
-								<option value="cheque">شيك بنكي معتمد (Company Cheque)</option>
+							<label class="form-label">نوع وسيلة الدفع</label>
+							<select name="type" class="form-select" onchange="document.querySelectorAll('.pay-extra').forEach(el => el.style.display = 'none'); document.getElementById('pay-fields-' + this.value).style.display = 'block';">
+								<option value="bank">حساب بنكي (Bank Account)</option>
+								<option value="instapay">إنستاباي / محفظة هاتف (InstaPay / E-Wallet)</option>
+								<option value="card">بطاقة دفع إلكتروني (Debit / Credit Card)</option>
 							</select>
 						</div>
 
-						<!-- Bank Account Fields -->
-						<div x-show="payType === 'bank_account'" style="display:flex; flex-direction:column; gap:1.15rem;">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-bank-name">اسم البنك *</label>
-								<input type="text" id="pm-bank-name" name="bank_name" placeholder="مثال: البنك الأهلي المصري، CIB، بنك مصر" class="form-input" />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-acc-holder">اسم صاحب الحساب (مطابق للسجل التجاري) *</label>
-								<input type="text" id="pm-acc-holder" name="account_holder" placeholder="اسم الصيدلية أو الشركة" class="form-input" />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-acc-num">رقم الحساب البنكي *</label>
-								<input type="text" id="pm-acc-num" name="account_number" placeholder="مثال: 100094820194" class="form-input tabular-nums" />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-iban">رقم الآيبان الدولي (IBAN) *</label>
-								<input type="text" id="pm-iban" name="iban" placeholder="EG3800..." class="form-input tabular-nums" />
-							</div>
-						</div>
-
-						<!-- InstaPay / Wallet Fields -->
-						<div x-show="payType === 'instapay_wallet'" style="display:flex; flex-direction:column; gap:1.15rem;">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-wallet-provider">مزود الخدمة *</label>
-								<select id="pm-wallet-provider" name="wallet_provider" class="form-select">
-									<option value="instapay">InstaPay (عنوان الدفع اللحظي IPA)</option>
-									<option value="vodafone">فودافون كاش (Vodafone Cash)</option>
-									<option value="orange">أورنج كاش (Orange Cash)</option>
-									<option value="etisalat">اتصالات كاش (Etisalat Cash)</option>
-									<option value="we">وي باي (WE Pay)</option>
-								</select>
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-wallet-handle">معرف الدفع (IPA) أو رقم الهاتف المسجل *</label>
-								<input type="text" id="pm-wallet-handle" name="wallet_handle" placeholder="01012345678 أو pharmacy@instapay" class="form-input tabular-nums" />
-							</div>
-						</div>
-
-						<!-- Credit / Debit Card Fields -->
-						<div x-show="payType === 'credit_card'" style="display:flex; flex-direction:column; gap:1.15rem;">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-card-name">الاسم المدون على البطاقة *</label>
-								<input type="text" id="pm-card-name" name="card_name" placeholder="MOHAMED AHMED" class="form-input" />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-card-num">رقم البطاقة (16 رقم) *</label>
-								<input type="text" id="pm-card-num" name="card_number" placeholder="4234 •••• •••• 9812" class="form-input tabular-nums" />
-							</div>
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div id="pay-fields-bank" class="pay-extra" style="display:block;">
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
 								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label" for="pm-card-exp">تاريخ الانتهاء (MM/YY) *</label>
-									<input type="text" id="pm-card-exp" name="card_expiry" placeholder="12/28" class="form-input tabular-nums" />
+									<label class="form-label">اسم البنك</label>
+									<input type="text" name="bank_name" class="form-input" placeholder="البنك التجاري الدولي CIB" />
 								</div>
 								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label" for="pm-card-cvv">رمز الأمان (CVV) *</label>
-									<input type="password" id="pm-card-cvv" name="card_cvv" placeholder="•••" maxlength="4" class="form-input tabular-nums" />
+									<label class="form-label">اسم صاحب الحساب</label>
+									<input type="text" name="account_holder" class="form-input" placeholder="مطابق للسجل التجاري" />
 								</div>
 							</div>
-						</div>
-
-						<!-- Cheque Fields -->
-						<div x-show="payType === 'cheque'" style="display:flex; flex-direction:column; gap:1.15rem;">
 							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-cheque-branch">فرع البنك المصدر للشيكات *</label>
-								<input type="text" id="pm-cheque-branch" name="cheque_branch" placeholder="مثال: البنك الأهلي - فرع المهندسين" class="form-input" />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="pm-cheque-cr">رقم السجل التجاري للشيكات *</label>
-								<input type="text" id="pm-cheque-cr" name="cheque_cr" placeholder="رقم السجل التجاري" class="form-input tabular-nums" />
+								<label class="form-label">رقم الآيبان (IBAN)</label>
+								<input type="text" name="iban" class="form-input tabular-nums" placeholder="EG000000000000000000000000000" />
 							</div>
 						</div>
 
-						<div style="margin-top:0.75rem;">
-							<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem;">
+						<div id="pay-fields-instapay" class="pay-extra" style="display:none;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">عنوان الدفع اللحظي IPA أو رقم الهاتف</label>
+								<input type="text" name="instapay_handle" class="form-input tabular-nums" placeholder="username@instapay" />
+							</div>
+						</div>
+
+						<div id="pay-fields-card" class="pay-extra" style="display:none;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">رقم البطاقة</label>
+								<input type="text" name="card_number" class="form-input tabular-nums" placeholder="•••• •••• •••• ••••" />
+							</div>
+						</div>
+
+						<div style="margin-top:0.5rem;">
+							<button type="submit" class="btn btn-primary">
 								@components.IconPlus("icon-xs")
 								<span>حفظ وسيلة الدفع</span>
 							</button>
@@ -319,135 +262,159 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Tab 4: Addresses -->
-			<div x-show="tab === 'addresses'" x-cloak class="card" style="padding:2.25rem;">
+			<div id="tab-addresses" class="tab-pane card" style="padding:2.25rem;">
 				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
-					عناوين التوصيل وفروع الصيدلية
+					عناوين الفروع ومواقع الاستلام
 				</h3>
 
-				<div style="display:flex; flex-direction:column; gap:1.25rem; margin-bottom:2rem;">
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
 					for _, addr := range data.Addresses {
-						<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff;">
-							<div>
-								<div style="font-weight:800; color:var(--neutral-900); font-size:1rem; margin-bottom:0.25rem;">
-									{ addr.Title }
-									if addr.IsDefault {
-										<span class="badge badge-emerald" style="margin-inline-start:0.5rem;">افتراضي</span>
-									}
-								</div>
-								<div style="font-size:0.875rem; color:var(--neutral-600);">
-									{ addr.Recipient } · { addr.Phone }
-								</div>
-								<div style="font-size:0.8rem; color:var(--neutral-500);">
-									{ addr.Address }
-								</div>
+						<div style="padding:1.5rem; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); background:var(--surface);">
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+								<div style="font-weight:800; color:var(--neutral-900);">{ addr.Title }</div>
+								if addr.IsDefault {
+									<span class="badge badge-emerald" style="font-size:0.75rem;">الفرع الرئيسي</span>
+								}
 							</div>
-							<form action={ templ.SafeURL(fmt.Sprintf("/settings/addresses/%d/delete", addr.ID)) } method="POST" style="margin:0;">
-								<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">
-									@components.IconTrash("icon-xs")
-									<span>حذف</span>
-								</button>
-							</form>
+							<div style="color:var(--neutral-600); font-size:0.875rem; line-height:1.6; margin-bottom:0.75rem;">
+								{ addr.Address }
+							</div>
+							<div style="font-size:0.85rem; color:var(--neutral-500); display:flex; align-items:center; gap:0.5rem;" class="tabular-nums">
+								@components.IconPhone("icon-xs")
+								<span>{ addr.Phone } ({ addr.Recipient })</span>
+							</div>
 						</div>
 					}
 				</div>
 
-				<div style="border-top:2px solid var(--neutral-100); padding-top:1.75rem;">
-					<h4 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1rem;">إضافة عنوان جديد</h4>
+				<div style="border-top:1px solid var(--neutral-100); padding-top:1.5rem;">
+					<h4 style="font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;">
+						إضافة فرع أو عنوان تسليم جديد
+					</h4>
 					<form action="/settings/addresses" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1rem;">
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" for="addr-label">اسم الفرع / العنوان</label>
-							<input type="text" id="addr-label" name="label" placeholder="مثال: الفرع الرئيسي - الدقي" class="form-input" required />
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">اسم الفرع / العنوان</label>
+								<input type="text" name="title" class="form-input" placeholder="فرع مدينة نصر" required />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">اسم المستلم المسؤول</label>
+								<input type="text" name="recipient" class="form-input" placeholder="د. أحمد محمود" required />
+							</div>
 						</div>
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" for="addr-street">العنوان بالتفصيل</label>
-							<input type="text" id="addr-street" name="street" placeholder="شارع مصدق، مبنى 14" class="form-input" required />
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">رقم هاتف الفرع</label>
+								<input type="tel" name="phone" class="form-input tabular-nums" placeholder="01012345678" required />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">العنوان بالتفصيل</label>
+								<input type="text" name="address" class="form-input" placeholder="شارع عباس العقاد، عمارة 15" required />
+							</div>
 						</div>
-						<button type="submit" class="btn btn-primary" style="align-self:flex-start;">
-							@components.IconPlus("icon-xs")
-							<span>إضافة العنوان</span>
-						</button>
+
+						<div style="margin-top:0.5rem;">
+							<button type="submit" class="btn btn-primary">
+								@components.IconPlus("icon-xs")
+								<span>إضافة العنوان</span>
+							</button>
+						</div>
 					</form>
 				</div>
 			</div>
 
 			<!-- Tab 5: Organization & Licenses -->
-			<div x-show="tab === 'organization'" x-cloak class="card" style="padding:2.25rem;">
-				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;">
+			<div id="tab-organization" class="tab-pane card" style="padding:2.25rem;">
+				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
 					بيانات المنشأة والتراخيص الرسمية
 				</h3>
-				<p style="font-size:0.875rem; color:var(--neutral-500); margin-bottom:1.75rem;">
-					توثيق التراخيص معتمد ومطابق لاشتراطات هيئة الدواء المصرية
-				</p>
 
-				<form action="/settings/organization" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1.25rem;">
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="org-name">اسم الصيدلية / المؤسسة الطبية</label>
-						<input type="text" id="org-name" name="name" class="form-input" value="صيدلية النصر التخصصية" />
-					</div>
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="org-cr">رقم السجل التجاري</label>
-						<input type="text" id="org-cr" name="cr_number" class="form-input tabular-nums" value="CR-9481029" />
-					</div>
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="org-tax">رقم التسجيل الضريبي (الفاتورة الإلكترونية)</label>
-						<input type="text" id="org-tax" name="tax_id" class="form-input tabular-nums" value="984-210-941" />
-					</div>
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="org-lic">رقم ترخيص المؤسسة الصيدلية</label>
-						<input type="text" id="org-lic" name="license_number" class="form-input tabular-nums" value="EDA-LIC-2024-884" />
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
+					<div style="padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
+						<div style="font-size:0.8rem; color:var(--neutral-500); font-weight:700;">الاسم القانوني للمنشأة</div>
+						<div style="font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-top:0.25rem;">شركة ومجموعة صيدليات الأمل ش.م.م</div>
 					</div>
 
-					<div style="background:var(--success-bg); border:1px solid var(--success-border); border-radius:var(--radius-md); padding:1rem; display:flex; align-items:center; gap:0.75rem; color:#065f46; font-size:0.875rem;">
-						@components.IconCheckCircle("icon-sm")
-						<span>الحساب موثق بالكامل ومعتمد من إدارة الرقابة الصيدلية.</span>
+					<div style="padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
+						<div style="font-size:0.8rem; color:var(--neutral-500); font-weight:700;">رقم السجل التجاري</div>
+						<div style="font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-top:0.25rem;" class="tabular-nums">CR-9481920</div>
 					</div>
 
-					<button type="submit" class="btn btn-primary" style="align-self:flex-start; margin-top:0.5rem;">
-						@components.IconCheck("icon-xs")
-						<span>تحديث بيانات المنشأة</span>
-					</button>
-				</form>
+					<div style="padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
+						<div style="font-size:0.8rem; color:var(--neutral-500); font-weight:700;">رقم البطاقة الضريبية (ETA)</div>
+						<div style="font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-top:0.25rem;" class="tabular-nums">984-210-941</div>
+					</div>
+
+					<div style="padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
+						<div style="font-size:0.8rem; color:var(--neutral-500); font-weight:700;">رقم ترخيص المؤسسة الصيدلية</div>
+						<div style="font-size:1.05rem; font-weight:800; color:var(--primary-700); margin-top:0.25rem;" class="tabular-nums">EDA-LIC-2024-8842</div>
+					</div>
+				</div>
+
+				<div style="padding:1rem 1.25rem; background:var(--success-bg); border:1px solid var(--success-border); border-radius:var(--radius-lg); display:flex; align-items:center; gap:0.75rem;">
+					<div style="color:var(--success);">@components.IconCheckCircle("icon-sm")</div>
+					<div style="color:var(--success); font-weight:700; font-size:0.9rem;">
+						حساب المؤسسة موثق ومعتمد رسمياً للتوريد والشراء المباشر عبر منظومة دواء 24.
+					</div>
+				</div>
 			</div>
 
 			<!-- Tab 6: Security & Sessions -->
-			<div x-show="tab === 'security'" x-cloak class="card" style="padding:2.25rem;">
+			<div id="tab-security" class="tab-pane card" style="padding:2.25rem;">
 				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
-					الأمان وكلمة المرور وجلسات الدخول
+					الأمان وكلمة المرور والجلسات النشطة
 				</h3>
 
-				<form action="/settings/profile" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1.25rem; margin-bottom:2.5rem;">
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="cur-pass">كلمة المرور الحالية</label>
-						<input type="password" id="cur-pass" name="current_password" class="form-input" placeholder="••••••••" />
-					</div>
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="new-pass">كلمة المرور الجديدة</label>
-						<input type="password" id="new-pass" name="new_password" class="form-input" placeholder="••••••••" />
-					</div>
-					<button type="submit" class="btn btn-primary" style="align-self:flex-start;">
-						@components.IconShield("icon-xs")
-						<span>تغيير كلمة المرور</span>
-					</button>
-				</form>
+				<div style="max-width:680px; margin-bottom:2.5rem;">
+					<h4 style="font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;">تحديث كلمة المرور</h4>
+					<form action="/settings/password" method="POST" style="display:flex; flex-direction:column; gap:1rem;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label">كلمة المرور الحالية</label>
+							<input type="password" name="current_password" required class="form-input" placeholder="••••••••" />
+						</div>
 
-				<div style="border-top:2px solid var(--neutral-100); padding-top:2rem;">
-					<h4 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1rem;">الجلسات النشطة</h4>
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">كلمة المرور الجديدة</label>
+								<input type="password" name="new_password" required minlength="8" class="form-input" placeholder="••••••••" />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label">تأكيد كلمة المرور الجديدة</label>
+								<input type="password" name="confirm_password" required minlength="8" class="form-input" placeholder="••••••••" />
+							</div>
+						</div>
+
+						<div style="margin-top:0.5rem;">
+							<button type="submit" class="btn btn-primary">
+								@components.IconCheck("icon-xs")
+								<span>تحديث كلمة المرور</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<div style="border-top:1px solid var(--neutral-100); padding-top:1.5rem;">
+					<h4 style="font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;">
+						الأجهزة والجلسات المتصلة حالياً
+					</h4>
 					<div style="display:flex; flex-direction:column; gap:0.75rem;">
 						for _, sess := range data.Sessions {
-							<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border:1px solid var(--border-card); border-radius:var(--radius-md); background:#fff;">
-								<div>
-									<div style="font-weight:700; color:var(--neutral-900); font-size:0.9rem;">
-										{ sess.UserAgent }
+							<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);">
+								<div style="display:flex; align-items:center; gap:0.75rem;">
+									<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--neutral-100); color:var(--neutral-600); display:flex; align-items:center; justify-content:center;">
+										@components.IconSettings("icon-xs")
 									</div>
-									<div style="font-size:0.775rem; color:var(--neutral-500);" class="tabular-nums">
-										IP: { sess.IP } | تاريخ الدخول: { sess.CreatedAt.Format("2006-01-02 15:04") }
+									<div>
+										<div style="font-weight:700; font-size:0.9rem; color:var(--neutral-900);">{ sess.UserAgent }</div>
+										<div style="font-size:0.8rem; color:var(--neutral-500);" class="tabular-nums">
+											IP: { sess.IP } • متصل منذ { sess.CreatedAt.Format("2006-01-02 15:04") }
+										</div>
 									</div>
 								</div>
-								<form action="/settings/security/revoke" method="POST" style="margin:0;">
+								<form action="/settings/sessions/revoke" method="POST" style="margin:0;">
 									<input type="hidden" name="token" value={ sess.Token } />
-									<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">
-										إنهاء الجلسة
-									</button>
+									<button type="submit" class="btn btn-danger btn-sm">إنهاء الجلسة</button>
 								</form>
 							</div>
 						}
@@ -456,31 +423,42 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Tab 7: Preferences -->
-			<div x-show="tab === 'preferences'" x-cloak class="card" style="padding:2.25rem;">
+			<div id="tab-preferences" class="tab-pane card" style="padding:2.25rem;">
 				<h3 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;">
 					تفضيلات الإشعارات والتنبيهات
 				</h3>
 
 				<form action="/settings/preferences" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1.25rem;">
-					<label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;">
-						<input type="checkbox" name="notify_sms" checked style="width:18px; height:18px; accent-color:var(--primary-600);" />
-						<span style="font-size:0.95rem; font-weight:700; color:var(--neutral-800);">إشعارات الرسائل النصية القصيرة (SMS) عند شحن الطلبيات</span>
-					</label>
+					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);">
+						<div>
+							<div style="font-weight:800; color:var(--neutral-900);">إشعارات الواتساب (WhatsApp Alerts)</div>
+							<div style="font-size:0.85rem; color:var(--neutral-500);">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div>
+						</div>
+						<input type="checkbox" name="notif_whatsapp" checked style="width:20px; height:20px; accent-color:var(--primary-600);" />
+					</div>
 
-					<label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;">
-						<input type="checkbox" name="notify_whatsapp" checked style="width:18px; height:18px; accent-color:var(--primary-600);" />
-						<span style="font-size:0.95rem; font-weight:700; color:var(--neutral-800);">إشعارات الواتساب الفورية للفواتير وأرقام التتبع</span>
-					</label>
+					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);">
+						<div>
+							<div style="font-weight:800; color:var(--neutral-900);">رسائل البريد الإلكتروني للفواتير الضريبية</div>
+							<div style="font-size:0.85rem; color:var(--neutral-500);">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div>
+						</div>
+						<input type="checkbox" name="notif_invoices" checked style="width:20px; height:20px; accent-color:var(--primary-600);" />
+					</div>
 
-					<label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;">
-						<input type="checkbox" name="notify_email" checked style="width:18px; height:18px; accent-color:var(--primary-600);" />
-						<span style="font-size:0.95rem; font-weight:700; color:var(--neutral-800);">التقارير المالية الأسبوعية وكشوف الحسابات عبر البريد</span>
-					</label>
+					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);">
+						<div>
+							<div style="font-weight:800; color:var(--neutral-900);">تنبيهات انخفاض المخزون والخصومات الحصرية</div>
+							<div style="font-size:0.85rem; color:var(--neutral-500);">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div>
+						</div>
+						<input type="checkbox" name="notif_promos" checked style="width:20px; height:20px; accent-color:var(--primary-600);" />
+					</div>
 
-					<button type="submit" class="btn btn-primary" style="align-self:flex-start; margin-top:1rem;">
-						@components.IconCheck("icon-xs")
-						<span>حفظ التفضيلات</span>
-					</button>
+					<div style="margin-top:0.75rem;">
+						<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem;">
+							@components.IconCheck("icon-xs")
+							<span>حفظ التفضيلات</span>
+						</button>
+					</div>
 				</form>
 			</div>
 		</div>

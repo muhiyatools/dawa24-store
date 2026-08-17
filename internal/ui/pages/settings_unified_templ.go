@@ -9,7 +9,6 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -55,7 +54,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1160px; margin:1rem auto 4rem auto;\" x-data=\"{\n\t\t\t\ttab: window.location.hash ? window.location.hash.substring(1) : 'profile',\n\t\t\t\tpayType: 'bank_account',\n\t\t\t\tsetTab(t) {\n\t\t\t\t\tthis.tab = t;\n\t\t\t\t\twindow.location.hash = t;\n\t\t\t\t}\n\t\t\t}\"><!-- Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1160px; margin:1rem auto 4rem auto;\"><!-- Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -71,7 +70,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>فتح المحفظة المالية</span></a></div><!-- Unified Tabs Navigation Bar --><div class=\"tab-list\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': tab === 'profile' }\" @click=\"setTab('profile')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>فتح المحفظة المالية</span></a></div><!-- Unified Tabs Navigation Bar --><div class=\"tab-list\"><button type=\"button\" class=\"tab-btn active\" data-tab-target=\"profile\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -79,7 +78,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>الملف الشخصي</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': tab === 'wallet' }\" @click=\"setTab('wallet')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>الملف الشخصي</span></button> <button type=\"button\" class=\"tab-btn\" data-tab-target=\"wallet\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -87,7 +86,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>المحفظة والرصيد</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': tab === 'payments' }\" @click=\"setTab('payments')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>المحفظة والرصيد</span></button> <button type=\"button\" class=\"tab-btn\" data-tab-target=\"payments\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -95,7 +94,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>طرق الدفع</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': tab === 'addresses' }\" @click=\"setTab('addresses')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>طرق الدفع</span></button> <button type=\"button\" class=\"tab-btn\" data-tab-target=\"addresses\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -103,7 +102,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>العناوين والفروع</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': tab === 'organization' }\" @click=\"setTab('organization')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>العناوين والفروع</span></button> <button type=\"button\" class=\"tab-btn\" data-tab-target=\"organization\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -111,7 +110,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>المنشأة والتراخيص</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': tab === 'security' }\" @click=\"setTab('security')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>المنشأة والتراخيص</span></button> <button type=\"button\" class=\"tab-btn\" data-tab-target=\"security\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,7 +118,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>الأمان والجلسات</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': tab === 'preferences' }\" @click=\"setTab('preferences')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>الأمان والجلسات</span></button> <button type=\"button\" class=\"tab-btn\" data-tab-target=\"preferences\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -127,14 +126,14 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>الإشعارات والتفضيلات</span></button></div><!-- Tab 1: Profile --><div x-show=\"tab === 'profile'\" x-cloak class=\"card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">البيانات الشخصية والحساب</h3><form action=\"/settings/profile\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"user-name\">الاسم بالكامل</label> <input type=\"text\" id=\"user-name\" name=\"name\" class=\"form-input\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>الإشعارات والتفضيلات</span></button></div><!-- Tab 1: Profile --><div id=\"tab-profile\" class=\"tab-pane active card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">البيانات الشخصية والحساب</h3><form action=\"/settings/profile\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"user-name\">الاسم بالكامل</label> <input type=\"text\" id=\"user-name\" name=\"name\" class=\"form-input\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.User.Name.Get("ar"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 99, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 88, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -147,7 +146,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 104, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 93, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -160,7 +159,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.User.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 109, Col: 108}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 98, Col: 108}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -173,7 +172,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.User.Role)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 114, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 103, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -187,15 +186,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>حفظ التعديلات</span></button></div></form></div><!-- Tab 2: Wallet Snapshot --><div x-show=\"tab === 'wallet'\" x-cloak class=\"card\" style=\"padding:2.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;\">رصيد المحفظة والمعاملات</h3><p style=\"font-size:0.875rem; color:var(--neutral-500); margin-top:0.2rem;\">نظرة سريعة على رصيد حسابك المالي</p></div><a href=\"/wallet\" class=\"btn btn-primary\"><span>فتح صفحة المحفظة الكاملة</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconArrowLeft("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</a></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2rem;\"><div style=\"background:var(--primary-50); border:1px solid var(--primary-200); border-radius:var(--radius-lg); padding:1.5rem;\"><div style=\"font-size:0.85rem; font-weight:700; color:var(--primary-800);\">الرصيد المتاح</div><div style=\"font-size:1.85rem; font-weight:900; color:var(--primary-700); margin-top:0.25rem;\" class=\"tabular-nums\">5,420.00 ج.م</div></div><div style=\"background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1.5rem;\"><div style=\"font-size:0.85rem; font-weight:700; color:var(--neutral-600);\">الرصيد المعلق</div><div style=\"font-size:1.85rem; font-weight:900; color:var(--neutral-800); margin-top:0.25rem;\" class=\"tabular-nums\">0.00 ج.م</div></div></div><div style=\"display:flex; gap:1rem;\"><a href=\"/wallet\" class=\"btn btn-secondary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>حفظ التعديلات</span></button></div></form></div><!-- Tab 2: Wallet Snapshot --><div id=\"tab-wallet\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;\">المحفظة الإلكترونية والرصيد</h3><p style=\"color:var(--neutral-500); font-size:0.875rem; margin-top:0.25rem;\">الرصيد المتاح للطلبيات وسجل المعاملات</p></div><div style=\"display:flex; gap:0.75rem;\"><a href=\"/wallet\" class=\"btn btn-primary btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -203,7 +194,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>شحن الرصيد (Deposit)</span></a> <a href=\"/wallet\" class=\"btn btn-secondary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>إيداع رصيد جديد</span></a> <a href=\"/wallet\" class=\"btn btn-secondary btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -211,7 +202,15 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>طلب سحب رصيد (Withdraw)</span></a></div></div><!-- Tab 3: Payment Methods --><div x-show=\"tab === 'payments'\" x-cloak class=\"card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;\">طرق الدفع المحفوظة (Payment Methods)</h3><p style=\"font-size:0.875rem; color:var(--neutral-500); margin-bottom:2rem;\">إدارة حساباتك البنكية، محافظ إنستاباي، والبطاقات المستخدمة في السحب والإيداع</p><!-- Saved Methods List --><div style=\"display:flex; flex-direction:column; gap:1rem; margin-bottom:2.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff; box-shadow:var(--shadow-xs);\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>طلب سحب</span></a></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2rem;\"><div style=\"padding:1.5rem; background:var(--primary-50); border:1px solid var(--primary-200); border-radius:var(--radius-xl);\"><div style=\"font-size:0.85rem; color:var(--primary-800); font-weight:700;\">الرصيد المتاح</div><div style=\"font-size:1.85rem; font-weight:900; color:var(--primary-900); margin-top:0.5rem;\" class=\"tabular-nums\">5,420.00 <span style=\"font-size:1rem; font-weight:700;\">ج.م</span></div></div><div style=\"padding:1.5rem; background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-xl);\"><div style=\"font-size:0.85rem; color:var(--neutral-600); font-weight:700;\">الرصيد المعلق (أوامر جارية)</div><div style=\"font-size:1.85rem; font-weight:900; color:var(--neutral-800); margin-top:0.5rem;\" class=\"tabular-nums\">1,250.00 <span style=\"font-size:1rem; font-weight:700;\">ج.م</span></div></div><div style=\"padding:1.5rem; background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-xl);\"><div style=\"font-size:0.85rem; color:var(--neutral-600); font-weight:700;\">إجمالي الإيداعات</div><div style=\"font-size:1.85rem; font-weight:900; color:var(--neutral-800); margin-top:0.5rem;\" class=\"tabular-nums\">48,900.00 <span style=\"font-size:1rem; font-weight:700;\">ج.م</span></div></div></div><div style=\"text-align:start;\"><a href=\"/wallet\" class=\"btn btn-secondary\" style=\"font-weight:700;\"><span>عرض كشف الحساب الكامل والمعاملات</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconArrowLeft("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</a></div></div><!-- Tab 3: Payment Methods --><div id=\"tab-payments\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">طرق الدفع والحسابات البنكية المحفوظة</h3><div style=\"display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:2rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1.5px solid var(--primary-200); background:var(--primary-50); border-radius:var(--radius-xl);\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:#ffffff; color:var(--primary-700); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-xs);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,31 +218,15 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div><div style=\"font-weight:800; color:var(--neutral-900); font-size:1rem;\">البنك الأهلي المصري (حساب جاري)</div><div style=\"font-size:0.825rem; color:var(--neutral-500); display:flex; gap:1rem; margin-top:0.2rem;\"><span>رقم الحساب: <strong class=\"tabular-nums\" style=\"color:var(--neutral-800);\">•••• 4920</strong></span> <span class=\"badge badge-emerald\">معتمد للسحب والإيداع</span> <span class=\"badge badge-sky\">افتراضي</span></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div><div style=\"font-weight:800; color:var(--neutral-900); display:flex; align-items:center; gap:0.5rem;\"><span>البنك الأهلي المصري (NBE)</span> <span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">الحساب الافتراضي</span></div><div style=\"font-size:0.85rem; color:var(--neutral-600); margin-top:0.25rem;\" class=\"tabular-nums\">IBAN: EG380003000012345678901234567 • باسم: صيدلية الأمل الحديثة</div></div></div><div><span class=\"badge badge-sky\">معتمد</span></div></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--neutral-200); background:#ffffff; border-radius:var(--radius-xl);\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:var(--neutral-100); color:var(--neutral-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconWallet("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>حذف</span></button></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff; box-shadow:var(--shadow-xs);\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconPhone("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div><div style=\"font-weight:800; color:var(--neutral-900); font-size:1rem;\">محفظة إنستاباي (InstaPay / فودافون كاش)</div><div style=\"font-size:0.825rem; color:var(--neutral-500); display:flex; gap:1rem; margin-top:0.2rem;\"><span>المعرف / الهاتف: <strong class=\"tabular-nums\" style=\"color:var(--neutral-800);\">01065397000</strong></span> <span class=\"badge badge-emerald\">معتمد للتحويل الفوري</span></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border);\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>حذف</span></button></div></div><!-- Dynamic Add Payment Method Form --><div style=\"border-top:2px solid var(--neutral-100); padding-top:2rem;\"><h4 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;\">إضافة طريقة دفع جديدة</h4><form action=\"/settings/payment-methods\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-type\">نوع وسيلة الدفع *</label> <select id=\"pm-type\" name=\"type\" class=\"form-select\" x-model=\"payType\"><option value=\"bank_account\">حساب بنكي (Bank Account)</option> <option value=\"instapay_wallet\">إنستاباي ومحافظ إلكترونية (InstaPay / E-Wallet)</option> <option value=\"credit_card\">بطاقة بنكية (Credit / Debit Card)</option> <option value=\"cheque\">شيك بنكي معتمد (Company Cheque)</option></select></div><!-- Bank Account Fields --><div x-show=\"payType === 'bank_account'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-bank-name\">اسم البنك *</label> <input type=\"text\" id=\"pm-bank-name\" name=\"bank_name\" placeholder=\"مثال: البنك الأهلي المصري، CIB، بنك مصر\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-acc-holder\">اسم صاحب الحساب (مطابق للسجل التجاري) *</label> <input type=\"text\" id=\"pm-acc-holder\" name=\"account_holder\" placeholder=\"اسم الصيدلية أو الشركة\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-acc-num\">رقم الحساب البنكي *</label> <input type=\"text\" id=\"pm-acc-num\" name=\"account_number\" placeholder=\"مثال: 100094820194\" class=\"form-input tabular-nums\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-iban\">رقم الآيبان الدولي (IBAN) *</label> <input type=\"text\" id=\"pm-iban\" name=\"iban\" placeholder=\"EG3800...\" class=\"form-input tabular-nums\"></div></div><!-- InstaPay / Wallet Fields --><div x-show=\"payType === 'instapay_wallet'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-wallet-provider\">مزود الخدمة *</label> <select id=\"pm-wallet-provider\" name=\"wallet_provider\" class=\"form-select\"><option value=\"instapay\">InstaPay (عنوان الدفع اللحظي IPA)</option> <option value=\"vodafone\">فودافون كاش (Vodafone Cash)</option> <option value=\"orange\">أورنج كاش (Orange Cash)</option> <option value=\"etisalat\">اتصالات كاش (Etisalat Cash)</option> <option value=\"we\">وي باي (WE Pay)</option></select></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-wallet-handle\">معرف الدفع (IPA) أو رقم الهاتف المسجل *</label> <input type=\"text\" id=\"pm-wallet-handle\" name=\"wallet_handle\" placeholder=\"01012345678 أو pharmacy@instapay\" class=\"form-input tabular-nums\"></div></div><!-- Credit / Debit Card Fields --><div x-show=\"payType === 'credit_card'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-card-name\">الاسم المدون على البطاقة *</label> <input type=\"text\" id=\"pm-card-name\" name=\"card_name\" placeholder=\"MOHAMED AHMED\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-card-num\">رقم البطاقة (16 رقم) *</label> <input type=\"text\" id=\"pm-card-num\" name=\"card_number\" placeholder=\"4234 •••• •••• 9812\" class=\"form-input tabular-nums\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-card-exp\">تاريخ الانتهاء (MM/YY) *</label> <input type=\"text\" id=\"pm-card-exp\" name=\"card_expiry\" placeholder=\"12/28\" class=\"form-input tabular-nums\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-card-cvv\">رمز الأمان (CVV) *</label> <input type=\"password\" id=\"pm-card-cvv\" name=\"card_cvv\" placeholder=\"•••\" maxlength=\"4\" class=\"form-input tabular-nums\"></div></div></div><!-- Cheque Fields --><div x-show=\"payType === 'cheque'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-cheque-branch\">فرع البنك المصدر للشيكات *</label> <input type=\"text\" id=\"pm-cheque-branch\" name=\"cheque_branch\" placeholder=\"مثال: البنك الأهلي - فرع المهندسين\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-cheque-cr\">رقم السجل التجاري للشيكات *</label> <input type=\"text\" id=\"pm-cheque-cr\" name=\"cheque_cr\" placeholder=\"رقم السجل التجاري\" class=\"form-input tabular-nums\"></div></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem 2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div><div style=\"font-weight:800; color:var(--neutral-900);\"><span>InstaPay (إنستاباي)</span></div><div style=\"font-size:0.85rem; color:var(--neutral-600); margin-top:0.25rem;\" class=\"tabular-nums\">معرف الدفع IPA: elamal.pharmacy@instapay</div></div></div><div><span class=\"badge badge-sky\">معتمد</span></div></div></div><div style=\"border-top:1px solid var(--neutral-100); padding-top:1.5rem;\"><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;\">إضافة وسيلة دفع جديدة</h4><form action=\"/settings/payment-methods\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">نوع وسيلة الدفع</label> <select name=\"type\" class=\"form-select\" onchange=\"document.querySelectorAll('.pay-extra').forEach(el => el.style.display = 'none'); document.getElementById('pay-fields-' + this.value).style.display = 'block';\"><option value=\"bank\">حساب بنكي (Bank Account)</option> <option value=\"instapay\">إنستاباي / محفظة هاتف (InstaPay / E-Wallet)</option> <option value=\"card\">بطاقة دفع إلكتروني (Debit / Credit Card)</option></select></div><div id=\"pay-fields-bank\" class=\"pay-extra\" style=\"display:block;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم البنك</label> <input type=\"text\" name=\"bank_name\" class=\"form-input\" placeholder=\"البنك التجاري الدولي CIB\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم صاحب الحساب</label> <input type=\"text\" name=\"account_holder\" class=\"form-input\" placeholder=\"مطابق للسجل التجاري\"></div></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم الآيبان (IBAN)</label> <input type=\"text\" name=\"iban\" class=\"form-input tabular-nums\" placeholder=\"EG000000000000000000000000000\"></div></div><div id=\"pay-fields-instapay\" class=\"pay-extra\" style=\"display:none;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">عنوان الدفع اللحظي IPA أو رقم الهاتف</label> <input type=\"text\" name=\"instapay_handle\" class=\"form-input tabular-nums\" placeholder=\"username@instapay\"></div></div><div id=\"pay-fields-card\" class=\"pay-extra\" style=\"display:none;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم البطاقة</label> <input type=\"text\" name=\"card_number\" class=\"form-input tabular-nums\" placeholder=\"•••• •••• •••• ••••\"></div></div><div style=\"margin-top:0.5rem;\"><button type=\"submit\" class=\"btn btn-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -251,100 +234,87 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>حفظ وسيلة الدفع</span></button></div></form></div></div><!-- Tab 4: Addresses --><div x-show=\"tab === 'addresses'\" x-cloak class=\"card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">عناوين التوصيل وفروع الصيدلية</h3><div style=\"display:flex; flex-direction:column; gap:1.25rem; margin-bottom:2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>حفظ وسيلة الدفع</span></button></div></form></div></div><!-- Tab 4: Addresses --><div id=\"tab-addresses\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">عناوين الفروع ومواقع الاستلام</h3><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, addr := range data.Addresses {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff;\"><div><div style=\"font-weight:800; color:var(--neutral-900); font-size:1rem; margin-bottom:0.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div style=\"padding:1.5rem; border:1px solid var(--neutral-200); border-radius:var(--radius-xl); background:var(--surface);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;\"><div style=\"font-weight:800; color:var(--neutral-900);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 332, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 274, Col: 76}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if addr.IsDefault {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-emerald\" style=\"margin-inline-start:0.5rem;\">افتراضي</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">الفرع الرئيسي</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div style=\"font-size:0.875rem; color:var(--neutral-600);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><div style=\"color:var(--neutral-600); font-size:0.875rem; line-height:1.6; margin-bottom:0.75rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Recipient)
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Address)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 338, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 280, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, " · ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div style=\"font-size:0.85rem; color:var(--neutral-500); display:flex; align-items:center; gap:0.5rem;\" class=\"tabular-nums\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconPhone("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Phone)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 338, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 284, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div style=\"font-size:0.8rem; color:var(--neutral-500);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, " (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Address)
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(addr.Recipient)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 341, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 284, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div><form action=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var11 templ.SafeURL
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/settings/addresses/%d/delete", addr.ID)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 344, Col: 90}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" method=\"POST\" style=\"margin:0;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border);\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>حذف</span></button></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ")</span></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div><div style=\"border-top:2px solid var(--neutral-100); padding-top:1.75rem;\"><h4 style=\"font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1rem;\">إضافة عنوان جديد</h4><form action=\"/settings/addresses\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"addr-label\">اسم الفرع / العنوان</label> <input type=\"text\" id=\"addr-label\" name=\"label\" placeholder=\"مثال: الفرع الرئيسي - الدقي\" class=\"form-input\" required></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"addr-street\">العنوان بالتفصيل</label> <input type=\"text\" id=\"addr-street\" name=\"street\" placeholder=\"شارع مصدق، مبنى 14\" class=\"form-input\" required></div><button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div style=\"border-top:1px solid var(--neutral-100); padding-top:1.5rem;\"><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;\">إضافة فرع أو عنوان تسليم جديد</h4><form action=\"/settings/addresses\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1rem;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم الفرع / العنوان</label> <input type=\"text\" name=\"title\" class=\"form-input\" placeholder=\"فرع مدينة نصر\" required></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم المستلم المسؤول</label> <input type=\"text\" name=\"recipient\" class=\"form-input\" placeholder=\"د. أحمد محمود\" required></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" class=\"form-input tabular-nums\" placeholder=\"01012345678\" required></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">العنوان بالتفصيل</label> <input type=\"text\" name=\"address\" class=\"form-input\" placeholder=\"شارع عباس العقاد، عمارة 15\" required></div></div><div style=\"margin-top:0.5rem;\"><button type=\"submit\" class=\"btn btn-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -352,7 +322,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span>إضافة العنوان</span></button></form></div></div><!-- Tab 5: Organization & Licenses --><div x-show=\"tab === 'organization'\" x-cloak class=\"card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;\">بيانات المنشأة والتراخيص الرسمية</h3><p style=\"font-size:0.875rem; color:var(--neutral-500); margin-bottom:1.75rem;\">توثيق التراخيص معتمد ومطابق لاشتراطات هيئة الدواء المصرية</p><form action=\"/settings/organization\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"org-name\">اسم الصيدلية / المؤسسة الطبية</label> <input type=\"text\" id=\"org-name\" name=\"name\" class=\"form-input\" value=\"صيدلية النصر التخصصية\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"org-cr\">رقم السجل التجاري</label> <input type=\"text\" id=\"org-cr\" name=\"cr_number\" class=\"form-input tabular-nums\" value=\"CR-9481029\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"org-tax\">رقم التسجيل الضريبي (الفاتورة الإلكترونية)</label> <input type=\"text\" id=\"org-tax\" name=\"tax_id\" class=\"form-input tabular-nums\" value=\"984-210-941\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"org-lic\">رقم ترخيص المؤسسة الصيدلية</label> <input type=\"text\" id=\"org-lic\" name=\"license_number\" class=\"form-input tabular-nums\" value=\"EDA-LIC-2024-884\"></div><div style=\"background:var(--success-bg); border:1px solid var(--success-border); border-radius:var(--radius-md); padding:1rem; display:flex; align-items:center; gap:0.75rem; color:#065f46; font-size:0.875rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>إضافة العنوان</span></button></div></form></div></div><!-- Tab 5: Organization & Licenses --><div id=\"tab-organization\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">بيانات المنشأة والتراخيص الرسمية</h3><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:2rem;\"><div style=\"padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);\"><div style=\"font-size:0.8rem; color:var(--neutral-500); font-weight:700;\">الاسم القانوني للمنشأة</div><div style=\"font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-top:0.25rem;\">شركة ومجموعة صيدليات الأمل ش.م.م</div></div><div style=\"padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);\"><div style=\"font-size:0.8rem; color:var(--neutral-500); font-weight:700;\">رقم السجل التجاري</div><div style=\"font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-top:0.25rem;\" class=\"tabular-nums\">CR-9481920</div></div><div style=\"padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);\"><div style=\"font-size:0.8rem; color:var(--neutral-500); font-weight:700;\">رقم البطاقة الضريبية (ETA)</div><div style=\"font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-top:0.25rem;\" class=\"tabular-nums\">984-210-941</div></div><div style=\"padding:1.25rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);\"><div style=\"font-size:0.8rem; color:var(--neutral-500); font-weight:700;\">رقم ترخيص المؤسسة الصيدلية</div><div style=\"font-size:1.05rem; font-weight:800; color:var(--primary-700); margin-top:0.25rem;\" class=\"tabular-nums\">EDA-LIC-2024-8842</div></div></div><div style=\"padding:1rem 1.25rem; background:var(--success-bg); border:1px solid var(--success-border); border-radius:var(--radius-lg); display:flex; align-items:center; gap:0.75rem;\"><div style=\"color:var(--success);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -360,7 +330,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>الحساب موثق بالكامل ومعتمد من إدارة الرقابة الصيدلية.</span></div><button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start; margin-top:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div style=\"color:var(--success); font-weight:700; font-size:0.9rem;\">حساب المؤسسة موثق ومعتمد رسمياً للتوريد والشراء المباشر عبر منظومة دواء 24.</div></div></div><!-- Tab 6: Security & Sessions --><div id=\"tab-security\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">الأمان وكلمة المرور والجلسات النشطة</h3><div style=\"max-width:680px; margin-bottom:2.5rem;\"><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;\">تحديث كلمة المرور</h4><form action=\"/settings/password\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">كلمة المرور الحالية</label> <input type=\"password\" name=\"current_password\" required class=\"form-input\" placeholder=\"••••••••\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">كلمة المرور الجديدة</label> <input type=\"password\" name=\"new_password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">تأكيد كلمة المرور الجديدة</label> <input type=\"password\" name=\"confirm_password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div></div><div style=\"margin-top:0.5rem;\"><button type=\"submit\" class=\"btn btn-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -368,77 +338,77 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span>تحديث بيانات المنشأة</span></button></form></div><!-- Tab 6: Security & Sessions --><div x-show=\"tab === 'security'\" x-cloak class=\"card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">الأمان وكلمة المرور وجلسات الدخول</h3><form action=\"/settings/profile\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem; margin-bottom:2.5rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"cur-pass\">كلمة المرور الحالية</label> <input type=\"password\" id=\"cur-pass\" name=\"current_password\" class=\"form-input\" placeholder=\"••••••••\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"new-pass\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"new-pass\" name=\"new_password\" class=\"form-input\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start;\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconShield("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span>تغيير كلمة المرور</span></button></form><div style=\"border-top:2px solid var(--neutral-100); padding-top:2rem;\"><h4 style=\"font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1rem;\">الجلسات النشطة</h4><div style=\"display:flex; flex-direction:column; gap:0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span>تحديث كلمة المرور</span></button></div></form></div><div style=\"border-top:1px solid var(--neutral-100); padding-top:1.5rem;\"><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem;\">الأجهزة والجلسات المتصلة حالياً</h4><div style=\"display:flex; flex-direction:column; gap:0.75rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, sess := range data.Sessions {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:1rem; border:1px solid var(--border-card); border-radius:var(--radius-md); background:#fff;\"><div><div style=\"font-weight:700; color:var(--neutral-900); font-size:0.9rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--neutral-100); color:var(--neutral-600); display:flex; align-items:center; justify-content:center;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconSettings("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div><div style=\"font-weight:700; font-size:0.9rem; color:var(--neutral-900);\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var11 string
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(sess.UserAgent)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 409, Col: 100}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div><div style=\"font-size:0.8rem; color:var(--neutral-500);\" class=\"tabular-nums\">IP: ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sess.UserAgent)
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sess.IP)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 440, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 411, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div><div style=\"font-size:0.775rem; color:var(--neutral-500);\" class=\"tabular-nums\">IP: ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " • متصل منذ ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(sess.IP)
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 443, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 411, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " | تاريخ الدخول: ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div></div><form action=\"/settings/sessions/revoke\" method=\"POST\" style=\"margin:0;\"><input type=\"hidden\" name=\"token\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var14 string
-				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 15:04"))
+				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(sess.Token)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 443, Col: 96}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 416, Col: 61}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></div><form action=\"/settings/security/revoke\" method=\"POST\" style=\"margin:0;\"><input type=\"hidden\" name=\"token\" value=\"")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var15 string
-				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(sess.Token)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 447, Col: 61}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"> <button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border);\">إنهاء الجلسة</button></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\"> <button type=\"submit\" class=\"btn btn-danger btn-sm\">إنهاء الجلسة</button></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></div></div><!-- Tab 7: Preferences --><div x-show=\"tab === 'preferences'\" x-cloak class=\"card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">تفضيلات الإشعارات والتنبيهات</h3><form action=\"/settings/preferences\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><label style=\"display:flex; align-items:center; gap:0.75rem; cursor:pointer;\"><input type=\"checkbox\" name=\"notify_sms\" checked style=\"width:18px; height:18px; accent-color:var(--primary-600);\"> <span style=\"font-size:0.95rem; font-weight:700; color:var(--neutral-800);\">إشعارات الرسائل النصية القصيرة (SMS) عند شحن الطلبيات</span></label> <label style=\"display:flex; align-items:center; gap:0.75rem; cursor:pointer;\"><input type=\"checkbox\" name=\"notify_whatsapp\" checked style=\"width:18px; height:18px; accent-color:var(--primary-600);\"> <span style=\"font-size:0.95rem; font-weight:700; color:var(--neutral-800);\">إشعارات الواتساب الفورية للفواتير وأرقام التتبع</span></label> <label style=\"display:flex; align-items:center; gap:0.75rem; cursor:pointer;\"><input type=\"checkbox\" name=\"notify_email\" checked style=\"width:18px; height:18px; accent-color:var(--primary-600);\"> <span style=\"font-size:0.95rem; font-weight:700; color:var(--neutral-800);\">التقارير المالية الأسبوعية وكشوف الحسابات عبر البريد</span></label> <button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start; margin-top:1rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div></div></div><!-- Tab 7: Preferences --><div id=\"tab-preferences\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">تفضيلات الإشعارات والتنبيهات</h3><form action=\"/settings/preferences\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">إشعارات الواتساب (WhatsApp Alerts)</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div></div><input type=\"checkbox\" name=\"notif_whatsapp\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">رسائل البريد الإلكتروني للفواتير الضريبية</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div></div><input type=\"checkbox\" name=\"notif_invoices\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">تنبيهات انخفاض المخزون والخصومات الحصرية</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div></div><input type=\"checkbox\" name=\"notif_promos\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem 2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -446,7 +416,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span>حفظ التفضيلات</span></button></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>حفظ التفضيلات</span></button></div></form></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
