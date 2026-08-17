@@ -17,7 +17,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -166,6 +168,7 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	values := pages.AdminSettingsValues{
 		SupportEmail:   "support@dawa24.eg",
 		CommissionRate: "1.5",
+		FeatureFlags:   features.List(),
 	}
 	if h.adminSvc != nil {
 		if s, err := h.adminSvc.GetSetting(ctx, settingSupportEmail); err == nil && s != nil {
@@ -185,6 +188,38 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorContext(ctx, "render admin settings page", "error", err)
 	}
 }
+
+// AdminFeatureToggleSubmit toggles a platform feature flag in real-time.
+func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || !actor.IsPlatformAdmin() {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	key := strings.TrimSpace(r.PostFormValue("key"))
+	enabledStr := strings.TrimSpace(r.PostFormValue("enabled"))
+	enabled := enabledStr == "true" || enabledStr == "1"
+
+	if key == "" {
+		h.redirectWithNotice(w, r, "/admin/settings", "error", "مفتاح الميزة غير صالح.")
+		return
+	}
+
+	if err := features.GetEngine().Set(ctx, key, enabled, actor.UserID); err != nil {
+		h.log.ErrorContext(ctx, "failed to toggle feature flag", "key", key, "error", err)
+		h.redirectWithNotice(w, r, "/admin/settings", "error", "فشل تحديث حالة الميزة.")
+		return
+	}
+
+	msg := "تم تعطيل الميزة بنجاح."
+	if enabled {
+		msg = "تم تفعيل الميزة بنجاح."
+	}
+	h.redirectWithNotice(w, r, "/admin/settings", "success", msg)
+}
+
 
 // AdminSettingsSubmit persists the platform settings.
 //

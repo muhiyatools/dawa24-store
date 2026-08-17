@@ -249,7 +249,9 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)
 	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
+	r.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
 	r.Post("/admin/content", h.AdminContentSubmit)
+
 	r.Post("/admin/translations", h.AdminTranslationsSubmit)
 	r.Post("/admin/organizations/{id}/approve", h.AdminOrgApproveSubmit)
 	r.Post("/admin/organizations/{id}/reject", h.AdminOrgRejectSubmit)
