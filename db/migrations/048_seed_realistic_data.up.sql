@@ -4,7 +4,13 @@
 
 BEGIN;
 
--- 1. Insert HR Job Categories if not already present
+-- 1. Fix HR ID length constraints for UUID public IDs
+ALTER TABLE hr.job_offers ALTER COLUMN public_id TYPE VARCHAR(64);
+ALTER TABLE hr.job_offers ALTER COLUMN status TYPE VARCHAR(64);
+ALTER TABLE hr.job_applications ALTER COLUMN public_id TYPE VARCHAR(64);
+ALTER TABLE hr.job_applications ALTER COLUMN status TYPE VARCHAR(64);
+
+-- 2. Insert HR Job Categories if not already present
 INSERT INTO hr.job_categories (name, slug, is_active)
 VALUES
     ('{"ar":"صيادلة وإدارة فروع","en":"Pharmacists & Branch Management"}'::jsonb, 'pharmacists', true),
@@ -13,7 +19,7 @@ VALUES
     ('{"ar":"مساعدو صيادلة","en":"Pharmacy Assistants"}'::jsonb, 'pharmacy-assistants', true)
 ON CONFLICT (slug) DO UPDATE SET is_active = true;
 
--- 2. Insert Official Egyptian Pharma Suppliers & Distributors
+-- 3. Insert Official Egyptian Pharma Suppliers & Distributors
 INSERT INTO org.organizations (
     organization_number, name, description, type, status,
     email, phone, address, tax_number, license_document_url, verification_notes,
@@ -98,7 +104,7 @@ VALUES
 )
 ON CONFLICT DO NOTHING;
 
--- 3. Insert Licensed Community & Chain Pharmacies
+-- 4. Insert Licensed Community & Chain Pharmacies
 INSERT INTO org.organizations (
     organization_number, name, description, type, status,
     email, phone, address, tax_number, license_document_url, verification_notes,
@@ -149,7 +155,7 @@ VALUES
 )
 ON CONFLICT DO NOTHING;
 
--- 4. Insert Standard Pharmaceutical Categories
+-- 5. Insert Standard Pharmaceutical Categories
 INSERT INTO catalog.categories (name, description, icon, status, sort_order)
 VALUES
     ('{"ar":"المضادات الحيوية","en":"Antibiotics"}'::jsonb, '{"ar":"أدوية علاج العدوى البكتيرية والالتهابات","en":"Antibiotics and antimicrobials"}'::jsonb, 'pill', 'active', 1),
@@ -162,7 +168,7 @@ VALUES
     ('{"ar":"مستلزمات وأجهزة طبية","en":"Medical Supplies"}'::jsonb, '{"ar":"شاش، قطن، محاقن، وأجهزة قياس السكر والضغط","en":"Medical disposables and diagnostic devices"}'::jsonb, 'package', 'active', 8)
 ON CONFLICT DO NOTHING;
 
--- 5. Insert Core Pharmaceutical Brands
+-- 6. Insert Core Pharmaceutical Brands
 INSERT INTO catalog.brands (name, description, status)
 VALUES
     ('{"ar":"جلاكسو سميث كلاين (GSK)","en":"GlaxoSmithKline"}'::jsonb, '{"ar":"شركة أدوية عالمية رائدة","en":"Global pharma leader"}'::jsonb, 'active'),
@@ -173,7 +179,7 @@ VALUES
     ('{"ar":"ميرك (Merck)","en":"Merck Healthcare"}'::jsonb, '{"ar":"ريادة في أدوية القلب والأورام والسكري","en":"Global science and tech company"}'::jsonb, 'active')
 ON CONFLICT DO NOTHING;
 
--- 6. Insert Top Essential Registered Products & Stocks
+-- 7. Insert Top Essential Registered Products & Stocks
 DO $$
 DECLARE
     v_supplier_id BIGINT;
@@ -233,11 +239,11 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 14 قرص","en":"Box of 14 Tablets"}'::jsonb,
-        'AUG-1G-14T-V1', '6221008291048', 135.00, 115.00, 'active', true
+        'AUG-1G-14T-V1', '6221008291048', 135.00, 115.00, 'AUG-2849', '2028-06-30'::date, 5, 'active', true
     ) RETURNING id INTO v_var_id;
 
     IF v_warehouse_id IS NOT NULL THEN
@@ -256,11 +262,11 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"شريطين 24 قرص","en":"2 Strips 24 Tablets"}'::jsonb,
-        'PAN-EXT-24T-V1', '6221004928103', 45.00, 38.00, 'active', true
+        'PAN-EXT-24T-V1', '6221004928103', 45.00, 38.00, 'PAN-9921', '2028-11-30'::date, 10, 'active', true
     ) RETURNING id INTO v_var_id;
 
     IF v_warehouse_id IS NOT NULL THEN
@@ -279,11 +285,11 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 30 قرص","en":"Box of 30 Tablets"}'::jsonb,
-        'CON-5MG-30T-V1', '6221003819201', 62.50, 53.00, 'active', true
+        'CON-5MG-30T-V1', '6221003819201', 62.50, 53.00, 'CON-5820', '2028-09-30'::date, 3, 'active', true
     ) RETURNING id INTO v_var_id;
 
     IF v_warehouse_id IS NOT NULL THEN
@@ -302,11 +308,11 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 30 قرص","en":"Box of 30 Tablets"}'::jsonb,
-        'GLU-1000-30T-V1', '6221007419482', 70.00, 59.50, 'active', true
+        'GLU-1000-30T-V1', '6221007419482', 70.00, 59.50, 'GLU-4819', '2028-04-30'::date, 5, 'active', true
     ) RETURNING id INTO v_var_id;
 
     IF v_warehouse_id IS NOT NULL THEN
@@ -325,11 +331,11 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"شريطين 20 قرص","en":"20 Tablets"}'::jsonb,
-        'CAT-50MG-20T-V1', '6221005829104', 58.00, 49.00, 'active', true
+        'CAT-50MG-20T-V1', '6221005829104', 58.00, 49.00, 'CAT-3819', '2027-12-31'::date, 5, 'active', true
     ) RETURNING id INTO v_var_id;
 
     IF v_warehouse_id IS NOT NULL THEN
@@ -348,11 +354,11 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"عبوة 200 جرعة","en":"200 Doses Inhaler"}'::jsonb,
-        'VEN-INH-200D-V1', '6221009182736', 68.00, 57.00, 'active', true
+        'VEN-INH-200D-V1', '6221009182736', 68.00, 57.00, 'VEN-7410', '2028-08-31'::date, 3, 'active', true
     ) RETURNING id INTO v_var_id;
 
     IF v_warehouse_id IS NOT NULL THEN
@@ -371,11 +377,11 @@ BEGIN
     ) RETURNING id INTO v_prod_id;
 
     INSERT INTO catalog.product_variants (
-        organization_id, product_id, name, sku, barcode, price, cost_price, status, is_featured
+        organization_id, product_id, name, sku, barcode, price, cost_price, batch_number, expiry_date, min_order_qty, status, is_featured
     ) VALUES (
         v_supplier_id, v_prod_id,
         '{"ar":"علبة 5 أقلام معبأة","en":"Box of 5 Prefilled Pens"}'::jsonb,
-        'LAN-SOLO-5P-V1', '6221001928374', 680.00, 595.00, 'active', true
+        'LAN-SOLO-5P-V1', '6221001928374', 680.00, 595.00, 'LAN-9182', '2027-10-31'::date, 2, 'active', true
     ) RETURNING id INTO v_var_id;
 
     IF v_warehouse_id IS NOT NULL THEN
@@ -385,7 +391,7 @@ BEGIN
 
 END $$;
 
--- 7. Insert Professional Job Postings
+-- 8. Insert Professional Job Postings with clean public IDs
 DO $$
 DECLARE
     v_org_ezaby BIGINT;
@@ -414,43 +420,44 @@ BEGIN
     SELECT id INTO v_cat_asst FROM hr.job_categories WHERE slug = 'pharmacy-assistants' LIMIT 1;
 
     INSERT INTO hr.job_offers (
-        organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status
+        public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status
     ) VALUES
     (
-        v_org_alnasr, v_cat_pharm,
+        'job_pharm_sr_01', v_org_alnasr, v_cat_pharm,
         '{"ar":"صيدلي مسائي / صيدلي أول","en":"Senior Evening Pharmacist"}'::jsonb,
         'إدارة صرف الوصفات الطبية، تقديم الاستشارات الدوائية للعملاء، متابعة المخزون وتسجيل النواقص.',
         'بكالوريوس صيدلة، ترخيص مزاولة المهنة سارٍ، خبرة من 1-3 سنوات في الصيدليات الأهلية.',
         9000.00, 12000.00, 'القاهرة - مدينة نصر', 'published'
     ),
     (
-        v_org_ezaby, v_cat_pharm,
+        'job_mgr_ezaby_02', v_org_ezaby, v_cat_pharm,
         '{"ar":"مدير فرع صيدلية (Pharmacy Branch Manager)","en":"Pharmacy Branch Manager"}'::jsonb,
         'الإشراف الكامل على إدارة الفرع، فريق الصيادلة، تحقيق أهداف المبيعات، ومراجعة مطابقة الجودة.',
         'بكالوريوس صيدلة، خبرة لا تقل عن 4 سنوات في إدارة الصيدليات الكبرى أو السلاسل.',
         14000.00, 18000.00, 'الجيزة - الدقي', 'published'
     ),
     (
-        v_org_ucp, v_cat_reps,
+        'job_medrep_ucp_03', v_org_ucp, v_cat_reps,
         '{"ar":"مندوب دعاية طبية وتسويق صيدلاني (Medical Representative)","en":"Medical Representative"}'::jsonb,
         'بناء علاقات مع الصيدليات والمراكز الطبية، الترويج للأصناف الدوائية الجديدة، وفتح حسابات توريد جديدة.',
         'خريج صيدلة أو علوم طبية، مهارات تواصل وتفاوض ممتازة، يفضل وجود سيارة.',
         11000.00, 16000.00, 'الإسكندرية والبحيرة', 'published'
     ),
     (
-        v_org_ibnsina, v_cat_supply,
+        'job_whmgr_ibnsina_04', v_org_ibnsina, v_cat_supply,
         '{"ar":"مدير مخزن وتوزيع دوائي وسلسلة تبريد","en":"Warehouse & Cold Chain Manager"}'::jsonb,
         'إدارة عمليات استلام وفحص الشحنات، الرقابة على درجات حرارة التبريد 2-8 مئوية، وجدولة سيارات التوزيع.',
         'مؤهل عالٍ مناسب، خبرة 3 سنوات على الأقل في مخازن الأدوية والتوزيع وسلاسل التبريد.',
         13000.00, 17500.00, 'القاهرة - العبور', 'published'
     ),
     (
-        v_org_alnasr, v_cat_asst,
+        'job_asst_alnasr_05', v_org_alnasr, v_cat_asst,
         '{"ar":"مساعد صيدلي خبرة (Pharmacy Assistant)","en":"Pharmacy Assistant"}'::jsonb,
         'ترتيب الرفوف، مساعدة الصيدلي في تجهيز طلبيات الأدوية، واستقبال مستحضرات العناية والتجميل.',
         'مؤهل متوسط أو فوق متوسط، خبرة سنة على الأقل في صيدليات المجتمع.',
         6000.00, 8000.00, 'القاهرة - مصر الجديدة', 'published'
-    );
+    )
+    ON CONFLICT DO NOTHING;
 END $$;
 
 COMMIT;
