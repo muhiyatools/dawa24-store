@@ -51,47 +51,8 @@ func (r *Repository) DeleteOrganization(ctx context.Context, id int64) error {
 	})
 }
 
-// UpdateBranch updates branch information.
-func (r *Repository) UpdateBranch(ctx context.Context, b *org.Branch) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			UPDATE org.branches
-			SET name = COALESCE($1, '{"ar":"الفرع","en":"Branch"}'::jsonb),
-			    -- code is uniquely indexed, so an empty one must stay NULL:
-			    -- NULLs do not collide but empty strings do.
-			    code = NULLIF($2, ''), phone = $3, address = $4,
-			    city_id = $5, is_main = $6, updated_at = now()
-			WHERE id = $7 AND organization_id = $8;
-		`
-		tag, err := tx.Exec(txCtx, query,
-			b.Name, b.Code, b.Phone, b.Address,
-			b.CityID, b.IsMain, b.ID, b.OrganizationID,
-		)
-		if err != nil {
-			return err
-		}
-		if tag.RowsAffected() == 0 {
-			return apperr.NotFound("branch")
-		}
-		return nil
-	})
-}
-
-// DeleteBranch removes a branch.
-func (r *Repository) DeleteBranch(ctx context.Context, id, orgID int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		tag, err := tx.Exec(txCtx, `DELETE FROM org.branches WHERE id = $1 AND organization_id = $2;`, id, orgID)
-		if err != nil {
-			return err
-		}
-		if tag.RowsAffected() == 0 {
-			return apperr.NotFound("branch")
-		}
-		return nil
-	})
-}
-
 // UpdateMemberRole changes a member's role in the organization.
+
 func (r *Repository) UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		tag, err := tx.Exec(txCtx, `UPDATE org.members SET role_key = $1 WHERE organization_id = $2 AND user_id = $3;`, role, orgID, userID)
