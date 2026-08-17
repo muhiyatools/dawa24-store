@@ -20,7 +20,7 @@ templ Stepper(props StepperProps) {
 			<li class={ "stepper-step", templ.KV("active", i == props.Current), templ.KV("done", i < props.Current) }>
 				<span class="stepper-bubble">
 					if i < props.Current {
-						✓
+						@IconCheck("icon-xs")
 					} else {
 						{ fmt.Sprintf("%d", i+1) }
 					}

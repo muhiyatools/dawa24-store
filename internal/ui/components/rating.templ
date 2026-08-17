@@ -2,34 +2,21 @@ package components
 
 import (
 	"fmt"
-	"strings"
 )
 
-// Rating renders a read-only star rating. Value is a number 0-5 with an
-// optional half star.
+// Rating renders a read-only star rating. Value is a number 0-5.
 templ Rating(value float64) {
-	<span style="color:var(--warning); letter-spacing:0.1em;" aria-label={ fmt.Sprintf("التقييم %.1f من 5", value) }>
-		{ stars(value) }
-	</span>
-}
-
-func stars(v float64) string {
-	if v < 0 {
-		v = 0
-	}
-	if v > 5 {
-		v = 5
-	}
-	full := int(v)
-	half := v-float64(full) >= 0.5
-	out := strings.Repeat("★", full)
-	if half {
-		out += "½"
-	}
-	remaining := 5 - full
-	if half {
-		remaining--
-	}
-	out += strings.Repeat("☆", remaining)
-	return out
+	<div style="display:inline-flex; align-items:center; gap:2px; color:var(--warning);" aria-label={ fmt.Sprintf("التقييم %.1f من 5", value) }>
+		for i := 1; i <= 5; i++ {
+			if float64(i) <= value {
+				<svg class="icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+				</svg>
+			} else {
+				<svg class="icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.35;">
+					<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+				</svg>
+			}
+		}
+	</div>
 }
