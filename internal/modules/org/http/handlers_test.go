@@ -141,6 +141,11 @@ func (r stubRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*o
 	return nil, nil
 }
 
+func (r stubRepo) ReviewOrganization(ctx context.Context, id int64, status org.OrganizationStatus, notes, rejectionReason string, adminID int64) error {
+	r.fail("ReviewOrganization")
+	return nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) CreateOrganization(ctx context.Context, o *org.Organization) error {
@@ -151,6 +156,9 @@ func (happyRepo) GetOrganizationByID(ctx context.Context, id int64) (*org.Organi
 	return &org.Organization{ID: id, LegalName: "Al-Amal Pharmacy", CommercialRegister: "CR-101", Type: org.TypePharmacy, Status: org.StatusApproved}, nil
 }
 func (happyRepo) UpdateOrganizationStatus(ctx context.Context, id int64, status org.OrganizationStatus) error {
+	return nil
+}
+func (happyRepo) ReviewOrganization(ctx context.Context, id int64, status org.OrganizationStatus, notes, rejectionReason string, adminID int64) error {
 	return nil
 }
 func (happyRepo) UpdateOrganization(ctx context.Context, o *org.Organization) error {

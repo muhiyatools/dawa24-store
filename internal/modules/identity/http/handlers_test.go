@@ -115,6 +115,10 @@ func (r stubRepo) AdminAssignRole(context.Context, int64, string, int64) error {
 	r.fail("AdminAssignRole")
 	return nil
 }
+func (r stubRepo) ListUserOrganizations(context.Context, int64) ([]*identity.UserOrgMembership, error) {
+	r.fail("ListUserOrganizations")
+	return nil, nil
+}
 
 type happyRepo struct{}
 
@@ -139,10 +143,21 @@ func (happyRepo) GetUserByEmail(ctx context.Context, email string) (*identity.Us
 		Name:         i18n.Text{"en": "User"},
 		Status:       identity.StatusActive,
 		Role:         "customer",
+		Language:     "en",
 		PasswordHash: "$2a$10$abcdefghijklmnopqrstuu",
 	}, nil
 }
-func (happyRepo) UpdateUser(ctx context.Context, u *identity.User) error { return nil }
+func (happyRepo) UpdateUser(ctx context.Context, u *identity.User) error {
+	return nil
+}
+func (happyRepo) RegisterOrganization(ctx context.Context, u *identity.User, org identity.RegisterOrgInput) (*identity.RegisterOrgResult, error) {
+	u.ID = 1
+	return &identity.RegisterOrgResult{
+		OrganizationID:     1,
+		OrganizationType:   org.Type,
+		OrganizationStatus: "pending",
+	}, nil
+}
 func (happyRepo) GetSecurity(ctx context.Context, id int64) (*identity.UserSecurity, error) {
 	return &identity.UserSecurity{UserID: id}, nil
 }
@@ -172,8 +187,13 @@ func (happyRepo) ListAddresses(ctx context.Context, userID int64) ([]*identity.U
 }
 func (happyRepo) UpdateAddress(ctx context.Context, a *identity.UserAddress) error { return nil }
 func (happyRepo) DeleteAddress(ctx context.Context, id, userID int64) error        { return nil }
-func (happyRepo) AddFavorite(ctx context.Context, userID, productID int64) error   { return nil }
-func (happyRepo) RemoveFavorite(ctx context.Context, userID, productID int64) error {
+func (happyRepo) ListAddressHistory(ctx context.Context, userID int64, limit int) ([]*identity.UserAddressHistory, error) {
+	return nil, nil
+}
+func (happyRepo) AddFavorite(ctx context.Context, userID, variantID int64) error {
+	return nil
+}
+func (happyRepo) RemoveFavorite(ctx context.Context, userID, variantID int64) error {
 	return nil
 }
 func (happyRepo) ListFavorites(ctx context.Context, userID int64) ([]int64, error) {
@@ -182,6 +202,26 @@ func (happyRepo) ListFavorites(ctx context.Context, userID int64) ([]int64, erro
 func (happyRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
 	return []*identity.User{{ID: 1, Email: "user@example.com"}}, nil
 }
+func (happyRepo) AdminCountUsers(ctx context.Context) (int, error) {
+	return 1, nil
+}
+func (happyRepo) DefaultOrgForUser(ctx context.Context, userID int64) (int64, error) {
+	return 1, nil
+}
+func (happyRepo) DefaultOrgInfoForUser(ctx context.Context, userID int64) (orgID int64, orgType, orgStatus string, err error) {
+	return 1, "pharmacy", "approved", nil
+}
+func (happyRepo) ListUserOrganizations(ctx context.Context, userID int64) ([]*identity.UserOrgMembership, error) {
+	return []*identity.UserOrgMembership{
+		{
+			OrganizationID: 1,
+			OrgName:        i18n.Text{"ar": "Test Org"},
+			OrgType:        "pharmacy",
+			OrgStatus:      "approved",
+			RoleKey:        "owner",
+		},
+	}, nil
+}
 func (happyRepo) AdminUpdateUserStatus(ctx context.Context, userID int64, status string, actorID int64) error {
 	return nil
 }
@@ -189,6 +229,21 @@ func (happyRepo) AdminResetMFA(ctx context.Context, userID int64, actorID int64)
 	return nil
 }
 func (happyRepo) AdminAssignRole(ctx context.Context, userID int64, role string, actorID int64) error {
+	return nil
+}
+func (happyRepo) GetPreferences(ctx context.Context, userID int64) (*identity.UserPreferences, error) {
+	return &identity.UserPreferences{UserID: userID}, nil
+}
+func (happyRepo) UpdatePreferences(ctx context.Context, p *identity.UserPreferences) error {
+	return nil
+}
+func (happyRepo) ListSessionPlans(ctx context.Context) ([]*identity.SessionPlan, error) {
+	return nil, nil
+}
+func (happyRepo) GetSessionPlanByID(ctx context.Context, id int64) (*identity.SessionPlan, error) {
+	return nil, nil
+}
+func (happyRepo) SetMaxLoginSessions(ctx context.Context, userID int64, max int) error {
 	return nil
 }
 
@@ -389,22 +444,14 @@ func (r stubRepo) AdminCountUsers(_ context.Context) (int, error) {
 	return 0, nil
 }
 
-func (happyRepo) AdminCountUsers(_ context.Context) (int, error) { return 3, nil }
-
 func (r stubRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) {
 	r.fail("DefaultOrgForUser")
 	return 0, nil
 }
 
-func (happyRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) { return 1, nil }
-
 func (r stubRepo) DefaultOrgInfoForUser(_ context.Context, _ int64) (int64, string, string, error) {
 	r.fail("DefaultOrgInfoForUser")
 	return 0, "", "", nil
-}
-
-func (happyRepo) DefaultOrgInfoForUser(_ context.Context, _ int64) (int64, string, string, error) {
-	return 1, "pharmacy", "approved", nil
 }
 
 func (r stubRepo) RegisterOrganization(_ context.Context, _ *identity.User, _ identity.RegisterOrgInput) (*identity.RegisterOrgResult, error) {
@@ -412,17 +459,9 @@ func (r stubRepo) RegisterOrganization(_ context.Context, _ *identity.User, _ id
 	return nil, nil
 }
 
-func (happyRepo) RegisterOrganization(_ context.Context, _ *identity.User, _ identity.RegisterOrgInput) (*identity.RegisterOrgResult, error) {
-	return &identity.RegisterOrgResult{OrganizationID: 1, OrganizationType: "pharmacy", OrganizationStatus: "approved"}, nil
-}
-
 func (r stubRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*identity.UserAddressHistory, error) {
 	r.fail("ListAddressHistory")
 	return nil, nil
-}
-
-func (happyRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*identity.UserAddressHistory, error) {
-	return []*identity.UserAddressHistory{}, nil
 }
 
 func (r stubRepo) GetPreferences(_ context.Context, _ int64) (*identity.UserPreferences, error) {
@@ -432,14 +471,6 @@ func (r stubRepo) GetPreferences(_ context.Context, _ int64) (*identity.UserPref
 
 func (r stubRepo) UpdatePreferences(_ context.Context, _ *identity.UserPreferences) error {
 	r.fail("UpdatePreferences")
-	return nil
-}
-
-func (happyRepo) GetPreferences(_ context.Context, _ int64) (*identity.UserPreferences, error) {
-	return &identity.UserPreferences{Theme: "light"}, nil
-}
-
-func (happyRepo) UpdatePreferences(_ context.Context, _ *identity.UserPreferences) error {
 	return nil
 }
 
@@ -455,17 +486,5 @@ func (r stubRepo) GetSessionPlanByID(_ context.Context, _ int64) (*identity.Sess
 
 func (r stubRepo) SetMaxLoginSessions(_ context.Context, _ int64, _ int) error {
 	r.fail("SetMaxLoginSessions")
-	return nil
-}
-
-func (happyRepo) ListSessionPlans(_ context.Context) ([]*identity.SessionPlan, error) {
-	return []*identity.SessionPlan{{ID: 1, MaxLoginSessions: 1, IsFree: true}}, nil
-}
-
-func (happyRepo) GetSessionPlanByID(_ context.Context, _ int64) (*identity.SessionPlan, error) {
-	return &identity.SessionPlan{ID: 1, MaxLoginSessions: 1}, nil
-}
-
-func (happyRepo) SetMaxLoginSessions(_ context.Context, _ int64, _ int) error {
 	return nil
 }

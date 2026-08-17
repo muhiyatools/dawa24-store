@@ -55,6 +55,17 @@ func (m *mockOrgRepo) UpdateOrganizationStatus(_ context.Context, id int64, stat
 	return nil
 }
 
+func (m *mockOrgRepo) ReviewOrganization(_ context.Context, id int64, status OrganizationStatus, notes, rejectionReason string, adminID int64) error {
+	o, ok := m.orgs[id]
+	if ok {
+		o.Status = status
+		o.VerificationNotes = notes
+		o.RejectionReason = rejectionReason
+		o.ApprovedBy = &adminID
+	}
+	return nil
+}
+
 func (m *mockOrgRepo) UpdateOrganization(_ context.Context, o *Organization) error {
 	m.orgs[o.ID] = o
 	return nil

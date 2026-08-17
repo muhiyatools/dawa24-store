@@ -208,6 +208,14 @@ templ CustomerShell(title string, lang string, dir string) {
 
 							<div class="dropdown-divider"></div>
 
+							<!-- Theme Selector (Light / Dark / System) -->
+							<div style="padding:0.4rem 0.6rem;">
+								<div style="font-size:0.75rem; font-weight:700; color:var(--neutral-500); margin-bottom:0.35rem;">مظهر المنصة:</div>
+								@components.ThemeToggle()
+							</div>
+
+							<div class="dropdown-divider"></div>
+
 							<!-- 7. Logout -->
 							<form action="/auth/logout" method="POST" style="margin:0;">
 								<button type="submit" class="dropdown-item" style="color:var(--danger) !important; font-weight:800;">

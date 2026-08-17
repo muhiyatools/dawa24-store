@@ -37,7 +37,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 7. Animated Sidebar Toggle
   initSidebarToggle();
+
+  // 8. Theme System (Light / Dark / System Auto)
+  initThemeSystem();
 });
+
+// Theme Management System
+function initThemeSystem() {
+  const currentTheme = localStorage.getItem('dawa24-theme') || 'system';
+  applyTheme(currentTheme, false);
+
+  document.addEventListener('click', (e) => {
+    const themeBtn = e.target.closest('[data-set-theme]');
+    if (themeBtn) {
+      e.preventDefault();
+      const theme = themeBtn.getAttribute('data-set-theme');
+      applyTheme(theme, true);
+    }
+  });
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if ((localStorage.getItem('dawa24-theme') || 'system') === 'system') {
+        applyTheme('system', false);
+      }
+    });
+  }
+}
+
+function applyTheme(theme, save = true) {
+  let effectiveTheme = theme;
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    effectiveTheme = prefersDark ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', effectiveTheme);
+  if (save) {
+    localStorage.setItem('dawa24-theme', theme);
+  }
+
+  // Update UI active buttons
+  document.querySelectorAll('[data-set-theme]').forEach((btn) => {
+    const btnTheme = btn.getAttribute('data-set-theme');
+    if (btnTheme === theme) {
+      btn.style.background = 'var(--primary-100)';
+      btn.style.color = 'var(--primary-700)';
+      btn.style.borderColor = 'var(--primary-600)';
+      btn.style.fontWeight = '800';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--neutral-600)';
+      btn.style.borderColor = 'var(--neutral-200)';
+      btn.style.fontWeight = '500';
+    }
+  });
+}
 
 // Universal Modal & Dialog Manager
 function initModalManager() {
@@ -196,10 +250,9 @@ function initRegistrationStepper() {
 
       // Update badge label
       if (badgeLabel) {
-        if (type === 'supplier') badgeLabel.textContent = 'نوع الحساب: مورّد أدوية ومستودع';
-        else if (type === 'chain_pharmacy') badgeLabel.textContent = 'نوع الحساب: مجموعة وسلسلة صيدليات';
+        if (type === 'supplier') badgeLabel.textContent = 'نوع الحساب: مورّد / شركة ومستودع أدوية';
         else if (type === 'individual') badgeLabel.textContent = 'نوع الحساب: حساب مهني فردي (صيدلي / باحث عن عمل)';
-        else badgeLabel.textContent = 'نوع الحساب: صيدلية مرخصة';
+        else badgeLabel.textContent = 'نوع الحساب: صيدلية / منشأة طبية مرخصة';
       }
 
       // Conditionally show/hide type specific fields

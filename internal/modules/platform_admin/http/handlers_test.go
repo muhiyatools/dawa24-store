@@ -108,6 +108,27 @@ func (r stubRepo) ListAuditLog(context.Context, int, int) ([]*platformadmin.Audi
 	return nil, nil
 }
 
+func (r stubRepo) ListPolicyVersions(ctx context.Context, key string) ([]*platformadmin.Policy, error) {
+	r.fail("ListPolicyVersions")
+	return nil, nil
+}
+func (r stubRepo) GetPolicyVersion(ctx context.Context, key, version string) (*platformadmin.Policy, error) {
+	r.fail("GetPolicyVersion")
+	return nil, nil
+}
+func (r stubRepo) GetActivePolicy(ctx context.Context, key string) (*platformadmin.Policy, error) {
+	r.fail("GetActivePolicy")
+	return nil, nil
+}
+func (r stubRepo) CreatePolicyVersion(ctx context.Context, p *platformadmin.Policy) error {
+	r.fail("CreatePolicyVersion")
+	return nil
+}
+func (r stubRepo) PublishPolicyVersion(ctx context.Context, id int64) error {
+	r.fail("PublishPolicyVersion")
+	return nil
+}
+
 func (r stubRepo) QueueStats(context.Context) (map[string]int, error) {
 	r.fail("QueueStats")
 	return nil, nil
@@ -142,6 +163,24 @@ func (happyRepo) CreateContactMessage(ctx context.Context, m *platformadmin.Cont
 }
 func (happyRepo) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, error) {
 	return []*platformadmin.ContactMessage{{ID: 1, Name: "User", Email: "u@example.com", Message: "Help"}}, nil
+}
+func (happyRepo) MarkContactMessageRead(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) ListPolicyVersions(ctx context.Context, key string) ([]*platformadmin.Policy, error) {
+	return nil, nil
+}
+func (happyRepo) GetPolicyVersion(ctx context.Context, key, version string) (*platformadmin.Policy, error) {
+	return nil, nil
+}
+func (happyRepo) GetActivePolicy(ctx context.Context, key string) (*platformadmin.Policy, error) {
+	return nil, nil
+}
+func (happyRepo) CreatePolicyVersion(ctx context.Context, p *platformadmin.Policy) error {
+	return nil
+}
+func (happyRepo) PublishPolicyVersion(ctx context.Context, id int64) error {
+	return nil
 }
 
 func (happyRepo) ListContentBlocks(ctx context.Context) ([]*platformadmin.ContentBlock, error) {

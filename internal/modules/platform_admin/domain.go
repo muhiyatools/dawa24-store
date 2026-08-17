@@ -160,3 +160,19 @@ type AuditEntry struct {
 	After          map[string]any `json:"after,omitempty"`
 	CreatedAt      time.Time      `json:"created_at"`
 }
+
+// Policy represents a versioned platform policy document (Terms, Privacy, Refund, etc.).
+type Policy struct {
+	ID          int64      `json:"id"`
+	PolicyKey   string     `json:"policy_key"`
+	Version     string     `json:"version"`
+	Title       i18n.Text  `json:"title"`
+	Content     i18n.Text  `json:"content"`
+	Summary     i18n.Text  `json:"summary"`
+	IsPublished bool       `json:"is_published"`
+	PublishedAt *time.Time `json:"published_at,omitempty"`
+	CreatedBy   *int64     `json:"created_by,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+}
+

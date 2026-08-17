@@ -322,6 +322,10 @@ func (m *mockRepo) DefaultOrgInfoForUser(_ context.Context, _ int64) (int64, str
 	return 0, "", "", nil
 }
 
+func (m *mockRepo) ListUserOrganizations(_ context.Context, _ int64) ([]*UserOrgMembership, error) {
+	return nil, nil
+}
+
 func (m *mockRepo) RegisterOrganization(_ context.Context, _ *User, _ RegisterOrgInput) (*RegisterOrgResult, error) {
 	return &RegisterOrgResult{}, nil
 }

@@ -79,11 +79,11 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 		}
 
 		var status string
-		err = tx.QueryRow(txCtx, `INSERT INTO org.organizations (name, legal_name, trade_name, tax_number, commercial_register, type, status, pharmacist_license, branch_count, owner_id)`+
-			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), $4, $5, $6, NULLIF($7, ''), $8, $9)`+
+		err = tx.QueryRow(txCtx, `INSERT INTO org.organizations (name, legal_name, trade_name, tax_number, commercial_register, type, status, pharmacist_license, license_document_url, branch_count, owner_id)`+
+			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), $4, $5, $6, NULLIF($7, ''), $8, $9, $10)`+
 			`RETURNING id, public_id, type, status;`,
 			orgIn.LegalName, tradeName, orgIn.TaxNumber, cr,
-			orgIn.Type, orgStatus, orgIn.PharmacistLicense, orgIn.BranchCount, u.ID,
+			orgIn.Type, orgStatus, orgIn.PharmacistLicense, orgIn.LicenseDocumentURL, orgIn.BranchCount, u.ID,
 		).Scan(&result.OrganizationID, &result.OrganizationPublicID, &result.OrganizationType, &status)
 		if err != nil {
 			if database.IsUniqueViolation(err) {

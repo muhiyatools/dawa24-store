@@ -7,6 +7,14 @@ templ Base(title string, lang string, dir string) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>دواء 24</title>
+			<script>
+				(function() {
+					var t = localStorage.getItem('dawa24-theme') || 'system';
+					var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+					if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
+					else document.documentElement.setAttribute('data-theme', 'light');
+				})();
+			</script>
 			<link rel="icon" type="image/png" href="/static/img/logo.png"/>
 			<link rel="shortcut icon" type="image/png" href="/static/img/logo.png"/>
 			<link rel="apple-touch-icon" href="/static/img/logo.png"/>

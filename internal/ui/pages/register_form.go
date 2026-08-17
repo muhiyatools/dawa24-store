@@ -20,6 +20,7 @@ type RegisterFormData struct {
 	CommercialRegister string
 	TaxNumber          string
 	PharmacistLicense  string
+	LicenseDocumentURL string
 	CityID             string
 	BranchCount        string
 	Error              string

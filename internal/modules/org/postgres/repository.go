@@ -50,6 +50,9 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, legal_name, trade_name, tax_number, commercial_register,
+			       COALESCE(pharmacist_license, ''), COALESCE(license_document_url, ''),
+			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
+			       COALESCE(owner_id, 0), approved_at, approved_by,
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
 			FROM org.organizations
 			WHERE id = $1;
@@ -57,6 +60,8 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 		var typeStr, statusStr string
 		err := tx.QueryRow(txCtx, query, id).Scan(
 			&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
+			&o.PharmacistLicense, &o.LicenseDocumentURL, &o.VerificationNotes, &o.RejectionReason,
+			&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
 			&typeStr, &statusStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
 		)
 		if err != nil {
@@ -90,6 +95,36 @@ func (r *Repository) UpdateOrganizationStatus(ctx context.Context, id int64, sta
 	})
 }
 
+// ReviewOrganization updates the approval status, admin notes, rejection reason, and audit info.
+func (r *Repository) ReviewOrganization(ctx context.Context, id int64, status org.OrganizationStatus, notes, rejectionReason string, adminID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var approvedAt *string
+		var adminPtr *int64
+		if adminID > 0 {
+			adminPtr = &adminID
+		}
+		query := `
+			UPDATE org.organizations 
+			SET status = $1, 
+			    verification_notes = $2, 
+			    rejection_reason = $3,
+			    approved_at = CASE WHEN $1 = 'approved' THEN NOW() ELSE approved_at END,
+			    approved_by = CASE WHEN $1 = 'approved' THEN $4 ELSE approved_by END,
+			    updated_at = NOW()
+			WHERE id = $5;
+		`
+		_ = approvedAt
+		tag, err := tx.Exec(txCtx, query, string(status), notes, rejectionReason, adminPtr, id)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("organization")
+		}
+		return nil
+	})
+}
+
 // ListOrganizations returns filtered organizations.
 func (r *Repository) ListOrganizations(
 	ctx context.Context,
@@ -101,6 +136,9 @@ func (r *Repository) ListOrganizations(
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, legal_name, trade_name, tax_number, commercial_register,
+			       COALESCE(pharmacist_license, ''), COALESCE(license_document_url, ''),
+			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
+			       COALESCE(owner_id, 0), approved_at, approved_by,
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
 			FROM org.organizations
 			WHERE ($1::text IS NULL OR type = $1)
@@ -131,6 +169,8 @@ func (r *Repository) ListOrganizations(
 			var tStr, sStr string
 			if err := rows.Scan(
 				&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
+				&o.PharmacistLicense, &o.LicenseDocumentURL, &o.VerificationNotes, &o.RejectionReason,
+				&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
 				&tStr, &sStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
 			); err != nil {
 				return err

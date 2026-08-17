@@ -9,6 +9,7 @@ type Repository interface {
 	CreateOrganization(ctx context.Context, o *Organization) error
 	GetOrganizationByID(ctx context.Context, id int64) (*Organization, error)
 	UpdateOrganizationStatus(ctx context.Context, id int64, status OrganizationStatus) error
+	ReviewOrganization(ctx context.Context, id int64, status OrganizationStatus, notes, rejectionReason string, adminID int64) error
 	UpdateOrganization(ctx context.Context, o *Organization) error
 	DeleteOrganization(ctx context.Context, id int64) error
 	ListOrganizations(ctx context.Context, orgType *OrganizationType, status *OrganizationStatus, limit, offset int) ([]*Organization, error)

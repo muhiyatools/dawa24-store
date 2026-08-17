@@ -236,3 +236,123 @@ func (r *Repository) ListContactMessages(ctx context.Context, status string, lim
 	})
 	return list, err
 }
+
+// ListPolicyVersions returns all versions for a policy key.
+func (r *Repository) ListPolicyVersions(ctx context.Context, policyKey string) ([]*platformadmin.Policy, error) {
+	var list []*platformadmin.Policy
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, policy_key, version, title, content, summary, is_published, published_at, created_by, created_at, updated_at
+			FROM platform_admin.policies
+			WHERE ($1 = '' OR policy_key = $1)
+			ORDER BY policy_key ASC, version DESC, created_at DESC;
+		`
+		rows, err := tx.Query(txCtx, query, policyKey)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var p platformadmin.Policy
+			if err := rows.Scan(
+				&p.ID, &p.PolicyKey, &p.Version, &p.Title, &p.Content, &p.Summary,
+				&p.IsPublished, &p.PublishedAt, &p.CreatedBy, &p.CreatedAt, &p.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &p)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// GetPolicyVersion gets a specific version of a policy.
+func (r *Repository) GetPolicyVersion(ctx context.Context, policyKey, version string) (*platformadmin.Policy, error) {
+	var p platformadmin.Policy
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, policy_key, version, title, content, summary, is_published, published_at, created_by, created_at, updated_at
+			FROM platform_admin.policies
+			WHERE policy_key = $1 AND version = $2;
+		`
+		return tx.QueryRow(txCtx, query, policyKey, version).Scan(
+			&p.ID, &p.PolicyKey, &p.Version, &p.Title, &p.Content, &p.Summary,
+			&p.IsPublished, &p.PublishedAt, &p.CreatedBy, &p.CreatedAt, &p.UpdatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("policy")
+		}
+		return nil, err
+	}
+	return &p, nil
+}
+
+// GetActivePolicy gets the currently published version of a policy.
+func (r *Repository) GetActivePolicy(ctx context.Context, policyKey string) (*platformadmin.Policy, error) {
+	var p platformadmin.Policy
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, policy_key, version, title, content, summary, is_published, published_at, created_by, created_at, updated_at
+			FROM platform_admin.policies
+			WHERE policy_key = $1 AND is_published = true
+			ORDER BY published_at DESC NULLS LAST, created_at DESC
+			LIMIT 1;
+		`
+		return tx.QueryRow(txCtx, query, policyKey).Scan(
+			&p.ID, &p.PolicyKey, &p.Version, &p.Title, &p.Content, &p.Summary,
+			&p.IsPublished, &p.PublishedAt, &p.CreatedBy, &p.CreatedAt, &p.UpdatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("policy")
+		}
+		return nil, err
+	}
+	return &p, nil
+}
+
+// CreatePolicyVersion inserts a new draft policy version.
+func (r *Repository) CreatePolicyVersion(ctx context.Context, p *platformadmin.Policy) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO platform_admin.policies (
+				policy_key, version, title, content, summary, is_published, published_at, created_by
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			RETURNING id, created_at, updated_at;
+		`
+		return tx.QueryRow(txCtx, query,
+			p.PolicyKey, p.Version, p.Title, p.Content, p.Summary, p.IsPublished, p.PublishedAt, p.CreatedBy,
+		).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
+	})
+}
+
+// PublishPolicyVersion sets this version as published and unpublishes earlier versions.
+func (r *Repository) PublishPolicyVersion(ctx context.Context, id int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var policyKey string
+		err := tx.QueryRow(txCtx, `SELECT policy_key FROM platform_admin.policies WHERE id = $1;`, id).Scan(&policyKey)
+		if err != nil {
+			return err
+		}
+
+		// Unpublish previous versions
+		_, err = tx.Exec(txCtx, `UPDATE platform_admin.policies SET is_published = false WHERE policy_key = $1;`, policyKey)
+		if err != nil {
+			return err
+		}
+
+		// Publish current version
+		_, err = tx.Exec(txCtx, `
+			UPDATE platform_admin.policies 
+			SET is_published = true, published_at = NOW(), updated_at = NOW() 
+			WHERE id = $1;
+		`, id)
+		return err
+	})
+}
+

@@ -4,43 +4,136 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminOrganizations(lang, dir string, orgs []*org.Organization) {
-	@layouts.AdminShell("المؤسسات | Organizations", "organizations", lang, dir) {
-		<div class="card">
-			<h2 class="card-title" style="margin:0 0 0.75rem;">المؤسسات</h2>
+templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organization) {
+	@layouts.AdminShell("دليل وإدارة المنشآت المسجلة", "organizations", lang, dir) {
+		<div class="card" style="margin-bottom:0; overflow:visible;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:0.6rem;">
+					@components.IconBuilding("icon-md")
+					<div>
+						<h2 class="card-title" style="margin:0;">
+							إدارة الموردين والشركات والصيدليات ({ fmt.Sprintf("%d", len(orgs)) })
+						</h2>
+						<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
+							متابعة سجلات التوريد، التراخيص الدوائية، وإدارة نشاط الحسابات المؤسسية على المنصة.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Organization Type Tabs -->
+			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; border-bottom:1px solid var(--neutral-200); padding-bottom:1rem;">
+				<a href="/admin/organizations" class={ "btn btn-sm", templ.KV("btn-primary", currentType == ""), templ.KV("btn-secondary", currentType != "") }>
+					<span>كافة المنشآت ({ fmt.Sprintf("%d", len(orgs)) })</span>
+				</a>
+				<a href="/admin/organizations?type=supplier" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "supplier" || currentType == "vendor"), templ.KV("btn-secondary", currentType != "supplier" && currentType != "vendor") }>
+					<span>الموردون وشركات الأدوية (Suppliers / Vendors)</span>
+				</a>
+				<a href="/admin/organizations?type=pharmacy" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "pharmacy"), templ.KV("btn-secondary", currentType != "pharmacy") }>
+					<span>الصيدليات والمراكز الطبية (Pharmacies)</span>
+				</a>
+				<a href="/admin/organizations?type=individual" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "individual"), templ.KV("btn-secondary", currentType != "individual") }>
+					<span>الحسابات المهنية الفردية (Professionals)</span>
+				</a>
+			</div>
+
 			if len(orgs) == 0 {
-				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد مؤسسات.</p>
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد منشآت مطابقة للنوع المحدد",
+					Message: "لم يتم العثور على منشآت مسجلة في هذا القسم حالياً.",
+				})
 			} else {
-				<div class="table-container">
+				<div class="table-container" style="overflow:visible;">
 					<table class="data-table">
-						<thead><tr><th>الاسم التجاري</th><th>النوع</th><th>السجل التجاري</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+						<thead>
+							<tr>
+								<th>الاسم والبيانات التجارية</th>
+								<th>نوع المنشأة</th>
+								<th>السجل والبطاقة الضريبية</th>
+								<th>ترخيص هيئة الدواء</th>
+								<th>مستند الترخيص</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
 						<tbody>
 							for _, o := range orgs {
 								<tr>
-									<td>{ o.TradeName.Get(i18n.Lang(lang)) }</td>
-									<td>{ OrgTypeLabel(o.Type) }</td>
-									<td class="tabular-nums">{ o.CommercialRegister }</td>
-									<td><span class="badge badge-amber">{ o.Status }</span></td>
-									<td style="display:flex; gap:0.4rem;">
-										if o.Status == "pending" || o.Status == "rejected" {
-											<form method="POST" action={ fmt.Sprintf("/admin/organizations/%d/approve", o.ID) } style="margin:0;">
-												<button type="submit" class="btn btn-primary btn-sm">اعتماد</button>
-											</form>
+									<td>
+										<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">{ o.LegalName }</div>
+										<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;">
+											if o.TradeName["ar"] != "" {
+												{ o.TradeName["ar"] }
+											} else {
+												{ o.TradeName["en"] }
+											}
+										</div>
+									</td>
+									<td>
+										if string(o.Type) == "supplier" || string(o.Type) == "vendor" {
+											<span class="badge badge-sky">مورد / شركة أدوية</span>
+										} else if string(o.Type) == "individual" {
+											<span class="badge badge-purple">حساب مهني فردي</span>
+										} else {
+											<span class="badge badge-emerald">صيدلية مرخصة</span>
 										}
-										if o.Status == "pending" {
-											<form method="POST" action={ fmt.Sprintf("/admin/organizations/%d/reject", o.ID) } style="margin:0;">
-												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">رفض</button>
-											</form>
+									</td>
+									<td>
+										<div style="font-size:0.85rem;"><span style="color:var(--neutral-500);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
+										if o.TaxNumber != "" {
+											<div style="font-size:0.8rem; color:var(--neutral-600);"><span style="color:var(--neutral-500);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
 										}
-										if o.Status == "approved" {
-											<form method="POST" action={ fmt.Sprintf("/admin/organizations/%d/suspend", o.ID) } style="margin:0;">
-												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">إيقاف</button>
-											</form>
+									</td>
+									<td>
+										if o.PharmacistLicense != "" {
+											<span class="tabular-nums" style="font-weight:700; color:var(--primary-700); font-size:0.875rem;">{ o.PharmacistLicense }</span>
+										} else {
+											<span style="color:var(--neutral-400); font-size:0.8rem;">—</span>
 										}
+									</td>
+									<td>
+										if o.LicenseDocumentURL != "" {
+											<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.3rem;">
+												@components.IconFile("icon-xs")
+												<span>معاينة</span>
+											</a>
+										} else {
+											<span class="badge badge-slate" style="font-size:0.75rem;">غير مرفق</span>
+										}
+									</td>
+									<td>
+										if string(o.Status) == "approved" {
+											<span class="badge badge-emerald">معتمد ونشط</span>
+										} else if string(o.Status) == "rejected" {
+											<span class="badge badge-danger">مرفوض</span>
+										} else if string(o.Status) == "suspended" {
+											<span class="badge badge-warning">معلق مؤقتاً</span>
+										} else {
+											<span class="badge badge-sky">قيد التدقيق</span>
+										}
+									</td>
+									<td style="text-align:end;">
+										<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
+											if o.Status == "pending" || o.Status == "rejected" {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", o.ID)) } style="margin:0;">
+													<button type="submit" class="btn btn-primary btn-sm">اعتماد</button>
+												</form>
+											}
+											if o.Status == "approved" {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", o.ID)) } style="margin:0;">
+													<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">إيقاف</button>
+												</form>
+											}
+											if o.Status == "suspended" {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", o.ID)) } style="margin:0;">
+													<button type="submit" class="btn btn-primary btn-sm">إعادة تفعيل</button>
+												</form>
+											}
+										</div>
 									</td>
 								</tr>
 							}

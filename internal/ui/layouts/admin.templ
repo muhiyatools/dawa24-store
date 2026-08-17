@@ -60,7 +60,10 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 						<h1 style="font-size:1.2rem; font-weight:800; color:var(--neutral-900); margin:0;">{ title }</h1>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:1.25rem;">
+					<div style="display:flex; align-items:center; gap:1rem;">
+						<div style="width:190px;">
+							@components.ThemeToggle()
+						</div>
 						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--success); background:var(--success-bg); padding:0.3rem 0.75rem; border-radius:var(--radius-full); border:1px solid var(--success-border); font-weight:700;">
 							<span style="width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block;"></span>
 							<span>الأنظمة متصلة ومستقرة</span>

@@ -30,4 +30,10 @@ type Repository interface {
 	UpsertTranslation(ctx context.Context, t *Translation) error
 	ListAuditLog(ctx context.Context, limit, offset int) ([]*AuditEntry, error)
 	QueueStats(ctx context.Context) (map[string]int, error)
+
+	ListPolicyVersions(ctx context.Context, policyKey string) ([]*Policy, error)
+	GetPolicyVersion(ctx context.Context, policyKey, version string) (*Policy, error)
+	GetActivePolicy(ctx context.Context, policyKey string) (*Policy, error)
+	CreatePolicyVersion(ctx context.Context, p *Policy) error
+	PublishPolicyVersion(ctx context.Context, id int64) error
 }

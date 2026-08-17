@@ -60,6 +60,16 @@ type User struct {
 	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
 }
 
+// UserOrgMembership represents an organization context the user belongs to.
+type UserOrgMembership struct {
+	OrganizationID int64     `json:"organization_id"`
+	OrgName        i18n.Text `json:"org_name"`
+	OrgType        string    `json:"org_type"`
+	OrgStatus      string    `json:"org_status"`
+	RoleKey        string    `json:"role_key"`
+	IsActive       bool      `json:"is_active"`
+}
+
 // UserSecurity tracks login security, attempts, and lockouts.
 type UserSecurity struct {
 	UserID              int64      `json:"user_id"`
@@ -242,6 +252,7 @@ type RegisterOrgInput struct {
 	CommercialRegister string `json:"commercial_register"`
 	TaxNumber          string `json:"tax_number,omitempty"`
 	PharmacistLicense  string `json:"pharmacist_license,omitempty"`
+	LicenseDocumentURL string `json:"license_document_url,omitempty"`
 	CityID             *int64 `json:"city_id,omitempty"`
 	BranchCount        *int   `json:"branch_count,omitempty"`
 }

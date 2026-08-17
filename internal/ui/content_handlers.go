@@ -64,9 +64,12 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 
 	title, body := fallbackTitle, ""
 	if h.adminSvc != nil {
-		if p, err := h.adminSvc.GetPublishedPolicy(ctx, slug); err == nil && p != nil {
+		if p, err := h.adminSvc.GetActivePolicy(ctx, slug); err == nil && p != nil {
 			title = p.Title.Get(i18n.Lang(lang))
 			body = p.Content.Get(i18n.Lang(lang))
+		} else if oldP, err := h.adminSvc.GetPublishedPolicy(ctx, slug); err == nil && oldP != nil {
+			title = oldP.Title.Get(i18n.Lang(lang))
+			body = oldP.Content.Get(i18n.Lang(lang))
 		}
 	}
 

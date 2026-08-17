@@ -3,24 +3,93 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/hr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminJobs(lang, dir string, stats map[string]int) {
-	@layouts.AdminShell("قوائم الانتظار | Jobs", "jobs", lang, dir) {
-		<div class="card">
-			<h2 class="card-title" style="margin:0 0 0.75rem;">قوائم River</h2>
-			if len(stats) == 0 {
-				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد وظائف في القوائم.</p>
+type AdminJobView struct {
+	Job         *hr.JobOffer
+	CompanyName string
+	CompanyType string
+}
+
+templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
+	@layouts.AdminShell("إدارة فرص التوظيف وإعلانات العمل", "jobs", lang, dir) {
+		<div class="card" style="margin-bottom:0; overflow:visible;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:0.6rem;">
+					@components.IconBriefcase("icon-md")
+					<div>
+						<h2 class="card-title" style="margin:0;">
+							فرص التوظيف والوظائف المنشورة ({ fmt.Sprintf("%d", len(jobs)) })
+						</h2>
+						<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
+							متابعة إعلانات التوظيف والوظائف الشاغرة الصادرة من الصيدليات والشركات الموردة.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			if len(jobs) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد فرص توظيف معلنة",
+					Message: "لم تقم أي صيدلية أو شركة بنشر وظائف شاغرة حتى الآن.",
+				})
 			} else {
-				<div class="table-container">
+				<div class="table-container" style="overflow:visible;">
 					<table class="data-table">
-						<thead><tr><th>الحالة</th><th>العدد</th></tr></thead>
+						<thead>
+							<tr>
+								<th>المسمى الوظيفي</th>
+								<th>الجهة المعلنة (الشركة / الصيدلية)</th>
+								<th>طبيعة العمل</th>
+								<th>الموقع</th>
+								<th>الراتب / المكافأة</th>
+								<th>تاريخ النشر</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
 						<tbody>
-							for state, n := range stats {
+							for _, j := range jobs {
 								<tr>
-									<td>{ state }</td>
-									<td class="tabular-nums">{ fmt.Sprintf("%d", n) }</td>
+									<td>
+										<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">{ j.Job.Title.Get(i18n.Lang(lang)) }</div>
+										<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.15rem;">معرف الإعلان: #{ fmt.Sprintf("%d", j.Job.ID) }</div>
+									</td>
+									<td>
+										<div style="font-weight:700; color:var(--primary-700); font-size:0.9rem;">{ j.CompanyName }</div>
+										<span class="badge badge-slate" style="font-size:0.75rem; margin-top:0.15rem;">{ orgTypeAr(j.CompanyType) }</span>
+									</td>
+									<td>
+										<div style="font-size:0.85rem; color:var(--neutral-700);">{ j.Job.Location }</div>
+									</td>
+									<td>
+										if !j.Job.SalaryMin.IsZero() {
+											<div style="font-size:0.85rem; font-weight:700; color:var(--emerald);">
+												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.Job.SalaryMin })
+											</div>
+										} else {
+											<span style="color:var(--neutral-400); font-size:0.8rem;">يحدد بالمقابلة</span>
+										}
+									</td>
+									<td style="font-size:0.8rem; color:var(--neutral-500);">
+										{ j.Job.CreatedAt.Format("2006-01-02") }
+									</td>
+									<td>
+										if j.Job.Status == "published" {
+											<span class="badge badge-emerald">معلن ونشط</span>
+										} else {
+											<span class="badge badge-slate">{ j.Job.Status }</span>
+										}
+									</td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.Job.ID)) } target="_blank" class="btn btn-secondary btn-sm" style="font-weight:700;">
+											<span>عرض الإعلان</span>
+										</a>
+									</td>
 								</tr>
 							}
 						</tbody>

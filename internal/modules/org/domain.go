@@ -37,10 +37,17 @@ type Organization struct {
 	TradeName          i18n.Text          `json:"trade_name"`
 	TaxNumber          string             `json:"tax_number"`
 	CommercialRegister string             `json:"commercial_register"`
+	PharmacistLicense  string             `json:"pharmacist_license,omitempty"`
+	LicenseDocumentURL string             `json:"license_document_url,omitempty"`
+	VerificationNotes  string             `json:"verification_notes,omitempty"`
+	RejectionReason    string             `json:"rejection_reason,omitempty"`
+	OwnerID            int64              `json:"owner_id,omitempty"`
 	Type               OrganizationType   `json:"type"`
 	Status             OrganizationStatus `json:"status"`
 	CreditLimit        money.Amount       `json:"credit_limit"`
 	PaymentTermsDays   int                `json:"payment_terms_days"`
+	ApprovedAt         *time.Time         `json:"approved_at,omitempty"`
+	ApprovedBy         *int64             `json:"approved_by,omitempty"`
 	CreatedAt          time.Time          `json:"created_at"`
 	UpdatedAt          time.Time          `json:"updated_at"`
 }

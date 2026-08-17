@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -185,6 +187,9 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	// Process license attachment file if uploaded
+	licenseURL, _ := saveUploadedFile(r, "license_file", "licenses")
+
 	form := pages.RegisterFormData{
 		AccountType:        r.PostFormValue("account_type"),
 		Name:               r.PostFormValue("name"),
@@ -196,6 +201,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		CommercialRegister: r.PostFormValue("commercial_register"),
 		TaxNumber:          r.PostFormValue("tax_number"),
 		PharmacistLicense:  r.PostFormValue("pharmacist_license"),
+		LicenseDocumentURL: licenseURL,
 		CityID:             r.PostFormValue("city_id"),
 		BranchCount:        r.PostFormValue("branch_count"),
 	}
@@ -219,6 +225,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			CommercialRegister: form.CommercialRegister,
 			TaxNumber:          form.TaxNumber,
 			PharmacistLicense:  form.PharmacistLicense,
+			LicenseDocumentURL: form.LicenseDocumentURL,
 			CityID:             parseInt64Ptr(form.CityID),
 			BranchCount:        parseIntPtr(form.BranchCount),
 		},
@@ -232,6 +239,47 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		if rerr := pages.RegisterPage(lang, dir, form, h.listCities(ctx)).Render(ctx, w); rerr != nil {
 			h.log.ErrorContext(ctx, "render register page after error", "error", rerr)
 		}
+		return
+	}
+
+	if sess != nil {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "dawa24_session",
+			Value:    sess.Token,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   86400 * 30,
+		})
+	}
+
+	http.Redirect(w, r, landingPathForSession(sess), http.StatusSeeOther)
+}
+
+// OrgSwitchSubmit handles context-switching between a user's multiple organizations.
+func (h *UIHandler) OrgSwitchSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	targetOrgID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || targetOrgID <= 0 {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	sess, err := h.idSvc.SwitchActiveOrg(ctx, actor.UserID, targetOrgID)
+	if err != nil {
+		h.log.WarnContext(ctx, "org switch failed", "user_id", actor.UserID, "target_org_id", targetOrgID, "error", err)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 

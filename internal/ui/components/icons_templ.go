@@ -1936,8 +1936,7 @@ func IconHelpCircle(class string) templ.Component {
 	})
 }
 
-// Crisp Flag SVGs for language switching (Egypt 🇪🇬 / UK 🇬🇧)
-func IconFlagEG(class string) templ.Component {
+func IconBriefcase(class string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -1976,7 +1975,7 @@ func IconFlagEG(class string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"width:20px !important; height:15px !important; border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3); display:block; margin:auto;\"><path fill=\"#ce1126\" d=\"M0 0h640v160H0z\"></path> <path fill=\"#ffffff\" d=\"M0 160h640v160H0z\"></path> <path fill=\"#000000\" d=\"M0 320h640v160H0z\"></path> <circle cx=\"320\" cy=\"240\" r=\"28\" fill=\"#c69214\"></circle></svg>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect width=\"20\" height=\"14\" x=\"2\" y=\"7\" rx=\"2\" ry=\"2\"></rect> <path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"></path></svg>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1984,7 +1983,8 @@ func IconFlagEG(class string) templ.Component {
 	})
 }
 
-func IconFlagGB(class string) templ.Component {
+// Crisp Flag SVGs for language switching (Egypt 🇪🇬 / UK 🇬🇧)
+func IconFlagEG(class string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -2023,7 +2023,54 @@ func IconFlagGB(class string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"width:20px !important; height:15px !important; border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3); display:block; margin:auto;\"><path fill=\"#012169\" d=\"M0 0h640v480H0z\"></path> <path fill=\"#ffffff\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#fff\" stroke-width=\"60\"></path> <path fill=\"#c8102e\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#c8102e\" stroke-width=\"40\"></path> <path fill=\"#ffffff\" d=\"M280 0h80v480h-80zM0 200h640v80H0z\"></path> <path fill=\"#c8102e\" d=\"M296 0h48v480h-48zM0 216h640v48H0z\"></path></svg>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"width:20px !important; height:15px !important; border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3); display:block; margin:auto;\"><path fill=\"#ce1126\" d=\"M0 0h640v160H0z\"></path> <path fill=\"#ffffff\" d=\"M0 160h640v160H0z\"></path> <path fill=\"#000000\" d=\"M0 320h640v160H0z\"></path> <circle cx=\"320\" cy=\"240\" r=\"28\" fill=\"#c69214\"></circle></svg>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func IconFlagGB(class string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var130 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var130 == nil {
+			templ_7745c5c3_Var130 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		var templ_7745c5c3_Var131 = []any{class}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var131...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<svg class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var132 string
+		templ_7745c5c3_Var132, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var131).String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/icons.templ`, Line: 1, Col: 0}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var132)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 480\" aria-hidden=\"true\" style=\"width:20px !important; height:15px !important; border-radius:2px; box-shadow:0 0 1px rgba(0,0,0,0.3); display:block; margin:auto;\"><path fill=\"#012169\" d=\"M0 0h640v480H0z\"></path> <path fill=\"#ffffff\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#fff\" stroke-width=\"60\"></path> <path fill=\"#c8102e\" d=\"m0 0 640 480m0-480L0 480\" stroke=\"#c8102e\" stroke-width=\"40\"></path> <path fill=\"#ffffff\" d=\"M280 0h80v480h-80zM0 200h640v80H0z\"></path> <path fill=\"#c8102e\" d=\"M296 0h48v480h-48zM0 216h640v48H0z\"></path></svg>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

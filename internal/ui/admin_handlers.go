@@ -90,20 +90,63 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	statusParam := r.URL.Query().Get("status")
 
-	var pending []*org.Organization
+	var orgs []*org.Organization
 	if h.orgSvc != nil {
-		pendingStatus := org.StatusPending
-		list, err := h.orgSvc.ListOrganizations(ctx, nil, &pendingStatus, 50, 0)
+		var filterStatus *org.OrganizationStatus
+		if statusParam != "" {
+			st := org.OrganizationStatus(statusParam)
+			filterStatus = &st
+		} else {
+			st := org.StatusPending
+			filterStatus = &st
+		}
+		list, err := h.orgSvc.ListOrganizations(ctx, nil, filterStatus, 100, 0)
 		if err == nil {
-			pending = list
+			orgs = list
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminApprovals(pending, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminApprovals(orgs, statusParam, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin approvals page", "error", err)
 	}
+}
+
+// AdminOrgReviewSubmit handles full administrative approval/rejection with custom reason.
+func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, _ := authctx.From(ctx)
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/approvals", "error", "معرف المنشأة غير صالح.")
+		return
+	}
+
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/approvals", "error", "خدمة المؤسسات غير متاحة.")
+		return
+	}
+
+	status := org.OrganizationStatus(r.PostFormValue("status"))
+	notes := r.PostFormValue("verification_notes")
+	rejectionReason := r.PostFormValue("rejection_reason")
+
+	if err := h.orgSvc.ReviewOrganization(ctx, id, status, notes, rejectionReason, actor.UserID); err != nil {
+		h.redirectWithNotice(w, r, "/admin/approvals", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	msg := "تم اعتماد وتفعيل ترخيص المنشأة بنجاح."
+	if status == org.StatusRejected {
+		msg = "تم رفض طلب المنشأة وحفظ سبب الرفض."
+	} else if status == org.StatusSuspended {
+		msg = "تم تعليق حساب المنشأة مؤقتاً."
+	}
+
+	h.redirectWithNotice(w, r, "/admin/approvals", "success", msg)
 }
 
 // Platform settings keys. These live in platform_admin.system_settings.
@@ -418,19 +461,29 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminOrganizationsPage renders the full organization list with lifecycle
-// actions.
+// AdminOrganizationsPage renders the full organization list with lifecycle actions.
 func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	typeParam := r.URL.Query().Get("type")
+
+	// If route was /admin/vendors or /admin/suppliers, preset typeParam
+	if strings.Contains(r.URL.Path, "/vendors") || strings.Contains(r.URL.Path, "/suppliers") {
+		typeParam = "supplier"
+	}
 
 	var orgs []*org.Organization
 	if h.orgSvc != nil {
-		orgs, _ = h.orgSvc.ListOrganizations(ctx, nil, nil, 100, 0)
+		var filterType *org.OrganizationType
+		if typeParam != "" {
+			t := org.OrganizationType(typeParam)
+			filterType = &t
+		}
+		orgs, _ = h.orgSvc.ListOrganizations(ctx, filterType, nil, 100, 0)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizations(lang, dir, orgs).Render(ctx, w); err != nil {
+	if err := pages.AdminOrganizations(lang, dir, typeParam, orgs).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin organizations", "error", err)
 	}
 }
@@ -508,6 +561,38 @@ func (h *UIHandler) AdminProductStatusSubmit(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, "/admin/products", http.StatusSeeOther)
 }
 
+// AdminProductCreateSubmit creates a new master product from Super Admin dashboard.
+func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
+		return
+	}
+
+	imgURL, _ := saveUploadedFile(r, "product_image", "products")
+	if imgURL == "" {
+		imgURL = r.PostFormValue("image_url")
+	}
+
+	prod := &catalog.Product{
+		Name:                   i18n.New(r.PostFormValue("name_ar"), r.PostFormValue("name_en")),
+		Description:            i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
+		ScientificName:         r.PostFormValue("generic_name"),
+		Active:                 r.PostFormValue("active_ingredient"),
+		DosageForm:             r.PostFormValue("dosage_form"),
+		ManufacturingCompanies: r.PostFormValue("manufacturer"),
+		Image:                  imgURL,
+		Status:                 catalog.StatusActive,
+	}
+
+	if _, err := h.catSvc.CreateProduct(ctx, prod); err != nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/products", "success", "تمت إضافة الصنف الدوائي الأساسي بنجاح إلى الدليل المعتمد.")
+}
+
 // AdminOffersPage renders the offer moderation list.
 func (h *UIHandler) AdminOffersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -534,20 +619,39 @@ func (h *UIHandler) AdminOfferStatusSubmit(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/admin/offers", http.StatusSeeOther)
 }
 
-// AdminJobsPage renders the River queue depth and failures.
+// AdminJobsPage renders all job vacancies across the platform showing owning companies.
 func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	stats := map[string]int{}
-	if h.adminSvc != nil {
-		if s, err := h.adminSvc.QueueStats(ctx); err == nil {
-			stats = s
+	var jobViews []*pages.AdminJobView
+	if h.hrSvc != nil {
+		offers, err := h.hrSvc.ListPublishedJobs(ctx, 100, 0)
+		if err == nil {
+			for _, j := range offers {
+				companyName := "منشأة معتمدة"
+				companyType := "supplier"
+				if h.orgSvc != nil {
+					if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err == nil && o != nil {
+						if o.TradeName["ar"] != "" {
+							companyName = o.TradeName["ar"]
+						} else {
+							companyName = o.LegalName
+						}
+						companyType = string(o.Type)
+					}
+				}
+				jobViews = append(jobViews, &pages.AdminJobView{
+					Job:         j,
+					CompanyName: companyName,
+					CompanyType: companyType,
+				})
+			}
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminJobs(lang, dir, stats).Render(ctx, w); err != nil {
+	if err := pages.AdminJobs(lang, dir, jobViews).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin jobs", "error", err)
 	}
 }
@@ -716,3 +820,74 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	h.redirectWithNotice(w, r, "/admin/plans", "success", "تمت إضافة الخطة.")
 }
+
+// AdminPoliciesPage renders the versioned policy management dashboard.
+func (h *UIHandler) AdminPoliciesPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+	currentKey := r.URL.Query().Get("key")
+
+	var policies []*platformadmin.Policy
+	if h.adminSvc != nil {
+		list, err := h.adminSvc.ListPolicyVersions(ctx, currentKey)
+		if err == nil {
+			policies = list
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminPolicies(lang, dir, currentKey, policies).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin policies", "error", err)
+	}
+}
+
+// AdminPolicyCreateSubmit creates a new draft version of a legal policy document.
+func (h *UIHandler) AdminPolicyCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, _ := authctx.From(ctx)
+
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/policies", "error", "خدمة السياسات غير متاحة.")
+		return
+	}
+
+	p := &platformadmin.Policy{
+		PolicyKey:   r.PostFormValue("policy_key"),
+		Version:     r.PostFormValue("version"),
+		Title:       i18n.New(r.PostFormValue("title_ar"), r.PostFormValue("title_en")),
+		Content:     i18n.New(r.PostFormValue("content_ar"), r.PostFormValue("content_en")),
+		Summary:     i18n.New(r.PostFormValue("summary_ar"), r.PostFormValue("summary_en")),
+		IsPublished: r.PostFormValue("is_published") == "1",
+		CreatedBy:   &actor.UserID,
+	}
+
+	if err := h.adminSvc.CreatePolicyVersion(ctx, p); err != nil {
+		h.redirectWithNotice(w, r, "/admin/policies", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/policies?key="+p.PolicyKey, "success", "تم حفظ إصدار السياسة بنجاح.")
+}
+
+// AdminPolicyPublishSubmit activates a specific policy version.
+func (h *UIHandler) AdminPolicyPublishSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/policies", "error", "معرف السياسة غير صالح.")
+		return
+	}
+
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/policies", "error", "خدمة السياسات غير متاحة.")
+		return
+	}
+
+	if err := h.adminSvc.PublishPolicyVersion(ctx, id); err != nil {
+		h.redirectWithNotice(w, r, "/admin/policies", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/policies", "success", "تم نشر الإصدار وتفعيله للجمهور.")
+}
+

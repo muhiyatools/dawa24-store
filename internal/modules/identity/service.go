@@ -293,6 +293,67 @@ func (s *Service) ResolvePermissions(ctx context.Context, userID int64, orgID in
 	return s.repo.GetPermissionsForUser(ctx, userID, orgID)
 }
 
+// ListUserOrganizations lists all organizations a user has active membership in.
+func (s *Service) ListUserOrganizations(ctx context.Context, userID int64) ([]*UserOrgMembership, error) {
+	return s.repo.ListUserOrganizations(ctx, userID)
+}
+
+// SwitchActiveOrg verifies membership in target organization and constructs an updated active Session.
+func (s *Service) SwitchActiveOrg(ctx context.Context, userID, targetOrgID int64) (*Session, error) {
+	belongs, err := s.repo.UserBelongsToOrg(ctx, userID, targetOrgID)
+	if err != nil {
+		return nil, err
+	}
+	if !belongs {
+		return nil, apperr.Forbidden("auth.org_unauthorized", "User does not have access to this organization.")
+	}
+
+	user, err := s.repo.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	perms, err := s.repo.GetPermissionsForUser(ctx, userID, targetOrgID)
+	if err != nil {
+		perms = []string{}
+	}
+
+	// Lookup target org info
+	orgs, err := s.repo.ListUserOrganizations(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var orgType, orgStatus string
+	for _, o := range orgs {
+		if o.OrganizationID == targetOrgID {
+			orgType = o.OrgType
+			orgStatus = o.OrgStatus
+			break
+		}
+	}
+
+	sess := &Session{
+		UserID:      user.ID,
+		PublicID:    user.PublicID,
+		Email:       user.Email,
+		Role:        user.Role,
+		ActiveOrgID: targetOrgID,
+		OrgType:     orgType,
+		OrgStatus:   orgStatus,
+		Permissions: perms,
+	}
+
+	if s.sessionStore != nil {
+		if err := s.sessionStore.Create(ctx, sess); err != nil {
+			return nil, err
+		}
+	}
+
+	s.log.InfoContext(ctx, "switched active organization", "user_id", userID, "org_id", targetOrgID, "org_type", orgType)
+	return sess, nil
+}
+
 func stringsContains(s, substr string) bool {
 	for i := 0; i+len(substr) <= len(s); i++ {
 		if s[i:i+len(substr)] == substr {

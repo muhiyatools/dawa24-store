@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -28,7 +29,7 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// JobDetailPage renders one vacancy with an apply form.
+// JobDetailPage renders one vacancy with an apply form (publicly viewable, auth required for apply).
 func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -45,18 +46,34 @@ func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	actor, isLoggedIn := authctx.From(ctx)
+	userEmail, userName, userPhone := "", "", ""
+	if isLoggedIn && h.idSvc != nil {
+		if u, err := h.idSvc.GetUserByID(ctx, actor.UserID); err == nil && u != nil {
+			userEmail = u.Email
+			userName = u.Name.Get(i18n.Lang(lang))
+			userPhone = u.Phone
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobDetail(lang, dir, j, false).Render(ctx, w); err != nil {
+	if err := pages.JobDetail(lang, dir, j, false, isLoggedIn, userEmail, userName, userPhone).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render job detail", "error", err)
 	}
 }
 
-// JobApplySubmit records an application.
+// JobApplySubmit records an application (requires logged-in user).
 func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	offerID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, fmt.Sprintf("/auth/login?redirect=/jobs/%d", offerID), http.StatusSeeOther)
+		return
+	}
+
 	if h.hrSvc == nil {
 		h.redirectWithNotice(w, r, "/jobs/"+strconv.FormatInt(offerID, 10), "error", "الخدمة غير متاحة حالياً.")
 		return
@@ -68,12 +85,18 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Process attached CV
+	cvURL, _ := saveUploadedFile(r, "resume_file", "resumes")
+
 	app := &hr.JobApplication{
-		JobOfferID:     offerID,
-		OrganizationID: offer.OrganizationID,
-		ApplicantName:  r.PostFormValue("applicant_name"),
-		ApplicantEmail: r.PostFormValue("applicant_email"),
-		ApplicantPhone: r.PostFormValue("applicant_phone"),
+		JobOfferID:      offerID,
+		OrganizationID:  offer.OrganizationID,
+		ApplicantUserID: &actor.UserID,
+		ApplicantName:   r.PostFormValue("applicant_name"),
+		ApplicantEmail:  r.PostFormValue("applicant_email"),
+		ApplicantPhone:  r.PostFormValue("applicant_phone"),
+		CVStorageKey:    cvURL,
+		Status:          "pending",
 	}
 	if err := h.hrSvc.ApplyToJob(ctx, app); err != nil {
 		h.redirectWithNotice(w, r, "/jobs/"+strconv.FormatInt(offerID, 10), "error", h.safeMessage(err, langOf(r)))
@@ -82,7 +105,7 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 
 	// Re-render with the success state so the visitor stays on the page.
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobDetail(lang, dir, offer, true).Render(ctx, w); err != nil {
+	if err := pages.JobDetail(lang, dir, offer, true, true, app.ApplicantEmail, app.ApplicantName, app.ApplicantPhone).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render job detail after apply", "error", err)
 	}
 }

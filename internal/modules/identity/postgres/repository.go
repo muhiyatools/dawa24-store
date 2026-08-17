@@ -379,3 +379,33 @@ func (r *Repository) UserBelongsToOrg(ctx context.Context, userID int64, orgID i
 	})
 	return belongs, err
 }
+
+// ListUserOrganizations returns all organizations the user is a member of.
+func (r *Repository) ListUserOrganizations(ctx context.Context, userID int64) ([]*identity.UserOrgMembership, error) {
+	var list []*identity.UserOrgMembership
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT o.id, o.trade_name, o.type, o.status, m.role_key, (m.status = 'active') as is_active
+			FROM org.members m
+			JOIN org.organizations o ON o.id = m.organization_id
+			WHERE m.user_id = $1 AND m.status = 'active'
+			ORDER BY o.created_at ASC;
+		`
+		rows, err := tx.Query(txCtx, query, userID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var m identity.UserOrgMembership
+			if err := rows.Scan(&m.OrganizationID, &m.OrgName, &m.OrgType, &m.OrgStatus, &m.RoleKey, &m.IsActive); err != nil {
+				return err
+			}
+			list = append(list, &m)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+

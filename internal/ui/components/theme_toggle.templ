@@ -1,0 +1,18 @@
+package components
+
+templ ThemeToggle() {
+	<div class="theme-toggle-group" style="display:flex; align-items:center; justify-content:space-between; background:var(--neutral-100); padding:0.25rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); gap:0.25rem; width:100%;">
+		<button type="button" data-set-theme="light" class="btn-theme-toggle" title="المظهر الفاتح" style="flex:1; border:1px solid transparent; padding:0.35rem 0.4rem; border-radius:var(--radius-md); cursor:pointer; font-size:0.775rem; display:flex; align-items:center; justify-content:center; gap:0.25rem; transition:all 0.15s ease;">
+			<span>☀️</span>
+			<span>فاتح</span>
+		</button>
+		<button type="button" data-set-theme="dark" class="btn-theme-toggle" title="المظهر الداكن" style="flex:1; border:1px solid transparent; padding:0.35rem 0.4rem; border-radius:var(--radius-md); cursor:pointer; font-size:0.775rem; display:flex; align-items:center; justify-content:center; gap:0.25rem; transition:all 0.15s ease;">
+			<span>🌙</span>
+			<span>داكن</span>
+		</button>
+		<button type="button" data-set-theme="system" class="btn-theme-toggle" title="تلقائي حسب نظام الجهاز" style="flex:1; border:1px solid transparent; padding:0.35rem 0.4rem; border-radius:var(--radius-md); cursor:pointer; font-size:0.775rem; display:flex; align-items:center; justify-content:center; gap:0.25rem; transition:all 0.15s ease;">
+			<span>💻</span>
+			<span>تلقائي</span>
+		</button>
+	</div>
+}

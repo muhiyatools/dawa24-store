@@ -7,90 +7,178 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminApprovals(pending []*org.Organization, lang, dir string) {
-	@layouts.AdminShell("طلبات اعتماد الشركاء | Partner Approvals", "approvals", lang, dir) {
+templ AdminApprovals(organizations []*org.Organization, currentFilter, lang, dir string) {
+	@layouts.AdminShell("اعتماد ومراجعة تراخيص المنشآت", "approvals", lang, dir) {
 		<div class="card" style="margin-bottom:0; overflow:visible;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">
-					@components.IconBuilding("icon-md")
-					<h2 class="card-title" style="margin:0;">
-						طلبات المؤسسات والصيدليات المعلقة ({ fmt.Sprintf("%d", len(pending)) })
-					</h2>
+					@components.IconShield("icon-md")
+					<div>
+						<h2 class="card-title" style="margin:0;">
+							اعتماد وتدقيق طلبات المنشآت الطبية والتوريد
+						</h2>
+						<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
+							فحص مستندات التراخيص، السجل التجاري، والبطاقات الضريبية لكافة الشركات والصيدليات المسجلة.
+						</p>
+					</div>
 				</div>
-				@components.LoadingIndicator("جارٍ التحديث…")
+
+				<div style="display:flex; gap:0.5rem; align-items:center;">
+					<a href="/admin/approvals" class={ "btn btn-sm", templ.KV("btn-primary", currentFilter == "" || currentFilter == "pending"), templ.KV("btn-secondary", currentFilter != "" && currentFilter != "pending") }>
+						<span>طلبات قيد الفحص (Pending)</span>
+					</a>
+					<a href="/admin/approvals?status=approved" class={ "btn btn-sm", templ.KV("btn-primary", currentFilter == "approved"), templ.KV("btn-secondary", currentFilter != "approved") }>
+						<span>المعتمدة (Approved)</span>
+					</a>
+					<a href="/admin/approvals?status=rejected" class={ "btn btn-sm", templ.KV("btn-primary", currentFilter == "rejected"), templ.KV("btn-secondary", currentFilter != "rejected") }>
+						<span>المرفوضة (Rejected)</span>
+					</a>
+				</div>
 			</div>
-			<!-- The action buttons swap this region. They used to post to the JSON
-			     API and swap the response into the row, which replaced the row with
-			     the literal text {"status":"approved"}. -->
+
 			<div id="admin-approvals-content">
-				@AdminApprovalsTable(pending)
+				@AdminApprovalsTable(organizations)
 			</div>
 		</div>
 	}
 }
 
-templ AdminApprovalsTable(pending []*org.Organization) {
-	if len(pending) == 0 {
+templ AdminApprovalsTable(orgs []*org.Organization) {
+	if len(orgs) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
-			Title:   "لا توجد طلبات اعتماد معلقة",
-			Message: "تمت مراجعة واعتماد جميع طلبات انضمام الشركات والصيدليات بنجاح.",
+			Title:   "لا توجد منشآت مطابقة للفلتر المحدد",
+			Message: "تمت مراجعة جميع المستندات والتراخيص بالكامل، ولا توجد طلبات معلقة حالياً.",
 		})
 	} else {
 		<div class="table-container" style="overflow:visible;">
 			<table class="data-table">
 				<thead>
 					<tr>
-						<th>الاسم القانوني</th>
-						<th>الاسم التجاري</th>
-						<th>البطاقة الضريبية</th>
-						<th>السجل التجاري</th>
-						<th>نوع المؤسسة</th>
-						<th style="text-align:end;">الإجراءات</th>
+						<th>المنشأة والاسم التجاري</th>
+						<th>النوع</th>
+						<th>السجل والبطاقة الضريبية</th>
+						<th>ترخيص هيئة الدواء</th>
+						<th>ملف الترخيص الرسمي</th>
+						<th>الحالة الحالية</th>
+						<th style="text-align:end;">الإجراء والتدقيق</th>
 					</tr>
 				</thead>
 				<tbody>
-					for _, o := range pending {
+					for _, o := range orgs {
 						<tr id={ fmt.Sprintf("org-row-%d", o.ID) }>
-							<td style="font-weight:700; color:var(--neutral-900);">{ o.LegalName }</td>
 							<td>
-								if o.TradeName["ar"] != "" {
-									{ o.TradeName["ar"] }
+								<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">{ o.LegalName }</div>
+								<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;">
+									if o.TradeName["ar"] != "" {
+										{ o.TradeName["ar"] }
+									} else {
+										{ o.TradeName["en"] }
+									}
+								</div>
+							</td>
+							<td>
+								if string(o.Type) == "supplier" || string(o.Type) == "vendor" {
+									<span class="badge badge-sky">مورد / شركة أدوية</span>
+								} else if string(o.Type) == "individual" {
+									<span class="badge badge-purple">حساب مهني فردي</span>
 								} else {
-									{ o.TradeName["en"] }
+									<span class="badge badge-emerald">صيدلية مرخصة</span>
 								}
 							</td>
-							<td class="tabular-nums">{ o.TaxNumber }</td>
-							<td class="tabular-nums">{ o.CommercialRegister }</td>
 							<td>
-								<span class="badge badge-slate">{ orgTypeAr(string(o.Type)) }</span>
+								<div style="font-size:0.85rem;"><span style="color:var(--neutral-500);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
+								if o.TaxNumber != "" {
+									<div style="font-size:0.8rem; color:var(--neutral-600);"><span style="color:var(--neutral-500);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
+								}
+							</td>
+							<td>
+								if o.PharmacistLicense != "" {
+									<span class="tabular-nums" style="font-weight:700; color:var(--primary-700); font-size:0.875rem;">{ o.PharmacistLicense }</span>
+								} else {
+									<span style="color:var(--neutral-400); font-size:0.8rem;">غير محدد</span>
+								}
+							</td>
+							<td>
+								if o.LicenseDocumentURL != "" {
+									<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.35rem;">
+										@components.IconFile("icon-xs")
+										<span>معاينة الترخيص</span>
+									</a>
+								} else {
+									<span class="badge badge-slate" style="font-size:0.75rem;">غير مرفق</span>
+								}
+							</td>
+							<td>
+								if string(o.Status) == "approved" {
+									<span class="badge badge-emerald">معتمد ونشط</span>
+								} else if string(o.Status) == "rejected" {
+									<span class="badge badge-danger">مرفوض</span>
+								} else if string(o.Status) == "suspended" {
+									<span class="badge badge-warning">معلق مؤقتاً</span>
+								} else {
+									<span class="badge badge-sky">قيد التدقيق</span>
+								}
 							</td>
 							<td style="text-align:end;">
-								<div class="table-actions" style="justify-content:flex-end;">
-									<button
-										class="btn btn-primary btn-sm"
-										hx-post={ fmt.Sprintf("/admin/approvals/%d/approve", o.ID) }
-										hx-target="#admin-approvals-content"
-										hx-swap="innerHTML"
-									>
+								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+									@components.ModalTrigger(fmt.Sprintf("review-modal-%d", o.ID), "btn btn-primary btn-sm") {
 										@components.IconCheck("icon-xs")
-										<span>اعتماد</span>
-									</button>
-									<!-- Rejection is the irreversible half of this decision, so
-									     it asks first; approval does not need to. -->
-									@components.ModalTrigger(fmt.Sprintf("confirm-reject-%d", o.ID), "btn btn-danger btn-sm") {
-										<span>رفض</span>
+										<span>تدقيق واعتماد</span>
 									}
-									@components.ConfirmModal(components.ConfirmModalProps{
-										ID:          fmt.Sprintf("confirm-reject-%d", o.ID),
-										Title:       "تأكيد رفض الطلب",
-										Message:     fmt.Sprintf("سيتم رفض طلب انضمام «%s» ولن تتمكن المؤسسة من الدخول إلى المنصة.", o.LegalName),
-										ConfirmURL:  fmt.Sprintf("/admin/approvals/%d/reject", o.ID),
-										ConfirmVerb: "post",
-										ConfirmText: "نعم، ارفض الطلب",
-										CancelText:  "إلغاء",
-										Danger:      true,
-										Target:      "#admin-approvals-content",
-									})
+
+									<!-- Full Review Modal -->
+									@components.Modal(components.ModalProps{
+										ID:    fmt.Sprintf("review-modal-%d", o.ID),
+										Title: fmt.Sprintf("تدقيق واعتماد ترخيص: %s", o.LegalName),
+										Size:  "md",
+									}) {
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+											<div style="background:var(--neutral-50); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); font-size:0.875rem;">
+												<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.5rem;">
+													<div><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
+													<div><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
+													<div><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
+													<div><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
+												</div>
+												if o.LicenseDocumentURL != "" {
+													<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--neutral-200);">
+														<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center;">
+															@components.IconFile("icon-xs")
+															<span>فتح ملف الترخيص المرفق في نافذة جديدة</span>
+														</a>
+													</div>
+												}
+											</div>
+
+											<div class="form-group" style="margin:0;">
+												<label class="form-label" for={ fmt.Sprintf("status-select-%d", o.ID) }>قرار المراجعة والاعتماد *</label>
+												<select id={ fmt.Sprintf("status-select-%d", o.ID) } name="status" required class="form-select">
+													<option value="approved" selected={ string(o.Status) == "approved" || string(o.Status) == "pending" }>اعتماد وترخيص المنشأة (Approve)</option>
+													<option value="rejected" selected={ string(o.Status) == "rejected" }>رفض الطلب (Reject)</option>
+													<option value="suspended" selected={ string(o.Status) == "suspended" }>تعليق مؤقت للحساب (Suspend)</option>
+													<option value="pending">إبقاء قيد التدقيق (Pending)</option>
+												</select>
+											</div>
+
+											<div class="form-group" style="margin:0;">
+												<label class="form-label" for={ fmt.Sprintf("notes-%d", o.ID) }>ملاحظات الإدارة الداخلية</label>
+												<input type="text" id={ fmt.Sprintf("notes-%d", o.ID) } name="verification_notes" class="form-input" value={ o.VerificationNotes } placeholder="مثال: تم التأكد من السجل عبر بوابة هيئة الدواء" />
+											</div>
+
+											<div class="form-group" style="margin:0;">
+												<label class="form-label" for={ fmt.Sprintf("rejection-%d", o.ID) }>سبب الرفض (يظهر للمنشأة في حال الرفض)</label>
+												<textarea id={ fmt.Sprintf("rejection-%d", o.ID) } name="rejection_reason" rows="2" class="form-input" placeholder="يرجى توضيح سبب الرفض أو النواقص المطلوبة...">{ o.RejectionReason }</textarea>
+											</div>
+
+											<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+												<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+												<button type="submit" class="btn btn-primary" style="font-weight:800;">
+													@components.IconCheck("icon-xs")
+													<span>حفظ واعتماد القرار</span>
+												</button>
+											</div>
+										</form>
+									}
 								</div>
 							</td>
 						</tr>
@@ -101,20 +189,16 @@ templ AdminApprovalsTable(pending []*org.Organization) {
 	}
 }
 
-// orgTypeAr gives the Arabic wording for an organization type. The raw key was
-// being shown to an Arabic-first interface.
 func orgTypeAr(t string) string {
 	switch t {
-	case "supplier":
-		return "مورّد"
+	case "supplier", "vendor":
+		return "مورّد / شركة أدوية"
 	case "pharmacy":
-		return "صيدلية"
+		return "صيدلية / منشأة طبية"
 	case "chain_pharmacy":
 		return "سلسلة صيدليات"
-	case "company":
-		return "شركة"
-	case "agency":
-		return "وكالة"
+	case "individual":
+		return "حساب مهني فردي"
 	default:
 		return t
 	}

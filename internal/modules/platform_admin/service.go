@@ -132,3 +132,43 @@ func (s *Service) ListAuditLog(ctx context.Context, limit, offset int) ([]*Audit
 func (s *Service) QueueStats(ctx context.Context) (map[string]int, error) {
 	return s.repo.QueueStats(ctx)
 }
+
+// ListPolicyVersions returns all historical and current versions of a policy.
+func (s *Service) ListPolicyVersions(ctx context.Context, policyKey string) ([]*Policy, error) {
+	return s.repo.ListPolicyVersions(ctx, policyKey)
+}
+
+// GetPolicyVersion retrieves a policy by key and version string.
+func (s *Service) GetPolicyVersion(ctx context.Context, policyKey, version string) (*Policy, error) {
+	return s.repo.GetPolicyVersion(ctx, policyKey, version)
+}
+
+// GetActivePolicy retrieves the current live published policy for public rendering.
+func (s *Service) GetActivePolicy(ctx context.Context, policyKey string) (*Policy, error) {
+	return s.repo.GetActivePolicy(ctx, policyKey)
+}
+
+// CreatePolicyVersion saves a new policy draft version.
+func (s *Service) CreatePolicyVersion(ctx context.Context, p *Policy) error {
+	if p.PolicyKey == "" {
+		return apperr.Validation("policy.key_required", "Policy key is required.", nil)
+	}
+	if p.Version == "" {
+		p.Version = "1.0"
+	}
+	if err := s.repo.CreatePolicyVersion(ctx, p); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "policy version created", "key", p.PolicyKey, "version", p.Version)
+	return nil
+}
+
+// PublishPolicyVersion marks a version as active and unpublishes other versions.
+func (s *Service) PublishPolicyVersion(ctx context.Context, id int64) error {
+	if err := s.repo.PublishPolicyVersion(ctx, id); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "policy version published", "id", id)
+	return nil
+}
+

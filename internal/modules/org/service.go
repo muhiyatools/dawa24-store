@@ -83,6 +83,15 @@ func (s *Service) SuspendOrganization(ctx context.Context, id int64) error {
 	return nil
 }
 
+// ReviewOrganization handles full administrative review with notes, rejection reasons, and audit stamps.
+func (s *Service) ReviewOrganization(ctx context.Context, id int64, status OrganizationStatus, notes, rejectionReason string, adminID int64) error {
+	if err := s.repo.ReviewOrganization(ctx, id, status, notes, rejectionReason, adminID); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "organization reviewed", "org_id", id, "status", status, "admin_id", adminID)
+	return nil
+}
+
 // GetOrganization returns an organization by ID.
 func (s *Service) GetOrganization(ctx context.Context, id int64) (*Organization, error) {
 	return s.repo.GetOrganizationByID(ctx, id)

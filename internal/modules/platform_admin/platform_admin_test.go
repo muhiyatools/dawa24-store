@@ -114,6 +114,26 @@ func (m *mockPlatformAdminRepo) QueueStats(_ context.Context) (map[string]int, e
 	return nil, nil
 }
 
+func (m *mockPlatformAdminRepo) ListPolicyVersions(_ context.Context, _ string) ([]*Policy, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) GetPolicyVersion(_ context.Context, _, _ string) (*Policy, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) GetActivePolicy(_ context.Context, _ string) (*Policy, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) CreatePolicyVersion(_ context.Context, _ *Policy) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) PublishPolicyVersion(_ context.Context, _ int64) error {
+	return nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

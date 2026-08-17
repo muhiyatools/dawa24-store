@@ -380,7 +380,15 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"dropdown-divider\"></div><!-- 7. Logout --><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0;\"><button type=\"submit\" class=\"dropdown-item\" style=\"color:var(--danger) !important; font-weight:800;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"dropdown-divider\"></div><!-- Theme Selector (Light / Dark / System) --><div style=\"padding:0.4rem 0.6rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--neutral-500); margin-bottom:0.35rem;\">مظهر المنصة:</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.ThemeToggle().Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div class=\"dropdown-divider\"></div><!-- 7. Logout --><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0;\"><button type=\"submit\" class=\"dropdown-item\" style=\"color:var(--danger) !important; font-weight:800;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -388,17 +396,17 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>تسجيل الخروج</span></button></form></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span>تسجيل الخروج</span></button></form></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"padding:0.55rem 1.125rem;\">تسجيل الدخول</a> <a href=\"/auth/register\" class=\"btn btn-primary\" style=\"padding:0.55rem 1.25rem;\">إنشاء حساب جديد</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"padding:0.55rem 1.125rem;\">تسجيل الدخول</a> <a href=\"/auth/register\" class=\"btn btn-primary\" style=\"padding:0.55rem 1.25rem;\">إنشاء حساب جديد</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div></header><main class=\"page-container\" style=\"flex:1; min-height:calc(100vh - 220px);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></header><main class=\"page-container\" style=\"flex:1; min-height:calc(100vh - 220px);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -406,7 +414,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</main><!-- Redesigned Production Footer with clean links and ample spacing --> <footer class=\"site-footer\"><div class=\"footer-content\"><!-- Company Info & Mission --><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24.com\" style=\"height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:#ffffff; padding:4px;\"></div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.75rem;\">شركة DAWA24</h3><p style=\"color:var(--neutral-600); font-size:0.925rem; line-height:1.8; max-width:540px;\">منصة التوريد الذكية توفر تجربة شاملة وآمنة لربط العملاء بالموردين، مع نظام موثوق يسهل عمليات الشراء والتوريد، ويدعم التواصل المباشر، التحليلات المتقدمة، والدعم الفني المتواصل 24/7 لتحقيق كفاءة وأمان أعلى.</p></div><!-- Quick Links --><div><h4 style=\"font-size:1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;\">روابط المنصة</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;\"><li><a href=\"/catalog\">كتالوج الأدوية والمستلزمات</a></li><li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الشركاء والموردين</a></li><li><a href=\"/privacy\">سياسة الخصوصية</a></li><li><a href=\"/terms\">الشروط والأحكام</a></li></ul></div><!-- Contact & Support --><div><h4 style=\"font-size:1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;\">التواصل والدعم الفني</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--neutral-700);\"><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</main><!-- Redesigned Production Footer with clean links and ample spacing --> <footer class=\"site-footer\"><div class=\"footer-content\"><!-- Company Info & Mission --><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24.com\" style=\"height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:#ffffff; padding:4px;\"></div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.75rem;\">شركة DAWA24</h3><p style=\"color:var(--neutral-600); font-size:0.925rem; line-height:1.8; max-width:540px;\">منصة التوريد الذكية توفر تجربة شاملة وآمنة لربط العملاء بالموردين، مع نظام موثوق يسهل عمليات الشراء والتوريد، ويدعم التواصل المباشر، التحليلات المتقدمة، والدعم الفني المتواصل 24/7 لتحقيق كفاءة وأمان أعلى.</p></div><!-- Quick Links --><div><h4 style=\"font-size:1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;\">روابط المنصة</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;\"><li><a href=\"/catalog\">كتالوج الأدوية والمستلزمات</a></li><li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الشركاء والموردين</a></li><li><a href=\"/privacy\">سياسة الخصوصية</a></li><li><a href=\"/terms\">الشروط والأحكام</a></li></ul></div><!-- Contact & Support --><div><h4 style=\"font-size:1rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;\">التواصل والدعم الفني</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--neutral-700);\"><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -414,7 +422,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<a href=\"mailto:info@dawa24.com\" style=\"direction:ltr; font-weight:700; color:var(--primary-700) !important;\">info@dawa24.com</a></li><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<a href=\"mailto:info@dawa24.com\" style=\"direction:ltr; font-weight:700; color:var(--primary-700) !important;\">info@dawa24.com</a></li><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -422,7 +430,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<a href=\"tel:01065397000\" class=\"tabular-nums\" style=\"direction:ltr; font-weight:700; color:var(--primary-700) !important;\">01065397000</a></li><li style=\"font-size:0.825rem; color:var(--neutral-500); margin-top:0.5rem; line-height:1.6;\">الدعم الفني متاح 24 ساعة طوال أيام الأسبوع للمؤسسات والصيدليات المعتمدة.</li></ul></div></div><div class=\"footer-bottom\"><div><p>جميع الحقوق محفوظة © 2026 لدى دوا 24</p></div><div style=\"display:flex; gap:1.75rem;\"><a href=\"/about\">عن الشركة</a> <a href=\"/faq\">الأسئلة الشائعة</a> <a href=\"/privacy\">الخصوصية</a> <a href=\"/terms\">الشروط</a></div></div></footer>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<a href=\"tel:01065397000\" class=\"tabular-nums\" style=\"direction:ltr; font-weight:700; color:var(--primary-700) !important;\">01065397000</a></li><li style=\"font-size:0.825rem; color:var(--neutral-500); margin-top:0.5rem; line-height:1.6;\">الدعم الفني متاح 24 ساعة طوال أيام الأسبوع للمؤسسات والصيدليات المعتمدة.</li></ul></div></div><div class=\"footer-bottom\"><div><p>جميع الحقوق محفوظة © 2026 لدى دوا 24</p></div><div style=\"display:flex; gap:1.75rem;\"><a href=\"/about\">عن الشركة</a> <a href=\"/faq\">الأسئلة الشائعة</a> <a href=\"/privacy\">الخصوصية</a> <a href=\"/terms\">الشروط</a></div></div></footer>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

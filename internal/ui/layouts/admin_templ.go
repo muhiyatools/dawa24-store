@@ -202,7 +202,15 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h1></div><div style=\"display:flex; align-items:center; gap:1.25rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--success); background:var(--success-bg); padding:0.3rem 0.75rem; border-radius:var(--radius-full); border:1px solid var(--success-border); font-weight:700;\"><span style=\"width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block;\"></span> <span>الأنظمة متصلة ومستقرة</span></div><div style=\"display:flex; align-items:center; gap:0.75rem; border-inline-start:1px solid var(--neutral-200); padding-inline-start:1.25rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h1></div><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:190px;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.ThemeToggle().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--success); background:var(--success-bg); padding:0.3rem 0.75rem; border-radius:var(--radius-full); border:1px solid var(--success-border); font-weight:700;\"><span style=\"width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block;\"></span> <span>الأنظمة متصلة ومستقرة</span></div><div style=\"display:flex; align-items:center; gap:0.75rem; border-inline-start:1px solid var(--neutral-200); padding-inline-start:1.25rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-full); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -210,7 +218,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div style=\"display:flex; flex-direction:column;\"><span style=\"font-size:0.85rem; font-weight:800; color:var(--neutral-900);\">مدير النظام العام</span> <span style=\"font-size:0.75rem; color:var(--neutral-500);\">Super Admin</span></div><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; margin-inline-start:0.5rem;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:700; padding:0.35rem 0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div style=\"display:flex; flex-direction:column;\"><span style=\"font-size:0.85rem; font-weight:800; color:var(--neutral-900);\">مدير النظام العام</span> <span style=\"font-size:0.75rem; color:var(--neutral-500);\">Super Admin</span></div><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; margin-inline-start:0.5rem;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:700; padding:0.35rem 0.75rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -218,7 +226,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container\" style=\"padding:2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container\" style=\"padding:2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -226,7 +234,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></main></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></main></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -24,11 +24,14 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 
 // CreateProduct creates a new product under the tenant bound to the request context.
 func (s *Service) CreateProduct(ctx context.Context, p *Product) (*Product, error) {
-	orgID, ok := database.TenantFrom(ctx)
-	if !ok {
-		return nil, database.ErrNoTenant
+	if p.OrganizationID == 0 {
+		orgID, ok := database.TenantFrom(ctx)
+		if ok && orgID > 0 {
+			p.OrganizationID = orgID
+		} else {
+			p.OrganizationID = 1 // Default platform master catalog org
+		}
 	}
-	p.OrganizationID = orgID
 
 	if err := p.Validate(); err != nil {
 		return nil, err

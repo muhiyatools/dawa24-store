@@ -84,6 +84,7 @@ func NewUIHandler(
 func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Use(h.visitorMiddleware)
 	RegisterStaticRoutes(r)
+	RegisterUploadRoutes(r)
 
 	// Public & Auth (8 screens)
 	r.Get("/", h.HomePage)
@@ -101,6 +102,8 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/onboarding", h.OnboardingPage)
 	r.Get("/lang/{code}", h.SetLanguage)
 	r.Get("/onboarding/pending", h.OnboardingPendingPage)
+	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
+	r.Post("/upload", h.UploadAPISubmit)
 
 	// Customer Buyer Experience (7 screens)
 	r.Get("/catalog", h.CustomerCatalogPage)
@@ -171,7 +174,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	// Pharmacy Buyer Experience
 	r.Get("/pharmacy/dashboard", h.PharmacyDashboardPage)
 
-	// Platform Admin Experience (4 screens)
+	// Platform Admin Experience
 	r.Get("/admin/dashboard", h.AdminDashboardPage)
 	r.Get("/admin/approvals", h.AdminApprovalsPage)
 	r.Get("/admin/users", h.AdminUsersPage)
@@ -182,10 +185,13 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/admin/translations", h.AdminTranslationsPage)
 	r.Get("/admin/audit", h.AdminAuditPage)
 	r.Get("/admin/organizations", h.AdminOrganizationsPage)
+	r.Get("/admin/vendors", h.AdminOrganizationsPage)
+	r.Get("/admin/suppliers", h.AdminOrganizationsPage)
 	r.Get("/admin/orders", h.AdminOrdersPage)
 	r.Get("/admin/products", h.AdminProductsPage)
 	r.Get("/admin/offers", h.AdminOffersPage)
 	r.Get("/admin/jobs", h.AdminJobsPage)
+	r.Get("/admin/policies", h.AdminPoliciesPage)
 	r.Get("/admin/finder", h.AdminFinderPage)
 	r.Get("/admin/services", h.AdminServicesPage)
 	r.Get("/admin/plans", h.AdminPlansPage)
@@ -255,6 +261,10 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/admin/users/{id}/reset-mfa", h.AdminUserResetMFASubmit)
 	r.Post("/admin/approvals/{id}/approve", h.AdminApproveOrgSubmit)
 	r.Post("/admin/approvals/{id}/reject", h.AdminRejectOrgSubmit)
+	r.Post("/admin/approvals/{id}/review", h.AdminOrgReviewSubmit)
+	r.Post("/admin/products/new", h.AdminProductCreateSubmit)
+	r.Post("/admin/policies", h.AdminPolicyCreateSubmit)
+	r.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
 }
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {
