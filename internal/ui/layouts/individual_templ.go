@@ -45,7 +45,7 @@ func IndividualShell(title string, activeNav string, lang string, dir string) te
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--neutral-800);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"/static/img/logo.png\" alt=\"دواء 24\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:900; font-size:1.15rem; color:#ffffff; line-height:1.2; font-family:'Cairo', sans-serif;\">دواء <span style=\"color:var(--primary-400);\">24</span></span> <span style=\"font-size:0.75rem; color:var(--neutral-400); font-weight:700;\">البوابة المهنية للأفراد</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.08);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"/static/img/logo.png\" alt=\"دواء 24\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:700; font-size:1.15rem; color:#ffffff; line-height:1.2;\">دواء <span style=\"color:var(--primary-400);\">24</span></span> <span style=\"font-size:0.75rem; color:var(--neutral-400); font-weight:700;\">البوابة المهنية للأفراد</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -203,7 +203,7 @@ func IndividualShell(title string, activeNav string, lang string, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>إعدادات الحساب وكلمة المرور</span></a></nav><div style=\"margin-top:auto; border-top:1px solid var(--neutral-800); padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" class=\"btn btn-secondary\" style=\"width:100%; justify-content:center; font-weight:800; padding:0.65rem; color:#ffffff; background:rgba(255,255,255,0.08); border-color:transparent;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>إعدادات الحساب وكلمة المرور</span></a></nav><div style=\"margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" class=\"btn btn-secondary\" style=\"width:100%; justify-content:center; font-weight:600; padding:0.65rem; color:#ffffff; background:rgba(255,255,255,0.08); border-color:transparent;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -211,7 +211,7 @@ func IndividualShell(title string, activeNav string, lang string, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>الكتالوج الدوائي</span></a></div></aside><!-- Main Content --><main class=\"main-content\"><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border-subtle); background:#ffffff; padding:0 2rem; height:4.25rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" data-sidebar-toggle style=\"width:36px; height:36px;\" title=\"طي / توسيع القائمة\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>الكتالوج الدوائي</span></a></div></aside><!-- Main Content --><main class=\"main-content\"><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border-subtle); background:var(--surface-raised); padding:0 2rem; height:4.25rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-dropdown);\"><div style=\"display:flex; align-items:center; gap:1rem;\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" data-sidebar-toggle style=\"width:36px; height:36px;\" title=\"طي / توسيع القائمة\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,7 +219,7 @@ func IndividualShell(title string, activeNav string, lang string, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</button><h1 style=\"font-size:1.3rem; font-weight:900; color:var(--neutral-900); margin:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</button><h1 style=\"font-size:1.3rem; font-weight:700; color:var(--neutral-900); margin:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -240,7 +240,7 @@ func IndividualShell(title string, activeNav string, lang string, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><span class=\"badge badge-sky\" style=\"padding:0.35rem 0.75rem; font-weight:800; font-size:0.8rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><span class=\"badge badge-sky\" style=\"padding:0.35rem 0.75rem; font-weight:600; font-size:0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -248,7 +248,7 @@ func IndividualShell(title string, activeNav string, lang string, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>حساب مهني معتمد</span></span><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>حساب مهني معتمد</span></span><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:600;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

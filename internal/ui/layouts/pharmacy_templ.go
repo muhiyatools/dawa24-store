@@ -46,7 +46,7 @@ func PharmacyShell(title string, activeNav string, lang string, dir string, perm
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--neutral-800);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"/static/img/logo.png\" alt=\"دواء 24\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:900; font-size:1.15rem; color:#ffffff; line-height:1.2; font-family:'Cairo', sans-serif;\">دواء <span style=\"color:var(--primary-400);\">24</span></span> <span style=\"font-size:0.75rem; color:var(--neutral-400); font-weight:700;\">بوابة الصيدلية المعتمدة</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.08);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"/static/img/logo.png\" alt=\"دواء 24\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:700; font-size:1.15rem; color:#ffffff; line-height:1.2;\">دواء <span style=\"color:var(--primary-400);\">24</span></span> <span style=\"font-size:0.75rem; color:var(--neutral-400); font-weight:700;\">بوابة الصيدلية المعتمدة</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -264,7 +264,7 @@ func PharmacyShell(title string, activeNav string, lang string, dir string, perm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>الملف الشخصي والإعدادات</span></a></nav><div style=\"border-top:1px solid var(--neutral-800); padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.5rem; margin-top:auto;\"><a href=\"/catalog\" class=\"btn btn-primary\" style=\"width:100%; justify-content:center; font-weight:800; padding:0.65rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>الملف الشخصي والإعدادات</span></a></nav><div style=\"border-top:1px solid rgba(255,255,255,0.08); padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.5rem; margin-top:auto;\"><a href=\"/catalog\" class=\"btn btn-primary\" style=\"width:100%; justify-content:center; font-weight:600; padding:0.65rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -272,7 +272,7 @@ func PharmacyShell(title string, activeNav string, lang string, dir string, perm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>الكتالوج الدوائي الموحد</span></a></div></aside><!-- Main Workspace --><main class=\"main-content\"><header class=\"top-navbar\" style=\"padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; background:#ffffff; border-bottom:1px solid var(--neutral-200); position:sticky; top:0; z-index:100;\"><div><h1 style=\"font-size:1.35rem; font-weight:900; color:var(--neutral-900); margin:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>الكتالوج الدوائي الموحد</span></a></div></aside><!-- Main Workspace --><main class=\"main-content\"><header class=\"top-navbar\" style=\"padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border-bottom:1px solid var(--neutral-200); position:sticky; top:0; z-index:var(--z-dropdown);\"><div><h1 style=\"font-size:1.35rem; font-weight:700; color:var(--neutral-900); margin:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -301,7 +301,7 @@ func PharmacyShell(title string, activeNav string, lang string, dir string, perm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</a> <a href=\"/wallet\" class=\"btn btn-secondary\" style=\"font-weight:800; background:var(--primary-50); color:var(--primary-800); border-color:var(--primary-200);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</a> <a href=\"/wallet\" class=\"btn btn-secondary\" style=\"font-weight:600; background:var(--primary-50); color:var(--primary-800); border-color:var(--primary-200);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -309,7 +309,7 @@ func PharmacyShell(title string, activeNav string, lang string, dir string, perm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"tabular-nums\">5,420.00 ج.م</span></a><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"tabular-nums\">5,420.00 ج.م</span></a><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger); border-color:var(--danger-border); font-weight:600;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 8. Theme System (Light / Dark / System Auto)
   initThemeSystem();
+
+  // 9. Scroll Reveal (brand surfaces only)
+  initScrollReveal();
 });
 
 // Theme Management System
@@ -80,14 +83,14 @@ function applyTheme(theme, save = true) {
   document.querySelectorAll('[data-set-theme]').forEach((btn) => {
     const btnTheme = btn.getAttribute('data-set-theme');
     if (btnTheme === theme) {
-      btn.style.background = 'var(--primary-100)';
-      btn.style.color = 'var(--primary-700)';
-      btn.style.borderColor = 'var(--primary-600)';
-      btn.style.fontWeight = '800';
+      btn.style.background = 'var(--accent-subtle)';
+      btn.style.color = 'var(--accent-text)';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.fontWeight = '600';
     } else {
       btn.style.background = 'transparent';
-      btn.style.color = 'var(--neutral-600)';
-      btn.style.borderColor = 'var(--neutral-200)';
+      btn.style.color = 'var(--text-muted)';
+      btn.style.borderColor = 'var(--border)';
       btn.style.fontWeight = '500';
     }
   });
@@ -409,3 +412,28 @@ function getCookie(name) {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
   return match ? match[2] : null;
 }
+
+// Scroll Reveal: IntersectionObserver for .reveal elements
+function initScrollReveal() {
+  var targets = document.querySelectorAll('.reveal');
+  if (!targets.length) return;
+
+  // If no IntersectionObserver or reduced motion, show everything immediately
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!('IntersectionObserver' in window) || prefersReduced) {
+    targets.forEach(function(el) { el.classList.add('visible'); });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  targets.forEach(function(el) { observer.observe(el); });
+}
+
