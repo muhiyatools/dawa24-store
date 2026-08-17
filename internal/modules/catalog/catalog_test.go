@@ -190,6 +190,45 @@ func (m *mockCatalogRepo) ListProductAlertsByUser(_ context.Context, userID int6
 	return list, nil
 }
 
+func (m *mockCatalogRepo) GetFirstFinderQuestion(_ context.Context) (*FinderQuestion, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) GetFinderQuestionByID(_ context.Context, _ int64) (*FinderQuestion, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) ListFinderOptions(_ context.Context, _ int64) ([]*FinderOption, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) GetFinderResultByID(_ context.Context, _ int64) (*FinderResult, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) ListFinderQuestions(_ context.Context) ([]*FinderQuestion, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) CreateFinderQuestion(_ context.Context, q *FinderQuestion) error {
+	q.ID = 1
+	return nil
+}
+
+func (m *mockCatalogRepo) CreateFinderOption(_ context.Context, o *FinderOption) error {
+	o.ID = 1
+	return nil
+}
+
+func (m *mockCatalogRepo) CreateFinderResult(_ context.Context, r *FinderResult) error {
+	r.ID = 1
+	return nil
+}
+
+func (m *mockCatalogRepo) ListFinderResults(_ context.Context) ([]*FinderResult, error) {
+	return nil, nil
+}
+
 func TestProductEffectivePrice(t *testing.T) {
 	p := &Product{
 		Price:    money.MustParse("100.00"),

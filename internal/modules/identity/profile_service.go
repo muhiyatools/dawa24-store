@@ -94,6 +94,34 @@ func (s *Service) ListAddressHistory(ctx context.Context, userID int64, limit in
 	return s.repo.ListAddressHistory(ctx, userID, limit)
 }
 
+// GetPreferences returns the user's display and notification preferences.
+func (s *Service) GetPreferences(ctx context.Context, userID int64) (*UserPreferences, error) {
+	return s.repo.GetPreferences(ctx, userID)
+}
+
+// UpdatePreferences saves the user's preferences.
+func (s *Service) UpdatePreferences(ctx context.Context, p *UserPreferences) error {
+	return s.repo.UpdatePreferences(ctx, p)
+}
+
+// ListSessionPlans returns available concurrent sign-in plans.
+func (s *Service) ListSessionPlans(ctx context.Context) ([]*SessionPlan, error) {
+	return s.repo.ListSessionPlans(ctx)
+}
+
+// PurchaseSessionPlan applies a plan's concurrency limit to the user. Payment
+// integration is deferred; the limit is applied directly for now.
+func (s *Service) PurchaseSessionPlan(ctx context.Context, userID, planID int64) error {
+	plan, err := s.repo.GetSessionPlanByID(ctx, planID)
+	if err != nil {
+		return err
+	}
+	if err := s.repo.SetMaxLoginSessions(ctx, userID, plan.MaxLoginSessions); err != nil {
+		return err
+	}
+	return nil
+}
+
 // AddFavorite adds a product to user favorites.
 func (s *Service) AddFavorite(ctx context.Context, userID, productID int64) error {
 	if productID <= 0 {

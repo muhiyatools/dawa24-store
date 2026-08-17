@@ -14,6 +14,7 @@ type SearchParams struct {
 	BrandID        *int64
 	MinPrice       *money.Amount
 	MaxPrice       *money.Amount
+	Sort           string // empty, price_asc, price_desc, newest, name
 	Limit          int
 	Offset         int
 }
@@ -58,4 +59,15 @@ type Repository interface {
 
 	CreateProductAlert(ctx context.Context, a *ProductAlert) error
 	ListProductAlertsByUser(ctx context.Context, userID int64) ([]*ProductAlert, error)
+
+	GetFirstFinderQuestion(ctx context.Context) (*FinderQuestion, error)
+	GetFinderQuestionByID(ctx context.Context, id int64) (*FinderQuestion, error)
+	ListFinderOptions(ctx context.Context, questionID int64) ([]*FinderOption, error)
+	GetFinderResultByID(ctx context.Context, id int64) (*FinderResult, error)
+	ListFinderQuestions(ctx context.Context) ([]*FinderQuestion, error)
+
+	CreateFinderQuestion(ctx context.Context, q *FinderQuestion) error
+	CreateFinderOption(ctx context.Context, o *FinderOption) error
+	CreateFinderResult(ctx context.Context, r *FinderResult) error
+	ListFinderResults(ctx context.Context) ([]*FinderResult, error)
 }

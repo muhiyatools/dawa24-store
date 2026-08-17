@@ -98,6 +98,22 @@ func (m *mockPlatformAdminRepo) VisitorAnalytics(_ context.Context, _ int) (*Vis
 	return &VisitorAnalytics{}, nil
 }
 
+func (m *mockPlatformAdminRepo) ListTranslations(_ context.Context) ([]*Translation, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) UpsertTranslation(_ context.Context, _ *Translation) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) ListAuditLog(_ context.Context, _, _ int) ([]*AuditEntry, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) QueueStats(_ context.Context) (map[string]int, error) {
+	return nil, nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

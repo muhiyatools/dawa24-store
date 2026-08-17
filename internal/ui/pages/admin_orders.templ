@@ -1,0 +1,44 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminOrders(lang, dir, query string, orders []*commerce.Order) {
+	@layouts.AdminShell("الطلبات | Orders", "orders", lang, dir) {
+		<div class="card" style="margin-bottom:1.25rem;">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">البحث في الطلبات</h2>
+			<form method="GET" action="/admin/orders" style="display:flex; gap:0.75rem; margin:0;">
+				<input type="text" name="q" value={ query } class="form-input" style="flex:1;" placeholder="رقم الطلب أو اسم العميل…" />
+				<button type="submit" class="btn btn-primary">بحث</button>
+			</form>
+		</div>
+
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">النتائج</h2>
+			if len(orders) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد طلبات مطابقة.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>رقم الطلب</th><th>العميل</th><th>الحالة</th><th>الإجمالي</th></tr></thead>
+						<tbody>
+							for _, o := range orders {
+								<tr>
+									<td>{ o.OrderNumber }</td>
+									<td class="tabular-nums">{ fmt.Sprintf("%d", o.CustomerID) }</td>
+									<td><span class="badge badge-amber">{ o.Status }</span></td>
+									<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: o.TotalAmount })</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

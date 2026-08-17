@@ -40,4 +40,11 @@ type Repository interface {
 	AdminUpdateUserStatus(ctx context.Context, id int64, status string, actorID int64) error
 	AdminResetMFA(ctx context.Context, id int64, actorID int64) error
 	AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error
+
+	GetPreferences(ctx context.Context, userID int64) (*UserPreferences, error)
+	UpdatePreferences(ctx context.Context, p *UserPreferences) error
+
+	ListSessionPlans(ctx context.Context) ([]*SessionPlan, error)
+	GetSessionPlanByID(ctx context.Context, id int64) (*SessionPlan, error)
+	SetMaxLoginSessions(ctx context.Context, userID int64, max int) error
 }

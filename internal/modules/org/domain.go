@@ -66,6 +66,7 @@ type Member struct {
 	OrganizationID int64     `json:"organization_id"`
 	UserID         int64     `json:"user_id"`
 	RoleID         int64     `json:"role_id"`
+	RoleKey        string    `json:"role_key"`
 	IsActive       bool      `json:"is_active"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`

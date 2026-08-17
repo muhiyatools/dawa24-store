@@ -412,3 +412,12 @@ func (r stubRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount
 func (happyRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
 	return money.MustParse("800.00"), nil
 }
+
+func (r stubRepo) SetShipmentTracking(context.Context, int64, string, string) error {
+	r.fail("SetShipmentTracking")
+	return nil
+}
+
+func (happyRepo) SetShipmentTracking(context.Context, int64, string, string) error {
+	return nil
+}

@@ -424,3 +424,48 @@ func (r stubRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*iden
 func (happyRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*identity.UserAddressHistory, error) {
 	return []*identity.UserAddressHistory{}, nil
 }
+
+func (r stubRepo) GetPreferences(_ context.Context, _ int64) (*identity.UserPreferences, error) {
+	r.fail("GetPreferences")
+	return nil, nil
+}
+
+func (r stubRepo) UpdatePreferences(_ context.Context, _ *identity.UserPreferences) error {
+	r.fail("UpdatePreferences")
+	return nil
+}
+
+func (happyRepo) GetPreferences(_ context.Context, _ int64) (*identity.UserPreferences, error) {
+	return &identity.UserPreferences{Theme: "light"}, nil
+}
+
+func (happyRepo) UpdatePreferences(_ context.Context, _ *identity.UserPreferences) error {
+	return nil
+}
+
+func (r stubRepo) ListSessionPlans(_ context.Context) ([]*identity.SessionPlan, error) {
+	r.fail("ListSessionPlans")
+	return nil, nil
+}
+
+func (r stubRepo) GetSessionPlanByID(_ context.Context, _ int64) (*identity.SessionPlan, error) {
+	r.fail("GetSessionPlanByID")
+	return nil, nil
+}
+
+func (r stubRepo) SetMaxLoginSessions(_ context.Context, _ int64, _ int) error {
+	r.fail("SetMaxLoginSessions")
+	return nil
+}
+
+func (happyRepo) ListSessionPlans(_ context.Context) ([]*identity.SessionPlan, error) {
+	return []*identity.SessionPlan{{ID: 1, MaxLoginSessions: 1, IsFree: true}}, nil
+}
+
+func (happyRepo) GetSessionPlanByID(_ context.Context, _ int64) (*identity.SessionPlan, error) {
+	return &identity.SessionPlan{ID: 1, MaxLoginSessions: 1}, nil
+}
+
+func (happyRepo) SetMaxLoginSessions(_ context.Context, _ int64, _ int) error {
+	return nil
+}

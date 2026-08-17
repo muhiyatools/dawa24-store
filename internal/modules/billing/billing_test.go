@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -110,6 +111,11 @@ func (m *mockBillingRepo) ListPlans(_ context.Context) ([]*Plan, error) {
 		list = append(list, p)
 	}
 	return list, nil
+}
+
+func (m *mockBillingRepo) CreatePlan(_ context.Context, p *Plan) error {
+	p.ID = 1
+	return nil
 }
 
 func (m *mockBillingRepo) GetPlanBySlug(_ context.Context, slug string) (*Plan, error) {
@@ -315,4 +321,22 @@ func TestWalletDepositAndWithdraw(t *testing.T) {
 	}
 	_, _ = svc.AdminListPayments(ctx, 10, 0)
 	_, _ = svc.AdminListSubscriptions(ctx, 10, 0)
+}
+
+func TestCreatePlanValidation(t *testing.T) {
+	repo := newMockBillingRepo()
+	svc := NewService(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ctx := context.Background()
+
+	if _, err := svc.CreatePlan(ctx, &Plan{}); err == nil {
+		t.Fatal("expected error for empty slug/name")
+	}
+
+	p, err := svc.CreatePlan(ctx, &Plan{Slug: "basic", Name: i18n.Text{"ar": "أساسية"}, PriceMonth: money.MustParse("100.00")})
+	if err != nil {
+		t.Fatalf("CreatePlan failed: %v", err)
+	}
+	if p.ID == 0 {
+		t.Fatal("expected plan id to be set")
+	}
 }

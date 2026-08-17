@@ -9,6 +9,8 @@ type Repository interface {
 	CreateOffer(ctx context.Context, o *Offer) error
 	GetOfferByID(ctx context.Context, id int64) (*Offer, error)
 	ListActiveOffers(ctx context.Context, limit, offset int) ([]*Offer, error)
+	ListOffers(ctx context.Context, limit, offset int) ([]*Offer, error)
+	SetOfferActive(ctx context.Context, id int64, active bool) error
 	IncrementOfferEngagement(ctx context.Context, offerID int64, isClick bool) error
 
 	CreatePackage(ctx context.Context, p *OfferPackage) error

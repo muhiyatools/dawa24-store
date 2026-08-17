@@ -1,0 +1,53 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminOrganizations(lang, dir string, orgs []*org.Organization) {
+	@layouts.AdminShell("المؤسسات | Organizations", "organizations", lang, dir) {
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">المؤسسات</h2>
+			if len(orgs) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد مؤسسات.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>الاسم التجاري</th><th>النوع</th><th>السجل التجاري</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+						<tbody>
+							for _, o := range orgs {
+								<tr>
+									<td>{ o.TradeName.Get(i18n.Lang(lang)) }</td>
+									<td>{ OrgTypeLabel(o.Type) }</td>
+									<td class="tabular-nums">{ o.CommercialRegister }</td>
+									<td><span class="badge badge-amber">{ o.Status }</span></td>
+									<td style="display:flex; gap:0.4rem;">
+										if o.Status == "pending" || o.Status == "rejected" {
+											<form method="POST" action={ fmt.Sprintf("/admin/organizations/%d/approve", o.ID) } style="margin:0;">
+												<button type="submit" class="btn btn-primary btn-sm">اعتماد</button>
+											</form>
+										}
+										if o.Status == "pending" {
+											<form method="POST" action={ fmt.Sprintf("/admin/organizations/%d/reject", o.ID) } style="margin:0;">
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">رفض</button>
+											</form>
+										}
+										if o.Status == "approved" {
+											<form method="POST" action={ fmt.Sprintf("/admin/organizations/%d/suspend", o.ID) } style="margin:0;">
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">إيقاف</button>
+											</form>
+										}
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

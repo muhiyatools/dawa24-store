@@ -54,6 +54,10 @@ type CartItem struct {
 	CartID           int64        `json:"cart_id"`
 	ProductID        int64        `json:"product_id"`
 	ProductVariantID int64        `json:"product_variant_id"`
+	OrganizationID   int64        `json:"organization_id"`
+	ProductName      i18n.Text    `json:"product_name,omitempty"`
+	SupplierName     i18n.Text    `json:"supplier_name,omitempty"`
+	MinOrderPrice    money.Amount `json:"min_order_price,omitempty"`
 	Quantity         int          `json:"quantity"`
 	UnitPrice        money.Amount `json:"unit_price"`
 	CreatedAt        time.Time    `json:"created_at"`

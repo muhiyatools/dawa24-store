@@ -1,0 +1,64 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ ServicesPage(lang, dir string, services []*workflow.InstitutionalService) {
+	@layouts.CustomerShell("الخدمات المؤسسية | Services", lang, dir) {
+		<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0 0 1.5rem;">الخدمات المؤسسية</h2>
+		if len(services) == 0 {
+			@components.EmptyState(components.EmptyStateProps{
+				Title:       "لا توجد خدمات حالياً",
+				Message:     "لم يتم نشر أي خدمات مؤسسية بعد.",
+				ActionLabel: "تصفح المنتجات",
+			})
+		} else {
+			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem;">
+				for _, s := range services {
+					<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+						<div>
+							<span class="badge badge-emerald">{ pricingLabel(s.PricingType) }</span>
+							<h3 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin:0.6rem 0 0.25rem;">{ s.Title.Get(i18n.Lang(lang)) }</h3>
+							<p style="font-size:0.85rem; color:var(--neutral-600); margin:0;">{ s.Description.Get(i18n.Lang(lang)) }</p>
+						</div>
+						<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/services/%d", s.ID)) } class="btn btn-secondary" style="width:100%; justify-content:center;">التفاصيل</a>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	}
+}
+
+templ ServiceDetail(lang, dir string, s *workflow.InstitutionalService) {
+	@layouts.CustomerShell("خدمة | Service", lang, dir) {
+		<div style="max-width:680px;">
+			<div class="card" style="margin-bottom:0;">
+				<span class="badge badge-emerald">{ pricingLabel(s.PricingType) }</span>
+				<h2 style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin:0.6rem 0 0.5rem;">{ s.Title.Get(i18n.Lang(lang)) }</h2>
+				<div style="color:var(--neutral-700); line-height:1.8;">{ s.Description.Get(i18n.Lang(lang)) }</div>
+				<form method="POST" action={ fmt.Sprintf("/services/%d/request", s.ID) } style="margin-top:1.5rem; margin-bottom:0;">
+					<button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">اطلب هذه الخدمة</button>
+				</form>
+			</div>
+		</div>
+	}
+}
+
+func pricingLabel(p workflow.PricingType) string {
+	switch p {
+	case workflow.PricingPaid:
+		return "مدفوعة"
+	case workflow.PricingSubscription:
+		return "اشتراك"
+	default:
+		return "مجانية"
+	}
+}

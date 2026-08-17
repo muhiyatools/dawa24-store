@@ -1,0 +1,38 @@
+package components
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+// ComboboxOption is one searchable choice in a Combobox.
+type ComboboxOption struct {
+	Value string `json:"value"`
+	Label string `json:"label"`
+}
+
+// ComboboxProps configures a searchable single-select picker.
+type ComboboxProps struct {
+	Name        string
+	Placeholder string
+	Options     []ComboboxOption
+}
+
+// Combobox is an Alpine searchable single-select picker.
+templ Combobox(props ComboboxProps) {
+	<div class="combobox" x-data={ comboboxState(props) } @click.outside="open = false">
+		<input type="text" x-model="query" @focus="open = true" @input="open = true" class="form-input" placeholder={ props.Placeholder } />
+		<input type="hidden" name={ props.Name } x-bind:value="selected" />
+		<div class="combobox-menu" x-show="open" x-cloak>
+			<template x-for="o in filtered()" :key="o.value">
+				<button type="button" class="combobox-item" x-text="o.label" @click="selected = o.value; query = o.label; open = false"></button>
+			</template>
+		</div>
+	</div>
+}
+
+// comboboxState serializes the options into the Alpine x-data payload.
+func comboboxState(props ComboboxProps) string {
+	opts, _ := json.Marshal(props.Options)
+	return fmt.Sprintf("{ open: false, query: '', selected: '', options: %s, filtered() { var q = this.query.toLowerCase(); return this.options.filter(function(o) { return (o.label || '').toLowerCase().indexOf(q) >= 0 }) } }", string(opts))
+}

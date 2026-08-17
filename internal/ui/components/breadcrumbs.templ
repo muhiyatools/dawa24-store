@@ -1,0 +1,22 @@
+package components
+
+type Crumb struct {
+	Label string
+	URL   string
+}
+
+// Breadcrumbs renders a navigation trail for deep catalogue pages.
+templ Breadcrumbs(items []Crumb) {
+	<nav aria-label="مسار التنقل" style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; color:var(--neutral-500); margin-bottom:1rem;">
+		for i, item := range items {
+			if i > 0 {
+				<span aria-hidden="true">/</span>
+			}
+			if item.URL != "" && i < len(items)-1 {
+				<a href={ templ.SafeURL(item.URL) } style="color:inherit; text-decoration:none;">{ item.Label }</a>
+			} else {
+				<span style="color:var(--neutral-800); font-weight:600;">{ item.Label }</span>
+			}
+		}
+	</nav>
+}

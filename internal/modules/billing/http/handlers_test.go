@@ -59,6 +59,11 @@ func (r stubRepo) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 	r.fail("ListPlans")
 	return nil, nil
 }
+
+func (r stubRepo) CreatePlan(ctx context.Context, p *billing.Plan) error {
+	r.fail("CreatePlan")
+	return nil
+}
 func (r stubRepo) GetPlanBySlug(ctx context.Context, slug string) (*billing.Plan, error) {
 	r.fail("GetPlanBySlug")
 	return nil, nil
@@ -145,6 +150,11 @@ func (happyRepo) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 }
 func (happyRepo) GetPlanBySlug(ctx context.Context, slug string) (*billing.Plan, error) {
 	return &billing.Plan{ID: 1, Slug: slug, Name: i18n.Text{"en": "Basic"}}, nil
+}
+
+func (happyRepo) CreatePlan(ctx context.Context, p *billing.Plan) error {
+	p.ID = 1
+	return nil
 }
 func (happyRepo) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {
 	sub.ID = 1

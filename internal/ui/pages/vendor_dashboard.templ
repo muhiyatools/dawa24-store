@@ -11,28 +11,13 @@ import (
 templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 	@layouts.VendorShell("لوحة التحكم", "dashboard", lang, dir) {
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">المنتجات النشطة</span>
-				<div style="font-size:1.9rem; font-weight:900; color:var(--primary-700); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.ActiveProducts) }</div>
-			</div>
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">طلبات قيد التنفيذ</span>
-				<div style="font-size:1.9rem; font-weight:900; color:var(--warning); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.PendingShipments) }</div>
-			</div>
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">مبيعات الشهر</span>
-				<div style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin-top:0.6rem;" class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthSales })</div>
-			</div>
+			@components.StatCard(components.StatCardProps{ Label: "المنتجات النشطة", Value: fmt.Sprintf("%d", data.ActiveProducts), Tone: "primary" })
+			@components.StatCard(components.StatCardProps{ Label: "طلبات قيد التنفيذ", Value: fmt.Sprintf("%d", data.PendingShipments), Tone: "warning" })
+			@components.StatCard(components.StatCardProps{ Label: "مبيعات الشهر", Money: &data.MonthSales, Tone: "neutral" })
 			if data.HasWallet {
-				<div class="card hover-lift" style="margin-bottom:0;">
-					<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">رصيد المحفظة</span>
-					<div style="font-size:1.4rem; font-weight:900; color:var(--info); margin-top:0.6rem;" class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })</div>
-				</div>
+				@components.StatCard(components.StatCardProps{ Label: "رصيد المحفظة", Money: &data.WalletBalance, Tone: "info" })
 			}
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">أصناف تحت الحد الأدنى</span>
-				<div style="font-size:1.9rem; font-weight:900; color:var(--danger); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.LowStockCount) }</div>
-			</div>
+			@components.StatCard(components.StatCardProps{ Label: "أصناف تحت الحد الأدنى", Value: fmt.Sprintf("%d", data.LowStockCount), Tone: "danger" })
 		</div>
 
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
@@ -53,10 +38,9 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 										<td>{ s.ShipmentNumber }</td>
 										<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: s.TotalAmount })</td>
 										<td>
-											<form method="POST" action={ fmt.Sprintf("/vendor/orders/%d/status", s.ID) } style="margin:0;">
-												<input type="hidden" name="status" value="processing" />
-												<button type="submit" class="btn btn-primary btn-sm">تنفيذ</button>
-											</form>
+											@components.ModalTrigger(fmt.Sprintf("dispatch-%d", s.ID), "btn btn-primary btn-sm") {
+												تنفيذ
+											}
 										</td>
 									</tr>
 								}
@@ -121,4 +105,21 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 			</div>
 		</div>
 	}
+
+		for _, s := range data.Shipments {
+			@components.Modal(components.ModalProps{ ID: fmt.Sprintf("dispatch-%d", s.ID), Title: "تنفيذ الشحنة", Size: "sm" }) {
+				<form method="POST" action={ fmt.Sprintf("/vendor/orders/%d/status", s.ID) } style="display:flex; flex-direction:column; gap:1rem;">
+					<input type="hidden" name="status" value="shipped" />
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label" for={ fmt.Sprintf("c-%d", s.ID) }>شركة الشحن</label>
+						<input type="text" id={ fmt.Sprintf("c-%d", s.ID) } name="carrier" class="form-input" placeholder="ARAMEX" />
+					</div>
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label" for={ fmt.Sprintf("t-%d", s.ID) }>رقم التتبع</label>
+						<input type="text" id={ fmt.Sprintf("t-%d", s.ID) } name="tracking" class="form-input tabular-nums" dir="ltr" />
+					</div>
+					<button type="submit" class="btn btn-primary" style="justify-content:center;">تأكيد الشحن</button>
+				</form>
+			}
+		}
 }

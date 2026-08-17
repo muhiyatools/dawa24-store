@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -18,6 +19,8 @@ templ settingsTabs(active string) {
 			{ ID: "profile", Label: "الملف الشخصي", URL: "/settings/profile" },
 			{ ID: "addresses", Label: "العناوين", URL: "/settings/addresses" },
 			{ ID: "security", Label: "الأمان", URL: "/settings/security" },
+			{ ID: "organization", Label: "المؤسسة", URL: "/settings/organization" },
+			{ ID: "preferences", Label: "التفضيلات", URL: "/settings/preferences" },
 		},
 		ActiveID: active,
 	}) {
@@ -160,13 +163,10 @@ templ SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, cit
 				if len(history) == 0 {
 					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد تغييرات مسجلة بعد.</p>
 				} else {
-					for _, h := range history {
-						<div style="display:flex; gap:0.75rem; padding:0.6rem 0; border-bottom:1px solid var(--neutral-100);">
-							<span class="badge badge-amber">{ h.Event }</span>
-							<div>
-								<div style="font-size:0.85rem; color:var(--neutral-700);">{ h.ChangedAt.Format("2006-01-02 15:04") }</div>
-							</div>
-						</div>
+					@components.Timeline() {
+						for _, h := range history {
+							@components.TimelineItem(h.Event, h.ChangedAt.Format("2006-01-02 15:04"), "")
+						}
 					}
 				}
 			</div>
@@ -175,7 +175,7 @@ templ SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, cit
 }
 
 
-templ SettingsSecurity(lang, dir string, sessions []*identity.Session) {
+templ SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*identity.SessionPlan) {
 	@layouts.CustomerShell("الإعدادات", lang, dir) {
 		<div style="max-width:720px;">
 			@settingsTabs("security")
@@ -206,6 +206,189 @@ templ SettingsSecurity(lang, dir string, sessions []*identity.Session) {
 						</table>
 					</div>
 				}
+			</div>
+			<div class="card" style="margin-top:1.25rem;">
+				<h2 class="card-title" style="margin:0 0 0.75rem;">خطط الجلسات المتزامنة</h2>
+				<p style="color:var(--neutral-500); font-size:0.85rem; margin:0 0 1rem;">اختر حداً أعلى لعدد الجلسات المتزامنة لحسابك.</p>
+				if len(plans) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد خطط متاحة.</p>
+				} else {
+					for _, p := range plans {
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+							<div>
+								<div style="font-weight:700; color:var(--neutral-900);">{ p.Name.Get(i18n.Lang(lang)) }</div>
+								<div style="font-size:0.8rem; color:var(--neutral-500);">{ fmt.Sprintf("%d", p.MaxLoginSessions) } جلسة متزامنة</div>
+							</div>
+							<form method="POST" action={ fmt.Sprintf("/settings/security/plan/%d", p.ID) } style="margin:0;">
+								<button type="submit" class="btn btn-primary btn-sm">
+									if p.IsFree {
+										تفعيل مجاناً
+									} else {
+										<span>اشترك · </span>
+										@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.Price })
+									}
+								</button>
+							</form>
+						</div>
+					}
+				}
+			</div>
+		</div>
+	}
+}
+
+
+templ SettingsOrganization(lang, dir string, o *org.Organization, branches []*org.Branch, members []*org.Member) {
+	@layouts.CustomerShell("الإعدادات", lang, dir) {
+		<div style="max-width:720px;">
+			@settingsTabs("organization")
+			<div class="card" style="margin-top:1rem;">
+				<h2 class="card-title" style="margin:0 0 1rem;">بيانات المؤسسة</h2>
+				<form method="POST" action="/settings/organization" style="display:flex; flex-direction:column; gap:1rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label" for="o-legal">الاسم القانوني</label>
+						<input type="text" id="o-legal" name="legal_name" required class="form-input" value={ o.LegalName } />
+					</div>
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="o-trade-ar">الاسم التجاري (عربي)</label>
+							<input type="text" id="o-trade-ar" name="trade_name_ar" class="form-input" value={ o.TradeName.Get(i18n.AR) } />
+						</div>
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="o-trade-en">الاسم التجاري (إنجليزي)</label>
+							<input type="text" id="o-trade-en" name="trade_name_en" class="form-input" dir="ltr" value={ o.TradeName.Get(i18n.EN) } />
+						</div>
+					</div>
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="o-tax">الرقم الضريبي</label>
+							<input type="text" id="o-tax" name="tax_number" class="form-input tabular-nums" value={ o.TaxNumber } />
+						</div>
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="o-cr">السجل التجاري</label>
+							<input type="text" id="o-cr" name="commercial_register" class="form-input tabular-nums" value={ o.CommercialRegister } />
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary" style="justify-content:center;">حفظ بيانات المؤسسة</button>
+				</form>
+			</div>
+
+			<div class="card" style="margin-top:1.25rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+					<h2 class="card-title" style="margin:0;">الفروع</h2>
+				</div>
+				if len(branches) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد فروع.</p>
+				} else {
+					for _, b := range branches {
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+							<div>
+								<div style="font-weight:700; color:var(--neutral-900);">{ b.Name.Get(i18n.Lang(lang)) }</div>
+								<div style="font-size:0.8rem; color:var(--neutral-500);">{ b.Code } · { b.Address }</div>
+							</div>
+							if b.IsMain {
+								<span class="badge badge-emerald">الفرع الرئيسي</span>
+							} else {
+								<form method="POST" action={ fmt.Sprintf("/settings/organization/branch/%d/delete", b.ID) } style="margin:0;">
+									<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">حذف</button>
+								</form>
+							}
+						</div>
+					}
+				}
+
+				<h3 class="card-title" style="margin:1rem 0 0.75rem;">إضافة فرع</h3>
+				<form method="POST" action="/settings/organization/branch" style="display:flex; flex-direction:column; gap:0.9rem;">
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="b-name-ar">اسم الفرع (عربي)</label>
+							<input type="text" id="b-name-ar" name="name_ar" required class="form-input" />
+						</div>
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="b-code">الكود</label>
+							<input type="text" id="b-code" name="code" class="form-input" dir="ltr" />
+						</div>
+					</div>
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label" for="b-address">العنوان</label>
+						<input type="text" id="b-address" name="address" class="form-input" />
+					</div>
+					<button type="submit" class="btn btn-secondary" style="justify-content:center;">إضافة الفرع</button>
+				</form>
+			</div>
+			<div class="card" style="margin-top:1.25rem;">
+				<h2 class="card-title" style="margin:0 0 0.75rem;">الأعضاء</h2>
+				<form method="POST" action="/settings/organization/member" style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+					<input type="email" name="email" required class="form-input" placeholder="البريد الإلكتروني للعضو" style="flex:1;" />
+					<select name="role" class="form-input" style="width:auto;">
+						<option value="org_manager">مدير</option>
+						<option value="org_employee" selected>موظف</option>
+						<option value="org_accountant">محاسب</option>
+						<option value="org_warehouse">أمين مخزن</option>
+					</select>
+					<button type="submit" class="btn btn-primary btn-sm">إضافة عضو</button>
+				</form>
+				if len(members) == 0 {
+					<p style="color:var(--neutral-500); font-size:0.9rem;">لا يوجد أعضاء آخرون.</p>
+				} else {
+					for _, m := range members {
+						<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+							<div style="font-size:0.9rem; color:var(--neutral-700);">عضو #{ fmt.Sprintf("%d", m.UserID) }</div>
+							<form method="POST" action={ fmt.Sprintf("/settings/organization/member/%d/role", m.UserID) } style="display:flex; gap:0.5rem; margin:0;">
+								<select name="role" class="form-input" style="width:auto;">
+									<option value="org_owner" selected={ m.RoleKey == "org_owner" }>مالك</option>
+									<option value="org_manager" selected={ m.RoleKey == "org_manager" }>مدير</option>
+									<option value="org_employee" selected={ m.RoleKey == "org_employee" }>موظف</option>
+									<option value="org_accountant" selected={ m.RoleKey == "org_accountant" }>محاسب</option>
+									<option value="org_warehouse" selected={ m.RoleKey == "org_warehouse" }>أمين مخزن</option>
+								</select>
+								<button type="submit" class="btn btn-secondary btn-sm">تحديث</button>
+							</form>
+						</div>
+					}
+				}
+			</div>
+		</div>
+	}
+}
+
+
+templ SettingsPreferences(lang, dir string, p *identity.UserPreferences) {
+	@layouts.CustomerShell("الإعدادات", lang, dir) {
+		<div style="max-width:560px;">
+			@settingsTabs("preferences")
+			<div class="card" style="margin-top:1rem;">
+				<h2 class="card-title" style="margin:0 0 1rem;">التفضيلات</h2>
+				<form method="POST" action="/settings/preferences" style="display:flex; flex-direction:column; gap:1rem;">
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label" for="p-theme">المظهر</label>
+						<select id="p-theme" name="theme" class="form-input">
+							<option value="light" selected={ p.Theme == "light" }>فاتح</option>
+							<option value="dark" selected={ p.Theme == "dark" }>داكن</option>
+							<option value="auto" selected={ p.Theme == "auto" }>تلقائي</option>
+						</select>
+					</div>
+					<div class="form-group" style="margin-bottom:0;">
+						<label class="form-label">قنوات الإشعارات</label>
+						<label style="display:flex; gap:0.5rem; align-items:center; margin-top:0.4rem;">
+							<input type="checkbox" name="ch_email" checked={ p.NotificationChannels["email"] } />
+							<span>البريد الإلكتروني</span>
+						</label>
+						<label style="display:flex; gap:0.5rem; align-items:center;">
+							<input type="checkbox" name="ch_sms" checked={ p.NotificationChannels["sms"] } />
+							<span>الرسائل النصية</span>
+						</label>
+						<label style="display:flex; gap:0.5rem; align-items:center;">
+							<input type="checkbox" name="ch_push" checked={ p.NotificationChannels["push"] } />
+							<span>إشعارات التطبيق</span>
+						</label>
+					</div>
+					<label style="display:flex; gap:0.5rem; align-items:center; font-size:0.9rem;">
+						<input type="checkbox" name="marketing_consent" checked={ p.MarketingConsent } />
+						<span>أوافق على تلقي عروض تسويقية</span>
+					</label>
+					<button type="submit" class="btn btn-primary" style="justify-content:center;">حفظ التفضيلات</button>
+				</form>
 			</div>
 		</div>
 	}

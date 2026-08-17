@@ -103,6 +103,20 @@ jobs:
           SESSION_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
         run: go test -v -race -cover -count=1 ./...
 
+      - name: Enforce Coverage Floor
+        env:
+          DATABASE_URL: postgres://dawa24:dawa24@localhost:5432/dawa24_store?sslmode=disable
+          REDIS_URL: redis://localhost:6379/0
+          SESSION_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+        run: |
+          go test -coverprofile=coverage.out -count=1 ./...
+          total=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}' | tr -d '%')
+          echo "Total coverage: ${total}%"
+          if awk "BEGIN{exit !(${total} < 1.0)}"; then
+            echo "ERROR: total coverage is effectively zero (${total}%)."
+            exit 1
+          fi
+
       - name: Build All 5 Production Binaries
         run: |
           go build -trimpath -o bin/server ./cmd/server

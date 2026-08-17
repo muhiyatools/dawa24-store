@@ -159,3 +159,11 @@ func (r *Repository) RateOrder(ctx context.Context, orderID, customerID int64, r
 		return nil
 	})
 }
+
+// SetShipmentTracking records the carrier and tracking number for a shipment.
+func (r *Repository) SetShipmentTracking(ctx context.Context, id int64, carrier, tracking string) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `UPDATE commerce.order_shipments SET carrier_name = $2, tracking_number = $3 WHERE id = $1;`, id, carrier, tracking)
+		return err
+	})
+}

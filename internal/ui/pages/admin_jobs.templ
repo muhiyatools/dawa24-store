@@ -1,0 +1,32 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminJobs(lang, dir string, stats map[string]int) {
+	@layouts.AdminShell("قوائم الانتظار | Jobs", "jobs", lang, dir) {
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">قوائم River</h2>
+			if len(stats) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد وظائف في القوائم.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>الحالة</th><th>العدد</th></tr></thead>
+						<tbody>
+							for state, n := range stats {
+								<tr>
+									<td>{ state }</td>
+									<td class="tabular-nums">{ fmt.Sprintf("%d", n) }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

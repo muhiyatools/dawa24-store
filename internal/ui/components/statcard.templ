@@ -1,0 +1,41 @@
+package components
+
+import "github.com/muhiya/dawa24-store/internal/shared/money"
+
+// StatCardProps renders a dashboard metric card. Value is a plain string;
+// Money renders a money.Amount via MoneyDisplay instead. Tone selects the
+// accent colour (primary, warning, danger, info, neutral).
+type StatCardProps struct {
+	Label string
+	Value string
+	Money *money.Amount
+	Tone  string
+}
+
+templ StatCard(props StatCardProps) {
+	<div class="card hover-lift" style="margin-bottom:0;">
+		<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">{ props.Label }</span>
+		<div style={ statValueStyle(props.Tone) } class="tabular-nums">
+			if props.Money != nil {
+				@MoneyDisplay(MoneyDisplayProps{ Amount: *props.Money, Large: true })
+			} else {
+				{ props.Value }
+			}
+		</div>
+	</div>
+}
+
+func statValueStyle(tone string) string {
+	switch tone {
+	case "primary":
+		return "font-size:1.9rem; font-weight:900; color:var(--primary-700); margin-top:0.6rem;"
+	case "warning":
+		return "font-size:1.9rem; font-weight:900; color:var(--warning); margin-top:0.6rem;"
+	case "danger":
+		return "font-size:1.9rem; font-weight:900; color:var(--danger); margin-top:0.6rem;"
+	case "info":
+		return "font-size:1.9rem; font-weight:900; color:var(--info); margin-top:0.6rem;"
+	default:
+		return "font-size:1.9rem; font-weight:900; color:var(--neutral-900); margin-top:0.6rem;"
+	}
+}

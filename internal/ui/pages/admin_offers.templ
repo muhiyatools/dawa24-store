@@ -1,0 +1,55 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminOffers(lang, dir string, offers []*promo.Offer) {
+	@layouts.AdminShell("العروض | Offers", "offers", lang, dir) {
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">مراجعة العروض</h2>
+			if len(offers) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد عروض.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>العنوان</th><th>المؤسسة</th><th>الخصم</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+						<tbody>
+							for _, o := range offers {
+								<tr>
+									<td>{ o.Title.Get(i18n.Lang(lang)) }</td>
+									<td class="tabular-nums">{ fmt.Sprintf("%d", o.OrganizationID) }</td>
+									<td>{ o.DiscountValue.String() }</td>
+									<td><span class="badge badge-amber">
+										if o.IsActive {
+											نشط
+										} else {
+											معطل
+										}
+									</span></td>
+									<td>
+										if o.IsActive {
+											<form method="POST" action={ fmt.Sprintf("/admin/offers/%d/status", o.ID) } style="margin:0;">
+												<input type="hidden" name="active" value="false" />
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">تعطيل</button>
+											</form>
+										} else {
+											<form method="POST" action={ fmt.Sprintf("/admin/offers/%d/status", o.ID) } style="margin:0;">
+												<input type="hidden" name="active" value="true" />
+												<button type="submit" class="btn btn-primary btn-sm">تفعيل</button>
+											</form>
+										}
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

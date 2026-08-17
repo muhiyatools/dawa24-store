@@ -1,0 +1,35 @@
+package components
+
+import (
+	"fmt"
+	"strings"
+)
+
+// Rating renders a read-only star rating. Value is a number 0-5 with an
+// optional half star.
+templ Rating(value float64) {
+	<span style="color:var(--warning); letter-spacing:0.1em;" aria-label={ fmt.Sprintf("التقييم %.1f من 5", value) }>
+		{ stars(value) }
+	</span>
+}
+
+func stars(v float64) string {
+	if v < 0 {
+		v = 0
+	}
+	if v > 5 {
+		v = 5
+	}
+	full := int(v)
+	half := v-float64(full) >= 0.5
+	out := strings.Repeat("★", full)
+	if half {
+		out += "½"
+	}
+	remaining := 5 - full
+	if half {
+		remaining--
+	}
+	out += strings.Repeat("☆", remaining)
+	return out
+}

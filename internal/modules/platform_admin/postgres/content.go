@@ -100,3 +100,81 @@ func (r *Repository) GetPublishedPolicy(ctx context.Context, slug string) (*plat
 	}
 	return &p, nil
 }
+
+// ListTranslations returns all UI translations.
+func (r *Repository) ListTranslations(ctx context.Context) ([]*platformadmin.Translation, error) {
+	var list []*platformadmin.Translation
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `SELECT id, key, translation_group, text, updated_at FROM platform_admin.translations ORDER BY key ASC;`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var t platformadmin.Translation
+			if err := rows.Scan(&t.ID, &t.Key, &t.Group, &t.Text, &t.UpdatedAt); err != nil {
+				return err
+			}
+			list = append(list, &t)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// UpsertTranslation creates or updates a translation by key.
+func (r *Repository) UpsertTranslation(ctx context.Context, t *platformadmin.Translation) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `INSERT INTO platform_admin.translations (key, translation_group, text, updated_at) VALUES ($1, $2, $3, now()) ON CONFLICT (key) DO UPDATE SET translation_group = EXCLUDED.translation_group, text = EXCLUDED.text, updated_at = now() RETURNING id, updated_at;`
+		return tx.QueryRow(txCtx, query, t.Key, t.Group, t.Text).Scan(&t.ID, &t.UpdatedAt)
+	})
+}
+
+// ListAuditLog returns the platform audit trail, newest first.
+func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*platformadmin.AuditEntry, error) {
+	var list []*platformadmin.AuditEntry
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `SELECT id, organization_id, actor_user_id, action, entity_type, entity_id, before, after, created_at FROM platform.audit_log ORDER BY created_at DESC LIMIT $1 OFFSET $2;`
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		rows, err := tx.Query(txCtx, query, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var e platformadmin.AuditEntry
+			if err := rows.Scan(&e.ID, &e.OrganizationID, &e.ActorUserID, &e.Action, &e.EntityType, &e.EntityID, &e.Before, &e.After, &e.CreatedAt); err != nil {
+				return err
+			}
+			list = append(list, &e)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// QueueStats returns River job counts grouped by state.
+func (r *Repository) QueueStats(ctx context.Context) (map[string]int, error) {
+	stats := map[string]int{}
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `SELECT state, COUNT(*) FROM river_job GROUP BY state;`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var state string
+			var n int
+			if err := rows.Scan(&state, &n); err != nil {
+				return err
+			}
+			stats[state] = n
+		}
+		return rows.Err()
+	})
+	return stats, err
+}

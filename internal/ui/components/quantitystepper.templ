@@ -1,0 +1,30 @@
+package components
+
+import "fmt"
+
+type QuantityStepperProps struct {
+	ID       string
+	Name     string
+	Value    int
+	Min      int
+	Max      int
+	Disabled bool
+}
+
+// QuantityStepper is a +/- quantity control that honours pack size bounds.
+templ QuantityStepper(props QuantityStepperProps) {
+	<div class="qty-stepper" x-data={ fmt.Sprintf("{ qty: %d, min: %d, max: %d }", props.Value, props.Min, props.Max) }>
+		<button type="button" class="qty-btn" x-on:click="qty = Math.max(min, qty - 1)" aria-label="إنقاص">−</button>
+		<input
+			type="number"
+			name={ props.Name }
+			class="qty-input"
+			x-model.number="qty"
+			x-bind:min="min"
+			x-bind:max="max"
+			disabled={ props.Disabled }
+			aria-label="الكمية"
+		/>
+		<button type="button" class="qty-btn" x-on:click="qty = Math.min(max, qty + 1)" aria-label="زيادة">+</button>
+	</div>
+}

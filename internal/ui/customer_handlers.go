@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -24,10 +25,25 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	var minPrice, maxPrice *money.Amount
+	if v := r.URL.Query().Get("min_price"); v != "" {
+		if a, err := money.Parse(v); err == nil {
+			minPrice = &a
+		}
+	}
+	if v := r.URL.Query().Get("max_price"); v != "" {
+		if a, err := money.Parse(v); err == nil {
+			maxPrice = &a
+		}
+	}
+
 	products, err := h.catSvc.Search(ctx, catalog.SearchParams{
-		Query:  query,
-		Limit:  h.pageLimit(r),
-		Offset: h.pageOffset(r),
+		Query:    query,
+		Sort:     r.URL.Query().Get("sort"),
+		MinPrice: minPrice,
+		MaxPrice: maxPrice,
+		Limit:    h.pageLimit(r),
+		Offset:   h.pageOffset(r),
 	})
 	if err != nil {
 		h.renderError(w, r, err)

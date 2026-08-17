@@ -58,10 +58,48 @@ templ CustomerCatalog(products []*catalog.Product, categories []*catalog.Categor
 								hx-push-url="true"
 							/>
 						</div>
+						<select name="sort" class="form-input" style="width:auto;" onchange="window.location = '/catalog?q=' + encodeURIComponent(document.querySelector('input[name=q]').value) + '&sort=' + this.value">
+							<option value="">الأكثر مبيعاً</option>
+							<option value="price_asc">السعر: من الأقل</option>
+							<option value="price_desc">السعر: من الأعلى</option>
+							<option value="newest">الأحدث</option>
+							<option value="name">الاسم</option>
+						</select>
+						<input type="number" name="min_price" class="form-input" placeholder="أدنى سعر" style="width:110px;" onchange="applyFilters()" />
+						<input type="number" name="max_price" class="form-input" placeholder="أعلى سعر" style="width:110px;" onchange="applyFilters()" />
+						<button type="button" class="btn btn-secondary btn-sm" onclick="document.body.classList.toggle('list-view')" aria-label="تبديل طريقة العرض">قائمة / شبكة</button>
 					</div>
+					<script>
+						function catalogParams() {
+							var q = document.querySelector('input[name=q]').value;
+							var sort = document.querySelector('select[name=sort]').value;
+							var min = document.querySelector('input[name=min_price]').value;
+							var max = document.querySelector('input[name=max_price]').value;
+							var params = new URLSearchParams(window.location.search);
+							if (q) params.set('q', q); else params.delete('q');
+							if (sort) params.set('sort', sort); else params.delete('sort');
+							if (min) params.set('min_price', min); else params.delete('min_price');
+							if (max) params.set('max_price', max); else params.delete('max_price');
+							return params;
+						}
+						function applyFilters() {
+							window.location = '/catalog?' + catalogParams().toString();
+						}
+						function page(delta) {
+							var params = catalogParams();
+							var offset = parseInt(params.get('offset') || '0', 10);
+							var next = Math.max(0, offset + delta * 20);
+							if (next > 0) params.set('offset', next); else params.delete('offset');
+							window.location = '/catalog?' + params.toString();
+						}
+					</script>
 
 					<div id="catalog-results">
 						@CustomerCatalogList(products, lang)
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem;">
+							<button type="button" class="btn btn-secondary btn-sm" onclick="page(-1)">السابق</button>
+							<button type="button" class="btn btn-secondary btn-sm" onclick="page(1)">التالي</button>
+						</div>
 					</div>
 				</main>
 			</div>
@@ -110,13 +148,36 @@ templ CustomerCatalogList(products []*catalog.Product, lang string) {
 						}
 					</div>
 
-					<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
-						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-secondary" style="width:100%; font-size:0.85rem; justify-content:center;">
-							@components.IconFileText("icon-xs")
-							<span>التفاصيل والأسعار</span>
+					<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem; display:flex; gap:0.5rem;">
+						@components.ModalTrigger(fmt.Sprintf("quick-%d", p.ID), "btn btn-secondary") {
+							عرض سريع
+						}
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary" style="flex:1; font-size:0.85rem; justify-content:center;">
+							التفاصيل والأسعار
 						</a>
 					</div>
 				</div>
+
+				@components.Modal(components.ModalProps{ ID: fmt.Sprintf("quick-%d", p.ID), Title: p.Name["ar"], Size: "sm" }) {
+					<div style="display:flex; flex-direction:column; gap:0.6rem;">
+						if p.Name["en"] != "" {
+							<div style="font-size:0.9rem; color:var(--neutral-600);" dir="ltr">{ p.Name["en"] }</div>
+						}
+						if p.DosageForm != "" {
+							<div style="font-size:0.9rem;"><span style="color:var(--neutral-500);">الشكل الصيدلي: </span>{ p.DosageForm }</div>
+						}
+						if p.ManufacturingCompanies != "" {
+							<div style="font-size:0.9rem;"><span style="color:var(--neutral-500);">الشركة: </span>{ p.ManufacturingCompanies }</div>
+						}
+						if p.ScientificName != "" {
+							<div style="font-size:0.9rem;"><span style="color:var(--neutral-500);">المادة الفعالة: </span>{ p.ScientificName }</div>
+						}
+						if p.Barcode != "" {
+							<div style="font-size:0.9rem;" class="tabular-nums"><span style="color:var(--neutral-500);">باركود: </span>{ p.Barcode }</div>
+						}
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary" style="justify-content:center;">التفاصيل الكاملة</a>
+					</div>
+				}
 			}
 		</div>
 	}

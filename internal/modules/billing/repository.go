@@ -18,6 +18,7 @@ type Repository interface {
 
 	ListPlans(ctx context.Context) ([]*Plan, error)
 	GetPlanBySlug(ctx context.Context, slug string) (*Plan, error)
+	CreatePlan(ctx context.Context, p *Plan) error
 	CreateSubscription(ctx context.Context, sub *Subscription) error
 	GetActiveSubscription(ctx context.Context, userID int64) (*Subscription, error)
 	CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error)

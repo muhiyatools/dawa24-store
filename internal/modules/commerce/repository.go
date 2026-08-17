@@ -35,6 +35,7 @@ type Repository interface {
 	// UpdateShipmentStatus is a compare-and-swap on the expected prior status,
 	// so two vendor staff acting at once cannot both advance the same shipment.
 	UpdateShipmentStatus(ctx context.Context, id int64, from, to OrderStatus, history OrderStatusHistory) error
+	SetShipmentTracking(ctx context.Context, id int64, carrier, tracking string) error
 	ListOrderHistory(ctx context.Context, orderID int64) ([]*OrderStatusHistory, error)
 	RateOrder(ctx context.Context, orderID int64, customerID int64, rating int, review string) error
 

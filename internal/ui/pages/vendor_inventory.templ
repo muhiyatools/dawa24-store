@@ -52,6 +52,7 @@ templ VendorInventoryTable(stocks []*inventory.Stock) {
 						<th>المخزن / الفرع</th>
 						<th>الرصيد المتاح</th>
 						<th>حد إعادة الطلب</th>
+						<th>إجراءات</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -72,6 +73,24 @@ templ VendorInventoryTable(stocks []*inventory.Stock) {
 								<span class="badge badge-amber tabular-nums" style="font-size:0.85rem;">
 									{ fmt.Sprintf("%d", s.MinThreshold) }
 								</span>
+							</td>
+							<td>
+								@components.ModalTrigger(fmt.Sprintf("adjust-%d", s.ID), "btn btn-secondary btn-sm") {
+									تعديل
+								}
+								@components.Modal(components.ModalProps{ ID: fmt.Sprintf("adjust-%d", s.ID), Title: "تعديل الرصيد", Size: "sm" }) {
+									<form method="POST" action={ fmt.Sprintf("/vendor/inventory/%d/adjust", s.ID) } style="display:flex; flex-direction:column; gap:0.9rem;">
+										<div class="form-group" style="margin-bottom:0;">
+											<label class="form-label">التعديل (+/-)</label>
+											<input type="number" name="delta" required class="form-input tabular-nums" placeholder="+10 أو -5" />
+										</div>
+										<div class="form-group" style="margin-bottom:0;">
+											<label class="form-label">السبب</label>
+											<input type="text" name="reason" class="form-input" placeholder="جرد / تلف / تسوية" />
+										</div>
+										<button type="submit" class="btn btn-primary" style="justify-content:center;">حفظ التعديل</button>
+									</form>
+								}
 							</td>
 						</tr>
 					}

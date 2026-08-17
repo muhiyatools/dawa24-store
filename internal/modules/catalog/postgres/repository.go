@@ -145,8 +145,9 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			               OR name->>'en' ILIKE '%' || $1 || '%')
 			  AND ($2::bigint IS NULL OR category_id = $2)
 			  AND ($3::bigint IS NULL OR brand_id = $3)
-			ORDER BY (CASE WHEN $1 <> '' THEN similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) ELSE 0 END) DESC,
-			         sold_times DESC, created_at DESC
+			  AND ($6::numeric IS NULL OR price >= $6)
+			  AND ($7::numeric IS NULL OR price <= $7)
+		` + catalogOrderBy(params.Sort) + `
 			LIMIT $4 OFFSET $5;
 		`
 		limit := params.Limit
@@ -154,7 +155,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			limit = 20
 		}
 
-		rows, err := tx.Query(txCtx, query, params.Query, params.CategoryID, params.BrandID, limit, params.Offset)
+		rows, err := tx.Query(txCtx, query, params.Query, params.CategoryID, params.BrandID, limit, params.Offset, params.MinPrice, params.MaxPrice)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: search products: %w", err)
 		}
@@ -182,4 +183,20 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		return nil, err
 	}
 	return products, nil
+}
+
+// catalogOrderBy maps a whitelisted sort key onto a safe ORDER BY clause.
+func catalogOrderBy(sort string) string {
+	switch sort {
+	case "price_asc":
+		return "price ASC, created_at DESC"
+	case "price_desc":
+		return "price DESC, created_at DESC"
+	case "newest":
+		return "created_at DESC"
+	case "name":
+		return "name->>'ar' ASC"
+	default:
+		return "sold_times DESC, created_at DESC"
+	}
 }

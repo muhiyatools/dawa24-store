@@ -54,6 +54,16 @@ func (s *Service) ListActiveOffers(ctx context.Context, limit, offset int) ([]*O
 	return s.repo.ListActiveOffers(ctx, limit, offset)
 }
 
+// ListOffers returns all offers for admin moderation.
+func (s *Service) ListOffers(ctx context.Context, limit, offset int) ([]*Offer, error) {
+	return s.repo.ListOffers(ctx, limit, offset)
+}
+
+// SetOfferActive activates or deactivates an offer.
+func (s *Service) SetOfferActive(ctx context.Context, id int64, active bool) error {
+	return s.repo.SetOfferActive(ctx, id, active)
+}
+
 // RecordOfferView tracks an impression for an offer.
 func (s *Service) RecordOfferView(ctx context.Context, offerID int64) error {
 	return s.repo.IncrementOfferEngagement(ctx, offerID, false)

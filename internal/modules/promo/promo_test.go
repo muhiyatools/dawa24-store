@@ -58,6 +58,18 @@ func (m *mockPromoRepo) ListActiveOffers(_ context.Context, limit, offset int) (
 	return list, nil
 }
 
+func (m *mockPromoRepo) ListOffers(_ context.Context, _, _ int) ([]*Offer, error) {
+	var list []*Offer
+	for _, o := range m.offers {
+		list = append(list, o)
+	}
+	return list, nil
+}
+
+func (m *mockPromoRepo) SetOfferActive(_ context.Context, _ int64, _ bool) error {
+	return nil
+}
+
 func (m *mockPromoRepo) IncrementOfferEngagement(_ context.Context, offerID int64, isClick bool) error {
 	o, ok := m.offers[offerID]
 	if !ok {

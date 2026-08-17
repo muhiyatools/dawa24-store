@@ -1,0 +1,36 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
+	@layouts.AdminShell("سجل التدقيق | Audit", "audit", lang, dir) {
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">سجل التدقيق</h2>
+			if len(entries) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد أحداث بعد.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>الإجراء</th><th>النوع</th><th>المعرف</th><th>الفاعل</th><th>التاريخ</th></tr></thead>
+						<tbody>
+							for _, e := range entries {
+								<tr>
+									<td>{ e.Action }</td>
+									<td>{ e.EntityType }</td>
+									<td dir="ltr">{ e.EntityID }</td>
+									<td class="tabular-nums">{ fmt.Sprintf("%v", e.ActorUserID) }</td>
+									<td>{ e.CreatedAt.Format("2006-01-02 15:04") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

@@ -3,11 +3,14 @@ package ui
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -159,14 +162,37 @@ func (h *UIHandler) SettingsSecurityPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	var sessions []*identity.Session
+	var plans []*identity.SessionPlan
 	if h.idSvc != nil {
 		sessions, _ = h.idSvc.ListSessions(ctx, actor.UserID)
+		plans, _ = h.idSvc.ListSessionPlans(ctx)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsSecurity(lang, dir, sessions).Render(ctx, w); err != nil {
+	if err := pages.SettingsSecurity(lang, dir, sessions, plans).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render settings security", "error", err)
 	}
+}
+
+// SettingsSessionPlanPurchaseSubmit applies a session plan's concurrency limit.
+func (h *UIHandler) SettingsSessionPlanPurchaseSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/security", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil {
+		h.redirectWithNotice(w, r, "/settings/security", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+	planID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err := h.idSvc.PurchaseSessionPlan(ctx, actor.UserID, planID); err != nil {
+		h.redirectWithNotice(w, r, "/settings/security", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/settings/security", "success", "تم تفعيل الخطة.")
 }
 
 // SettingsSessionRevokeSubmit revokes one of the user's sessions.
@@ -182,4 +208,217 @@ func (h *UIHandler) SettingsSessionRevokeSubmit(w http.ResponseWriter, r *http.R
 		_ = h.idSvc.RevokeSession(ctx, r.PostFormValue("token"), actor.UserID)
 	}
 	http.Redirect(w, r, "/settings/security", http.StatusSeeOther)
+}
+
+// SettingsOrganizationPage renders the organization profile and branches.
+func (h *UIHandler) SettingsOrganizationPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
+		return
+	}
+
+	var o *org.Organization
+	var branches []*org.Branch
+	var members []*org.Member
+	if h.orgSvc != nil {
+		o, _ = h.orgSvc.GetOrganization(ctx, actor.OrganizationID)
+		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+		members, _ = h.orgSvc.ListMembers(ctx, actor.OrganizationID)
+	}
+	if o == nil {
+		http.Redirect(w, r, "/settings/profile", http.StatusSeeOther)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.SettingsOrganization(lang, dir, o, branches, members).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render settings organization", "error", err)
+	}
+}
+
+// SettingsMemberRoleSubmit changes a member's organization role.
+func (h *UIHandler) SettingsMemberRoleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
+		return
+	}
+
+	if h.orgSvc != nil {
+		if userID, err := strconv.ParseInt(chi.URLParam(r, "userID"), 10, 64); err == nil {
+			_ = h.orgSvc.UpdateMemberRole(ctx, actor.OrganizationID, userID, r.PostFormValue("role"))
+		}
+	}
+	http.Redirect(w, r, "/settings/organization", http.StatusSeeOther)
+}
+
+// SettingsOrgUpdateSubmit saves organization profile fields.
+func (h *UIHandler) SettingsOrgUpdateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
+		return
+	}
+
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	o, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID)
+	if err != nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	o.LegalName = r.PostFormValue("legal_name")
+	o.TradeName = i18n.New(r.PostFormValue("trade_name_ar"), r.PostFormValue("trade_name_en"))
+	o.TaxNumber = r.PostFormValue("tax_number")
+	o.CommercialRegister = r.PostFormValue("commercial_register")
+
+	if err := h.orgSvc.UpdateOrganization(ctx, o); err != nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/settings/organization", "success", "تم حفظ بيانات المؤسسة.")
+}
+
+// SettingsBranchCreateSubmit adds a branch.
+func (h *UIHandler) SettingsBranchCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
+		return
+	}
+
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	code := r.PostFormValue("code")
+	if code == "" {
+		code = "BR-" + strconv.FormatInt(time.Now().UnixNano()%100000, 10)
+	}
+	b := &org.Branch{
+		OrganizationID: actor.OrganizationID,
+		Name:           i18n.New(r.PostFormValue("name_ar"), ""),
+		Code:           code,
+		Address:        r.PostFormValue("address"),
+		IsMain:         false,
+	}
+	if err := h.orgSvc.CreateBranch(ctx, b); err != nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/settings/organization", "success", "تمت إضافة الفرع.")
+}
+
+// SettingsBranchDeleteSubmit removes a non-main branch.
+func (h *UIHandler) SettingsBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
+		return
+	}
+
+	if h.orgSvc != nil {
+		if id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64); err == nil {
+			_ = h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID)
+		}
+	}
+	http.Redirect(w, r, "/settings/organization", http.StatusSeeOther)
+}
+
+// SettingsPreferencesPage renders the user's display and notification prefs.
+func (h *UIHandler) SettingsPreferencesPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/preferences", http.StatusSeeOther)
+		return
+	}
+
+	p := &identity.UserPreferences{UserID: actor.UserID, Theme: "light"}
+	if h.idSvc != nil {
+		if prefs, err := h.idSvc.GetPreferences(ctx, actor.UserID); err == nil && prefs != nil {
+			p = prefs
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.SettingsPreferences(lang, dir, p).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render settings preferences", "error", err)
+	}
+}
+
+// SettingsPreferencesSubmit saves the user's preferences.
+func (h *UIHandler) SettingsPreferencesSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/preferences", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil {
+		h.redirectWithNotice(w, r, "/settings/preferences", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	p := &identity.UserPreferences{
+		UserID: actor.UserID,
+		Theme:  r.PostFormValue("theme"),
+		NotificationChannels: map[string]bool{
+			"email": r.PostFormValue("ch_email") == "on",
+			"sms":   r.PostFormValue("ch_sms") == "on",
+			"push":  r.PostFormValue("ch_push") == "on",
+		},
+		NotificationTopics: map[string]bool{"offers": true, "blog": false, "newsletter": true},
+		MarketingConsent:   r.PostFormValue("marketing_consent") == "on",
+	}
+	if p.Theme == "" {
+		p.Theme = "light"
+	}
+	if err := h.idSvc.UpdatePreferences(ctx, p); err != nil {
+		h.redirectWithNotice(w, r, "/settings/preferences", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/settings/preferences", "success", "تم حفظ التفضيلات.")
+}
+
+// SettingsMemberAddSubmit adds an existing user to the organization by email.
+func (h *UIHandler) SettingsMemberAddSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil || h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	user, err := h.idSvc.GetUserByEmail(ctx, r.PostFormValue("email"))
+	if err != nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", "لا يوجد مستخدم بهذا البريد الإلكتروني.")
+		return
+	}
+
+	if _, err := h.orgSvc.AddMemberByRoleKey(ctx, actor.OrganizationID, user.ID, r.PostFormValue("role")); err != nil {
+		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/settings/organization", "success", "تمت إضافة العضو.")
 }

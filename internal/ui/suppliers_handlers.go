@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -100,4 +101,48 @@ func (h *UIHandler) SupplierFollowSubmit(w http.ResponseWriter, r *http.Request)
 		back = "/suppliers"
 	}
 	http.Redirect(w, r, back, http.StatusSeeOther)
+}
+
+// SupplierQuoteSubmit creates a bulk quote request addressed to a supplier.
+func (h *UIHandler) SupplierQuoteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect="+r.Referer(), http.StatusSeeOther)
+		return
+	}
+	if actor.OrganizationID <= 0 {
+		h.redirectWithNotice(w, r, "/suppliers", "error", "تحتاج إلى حساب مؤسسة معتمد لطلب عرض سعر.")
+		return
+	}
+
+	supplierID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
+	if qty <= 0 {
+		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", "أدخل كمية صحيحة.")
+		return
+	}
+
+	if h.commSvc == nil {
+		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	var productID *int64
+	if pid, err := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64); err == nil && pid > 0 {
+		productID = &pid
+	}
+
+	_, err := h.commSvc.CreateQuoteRequest(ctx, &commerce.QuoteRequest{
+		OrganizationID:    supplierID,
+		CustomerOrgID:     actor.OrganizationID,
+		ProductID:         productID,
+		RequestedQuantity: qty,
+		BuyerNotes:        r.PostFormValue("notes"),
+	})
+	if err != nil {
+		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "success", "تم إرسال طلب عرض السعر.")
 }

@@ -233,11 +233,11 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO org.members (organization_id, user_id, role_id, role_key, is_active)
-			VALUES ($1, $2, $3, 'org_employee', $4)
+			VALUES ($1, $2, $3, COALESCE(NULLIF($5, ''), 'org_employee'), $4)
 			ON CONFLICT (organization_id, user_id) DO UPDATE SET role_id = EXCLUDED.role_id, role_key = EXCLUDED.role_key, is_active = EXCLUDED.is_active, updated_at = now()
 			RETURNING id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query, m.OrganizationID, m.UserID, m.RoleID, m.IsActive).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
+		return tx.QueryRow(txCtx, query, m.OrganizationID, m.UserID, m.RoleID, m.IsActive, m.RoleKey).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 	})
 }
 
@@ -245,7 +245,7 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.Member, error) {
 	var list []*org.Member
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, organization_id, user_id, role_id, is_active, created_at, updated_at FROM org.members WHERE organization_id = $1;`
+		query := `SELECT id, organization_id, user_id, role_id, role_key, is_active, created_at, updated_at FROM org.members WHERE organization_id = $1;`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {
 			return err
@@ -253,7 +253,7 @@ func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.
 		defer rows.Close()
 		for rows.Next() {
 			var m org.Member
-			if err := rows.Scan(&m.ID, &m.OrganizationID, &m.UserID, &m.RoleID, &m.IsActive, &m.CreatedAt, &m.UpdatedAt); err != nil {
+			if err := rows.Scan(&m.ID, &m.OrganizationID, &m.UserID, &m.RoleID, &m.RoleKey, &m.IsActive, &m.CreatedAt, &m.UpdatedAt); err != nil {
 				return err
 			}
 			list = append(list, &m)

@@ -1,0 +1,16 @@
+package components
+
+type DateRangePickerProps struct {
+	StartName string
+	EndName   string
+}
+
+// DateRangePicker renders a paired start/end date input for report and
+// analytics filters.
+templ DateRangePicker(props DateRangePickerProps) {
+	<div class="date-range" style="display:flex; gap:0.75rem; align-items:center;">
+		<input type="date" name={ props.StartName } class="form-input" aria-label="من تاريخ" />
+		<span style="color:var(--neutral-400);">إلى</span>
+		<input type="date" name={ props.EndName } class="form-input" aria-label="إلى تاريخ" />
+	</div>
+}

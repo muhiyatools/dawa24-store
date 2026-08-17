@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -328,7 +329,33 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 
 	if h.commSvc != nil && shipmentID > 0 && toStatus != "" {
 		_, _ = h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, "")
+		if carrier := r.PostFormValue("carrier"); carrier != "" {
+			_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, r.PostFormValue("tracking"))
+		}
 	}
 
 	http.Redirect(w, r, "/vendor/orders", http.StatusSeeOther)
+}
+
+// VendorStockAdjustSubmit adjusts a stock level with a reason.
+func (h *UIHandler) VendorStockAdjustSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/inventory", http.StatusSeeOther)
+		return
+	}
+
+	stockID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	delta, _ := strconv.Atoi(r.PostFormValue("delta"))
+	if h.invSvc != nil && stockID > 0 && delta != 0 {
+		_, _ = h.invSvc.AdjustStock(ctx, inventory.AdjustStockInput{
+			StockID: stockID,
+			Delta:   delta,
+			Type:    inventory.MovementAdjustment,
+			Details: r.PostFormValue("reason"),
+			UserID:  &actor.UserID,
+		})
+	}
+	http.Redirect(w, r, "/vendor/inventory", http.StatusSeeOther)
 }

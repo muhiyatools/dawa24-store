@@ -138,3 +138,25 @@ type VisitorAnalytics struct {
 	ByBrowser map[string]int
 	Recent    []*Visitor
 }
+
+// Translation is one bilingual UI string override (platform_admin.translations).
+type Translation struct {
+	ID        int64     `json:"id"`
+	Key       string    `json:"key"`
+	Group     string    `json:"translation_group"`
+	Text      i18n.Text `json:"text"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// AuditEntry is one row of the platform audit trail, for /admin/audit.
+type AuditEntry struct {
+	ID             int64          `json:"id"`
+	OrganizationID *int64         `json:"organization_id,omitempty"`
+	ActorUserID    *int64         `json:"actor_user_id,omitempty"`
+	Action         string         `json:"action"`
+	EntityType     string         `json:"entity_type"`
+	EntityID       string         `json:"entity_id"`
+	Before         map[string]any `json:"before,omitempty"`
+	After          map[string]any `json:"after,omitempty"`
+	CreatedAt      time.Time      `json:"created_at"`
+}

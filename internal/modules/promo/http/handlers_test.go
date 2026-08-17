@@ -39,6 +39,15 @@ func (r stubRepo) ListActiveOffers(context.Context, int, int) ([]*promo.Offer, e
 	r.fail("ListActiveOffers")
 	return nil, nil
 }
+
+func (r stubRepo) ListOffers(context.Context, int, int) ([]*promo.Offer, error) {
+	r.fail("ListOffers")
+	return nil, nil
+}
+func (r stubRepo) SetOfferActive(context.Context, int64, bool) error {
+	r.fail("SetOfferActive")
+	return nil
+}
 func (r stubRepo) IncrementOfferEngagement(context.Context, int64, bool) error {
 	r.fail("IncrementOfferEngagement")
 	return nil
@@ -101,6 +110,13 @@ func (happyRepo) ListActiveOffers(ctx context.Context, limit, offset int) ([]*pr
 		Title:          i18n.Text{"en": "Summer Sale"},
 		IsActive:       true,
 	}}, nil
+}
+
+func (happyRepo) ListOffers(ctx context.Context, limit, offset int) ([]*promo.Offer, error) {
+	return []*promo.Offer{{ID: 1, OrganizationID: 1, Title: i18n.Text{"en": "Summer Sale"}, IsActive: true}}, nil
+}
+func (happyRepo) SetOfferActive(ctx context.Context, id int64, active bool) error {
+	return nil
 }
 func (happyRepo) IncrementOfferEngagement(ctx context.Context, id int64, isClick bool) error {
 	return nil

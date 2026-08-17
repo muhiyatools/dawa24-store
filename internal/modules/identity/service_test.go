@@ -329,3 +329,23 @@ func (m *mockRepo) RegisterOrganization(_ context.Context, _ *User, _ RegisterOr
 func (m *mockRepo) ListAddressHistory(_ context.Context, _ int64, _ int) ([]*UserAddressHistory, error) {
 	return nil, nil
 }
+
+func (m *mockRepo) GetPreferences(_ context.Context, _ int64) (*UserPreferences, error) {
+	return &UserPreferences{}, nil
+}
+
+func (m *mockRepo) UpdatePreferences(_ context.Context, _ *UserPreferences) error {
+	return nil
+}
+
+func (m *mockRepo) ListSessionPlans(_ context.Context) ([]*SessionPlan, error) {
+	return nil, nil
+}
+
+func (m *mockRepo) GetSessionPlanByID(_ context.Context, _ int64) (*SessionPlan, error) {
+	return &SessionPlan{MaxLoginSessions: 1}, nil
+}
+
+func (m *mockRepo) SetMaxLoginSessions(_ context.Context, _ int64, _ int) error {
+	return nil
+}

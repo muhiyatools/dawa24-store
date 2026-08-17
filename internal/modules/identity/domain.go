@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // User status enum matching PostgreSQL CHECK constraint in 002_identity.
@@ -239,4 +240,27 @@ type RegisterOrgResult struct {
 	OrganizationPublicID string `json:"organization_public_id"`
 	OrganizationType     string `json:"organization_type"`
 	OrganizationStatus   string `json:"organization_status"`
+}
+
+// UserPreferences holds display and notification preferences.
+type UserPreferences struct {
+	UserID               int64           `json:"user_id"`
+	Theme                string          `json:"theme"` // light, dark, auto
+	NotificationChannels map[string]bool `json:"notification_channels"`
+	NotificationTopics   map[string]bool `json:"notification_topics"`
+	MarketingConsent     bool            `json:"marketing_consent"`
+	UpdatedAt            time.Time       `json:"updated_at"`
+}
+
+// SessionPlan is a concurrent sign-in licensing tier.
+type SessionPlan struct {
+	ID               int64        `json:"id"`
+	Name             i18n.Text    `json:"name"`
+	MaxLoginSessions int          `json:"max_login_sessions"`
+	Price            money.Amount `json:"price"`
+	DurationDays     int          `json:"duration_days"`
+	IsFree           bool         `json:"is_free"`
+	IsActive         bool         `json:"is_active"`
+	CreatedAt        time.Time    `json:"created_at"`
+	UpdatedAt        time.Time    `json:"updated_at"`
 }

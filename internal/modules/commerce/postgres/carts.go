@@ -46,10 +46,15 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 		}
 
 		queryItems := `
-			SELECT id, cart_id, product_id, product_variant_id, quantity, unit_price, created_at, updated_at
-			FROM commerce.cart_items
-			WHERE cart_id = $1
-			ORDER BY id ASC;
+			SELECT ci.id, ci.cart_id, ci.product_id, ci.product_variant_id, ci.quantity, ci.unit_price,
+			       ci.created_at, ci.updated_at,
+			       COALESCE(p.organization_id, 0), COALESCE(p.name, '{"ar":"","en":""}'::jsonb),
+			       COALESCE(o.name, '{"ar":"","en":""}'::jsonb), COALESCE(o.min_order_price, 10.00)
+			FROM commerce.cart_items ci
+			LEFT JOIN catalog.products p ON p.id = ci.product_id
+			LEFT JOIN org.organizations o ON o.id = p.organization_id
+			WHERE ci.cart_id = $1
+			ORDER BY p.organization_id, ci.id ASC;
 		`
 		rows, err := tx.Query(txCtx, queryItems, cartID)
 		if err != nil {
@@ -62,6 +67,7 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			if err := rows.Scan(
 				&item.ID, &item.CartID, &item.ProductID, &item.ProductVariantID,
 				&item.Quantity, &item.UnitPrice, &item.CreatedAt, &item.UpdatedAt,
+				&item.OrganizationID, &item.ProductName, &item.SupplierName, &item.MinOrderPrice,
 			); err != nil {
 				return err
 			}

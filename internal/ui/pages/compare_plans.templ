@@ -1,0 +1,62 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ ComparePlansPage(lang, dir string, plans []*billing.Plan) {
+	@layouts.CustomerShell("خطط مقارنة الخصومات | Plans", lang, dir) {
+		<div style="text-align:center; margin-bottom:1.5rem;">
+			<h2 style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin:0 0 0.5rem;">خطط مقارنة الخصومات</h2>
+			<p style="color:var(--neutral-500); font-size:0.9rem;">قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p>
+		</div>
+		if len(plans) == 0 {
+			@components.EmptyState(components.EmptyStateProps{
+				Title:       "لا توجد خطط متاحة",
+				Message:     "لم يتم تفعيل أي خطط بعد.",
+				ActionLabel: "تواصل معنا",
+			})
+		} else {
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
+				for _, p := range plans {
+					<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;">
+						<div>
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin:0 0 0.25rem;">{ p.Name.Get(i18n.Lang(lang)) }</h3>
+							<p style="font-size:0.85rem; color:var(--neutral-600); margin:0 0 0.75rem;">{ p.Description.Get(i18n.Lang(lang)) }</p>
+							<div style="font-size:1.3rem; font-weight:900; color:var(--primary-700);">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })<span style="font-size:0.8rem; color:var(--neutral-500);"> / شهرياً</span></div>
+							<div style="font-size:0.9rem; color:var(--neutral-600); margin-top:0.25rem;">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })<span style="font-size:0.8rem; color:var(--neutral-500);"> / سنوياً</span></div>
+						</div>
+						<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
+							<form method="POST" action={ fmt.Sprintf("/compare/subscribe?plan=%s", p.Slug) } style="margin:0;">
+								<button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">اشترك الآن</button>
+							</form>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	}
+}
+
+templ CompareToolPage(lang, dir string, entitled bool) {
+	@layouts.CustomerShell("أداة مقارنة الخصومات | Compare", lang, dir) {
+		<div style="max-width:640px;">
+			<div class="card" style="margin-bottom:0;">
+				if entitled {
+					<h2 style="font-size:1.25rem; font-weight:900; color:var(--primary-700); margin:0 0 0.75rem;">أداة مقارنة الخصومات</h2>
+					<p style="color:var(--neutral-600); line-height:1.8;">أنت مشترك في خطة المقارنة. ابحث عن منتج لمقارنة أسعاره عبر الموردين.</p>
+					<a href="/catalog" class="btn btn-primary" style="justify-content:center;">ابحث عن منتج</a>
+				} else {
+					<h2 style="font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0 0 0.75rem;">هذه الميزة تتطلب اشتراكاً</h2>
+					<p style="color:var(--neutral-600); line-height:1.8;">أداة مقارنة الخصومات متاحة للمشتركين في إحدى خطط المقارنة.</p>
+					<a href="/compare" class="btn btn-primary" style="justify-content:center;">عرض الخطط</a>
+				}
+			</div>
+		</div>
+	}
+}

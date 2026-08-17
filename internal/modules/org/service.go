@@ -154,6 +154,27 @@ func (s *Service) AddMember(ctx context.Context, orgID, userID, roleID int64) (*
 	return m, nil
 }
 
+// AddMemberByRoleKey adds a member with an organization role key.
+func (s *Service) AddMemberByRoleKey(ctx context.Context, orgID, userID int64, roleKey string) (*Member, error) {
+	if orgID <= 0 || userID <= 0 {
+		return nil, apperr.Validation("member.invalid", "Valid org and user are required.", nil)
+	}
+	if roleKey == "" {
+		roleKey = "org_employee"
+	}
+	m := &Member{
+		OrganizationID: orgID,
+		UserID:         userID,
+		RoleKey:        roleKey,
+		IsActive:       true,
+	}
+	if err := s.repo.AddMember(ctx, m); err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "member added", "org_id", orgID, "user_id", userID, "role", roleKey)
+	return m, nil
+}
+
 // ListMembers returns all members of an organization.
 func (s *Service) ListMembers(ctx context.Context, orgID int64) ([]*Member, error) {
 	return s.repo.ListMembersByOrg(ctx, orgID)

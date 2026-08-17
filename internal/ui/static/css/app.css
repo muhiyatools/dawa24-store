@@ -433,3 +433,10 @@ h1, h2, h3, h4, h5, h6 {
 .htmx-request.htmx-indicator {
   display: inline-block;
 }
+
+
+/* Grid/list toggle for the catalogue ------------------------------------ */
+
+body.list-view .product-grid { display: flex !important; flex-direction: column; }
+
+body.list-view .product-grid > .card { max-width: none !important; }

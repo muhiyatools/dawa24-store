@@ -95,6 +95,24 @@ func (r stubRepo) VisitorAnalytics(context.Context, int) (*platformadmin.Visitor
 	return nil, nil
 }
 
+func (r stubRepo) ListTranslations(context.Context) ([]*platformadmin.Translation, error) {
+	r.fail("ListTranslations")
+	return nil, nil
+}
+func (r stubRepo) UpsertTranslation(context.Context, *platformadmin.Translation) error {
+	r.fail("UpsertTranslation")
+	return nil
+}
+func (r stubRepo) ListAuditLog(context.Context, int, int) ([]*platformadmin.AuditEntry, error) {
+	r.fail("ListAuditLog")
+	return nil, nil
+}
+
+func (r stubRepo) QueueStats(context.Context) (map[string]int, error) {
+	r.fail("QueueStats")
+	return nil, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) GetSetting(ctx context.Context, key string) (*platformadmin.SystemSetting, error) {
@@ -150,6 +168,21 @@ func (happyRepo) RecordVisitor(ctx context.Context, v *platformadmin.Visitor) er
 
 func (happyRepo) VisitorAnalytics(ctx context.Context, limit int) (*platformadmin.VisitorAnalytics, error) {
 	return &platformadmin.VisitorAnalytics{Total: 10, Today: 2, ByDevice: map[string]int{"desktop": 8}, ByOS: map[string]int{"android": 6}, ByBrowser: map[string]int{"chrome": 9}}, nil
+}
+
+func (happyRepo) ListTranslations(ctx context.Context) ([]*platformadmin.Translation, error) {
+	return []*platformadmin.Translation{{ID: 1, Key: "welcome", Text: i18n.Text{"ar": "مرحباً"}}}, nil
+}
+func (happyRepo) UpsertTranslation(ctx context.Context, t *platformadmin.Translation) error {
+	t.ID = 1
+	return nil
+}
+func (happyRepo) ListAuditLog(ctx context.Context, limit, offset int) ([]*platformadmin.AuditEntry, error) {
+	return []*platformadmin.AuditEntry{{ID: 1, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, nil
+}
+
+func (happyRepo) QueueStats(ctx context.Context) (map[string]int, error) {
+	return map[string]int{"available": 3, "completed": 10, "retryable": 1}, nil
 }
 
 const testCookieName = "dawa24_session"

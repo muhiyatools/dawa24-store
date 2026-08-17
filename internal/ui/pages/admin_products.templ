@@ -1,0 +1,56 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminProducts(lang, dir string, products []*catalog.Product) {
+	@layouts.AdminShell("المنتجات | Products", "products", lang, dir) {
+		<div class="card">
+			<h2 class="card-title" style="margin:0 0 0.75rem;">مراجعة المنتجات</h2>
+			if len(products) == 0 {
+				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد منتجات.</p>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead><tr><th>الاسم</th><th>المؤسسة</th><th>الشكل الصيدلي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+						<tbody>
+							for _, p := range products {
+								<tr>
+									<td>{ p.Name.Get(i18n.Lang(lang)) }</td>
+									<td class="tabular-nums">{ fmt.Sprintf("%d", p.OrganizationID) }</td>
+									<td>{ p.DosageForm }</td>
+									<td><span class="badge badge-amber">{ p.Status }</span></td>
+									<td style="display:flex; gap:0.4rem;">
+										if p.Status == "pending" || p.Status == "inactive" || p.Status == "rejected" {
+											<form method="POST" action={ fmt.Sprintf("/admin/products/%d/status", p.ID) } style="margin:0;">
+												<input type="hidden" name="status" value="active" />
+												<button type="submit" class="btn btn-primary btn-sm">تفعيل</button>
+											</form>
+										}
+										if p.Status == "active" {
+											<form method="POST" action={ fmt.Sprintf("/admin/products/%d/status", p.ID) } style="margin:0;">
+												<input type="hidden" name="status" value="inactive" />
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">إيقاف</button>
+											</form>
+										}
+										if p.Status == "pending" {
+											<form method="POST" action={ fmt.Sprintf("/admin/products/%d/status", p.ID) } style="margin:0;">
+												<input type="hidden" name="status" value="rejected" />
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">رفض</button>
+											</form>
+										}
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}

@@ -8,10 +8,17 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -353,4 +360,359 @@ func (h *UIHandler) AdminAnalyticsPage(w http.ResponseWriter, r *http.Request) {
 	if err := pages.AdminAnalytics(lang, dir, analytics).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin analytics", "error", err)
 	}
+}
+
+// AdminTranslationsPage renders the translation editor.
+func (h *UIHandler) AdminTranslationsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var translations []*platformadmin.Translation
+	if h.adminSvc != nil {
+		translations, _ = h.adminSvc.ListTranslations(ctx)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminTranslations(lang, dir, translations).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin translations", "error", err)
+	}
+}
+
+// AdminTranslationsSubmit upserts a translation override.
+func (h *UIHandler) AdminTranslationsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/translations", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	t := &platformadmin.Translation{
+		Key:   r.PostFormValue("key"),
+		Group: r.PostFormValue("group"),
+		Text:  i18n.New(r.PostFormValue("text_ar"), r.PostFormValue("text_en")),
+	}
+	if t.Group == "" {
+		t.Group = "general"
+	}
+	if err := h.adminSvc.UpsertTranslation(ctx, t); err != nil {
+		h.redirectWithNotice(w, r, "/admin/translations", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/translations", "success", "تم حفظ الترجمة.")
+}
+
+// AdminAuditPage renders the platform audit trail.
+func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var entries []*platformadmin.AuditEntry
+	if h.adminSvc != nil {
+		entries, _ = h.adminSvc.ListAuditLog(ctx, 50, 0)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminAudit(lang, dir, entries).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin audit", "error", err)
+	}
+}
+
+// AdminOrganizationsPage renders the full organization list with lifecycle
+// actions.
+func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var orgs []*org.Organization
+	if h.orgSvc != nil {
+		orgs, _ = h.orgSvc.ListOrganizations(ctx, nil, nil, 100, 0)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminOrganizations(lang, dir, orgs).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin organizations", "error", err)
+	}
+}
+
+// AdminOrgApproveSubmit approves an organization.
+func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.orgSvc != nil {
+		_ = h.orgSvc.ApproveOrganization(ctx, id)
+	}
+	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
+}
+
+// AdminOrgRejectSubmit rejects an organization.
+func (h *UIHandler) AdminOrgRejectSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.orgSvc != nil {
+		_ = h.orgSvc.RejectOrganization(ctx, id)
+	}
+	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
+}
+
+// AdminOrgSuspendSubmit suspends an organization.
+func (h *UIHandler) AdminOrgSuspendSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.orgSvc != nil {
+		_ = h.orgSvc.SuspendOrganization(ctx, id)
+	}
+	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
+}
+
+// AdminOrdersPage renders the cross-tenant order search.
+func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	query := r.URL.Query().Get("q")
+	var orders []*commerce.Order
+	if h.commSvc != nil {
+		orders, _ = h.commSvc.AdminSearchOrders(ctx, query, 50, 0)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminOrders(lang, dir, query, orders).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin orders", "error", err)
+	}
+}
+
+// AdminProductsPage renders the product moderation queue.
+func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var products []*catalog.Product
+	if h.catSvc != nil {
+		products, _ = h.catSvc.Search(ctx, catalog.SearchParams{Limit: 100})
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminProducts(lang, dir, products).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin products", "error", err)
+	}
+}
+
+// AdminProductStatusSubmit sets a product's moderation status.
+func (h *UIHandler) AdminProductStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.catSvc != nil {
+		_, _ = h.catSvc.SetProductsStatus(ctx, []int64{id}, catalog.ProductStatus(r.PostFormValue("status")))
+	}
+	http.Redirect(w, r, "/admin/products", http.StatusSeeOther)
+}
+
+// AdminOffersPage renders the offer moderation list.
+func (h *UIHandler) AdminOffersPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var offers []*promo.Offer
+	if h.promoSvc != nil {
+		offers, _ = h.promoSvc.ListOffers(ctx, 100, 0)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminOffers(lang, dir, offers).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offers", "error", err)
+	}
+}
+
+// AdminOfferStatusSubmit activates or deactivates an offer.
+func (h *UIHandler) AdminOfferStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.promoSvc != nil {
+		_ = h.promoSvc.SetOfferActive(ctx, id, r.PostFormValue("active") == "true")
+	}
+	http.Redirect(w, r, "/admin/offers", http.StatusSeeOther)
+}
+
+// AdminJobsPage renders the River queue depth and failures.
+func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	stats := map[string]int{}
+	if h.adminSvc != nil {
+		if s, err := h.adminSvc.QueueStats(ctx); err == nil {
+			stats = s
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminJobs(lang, dir, stats).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin jobs", "error", err)
+	}
+}
+
+// AdminFinderPage renders the guided-finder tree builder.
+func (h *UIHandler) AdminFinderPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var questions []*catalog.FinderQuestion
+	var results []*catalog.FinderResult
+	if h.catSvc != nil {
+		questions, _ = h.catSvc.ListFinderQuestions(ctx)
+		results, _ = h.catSvc.ListFinderResults(ctx)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminFinder(lang, dir, questions, results).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin finder", "error", err)
+	}
+}
+
+// AdminFinderQuestionSubmit adds a finder question.
+func (h *UIHandler) AdminFinderQuestionSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/finder", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+	q := &catalog.FinderQuestion{
+		Question: i18n.New(r.PostFormValue("question_ar"), r.PostFormValue("question_en")),
+		Type:     r.PostFormValue("type"),
+		IsFirst:  r.PostFormValue("is_first") == "1",
+	}
+	if q.Type == "" {
+		q.Type = "choice"
+	}
+	if err := h.catSvc.CreateFinderQuestion(ctx, q); err != nil {
+		h.redirectWithNotice(w, r, "/admin/finder", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/finder", "success", "تمت إضافة السؤال.")
+}
+
+// AdminFinderResultSubmit adds a finder result.
+func (h *UIHandler) AdminFinderResultSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/finder", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+	res := &catalog.FinderResult{
+		Title:       i18n.New(r.PostFormValue("title_ar"), r.PostFormValue("title_en")),
+		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
+	}
+	if err := h.catSvc.CreateFinderResult(ctx, res); err != nil {
+		h.redirectWithNotice(w, r, "/admin/finder", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/finder", "success", "تمت إضافة النتيجة.")
+}
+
+// AdminFinderOptionSubmit adds an answer choice leading to a result.
+func (h *UIHandler) AdminFinderOptionSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/finder", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+	questionID, _ := strconv.ParseInt(r.PostFormValue("question_id"), 10, 64)
+	resultID, _ := strconv.ParseInt(r.PostFormValue("result_id"), 10, 64)
+	o := &catalog.FinderOption{
+		QuestionID: questionID,
+		Label:      i18n.New(r.PostFormValue("label_ar"), ""),
+		ResultID:   &resultID,
+	}
+	if err := h.catSvc.CreateFinderOption(ctx, o); err != nil {
+		h.redirectWithNotice(w, r, "/admin/finder", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/finder", "success", "تمت إضافة الخيار.")
+}
+
+// AdminServicesPage renders the institutional-services catalogue editor.
+func (h *UIHandler) AdminServicesPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var services []*workflow.InstitutionalService
+	if h.wfSvc != nil {
+		services, _ = h.wfSvc.ListServices(ctx, nil)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminServices(lang, dir, services).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin services", "error", err)
+	}
+}
+
+// AdminServiceSubmit adds an institutional service.
+func (h *UIHandler) AdminServiceSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.wfSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/services", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+	svc := &workflow.InstitutionalService{
+		Title:       i18n.New(r.PostFormValue("title_ar"), r.PostFormValue("title_en")),
+		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
+		PricingType: workflow.PricingType(r.PostFormValue("pricing_type")),
+	}
+	if _, err := h.wfSvc.CreateService(ctx, svc); err != nil {
+		h.redirectWithNotice(w, r, "/admin/services", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/services", "success", "تمت إضافة الخدمة.")
+}
+
+// AdminPlansPage renders the subscription plan editor.
+func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var plans []*billing.Plan
+	if h.billSvc != nil {
+		plans, _ = h.billSvc.ListPlans(ctx)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminPlans(lang, dir, plans).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin plans", "error", err)
+	}
+}
+
+// AdminPlanSubmit creates a subscription plan.
+func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	priceMonth, _ := money.Parse(r.PostFormValue("price_month"))
+	priceYear, _ := money.Parse(r.PostFormValue("price_year"))
+	durationDays, _ := strconv.Atoi(r.PostFormValue("duration_days"))
+	if durationDays <= 0 {
+		durationDays = 30
+	}
+	features := map[string]string{}
+	if r.PostFormValue("is_compare") == "1" {
+		features["compare"] = "true"
+	}
+
+	p := &billing.Plan{
+		Slug:         r.PostFormValue("slug"),
+		Name:         i18n.New(r.PostFormValue("name_ar"), r.PostFormValue("name_en")),
+		PriceMonth:   priceMonth,
+		PriceYear:    priceYear,
+		DurationDays: durationDays,
+		IsActive:     true,
+		Features:     features,
+	}
+	if _, err := h.billSvc.CreatePlan(ctx, p); err != nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/plans", "success", "تمت إضافة الخطة.")
 }

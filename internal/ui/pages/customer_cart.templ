@@ -3,13 +3,14 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 	if isPartial {
-		@CustomerCartContent(cart)
+		@CustomerCartContent(cart, lang)
 	} else {
 		@layouts.CustomerShell("سلة المشتريات | Shopping Cart", lang, dir) {
 			<div class="cart-page-container" style="max-width:960px; margin:1.5rem auto;">
@@ -20,14 +21,14 @@ templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 					</h1>
 				</div>
 				<div id="cart-content">
-					@CustomerCartContent(cart)
+					@CustomerCartContent(cart, lang)
 				</div>
 			</div>
 		}
 	}
 }
 
-templ CustomerCartContent(cart *commerce.Cart) {
+templ CustomerCartContent(cart *commerce.Cart, lang string) {
 	if cart == nil || len(cart.Items) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
 			Title:       "سلة المشتريات فارغة",
@@ -36,47 +37,61 @@ templ CustomerCartContent(cart *commerce.Cart) {
 		})
 	} else {
 		<div class="card" style="margin-bottom:0; display:flex; flex-direction:column; gap:1.75rem;">
-			<div style="display:flex; flex-direction:column; gap:1rem;">
-				for _, item := range cart.Items {
-					<div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:1.25rem; border-bottom:1px solid var(--neutral-100);">
-						<div style="display:flex; align-items:center; gap:1rem;">
-							<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
-								@components.IconPill("icon-sm")
-							</div>
-							<div>
-								<h4 style="font-weight:700; font-size:1.05rem; color:var(--neutral-900); margin-bottom:0.2rem;">
-									الصنف الدوائي #{ fmt.Sprintf("%d", item.ProductID) }
-								</h4>
-								<div style="font-size:0.85rem; color:var(--neutral-500);">
-									سعر الوحدة: <span class="tabular-nums" style="font-weight:600; color:var(--neutral-800);">{ item.UnitPrice.String() } EGP</span>
+			<div style="display:flex; flex-direction:column; gap:1.5rem;">
+				for _, group := range GroupCartBySupplier(cart) {
+					<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
+						<div>
+							<h3 style="font-size:1rem; font-weight:800; color:var(--neutral-900); margin:0;">{ group.SupplierName.Get(i18n.Lang(lang)) }</h3>
+							if group.BelowMin {
+								<span style="font-size:0.8rem; color:var(--warning);">الحد الأدنى للطلب: </span>
+								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.MinOrderPrice })
+							}
+						</div>
+						<span style="font-size:0.85rem; color:var(--neutral-500);">الإجمالي الفرعي: </span>
+						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.Subtotal })
+					</div>
+					for _, item := range group.Items {
+						<div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:1.25rem; border-bottom:1px solid var(--neutral-100);">
+							<div style="display:flex; align-items:center; gap:1rem;">
+								<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+									@components.IconPill("icon-sm")
+								</div>
+								<div>
+									<h4 style="font-weight:700; font-size:1.05rem; color:var(--neutral-900); margin-bottom:0.2rem;">
+										{ item.ProductName.Get(i18n.Lang(lang)) }
+									</h4>
+									<div style="font-size:0.85rem; color:var(--neutral-500);">
+										سعر الوحدة: <span class="tabular-nums" style="font-weight:600; color:var(--neutral-800);">{ item.UnitPrice.String() } EGP</span>
+									</div>
 								</div>
 							</div>
-						</div>
 
-						<div style="display:flex; align-items:center; gap:1.25rem;">
-							<div class="badge badge-slate tabular-nums" style="font-size:0.85rem; padding:0.35rem 0.75rem;">
-								الكمية: <strong>{ fmt.Sprintf("%d", item.Quantity) }</strong>
+							<div style="display:flex; align-items:center; gap:1.25rem;">
+								<div class="badge badge-slate tabular-nums" style="font-size:0.85rem; padding:0.35rem 0.75rem;">
+									الكمية: <strong>{ fmt.Sprintf("%d", item.Quantity) }</strong>
+								</div>
+								<form action="/cart/remove" method="POST" style="margin:0; display:inline;">
+									<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
+									<button
+										type="submit"
+										class="btn btn-secondary btn-sm"
+										style="color:var(--danger); border-color:var(--danger-border);"
+									>
+										@components.IconTrash("icon-xs")
+										<span>حذف</span>
+									</button>
+								</form>
 							</div>
-							<form action="/cart/remove" method="POST" style="margin:0; display:inline;">
-								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
-								<button
-									type="submit"
-									class="btn btn-secondary btn-sm"
-									style="color:var(--danger); border-color:var(--danger-border);"
-								>
-									@components.IconTrash("icon-xs")
-									<span>حذف</span>
-								</button>
-							</form>
 						</div>
-					</div>
+					}
 				}
 			</div>
 
 			<div style="border-top:2px solid var(--neutral-100); padding-top:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
 				<div>
-					<span style="font-size:0.9rem; color:var(--neutral-500);">شروط الدفع والتسليم:</span>
-					<div style="font-size:0.85rem; font-weight:600; color:var(--primary-800);">دفع عند الاستلام / تسهيلات ائتمانية للمؤسسات المعتمدة</div>
+					<span style="font-size:0.9rem; color:var(--neutral-500);">الإجمالي:</span>
+					<div style="font-size:1.3rem; font-weight:900; color:var(--neutral-900);" class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartTotal(cart), Large: true })</div>
+					<span style="font-size:0.8rem; color:var(--neutral-500);">شروط الدفع والتسليم: دفع عند الاستلام / تسهيلات ائتمانية للمؤسسات المعتمدة</span>
 				</div>
 				<div style="display:flex; align-items:center; gap:1rem;">
 					<a href="/checkout" class="btn btn-primary" style="padding:0.75rem 2.25rem; font-size:1rem; font-weight:700;">

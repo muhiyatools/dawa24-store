@@ -279,3 +279,8 @@ func (s *Service) RespondToQuote(ctx context.Context, quoteID int64, status Quot
 func (s *Service) ListQuoteRequests(ctx context.Context, orgID int64, isVendor bool, limit, offset int) ([]*QuoteRequest, error) {
 	return s.repo.ListQuoteRequestsByOrg(ctx, orgID, isVendor, limit, offset)
 }
+
+// SetShipmentTracking records the carrier and tracking number for a shipment.
+func (s *Service) SetShipmentTracking(ctx context.Context, id int64, carrier, tracking string) error {
+	return s.repo.SetShipmentTracking(ctx, id, carrier, tracking)
+}

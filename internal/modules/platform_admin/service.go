@@ -109,3 +109,26 @@ func (s *Service) RecordVisitor(ctx context.Context, v *Visitor) error {
 func (s *Service) VisitorAnalytics(ctx context.Context, limit int) (*VisitorAnalytics, error) {
 	return s.repo.VisitorAnalytics(ctx, limit)
 }
+
+// ListTranslations returns all UI translations.
+func (s *Service) ListTranslations(ctx context.Context) ([]*Translation, error) {
+	return s.repo.ListTranslations(ctx)
+}
+
+// UpsertTranslation creates or updates a translation override.
+func (s *Service) UpsertTranslation(ctx context.Context, t *Translation) error {
+	if t.Key == "" {
+		return apperr.Validation("translation.key_required", "A translation key is required.", nil)
+	}
+	return s.repo.UpsertTranslation(ctx, t)
+}
+
+// ListAuditLog returns the platform audit trail, newest first.
+func (s *Service) ListAuditLog(ctx context.Context, limit, offset int) ([]*AuditEntry, error) {
+	return s.repo.ListAuditLog(ctx, limit, offset)
+}
+
+// QueueStats returns River job counts grouped by state.
+func (s *Service) QueueStats(ctx context.Context) (map[string]int, error) {
+	return s.repo.QueueStats(ctx)
+}

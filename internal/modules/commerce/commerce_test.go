@@ -194,6 +194,10 @@ func (m *mockCommerceRepo) MonthSpendByCustomer(_ context.Context, _ int64) (mon
 	return money.Zero, nil
 }
 
+func (m *mockCommerceRepo) SetShipmentTracking(_ context.Context, _ int64, _, _ string) error {
+	return nil
+}
+
 func TestCheckoutCalculationsAndSplitting(t *testing.T) {
 	repo := newMockCommerceRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

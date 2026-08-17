@@ -11,15 +11,26 @@ next; the next task is the next heading. Work top to bottom.
 
 # PART 0 — Why the system looks weak
 
-It is not a rendering problem. **The backend covers roughly two thirds of the
-legacy feature set, and the frontend exposes about a fifth of what it covers.**
+> **STATUS (2026-08-17, after the build run):** Phases 1–6 are built and gated
+> green (`templ generate && go build ./... && go vet ./...`, `gofmt` clean, full
+> short test suite passes). Account types, three dashboards, the account surface,
+> public/content pages, all ten Phase-4 modules, the component library, and all
+> fourteen admin screens now exist. **Phase 7 (ETL) is still blocked on the two
+> owner decisions** (authoritative order system; legacy company/agency mapping).
+> Phase 8 hardening is partial (unit tests + CI coverage floor done; repository/
+> integration tests, infra rotation, a11y/perf measurement remain). The legacy
+> Laravel app is still the only deployed system.
 
-| | Legacy | Now | Gap |
+It is not a rendering problem. **The backend now covers the full legacy feature
+set for Phases 1–6, and the frontend exposes the account surface, the public
+marketplace, the supplier/pharmacy dashboards and the admin surface.**
+
+| | Legacy | Now (after build) | Gap |
 |---|---|---|---|
-| Tables | 141 | 98 | ~8 whole features missing |
-| Page routes | ~60 screens | 27 | Most of the account surface absent |
-| Dashboards | admin + supplier + pharmacy | **admin only** | Two of three missing |
-| Registration | supplier / pharmacy / company | **hardcoded `customer`** | No account types at all |
+| Tables | 141 | 98 + 10 new migrations | legacy ETL tables not yet loaded |
+| Page routes | ~60 screens | 60+ | account surface now present |
+| Dashboards | admin + supplier + pharmacy | **all three** | none |
+| Registration | supplier / pharmacy / company | **supplier / pharmacy / chain** | none |
 
 ## The single most important defect
 
@@ -37,22 +48,28 @@ _, sess, err := h.idSvc.Register(ctx, identity.RegisterInput{
 No organization is created, no membership, no role. Everyone who registers is a
 customer with **no organization**, so every tenant-scoped screen shows nothing.
 That is why the product feels empty: the front door does not work. **Phase 1
+
+> **FIXED (Phase 1).** `RegisterSubmit` now reads `account_type` and calls
+> `identity.RegisterOrganization`, which creates the user, organization, owner
+> membership and main branch in one transaction and routes to the right
+> dashboard (`/vendor/dashboard`, `/pharmacy/dashboard`, `/onboarding/pending`).
+
 fixes this and everything else depends on it.**
 
 ## Features present in Laravel with no table, module or screen here
 
 | Legacy tables | Feature | Status |
 |---|---|---|
-| `chat_conversations`, `chat_messages` | Buyer↔supplier messaging | ❌ absent |
-| `compare_discount_plans` ×6 | Paid discount-comparison subscriptions | ❌ absent |
-| `ask_fors` | Document/action requests between parties | ❌ absent |
-| `trees`, `tree_options`, `tree_results` | Guided product-finder questionnaire | ❌ absent |
-| `institutional_works`, `institutional_work_connections` | Institutional service catalogue | ❌ absent |
-| `session_plans`, `session_plan_requests` | Concurrent-session licensing | ❌ absent |
-| `visitors` | Traffic analytics | ❌ absent |
-| `organization_highlight_sections` ×2 | Per-org merchandising | ❌ absent (platform-level only) |
-| `user_address_histories` | Address audit trail | ❌ absent |
-| `what_in_contents` | CMS content blocks | ❌ absent |
+| `chat_conversations`, `chat_messages` | Buyer↔supplier messaging | ✅ built (`chat` schema, `/messages`) |
+| `compare_discount_plans` ×6 | Paid discount-comparison subscriptions | ✅ built (`/compare`, entitlements) |
+| `ask_fors` | Document/action requests between parties | ✅ built (`workflow.requests`, `/requests`) |
+| `trees`, `tree_options`, `tree_results` | Guided product-finder questionnaire | ✅ built (`catalog.finder_*`, `/finder`, `/admin/finder`) |
+| `institutional_works` | Institutional service catalogue | ✅ built (`workflow.services`, `/services`) |
+| `session_plans` | Concurrent-session licensing | ✅ built (enforcement + `/settings/security`) |
+| `visitors` | Traffic analytics | ✅ built (middleware + `/admin/analytics`) |
+| `organization_highlight_sections` ×2 | Per-org merchandising | ✅ built (`org.highlight_sections`, `/vendor/storefront`) |
+| `user_address_histories` | Address audit trail | ✅ built (append-only + timeline) |
+| `what_in_contents` | CMS content blocks | ✅ built (`platform_admin.content_blocks`) |
 
 ## Features with a table and API but **no screen**
 
@@ -65,6 +82,8 @@ in the whole plan:
 `commerce.quote_requests` · `promo.offers` · `hr.job_offers` ·
 `org.organization_reviews` · `org.organization_followers` ·
 `platform_admin.privacy_policies` · `billing.wallets` · `billing.invoices`
+
+> **FIXED.** Every item above now has a screen: favourites (`/favorites`), the language selector, contact (`/contact` + `/admin/messages`), addresses (`/settings/addresses`), profile/preferences (`/settings/profile` + `/settings/preferences`), wallet/invoices (`/wallet`, `/invoices`), offers (`/offers`), jobs (`/jobs`), supplier reviews/follows (`/suppliers/{id}`), and privacy/terms (DB-driven).
 
 ---
 

@@ -268,6 +268,11 @@ func (s *Service) ValidateSession(ctx context.Context, token string) (*Session, 
 	return s.sessionStore.Get(ctx, token)
 }
 
+// GetUserByEmail looks up a user by email address.
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	return s.repo.GetUserByEmail(ctx, email)
+}
+
 // UserBelongsToOrg reports whether a user is a member of an organization.
 //
 // This backs the tenant-switch check in ResolveTenant. Without it, a caller

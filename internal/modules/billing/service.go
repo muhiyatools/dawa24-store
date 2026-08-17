@@ -100,6 +100,17 @@ func (s *Service) ListPlans(ctx context.Context) ([]*Plan, error) {
 	return s.repo.ListPlans(ctx)
 }
 
+// CreatePlan adds a subscription tier (admin).
+func (s *Service) CreatePlan(ctx context.Context, p *Plan) (*Plan, error) {
+	if p.Slug == "" || p.Name.IsEmpty() {
+		return nil, apperr.Validation("plan.slug_required", "A plan slug and name are required.", nil)
+	}
+	if err := s.repo.CreatePlan(ctx, p); err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
 // Subscribe grants a user a subscription to a plan tier.
 func (s *Service) Subscribe(
 	ctx context.Context,
