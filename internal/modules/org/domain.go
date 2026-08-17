@@ -82,10 +82,12 @@ type Branch struct {
 	OperatingHours string    `json:"operating_hours,omitempty"`
 	Status         string    `json:"status"` // active, inactive
 	IsMain         bool      `json:"is_main"`
-	Phone          string    `json:"phone,omitempty"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	Phone              string    `json:"phone,omitempty"`
+	InstitutionalWorks []string  `json:"institutional_works,omitempty"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
+
 
 // Role represents a per-organization role with configurable permissions.
 type Role struct {

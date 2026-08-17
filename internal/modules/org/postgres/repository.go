@@ -199,11 +199,25 @@ func (r *Repository) CreateBranch(ctx context.Context, b *org.Branch) error {
 			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query,
+		if err := tx.QueryRow(txCtx, query,
 			b.OrganizationID, b.Name, b.Code, b.Address, b.CityID, b.Latitude, b.Longitude,
 			b.GoogleMapsURL, b.ManagerID, b.ManagerName, b.WarehouseType, b.HasColdStorage,
 			b.CapacitySQM, b.OperatingHours, b.Status, b.IsMain, b.Phone,
-		).Scan(&b.ID, &b.PublicID, &b.CreatedAt, &b.UpdatedAt)
+		).Scan(&b.ID, &b.PublicID, &b.CreatedAt, &b.UpdatedAt); err != nil {
+			return err
+		}
+
+		if len(b.InstitutionalWorks) > 0 {
+			for _, cat := range b.InstitutionalWorks {
+				if cat != "" {
+					_, _ = tx.Exec(txCtx, `
+						INSERT INTO org.branch_institutional_works (branch_id, work_category)
+						VALUES ($1, $2) ON CONFLICT DO NOTHING;
+					`, b.ID, cat)
+				}
+			}
+		}
+		return nil
 	})
 }
 
@@ -242,6 +256,18 @@ func (r *Repository) UpdateBranch(ctx context.Context, b *org.Branch) error {
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("branch")
+		}
+
+		_, _ = tx.Exec(txCtx, `DELETE FROM org.branch_institutional_works WHERE branch_id = $1;`, b.ID)
+		if len(b.InstitutionalWorks) > 0 {
+			for _, cat := range b.InstitutionalWorks {
+				if cat != "" {
+					_, _ = tx.Exec(txCtx, `
+						INSERT INTO org.branch_institutional_works (branch_id, work_category)
+						VALUES ($1, $2) ON CONFLICT DO NOTHING;
+					`, b.ID, cat)
+				}
+			}
 		}
 		return nil
 	})
@@ -317,6 +343,17 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 			}
 			return err
 		}
+
+		iwRows, _ := tx.Query(txCtx, `SELECT work_category FROM org.branch_institutional_works WHERE branch_id = $1`, b.ID)
+		if iwRows != nil {
+			for iwRows.Next() {
+				var cat string
+				if err := iwRows.Scan(&cat); err == nil {
+					b.InstitutionalWorks = append(b.InstitutionalWorks, cat)
+				}
+			}
+			iwRows.Close()
+		}
 		return nil
 	})
 	if err != nil {
@@ -363,10 +400,24 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 			}
 			list = append(list, &b)
 		}
+
+		for _, b := range list {
+			iwRows, _ := tx.Query(txCtx, `SELECT work_category FROM org.branch_institutional_works WHERE branch_id = $1`, b.ID)
+			if iwRows != nil {
+				for iwRows.Next() {
+					var cat string
+					if err := iwRows.Scan(&cat); err == nil {
+						b.InstitutionalWorks = append(b.InstitutionalWorks, cat)
+					}
+				}
+				iwRows.Close()
+			}
+		}
 		return rows.Err()
 	})
 	return list, err
 }
+
 
 // ListEmployees returns comprehensive employee rows with user, role, and branch details.
 func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.EmployeeView, error) {
