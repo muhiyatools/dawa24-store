@@ -38,7 +38,8 @@ templ MapPicker(props MapPickerProps) {
 		if mapHeight == "" {
 			mapHeight = "280px"
 		}
-		mapID := fmt.Sprintf("leaflet-map-%s-%d", namePrefix, int(latVal*1000)%100000)
+		mapID := fmt.Sprintf("gmap-picker-%s-%d", namePrefix, int(latVal*1000)%100000)
+		iframeSrc := fmt.Sprintf("https://maps.google.com/maps?q=%.8f,%.8f&z=13&output=embed", latVal, lonVal)
 	}}
 	<div class="map-picker-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-4); background:var(--surface-raised); display:flex; flex-direction:column; gap:var(--space-3);" data-map-picker>
 		<!-- Header Toolbar -->
@@ -107,15 +108,26 @@ templ MapPicker(props MapPickerProps) {
 			</div>
 		</div>
 
-		<!-- Interactive Map Canvas -->
+		<!-- Google Maps Embed -->
 		<div
 			id={ mapID }
 			class="map-canvas"
 			data-lat={ fmt.Sprintf("%.8f", latVal) }
 			data-lon={ fmt.Sprintf("%.8f", lonVal) }
 			data-radius={ fmt.Sprintf("%d", radiusVal) }
-			style={ fmt.Sprintf("width: 100%%; height: %s; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; z-index: 1;", mapHeight) }
+			data-map-mode="iframe"
+			style={ fmt.Sprintf("width: 100%%; height: %s; border-radius: var(--radius-lg); border: none; overflow: hidden; position: relative; z-index: 1;", mapHeight) }
 		>
+			<iframe
+				width="100%"
+				height="100%"
+				style="border:0; border-radius:var(--radius-lg);"
+				loading="lazy"
+				referrerpolicy="no-referrer-when-downgrade"
+				data-map-iframe
+				src={ iframeSrc }
+				allowfullscreen
+			></iframe>
 		</div>
 
 		<!-- Coordinate Inputs Matrix -->
@@ -184,4 +196,3 @@ templ MapPicker(props MapPickerProps) {
 		</div>
 	</div>
 }
-

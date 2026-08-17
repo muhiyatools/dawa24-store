@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 9. Scroll Reveal (brand surfaces only)
   initScrollReveal();
 
-  // 10. Universal Leaflet & Google Maps Interactive Engine
+  // 10. Universal Google Maps Interactive Engine
   initMapPickers();
 });
 
@@ -452,7 +452,7 @@ function initScrollReveal() {
   targets.forEach(function(el) { observer.observe(el); });
 }
 
-// Universal Leaflet & Google Maps Interactive Engine
+// Universal Google Maps Interactive Engine (iframe embed — no API key required)
 function initMapPickers() {
   const containers = document.querySelectorAll('[data-map-picker]');
   containers.forEach((container) => {
@@ -470,68 +470,19 @@ function initMapPickers() {
     const citySelect = container.querySelector('[data-city-selector]');
     const locateBtn = container.querySelector('[data-locate-me-btn]');
 
-    let initialLat = parseFloat(canvas.dataset.lat || (latInput ? latInput.value : '30.0444')) || 30.0444;
-    let initialLon = parseFloat(canvas.dataset.lon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
-    let initialRadius = parseInt(canvas.dataset.radius || (radiusInput ? radiusInput.value : '10000'), 10) || 10000;
-
-    // Check if Leaflet is loaded
-    if (typeof L === 'undefined') {
-      console.warn('Leaflet map library is loading or unavailable.');
-      return;
-    }
+    let currentLat = parseFloat(canvas.dataset.lat || (latInput ? latInput.value : '30.0444')) || 30.0444;
+    let currentLon = parseFloat(canvas.dataset.lon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
+    let currentZoom = 13;
 
     container.dataset.mapInitialized = 'true';
 
-    // Initialize Leaflet Map
-    const map = L.map(canvas, {
-      center: [initialLat, initialLon],
-      zoom: 13,
-      zoomControl: true,
-      scrollWheelZoom: true,
-    });
-
-    // Add OpenStreetMap standard tiles
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
-
-    // Custom pulse marker icon
-    const customIcon = L.divIcon({
-      className: 'custom-map-pin',
-      html: `<div style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:#0ea5e9; color:#fff; border-radius:50%; box-shadow:0 4px 12px rgba(14,165,233,0.4); border:2px solid #ffffff; font-size:16px; cursor:grab;">📍</div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-    });
-
-    const marker = L.marker([initialLat, initialLon], {
-      draggable: true,
-      icon: customIcon,
-    }).addTo(map);
-
-    let circle = null;
-    if (radiusInput || canvas.dataset.radius) {
-      circle = L.circle([initialLat, initialLon], {
-        radius: initialRadius,
-        color: '#0ea5e9',
-        fillColor: '#0ea5e9',
-        fillOpacity: 0.15,
-        weight: 2,
-      }).addTo(map);
-    }
-
-    function updateCoordinates(lat, lon, zoom = null) {
+    function updateCoordinates(lat, lon, zoom) {
       const fixedLat = parseFloat(lat.toFixed(6));
       const fixedLon = parseFloat(lon.toFixed(6));
 
-      marker.setLatLng([fixedLat, fixedLon]);
-      if (circle) circle.setLatLng([fixedLat, fixedLon]);
-
-      if (zoom !== null) {
-        map.setView([fixedLat, fixedLon], zoom, { animate: true });
-      } else {
-        map.panTo([fixedLat, fixedLon], { animate: true });
-      }
+      currentLat = fixedLat;
+      currentLon = fixedLon;
+      if (zoom != null) currentZoom = zoom;
 
       if (latInput) latInput.value = fixedLat.toFixed(6);
       if (lonInput) lonInput.value = fixedLon.toFixed(6);
@@ -540,40 +491,35 @@ function initMapPickers() {
       if (gmapsInput) gmapsInput.value = gmapsUrl;
       if (gmapsLink) gmapsLink.href = gmapsUrl;
       if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
+
+      refreshMapIframe(fixedLat, fixedLon, currentZoom);
     }
 
-    // Map Click Handler
-    map.on('click', (e) => {
-      updateCoordinates(e.latlng.lat, e.latlng.lng);
-    });
+    function refreshMapIframe(lat, lon, zoom) {
+      const iframe = canvas.querySelector('iframe[data-map-iframe]');
+      if (!iframe) return;
+      const z = zoom || currentZoom;
+      const newSrc = `https://maps.google.com/maps?q=${lat.toFixed(8)},${lon.toFixed(8)}&z=${z}&output=embed`;
+      if (iframe.src !== newSrc) {
+        iframe.src = newSrc;
+      }
+    }
 
-    // Marker Drag Handler
-    marker.on('dragend', () => {
-      const pos = marker.getLatLng();
-      updateCoordinates(pos.lat, pos.lng);
-    });
-
-    // Lat / Lon Input Change Handlers
+    // Lat / Lon Input Change Handlers — update map iframe when typed manually
     if (latInput && lonInput) {
+      let inputDebounce = null;
       const onManualInputChange = () => {
-        const parsedLat = parseFloat(latInput.value);
-        const parsedLon = parseFloat(lonInput.value);
-        if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
-          updateCoordinates(parsedLat, parsedLon, map.getZoom());
-        }
+        clearTimeout(inputDebounce);
+        inputDebounce = setTimeout(() => {
+          const parsedLat = parseFloat(latInput.value);
+          const parsedLon = parseFloat(lonInput.value);
+          if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+            updateCoordinates(parsedLat, parsedLon, currentZoom);
+          }
+        }, 500);
       };
       latInput.addEventListener('input', onManualInputChange);
       lonInput.addEventListener('input', onManualInputChange);
-    }
-
-    // Radius Input Change Handler
-    if (radiusInput && circle) {
-      radiusInput.addEventListener('input', () => {
-        const rad = parseInt(radiusInput.value, 10);
-        if (!isNaN(rad) && rad > 0) {
-          circle.setRadius(rad);
-        }
-      });
     }
 
     // City Preset Selector
@@ -619,27 +565,6 @@ function initMapPickers() {
         );
       });
     }
-
-    // Modal Invalidate Size Resizer
-    const modalParent = container.closest('.modal-backdrop, .modal-overlay, dialog');
-    if (modalParent) {
-      const resizeObserver = new MutationObserver(() => {
-        if (getComputedStyle(modalParent).display !== 'none' || modalParent.hasAttribute('open')) {
-          setTimeout(() => map.invalidateSize(), 150);
-          setTimeout(() => map.invalidateSize(), 350);
-        }
-      });
-      resizeObserver.observe(modalParent, { attributes: true, attributeFilter: ['style', 'class', 'open'] });
-    }
-
-    // Window Resize Invalidate
-    window.addEventListener('resize', () => {
-      map.invalidateSize();
-    });
-
-    // Initial resize triggers
-    setTimeout(() => map.invalidateSize(), 200);
-    setTimeout(() => map.invalidateSize(), 500);
   });
 }
 
