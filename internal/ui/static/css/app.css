@@ -513,6 +513,60 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom-color: var(--primary-600);
 }
 
+/* Stepper Wizard Indicator */
+.stepper {
+  list-style: none !important;
+  margin: 0 0 2rem 0 !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stepper-step {
+  list-style: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--neutral-400);
+}
+
+.stepper-step.active {
+  color: var(--primary-700);
+}
+
+.stepper-step.done {
+  color: var(--success);
+}
+
+.stepper-bubble {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--neutral-200);
+  color: var(--neutral-700);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.stepper-step.active .stepper-bubble {
+  background: var(--primary-600);
+  color: #ffffff;
+  box-shadow: 0 0 0 4px var(--primary-100);
+}
+
+.stepper-step.done .stepper-bubble {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success-border);
+}
+
 /* Modals */
 .modal-overlay {
   position: fixed;

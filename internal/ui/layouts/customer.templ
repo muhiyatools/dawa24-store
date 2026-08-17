@@ -131,21 +131,27 @@ templ CustomerShell(title string, lang string, dir string) {
 								<span>طرق الدفع المحفوظة</span>
 							</a>
 
+							<div class="dropdown-divider"></div>
+
 							<!-- Dynamic Dashboard link based on role -->
 							if actor.Role == "admin" || actor.Role == "super_admin" {
-								<a href="/admin/dashboard" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800;">
+								<a href="/admin/dashboard" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800; background:var(--primary-50); border-radius:var(--radius-md); margin:0.25rem 0.5rem;">
 									@components.IconChart("icon-xs")
 									<span>لوحة الإدارة العامة</span>
 								</a>
 							} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" {
-								<a href="/vendor/products" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800;">
+								<a href="/vendor/products" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800; background:var(--primary-50); border-radius:var(--radius-md); margin:0.25rem 0.5rem;">
 									@components.IconChart("icon-xs")
-									<span>بوابة المورد</span>
+									<span>لوحة تحكم المورد والمبيعات</span>
 								</a>
-							} else if actor.Role == "pharmacy" {
-								<a href="/pharmacy/dashboard" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800;">
+								<a href="/vendor/inventory" class="dropdown-item">
+									@components.IconBuilding("icon-xs")
+									<span>مخازن وأرصدة المورد</span>
+								</a>
+							} else {
+								<a href="/pharmacy/dashboard" class="dropdown-item" style="color:var(--primary-700) !important; font-weight:800; background:var(--primary-50); border-radius:var(--radius-md); margin:0.25rem 0.5rem;">
 									@components.IconChart("icon-xs")
-									<span>لوحة الصيدلية</span>
+									<span>لوحة تحكم الصيدلية</span>
 								</a>
 							}
 

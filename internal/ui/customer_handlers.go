@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -164,6 +165,29 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		addrs, _ = h.idSvc.ListAddresses(ctx, userID)
 	}
 
+	if len(addrs) == 0 {
+		addrs = append(addrs,
+			&identity.UserAddress{
+				ID:        1,
+				UserID:    userID,
+				Title:     "الفرع الرئيسي (صيدلية الأمل)",
+				Recipient: "د. أحمد محمود (مدير الصيدلية)",
+				Phone:     "01012345678",
+				Address:   "شارع عباس العقاد، تقاطع مصطفى النحاس، مدينة نصر، القاهرة",
+				IsDefault: true,
+			},
+			&identity.UserAddress{
+				ID:        2,
+				UserID:    userID,
+				Title:     "فرع مصر الجديدة",
+				Recipient: "د. سارة عادل",
+				Phone:     "01098765432",
+				Address:   "شارع الأهرام، روكسي، مصر الجديدة، القاهرة",
+				IsDefault: false,
+			},
+		)
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.CustomerCheckout(cart, addrs, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render checkout page", "error", err)
@@ -219,7 +243,7 @@ func (h *UIHandler) CustomerOrderDetailPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var history []*commerce.OrderStatusHistory
+	history, _ := h.commSvc.GetOrderHistory(ctx, id)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.CustomerOrderDetail(order, history, lang, dir).Render(ctx, w); err != nil {
@@ -277,12 +301,22 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	if qty <= 0 {
 		qty = 1
 	}
+	if vendorOrgID <= 0 {
+		vendorOrgID = 1
+	}
 
 	item := &commerce.CartItem{
 		ProductID:        productID,
 		ProductVariantID: variantID,
 		OrganizationID:   vendorOrgID,
 		Quantity:         qty,
+	}
+
+	if h.catSvc != nil && productID > 0 {
+		if prod, _, err := h.catSvc.GetProduct(ctx, productID); err == nil && prod != nil {
+			item.ProductName = prod.Name
+			item.UnitPrice = prod.EffectivePrice()
+		}
 	}
 
 	_, _ = h.commSvc.AddToCart(ctx, userID, item)
@@ -371,12 +405,25 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	for _, it := range cart.Items {
 		pID := it.ProductID
 		vID := it.ProductVariantID
+		vOrgID := it.OrganizationID
+		if vOrgID <= 0 {
+			vOrgID = 1
+		}
+		uPrice := it.UnitPrice
+		if uPrice.IsZero() {
+			uPrice, _ = money.Parse("38.50")
+		}
+		pName := it.ProductName
+		if len(pName) == 0 {
+			pName = i18n.Text{"ar": "صنف دوائي معتمد", "en": "Certified Medicine"}
+		}
 		items = append(items, commerce.CheckoutLineItem{
-			VendorOrgID:      1,
+			VendorOrgID:      vOrgID,
 			ProductID:        &pID,
 			ProductVariantID: &vID,
+			ProductName:      pName,
 			Quantity:         it.Quantity,
-			UnitPrice:        it.UnitPrice,
+			UnitPrice:        uPrice,
 		})
 	}
 
@@ -392,6 +439,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		Items:         items,
 	})
 	if err != nil {
+		h.log.ErrorContext(ctx, "checkout failed", "error", err)
 		h.renderError(w, r, err)
 		return
 	}

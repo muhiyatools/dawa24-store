@@ -114,7 +114,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 									<div style="display:flex; align-items:center; gap:1.25rem;">
 										<!-- Quantity Stepper -->
 										<div class="quantity-control" style="background:#ffffff;">
-											<form action="/cart/update-quantity" method="POST" style="margin:0; display:inline;">
+											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" style="margin:0; display:inline;">
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity - 1) } />
 												<button type="submit" class="quantity-btn" title="تقليل الكمية">
@@ -126,7 +126,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 												{ fmt.Sprintf("%d", item.Quantity) }
 											</span>
 
-											<form action="/cart/update-quantity" method="POST" style="margin:0; display:inline;">
+											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" style="margin:0; display:inline;">
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity + 1) } />
 												<button type="submit" class="quantity-btn" title="زيادة الكمية">

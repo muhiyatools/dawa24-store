@@ -26,6 +26,18 @@ func CartTotal(cart *commerce.Cart) money.Amount {
 	return total
 }
 
+// CartItemTotal calculates line total for a single cart item.
+func CartItemTotal(item *commerce.CartItem) money.Amount {
+	if item == nil {
+		return money.Zero
+	}
+	line, err := item.UnitPrice.MulInt(int64(item.Quantity))
+	if err != nil {
+		return money.Zero
+	}
+	return line
+}
+
 // CartGroup is one supplier's slice of the cart.
 type CartGroup struct {
 	OrganizationID int64
