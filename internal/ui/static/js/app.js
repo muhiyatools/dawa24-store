@@ -578,7 +578,33 @@ function initMapPickers() {
       });
     }
 
+    // Google Maps URL Paste & Input Auto-Extractor
+    if (gmapsInput) {
+      const onGmapsUrlInput = () => {
+        const val = gmapsInput.value.trim();
+        if (!val) return;
+        
+        const qMatch = val.match(/[?&]q=([-+]?\d*\.?\d+)[,\s]+([-+]?\d*\.?\d+)/i);
+        const atMatch = val.match(/@([-+]?\d*\.?\d+)[,\s]+([-+]?\d*\.?\d+)/);
+        const llMatch = val.match(/[?&]ll=([-+]?\d*\.?\d+)[,\s]+([-+]?\d*\.?\d+)/i);
+        const rawMatch = val.match(/^([-+]?\d*\.?\d+)[,\s]+([-+]?\d*\.?\d+)$/);
+
+        let match = qMatch || atMatch || llMatch || rawMatch;
+        if (match) {
+          const parsedLat = parseFloat(match[1]);
+          const parsedLon = parseFloat(match[2]);
+          if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+            updateCoordinates(parsedLat, parsedLon, 15);
+            showToast('تم استخراج وتحديث الإحداثيات تلقائياً من الرابط 📍', 'success');
+          }
+        }
+      };
+      gmapsInput.addEventListener('input', onGmapsUrlInput);
+      gmapsInput.addEventListener('paste', () => setTimeout(onGmapsUrlInput, 50));
+    }
+
     // City Preset Selector
+
     if (citySelect) {
       citySelect.addEventListener('change', (e) => {
         const val = e.target.value;
