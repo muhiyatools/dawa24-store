@@ -27,9 +27,14 @@ func (h *UIHandler) renderCmsBlock(w http.ResponseWriter, r *http.Request, key, 
 	}
 }
 
-// AboutPage renders the about content block.
+// AboutPage renders the dedicated interactive About Us page.
 func (h *UIHandler) AboutPage(w http.ResponseWriter, r *http.Request) {
-	h.renderCmsBlock(w, r, "about", "من نحن")
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AboutPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render about page", "error", err)
+	}
 }
 
 // HowItWorksPage renders the how-it-works content block.

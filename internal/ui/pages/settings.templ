@@ -17,9 +17,11 @@ templ settingsTabs(active string) {
 	@components.Tabs(components.TabsProps{
 		Tabs: []components.Tab{
 			{ ID: "profile", Label: "الملف الشخصي", URL: "/settings/profile" },
+			{ ID: "wallet", Label: "المحفظة والرصيد", URL: "/wallet" },
+			{ ID: "payments", Label: "طرق الدفع", URL: "/settings/payment-methods" },
 			{ ID: "addresses", Label: "العناوين", URL: "/settings/addresses" },
-			{ ID: "security", Label: "الأمان", URL: "/settings/security" },
-			{ ID: "organization", Label: "المؤسسة", URL: "/settings/organization" },
+			{ ID: "organization", Label: "المنشأة والتراخيص", URL: "/settings/organization" },
+			{ ID: "security", Label: "الأمان والجلسات", URL: "/settings/security" },
 			{ ID: "preferences", Label: "التفضيلات", URL: "/settings/preferences" },
 		},
 		ActiveID: active,
@@ -389,6 +391,156 @@ templ SettingsPreferences(lang, dir string, p *identity.UserPreferences) {
 					</label>
 					<button type="submit" class="btn btn-primary" style="justify-content:center;">حفظ التفضيلات</button>
 				</form>
+			</div>
+		</div>
+	}
+}
+
+templ SettingsPaymentMethods(lang, dir string) {
+	@layouts.CustomerShell("طرق الدفع | Payment Methods", lang, dir) {
+		<div style="max-width:760px;" x-data="{ payType: 'bank_account' }">
+			@settingsTabs("payments")
+			<div class="card" style="margin-top:1rem; padding:2rem;">
+				<h2 class="card-title" style="margin:0 0 0.5rem;">طرق الدفع المحفوظة (Payment Methods)</h2>
+				<p style="color:var(--neutral-500); font-size:0.875rem; margin:0 0 1.75rem;">
+					إدارة حساباتك البنكية ومحافظ الدفع الإلكتروني المستخدمة في شحن المحفظة وسحب الرصيد.
+				</p>
+
+				<!-- Saved Payment Methods -->
+				<div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:2.5rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff;">
+						<div style="display:flex; align-items:center; gap:1rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+								@components.IconBuilding("icon-sm")
+							</div>
+							<div>
+								<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">
+									البنك الأهلي المصري (حساب صيدلية جاري)
+								</div>
+								<div style="font-size:0.8rem; color:var(--neutral-500); display:flex; gap:0.75rem; margin-top:0.25rem;">
+									<span>الحساب: <strong class="tabular-nums" style="color:var(--neutral-800);">•••• 4920</strong></span>
+									<span class="badge badge-emerald">معتمد للسحب والإيداع</span>
+									<span class="badge badge-sky">افتراضي</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff;">
+						<div style="display:flex; align-items:center; gap:1rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+								@components.IconPhone("icon-sm")
+							</div>
+							<div>
+								<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">
+									محفظة إنستاباي (InstaPay / فودافون كاش)
+								</div>
+								<div style="font-size:0.8rem; color:var(--neutral-500); display:flex; gap:0.75rem; margin-top:0.25rem;">
+									<span>المعرف / الهاتف: <strong class="tabular-nums" style="color:var(--neutral-800);">01065397000</strong></span>
+									<span class="badge badge-emerald">معتمد للتحويل الفوري</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Dynamic Add Payment Method Form -->
+				<div style="border-top:2px solid var(--neutral-100); padding-top:1.75rem;">
+					<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;">
+						إضافة وسيلة دفع جديدة
+					</h3>
+
+					<form action="/settings/payment-methods" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="pm-select-type">نوع وسيلة الدفع *</label>
+							<select id="pm-select-type" name="type" class="form-select" x-model="payType">
+								<option value="bank_account">حساب بنكي (Bank Account)</option>
+								<option value="instapay_wallet">إنستاباي ومحافظ إلكترونية (InstaPay / E-Wallet)</option>
+								<option value="credit_card">بطاقة بنكية (Credit / Debit Card)</option>
+								<option value="cheque">شيك بنكي معتمد (Company Cheque)</option>
+							</select>
+						</div>
+
+						<!-- Bank Account Fields -->
+						<div x-show="payType === 'bank_account'" style="display:flex; flex-direction:column; gap:1.15rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-bn">اسم البنك *</label>
+								<input type="text" id="pm-bn" name="bank_name" placeholder="مثال: البنك الأهلي المصري، CIB، بنك مصر" class="form-input" />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-ah">اسم صاحب الحساب (مطابق للرخصة) *</label>
+								<input type="text" id="pm-ah" name="account_holder" placeholder="اسم الصيدلية أو الشركة" class="form-input" />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-an">رقم الحساب البنكي *</label>
+								<input type="text" id="pm-an" name="account_number" placeholder="مثال: 100094820194" class="form-input tabular-nums" />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-ib">رقم الآيبان الدولي (IBAN) *</label>
+								<input type="text" id="pm-ib" name="iban" placeholder="EG3800..." class="form-input tabular-nums" />
+							</div>
+						</div>
+
+						<!-- InstaPay / Wallet Fields -->
+						<div x-show="payType === 'instapay_wallet'" style="display:flex; flex-direction:column; gap:1.15rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-wp">مزود الخدمة *</label>
+								<select id="pm-wp" name="wallet_provider" class="form-select">
+									<option value="instapay">InstaPay (عنوان الدفع اللحظي IPA)</option>
+									<option value="vodafone">فودافون كاش (Vodafone Cash)</option>
+									<option value="orange">أورنج كاش (Orange Cash)</option>
+									<option value="etisalat">اتصالات كاش (Etisalat Cash)</option>
+									<option value="we">وي باي (WE Pay)</option>
+								</select>
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-wh">معرف الدفع (IPA) أو رقم الهاتف المسجل *</label>
+								<input type="text" id="pm-wh" name="wallet_handle" placeholder="01012345678 أو pharmacy@instapay" class="form-input tabular-nums" />
+							</div>
+						</div>
+
+						<!-- Credit / Debit Card Fields -->
+						<div x-show="payType === 'credit_card'" style="display:flex; flex-direction:column; gap:1.15rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-cn">الاسم المدون على البطاقة *</label>
+								<input type="text" id="pm-cn" name="card_name" placeholder="DR AHMED MAHMOUD" class="form-input" />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-num">رقم البطاقة (16 رقم) *</label>
+								<input type="text" id="pm-num" name="card_number" placeholder="4234 •••• •••• 9812" class="form-input tabular-nums" />
+							</div>
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label" for="pm-exp">تاريخ الانتهاء (MM/YY) *</label>
+									<input type="text" id="pm-exp" name="card_expiry" placeholder="12/28" class="form-input tabular-nums" />
+								</div>
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label" for="pm-cvv">رمز الأمان (CVV) *</label>
+									<input type="password" id="pm-cvv" name="card_cvv" placeholder="•••" maxlength="4" class="form-input tabular-nums" />
+								</div>
+							</div>
+						</div>
+
+						<!-- Cheque Fields -->
+						<div x-show="payType === 'cheque'" style="display:flex; flex-direction:column; gap:1.15rem;">
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-cbr">فرع البنك المصدر للشيكات *</label>
+								<input type="text" id="pm-cbr" name="cheque_branch" placeholder="مثال: البنك الأهلي - فرع المهندسين" class="form-input" />
+							</div>
+							<div class="form-group" style="margin-bottom:0;">
+								<label class="form-label" for="pm-ccr">رقم السجل التجاري للشيكات *</label>
+								<input type="text" id="pm-ccr" name="cheque_cr" placeholder="رقم السجل التجاري" class="form-input tabular-nums" />
+							</div>
+						</div>
+
+						<div style="margin-top:0.75rem;">
+							<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem;">
+								@components.IconPlus("icon-xs")
+								<span>حفظ وسيلة الدفع</span>
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	}

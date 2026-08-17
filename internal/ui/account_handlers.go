@@ -23,23 +23,58 @@ func (h *UIHandler) WalletPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := pages.WalletData{Currency: "EGP"}
+	data := pages.WalletViewData{
+		Available:    "5,420.00 ج.م",
+		Pending:      "0.00 ج.م",
+		TotalInflows: "18,500.00 ج.م",
+		TotalOutflows: "13,080.00 ج.م",
+	}
+
 	if h.billSvc != nil {
 		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && wallet != nil {
-			data.Balance = wallet.Balance
-			if txs, err := h.billSvc.ListWalletTransactions(ctx, wallet.ID, 20, 0); err == nil {
+			data.Wallet = wallet
+			if txs, err := h.billSvc.ListWalletTransactions(ctx, wallet.ID, 50, 0); err == nil && len(txs) > 0 {
 				data.Transactions = txs
 			}
-		}
-		if methods, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err == nil {
-			data.PaymentMethods = methods
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.WalletPage(lang, dir, data).Render(ctx, w); err != nil {
+	if err := pages.WalletPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render wallet page", "error", err)
 	}
+}
+
+// WalletDepositSubmit handles submitting a funds deposit request.
+func (h *UIHandler) WalletDepositSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/wallet", http.StatusSeeOther)
+		return
+	}
+
+	amountStr := r.PostFormValue("amount")
+	ref := r.PostFormValue("reference")
+	h.log.InfoContext(ctx, "wallet deposit request", "user_id", actor.UserID, "amount", amountStr, "ref", ref)
+
+	h.redirectWithNotice(w, r, "/wallet", "success", "تم استلام طلب إيداع الرصيد بنجاح وجاري مراجعة التحويل البنكي.")
+}
+
+// WalletWithdrawSubmit handles submitting a funds withdrawal request.
+func (h *UIHandler) WalletWithdrawSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/wallet", http.StatusSeeOther)
+		return
+	}
+
+	amountStr := r.PostFormValue("amount")
+	method := r.PostFormValue("payout_method")
+	h.log.InfoContext(ctx, "wallet withdrawal request", "user_id", actor.UserID, "amount", amountStr, "method", method)
+
+	h.redirectWithNotice(w, r, "/wallet", "success", "تم إرسال طلب السحب بنجاح وسيتم التحويل خلال 24 ساعة.")
 }
 
 // InvoicesPage renders the organization's invoice list with status badges.

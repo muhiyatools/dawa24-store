@@ -45,7 +45,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.5rem; display:flex; align-items:center; gap:0.75rem; border-bottom:1px solid var(--neutral-800);\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:36px; object-fit:contain;\"> <span style=\"font-weight:800; font-size:1.1rem; color:#ffffff;\">بوابة الموردين</span></div><nav class=\"sidebar-nav\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.5rem; display:flex; align-items:center; gap:0.75rem; border-bottom:1px solid var(--neutral-800);\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:48px; max-height:50px; object-fit:contain;\"> <span style=\"font-weight:800; font-size:1.1rem; color:#ffffff;\">بوابة الموردين</span></div><nav class=\"sidebar-nav\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

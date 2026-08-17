@@ -5,6 +5,11 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
+/* Critical: Alpine.js Cloak to prevent flashing/stuck dropdowns before JS init */
+[x-cloak] {
+  display: none !important;
+}
+
 :root {
   /* Unified Font — Cairo throughout the entire platform */
   --font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -75,7 +80,7 @@
   --radius-full: 9999px;
 
   /* Layout Constants */
-  --header-height: 4.5rem;
+  --header-height: 5rem;
   --sidebar-width: 17.5rem;
 }
 
@@ -109,7 +114,7 @@ body {
 /* Links & Typography */
 a {
   color: var(--primary-600);
-  text-decoration: none;
+  text-decoration: none !important;
   transition: color 0.15s ease;
 }
 a:hover {
@@ -130,7 +135,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 2rem;
+  padding-inline: 2.25rem;
   box-shadow: var(--shadow-xs);
   position: sticky;
   top: 0;
@@ -173,14 +178,14 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   gap: 0.5rem;
   font-family: inherit;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.9rem;
   line-height: 1;
   padding: 0.625rem 1.125rem;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: none !important;
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
 }
@@ -191,30 +196,30 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-primary {
   background-color: var(--primary-600);
-  color: #ffffff;
+  color: #ffffff !important;
   box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
 }
 .btn-primary:hover {
   background-color: var(--primary-700);
-  color: #ffffff;
+  color: #ffffff !important;
   box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
 }
 
 .btn-secondary {
   background-color: #ffffff;
   border-color: var(--neutral-300);
-  color: var(--neutral-700);
+  color: var(--neutral-700) !important;
   box-shadow: var(--shadow-xs);
 }
 .btn-secondary:hover {
   background-color: var(--neutral-50);
   border-color: var(--neutral-400);
-  color: var(--neutral-900);
+  color: var(--neutral-900) !important;
 }
 
 .btn-icon {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   padding: 0;
   border-radius: var(--radius-md);
   display: inline-flex;
@@ -232,11 +237,11 @@ h1, h2, h3, h4, h5, h6 {
 .btn-danger {
   background-color: var(--danger-bg);
   border-color: var(--danger-border);
-  color: var(--danger);
+  color: var(--danger) !important;
 }
 .btn-danger:hover {
   background-color: var(--danger);
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 /* Dropdown & Popovers */
@@ -252,7 +257,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
-  min-width: 220px;
+  min-width: 240px;
   padding: 0.5rem 0;
   z-index: 100;
   animation: fadeIn 0.15s ease-out;
@@ -262,11 +267,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.65rem 1.25rem;
-  color: var(--neutral-700);
+  padding: 0.7rem 1.25rem;
+  color: var(--neutral-700) !important;
   font-size: 0.875rem;
-  font-weight: 500;
-  text-decoration: none;
+  font-weight: 600;
+  text-decoration: none !important;
   cursor: pointer;
   border: none;
   background: none;
@@ -276,19 +281,82 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dropdown-item:hover {
-  background-color: var(--neutral-50);
-  color: var(--primary-700);
+  background-color: var(--primary-50);
+  color: var(--primary-700) !important;
 }
 
 .dropdown-divider {
   height: 1px;
   background-color: var(--neutral-100);
-  margin: 0.35rem 0;
+  margin: 0.4rem 0;
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tabs System */
+.tab-list {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--neutral-200);
+  margin-bottom: 1.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.1rem;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--neutral-600);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  text-decoration: none !important;
+}
+
+.tab-btn:hover {
+  color: var(--primary-600);
+}
+
+.tab-btn.active {
+  color: var(--primary-700);
+  border-bottom-color: var(--primary-600);
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-card {
+  background-color: #ffffff;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
 }
 
 /* Quantity Counter Component */
@@ -340,7 +408,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.35rem;
   padding: 0.25rem 0.65rem;
   font-size: 0.775rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: var(--radius-full);
   line-height: 1.2;
 }
@@ -383,14 +451,14 @@ h1, h2, h3, h4, h5, h6 {
 .form-label {
   display: block;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--neutral-700);
   margin-block-end: 0.4rem;
 }
 
 .form-input, .form-select, .form-textarea {
   width: 100%;
-  padding: 0.625rem 0.875rem;
+  padding: 0.65rem 0.875rem;
   font-size: 0.9rem;
   border: 1px solid var(--neutral-300);
   border-radius: var(--radius-md);
@@ -424,7 +492,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--neutral-50);
   padding: 0.875rem 1.25rem;
   font-size: 0.775rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--neutral-500);
@@ -462,13 +530,22 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--shadow-md);
 }
 
-/* Footer Styling */
+/* Footer Styling — No Underlines, Generous Bottom Margin */
 .site-footer {
   margin-top: auto;
   background-color: #ffffff;
   border-top: 1px solid var(--border-card);
-  padding: 4rem 2rem 2.5rem 2rem;
+  padding: 4.5rem 2rem 3rem 2rem;
   color: var(--neutral-600);
+}
+
+.site-footer a {
+  text-decoration: none !important;
+  color: var(--neutral-600) !important;
+  transition: color 0.15s ease;
+}
+.site-footer a:hover {
+  color: var(--primary-600) !important;
 }
 
 .footer-content {
@@ -476,7 +553,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  gap: 3rem;
+  gap: 3.5rem;
   margin-bottom: 3rem;
 }
 
@@ -484,7 +561,7 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 1320px;
   margin: 0 auto;
   border-top: 1px solid var(--neutral-200);
-  padding-top: 1.5rem;
+  padding-top: 1.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -492,6 +569,13 @@ h1, h2, h3, h4, h5, h6 {
   gap: 1rem;
   font-size: 0.875rem;
   color: var(--neutral-500);
+}
+
+@media (max-width: 900px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 }
 
 /* HTMX Loading Indicator */

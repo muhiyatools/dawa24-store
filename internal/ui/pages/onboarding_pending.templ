@@ -10,8 +10,11 @@ import (
 // a dashboard full of zeroes.
 templ OnboardingPending(lang, dir string, rejected bool) {
 	@layouts.Base("قيد المراجعة | Onboarding", lang, dir) {
-		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem;">
-			<div class="card hover-lift" style="width:100%; max-width:520px; padding:2.5rem; text-align:center;">
+		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-50) 0%, var(--bg-app) 100%);">
+			<div class="card hover-lift" style="width:100%; max-width:520px; padding:2.5rem; text-align:center; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl);">
+				<a href="/" style="display:inline-block; margin-bottom:1.5rem;">
+					<img src="/static/img/logo.png" alt="DAWA24" style="height:54px; object-fit:contain;" />
+				</a>
 				if rejected {
 					<div style="width:64px; height:64px; border-radius:var(--radius-xl); margin:0 auto 1.25rem; display:flex; align-items:center; justify-content:center; background:var(--danger-light); color:var(--danger);">
 						@components.IconAlert("icon-lg")

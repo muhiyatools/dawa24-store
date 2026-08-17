@@ -59,9 +59,11 @@ func settingsTabs(active string) templ.Component {
 		templ_7745c5c3_Err = components.Tabs(components.TabsProps{
 			Tabs: []components.Tab{
 				{ID: "profile", Label: "الملف الشخصي", URL: "/settings/profile"},
+				{ID: "wallet", Label: "المحفظة والرصيد", URL: "/wallet"},
+				{ID: "payments", Label: "طرق الدفع", URL: "/settings/payment-methods"},
 				{ID: "addresses", Label: "العناوين", URL: "/settings/addresses"},
-				{ID: "security", Label: "الأمان", URL: "/settings/security"},
-				{ID: "organization", Label: "المؤسسة", URL: "/settings/organization"},
+				{ID: "organization", Label: "المنشأة والتراخيص", URL: "/settings/organization"},
+				{ID: "security", Label: "الأمان والجلسات", URL: "/settings/security"},
 				{ID: "preferences", Label: "التفضيلات", URL: "/settings/preferences"},
 			},
 			ActiveID: active,
@@ -121,7 +123,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(user.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 39, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 41, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +136,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(user.Name["ar"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 45, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 47, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -147,7 +149,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(user.Name["en"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 49, Col: 108}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 51, Col: 108}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -160,7 +162,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(user.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 55, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 57, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -173,7 +175,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(user.Timezone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 59, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 61, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -186,7 +188,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(user.Language == i18n.AR)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 65, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 67, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -199,7 +201,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(user.Language == i18n.EN)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 66, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 68, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
@@ -280,7 +282,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 106, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 108, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 				if templ_7745c5c3_Err != nil {
@@ -293,7 +295,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 106, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 108, Col: 80}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -322,7 +324,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(a.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 146, Col: 18}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 148, Col: 18}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -345,7 +347,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(a.Recipient)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 151, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 153, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -358,7 +360,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(a.Phone)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 151, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 153, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -371,7 +373,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(a.Address)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 152, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 154, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -384,7 +386,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 					var templ_7745c5c3_Var20 templ.SafeURL
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/settings/addresses/%d/delete", a.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 154, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 156, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -508,7 +510,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(s.UserAgent)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 194, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 196, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -521,7 +523,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(s.IP)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 195, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 197, Col: 51}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -534,7 +536,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(s.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 196, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 198, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -547,7 +549,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(s.Token)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 199, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 201, Col: 61}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 					if templ_7745c5c3_Err != nil {
@@ -581,7 +583,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 219, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 221, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -594,7 +596,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", p.MaxLoginSessions))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 220, Col: 104}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 222, Col: 104}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -607,7 +609,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 					var templ_7745c5c3_Var30 templ.SafeURL
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/settings/security/plan/%d", p.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 222, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 224, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -700,7 +702,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.LegalName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 250, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 252, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 			if templ_7745c5c3_Err != nil {
@@ -713,7 +715,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.TradeName.Get(i18n.AR))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 255, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 257, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 			if templ_7745c5c3_Err != nil {
@@ -726,7 +728,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.TradeName.Get(i18n.EN))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 259, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 261, Col: 124}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 			if templ_7745c5c3_Err != nil {
@@ -739,7 +741,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.TaxNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 265, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 267, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 			if templ_7745c5c3_Err != nil {
@@ -752,7 +754,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.CommercialRegister)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 269, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 271, Col: 123}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 			if templ_7745c5c3_Err != nil {
@@ -776,7 +778,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var38 string
 					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 286, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 288, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
@@ -789,7 +791,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var39 string
 					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 287, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 289, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
@@ -802,7 +804,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var40 string
 					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 287, Col: 90}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 289, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 					if templ_7745c5c3_Err != nil {
@@ -825,7 +827,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 						var templ_7745c5c3_Var41 templ.SafeURL
 						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/settings/organization/branch/%d/delete", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 292, Col: 97}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 294, Col: 97}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 						if templ_7745c5c3_Err != nil {
@@ -860,7 +862,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var42 string
 					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", m.UserID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 336, Col: 101}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 338, Col: 101}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 					if templ_7745c5c3_Err != nil {
@@ -873,7 +875,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var43 templ.SafeURL
 					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/settings/organization/member/%d/role", m.UserID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 337, Col: 98}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 339, Col: 98}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -886,7 +888,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var44 string
 					templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.RoleKey == "org_owner")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 339, Col: 70}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 341, Col: 70}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
 					if templ_7745c5c3_Err != nil {
@@ -899,7 +901,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var45 string
 					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.RoleKey == "org_manager")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 340, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 342, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
 					if templ_7745c5c3_Err != nil {
@@ -912,7 +914,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var46 string
 					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.RoleKey == "org_employee")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 341, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 343, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 					if templ_7745c5c3_Err != nil {
@@ -925,7 +927,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var47 string
 					templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.RoleKey == "org_accountant")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 342, Col: 80}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 344, Col: 80}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var47)
 					if templ_7745c5c3_Err != nil {
@@ -938,7 +940,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 					var templ_7745c5c3_Var48 string
 					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(m.RoleKey == "org_warehouse")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 343, Col: 78}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 345, Col: 78}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
 					if templ_7745c5c3_Err != nil {
@@ -1012,7 +1014,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			var templ_7745c5c3_Var51 string
 			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Theme == "light")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 366, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 368, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
 			if templ_7745c5c3_Err != nil {
@@ -1025,7 +1027,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			var templ_7745c5c3_Var52 string
 			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Theme == "dark")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 367, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 369, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
 			if templ_7745c5c3_Err != nil {
@@ -1038,7 +1040,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			var templ_7745c5c3_Var53 string
 			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Theme == "auto")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 368, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 370, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
 			if templ_7745c5c3_Err != nil {
@@ -1051,7 +1053,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			var templ_7745c5c3_Var54 string
 			templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.NotificationChannels["email"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 374, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 376, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var54)
 			if templ_7745c5c3_Err != nil {
@@ -1064,7 +1066,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			var templ_7745c5c3_Var55 string
 			templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.NotificationChannels["sms"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 378, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 380, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var55)
 			if templ_7745c5c3_Err != nil {
@@ -1077,7 +1079,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			var templ_7745c5c3_Var56 string
 			templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.NotificationChannels["push"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 382, Col: 85}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 384, Col: 85}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var56)
 			if templ_7745c5c3_Err != nil {
@@ -1090,7 +1092,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			var templ_7745c5c3_Var57 string
 			templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.MarketingConsent)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 387, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings.templ`, Line: 389, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
 			if templ_7745c5c3_Err != nil {
@@ -1103,6 +1105,85 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			return nil
 		})
 		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var50), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func SettingsPaymentMethods(lang, dir string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var58 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var58 == nil {
+			templ_7745c5c3_Var58 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Var59 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<div style=\"max-width:760px;\" x-data=\"{ payType: 'bank_account' }\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = settingsTabs("payments").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div class=\"card\" style=\"margin-top:1rem; padding:2rem;\"><h2 class=\"card-title\" style=\"margin:0 0 0.5rem;\">طرق الدفع المحفوظة (Payment Methods)</h2><p style=\"color:var(--neutral-500); font-size:0.875rem; margin:0 0 1.75rem;\">إدارة حساباتك البنكية ومحافظ الدفع الإلكتروني المستخدمة في شحن المحفظة وسحب الرصيد.</p><!-- Saved Payment Methods --><div style=\"display:flex; flex-direction:column; gap:1rem; margin-bottom:2.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div><div><div style=\"font-weight:800; color:var(--neutral-900); font-size:0.95rem;\">البنك الأهلي المصري (حساب صيدلية جاري)</div><div style=\"font-size:0.8rem; color:var(--neutral-500); display:flex; gap:0.75rem; margin-top:0.25rem;\"><span>الحساب: <strong class=\"tabular-nums\" style=\"color:var(--neutral-800);\">•••• 4920</strong></span> <span class=\"badge badge-emerald\">معتمد للسحب والإيداع</span> <span class=\"badge badge-sky\">افتراضي</span></div></div></div></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border-card); border-radius:var(--radius-lg); background:#fff;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPhone("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</div><div><div style=\"font-weight:800; color:var(--neutral-900); font-size:0.95rem;\">محفظة إنستاباي (InstaPay / فودافون كاش)</div><div style=\"font-size:0.8rem; color:var(--neutral-500); display:flex; gap:0.75rem; margin-top:0.25rem;\"><span>المعرف / الهاتف: <strong class=\"tabular-nums\" style=\"color:var(--neutral-800);\">01065397000</strong></span> <span class=\"badge badge-emerald\">معتمد للتحويل الفوري</span></div></div></div></div></div><!-- Dynamic Add Payment Method Form --><div style=\"border-top:2px solid var(--neutral-100); padding-top:1.75rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.25rem;\">إضافة وسيلة دفع جديدة</h3><form action=\"/settings/payment-methods\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-select-type\">نوع وسيلة الدفع *</label> <select id=\"pm-select-type\" name=\"type\" class=\"form-select\" x-model=\"payType\"><option value=\"bank_account\">حساب بنكي (Bank Account)</option> <option value=\"instapay_wallet\">إنستاباي ومحافظ إلكترونية (InstaPay / E-Wallet)</option> <option value=\"credit_card\">بطاقة بنكية (Credit / Debit Card)</option> <option value=\"cheque\">شيك بنكي معتمد (Company Cheque)</option></select></div><!-- Bank Account Fields --><div x-show=\"payType === 'bank_account'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-bn\">اسم البنك *</label> <input type=\"text\" id=\"pm-bn\" name=\"bank_name\" placeholder=\"مثال: البنك الأهلي المصري، CIB، بنك مصر\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-ah\">اسم صاحب الحساب (مطابق للرخصة) *</label> <input type=\"text\" id=\"pm-ah\" name=\"account_holder\" placeholder=\"اسم الصيدلية أو الشركة\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-an\">رقم الحساب البنكي *</label> <input type=\"text\" id=\"pm-an\" name=\"account_number\" placeholder=\"مثال: 100094820194\" class=\"form-input tabular-nums\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-ib\">رقم الآيبان الدولي (IBAN) *</label> <input type=\"text\" id=\"pm-ib\" name=\"iban\" placeholder=\"EG3800...\" class=\"form-input tabular-nums\"></div></div><!-- InstaPay / Wallet Fields --><div x-show=\"payType === 'instapay_wallet'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-wp\">مزود الخدمة *</label> <select id=\"pm-wp\" name=\"wallet_provider\" class=\"form-select\"><option value=\"instapay\">InstaPay (عنوان الدفع اللحظي IPA)</option> <option value=\"vodafone\">فودافون كاش (Vodafone Cash)</option> <option value=\"orange\">أورنج كاش (Orange Cash)</option> <option value=\"etisalat\">اتصالات كاش (Etisalat Cash)</option> <option value=\"we\">وي باي (WE Pay)</option></select></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-wh\">معرف الدفع (IPA) أو رقم الهاتف المسجل *</label> <input type=\"text\" id=\"pm-wh\" name=\"wallet_handle\" placeholder=\"01012345678 أو pharmacy@instapay\" class=\"form-input tabular-nums\"></div></div><!-- Credit / Debit Card Fields --><div x-show=\"payType === 'credit_card'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-cn\">الاسم المدون على البطاقة *</label> <input type=\"text\" id=\"pm-cn\" name=\"card_name\" placeholder=\"DR AHMED MAHMOUD\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-num\">رقم البطاقة (16 رقم) *</label> <input type=\"text\" id=\"pm-num\" name=\"card_number\" placeholder=\"4234 •••• •••• 9812\" class=\"form-input tabular-nums\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-exp\">تاريخ الانتهاء (MM/YY) *</label> <input type=\"text\" id=\"pm-exp\" name=\"card_expiry\" placeholder=\"12/28\" class=\"form-input tabular-nums\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-cvv\">رمز الأمان (CVV) *</label> <input type=\"password\" id=\"pm-cvv\" name=\"card_cvv\" placeholder=\"•••\" maxlength=\"4\" class=\"form-input tabular-nums\"></div></div></div><!-- Cheque Fields --><div x-show=\"payType === 'cheque'\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-cbr\">فرع البنك المصدر للشيكات *</label> <input type=\"text\" id=\"pm-cbr\" name=\"cheque_branch\" placeholder=\"مثال: البنك الأهلي - فرع المهندسين\" class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"pm-ccr\">رقم السجل التجاري للشيكات *</label> <input type=\"text\" id=\"pm-ccr\" name=\"cheque_cr\" placeholder=\"رقم السجل التجاري\" class=\"form-input tabular-nums\"></div></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem 2rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<span>حفظ وسيلة الدفع</span></button></div></form></div></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = layouts.CustomerShell("طرق الدفع | Payment Methods", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var59), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

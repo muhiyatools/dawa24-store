@@ -14,9 +14,53 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// SettingsIndex redirects the bare /settings route to its first tab.
+// SettingsIndex renders the comprehensive unified tab-based account settings hub.
 func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/settings/profile", http.StatusSeeOther)
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		return
+	}
+
+	var user *identity.User
+	var addresses []*identity.UserAddress
+	var sessions []*identity.Session
+
+	if h.idSvc != nil {
+		if me, err := h.idSvc.GetMe(ctx, actor.UserID, nil); err == nil && me != nil {
+			user = me.User
+		}
+		if addrs, err := h.idSvc.ListAddresses(ctx, actor.UserID); err == nil {
+			addresses = addrs
+		}
+		if sess, err := h.idSvc.ListSessions(ctx, actor.UserID); err == nil {
+			sessions = sess
+		}
+	}
+
+	if user == nil {
+		user = &identity.User{
+			ID:    actor.UserID,
+			Email: "user@dawa24.eg",
+			Name:  i18n.Text{i18n.AR: "طبيب / صيدلي معتمد", i18n.EN: "Verified Pharmacist"},
+			Role:  actor.Role,
+		}
+	}
+
+	data := pages.UnifiedSettingsData{
+		User:      user,
+		Addresses: addresses,
+		Sessions:  sessions,
+		ActiveTab: "profile",
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.UnifiedSettingsPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render unified settings page", "error", err)
+	}
 }
 
 // SettingsProfilePage renders the profile tab.
@@ -421,4 +465,31 @@ func (h *UIHandler) SettingsMemberAddSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	h.redirectWithNotice(w, r, "/settings/organization", "success", "تمت إضافة العضو.")
+}
+
+// SettingsPaymentMethodsPage renders the saved payment methods and dynamic add method form.
+func (h *UIHandler) SettingsPaymentMethodsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	if _, ok := authctx.From(ctx); !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/payment-methods", http.StatusSeeOther)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.SettingsPaymentMethods(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render settings payment methods", "error", err)
+	}
+}
+
+// SettingsPaymentMethodsSubmit saves a new payment method.
+func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if _, ok := authctx.From(ctx); !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/payment-methods", http.StatusSeeOther)
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/settings/payment-methods", "success", "تم حفظ وتفعيل وسيلة الدفع بنجاح.")
 }

@@ -140,6 +140,7 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/settings/security", h.SettingsSecurityPage)
 	r.Get("/settings/organization", h.SettingsOrganizationPage)
 	r.Get("/settings/preferences", h.SettingsPreferencesPage)
+	r.Get("/settings/payment-methods", h.SettingsPaymentMethodsPage)
 
 	// Vendor Supplier Experience (8 screens)
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
@@ -201,6 +202,9 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
 	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
 	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
+	r.Post("/settings/payment-methods", h.SettingsPaymentMethodsSubmit)
+	r.Post("/wallet/deposit", h.WalletDepositSubmit)
+	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)
 	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
 	r.Post("/offers/{id}/click", h.OfferClickSubmit)
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
