@@ -199,13 +199,16 @@ func (h *UIHandler) VendorBranchesPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var branches []*org.Branch
+	var employees []*org.EmployeeView
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+		employees, _ = h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
 	}
 
 	data := pages.VendorBranchesData{
-		Branches: branches,
-		Cities:   h.listCities(ctx),
+		Branches:  branches,
+		Cities:    h.listCities(ctx),
+		Employees: employees,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -223,16 +226,29 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if err := r.ParseForm(); err != nil {
+		h.log.WarnContext(ctx, "parse form error", "error", err)
+	}
+
 	nameAr := r.PostFormValue("name_ar")
+	nameEn := r.PostFormValue("name_en")
+	if nameEn == "" {
+		nameEn = nameAr
+	}
 	code := r.PostFormValue("code")
 	warehouseType := r.PostFormValue("warehouse_type")
 	address := r.PostFormValue("address")
 	phone := r.PostFormValue("phone")
-	manager := r.PostFormValue("manager_name")
 	gmaps := r.PostFormValue("google_maps_url")
 	hours := r.PostFormValue("operating_hours")
 	hasCold := r.PostFormValue("has_cold_storage") == "true"
 	isMain := r.PostFormValue("is_main") == "true"
+
+	managerIDVal, _ := strconv.ParseInt(r.PostFormValue("manager_id"), 10, 64)
+	var managerID *int64
+	if managerIDVal > 0 {
+		managerID = &managerIDVal
+	}
 
 	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
 	var cityID *int64
@@ -267,24 +283,26 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 		gmaps = r.PostFormValue("branch_google_maps_url")
 	}
 
+	instWorks := r.Form["institutional_works"]
 
 	b := &org.Branch{
-		OrganizationID: actor.OrganizationID,
-		Name:           i18n.New(nameAr, nameAr),
-		Code:           code,
-		WarehouseType:  warehouseType,
-		Address:        address,
-		Phone:          phone,
-		ManagerName:    manager,
-		GoogleMapsURL:  gmaps,
-		OperatingHours: hours,
-		HasColdStorage: hasCold,
-		CapacitySQM:    capSQM,
-		CityID:         cityID,
-		Latitude:       latPtr,
-		Longitude:      lngPtr,
-		IsMain:         isMain,
-		Status:         "active",
+		OrganizationID:     actor.OrganizationID,
+		Name:               i18n.New(nameAr, nameEn),
+		Code:               code,
+		WarehouseType:      warehouseType,
+		Address:            address,
+		Phone:              phone,
+		ManagerID:          managerID,
+		GoogleMapsURL:      gmaps,
+		OperatingHours:     hours,
+		HasColdStorage:     hasCold,
+		CapacitySQM:        capSQM,
+		CityID:             cityID,
+		Latitude:           latPtr,
+		Longitude:          lngPtr,
+		IsMain:             isMain,
+		Status:             "active",
+		InstitutionalWorks: instWorks,
 	}
 
 	if h.orgSvc != nil {
@@ -297,6 +315,7 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم إضافة الفرع ونقطة التوزيع بنجاح.")
 }
+
 
 // VendorBranchDeleteSubmit deletes a branch.
 func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
