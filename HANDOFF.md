@@ -5,6 +5,16 @@
 **Measured completion: ~55%.** See `docs/REVIEW_59e2451.md` for how that was measured.
 **Written:** 2026-08-16
 
+> **BUILD RUN UPDATE (2026-08-17):** Phases 1–6 of `docs/BUILD_PHASES.md` are
+> now built and gated green (account types + three dashboards, the full account
+> surface, public/content pages, all ten Phase-4 modules, the component library,
+> catalogue/cart/checkout depth, and all fourteen admin screens). Ten migrations
+> were added (`035`–`044`). Phase 7 (ETL) is **blocked on two owner decisions**
+> (authoritative order system; legacy `company`/`agency` mapping); Phase 8
+> hardening is partial (unit/service/repository tests + CI coverage floor done;
+> credential rotation, MinIO/backups, RTL/a11y/perf remain, needing a live
+> deployment). See `docs/BUILD_PHASES.md` Part 0 for the updated gap table.
+
 Read Part 0 through Part 5 before writing any code. They are short, and skipping
 them will cost you more time than reading them.
 
