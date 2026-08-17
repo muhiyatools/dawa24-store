@@ -18,7 +18,8 @@ ALTER TABLE org.organization_reviews
         CHECK (status IN ('pending','approved','rejected')),
     ADD COLUMN IF NOT EXISTS helpful_count INT NOT NULL DEFAULT 0,
     ADD COLUMN IF NOT EXISTS context       TEXT NOT NULL DEFAULT 'supplier'
-        CHECK (context IN ('supplier','pharmacy','product','delivery'));
+        CHECK (context IN ('supplier','pharmacy','product','delivery')),
+    ADD COLUMN IF NOT EXISTS deleted_at    TIMESTAMPTZ;
 
 CREATE UNIQUE INDEX IF NOT EXISTS reviews_one_per_order
     ON org.organization_reviews (user_id, order_id)

@@ -16,6 +16,7 @@ ALTER TABLE org.organization_reviews
     DROP COLUMN IF EXISTS is_public,
     DROP COLUMN IF EXISTS status,
     DROP COLUMN IF EXISTS helpful_count,
-    DROP COLUMN IF EXISTS context;
+    DROP COLUMN IF EXISTS context,
+    DROP COLUMN IF EXISTS deleted_at;
 
 COMMIT;
