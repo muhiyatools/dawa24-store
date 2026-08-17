@@ -28,31 +28,48 @@ templ PharmacyShell(title string, activeNav string, lang string, dir string, per
 						@components.IconHome("icon-sm")
 						<span>لوحة التحكم الرئيسية</span>
 					</a>
-					<a href="/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
+					<a href="/catalog" class={ "sidebar-link", templ.KV("active", activeNav == "catalog") }>
 						@components.IconPackage("icon-sm")
-						<span>طلبياتي وأوامر التوريد</span>
+						<span>كتالوج الأدوية والمستلزمات</span>
+					</a>
+					<a href="/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
+						@components.IconTag("icon-sm")
+						<span>العروض المتاحة والتخفيضات</span>
+					</a>
+					<a href="/suppliers" class={ "sidebar-link", templ.KV("active", activeNav == "suppliers") }>
+						@components.IconBuilding("icon-sm")
+						<span>دليل الموردين المعتمدين</span>
 					</a>
 					<a href="/suppliers/followed" class={ "sidebar-link", templ.KV("active", activeNav == "followed") }>
-						@components.IconBuilding("icon-sm")
+						@components.IconHeart("icon-sm")
 						<span>الموردون المتابعون</span>
+					</a>
+					<a href="/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
+						@components.IconTruck("icon-sm")
+						<span>طلبياتي وأوامر التوريد</span>
 					</a>
 					<a href="/wallet" class={ "sidebar-link", templ.KV("active", activeNav == "wallet") }>
 						@components.IconWallet("icon-sm")
 						<span>المحفظة والمعاملات</span>
 					</a>
 					<a href="/favorites" class={ "sidebar-link", templ.KV("active", activeNav == "favorites") }>
-						@components.IconHeart("icon-sm")
+						@components.IconStar("icon-sm")
 						<span>الأدوية المفضلة</span>
 					</a>
 					<a href="/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
 						@components.IconFile("icon-sm")
 						<span>الفواتير الإلكترونية</span>
 					</a>
+					<a href="/settings/employees" class={ "sidebar-link", templ.KV("active", activeNav == "employees") }>
+						@components.IconUsers("icon-sm")
+						<span>فريق العمل والفروع</span>
+					</a>
 					<a href="/settings" class={ "sidebar-link", templ.KV("active", activeNav == "settings") }>
 						@components.IconSettings("icon-sm")
 						<span>الملف الشخصي والإعدادات</span>
 					</a>
 				</nav>
+
 
 				<div style="border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem; margin-top:auto;">
 					<a href="/catalog" class="btn sidebar-footer-btn" style="width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md);" title="كتالوج المنتجات">

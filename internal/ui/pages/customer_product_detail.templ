@@ -175,29 +175,40 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 				<!-- Right Side: Lowest Price Hero Buy Box -->
 				<div style="background:var(--surface-raised); padding:var(--space-5); border-radius:var(--radius-lg); border:1px solid var(--border); display:flex; flex-direction:column; gap:var(--space-4);">
 					<div>
+						if product.HasDiscount() {
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
+								<span style="font-size:var(--text-xs); color:var(--text-muted); text-decoration:line-through;" class="tabular-nums">
+									سعر الجمهور: { product.PublicPrice().String() } ج.م
+								</span>
+								<span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700; font-size:11px; padding:1px 6px; border-radius:var(--radius-sm);">
+									خصم { fmt.Sprintf("%d%%", product.DiscountPercent()) }
+								</span>
+							</div>
+						}
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
-							<div style="font-size:var(--text-xs); color:var(--text-muted); font-weight:500;">أقل سعر متوفر حالياً:</div>
+							<div style="font-size:var(--text-xs); color:var(--text-secondary); font-weight:600;">سعر التوريد للصيدلية:</div>
 							<span class="badge badge-emerald">أفضل عرض</span>
 						</div>
-						<div style="font-size:var(--text-2xl); font-weight:700; color:var(--accent); line-height:1.1;" class="tabular-nums">
+						<div style="font-size:var(--text-2xl); font-weight:800; color:var(--accent); line-height:1.1;" class="tabular-nums">
 							if len(GetOffersForProduct(product)) > 0 {
 								{ GetOffersForProduct(product)[0].Price.String() } ج.م
-							} else if product.EffectivePrice().IsPositive() {
-								{ product.EffectivePrice().String() } ج.م
+							} else if product.NetPrice().IsPositive() {
+								{ product.NetPrice().String() } ج.م
 							} else {
 								38.50 ج.م
 							}
 						</div>
 						<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:var(--space-1);">
-							شامل ضريبة القيمة المضافة (14% ETA)
+							شامل ضريبة القيمة المضافة والفاتورة الإلكترونية
 						</div>
 						if len(GetOffersForProduct(product)) > 0 {
 							<div style="font-size:var(--text-xs); color:var(--text-secondary); margin-top:var(--space-2); display:flex; align-items:center; gap:var(--space-1);">
-								<span>المورد:</span>
+								<span>المورد المعتمد:</span>
 								<strong style="color:var(--text);">{ GetOffersForProduct(product)[0].SupplierName }</strong>
 							</div>
 						}
 					</div>
+
 
 					<form action="/cart/add" method="POST" x-data="{ qty: 1 }" style="display:flex; flex-direction:column; gap:var(--space-3); margin:0;">
 						<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />

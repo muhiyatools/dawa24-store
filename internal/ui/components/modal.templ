@@ -128,17 +128,32 @@ templ ConfirmModal(props ConfirmModalProps) {
 
 // ModalTrigger is the button that opens a dialog by id.
 templ ModalTrigger(dialogID, class string) {
-	<button type="button" class={ class } onclick={ openDialog(dialogID) }>
+	<button
+		type="button"
+		class={ class }
+		data-modal-open={ dialogID }
+		data-dialog-target={ dialogID }
+		onclick={ openDialog(dialogID) }
+	>
 		{ children... }
 	</button>
 }
 
 script openDialog(id string) {
 	const el = document.getElementById(id);
-	if (el && typeof el.showModal === "function") { el.showModal(); }
+	if (el && typeof el.showModal === "function") {
+		try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
+	} else if (typeof window.openModal === "function") {
+		window.openModal(id);
+	}
 }
 
 script closeDialog(id string) {
 	const el = document.getElementById(id);
-	if (el && typeof el.close === "function") { el.close(); }
+	if (el && typeof el.close === "function") {
+		try { el.close(); } catch (_) { el.removeAttribute('open'); }
+	} else if (typeof window.closeModal === "function") {
+		window.closeModal(id);
+	}
 }
+

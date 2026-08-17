@@ -478,16 +478,42 @@ func ModalTrigger(dialogID, class string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" onclick=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" data-modal-open=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var24 templ.ComponentScript = openDialog(dialogID)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24.Call)
+		var templ_7745c5c3_Var24 string
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(dialogID)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/modal.templ`, Line: 134, Col: 28}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" data-dialog-target=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var25 string
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(dialogID)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/modal.templ`, Line: 135, Col: 31}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" onclick=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var26 templ.ComponentScript = openDialog(dialogID)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26.Call)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -495,7 +521,7 @@ func ModalTrigger(dialogID, class string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -505,23 +531,31 @@ func ModalTrigger(dialogID, class string) templ.Component {
 
 func openDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_openDialog_850b`,
-		Function: `function __templ_openDialog_850b(id){const el = document.getElementById(id);
-	if (el && typeof el.showModal === "function") { el.showModal(); }
+		Name: `__templ_openDialog_efe2`,
+		Function: `function __templ_openDialog_efe2(id){const el = document.getElementById(id);
+	if (el && typeof el.showModal === "function") {
+		try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
+	} else if (typeof window.openModal === "function") {
+		window.openModal(id);
+	}
 }`,
-		Call:       templ.SafeScript(`__templ_openDialog_850b`, id),
-		CallInline: templ.SafeScriptInline(`__templ_openDialog_850b`, id),
+		Call:       templ.SafeScript(`__templ_openDialog_efe2`, id),
+		CallInline: templ.SafeScriptInline(`__templ_openDialog_efe2`, id),
 	}
 }
 
 func closeDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_closeDialog_fd6c`,
-		Function: `function __templ_closeDialog_fd6c(id){const el = document.getElementById(id);
-	if (el && typeof el.close === "function") { el.close(); }
+		Name: `__templ_closeDialog_927f`,
+		Function: `function __templ_closeDialog_927f(id){const el = document.getElementById(id);
+	if (el && typeof el.close === "function") {
+		try { el.close(); } catch (_) { el.removeAttribute('open'); }
+	} else if (typeof window.closeModal === "function") {
+		window.closeModal(id);
+	}
 }`,
-		Call:       templ.SafeScript(`__templ_closeDialog_fd6c`, id),
-		CallInline: templ.SafeScriptInline(`__templ_closeDialog_fd6c`, id),
+		Call:       templ.SafeScript(`__templ_closeDialog_927f`, id),
+		CallInline: templ.SafeScriptInline(`__templ_closeDialog_927f`, id),
 	}
 }
 

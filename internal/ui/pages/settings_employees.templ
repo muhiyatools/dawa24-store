@@ -8,184 +8,328 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ SettingsEmployees(members []*org.Member, branches []*org.Branch, roles []*org.Role, lang, dir string) {
-	@layouts.VendorShell("إدارة الموظفين وفريق العمل", "employees", lang, dir) {
-		<div class="card" style="margin-bottom:var(--space-6);">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5); gap:var(--space-4); flex-wrap:wrap;">
-				<div style="display:flex; align-items:center; gap:var(--space-3);">
-					@components.IconUser("icon-lg")
+templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, roles []*org.Role, lang, dir string) {
+	@layouts.VendorShell("إدارة الموظفين ومدراء الفروع | Team & Managers", "employees", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:var(--space-6);">
+
+			<!-- Top Header Card -->
+			<div class="card" style="margin-bottom:0;">
+				<div style="display:flex; justify-content:space-between; align-items:center; gap:var(--space-4); flex-wrap:wrap;">
+					<div style="display:flex; align-items:center; gap:var(--space-3);">
+						@components.IconUsers("icon-lg")
+						<div>
+							<h2 class="card-title" style="margin:0; font-size:var(--text-xl);">
+								منظومة الموظفين ومدراء الفروع المعتمدين
+							</h2>
+							<p style="font-size:var(--text-sm); color:var(--text-secondary); margin-top:2px;">
+								إدارة حسابات الصيادلة والموظفين، وتعيين مدير مسؤول لكل فرع ونقطة توزيع.
+							</p>
+						</div>
+					</div>
+
+					<button
+						type="button"
+						class="btn btn-primary btn-sm"
+						data-modal-open="add-employee-modal"
+						onclick="window.openModal('add-employee-modal')"
+					>
+						@components.IconPlus("icon-xs")
+						<span>+ إنشاء حساب موظف جديد</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Section 1: Branch Managers Assignment (توزيع وتعيين مدراء الفروع) -->
+			<div class="card" style="margin-bottom:0;">
+				<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-3);">
+					@components.IconBuilding("icon-md")
 					<div>
-						<h2 class="card-title" style="margin:0; font-size:var(--text-xl);">
-							إدارة الموظفين وصلاحيات الفروع
-						</h2>
-						<p style="font-size:var(--text-sm); color:var(--text-secondary); margin-top:2px;">
-							إضافة وتعيين الصيادلة، مدراء الفروع، أمناء المخازن، وتحديد النطاق والصلاحيات لكل فرع.
+						<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">
+							تعيين مدراء الفروع ونقاط التوزيع
+						</h3>
+						<p style="font-size:var(--text-xs); color:var(--text-muted); margin:0;">
+							يتم تعيين مدير لكل فرع من بين حسابات الموظفين المسجلين في النظام.
 						</p>
 					</div>
 				</div>
 
-				<button
-					type="button"
-					class="btn btn-primary btn-sm"
-					onclick="document.getElementById('add-employee-modal').style.display='flex'"
-				>
-					<span>+ إضافة موظف جديد</span>
-				</button>
+				if len(branches) == 0 {
+					<div style="padding:var(--space-4); background:var(--surface-sunken); border-radius:var(--radius-md); text-align:center; color:var(--text-muted); font-size:var(--text-sm);">
+						لم يتم تسجيل أي فروع للمنشأة بعد. يمكنك إضافة فروع من صفحة الفروع ونقاط التوزيع.
+					</div>
+				} else {
+					<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:var(--space-4);">
+						for _, b := range branches {
+							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4); display:flex; flex-direction:column; justify-content:space-between; gap:var(--space-3);">
+								<div>
+									<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:var(--space-2);">
+										<div>
+											<strong style="font-size:var(--text-sm); color:var(--text);">
+												if b.Name["ar"] != "" {
+													{ b.Name["ar"] }
+												} else {
+													{ b.Name["en"] }
+												}
+											</strong>
+											if b.IsMain {
+												<span class="badge badge-emerald text-xs" style="margin-inline-start:4px;">الفرع الرئيسي</span>
+											}
+										</div>
+										<span class="badge badge-sky text-xs tabular-nums">{ b.Code }</span>
+									</div>
+
+									<div style="font-size:var(--text-xs); color:var(--text-secondary); margin-bottom:var(--space-2);">
+										<span>العنوان: </span><strong>{ b.Address }</strong>
+									</div>
+
+									<!-- Current Manager Status -->
+									<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-2) var(--space-3); font-size:var(--text-xs); margin-bottom:var(--space-2);">
+										<span style="color:var(--text-muted);">المدير الحالي: </span>
+										if b.ManagerID != nil && *b.ManagerID > 0 {
+											<strong style="color:var(--accent);">
+												if b.ManagerName != "" {
+													{ b.ManagerName }
+												} else if b.ManagerEmail != "" {
+													{ b.ManagerEmail }
+												} else {
+													<span>مدير فرع معين</span>
+												}
+											</strong>
+											if b.ManagerEmail != "" {
+												<span style="color:var(--text-muted); margin-inline-start:4px;">({ b.ManagerEmail })</span>
+											}
+										} else {
+											<span style="color:var(--danger); font-weight:600;">⚠️ لم يتم تعيين مدير بعد</span>
+										}
+									</div>
+								</div>
+
+								<!-- Assign / Change Manager Form -->
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/branches/%d/manager", b.ID)) } style="margin:0; display:flex; gap:var(--space-2); align-items:center;">
+									<select name="manager_user_id" class="form-select" style="font-size:var(--text-xs); padding:0.35rem 0.5rem; flex:1;" required>
+										<option value="">-- اختر مديراً للفرع --</option>
+										for _, emp := range employees {
+											<option
+												value={ fmt.Sprintf("%d", emp.Member.UserID) }
+												selected?={ b.ManagerID != nil && *b.ManagerID == emp.Member.UserID }
+											>
+												if emp.UserName != "" {
+													{ emp.UserName } ({ emp.UserEmail })
+												} else {
+													{ emp.UserEmail }
+												}
+											</option>
+										}
+									</select>
+									<button type="submit" class="btn btn-secondary btn-sm" style="white-space:nowrap; font-weight:600; font-size:var(--text-xs);">
+										<span>تثبيت المدير</span>
+									</button>
+								</form>
+							</div>
+						}
+					</div>
+				}
 			</div>
 
-			if len(members) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لم يتم تسجيل موظفين بعد",
-					Message: "يمكنك إضافة الصيادلة والمسؤولين لتمكينهم من الوصول وإدارة عمليات المنشأة.",
-				})
-			} else {
-				<div class="table-container" style="overflow-x:auto;">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>كود الموظف</th>
-								<th>المسمى الوظيفي</th>
-								<th>الدور والصلاحية</th>
-								<th>الفرع المحدد</th>
-								<th>الراتب الأساسي</th>
-								<th>الحالة</th>
-								<th style="text-align:end;">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, m := range members {
-								<tr>
-									<td style="font-weight:600; font-variant-numeric:tabular-nums; color:var(--text);">
-										if m.EmployeeCode != "" {
-											{ m.EmployeeCode }
-										} else {
-											<span style="color:var(--text-muted);">EMP-{ fmt.Sprintf("%04d", m.ID) }</span>
-										}
-									</td>
-									<td style="font-weight:500; color:var(--text);">
-										if m.JobTitle != "" {
-											{ m.JobTitle }
-										} else {
-											<span>صيدلي / مسؤول تشغيل</span>
-										}
-									</td>
-									<td>
-										<span class="badge badge-sky">
-											if m.RoleKey != "" {
-												{ m.RoleKey }
-											} else {
-												<span>عضو فريق</span>
-											}
-										</span>
-									</td>
-									<td>
-										if m.BranchID != nil {
-											<span style="font-size:var(--text-xs); color:var(--text-secondary);">فرع رقم: { fmt.Sprintf("%d", *m.BranchID) }</span>
-										} else {
-											<span class="badge badge-emerald" style="font-size:var(--text-xs);">كافة الفروع (عام)</span>
-										}
-									</td>
-									<td style="font-variant-numeric:tabular-nums; font-size:var(--text-xs); color:var(--text);">
-										if m.BaseSalary.Minor() > 0 {
-											{ format.Money(m.BaseSalary, "ar") }
-										} else {
-											<span style="color:var(--text-muted);">—</span>
-										}
-									</td>
-									<td>
-										if m.IsActive {
-											<span class="badge badge-emerald">نشط</span>
-										} else {
-											<span class="badge badge-rose">معطل</span>
-										}
-									</td>
-									<td style="text-align:end;">
-										<div style="display:inline-flex; gap:var(--space-2);">
-											<button class="btn btn-secondary btn-sm" type="button">
-												تعديل
-											</button>
-										</div>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
+			<!-- Section 2: Employees Roster (سجل الموظفين والكوادر) -->
+			<div class="card" style="margin-bottom:0;">
+				<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-3);">
+					@components.IconUsers("icon-md")
+					<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">
+						سجل الموظفين والصيادلة العاملين
+					</h3>
 				</div>
-			}
+
+				if len(employees) == 0 {
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لم يتم تسجيل موظفين بعد",
+						Message: "يمكنك إضافة الصيادلة والمسؤولين لتمكينهم من الوصول وإدارة عمليات المنشأة.",
+					})
+				} else {
+					<div class="table-container" style="overflow-x:auto;">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>كود الموظف</th>
+									<th>الاسم والبريد</th>
+									<th>المسمى الوظيفي</th>
+									<th>الدور والصلاحية</th>
+									<th>الفرع المحدد</th>
+									<th>صفة الإدارة</th>
+									<th>الراتب الأساسي</th>
+									<th>الحالة</th>
+									<th style="text-align:end;">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, emp := range employees {
+									<tr>
+										<td style="font-weight:600; font-variant-numeric:tabular-nums; color:var(--text);">
+											if emp.Member.EmployeeCode != "" {
+												{ emp.Member.EmployeeCode }
+											} else {
+												<span style="color:var(--text-muted);">EMP-{ fmt.Sprintf("%04d", emp.Member.ID) }</span>
+											}
+										</td>
+										<td>
+											<div style="font-weight:700; color:var(--text); font-size:var(--text-sm);">
+												if emp.UserName != "" {
+													{ emp.UserName }
+												} else {
+													<span>موظف معتمد</span>
+												}
+											</div>
+											<div style="font-size:var(--text-xs); color:var(--text-muted);" class="tabular-nums">
+												{ emp.UserEmail }
+											</div>
+										</td>
+										<td style="font-weight:500; color:var(--text); font-size:var(--text-xs);">
+											if emp.Member.JobTitle != "" {
+												{ emp.Member.JobTitle }
+											} else {
+												<span>صيدلي / مسؤول تشغيل</span>
+											}
+										</td>
+										<td>
+											<span class="badge badge-sky" style="font-size:11px;">
+												if emp.RoleName != "" {
+													{ emp.RoleName }
+												} else {
+													<span>عضو فريق</span>
+												}
+											</span>
+										</td>
+										<td>
+											if emp.BranchName != "" {
+												<span style="font-size:var(--text-xs); color:var(--text-secondary); font-weight:600;">{ emp.BranchName }</span>
+											} else {
+												<span class="badge badge-slate" style="font-size:11px;">كافة الفروع</span>
+											}
+										</td>
+										<td>
+											if emp.IsManager {
+												<span class="badge badge-emerald" style="font-weight:700; font-size:11px;">
+													@components.IconCheck("icon-xs")
+													<span>مدير فرع معتمد</span>
+												</span>
+											} else {
+												<span style="color:var(--text-muted); font-size:var(--text-xs);">موظف تشغيل</span>
+											}
+										</td>
+										<td style="font-variant-numeric:tabular-nums; font-size:var(--text-xs); color:var(--text);">
+											if emp.Member.BaseSalary.Minor() > 0 {
+												{ format.Money(emp.Member.BaseSalary, "ar") }
+											} else {
+												<span style="color:var(--text-muted);">—</span>
+											}
+										</td>
+										<td>
+											if emp.Member.IsActive {
+												<span class="badge badge-emerald" style="font-size:11px;">نشط</span>
+											} else {
+												<span class="badge badge-rose" style="font-size:11px;">معطل</span>
+											}
+										</td>
+										<td style="text-align:end;">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/employees/%d/delete", emp.Member.UserID)) } style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف من المنشأة؟');">
+												<button type="submit" class="btn btn-danger btn-sm" style="padding:0.25rem 0.6rem; font-size:11px;">
+													<span>حذف</span>
+												</button>
+											</form>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 
 		<!-- Add Employee Modal Dialog -->
-		<div
-			id="add-employee-modal"
-			class="modal-backdrop"
-			style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:var(--z-modal); align-items:center; justify-content:center; padding:var(--space-4);"
-		>
-			<div class="modal-content" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); max-width:550px; width:100%; padding:var(--space-6); box-shadow:var(--shadow-xl);">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-3);">
-					<h3 style="margin:0; font-size:var(--text-lg); font-weight:700; color:var(--text);">
-						إضافة موظف / صيدلي مسؤول
-					</h3>
-					<button
-						type="button"
-						style="background:transparent; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;"
-						onclick="document.getElementById('add-employee-modal').style.display='none'"
-					>
-						×
-					</button>
+		@components.Modal(components.ModalProps{
+			ID:    "add-employee-modal",
+			Title: "إنشاء وتعيين حساب موظف / مدير جديد",
+			Size:  "md",
+		}) {
+			<form method="POST" action="/settings/employees/create" style="display:flex; flex-direction:column; gap:var(--space-3);">
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">اسم الموظف *</label>
+						<input type="text" name="name" placeholder="د. أحمد محمود" class="form-input" required/>
+					</div>
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">رقم الهاتف / الواتساب</label>
+						<input type="tel" name="phone" placeholder="01012345678" class="form-input tabular-nums"/>
+					</div>
 				</div>
 
-				<form method="POST" action="/settings/employees/add">
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3); margin-bottom:var(--space-3);">
-						<div>
-							<label class="form-label text-xs" style="color:var(--text); font-weight:600; display:block; margin-bottom:4px;">كود الموظف</label>
-							<input type="text" name="employee_code" placeholder="EMP-0101" class="form-control" style="width:100%;" required/>
-						</div>
-						<div>
-							<label class="form-label text-xs" style="color:var(--text); font-weight:600; display:block; margin-bottom:4px;">المسمى الوظيفي</label>
-							<input type="text" name="job_title" placeholder="مدير فرع / صيدلي أول" class="form-control" style="width:100%;" required/>
-						</div>
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">البريد الإلكتروني الرسمي *</label>
+						<input type="email" name="email" placeholder="pharmacist@example.com" class="form-input tabular-nums" required/>
 					</div>
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">كود الموظف الداخلي</label>
+						<input type="text" name="employee_code" placeholder="EMP-0101" class="form-input tabular-nums"/>
+					</div>
+				</div>
 
-					<div style="margin-bottom:var(--space-3);">
-						<label class="form-label text-xs" style="color:var(--text); font-weight:600; display:block; margin-bottom:4px;">البريد الإلكتروني للموظف</label>
-						<input type="email" name="email" placeholder="pharmacist@example.com" class="form-control" style="width:100%;" required/>
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">المسمى الوظيفي *</label>
+						<input type="text" name="job_title" placeholder="مدير فرع / صيدلي مسؤول" class="form-input" required/>
 					</div>
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">الدور والصلاحية</label>
+						<select name="role_key" class="form-select">
+							<option value="org_manager">مدير فرع / عمليات</option>
+							<option value="org_pharmacist">صيدلي مسؤول</option>
+							<option value="org_warehouse">أمين مخزن</option>
+							<option value="org_accountant">محاسب مالي</option>
+						</select>
+					</div>
+				</div>
 
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3); margin-bottom:var(--space-4);">
-						<div>
-							<label class="form-label text-xs" style="color:var(--text); font-weight:600; display:block; margin-bottom:4px;">الدور والصلاحية</label>
-							<select name="role_key" class="form-control" style="width:100%;">
-								<option value="org_manager">مدير فرع / عمليات</option>
-								<option value="org_pharmacist">صيدلي مسؤول</option>
-								<option value="org_warehouse">أمين مخزن</option>
-								<option value="org_accountant">محاسب مالي</option>
-							</select>
-						</div>
-						<div>
-							<label class="form-label text-xs" style="color:var(--text); font-weight:600; display:block; margin-bottom:4px;">الفرع المخصص</label>
-							<select name="branch_id" class="form-control" style="width:100%;">
-								<option value="">كافة الفروع (صلاحية عامة)</option>
-								for _, b := range branches {
-									<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name["ar"] }</option>
-								}
-							</select>
-						</div>
+				<div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">الفرع المخصص</label>
+						<select name="branch_id" class="form-select">
+							<option value="">كافة الفروع (صلاحية عامة)</option>
+							for _, b := range branches {
+								<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name["ar"] }</option>
+							}
+						</select>
 					</div>
+					<div>
+						<label class="form-label" style="font-size:var(--text-xs);">الراتب الأساسي (ج.م)</label>
+						<input type="number" name="base_salary" placeholder="8000" class="form-input tabular-nums"/>
+					</div>
+				</div>
 
-					<div style="display:flex; justify-content:flex-end; gap:var(--space-3);">
-						<button
-							type="button"
-							class="btn btn-secondary"
-							onclick="document.getElementById('add-employee-modal').style.display='none'"
-						>
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary">
-							حفظ وتعيين الموظف
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+				<div style="background:var(--surface-sunken); padding:var(--space-3); border-radius:var(--radius-md); border:1px solid var(--border); margin-top:var(--space-2);">
+					<label style="display:flex; align-items:center; gap:var(--space-2); cursor:pointer; font-size:var(--text-xs); font-weight:600; color:var(--text);">
+						<input type="checkbox" name="is_manager" value="1" style="width:16px; height:16px;"/>
+						<span>تعيين هذا الموظف مديراً مسؤولاً للفرع المختار فور إنشائه</span>
+					</label>
+				</div>
+
+				<div style="display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:var(--space-3);">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-modal-close="add-employee-modal"
+						onclick="window.closeModal('add-employee-modal')"
+					>
+						إلغاء
+					</button>
+					<button type="submit" class="btn btn-primary" style="font-weight:700;">
+						@components.IconCheck("icon-xs")
+						<span>حفظ وتعيين الموظف</span>
+					</button>
+				</div>
+			</form>
+		}
 	}
 }
+

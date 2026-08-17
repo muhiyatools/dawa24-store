@@ -72,7 +72,10 @@ type Branch struct {
 	Latitude       *float64  `json:"latitude,omitempty"`
 	Longitude      *float64  `json:"longitude,omitempty"`
 	GoogleMapsURL  string    `json:"google_maps_url,omitempty"`
+	ManagerID      *int64    `json:"manager_id,omitempty"`
 	ManagerName    string    `json:"manager_name,omitempty"`
+	ManagerEmail   string    `json:"manager_email,omitempty"`
+	ManagerPhone   string    `json:"manager_phone,omitempty"`
 	WarehouseType  string    `json:"warehouse_type,omitempty"` // warehouse, fast_hub, pharmacy_branch, cold_depot
 	HasColdStorage bool      `json:"has_cold_storage"`
 	CapacitySQM    float64   `json:"capacity_sqm"`
@@ -101,21 +104,34 @@ type CustomRole = Role
 
 // Member represents a user's employment and membership in an organization.
 type Member struct {
-	ID              int64        `json:"id"`
-	OrganizationID  int64        `json:"organization_id"`
-	UserID          int64        `json:"user_id"`
-	BranchID        *int64       `json:"branch_id,omitempty"`
-	RoleID          int64        `json:"role_id"`
-	RoleKey         string       `json:"role_key"`
-	OrgRoleID       *int64       `json:"org_role_id,omitempty"`
-	EmployeeCode    string       `json:"employee_code,omitempty"`
-	JobTitle        string       `json:"job_title,omitempty"`
-	BaseSalary      money.Amount `json:"base_salary"`
-	VariableSalary  money.Amount `json:"variable_salary"`
-	IsActive        bool         `json:"is_active"`
-	CreatedAt       time.Time    `json:"created_at"`
-	UpdatedAt       time.Time    `json:"updated_at"`
+	ID             int64        `json:"id"`
+	OrganizationID int64        `json:"organization_id"`
+	UserID         int64        `json:"user_id"`
+	BranchID       *int64       `json:"branch_id,omitempty"`
+	RoleID         int64        `json:"role_id"`
+	RoleKey        string       `json:"role_key"`
+	OrgRoleID      *int64       `json:"org_role_id,omitempty"`
+	EmployeeCode   string       `json:"employee_code,omitempty"`
+	JobTitle       string       `json:"job_title,omitempty"`
+	BaseSalary     money.Amount `json:"base_salary"`
+	VariableSalary money.Amount `json:"variable_salary"`
+	IsActive       bool         `json:"is_active"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
 }
+
+// EmployeeView bundles member attributes with user profile and branch assignment.
+type EmployeeView struct {
+	Member     *Member
+	UserName   string
+	UserEmail  string
+	UserPhone  string
+	UserStatus string
+	RoleName   string
+	BranchName string
+	IsManager  bool
+}
+
 
 // Review represents a multi-criteria customer/supplier review.
 type Review struct {

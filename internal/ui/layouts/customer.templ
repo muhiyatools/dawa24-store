@@ -2,20 +2,36 @@ package layouts
 
 import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 templ CustomerShell(title string, lang string, dir string) {
 	@Base(title, lang, dir) {
 		<header class="top-navbar">
-			<div style="display:flex; align-items:center; gap:2.5rem;">
+			<div style="display:flex; align-items:center; gap:2rem;">
 				<a href="/" style="display:flex; align-items:center; gap:0.85rem; text-decoration:none;">
 					<img src="/static/img/logo.png" alt="دواء 24" style="height:46px; max-height:48px; object-fit:contain; border-radius:var(--radius-sm);" />
 					<span style="font-size:1.45rem; font-weight:700; color:var(--text); letter-spacing:-0.5px;">
 						دواء <span style="color:var(--accent);">24</span>
 					</span>
 				</a>
+
+				<nav class="nav-links" style="display:flex; align-items:center; gap:1.25rem;">
+					<a href="/catalog" style="font-size:var(--text-sm); font-weight:600; color:var(--text); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">كتالوج الأدوية</a>
+					if features.Enabled(ctx, "offers.enabled") {
+						<a href="/offers" style="font-size:var(--text-sm); font-weight:600; color:var(--accent); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">العروض والتخفيضات</a>
+					}
+					<a href="/suppliers" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">دليل الموردين</a>
+					if features.Enabled(ctx, "jobs.enabled") {
+						<a href="/jobs" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">وظائف وصيادلة</a>
+					}
+					if features.Enabled(ctx, "services.enabled") {
+						<a href="/services" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">الخدمات المؤسسية</a>
+					}
+				</nav>
 			</div>
+
 
 			<div style="display:flex; align-items:center; gap:0.875rem;">
 				if actor, ok := authctx.From(ctx); ok {
@@ -277,13 +293,23 @@ templ CustomerShell(title string, lang string, dir string) {
 					</h4>
 					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
 						<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
-						<li><a href="/jobs">وظائف التوظيف الصيدلي والمهني</a></li>
+						if features.Enabled(ctx, "offers.enabled") {
+							<li><a href="/offers">العروض والتخفيضات</a></li>
+						}
+						<li><a href="/suppliers">دليل الموردين المعتمدين</a></li>
+						if features.Enabled(ctx, "jobs.enabled") {
+							<li><a href="/jobs">وظائف التوظيف الصيدلي والمهني</a></li>
+						}
+						if features.Enabled(ctx, "services.enabled") {
+							<li><a href="/services">الخدمات المؤسسية</a></li>
+						}
 						<li><a href="/about">من نحن (عن دواء 24)</a></li>
 						<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>
 						<li><a href="/auth/register">انضمام الشركاء والموردين</a></li>
 						<li><a href="/privacy">سياسة الخصوصية</a></li>
 						<li><a href="/terms">الشروط والأحكام</a></li>
 					</ul>
+
 				</div>
 
 				<!-- Contact & Support -->

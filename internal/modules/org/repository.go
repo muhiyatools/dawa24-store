@@ -21,11 +21,14 @@ type Repository interface {
 	DeleteBranch(ctx context.Context, id, orgID int64) error
 	ListBranchesByOrg(ctx context.Context, orgID int64) ([]*Branch, error)
 	UnsetMainBranches(ctx context.Context, orgID int64) error
+	AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error
 
 	AddMember(ctx context.Context, m *Member) error
 	UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error
 	ListMembersByOrg(ctx context.Context, orgID int64) ([]*Member, error)
+	ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
+
 
 	// Custom Roles
 	CreateRole(ctx context.Context, role *Role) error

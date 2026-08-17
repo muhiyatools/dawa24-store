@@ -137,13 +137,74 @@ func (s *Service) CreateBranch(ctx context.Context, b *Branch) error {
 	return nil
 }
 
+// GetBranch returns a single branch by ID.
+func (s *Service) GetBranch(ctx context.Context, id int64) (*Branch, error) {
+	return s.repo.GetBranchByID(ctx, id)
+}
+
+// UpdateBranch updates branch details.
+func (s *Service) UpdateBranch(ctx context.Context, b *Branch) error {
+	if err := b.Validate(); err != nil {
+		return err
+	}
+	if b.IsMain {
+		if err := s.repo.UnsetMainBranches(ctx, b.OrganizationID); err != nil {
+			return err
+		}
+	}
+	if err := s.repo.UpdateBranch(ctx, b); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "branch updated", "branch_id", b.ID, "org_id", b.OrganizationID)
+	return nil
+}
+
+// DeleteBranch removes a branch.
+func (s *Service) DeleteBranch(ctx context.Context, id, orgID int64) error {
+	return s.repo.DeleteBranch(ctx, id, orgID)
+}
+
+// AssignBranchManager assigns or unassigns an employee user as the branch manager.
+func (s *Service) AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error {
+	if err := s.repo.AssignBranchManager(ctx, orgID, branchID, managerUserID); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "branch manager assigned", "org_id", orgID, "branch_id", branchID, "manager_user_id", managerUserID)
+	return nil
+}
+
 // ListBranches returns all branches for an organization.
 func (s *Service) ListBranches(ctx context.Context, orgID int64) ([]*Branch, error) {
 	return s.repo.ListBranchesByOrg(ctx, orgID)
 }
 
+// ListEmployees returns all employees with user profile, role and branch manager status.
+func (s *Service) ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error) {
+	return s.repo.ListEmployees(ctx, orgID)
+}
+
+
+// AddMemberDirect adds or updates a member directly with full attributes.
+func (s *Service) AddMemberDirect(ctx context.Context, m *Member) error {
+	if m.OrganizationID <= 0 || m.UserID <= 0 {
+		return apperr.Validation("member.invalid", "Valid org and user are required.", nil)
+	}
+	if m.RoleID <= 0 {
+		m.RoleID = 1
+	}
+	if m.RoleKey == "" {
+		m.RoleKey = "org_employee"
+	}
+	if err := s.repo.AddMember(ctx, m); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "member added direct", "org_id", m.OrganizationID, "user_id", m.UserID, "branch_id", m.BranchID)
+	return nil
+}
+
 // AddMember adds or updates user role in an organization.
 func (s *Service) AddMember(ctx context.Context, orgID, userID, roleID int64) (*Member, error) {
+
 	if orgID <= 0 || userID <= 0 || roleID <= 0 {
 		return nil, apperr.Validation("member.invalid", "Valid org, user, and role IDs are required.", nil)
 	}
@@ -284,20 +345,8 @@ func (s *Service) DeleteOrganization(ctx context.Context, id int64) error {
 	return s.repo.DeleteOrganization(ctx, id)
 }
 
-// UpdateBranch modifies branch details.
-func (s *Service) UpdateBranch(ctx context.Context, b *Branch) error {
-	if b.IsMain {
-		_ = s.repo.UnsetMainBranches(ctx, b.OrganizationID)
-	}
-	return s.repo.UpdateBranch(ctx, b)
-}
-
-// DeleteBranch removes a branch.
-func (s *Service) DeleteBranch(ctx context.Context, id, orgID int64) error {
-	return s.repo.DeleteBranch(ctx, id, orgID)
-}
-
 // UpdateMemberRole changes a member role.
+
 func (s *Service) UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error {
 	return s.repo.UpdateMemberRole(ctx, orgID, userID, role)
 }

@@ -2,13 +2,26 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
-	@layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", lang, dir) {
+	if actor, ok := authctx.From(ctx); ok && (actor.Role == "pharmacy" || actor.Role == "chain_pharmacy") {
+		@layouts.PharmacyShell("دليل الموردين المعتمدين | Suppliers Directory", "suppliers", lang, dir, nil) {
+			@SuppliersDirectoryContent(lang, dir, data)
+		}
+	} else {
+		@layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", lang, dir) {
+			@SuppliersDirectoryContent(lang, dir, data)
+		}
+	}
+}
+
+templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
+
 		<div class="suppliers-page-container" style="max-width:1160px; margin:1.5rem auto 5rem auto;">
 			
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4); margin-bottom:var(--space-8);">
@@ -80,8 +93,8 @@ templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
 				</div>
 			}
 		</div>
-	}
 }
+
 
 templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 	@layouts.CustomerShell(fmt.Sprintf("%s | ملف المورد المعتمد", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir) {

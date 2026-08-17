@@ -225,7 +225,12 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/settings/organization/branch/{id}/delete", h.SettingsBranchDeleteSubmit)
 	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
 	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
+	r.Post("/settings/employees/create", h.SettingsEmployeeCreateSubmit)
+	r.Post("/settings/employees/add", h.SettingsEmployeeCreateSubmit)
+	r.Post("/settings/employees/{id}/delete", h.SettingsEmployeeDeleteSubmit)
+	r.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
 	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
+
 	r.Post("/settings/payment-methods", h.SettingsPaymentMethodsSubmit)
 	r.Post("/wallet/deposit", h.WalletDepositSubmit)
 	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)

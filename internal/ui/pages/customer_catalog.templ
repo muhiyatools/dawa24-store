@@ -273,25 +273,37 @@ templ CustomerCatalogList(products []*catalog.Product, lang string) {
 						</div>
 					</div>
 
-					<!-- Bottom Pricing & Multi-Supplier Action -->
+					<!-- Bottom Pricing & Multi-Supplier Action (Laravel Parity Structure) -->
 					<div style="border-top:1px solid var(--border); padding-top:var(--space-3); margin-top:var(--space-3); display:flex; flex-direction:column; gap:var(--space-3);">
 						<!-- Pricing Display -->
-						<div style="display:flex; justify-content:space-between; align-items:flex-end;">
-							<div>
-								<div style="font-size:var(--text-xs); color:var(--text-muted); font-weight:500;">أفضل سعر يبدأ من:</div>
-								<div style="font-size:var(--text-xl); font-weight:700; color:var(--accent);" class="tabular-nums">
-									if p.EffectivePrice().IsPositive() {
-										{ p.EffectivePrice().String() } ج.م
-									} else {
-										38.50 ج.م
-									}
+						<div>
+							if p.HasDiscount() {
+								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+									<span style="font-size:var(--text-xs); color:var(--text-muted); text-decoration:line-through;" class="tabular-nums">
+										سعر الجمهور: { p.PublicPrice().String() } ج.م
+									</span>
+									<span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700; font-size:11px; padding:1px 6px; border-radius:var(--radius-sm);">
+										خصم { fmt.Sprintf("%d%%", p.DiscountPercent()) }
+									</span>
 								</div>
-							</div>
+							}
+							<div style="display:flex; justify-content:space-between; align-items:flex-end;">
+								<div>
+									<div style="font-size:var(--text-xs); color:var(--text-secondary); font-weight:600;">سعر الصيدلية (التوريد):</div>
+									<div style="font-size:var(--text-xl); font-weight:800; color:var(--accent);" class="tabular-nums">
+										if p.NetPrice().IsPositive() {
+											{ p.NetPrice().String() } ج.م
+										} else {
+											38.50 ج.م
+										}
+									</div>
+								</div>
 
-							<!-- Supplier Count Pill -->
-							<div class="badge badge-sky" style="font-weight:600;">
-								@components.IconBuilding("icon-xs")
-								<span>3 موردين متاحين</span>
+								<!-- Supplier Count Pill -->
+								<div class="badge badge-sky" style="font-weight:600; font-size:11px;">
+									@components.IconBuilding("icon-xs")
+									<span>3 موردين</span>
+								</div>
 							</div>
 						</div>
 
@@ -303,6 +315,7 @@ templ CustomerCatalogList(products []*catalog.Product, lang string) {
 					</div>
 				</div>
 			}
+
 		</div>
 	}
 }

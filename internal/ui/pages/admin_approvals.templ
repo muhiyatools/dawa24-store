@@ -121,10 +121,15 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 							</td>
 							<td style="text-align:end;">
 								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
-									@components.ModalTrigger(fmt.Sprintf("review-modal-%d", o.ID), "btn btn-primary btn-sm") {
+									<button
+										type="button"
+										class="btn btn-primary btn-sm"
+										data-modal-open={ fmt.Sprintf("review-modal-%d", o.ID) }
+										onclick={ fmt.Sprintf("window.openModal('review-modal-%d')", o.ID) }
+									>
 										@components.IconCheck("icon-xs")
 										<span>تدقيق واعتماد</span>
-									}
+									</button>
 
 									<!-- Full Review Modal -->
 									@components.Modal(components.ModalProps{
@@ -133,7 +138,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 										Size:  "md",
 									}) {
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
-											<div style="background:var(--neutral-50); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200); font-size:0.875rem;">
+											<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;">
 												<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.5rem;">
 													<div><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
 													<div><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
@@ -141,11 +146,15 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 													<div><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
 												</div>
 												if o.LicenseDocumentURL != "" {
-													<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--neutral-200);">
-														<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center;">
+													<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+														<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
 															@components.IconFile("icon-xs")
-															<span>فتح ملف الترخيص المرفق في نافذة جديدة</span>
+															<span>فتح ملف الترخيص والمرفقات الرسمية (PDF/صورة)</span>
 														</a>
+													</div>
+												} else {
+													<div style="margin-top:0.5rem; color:var(--danger); font-size:0.8rem; font-weight:600;">
+														⚠️ لم يتم إرفاق ملف ترخيص رسمي أثناء التسجيل.
 													</div>
 												}
 											</div>
@@ -171,7 +180,14 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 											</div>
 
 											<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
-												<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+												<button
+													type="button"
+													class="btn btn-secondary"
+													data-modal-close={ fmt.Sprintf("review-modal-%d", o.ID) }
+													onclick={ fmt.Sprintf("window.closeModal('review-modal-%d')", o.ID) }
+												>
+													إلغاء
+												</button>
 												<button type="submit" class="btn btn-primary" style="font-weight:800;">
 													@components.IconCheck("icon-xs")
 													<span>حفظ واعتماد القرار</span>
@@ -183,6 +199,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 							</td>
 						</tr>
 					}
+
 				</tbody>
 			</table>
 		</div>

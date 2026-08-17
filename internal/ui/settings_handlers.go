@@ -11,8 +11,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
 
 // SettingsIndex renders the comprehensive unified tab-based account settings hub.
 func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
@@ -509,7 +511,7 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 	h.redirectWithNotice(w, r, "/settings/payment-methods", "success", "تم حفظ وتفعيل وسيلة الدفع بنجاح.")
 }
 
-// SettingsEmployeesPage renders the employee roster and role assignments.
+// SettingsEmployeesPage renders the employee roster and branch manager assignments.
 func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -520,13 +522,13 @@ func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var members []*org.Member
+	var employees []*org.EmployeeView
 	var branches []*org.Branch
 	var roles []*org.Role
 
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		if m, err := h.orgSvc.ListMembers(ctx, actor.OrganizationID); err == nil {
-			members = m
+		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
+			employees = emps
 		}
 		if b, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
 			branches = b
@@ -537,8 +539,144 @@ func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsEmployees(members, branches, roles, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.SettingsEmployees(employees, branches, roles, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render settings employees", "error", err)
 	}
 }
+
+// SettingsEmployeeCreateSubmit creates a new employee account and assigns them to the organization and branch.
+func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/employees", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil || h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/settings/employees", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	email := r.PostFormValue("email")
+	name := r.PostFormValue("name")
+	phone := r.PostFormValue("phone")
+	jobTitle := r.PostFormValue("job_title")
+	employeeCode := r.PostFormValue("employee_code")
+	roleKey := r.PostFormValue("role_key")
+	if roleKey == "" {
+		roleKey = "org_employee"
+	}
+	salaryStr := r.PostFormValue("base_salary")
+	var baseSalary money.Amount
+	if salaryStr != "" {
+		baseSalary, _ = money.Parse(salaryStr)
+	}
+
+	var branchID *int64
+	if bStr := r.PostFormValue("branch_id"); bStr != "" {
+		if bID, err := strconv.ParseInt(bStr, 10, 64); err == nil && bID > 0 {
+			branchID = &bID
+		}
+	}
+
+	// 1. Locate or create user account
+	var targetUserID int64
+	existingUser, err := h.idSvc.GetUserByEmail(ctx, email)
+	if err == nil && existingUser != nil {
+		targetUserID = existingUser.ID
+	} else {
+		newUser, _, err := h.idSvc.Register(ctx, identity.RegisterInput{
+			Email:    email,
+			Password: "Password123!",
+			NameAr:   name,
+			Phone:    phone,
+			Role:     "employee",
+		})
+		if err != nil {
+			h.redirectWithNotice(w, r, "/settings/employees", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+		targetUserID = newUser.ID
+	}
+
+	// 2. Add to organization members
+	member := &org.Member{
+		OrganizationID: actor.OrganizationID,
+		UserID:         targetUserID,
+		BranchID:       branchID,
+		RoleID:         1,
+		RoleKey:        roleKey,
+		EmployeeCode:   employeeCode,
+		JobTitle:       jobTitle,
+		BaseSalary:     baseSalary,
+		IsActive:       true,
+	}
+
+	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
+		h.redirectWithNotice(w, r, "/settings/employees", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	// 3. If designated as branch manager, assign to branch
+	if r.PostFormValue("is_manager") == "1" && branchID != nil {
+		_ = h.orgSvc.AssignBranchManager(ctx, actor.OrganizationID, *branchID, &targetUserID)
+	}
+
+	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم إنشاء وتعيين الموظف بنجاح في المنظومة.")
+}
+
+// SettingsBranchManagerAssignSubmit assigns a designated employee user as the branch manager.
+func (h *UIHandler) SettingsBranchManagerAssignSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/employees", http.StatusSeeOther)
+		return
+	}
+
+	branchID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || branchID <= 0 {
+		h.redirectWithNotice(w, r, "/settings/employees", "error", "معرف الفرع غير صالح.")
+		return
+	}
+
+	var managerUserID *int64
+	if mStr := r.PostFormValue("manager_user_id"); mStr != "" {
+		if mID, err := strconv.ParseInt(mStr, 10, 64); err == nil && mID > 0 {
+			managerUserID = &mID
+		}
+	}
+
+	if err := h.orgSvc.AssignBranchManager(ctx, actor.OrganizationID, branchID, managerUserID); err != nil {
+		h.redirectWithNotice(w, r, "/settings/employees", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم تعيين وتثبيت مدير الفرع بنجاح.")
+}
+
+// SettingsEmployeeDeleteSubmit removes an employee member from the organization.
+func (h *UIHandler) SettingsEmployeeDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/settings/employees", http.StatusSeeOther)
+		return
+	}
+
+	userID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || userID <= 0 {
+		h.redirectWithNotice(w, r, "/settings/employees", "error", "معرف الموظف غير صالح.")
+		return
+	}
+
+	if err := h.orgSvc.RemoveMember(ctx, actor.OrganizationID, userID); err != nil {
+		h.redirectWithNotice(w, r, "/settings/employees", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم حذف الموظف من المنشأة بنجاح.")
+}
+
 

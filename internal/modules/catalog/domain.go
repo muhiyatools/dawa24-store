@@ -118,6 +118,45 @@ func (p *Product) EffectivePrice() money.Amount {
 	return p.Price
 }
 
+// PublicPrice returns the official retail public price (سعر الجمهور).
+func (p *Product) PublicPrice() money.Amount {
+	if p.OldPrice.IsPositive() {
+		return p.OldPrice
+	}
+	return p.Price
+}
+
+// NetPrice returns the net pharmacy wholesale price (سعر الصيدلية بعد الخصم).
+func (p *Product) NetPrice() money.Amount {
+	return p.EffectivePrice()
+}
+
+// HasDiscount reports whether the product has an active discount.
+func (p *Product) HasDiscount() bool {
+	if p.Discount.IsPositive() {
+		return true
+	}
+	if p.OldPrice.IsPositive() && p.OldPrice.Minor() > p.Price.Minor() {
+		return true
+	}
+	return false
+}
+
+// DiscountPercent calculates the discount percentage relative to public price.
+func (p *Product) DiscountPercent() int {
+	pub := p.PublicPrice()
+	if !pub.IsPositive() {
+		return 0
+	}
+	net := p.NetPrice()
+	diff := pub.Minor() - net.Minor()
+	if diff <= 0 {
+		return 0
+	}
+	return int((diff * 100) / pub.Minor())
+}
+
+
 // Validate ensures required product attributes are sound before persisting.
 func (p *Product) Validate() error {
 	if p.OrganizationID <= 0 {
