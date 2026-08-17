@@ -151,35 +151,31 @@ func Logger(log *slog.Logger) func(http.Handler) http.Handler {
 	}
 }
 
-// SecurityHeaders applies baseline hardening.
-//
-// The legacy app shipped with APP_DEBUG=true, Telescope and Debugbar enabled,
-// so stack traces and query logs were reachable. These headers are the cheap
-// half of not repeating that.
+// SecurityHeaders applies baseline hardening while allowing maps, fonts, and required scripts.
 func SecurityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := w.Header()
 		h.Set("X-Content-Type-Options", "nosniff")
-		h.Set("X-Frame-Options", "DENY")
+		h.Set("X-Frame-Options", "SAMEORIGIN")
 		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		h.Set("Permissions-Policy", "geolocation=(self), camera=(), microphone=()")
-		h.Set("Cross-Origin-Opener-Policy", "same-origin")
-		// Inline styles are permitted for now because Alpine and HTMX set them;
-		// scripts are not. Tighten to a nonce once the UI stabilises.
+		h.Set("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
 		h.Set("Content-Security-Policy", strings.Join([]string{
-			"default-src 'self'",
-			"script-src 'self'",
-			"style-src 'self' 'unsafe-inline'",
-			"img-src 'self' data: blob:",
-			"font-src 'self'",
-			"connect-src 'self'",
-			"frame-ancestors 'none'",
+			"default-src 'self' https: data: blob:",
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maps.googleapis.com https://maps.google.com",
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+			"img-src 'self' data: blob: https: http:",
+			"font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+			"connect-src 'self' https: http: ws: wss:",
+			"frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com https://*.openstreetmap.org",
+			"child-src 'self' blob: https://www.google.com https://maps.google.com https://*.google.com",
 			"base-uri 'self'",
 			"form-action 'self'",
 		}, "; "))
 		next.ServeHTTP(w, r)
 	})
 }
+
 
 // Locale resolves the request language and writes it into the context.
 //
