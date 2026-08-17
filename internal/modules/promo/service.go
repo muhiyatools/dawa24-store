@@ -149,7 +149,47 @@ func (s *Service) ListHighlightSections(ctx context.Context) ([]*HighlightSectio
 	return s.repo.ListHighlightSections(ctx)
 }
 
-// ExpirePromotions marks expired offers and sponsorships as inactive.
+// ExpirePromotions runs the automated expiry sweeps.
 func (s *Service) ExpirePromotions(ctx context.Context) (int64, error) {
 	return s.repo.ExpirePromotions(ctx)
+}
+
+// CreateSpecialOffer creates a special offer under tenant organization.
+func (s *Service) CreateSpecialOffer(ctx context.Context, o *SpecialOffer) (*SpecialOffer, error) {
+	if o.OrganizationID <= 0 {
+		orgID, ok := database.TenantFrom(ctx)
+		if !ok {
+			return nil, database.ErrNoTenant
+		}
+		o.OrganizationID = orgID
+	}
+	if err := s.repo.CreateSpecialOffer(ctx, o); err != nil {
+		return nil, err
+	}
+	return o, nil
+}
+
+// GetSpecialOffer retrieves a special offer by ID with details.
+func (s *Service) GetSpecialOffer(ctx context.Context, id int64) (*SpecialOffer, error) {
+	return s.repo.GetSpecialOfferByID(ctx, id)
+}
+
+// ListSpecialOffersByOrg lists all special offers for an organization.
+func (s *Service) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*SpecialOffer, error) {
+	return s.repo.ListSpecialOffersByOrg(ctx, orgID)
+}
+
+// DeleteSpecialOffer deletes a special offer.
+func (s *Service) DeleteSpecialOffer(ctx context.Context, id, orgID int64) error {
+	return s.repo.DeleteSpecialOffer(ctx, id, orgID)
+}
+
+// AddSpecialOfferLocation adds a geographic coverage record.
+func (s *Service) AddSpecialOfferLocation(ctx context.Context, loc *SpecialOfferLocation) error {
+	return s.repo.AddSpecialOfferLocation(ctx, loc)
+}
+
+// ListSpecialOfferLocations lists coverage locations for an offer.
+func (s *Service) ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*SpecialOfferLocation, error) {
+	return s.repo.ListSpecialOfferLocations(ctx, offerID)
 }

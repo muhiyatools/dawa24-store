@@ -106,6 +106,64 @@ func (o *Offer) CalculateDiscount(subtotal money.Amount) (money.Amount, error) {
 	return o.DiscountValue, nil
 }
 
+// SpecialOffer represents the organization's special offer with product & geographic coverage rules.
+type SpecialOffer struct {
+	ID                 int64                   `json:"id"`
+	PublicID           string                  `json:"public_id"`
+	OrganizationID     int64                   `json:"organization_id"`
+	BranchID           *int64                  `json:"branch_id,omitempty"`
+	BranchName         string                  `json:"branch_name,omitempty"`
+	Title              i18n.Text               `json:"title"`
+	Description        i18n.Text               `json:"description,omitempty"`
+	DiscountPercentage float64                 `json:"discount_percentage"`
+	DiscountAmount     money.Amount            `json:"discount_amount"`
+	MinOrderAmount     money.Amount            `json:"min_order_amount"`
+	TotalPrice         money.Amount            `json:"total_price"`
+	StartDate          *time.Time              `json:"start_date,omitempty"`
+	EndDate            *time.Time              `json:"end_date,omitempty"`
+	Status             string                  `json:"status"`       // active, inactive, expired, draft
+	AdminStatus        string                  `json:"admin_status"` // pending, approved, rejected
+	Image              string                  `json:"image,omitempty"`
+	Products           []*SpecialOfferProduct  `json:"products,omitempty"`
+	Locations          []*SpecialOfferLocation `json:"locations,omitempty"`
+	CreatedAt          time.Time               `json:"created_at"`
+	UpdatedAt          time.Time               `json:"updated_at"`
+}
+
+// SpecialOfferProduct represents a specific product/variant in a special offer.
+type SpecialOfferProduct struct {
+	ID                 int64        `json:"id"`
+	OfferID            int64        `json:"offer_id"`
+	VariantID          int64        `json:"variant_id"`
+	VariantName        string       `json:"variant_name,omitempty"`
+	OriginalPrice      money.Amount `json:"original_price"`
+	CustomPrice        money.Amount `json:"custom_price"`
+	DiscountPercentage float64      `json:"discount_percentage"`
+	DiscountAmount     money.Amount `json:"discount_amount"`
+	Quantity           int          `json:"quantity"`
+	CreatedAt          time.Time    `json:"created_at"`
+}
+
+// SpecialOfferLocation represents geographic coverage rules for a special offer.
+type SpecialOfferLocation struct {
+	ID          int64     `json:"id"`
+	OfferID     int64     `json:"offer_id"`
+	CityID      *int64    `json:"city_id,omitempty"`
+	CityName    string    `json:"city_name,omitempty"`
+	AddressAr   string    `json:"address_ar"`
+	AddressEn   string    `json:"address_en"`
+	Latitude    float64   `json:"latitude"`
+	Longitude   float64   `json:"longitude"`
+	Radius      int       `json:"radius"`       // in meters
+	DayOfWeek   int       `json:"day_of_week"`  // 1=Saturday ... 7=Friday
+	TimeFrom    string    `json:"time_from,omitempty"`
+	TimeTo      string    `json:"time_to,omitempty"`
+	Status      string    `json:"status"`       // active, inactive
+	AdminStatus string    `json:"admin_status"` // pending, approved, rejected
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+
 // Validate ensures dates and discount amounts are sound.
 func (o *Offer) Validate() error {
 	if o.OrganizationID <= 0 {

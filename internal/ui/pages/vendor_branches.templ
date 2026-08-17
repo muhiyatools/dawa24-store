@@ -10,306 +10,465 @@ import (
 )
 
 type VendorBranchesData struct {
-	Branches []*org.Branch
-	Cities   []*platformadmin.City
+	Branches  []*org.Branch
+	Cities    []*platformadmin.City
+	Employees []*org.EmployeeView
+}
+
+var institutionalWorkCategories = []struct {
+	Key     string
+	LabelAr string
+	LabelEn string
+	Icon    string
+}{
+	{Key: "group", LabelAr: "مجموعة", LabelEn: "Group", Icon: "🏢"},
+	{Key: "sector", LabelAr: "قطاع", LabelEn: "Sector", Icon: "🌐"},
+	{Key: "startup", LabelAr: "شركة ناشئة", LabelEn: "Startup", Icon: "🚀"},
+	{Key: "sole_proprietorship", LabelAr: "مؤسسة فردية", LabelEn: "Sole Proprietorship", Icon: "👤"},
+	{Key: "audience_category", LabelAr: "فئة جماهيرية", LabelEn: "Audience Category", Icon: "👥"},
+	{Key: "retail", LabelAr: "تجزئة", LabelEn: "Retail", Icon: "🛍️"},
+	{Key: "nonprofit", LabelAr: "منظمة غير ربحية", LabelEn: "Nonprofit Organization", Icon: "🤝"},
+	{Key: "factory", LabelAr: "مصنع", LabelEn: "Factory", Icon: "🏭"},
+	{Key: "cooperative", LabelAr: "جمعية تعاونية", LabelEn: "Cooperative", Icon: "🌿"},
+	{Key: "services", LabelAr: "خدمات", LabelEn: "Services", Icon: "⚙️"},
+	{Key: "pharmacy", LabelAr: "صيدلية", LabelEn: "Pharmacy", Icon: "💊"},
+	{Key: "joint_stock", LabelAr: "شركة مساهمة", LabelEn: "Joint Stock Company", Icon: "🏛️"},
 }
 
 templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 	@layouts.VendorShell("إدارة الفروع ونقاط التوزيع اللوجستية", "branches", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:2rem;">
+		<div style="display:flex; flex-direction:column; gap:1.75rem;">
 			
 			<!-- Header Action Bar -->
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h2 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">
-						شبكة الفروع والمستودعات المركزية
-					</h2>
-					<p style="color:var(--neutral-500); font-size:0.925rem; margin:0.25rem 0 0 0;">
-						إدارة مواقع الفروع، إحداثيات GPS، السعات التخزينية، وسلاسل التبريد الدوائية
-					</p>
+			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
+				<div style="display:flex; align-items:center; gap:1rem;">
+					<div style="width:52px; height:52px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+						📍
+					</div>
+					<div>
+						<h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0;">
+							شبكة الفروع والمستودعات المركزية
+						</h1>
+						<p style="color:var(--text-muted); font-size:0.875rem; margin:0.2rem 0 0 0;">
+							إدارة مواقع الفروع، إحداثيات GPS، الأعمال المؤسسية، وسلاسل التبريد الدوائية
+						</p>
+					</div>
 				</div>
 
-				<button type="button" class="btn btn-primary" data-modal-open="add-branch-modal" style="font-weight:800; padding:0.7rem 1.5rem;">
-					@components.IconPlus("icon-xs")
-					<span>إضافة فرع أو مستودع جديد</span>
-				</button>
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<a href="#branch-form-panel" class="btn btn-primary" style="font-weight:700;">
+						@components.IconPlus("icon-xs")
+						<span>إضافة فرع جديد</span>
+					</a>
+				</div>
 			</div>
 
 			<!-- Quick Logistics Metrics -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem;">
-				<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem 1.5rem; border-inline-start:4px solid var(--primary-600);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--neutral-500);">إجمالي الفروع المسجلة</div>
-					<div style="font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin-top:0.25rem;" class="tabular-nums">
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--accent);">
+					<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">إجمالي الفروع المسجلة</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Branches)) }
 					</div>
-					<div style="font-size:0.775rem; color:var(--neutral-400); margin-top:0.25rem;">نقاط شحن وتوزيع نشطة</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">فروع ومستودعات نشطة</div>
 				</div>
 
-				<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem 1.5rem; border-inline-start:4px solid var(--success);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--neutral-500);">فروع مجهزة بسلاسل تبريد</div>
-					<div style="font-size:1.85rem; font-weight:900; color:var(--success); margin-top:0.25rem;" class="tabular-nums">
+				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--success);">
+					<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">سلاسل تبريد دوائية</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--success); margin-top:0.25rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", countColdStorageBranches(data.Branches)) }
 					</div>
-					<div style="font-size:0.775rem; color:var(--neutral-400); margin-top:0.25rem;">مستودعات مبردة (2° - 8° مئوية)</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">مستودعات مجهزة (2° - 8° مئوية)</div>
 				</div>
 
-				<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem 1.5rem; border-inline-start:4px solid var(--secondary);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--neutral-500);">إجمالي المساحة التخزينية</div>
-					<div style="font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin-top:0.25rem;" class="tabular-nums">
+				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--secondary);">
+					<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">المساحة التخزينية الكلية</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
 						{ fmt.Sprintf("%.0f م²", totalCapacitySQM(data.Branches)) }
 					</div>
-					<div style="font-size:0.775rem; color:var(--neutral-400); margin-top:0.25rem;">سعة تخزين الأدوية المتاحة</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">سعة تخزين الأدوية المتاحة</div>
 				</div>
 			</div>
 
-			<!-- Branches Grid List -->
-			if len(data.Branches) == 0 {
-				<div class="card" style="padding:4rem 2rem; text-align:center;">
-					<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--primary-50); color:var(--primary-600); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
-						@components.IconBuilding("icon-lg")
+			<!-- Split Screen Main Layout: Left = Branch List, Right = Sticky Form Panel -->
+			<div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:1.75rem; align-items:start;" class="branch-split-layout">
+				
+				<!-- Left Column: Branch Cards List -->
+				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					
+					<!-- Search & Notice -->
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem;">
+						@components.IconSearch("icon-sm")
+						<input type="text" id="branch-search-input" placeholder="بحث في الفروع والمستودعات حسب الاسم، الكود، أو المدينة..." style="background:transparent; border:none; color:var(--text); width:100%; outline:none; font-size:0.9rem;" oninput="filterBranchesList(this.value)"/>
 					</div>
-					<h3 style="font-size:1.35rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;">
-						لا توجد فروع مسجلة حتى الآن
-					</h3>
-					<p style="color:var(--neutral-500); font-size:0.925rem; max-width:480px; margin:0 auto 1.5rem auto;">
-						أضف فرعك الرئيسي أو مستودعات التوزيع ليتمكن الصيادلة من معرفة أقرب نقطة استلام وشحن دوائي.
-					</p>
-					<button type="button" class="btn btn-primary" data-modal-open="add-branch-modal" style="font-weight:800; padding:0.65rem 1.75rem;">
-						@components.IconPlus("icon-xs")
-						<span>إضافة الفرع الأول الآن</span>
-					</button>
-				</div>
-			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:1.5rem;">
-					for _, b := range data.Branches {
-						<div class="card hover-lift" style="margin-bottom:0; padding:1.75rem; border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-raised);">
-							<div>
-								<!-- Header Strip -->
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-									<div>
-										<div style="display:flex; align-items:center; gap:0.5rem;">
-											<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0;">
-												{ b.Name.Get(i18n.Lang(lang)) }
-											</h3>
-											if b.IsMain {
-												<span class="badge badge-sky" style="font-size:0.7rem; font-weight:800;">الفرع الرئيسي</span>
+
+					<div style="background:rgba(232, 255, 71, 0.05); border:1px solid rgba(232, 255, 71, 0.25); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:flex-start; gap:0.75rem;">
+						<span style="font-size:1.25rem;">⚠️</span>
+						<div style="font-size:0.825rem; color:var(--text); line-height:1.5;">
+							<strong style="color:var(--accent);">تنبيه هام لإعدادات الفرع:</strong> لكي تظهر منتجات الفرع للعملاء في البحث والتغطية الجغرافية بدقة، يجب اختيار <strong>الأعمال المؤسسية</strong> المناسبة وتحديد الإحداثيات الجغرافية بدقة.
+						</div>
+					</div>
+
+					<!-- Branch List Items -->
+					if len(data.Branches) == 0 {
+						<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:3.5rem 2rem; text-align:center;">
+							<div style="width:56px; height:56px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
+								📍
+							</div>
+							<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
+								لا توجد فروع مسجلة حتى الآن
+							</h3>
+							<p style="color:var(--text-muted); font-size:0.875rem; max-width:420px; margin:0 auto 1.25rem auto;">
+								أضف فرعك الرئيسي أو مستودعك المركزي عبر اللوحة المجاورة ليتمكن الصيادلة من معرفة نطاق التغطية والاستلام.
+							</p>
+							<a href="#branch-form-panel" class="btn btn-primary btn-sm" style="font-weight:700;">
+								@components.IconPlus("icon-xs")
+								<span>بدء تعبئة بيانات الفرع الأول</span>
+							</a>
+						</div>
+					} else {
+						<div id="branches-container" style="display:flex; flex-direction:column; gap:1rem;">
+							for _, b := range data.Branches {
+								<div class="branch-card" data-name={ b.Name.Get(i18n.Lang(lang)) } data-code={ b.Code } style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.4rem; display:flex; flex-direction:column; gap:0.9rem; transition:border-color 150ms;">
+									<!-- Card Header -->
+									<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; flex-wrap:wrap;">
+										<div>
+											<div style="display:flex; align-items:center; gap:0.6rem;">
+												<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+													{ b.Name.Get(i18n.Lang(lang)) }
+												</h3>
+												if b.IsMain {
+													<span class="badge badge-sky" style="font-size:0.7rem; font-weight:800;">الفرع الرئيسي</span>
+												}
+												if b.Status == "active" {
+													<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800;">نشط</span>
+												} else {
+													<span class="badge badge-gray" style="font-size:0.7rem; font-weight:800;">غير نشط</span>
+												}
+											</div>
+											if b.Code != "" {
+												<div style="font-size:0.775rem; color:var(--accent); font-weight:700; margin-top:0.2rem;" class="tabular-nums">
+													كود الفرع: { b.Code }
+												</div>
 											}
 										</div>
-										if b.Code != "" {
-											<div style="font-size:0.775rem; color:var(--accent); font-weight:800; margin-top:0.2rem;" class="tabular-nums">
-												كود الفرع: { b.Code }
+
+										<div style="display:flex; align-items:center; gap:0.5rem;">
+											if b.GoogleMapsURL != "" {
+												<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-xs" title="فتح في Google Maps">
+													<span>🗺️ خرائط Google</span>
+												</a>
+											}
+										</div>
+									</div>
+
+									<!-- Card Details -->
+									<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.6rem; font-size:0.825rem; color:var(--text-secondary); background:var(--surface-sunken); padding:0.8rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+										<div>
+											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">العنوان والمقر:</strong>
+											<span>{ b.Address }</span>
+										</div>
+										<div>
+											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">مدير الفرع المسؤول:</strong>
+											if b.ManagerName != "" {
+												<span style="color:var(--accent); font-weight:700;">👤 { b.ManagerName }</span>
+											} else {
+												<span style="color:var(--text-muted);">غير محدد</span>
+											}
+										</div>
+										<div>
+											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">سلسلة التبريد:</strong>
+											if b.HasColdStorage {
+												<span style="color:var(--success); font-weight:700;">❄️ مبرد (2° - 8° مئوية)</span>
+											} else {
+												<span>🌡️ تخزين جاف عادي</span>
+											}
+										</div>
+										<div>
+											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">المساحة التخزينية:</strong>
+											<span class="tabular-nums">{ fmt.Sprintf("%.0f م²", b.CapacitySQM) }</span>
+										</div>
+									</div>
+
+									<!-- Institutional Works Tags -->
+									if len(b.InstitutionalWorks) > 0 {
+										<div>
+											<div style="font-size:0.725rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.35rem;">
+												الأعمال المؤسسية المغطاة (Institutional Works):
 											</div>
-										}
+											<div style="display:flex; flex-wrap:wrap; gap:0.35rem;">
+												for _, cat := range b.InstitutionalWorks {
+													<span style="font-size:0.725rem; padding:0.2rem 0.55rem; border-radius:var(--radius-md); background:var(--surface-raised); border:1px solid var(--border); color:var(--text); font-weight:600;">
+														{ formatInstitutionalWorkLabel(cat) }
+													</span>
+												}
+											</div>
+										</div>
+									}
+
+									<!-- Card Actions -->
+									<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.75rem; margin-top:0.25rem;">
+										<div style="font-size:0.75rem; color:var(--text-muted);" class="tabular-nums">
+											if b.Latitude != nil && b.Longitude != nil {
+												<span>📍 { fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
+											}
+										</div>
+
+										<div style="display:flex; align-items:center; gap:0.5rem;">
+											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
+												<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
+													@components.IconTrash("icon-xs")
+													<span>حذف</span>
+												</button>
+											</form>
+										</div>
 									</div>
-
-									<span class={ "badge", templ.KV("badge-emerald", b.Status == "active" || b.Status == ""), templ.KV("badge-amber", b.Status != "active" && b.Status != "") } style="font-size:0.75rem; font-weight:800;">
-										if b.Status == "active" || b.Status == "" {
-											نشط ومتاح للتوريد
-										} else {
-											تحت التجهيز
-										}
-									</span>
 								</div>
-
-								<!-- Key Details List -->
-								<div style="display:flex; flex-direction:column; gap:0.65rem; font-size:0.875rem; color:var(--text-secondary); margin-bottom:1.5rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-									<div style="display:flex; align-items:flex-start; gap:0.5rem;">
-										@components.IconHome("icon-xs")
-										<span style="flex:1;">العنوان: { b.Address }</span>
-									</div>
-
-									if b.Phone != "" {
-										<div style="display:flex; align-items:center; gap:0.5rem;">
-											@components.IconUser("icon-xs")
-											<span>الهاتف: <strong class="tabular-nums" style="color:var(--text);">{ b.Phone }</strong></span>
-										</div>
-									}
-
-									if b.ManagerName != "" {
-										<div style="display:flex; align-items:center; gap:0.5rem;">
-											@components.IconUsers("icon-xs")
-											<span>المدير المسؤول: <strong style="color:var(--text);">{ b.ManagerName }</strong></span>
-										</div>
-									}
-
-									if b.HasColdStorage {
-										<div style="display:flex; align-items:center; gap:0.5rem; color:var(--accent); font-weight:800;">
-											@components.IconCheckCircle("icon-xs")
-											<span>مجهز بغرفة تبريد دوائي مخصصة (2° - 8° م)</span>
-										</div>
-									}
-
-									if b.CapacitySQM > 0 {
-										<div style="display:flex; align-items:center; gap:0.5rem;">
-											@components.IconPackage("icon-xs")
-											<span>المساحة التخزينية: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%.0f م²", b.CapacitySQM) }</strong></span>
-										</div>
-									}
-
-									if b.OperatingHours != "" {
-										<div style="display:flex; align-items:center; gap:0.5rem;">
-											@components.IconClock("icon-xs")
-											<span>مواعيد العمل: { b.OperatingHours }</span>
-										</div>
-									}
-								</div>
-							</div>
-
-							<!-- Footer Map / Actions -->
-							<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
-								if b.GoogleMapsURL != "" {
-									<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.4rem;">
-										@components.IconSearch("icon-xs")
-										<span>عرض في خرائط Google</span>
-									</a>
-								} else if b.Latitude != nil && b.Longitude != nil {
-									<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.4rem;">
-										@components.IconSearch("icon-xs")
-										<span>عرض الموقع على الخريطة</span>
-									</a>
-								} else {
-									<span style="font-size:0.8rem; color:var(--text-muted);">لا توجد إحداثيات محددة</span>
-								}
-
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الفرع؟');">
-									<button type="submit" class="btn btn-icon" style="color:var(--danger); width:32px; height:32px; background:transparent; border:none;" title="حذف الفرع">
-										@components.IconClose("icon-xs")
-									</button>
-								</form>
-							</div>
+							}
 						</div>
 					}
 				</div>
-			}
 
-			<!-- Add Branch Modal -->
-			<div id="add-branch-modal" class="modal-overlay" style="display:none;">
-				<div class="modal-card" style="max-width:680px; width:95%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:var(--shadow-2xl);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div style="display:flex; align-items:center; gap:0.6rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-								@components.IconPlus("icon-xs")
+				<!-- Right Column: Persistent In-Page Sticky Form Panel -->
+				<div id="branch-form-panel" style="position:sticky; top:24px; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.4rem; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+					
+					<!-- Form Header -->
+					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+								🏢
 							</div>
-							<h3 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">
-								إضافة فرع أو مستودع توزيع جديد
-							</h3>
+							<div>
+								<h2 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+									إضافة فرع / مستودع جديد
+								</h2>
+								<p style="font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;">
+									البيانات الأساسية، تحديد الموقع، والأعمال المؤسسية
+								</p>
+							</div>
 						</div>
-						<button type="button" class="btn btn-secondary btn-icon" data-modal-close="add-branch-modal" style="width:32px; height:32px;">
-							@components.IconClose("icon-xs")
-						</button>
 					</div>
 
-					<form method="POST" action="/vendor/branches/new" style="display:flex; flex-direction:column; gap:1.25rem; margin:0;">
-						<!-- Interactive GPS & Map Picker -->
-						@components.MapPicker(components.MapPickerProps{
-							NamePrefix: "branch",
-							Label:      "تحديد الموقع الجغرافي والإحداثيات (GPS)",
-							Height:     "220px",
-							ShowRadius: false,
-						})
-
-
-						<!-- Basic Info -->
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<form action="/vendor/branches/new" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						
+						<!-- Section 1: Names & Code -->
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label class="form-label" for="br-name-ar">اسم الفرع / المستودع (عربي) *</label>
-								<input type="text" id="br-name-ar" name="name_ar" class="form-input" placeholder="مثال: مستودع العبور المركزي" required />
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									اسم الفرع (بالعربية) <span style="color:var(--danger);">*</span>
+								</label>
+								<input type="text" name="name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input" style="width:100%;"/>
 							</div>
+
 							<div>
-								<label class="form-label" for="br-code">كود الفرع الداخلي (Code)</label>
-								<input type="text" id="br-code" name="code" class="form-input tabular-nums" placeholder="مثال: WH-OBR-01" />
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									اسم الفرع (بالإنجليزية) <span style="color:var(--danger);">*</span>
+								</label>
+								<input type="text" name="name_en" placeholder="e.g. Main Branch - Cairo" class="form-input" style="width:100%;"/>
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label class="form-label" for="br-type">نوع المنشأة / المستودع *</label>
-								<select id="br-type" name="warehouse_type" class="form-select">
-									<option value="warehouse">مستودع أدوية مركزي رئيسي</option>
-									<option value="fast_hub">نقطة توزيع وتوريد سريعة (Hub)</option>
-									<option value="cold_depot">مستودع أدوية مبرد بالكامل (Cold Depot)</option>
-									<option value="pharmacy_branch">صيدلية فرعية</option>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									كود الفرع (Branch Code)
+								</label>
+								<input type="text" name="code" placeholder="مثال: BR-CAI-01" class="form-input tabular-nums" style="width:100%;"/>
+							</div>
+
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									نوع المنشأة اللوجستية <span style="color:var(--danger);">*</span>
+								</label>
+								<select name="warehouse_type" class="form-input" style="width:100%;">
+									<option value="warehouse">مستودع أدوية مركزي (Warehouse)</option>
+									<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
+									<option value="cold_depot">مستودع تبريد مخصص (Cold Depot)</option>
+									<option value="pharmacy_branch">فرع صيدلية (Pharmacy Branch)</option>
 								</select>
 							</div>
+						</div>
+
+						<!-- Section 2: Interactive Location Map & GPS -->
+						<div style="display:flex; flex-direction:column; gap:0.6rem;">
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);">
+								🗺️ موقع الفرع الجغرافي وخريطة OpenStreetMap
+							</label>
+
+							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
+								<div class="map-container" style="height:230px; width:100%; z-index:1;"></div>
+								
+								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0.9rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.775rem;">
+									<div style="display:flex; align-items:center; gap:0.4rem;">
+										<span data-map-coords-badge class="tabular-nums" style="font-weight:700; color:var(--accent);">30.0444, 31.2357</span>
+									</div>
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs" style="font-weight:700;">
+										<span>📍 موقعي الحالي</span>
+									</button>
+								</div>
+
+								<!-- Hidden inputs for coordinates sync -->
+								<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
+								<input type="hidden" name="longitude" data-map-input="lon" value="31.2357"/>
+							</div>
+						</div>
+
+						<!-- Google Maps URL Input (Auto-Extracts Coordinates on Paste) -->
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								🔗 رابط خرائط Google (Google Maps URL)
+							</label>
+							<div style="position:relative;">
+								<input type="text" name="google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input" style="width:100%; font-size:0.825rem;"/>
+							</div>
+							<p style="font-size:0.725rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
+								💡 بمجرد لصق رابط خرائط جوجل سيتم استخراج الإحداثيات وتحريك مؤشر الخريطة تلقائياً.
+							</p>
+						</div>
+
+						<!-- Section 3: City, Address, Manager -->
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label class="form-label" for="br-city">المحافظة / المدينة *</label>
-								<select id="br-city" name="city_id" class="form-select" required>
-									<option value="" disabled selected>اختر المحافظة</option>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									المدينة / المحافظة <span style="color:var(--danger);">*</span>
+								</label>
+								<select name="city_id" data-map-city class="form-input" style="width:100%;">
+									<option value="">-- اختر المدينة --</option>
 									for _, c := range data.Cities {
-										<option value={ fmt.Sprintf("%d", c.ID) }>{ c.Name.Get(i18n.Lang(lang)) }</option>
+										<option value={ fmt.Sprintf("%d", c.ID) } data-coords={ fmt.Sprintf("%.6f,%.6f", c.Latitude, c.Longitude) }>
+											{ c.Name.Get(i18n.Lang(lang)) }
+										</option>
+									}
+								</select>
+							</div>
+
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									مدير الفرع المسؤول (من الموظفين)
+								</label>
+								<select name="manager_id" class="form-input" style="width:100%;">
+									<option value="">-- تعيين مدير من موظفي المنشأة --</option>
+									for _, emp := range data.Employees {
+										if emp.Member != nil {
+											<option value={ fmt.Sprintf("%d", emp.Member.UserID) }>
+												{ emp.UserName } ({ emp.RoleName })
+											</option>
+										}
 									}
 								</select>
 							</div>
 						</div>
 
 						<div>
-							<label class="form-label" for="br-address">العنوان التفصيلي ونقطة العلام *</label>
-							<input type="text" id="br-address" name="address" class="form-input" placeholder="المنطقة الصناعية الأولى، قطعة 48، بجوار مصنع..." required />
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								العنوان التفصيلي <span style="color:var(--danger);">*</span>
+							</label>
+							<input type="text" name="address" required placeholder="مثال: المنطقة الصناعية الثانية، قطعة 42، بجوار شركة توزيع الأدوية" class="form-input" style="width:100%;"/>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label class="form-label" for="br-manager">المدير المسؤول عن الفرع</label>
-								<input type="text" id="br-manager" name="manager_name" class="form-input" placeholder="د. محمود شريف" />
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									رقم هاتف الفرع
+								</label>
+								<input type="tel" name="phone" placeholder="010XXXXXXXX" class="form-input tabular-nums" style="width:100%;"/>
 							</div>
-							<div>
-								<label class="form-label" for="br-phone">هاتف التواصل المباشر للفرع *</label>
-								<input type="tel" id="br-phone" name="phone" class="form-input tabular-nums" placeholder="01012345678" required />
-							</div>
-						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div>
-								<label class="form-label" for="br-cap">المساحة التخزينية (متر مربع)</label>
-								<input type="number" id="br-cap" name="capacity_sqm" class="form-input tabular-nums" placeholder="مثال: 500" />
-							</div>
-							<div>
-								<label class="form-label" for="br-hours">مواعيد العمل واستلام الشحنات</label>
-								<input type="text" id="br-hours" name="operating_hours" class="form-input" placeholder="يومياً من 8 ص حتى 8 م" />
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									المساحة التخزينية (م²)
+								</label>
+								<input type="number" name="capacity_sqm" placeholder="500" class="form-input tabular-nums" style="width:100%;"/>
 							</div>
 						</div>
 
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.75rem;">
-							<label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:700; font-size:0.875rem; color:var(--text);">
-								<input type="checkbox" name="has_cold_storage" value="true" style="width:18px; height:18px;" />
-								<span>الفرع مجهز بغرف وسلاسل تبريد دوائية (2° - 8° مئوية)</span>
+						<!-- Section 4: Institutional Works (الـ 12 فئة) -->
+						<div style="display:flex; flex-direction:column; gap:0.6rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="display:flex; justify-content:space-between; align-items:center;">
+								<label style="font-size:0.825rem; font-weight:800; color:var(--text); margin:0;">
+									🏛️ الأعمال المؤسسية المغطاة (Institutional Works)
+								</label>
+								<span style="font-size:0.7rem; color:var(--accent); font-weight:700;">12 فئة معتمدة</span>
+							</div>
+
+							<p style="font-size:0.75rem; color:var(--text-muted); margin:0; line-height:1.4;">
+								حدد مجالات العمل المؤسسي التي يخدمها هذا الفرع لضمان شموله في نتائج البحث والتوريد:
+							</p>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.4rem;">
+								for _, cat := range institutionalWorkCategories {
+									<label style="display:flex; align-items:center; gap:0.5rem; font-size:0.775rem; color:var(--text-secondary); cursor:pointer; padding:0.4rem 0.6rem; border-radius:var(--radius-md); background:var(--surface-raised); border:1px solid var(--border);">
+										<input type="checkbox" name="institutional_works" value={ cat.Key } style="accent-color:var(--accent); width:15px; height:15px;"/>
+										<span>{ cat.Icon } { cat.LabelAr }</span>
+									</label>
+								}
+							</div>
+						</div>
+
+						<!-- Section 5: Checkboxes (Cold Storage & Main Branch) -->
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<label style="display:flex; align-items:center; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer; padding:0.6rem 0.8rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border);">
+								<input type="checkbox" name="has_cold_storage" value="true" style="accent-color:var(--success); width:16px; height:16px;"/>
+								<span>❄️ سلسلة تبريد (2° - 8°)</span>
 							</label>
 
-							<label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:700; font-size:0.875rem; color:var(--text);">
-								<input type="checkbox" name="is_main" value="true" style="width:18px; height:18px;" />
-								<span>تعيين هذا الفرع كفرع رئيسي معتمد للشركة</span>
+							<label style="display:flex; align-items:center; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer; padding:0.6rem 0.8rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border);">
+								<input type="checkbox" name="is_main" value="true" style="accent-color:var(--accent); width:16px; height:16px;"/>
+								<span>⭐ تعيين كفرع رئيسي</span>
 							</label>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
-							<button type="button" class="btn btn-secondary" data-modal-close="add-branch-modal">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.75rem 2rem;">
-								@components.IconCheck("icon-xs")
-								<span>حفظ وإضافة الفرع</span>
-							</button>
-						</div>
+						<!-- Submit Button -->
+						<button type="submit" class="btn btn-primary btn-lg" style="width:100%; font-weight:800; justify-content:center; margin-top:0.5rem;">
+							@components.IconPlus("icon-sm")
+							<span>حفظ وإضافة الفرع الآن</span>
+						</button>
 					</form>
 				</div>
 			</div>
 		</div>
 
+		<script>
+			function filterBranchesList(q) {
+				const query = (q || '').toLowerCase().trim();
+				const cards = document.querySelectorAll('.branch-card');
+				cards.forEach(card => {
+					const name = (card.getAttribute('data-name') || '').toLowerCase();
+					const code = (card.getAttribute('data-code') || '').toLowerCase();
+					if (!query || name.includes(query) || code.includes(query)) {
+						card.style.display = 'flex';
+					} else {
+						card.style.display = 'none';
+					}
+				});
+			}
+		</script>
 	}
 }
 
 func countColdStorageBranches(branches []*org.Branch) int {
-	count := 0
+	c := 0
 	for _, b := range branches {
 		if b.HasColdStorage {
-			count++
+			c++
 		}
 	}
-	return count
+	return c
 }
 
 func totalCapacitySQM(branches []*org.Branch) float64 {
-	total := 0.0
+	var total float64
 	for _, b := range branches {
 		total += b.CapacitySQM
 	}
 	return total
+}
+
+func formatInstitutionalWorkLabel(key string) string {
+	for _, cat := range institutionalWorkCategories {
+		if cat.Key == key {
+			return cat.Icon + " " + cat.LabelAr
+		}
+	}
+	return key
 }

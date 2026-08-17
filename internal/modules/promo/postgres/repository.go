@@ -303,3 +303,233 @@ func (r *Repository) ExpirePromotions(ctx context.Context) (int64, error) {
 	})
 	return totalExpired, err
 }
+
+// CreateSpecialOffer inserts a Laravel-parity special offer with products.
+func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO promo.special_offers (
+				organization_id, branch_id, title, description, discount_percentage,
+				discount_amount, min_order_amount, total_price, start_date, end_date,
+				status, admin_status, image
+			) VALUES (
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+				COALESCE(NULLIF($11, ''), 'active'), COALESCE(NULLIF($12, ''), 'approved'), COALESCE($13, '')
+			)
+			RETURNING id, public_id, created_at, updated_at;
+		`
+		err := tx.QueryRow(txCtx, query,
+			o.OrganizationID, o.BranchID, o.Title, o.Description, o.DiscountPercentage,
+			o.DiscountAmount, o.MinOrderAmount, o.TotalPrice, o.StartDate, o.EndDate,
+			o.Status, o.AdminStatus, o.Image,
+		).Scan(&o.ID, &o.PublicID, &o.CreatedAt, &o.UpdatedAt)
+		if err != nil {
+			return fmt.Errorf("create special offer: %w", err)
+		}
+
+		for _, p := range o.Products {
+			pQuery := `
+				INSERT INTO promo.special_offer_products (
+					offer_id, variant_id, custom_price, discount_percentage, discount_amount, quantity
+				) VALUES ($1, $2, $3, $4, $5, $6);
+			`
+			_, _ = tx.Exec(txCtx, pQuery, o.ID, p.VariantID, p.CustomPrice, p.DiscountPercentage, p.DiscountAmount, p.Quantity)
+		}
+
+		return nil
+	})
+}
+
+// GetSpecialOfferByID retrieves a special offer with its products and locations.
+func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.SpecialOffer, error) {
+	var o promo.SpecialOffer
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT so.id, so.public_id, so.organization_id, so.branch_id, COALESCE(b.name->>'ar', ''),
+			       so.title, so.description, COALESCE(so.discount_percentage, 0),
+			       COALESCE(so.discount_amount, 0), COALESCE(so.min_order_amount, 0), COALESCE(so.total_price, 0),
+			       so.start_date, so.end_date, so.status, so.admin_status, COALESCE(so.image, ''),
+			       so.created_at, so.updated_at
+			FROM promo.special_offers so
+			LEFT JOIN org.branches b ON b.id = so.branch_id
+			WHERE so.id = $1;
+		`
+		err := tx.QueryRow(txCtx, query, id).Scan(
+			&o.ID, &o.PublicID, &o.OrganizationID, &o.BranchID, &o.BranchName,
+			&o.Title, &o.Description, &o.DiscountPercentage,
+			&o.DiscountAmount, &o.MinOrderAmount, &o.TotalPrice,
+			&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.Image,
+			&o.CreatedAt, &o.UpdatedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("special_offer")
+			}
+			return err
+		}
+
+		// Load Products
+		pRows, _ := tx.Query(txCtx, `
+			SELECT p.id, p.offer_id, p.variant_id, COALESCE(pv.sku, ''), COALESCE(pv.price, 0),
+			       p.custom_price, p.discount_percentage, p.discount_amount, p.quantity, p.created_at
+			FROM promo.special_offer_products p
+			LEFT JOIN catalog.product_variants pv ON pv.id = p.variant_id
+			WHERE p.offer_id = $1;
+		`, id)
+		if pRows != nil {
+			for pRows.Next() {
+				var p promo.SpecialOfferProduct
+				if err := pRows.Scan(
+					&p.ID, &p.OfferID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
+					&p.CustomPrice, &p.DiscountPercentage, &p.DiscountAmount, &p.Quantity, &p.CreatedAt,
+				); err == nil {
+					o.Products = append(o.Products, &p)
+				}
+			}
+			pRows.Close()
+		}
+
+		// Load Locations
+		lRows, _ := tx.Query(txCtx, `
+			SELECT l.id, l.offer_id, l.city_id, COALESCE(c.name->>'ar', ''),
+			       l.address_ar, l.address_en, l.latitude, l.longitude, l.radius,
+			       l.day_of_week, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
+			       l.status, l.admin_status, l.created_at
+			FROM promo.special_offer_locations l
+			LEFT JOIN org.cities c ON c.id = l.city_id
+			WHERE l.offer_id = $1;
+		`, id)
+		if lRows != nil {
+			for lRows.Next() {
+				var loc promo.SpecialOfferLocation
+				if err := lRows.Scan(
+					&loc.ID, &loc.OfferID, &loc.CityID, &loc.CityName,
+					&loc.AddressAr, &loc.AddressEn, &loc.Latitude, &loc.Longitude, &loc.Radius,
+					&loc.DayOfWeek, &loc.TimeFrom, &loc.TimeTo,
+					&loc.Status, &loc.AdminStatus, &loc.CreatedAt,
+				); err == nil {
+					o.Locations = append(o.Locations, &loc)
+				}
+			}
+			lRows.Close()
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &o, nil
+}
+
+// ListSpecialOffersByOrg returns all special offers for an organization.
+func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*promo.SpecialOffer, error) {
+	var list []*promo.SpecialOffer
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT so.id, so.public_id, so.organization_id, so.branch_id, COALESCE(b.name->>'ar', ''),
+			       so.title, so.description, COALESCE(so.discount_percentage, 0),
+			       COALESCE(so.discount_amount, 0), COALESCE(so.min_order_amount, 0), COALESCE(so.total_price, 0),
+			       so.start_date, so.end_date, so.status, so.admin_status, COALESCE(so.image, ''),
+			       so.created_at, so.updated_at
+			FROM promo.special_offers so
+			LEFT JOIN org.branches b ON b.id = so.branch_id
+			WHERE so.organization_id = $1
+			ORDER BY so.created_at DESC;
+		`
+		rows, err := tx.Query(txCtx, query, orgID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var o promo.SpecialOffer
+			if err := rows.Scan(
+				&o.ID, &o.PublicID, &o.OrganizationID, &o.BranchID, &o.BranchName,
+				&o.Title, &o.Description, &o.DiscountPercentage,
+				&o.DiscountAmount, &o.MinOrderAmount, &o.TotalPrice,
+				&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.Image,
+				&o.CreatedAt, &o.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &o)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// DeleteSpecialOffer deletes a special offer.
+func (r *Repository) DeleteSpecialOffer(ctx context.Context, id, orgID int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		tag, err := tx.Exec(txCtx, `DELETE FROM promo.special_offers WHERE id = $1 AND organization_id = $2;`, id, orgID)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("special_offer")
+		}
+		return nil
+	})
+}
+
+// AddSpecialOfferLocation inserts a geographic coverage entry for an offer.
+func (r *Repository) AddSpecialOfferLocation(ctx context.Context, loc *promo.SpecialOfferLocation) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			INSERT INTO promo.special_offer_locations (
+				offer_id, city_id, address_ar, address_en, latitude, longitude,
+				radius, day_of_week, time_from, time_to, status, admin_status
+			) VALUES (
+				$1, $2, $3, $4, $5, $6,
+				COALESCE($7, 500), COALESCE($8, 1), NULLIF($9, '')::time, NULLIF($10, '')::time,
+				COALESCE(NULLIF($11, ''), 'active'), COALESCE(NULLIF($12, ''), 'approved')
+			)
+			RETURNING id, created_at;
+		`
+		return tx.QueryRow(txCtx, query,
+			loc.OfferID, loc.CityID, loc.AddressAr, loc.AddressEn, loc.Latitude, loc.Longitude,
+			loc.Radius, loc.DayOfWeek, loc.TimeFrom, loc.TimeTo, loc.Status, loc.AdminStatus,
+		).Scan(&loc.ID, &loc.CreatedAt)
+	})
+}
+
+// ListSpecialOfferLocations lists coverage locations for an offer.
+func (r *Repository) ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*promo.SpecialOfferLocation, error) {
+	var list []*promo.SpecialOfferLocation
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT l.id, l.offer_id, l.city_id, COALESCE(c.name->>'ar', ''),
+			       l.address_ar, l.address_en, l.latitude, l.longitude, l.radius,
+			       l.day_of_week, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
+			       l.status, l.admin_status, l.created_at
+			FROM promo.special_offer_locations l
+			LEFT JOIN org.cities c ON c.id = l.city_id
+			WHERE l.offer_id = $1
+			ORDER BY l.day_of_week ASC, l.id ASC;
+		`
+		rows, err := tx.Query(txCtx, query, offerID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var loc promo.SpecialOfferLocation
+			if err := rows.Scan(
+				&loc.ID, &loc.OfferID, &loc.CityID, &loc.CityName,
+				&loc.AddressAr, &loc.AddressEn, &loc.Latitude, &loc.Longitude, &loc.Radius,
+				&loc.DayOfWeek, &loc.TimeFrom, &loc.TimeTo,
+				&loc.Status, &loc.AdminStatus, &loc.CreatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &loc)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+

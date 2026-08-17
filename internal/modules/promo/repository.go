@@ -23,4 +23,13 @@ type Repository interface {
 	CreateHighlightSection(ctx context.Context, h *HighlightSection) error
 	ListHighlightSections(ctx context.Context) ([]*HighlightSection, error)
 	ExpirePromotions(ctx context.Context) (int64, error)
+
+	// Laravel-parity Special Offers & Location Covers
+	CreateSpecialOffer(ctx context.Context, o *SpecialOffer) error
+	GetSpecialOfferByID(ctx context.Context, id int64) (*SpecialOffer, error)
+	ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*SpecialOffer, error)
+	DeleteSpecialOffer(ctx context.Context, id, orgID int64) error
+	AddSpecialOfferLocation(ctx context.Context, loc *SpecialOfferLocation) error
+	ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*SpecialOfferLocation, error)
 }
+
