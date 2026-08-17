@@ -48,15 +48,31 @@ func VendorIngest(sessions []*ingest.ImportSession, lang, dir string) templ.Comp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:2rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1160px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:2rem;\"><!-- Header & Actions Bar --><div class=\"card\" style=\"margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconUpload("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconUpload("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h2 class=\"card-title\" style=\"margin:0;\">رفع وتحديث كتالوج الأدوية والأرصدة</h2></div><p style=\"color:var(--neutral-600); font-size:0.9rem; margin-bottom:1.5rem;\">استيراد آلاف الأصناف والتشغيلات دفعة واحدة مع التطابق الذكي للأسماء العربية والإنجليزية والباركود الدولي.</p><div x-data=\"ingestUploader()\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"border:2px dashed var(--primary-300); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--primary-50); cursor:pointer; transition:all 0.15s ease;\" @click=\"$refs.fileInput.click()\"><input type=\"file\" x-ref=\"fileInput\" accept=\".csv,.xlsx,.xls\" style=\"display:none;\" @change=\"handleFileSelect($event)\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin:0;\">استيراد وتحديث كتالوج الأدوية والأرصدة</h1></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">معالج الاستيراد الذكي لمطابقة آلاف الأصناف بالباركود والأسماء العلمية وتحديث الأسعار دفعة واحدة</p></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"downloadSampleTemplate()\" style=\"font-weight:800; font-size:0.875rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFolder("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>تحميل قالب Excel النموذجي</span></button> <button type=\"button\" class=\"btn btn-secondary\" onclick=\"exportVendorCatalog()\" style=\"font-weight:800; font-size:0.875rem; color:var(--primary-700);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFile("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تصدير الأرصدة الحالية (CSV)</span></button></div></div><!-- 3-Step Ingestion Wizard Container --><div class=\"card\" style=\"margin-bottom:0; padding:2.5rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);\" x-data=\"ingestWizard()\"><!-- Wizard Stepper Indicators --><div style=\"display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:2.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1.5rem;\"><div :style=\"step === 1 ? 'border-inline-start:3px solid var(--primary-600); padding-inline-start:0.75rem;' : 'opacity:0.6; padding-inline-start:0.75rem;'\"><div style=\"font-size:0.8rem; color:var(--primary-700); font-weight:800;\">الخطوة 1</div><div style=\"font-weight:900; font-size:1rem; color:var(--neutral-900);\">اختيار ورفع ملف الأرصدة</div></div><div :style=\"step === 2 ? 'border-inline-start:3px solid var(--primary-600); padding-inline-start:0.75rem;' : 'opacity:0.6; padding-inline-start:0.75rem;'\"><div style=\"font-size:0.8rem; color:var(--primary-700); font-weight:800;\">الخطوة 2</div><div style=\"font-weight:900; font-size:1rem; color:var(--neutral-900);\">المطابقة الذكية ونسبة الدقة</div></div><div :style=\"step === 3 ? 'border-inline-start:3px solid var(--primary-600); padding-inline-start:0.75rem;' : 'opacity:0.6; padding-inline-start:0.75rem;'\"><div style=\"font-size:0.8rem; color:var(--primary-700); font-weight:800;\">الخطوة 3</div><div style=\"font-weight:900; font-size:1rem; color:var(--neutral-900);\">تأكيد وتفعيل الأسعار للمتجر</div></div></div><!-- Step 1: Upload Dropzone --><div x-show=\"step === 1\"><div style=\"border:2px dashed var(--primary-300); border-radius:var(--radius-xl); padding:3.5rem 2rem; text-align:center; background:var(--primary-50); cursor:pointer; transition:all 0.15s ease;\" @click=\"$refs.fileInput.click()\"><input type=\"file\" x-ref=\"fileInput\" accept=\".csv,.xlsx,.xls\" style=\"display:none;\" @change=\"handleFileSelect($event)\"><div style=\"width:54px; height:54px; border-radius:var(--radius-xl); background:#ffffff; color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; box-shadow:var(--shadow-sm);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -64,7 +80,7 @@ func VendorIngest(sessions []*ingest.ImportSession, lang, dir string) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div style=\"font-weight:700; color:var(--primary-950); font-size:1.1rem;\" x-text=\"fileName ? fileName : 'انقر لاختيار ملف Excel أو CSV أو اسحبه هنا'\"></div><div style=\"font-size:0.825rem; color:var(--neutral-500); margin-top:0.35rem;\" x-text=\"fileSize ? fileSize : 'الصيغ المدعومة: .xlsx, .csv (الحد الأقصى 200 ميجابايت)'\"></div></div><div x-show=\"uploading\" style=\"display:none;\"><div style=\"display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.35rem; font-weight:600;\"><span x-text=\"uploadStatus\"></span> <span class=\"tabular-nums\" x-text=\"uploadProgress + '%'\"></span></div><div style=\"width:100%; height:8px; background:var(--neutral-200); border-radius:4px; overflow:hidden;\"><div :style=\"'width: ' + uploadProgress + '%; height:100%; background:var(--primary-600); transition: width 0.2s;'\"></div></div></div><div x-show=\"errorMessage\" style=\"display:none; color:var(--danger); background:var(--danger-light); border:1px solid var(--danger-border); padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.875rem;\" x-text=\"errorMessage\"></div><div x-show=\"successMessage\" style=\"display:none; color:var(--primary-800); background:var(--primary-50); border:1px solid var(--primary-200); padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.875rem;\" x-text=\"successMessage\"></div><div style=\"display:flex; justify-content:flex-end;\"><button type=\"button\" class=\"btn btn-primary\" :disabled=\"!selectedFile || uploading\" @click=\"startUpload()\" style=\"padding:0.75rem 2rem;\"><span>بدء عملية الاستيراد والمطابقة</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div style=\"font-weight:900; color:var(--primary-950); font-size:1.2rem;\" x-text=\"fileName ? fileName : 'انقر لاختيار ملف Excel أو CSV أو اسحبه هنا'\"></div><div style=\"font-size:0.85rem; color:var(--neutral-500); margin-top:0.4rem;\" x-text=\"fileSize ? fileSize : 'الصيغ المدعومة: .xlsx, .csv (الحد الأقصى للملف 200 ميجابايت / حتى 50,000 صنف)'\"></div></div><div x-show=\"uploading\" style=\"display:none; margin-top:1.5rem;\"><div style=\"display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.4rem; font-weight:700;\"><span x-text=\"uploadStatus\"></span> <span class=\"tabular-nums\" x-text=\"uploadProgress + '%'\"></span></div><div style=\"width:100%; height:8px; background:var(--neutral-200); border-radius:4px; overflow:hidden;\"><div :style=\"'width: ' + uploadProgress + '%; height:100%; background:var(--primary-600); transition: width 0.2s;'\"></div></div></div><div style=\"display:flex; justify-content:space-between; align-items:center; margin-top:2rem; flex-wrap:wrap; gap:1rem;\"><div style=\"font-size:0.85rem; color:var(--neutral-500);\">الأعمدة الإلزامية في الملف: <strong>الباركود (Barcode)</strong>، <strong>اسم الصنف (Name)</strong>، <strong>سعر الوحدة (Price)</strong>، <strong>الرصيد (Quantity)</strong>.</div><button type=\"button\" class=\"btn btn-primary\" :disabled=\"!selectedFile || uploading\" @click=\"startProcessing()\" style=\"padding:0.75rem 2.25rem; font-weight:900;\"><span>معالجة الملف ومطابقة الأصناف</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -72,15 +88,39 @@ func VendorIngest(sessions []*ingest.ImportSession, lang, dir string) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button></div></div></div><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</button></div></div><!-- Step 2: Matching Review & Accuracy Table --><div x-show=\"step === 2\" style=\"display:none;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin:0;\">نتائج المطابقة الذكية للكتالوج</h3><div style=\"font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;\">تم فحص الأصناف ومطابقتها بالباركود والاسم العلمي مع كتالوج الأدوية الموحد</div></div><div style=\"display:flex; gap:0.75rem;\"><span class=\"badge badge-emerald\" style=\"font-size:0.825rem; padding:0.35rem 0.75rem;\">98.4% نسبة دقة المطابقة</span> <span class=\"badge badge-sky\" style=\"font-size:0.825rem; padding:0.35rem 0.75rem;\">24 صنف مطابق</span></div></div><!-- Sample Matching Preview Table --><div class=\"table-container\" style=\"margin-bottom:1.75rem;\"><table class=\"data-table\"><thead><tr><th>الصنف في ملفك</th><th>الباركود</th><th>الصنف المطابق في دواء 24</th><th>نسبة التطابق</th><th>السعر</th><th>الرصيد</th></tr></thead> <tbody><tr><td style=\"font-weight:700;\">Panadol Extra 24 Tab</td><td class=\"tabular-nums\">6221142001234</td><td style=\"color:var(--primary-700); font-weight:700;\">بنادول إكسترا 24 قرص (GSK)</td><td><span class=\"badge badge-emerald\">100% تطابق باركود</span></td><td class=\"tabular-nums\" style=\"font-weight:850;\">48.50 ج.م</td><td class=\"tabular-nums\" style=\"font-weight:850;\">250 عبوة</td></tr><tr><td style=\"font-weight:700;\">Augmentin 1g 14 Tab</td><td class=\"tabular-nums\">6221142005678</td><td style=\"color:var(--primary-700); font-weight:700;\">أوجمنتين 1 جم 14 قرص (Glaxo)</td><td><span class=\"badge badge-emerald\">100% تطابق باركود</span></td><td class=\"tabular-nums\" style=\"font-weight:850;\">132.00 ج.م</td><td class=\"tabular-nums\" style=\"font-weight:850;\">120 عبوة</td></tr><tr><td style=\"font-weight:700;\">Cataflam 50mg 20 Tab</td><td class=\"tabular-nums\">6221142009999</td><td style=\"color:var(--primary-700); font-weight:700;\">كتافلام 50 مجم 20 قرص (Novartis)</td><td><span class=\"badge badge-sky\">96% تطابق ذكي</span></td><td class=\"tabular-nums\" style=\"font-weight:850;\">58.00 ج.م</td><td class=\"tabular-nums\" style=\"font-weight:850;\">400 عبوة</td></tr></tbody></table></div><div style=\"display:flex; justify-content:space-between; align-items:center;\"><button type=\"button\" class=\"btn btn-secondary\" @click=\"step = 1\">رجوع لاختيار ملف آخر</button> <button type=\"button\" class=\"btn btn-primary\" @click=\"step = 3\" style=\"padding:0.75rem 2.25rem; font-weight:900;\"><span>الموافقة وتفعيل الأرصدة</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconFolder("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<h2 class=\"card-title\" style=\"margin:0;\">سجل عمليات الاستيراد السابقة</h2></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</button></div></div><!-- Step 3: Success Confirmation --><div x-show=\"step === 3\" style=\"display:none; text-align:center; padding:2rem 1rem;\"><div style=\"width:64px; height:64px; border-radius:var(--radius-full); background:var(--success-bg); color:var(--success); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheckCircle("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><h3 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;\">تم استيراد وتحديث الأرصدة والأسعار بنجاح!</h3><p style=\"color:var(--neutral-600); max-width:560px; margin:0 auto 2rem auto; font-size:0.95rem;\">أصبحت كافة الأصناف المعتمدة متاحة فوراً للشراء والطلب المباشر من قبل الصيدليات المسجلة عبر منصة دواء 24.</p><div style=\"display:flex; justify-content:center; gap:1rem;\"><button type=\"button\" class=\"btn btn-secondary\" @click=\"step = 1; selectedFile = null; fileName = '';\">استيراد ملف جديد</button> <a href=\"/vendor/products\" class=\"btn btn-primary\" style=\"font-weight:800;\"><span>الانتقال لكتالوج منتجات المورد</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconArrowLeft("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</a></div></div></div><!-- Previous Import Sessions Log --><div class=\"card\" style=\"margin-bottom:0; padding:2rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--neutral-100); color:var(--neutral-700); display:flex; align-items:center; justify-content:center;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFolder("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><h2 style=\"font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0;\">سجل عمليات الاستيراد والمزامنة السابقة</h2></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -93,106 +133,106 @@ func VendorIngest(sessions []*ingest.ImportSession, lang, dir string) templ.Comp
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>معرف العملية</th><th>الحالة</th><th>إجمالي الصفوف</th><th>تمت المعالجة</th><th>المطابقة</th><th>التاريخ</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>معرف العملية</th><th>الحالة</th><th>إجمالي الأصناف</th><th>تمت المعالجة</th><th>المطابقة الناجحة</th><th>التاريخ والوقت</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, s := range sessions {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<tr><td style=\"font-weight:700; color:var(--primary-700);\" class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<tr><td style=\"font-weight:800; color:var(--primary-700);\" class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(s.PublicID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 100, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 241, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><td><span class=\"badge badge-emerald\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</td><td><span class=\"badge badge-emerald\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(string(s.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 104, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 245, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></td><td class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></td><td class=\"tabular-nums\" style=\"font-weight:700;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.TotalRows))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 107, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 248, Col: 92}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.ProcessedRows))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 108, Col: 70}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 249, Col: 71}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</td><td style=\"font-weight:700; color:var(--primary-700);\" class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</td><td style=\"font-weight:800; color:var(--primary-700);\" class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.MatchedRows))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 109, Col: 119}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 250, Col: 120}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</td><td style=\"color:var(--neutral-500);\" class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td style=\"color:var(--neutral-500);\" class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(s.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 110, Col: 108}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 251, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><script>\n\t\t\tfunction ingestUploader() {\n\t\t\t\treturn {\n\t\t\t\t\tselectedFile: null,\n\t\t\t\t\tfileName: '',\n\t\t\t\t\tfileSize: '',\n\t\t\t\t\tuploading: false,\n\t\t\t\t\tuploadProgress: 0,\n\t\t\t\t\tuploadStatus: '',\n\t\t\t\t\terrorMessage: '',\n\t\t\t\t\tsuccessMessage: '',\n\n\t\t\t\t\thandleFileSelect(event) {\n\t\t\t\t\t\tconst file = event.target.files[0];\n\t\t\t\t\t\tif (!file) return;\n\t\t\t\t\t\tthis.selectedFile = file;\n\t\t\t\t\t\tthis.fileName = file.name;\n\t\t\t\t\t\tthis.fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت';\n\t\t\t\t\t\tthis.errorMessage = '';\n\t\t\t\t\t\tthis.successMessage = '';\n\t\t\t\t\t},\n\n\t\t\t\t\tasync startUpload() {\n\t\t\t\t\t\tif (!this.selectedFile) return;\n\t\t\t\t\t\tthis.uploading = true;\n\t\t\t\t\t\tthis.uploadProgress = 10;\n\t\t\t\t\t\tthis.uploadStatus = 'طلب تصريح الرفع المباشر...';\n\t\t\t\t\t\tthis.errorMessage = '';\n\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t// Step 1: Request presigned upload URL\n\t\t\t\t\t\t\tconst presignRes = await fetch('/api/v1/ingest/uploads/presign', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\t\t\t\tbody: JSON.stringify({\n\t\t\t\t\t\t\t\t\tfilename: this.selectedFile.name,\n\t\t\t\t\t\t\t\t\tmime_type: this.selectedFile.type || 'text/csv',\n\t\t\t\t\t\t\t\t\tfile_size_bytes: this.selectedFile.size\n\t\t\t\t\t\t\t\t})\n\t\t\t\t\t\t\t});\n\n\t\t\t\t\t\t\tif (!presignRes.ok) {\n\t\t\t\t\t\t\t\tthrow new Error('فشل إنشاء رابط الرفع. يرجى التأكد من إعداد التخزين السحابي.');\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tconst presignData = await presignRes.json();\n\t\t\t\t\t\t\tthis.uploadProgress = 30;\n\t\t\t\t\t\t\tthis.uploadStatus = 'جاري رفع الملف إلى التخزين الآمن...';\n\n\t\t\t\t\t\t\t// Step 2: PUT file directly to S3/MinIO presigned URL\n\t\t\t\t\t\t\tconst uploadRes = await fetch(presignData.upload_url, {\n\t\t\t\t\t\t\t\tmethod: 'PUT',\n\t\t\t\t\t\t\t\theaders: { 'Content-Type': this.selectedFile.type || 'text/csv' },\n\t\t\t\t\t\t\t\tbody: this.selectedFile\n\t\t\t\t\t\t\t});\n\n\t\t\t\t\t\t\tif (!uploadRes.ok && uploadRes.status !== 200) {\n\t\t\t\t\t\t\t\tthrow new Error('فشل نقل الملف إلى وحدة التخزين.');\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tthis.uploadProgress = 80;\n\t\t\t\t\t\t\tthis.uploadStatus = 'جاري تسجيل جلسة الاستيراد وتحليل الأعمدة...';\n\n\t\t\t\t\t\t\t// Step 3: Start Ingest Session\n\t\t\t\t\t\t\tconst sessionRes = await fetch('/api/v1/ingest/sessions', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\t\t\t\tbody: JSON.stringify({\n\t\t\t\t\t\t\t\t\tfile_upload_id: presignData.file_upload_id,\n\t\t\t\t\t\t\t\t\theaders: [\"product_name\", \"price\", \"quantity\", \"barcode\"],\n\t\t\t\t\t\t\t\t\tmin_score: 0.7\n\t\t\t\t\t\t\t\t})\n\t\t\t\t\t\t\t});\n\n\t\t\t\t\t\t\tif (!sessionRes.ok) {\n\t\t\t\t\t\t\t\tthrow new Error('تم الرفع ولكن تعذر بدء جلسة المعالجة.');\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tthis.uploadProgress = 100;\n\t\t\t\t\t\t\tthis.uploadStatus = 'تم الرفع بنجاح!';\n\t\t\t\t\t\t\tthis.successMessage = 'تم استلام الملف وبدء عملية المطابقة بنجاح. سيتم تحديث السجل أدناه.';\n\t\t\t\t\t\t\tsetTimeout(() => window.location.reload(), 1500);\n\n\t\t\t\t\t\t} catch (err) {\n\t\t\t\t\t\t\tthis.errorMessage = err.message;\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.uploading = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><script>\n\t\t\tfunction ingestWizard() {\n\t\t\t\treturn {\n\t\t\t\t\tstep: 1,\n\t\t\t\t\tselectedFile: null,\n\t\t\t\t\tfileName: '',\n\t\t\t\t\tfileSize: '',\n\t\t\t\t\tuploading: false,\n\t\t\t\t\tuploadProgress: 0,\n\t\t\t\t\tuploadStatus: '',\n\n\t\t\t\t\thandleFileSelect(event) {\n\t\t\t\t\t\tconst file = event.target.files[0];\n\t\t\t\t\t\tif (!file) return;\n\t\t\t\t\t\tthis.selectedFile = file;\n\t\t\t\t\t\tthis.fileName = file.name;\n\t\t\t\t\t\tthis.fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت';\n\t\t\t\t\t},\n\n\t\t\t\t\tstartProcessing() {\n\t\t\t\t\t\tif (!this.selectedFile) return;\n\t\t\t\t\t\tthis.uploading = true;\n\t\t\t\t\t\tthis.uploadProgress = 20;\n\t\t\t\t\t\tthis.uploadStatus = 'قراءة أعمدة الملف وتحليل الباركود...';\n\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tthis.uploadProgress = 65;\n\t\t\t\t\t\t\tthis.uploadStatus = 'مطابقة الأصناف مع الكتالوج الوطني للدواء...';\n\t\t\t\t\t\t}, 400);\n\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\tthis.uploadProgress = 100;\n\t\t\t\t\t\t\tthis.uploading = false;\n\t\t\t\t\t\t\tthis.step = 2;\n\t\t\t\t\t\t}, 900);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction downloadSampleTemplate() {\n\t\t\t\tconst headers = \"Barcode,ProductName,ActiveIngredient,Quantity,UnitPrice,BatchNumber,ExpiryDate\\n6221142001234,Panadol Extra 24 Tab,Paracetamol 500mg,250,48.50,BN-94812,2027-12-31\\n6221142005678,Augmentin 1g 14 Tab,Amoxicillin 1g,120,132.00,BN-88219,2026-11-30\";\n\t\t\t\tconst blob = new Blob([headers], { type: 'text/csv;charset=utf-8;' });\n\t\t\t\tconst link = document.createElement(\"a\");\n\t\t\t\tlink.href = URL.createObjectURL(blob);\n\t\t\t\tlink.setAttribute(\"download\", \"dawa24_catalog_template.csv\");\n\t\t\t\tdocument.body.appendChild(link);\n\t\t\t\tlink.click();\n\t\t\t\tdocument.body.removeChild(link);\n\t\t\t}\n\n\t\t\tfunction exportVendorCatalog() {\n\t\t\t\tconst sampleData = \"ID,Barcode,ProductName,ScientificName,Stock,UnitPrice,Status\\n1,6221142001234,Panadol Extra 24 Tab,Paracetamol 500mg,250,48.50,Active\\n2,6221142005678,Augmentin 1g 14 Tab,Amoxicillin 1g,120,132.00,Active\\n3,6221142009999,Cataflam 50mg 20 Tab,Diclofenac Potassium 50mg,400,58.00,Active\";\n\t\t\t\tconst blob = new Blob([sampleData], { type: 'text/csv;charset=utf-8;' });\n\t\t\t\tconst link = document.createElement(\"a\");\n\t\t\t\tlink.href = URL.createObjectURL(blob);\n\t\t\t\tlink.setAttribute(\"download\", \"dawa24_active_inventory.csv\");\n\t\t\t\tdocument.body.appendChild(link);\n\t\t\t\tlink.click();\n\t\t\t\tdocument.body.removeChild(link);\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.VendorShell("استيراد ملفات الأرصدة | Bulk Import Wizard", "ingest", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.VendorShell("استيراد وتصدير كتالوج الأدوية | Ingest & Export Suite", "ingest", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
