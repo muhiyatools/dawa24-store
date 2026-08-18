@@ -1,7 +1,11 @@
 package ui
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -34,6 +38,7 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	// dashboard silently stopped counting at 100 and reported "100 users" to a
 	// platform with a thousand. Totals come from COUNT queries.
 	stats := pages.AdminDashboardStats{}
+	var pendingOrgs []*org.Organization
 
 	if h.idSvc != nil {
 		if n, err := h.idSvc.AdminCountUsers(ctx); err != nil {
@@ -54,6 +59,9 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 		} else {
 			stats.PendingApprovals = n
 		}
+		if list, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 5, 0); err == nil {
+			pendingOrgs = list
+		}
 	}
 	if h.commSvc != nil {
 		if n, err := h.commSvc.CountOrders(ctx); err != nil {
@@ -64,7 +72,7 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminDashboard(stats, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminDashboard(stats, pendingOrgs, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin dashboard page", "error", err)
 	}
 }
@@ -607,18 +615,33 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	_ = r.ParseMultipartForm(32 << 20)
+
+	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.FormValue("name_en"))
+	if nameAr == "" && nameEn == "" {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى كتابة اسم الصنف الدوائي بالعربية أو الإنجليزية.")
+		return
+	}
+	if nameAr == "" {
+		nameAr = nameEn
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+
 	imgURL, _ := saveUploadedFile(r, "product_image", "products")
 	if imgURL == "" {
-		imgURL = r.PostFormValue("image_url")
+		imgURL = r.FormValue("image_url")
 	}
 
 	prod := &catalog.Product{
-		Name:                   i18n.New(r.PostFormValue("name_ar"), r.PostFormValue("name_en")),
-		Description:            i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
-		ScientificName:         r.PostFormValue("generic_name"),
-		Active:                 r.PostFormValue("active_ingredient"),
-		DosageForm:             r.PostFormValue("dosage_form"),
-		ManufacturingCompanies: r.PostFormValue("manufacturer"),
+		Name:                   i18n.New(nameAr, nameEn),
+		Description:            i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
+		ScientificName:         r.FormValue("generic_name"),
+		Active:                 r.FormValue("active_ingredient"),
+		DosageForm:             r.FormValue("dosage_form"),
+		ManufacturingCompanies: r.FormValue("manufacturer"),
 		Image:                  imgURL,
 		Status:                 catalog.StatusActive,
 	}
@@ -629,6 +652,178 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	h.redirectWithNotice(w, r, "/admin/products", "success", "تمت إضافة الصنف الدوائي الأساسي بنجاح إلى الدليل المعتمد.")
+}
+
+// AdminProductsSampleCSV streams a UTF-8 BOM CSV template with sample pharmaceutical products.
+func (h *UIHandler) AdminProductsSampleCSV(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"dawa24_products_sample.csv\"")
+
+	// Write UTF-8 BOM for Microsoft Excel compatibility with Arabic
+	_, _ = w.Write([]byte{0xEF, 0xBB, 0xBF})
+
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
+
+	headers := []string{
+		"اسم الصنف بالعربي",
+		"اسم الصنف بالإنجليزي",
+		"الاسم العلمي",
+		"المادة الفعالة",
+		"الشكل الصيدلي",
+		"الشركة المصنعة",
+		"رقم التسجيل EDA",
+		"السعر",
+		"الوصف بالعربي",
+		"الوصف بالإنجليزي",
+	}
+	_ = writer.Write(headers)
+
+	sampleRows := [][]string{
+		{"كونجستال أقراص", "Congestal Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", "أقراص", "Eva Pharma", "EDA-10293", "25.00", "لعلاج أعراض نزلات البرد والإنفلونزا", "For cold and flu relief"},
+		{"بانادول إكسترا", "Panadol Extra", "Paracetamol + Caffeine", "Paracetamol 500mg + Caffeine 65mg", "أقراص", "GSK", "EDA-88421", "35.00", "مسكن للآلام وخافض للحرارة", "Pain reliever and fever reducer"},
+		{"أوجمنتين 1 جم أقراص", "Augmentin 1g Tablets", "Amoxicillin + Clavulanic Acid", "Amoxicillin 875mg + Clavulanate 125mg", "أقراص", "GlaxoSmithKline", "EDA-33910", "89.50", "مضاد حيوي واسع المجال", "Broad spectrum antibiotic"},
+		{"أنتينال كبسول", "Antinal Capsules", "Nifuroxazide", "Nifuroxazide 200mg", "كبسولات", "Amoun Pharmaceutical", "EDA-22194", "30.00", "مطهر معوي ومضاد للإسهال", "Intestinal antiseptic"},
+		{"كتفاست فوار", "Catafast Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", "فوار", "Novartis", "EDA-54210", "65.00", "مسكن سريع المفعول ومضاد للالتهاب", "Fast acting pain relief"},
+	}
+
+	for _, row := range sampleRows {
+		_ = writer.Write(row)
+	}
+}
+
+// AdminProductsImportSubmit handles bulk uploading and parsing of Excel/CSV product files.
+func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
+		return
+	}
+
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "حجم الملف كبير جداً أو تعذر قراءة البيانات.")
+		return
+	}
+
+	file, _, err := r.FormFile("import_file")
+	if err != nil {
+		file, _, err = r.FormFile("file")
+	}
+	if err != nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى اختيار ملف CSV أو Excel صالح للاستيراد.")
+		return
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil || len(content) == 0 {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "الملف المرفوع فارغ أو تعذرت قراءته.")
+		return
+	}
+
+	// Remove UTF-8 BOM if present
+	content = bytes.TrimPrefix(content, []byte{0xEF, 0xBB, 0xBF})
+
+	// Detect delimiter (comma or semicolon or tab)
+	firstLine := string(bytes.Split(content, []byte("\n"))[0])
+	var delimiter rune = ','
+	if strings.Count(firstLine, ";") > strings.Count(firstLine, ",") {
+		delimiter = ';'
+	} else if strings.Count(firstLine, "\t") > strings.Count(firstLine, ",") {
+		delimiter = '\t'
+	}
+
+	reader := csv.NewReader(bytes.NewReader(content))
+	reader.Comma = delimiter
+	reader.LazyQuotes = true
+	reader.TrimLeadingSpace = true
+
+	records, err := reader.ReadAll()
+	if err != nil || len(records) < 2 {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "تنسيق ملف CSV غير صحيح أو لا يحتوي على صفوف بيانات.")
+		return
+	}
+
+	// Map headers
+	headerMap := make(map[string]int)
+	for idx, col := range records[0] {
+		clean := strings.ToLower(strings.TrimSpace(col))
+		clean = strings.ReplaceAll(clean, "_", "")
+		clean = strings.ReplaceAll(clean, "-", "")
+		clean = strings.ReplaceAll(clean, " ", "")
+		headerMap[clean] = idx
+	}
+
+	findCol := func(row []string, aliases ...string) string {
+		for _, alias := range aliases {
+			clean := strings.ToLower(strings.TrimSpace(alias))
+			clean = strings.ReplaceAll(clean, "_", "")
+			clean = strings.ReplaceAll(clean, "-", "")
+			clean = strings.ReplaceAll(clean, " ", "")
+			if idx, ok := headerMap[clean]; ok && idx < len(row) {
+				return strings.TrimSpace(row[idx])
+			}
+		}
+		return ""
+	}
+
+	importedCount := 0
+	for rowIdx := 1; rowIdx < len(records); rowIdx++ {
+		row := records[rowIdx]
+		if len(row) == 0 {
+			continue
+		}
+
+		nameAr := findCol(row, "اسم الصنف بالعربي", "اسم الصنف", "الاسم بالعربي", "name_ar", "name", "product_name")
+		nameEn := findCol(row, "اسم الصنف بالإنجليزي", "الاسم بالانجليزي", "الاسم بالإنجليزية", "name_en", "trade_name", "english_name")
+		if nameAr == "" && nameEn == "" {
+			if len(row) > 0 && strings.TrimSpace(row[0]) != "" {
+				nameAr = strings.TrimSpace(row[0])
+			} else {
+				continue
+			}
+		}
+		if nameAr == "" {
+			nameAr = nameEn
+		}
+		if nameEn == "" {
+			nameEn = nameAr
+		}
+
+		generic := findCol(row, "الاسم العلمي", "generic_name", "scientific_name", "scientific")
+		active := findCol(row, "المادة الفعالة", "المادة الفعالة والتركيز", "active_ingredient", "active")
+		dosage := findCol(row, "الشكل الصيدلي", "dosage_form", "dosage")
+		if dosage == "" {
+			dosage = "أقراص"
+		}
+		mfg := findCol(row, "الشركة المصنعة", "المصنع", "manufacturer", "company")
+		eda := findCol(row, "رقم التسجيل EDA", "رقم التسجيل", "eda_reg_number", "eda", "sku", "barcode")
+		descAr := findCol(row, "الوصف بالعربي", "الوصف", "description_ar", "description")
+		descEn := findCol(row, "الوصف بالإنجليزي", "الوصف بالانجليزي", "description_en")
+
+		prod := &catalog.Product{
+			Name:                   i18n.New(nameAr, nameEn),
+			Description:            i18n.New(descAr, descEn),
+			ScientificName:         generic,
+			Active:                 active,
+			DosageForm:             dosage,
+			ManufacturingCompanies: mfg,
+			SKU:                    eda,
+			Barcode:                eda,
+			Status:                 catalog.StatusActive,
+		}
+
+		if _, err := h.catSvc.CreateProduct(ctx, prod); err == nil {
+			importedCount++
+		}
+	}
+
+	if importedCount == 0 {
+		h.redirectWithNotice(w, r, "/admin/products", "warning", "لم يتم استيراد أي أصناف. يرجى التأكد من تطابق أعمدة الملف مع النموذج التجريبي.")
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/products", "success", fmt.Sprintf("تم استيراد %d صنف دوائي بنجاح إلى الدليل المعتمد.", importedCount))
 }
 
 // AdminOffersPage renders the offer moderation list.

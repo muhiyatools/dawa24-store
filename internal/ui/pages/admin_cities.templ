@@ -69,9 +69,8 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						<table style="width:100%; text-align:start; border-collapse:collapse; font-size:0.85rem;">
 							<thead>
 								<tr style="border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">
-									<th style="padding:0.6rem 0.75rem;">المدينة / المركز</th>
-									<th style="padding:0.6rem 0.75rem;">المحافظة / الإقليم</th>
-									<th style="padding:0.6rem 0.75rem;">الإحداثيات</th>
+									<th style="padding:0.6rem 0.75rem;">المدينة / المحافظة</th>
+									<th style="padding:0.6rem 0.75rem;">الإحداثيات الجغرافية (GPS)</th>
 									<th style="padding:0.6rem 0.75rem;">الحالة</th>
 									<th style="padding:0.6rem 0.75rem; text-align:end;">الإجراء</th>
 								</tr>
@@ -91,11 +90,8 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 												<div style="font-size:0.725rem; color:var(--text-muted);">{ c.Name["en"] }</div>
 											}
 										</td>
-										<td style="padding:0.75rem;">
-											<span class="badge badge-slate" style="font-size:0.725rem;">مصر (EG)</span>
-										</td>
 										<td style="padding:0.75rem; font-family:monospace; font-size:0.775rem;" class="tabular-nums">
-											<span style="color:var(--accent);">30.04, 31.23</span>
+											<span style="color:var(--accent);">{ fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude) }</span>
 										</td>
 										<td style="padding:0.75rem;">
 											if c.IsActive {
@@ -129,30 +125,23 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							@components.IconPlus("icon-xs")
 						</div>
 						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
-							إضافة مدينة / منطقة جديدة
+							إضافة مدينة / محافظة جديدة
 						</h3>
 					</div>
 
 					<form method="POST" action="/admin/cities/new" style="display:flex; flex-direction:column; gap:1rem;">
 						<div>
 							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-								اسم المدينة بالعربية <span style="color:var(--danger);">*</span>
+								اسم المدينة / المحافظة بالعربية <span style="color:var(--danger);">*</span>
 							</label>
 							<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input" style="width:100%;"/>
 						</div>
 
 						<div>
 							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-								اسم المدينة بالإنجليزية
+								اسم المدينة / المحافظة بالإنجليزية
 							</label>
 							<input type="text" name="name_en" placeholder="New Mansoura" class="form-input" style="width:100%;"/>
-						</div>
-
-						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-								الإقليم / المحافظة التابعة
-							</label>
-							<input type="text" name="region_ar" placeholder="محافظة الدقهلية - الدلتا" class="form-input" style="width:100%;"/>
 						</div>
 
 						<div>

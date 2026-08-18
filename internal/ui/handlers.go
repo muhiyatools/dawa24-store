@@ -296,6 +296,8 @@ func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	r.Post("/admin/approvals/{id}/reject", h.AdminRejectOrgSubmit)
 	r.Post("/admin/approvals/{id}/review", h.AdminOrgReviewSubmit)
 	r.Post("/admin/products/new", h.AdminProductCreateSubmit)
+	r.Get("/admin/products/sample.csv", h.AdminProductsSampleCSV)
+	r.Post("/admin/products/import", h.AdminProductsImportSubmit)
 	r.Post("/admin/policies", h.AdminPolicyCreateSubmit)
 	r.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
 }

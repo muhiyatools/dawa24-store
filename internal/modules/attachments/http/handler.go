@@ -104,9 +104,13 @@ func (h *Handler) downloadURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.JSON(w, http.StatusOK, map[string]string{
-		"download_url": url,
-	})
+	if r.Header.Get("Accept") == "application/json" {
+		httpx.JSON(w, http.StatusOK, map[string]string{
+			"download_url": url,
+		})
+		return
+	}
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
 func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {

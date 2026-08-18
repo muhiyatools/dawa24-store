@@ -25,10 +25,16 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					</div>
 				</div>
 
-				@components.ModalTrigger("create-master-product-modal", "btn btn-primary") {
-					@components.IconPlus("icon-xs")
-					<span>إضافة صنف دوائي أساسي (Master Product)</span>
-				}
+				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+					@components.ModalTrigger("import-products-modal", "btn btn-secondary") {
+						@components.IconUpload("icon-xs")
+						<span>استيراد أصناف من ملف Excel / CSV</span>
+					}
+					@components.ModalTrigger("create-master-product-modal", "btn btn-primary") {
+						@components.IconPlus("icon-xs")
+						<span>إضافة صنف دوائي أساسي (Master Product)</span>
+					}
+				</div>
 			</div>
 
 			if len(products) == 0 {
@@ -191,6 +197,42 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 						<button type="submit" class="btn btn-primary" style="font-weight:800;">
 							@components.IconCheck("icon-xs")
 							<span>إضافة واعتماد الصنف بالكتالوج</span>
+						</button>
+					</div>
+				</form>
+			}
+
+			<!-- Bulk Import Excel / CSV Modal -->
+			@components.Modal(components.ModalProps{
+				ID:    "import-products-modal",
+				Title: "استيراد أصناف دوائية جماعية (Bulk Import Excel / CSV)",
+				Size:  "md",
+			}) {
+				<form method="POST" action="/admin/products/import" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+					<div style="background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;">
+						<div style="font-weight:700; color:var(--text); margin-bottom:0.35rem;">تحميل نموذج ملف الاستيراد الجاهز:</div>
+						<p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.75rem; line-height:1.5;">
+							قم بتحميل النموذج المعتمد وفتحه عبر برنامج Excel أو Google Sheets وتعبئة أسماء الأدوية، المواد الفعالة، والشركات المصنعة.
+						</p>
+						<a href="/admin/products/sample.csv" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent); width:100%; justify-content:center; gap:0.4rem;">
+							@components.IconDownload("icon-xs")
+							<span>تحميل نموذج ملف استيراد تجريبي (Sample CSV)</span>
+						</a>
+					</div>
+
+					<div class="form-group" style="margin:0;">
+						<label class="form-label" for="import-file">اختر ملف Excel / CSV المكتمل *</label>
+						<input type="file" id="import-file" name="import_file" required accept=".csv,.xlsx,.xls,.txt" class="form-input" style="padding:0.5rem;" />
+						<p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+							الصيغ المدعومة: CSV (مفصول بفواصل أو فواصل منقوطة) وترميز UTF-8 المتوافق مع Excel.
+						</p>
+					</div>
+
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+						<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+						<button type="submit" class="btn btn-primary" style="font-weight:800; gap:0.4rem;">
+							@components.IconUpload("icon-xs")
+							<span>بدء استيراد وإضافة الأصناف</span>
 						</button>
 					</div>
 				</form>

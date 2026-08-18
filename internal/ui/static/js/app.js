@@ -1009,11 +1009,24 @@ function initMapPickers() {
           updateCoordinates(cLat, cLon, 13);
         }
         if (e.target.selectedOptions && e.target.selectedOptions[0]) {
-          const cityId = e.target.selectedOptions[0].dataset.cityId;
+          const opt = e.target.selectedOptions[0];
+          const cityId = opt.dataset.cityId;
+          const nameAr = opt.dataset.nameAr;
+          const nameEn = opt.dataset.nameEn;
+
           if (cityId) {
             document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"], input[name="city_id"]').forEach((hi) => {
               hi.value = cityId;
             });
+          }
+
+          // Auto-fill city/governorate name inputs in Add City form if present
+          const parentForm = container.closest('form') || document.querySelector('#new-city-card form') || document.querySelector('form[action*="/cities/new"]');
+          if (parentForm) {
+            const nameArInput = parentForm.querySelector('input[name="name_ar"]');
+            const nameEnInput = parentForm.querySelector('input[name="name_en"]');
+            if (nameArInput && nameAr) nameArInput.value = nameAr;
+            if (nameEnInput && nameEn) nameEnInput.value = nameEn;
           }
         }
       });

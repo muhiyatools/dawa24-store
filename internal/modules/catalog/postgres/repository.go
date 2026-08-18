@@ -24,6 +24,24 @@ func NewRepository(db *database.DB) *Repository {
 // CreateProduct inserts a new product for the active organization.
 func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if p.OrganizationID == 0 {
+			var firstOrgID int64
+			err := tx.QueryRow(txCtx, `SELECT id FROM org.organizations WHERE status = 'approved' OR type = 'vendor' ORDER BY id ASC LIMIT 1`).Scan(&firstOrgID)
+			if err != nil || firstOrgID == 0 {
+				_ = tx.QueryRow(txCtx, `SELECT id FROM org.organizations ORDER BY id ASC LIMIT 1`).Scan(&firstOrgID)
+			}
+			if firstOrgID > 0 {
+				p.OrganizationID = firstOrgID
+			} else {
+				_ = tx.QueryRow(txCtx, `
+					INSERT INTO org.organizations (name, legal_name, trade_name, type, status)
+					VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'دواء 24 - الكتالوج المعتمد', '{"ar":"دواء 24","en":"Dawa24"}'::jsonb, 'vendor', 'approved')
+					RETURNING id
+				`).Scan(&firstOrgID)
+				p.OrganizationID = firstOrgID
+			}
+		}
+
 		query := `
 			INSERT INTO catalog.products (
 				organization_id, category_id, brand_id, branch_id, name, description,

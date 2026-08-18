@@ -115,7 +115,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div style=\"font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;\">انقر على الخريطة أو اسحب المؤشر 📍 لتحديد موقع المنشأة بدقة</div></div><!-- Toolbar Buttons --><div style=\"display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;\"><!-- City Jump Selector (Dynamic from Database) --><select class=\"form-select text-xs\" style=\"padding:0.25rem 0.5rem; font-size:11px; width:auto;\" data-city-selector><option value=\"\">-- انتقال لمدينة / محافظة --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div style=\"font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;\">انقر على الخريطة أو اسحب المؤشر 📍 لتحديد موقع المنشأة بدقة</div></div><!-- Toolbar Buttons --><div style=\"display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;\"><!-- City Jump Selector (Dynamic from Database) --><select class=\"form-select text-xs\" style=\"padding:0.25rem 0.5rem; font-size:11px; width:auto;\" data-city-selector><option value=\"\">-- المحافظات المصرية (Governorates) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -147,114 +147,114 @@ func MapPicker(props MapPickerProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" data-name-ar=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("ar"))
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.Name.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 75, Col: 134}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 75, Col: 147}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" data-name-en=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.Name.Get("en"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 75, Col: 181}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("ar"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 75, Col: 202}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<option value=\"30.0444,31.2357\">القاهرة (Cairo)</option> <option value=\"30.0131,31.2089\">الجيزة (Giza)</option> <option value=\"31.2001,29.9187\">الإسكندرية (Alexandria)</option> <option value=\"31.0409,31.3785\">المنصورة (Mansoura)</option> <option value=\"30.7865,31.0004\">طنطا (Tanta)</option> <option value=\"30.5877,31.5020\">الزقازيق (Zagazig)</option> <option value=\"31.2653,32.3019\">بورسعيد (Port Said)</option> <option value=\"30.5965,32.2715\">الإسماعيلية (Ismailia)</option> <option value=\"29.9668,32.5498\">السويس (Suez)</option> <option value=\"27.1801,31.1837\">أسيوط (Asyut)</option> <option value=\"26.5569,31.6948\">سوهاج (Sohag)</option> <option value=\"25.6872,32.6396\">الأقصر (Luxor)</option> <option value=\"24.0889,32.8998\">أسوان (Aswan)</option> <option value=\"27.2579,33.8116\">الغردقة (Hurghada)</option> <option value=\"27.9158,34.3299\">شرم الشيخ (Sharm El-Sheikh)</option>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<option value=\"30.0444,31.2357\" data-name-ar=\"القاهرة\" data-name-en=\"Cairo\">القاهرة (Cairo)</option> <option value=\"30.0131,31.2089\" data-name-ar=\"الجيزة\" data-name-en=\"Giza\">الجيزة (Giza)</option> <option value=\"31.2001,29.9187\" data-name-ar=\"الإسكندرية\" data-name-en=\"Alexandria\">الإسكندرية (Alexandria)</option> <option value=\"31.0379,31.3815\" data-name-ar=\"الدقهلية\" data-name-en=\"Dakahlia\">الدقهلية (Dakahlia)</option> <option value=\"27.2579,33.8116\" data-name-ar=\"البحر الأحمر\" data-name-en=\"Red Sea\">البحر الأحمر (Red Sea)</option> <option value=\"31.0349,30.4682\" data-name-ar=\"البحيرة\" data-name-en=\"Beheira\">البحيرة (Beheira)</option> <option value=\"29.3084,30.8428\" data-name-ar=\"الفيوم\" data-name-en=\"Faiyum\">الفيوم (Faiyum)</option> <option value=\"30.7865,31.0004\" data-name-ar=\"الغربية\" data-name-en=\"Gharbia\">الغربية (Gharbia)</option> <option value=\"30.5965,32.2715\" data-name-ar=\"الإسماعيلية\" data-name-en=\"Ismailia\">الإسماعيلية (Ismailia)</option> <option value=\"30.5972,30.9876\" data-name-ar=\"المنوفية\" data-name-en=\"Monufia\">المنوفية (Monufia)</option> <option value=\"28.1099,30.7503\" data-name-ar=\"المنيا\" data-name-en=\"Minya\">المنيا (Minya)</option> <option value=\"30.4591,31.1786\" data-name-ar=\"القليوبية\" data-name-en=\"Qalyubia\">القليوبية (Qalyubia)</option> <option value=\"25.4514,30.5464\" data-name-ar=\"الوادي الجديد\" data-name-en=\"New Valley\">الوادي الجديد (New Valley)</option> <option value=\"29.9668,32.5498\" data-name-ar=\"السويس\" data-name-en=\"Suez\">السويس (Suez)</option> <option value=\"24.0889,32.8998\" data-name-ar=\"أسوان\" data-name-en=\"Aswan\">أسوان (Aswan)</option> <option value=\"27.1809,31.1837\" data-name-ar=\"أسيوط\" data-name-en=\"Asyut\">أسيوط (Asyut)</option> <option value=\"29.0661,31.0994\" data-name-ar=\"بني سويف\" data-name-en=\"Beni Suef\">بني سويف (Beni Suef)</option> <option value=\"31.2653,32.3019\" data-name-ar=\"بورسعيد\" data-name-en=\"Port Said\">بورسعيد (Port Said)</option> <option value=\"31.4175,31.8144\" data-name-ar=\"دمياط\" data-name-en=\"Damietta\">دمياط (Damietta)</option> <option value=\"30.5765,31.5041\" data-name-ar=\"الشرقية\" data-name-en=\"Sharqia\">الشرقية (Sharqia)</option> <option value=\"28.9712,33.6176\" data-name-ar=\"جنوب سيناء\" data-name-en=\"South Sinai\">جنوب سيناء (South Sinai)</option> <option value=\"31.1107,30.9388\" data-name-ar=\"كفر الشيخ\" data-name-en=\"Kafr El Sheikh\">كفر الشيخ (Kafr El Sheikh)</option> <option value=\"31.3543,27.2373\" data-name-ar=\"مطروح\" data-name-en=\"Matrouh\">مطروح (Matrouh)</option> <option value=\"25.6872,32.6396\" data-name-ar=\"الأقصر\" data-name-en=\"Luxor\">الأقصر (Luxor)</option> <option value=\"26.1551,32.7160\" data-name-ar=\"قنا\" data-name-en=\"Qena\">قنا (Qena)</option> <option value=\"31.1316,33.8033\" data-name-ar=\"شمال سيناء\" data-name-en=\"North Sinai\">شمال سيناء (North Sinai)</option> <option value=\"26.5569,31.6948\" data-name-ar=\"سوهاج\" data-name-en=\"Sohag\">سوهاج (Sohag)</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</select><!-- Current Location GPS Button --><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px;\" data-locate-me-btn title=\"تحديد موقعي الحالي بدقة\"><span>📍 موقعي الحالي</span></button><!-- Google Maps Link Button --><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select><!-- Current Location GPS Button --><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px;\" data-locate-me-btn title=\"تحديد موقعي الحالي بدقة\"><span>📍 موقعي الحالي</span></button><!-- Google Maps Link Button --><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 templ.SafeURL
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(gmapsLinkURL))
+		var templ_7745c5c3_Var10 templ.SafeURL
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(gmapsLinkURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 104, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 116, Col: 39}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px; text-decoration:none;\" data-google-maps-link title=\"فتح الموقع على خرائط Google\"><span>🗺️ خرائط Google</span></a></div></div><!-- Interactive Map Canvas (Pure Leaflet Container - No Blocked Iframes) --><div id=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(mapID)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 119, Col: 13}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"map-canvas\" data-lat=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", latVal))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 121, Col: 41}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" data-lon=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px; text-decoration:none;\" data-google-maps-link title=\"فتح الموقع على خرائط Google\"><span>🗺️ خرائط Google</span></a></div></div><!-- Interactive Map Canvas (Pure Leaflet Container - No Blocked Iframes) --><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
-		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", lonVal))
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(mapID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 122, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 131, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" data-radius=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"map-canvas\" data-lat=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", radiusVal))
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", latVal))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 123, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 133, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" data-lon=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width: 100%%; height: %s; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; z-index: 1; min-height: 200px; background: var(--surface-sunken);", mapHeight))
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", lonVal))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 124, Col: 214}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 134, Col: 41}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"></div><!-- Coordinate Inputs Matrix --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);\"><div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط العرض (Latitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" data-radius=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_lat", namePrefix))
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", radiusVal))
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 135, Col: 45}
 		}
@@ -262,138 +262,164 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", latVal))
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width: 100%%; height: %s; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; z-index: 1; min-height: 200px; background: var(--surface-sunken);", mapHeight))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 136, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 136, Col: 214}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"form-control tabular-nums\" style=\"width:100%; font-size:var(--text-xs);\" data-map-lat")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if props.ReadOnly {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " readonly")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "></div><div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط الطول (Longitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"></div><!-- Coordinate Inputs Matrix --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);\"><div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط العرض (Latitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_lon", namePrefix))
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_lat", namePrefix))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 150, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 147, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
-		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", lonVal))
+		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", latVal))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 151, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 148, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"form-control tabular-nums\" style=\"width:100%; font-size:var(--text-xs);\" data-map-lon")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-control tabular-nums\" style=\"width:100%; font-size:var(--text-xs);\" data-map-lat")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if props.ReadOnly {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " readonly")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " readonly")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "></div><div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط الطول (Longitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var18 string
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_lon", namePrefix))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 162, Col: 45}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var19 string
+		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.8f", lonVal))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 163, Col: 40}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" class=\"form-control tabular-nums\" style=\"width:100%; font-size:var(--text-xs);\" data-map-lon")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if props.ReadOnly {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " readonly")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if props.ShowRadius {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">نصف قطر التغطية (بالمتر)</label> <input type=\"number\" step=\"500\" min=\"500\" max=\"500000\" name=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">نصف قطر التغطية (بالمتر)</label> <input type=\"number\" step=\"500\" min=\"500\" max=\"500000\" name=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var18 string
-			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_radius", namePrefix))
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_radius", namePrefix))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 168, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 180, Col: 49}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var19 string
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", radiusVal))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 169, Col: 42}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"form-control tabular-nums\" style=\"width:100%; font-size:var(--text-xs);\" data-map-radius")
+			var templ_7745c5c3_Var21 string
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", radiusVal))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 181, Col: 42}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" class=\"form-control tabular-nums\" style=\"width:100%; font-size:var(--text-xs);\" data-map-radius")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if props.ReadOnly {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " readonly")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, " readonly")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div style=\"grid-column: 1 / -1;\"><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">رابط الموقع على خرائط Google Maps</label> <input type=\"url\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div style=\"grid-column: 1 / -1;\"><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">رابط الموقع على خرائط Google Maps</label> <input type=\"url\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var20 string
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_google_maps_url", namePrefix))
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s_google_maps_url", namePrefix))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 183, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 195, Col: 57}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var21 string
-		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(gmapsLinkURL)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 184, Col: 25}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"form-control tabular-nums text-xs\" style=\"width:100%;\" placeholder=\"https://maps.google.com/?q=...\" data-map-google-url></div></div></div>")
+		var templ_7745c5c3_Var23 string
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(gmapsLinkURL)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/map_picker.templ`, Line: 196, Col: 25}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-control tabular-nums text-xs\" style=\"width:100%;\" placeholder=\"https://maps.google.com/?q=...\" data-map-google-url></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

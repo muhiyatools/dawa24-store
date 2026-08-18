@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -13,7 +14,7 @@ type AdminDashboardStats struct {
 	TotalOrders        int
 }
 
-templ AdminDashboard(stats AdminDashboardStats, lang, dir string) {
+templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, lang, dir string) {
 	@layouts.AdminShell("لوحة التحكم والمؤشرات الرئيسية", "dashboard", lang, dir) {
 		<div style="display:flex; flex-direction:column; gap:2rem;">
 			<!-- 1. KPI Stats Cards -->
@@ -44,7 +45,7 @@ templ AdminDashboard(stats AdminDashboardStats, lang, dir string) {
 						{ fmt.Sprintf("%d", stats.TotalOrganizations) }
 					</div>
 					<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;">
-						صيدليات ومستودعات أدوية مرخصة
+						صيدليات مرخصة ومستودعات أدوية
 					</div>
 				</div>
 
@@ -59,13 +60,13 @@ templ AdminDashboard(stats AdminDashboardStats, lang, dir string) {
 						{ fmt.Sprintf("%d", stats.PendingApprovals) }
 					</div>
 					<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;">
-						تتطلب مراجعة السجل التجاري والتراخيص
+						منشآت جديدة بانتظار مراجعة التراخيص
 					</div>
 				</div>
 
 				<div class="card hover-lift" style="margin-bottom:0; padding:1.75rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised);">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:700;">إجمالي أوامر التوريد</span>
+						<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:700;">إجمالي العمليات والطلبات</span>
 						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(16, 185, 129, 0.15); color:#10b981; display:flex; align-items:center; justify-content:center;">
 							@components.IconPackage("icon-sm")
 						</div>
@@ -98,38 +99,50 @@ templ AdminDashboard(stats AdminDashboardStats, lang, dir string) {
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
-
-					<div style="display:flex; flex-direction:column; gap:1rem;">
-						<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);">
-							<div style="display:flex; align-items:center; gap:0.75rem;">
-								<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-									@components.IconBuilding("icon-xs")
-								</div>
-								<div>
-									<div style="font-weight:800; font-size:0.925rem; color:var(--text);">صيدليات الأمل الحديثة</div>
-									<div style="font-size:0.8rem; color:var(--text-muted);">سجل تجاري: CR-94819 • القاهرة</div>
-								</div>
+					if len(pendingOrgs) == 0 {
+						<div style="display:flex; align-items:center; gap:0.75rem; padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--emerald-50, #ecfdf5); color:var(--emerald-600, #10b981); display:flex; align-items:center; justify-content:center;">
+								@components.IconCheck("icon-xs")
 							</div>
-							<div style="display:flex; gap:0.5rem;">
-								<a href="/admin/approvals" class="btn btn-secondary btn-sm">فحص المستندات</a>
+							<div>
+								<div style="font-weight:800; font-size:0.925rem; color:var(--text);">تم تدقيق واعتماد كافة تراخيص المنشآت بالكامل</div>
+								<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.15rem;">لا توجد طلبات تسجيل أو تراخيص جديدة معلقة بانتظار الفحص حالياً.</div>
 							</div>
 						</div>
-
-						<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);">
-							<div style="display:flex; align-items:center; gap:0.75rem;">
-								<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-									@components.IconBuilding("icon-xs")
+					} else {
+						<div style="display:flex; flex-direction:column; gap:1rem;">
+							for _, po := range pendingOrgs {
+								<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);">
+									<div style="display:flex; align-items:center; gap:0.75rem;">
+										<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+											@components.IconBuilding("icon-xs")
+										</div>
+										<div>
+											<div style="display:flex; align-items:center; gap:0.5rem;">
+												<span style="font-weight:800; font-size:0.925rem; color:var(--text);">{ po.LegalName }</span>
+												if string(po.Type) == "vendor" {
+													<span class="badge badge-sky" style="font-size:0.7rem;">مورد أدوية</span>
+												} else {
+													<span class="badge badge-emerald" style="font-size:0.7rem;">صيدلية</span>
+												}
+											</div>
+											<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.15rem;">
+												if po.CommercialRegister != "" {
+													<span>سجل تجاري: <strong class="tabular-nums">{ po.CommercialRegister }</strong></span>
+												}
+												if po.PharmacistLicense != "" {
+													<span style="margin-inline-start:0.5rem;">• ترخيص: <strong class="tabular-nums">{ po.PharmacistLicense }</strong></span>
+												}
+											</div>
+										</div>
+									</div>
+									<div style="display:flex; gap:0.5rem;">
+										<a href="/admin/approvals" class="btn btn-primary btn-sm" style="font-weight:700;">فحص واعتماد</a>
+									</div>
 								</div>
-								<div>
-									<div style="font-weight:800; font-size:0.925rem; color:var(--text);">مستودع أدوية النيل للتوزيع</div>
-									<div style="font-size:0.8rem; color:var(--text-muted);">سجل تجاري: CR-88301 • الجيزة</div>
-								</div>
-							</div>
-							<div style="display:flex; gap:0.5rem;">
-								<a href="/admin/approvals" class="btn btn-secondary btn-sm">فحص المستندات</a>
-							</div>
+							}
 						</div>
-					</div>
+					}
 				</div>
 
 				<!-- System Health Card -->

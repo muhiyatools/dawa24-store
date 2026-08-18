@@ -117,12 +117,87 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
 									<button
 										type="button"
-										class="btn btn-primary btn-sm"
-										data-modal-open={ fmt.Sprintf("review-modal-%d", o.ID) }
+										class="btn btn-secondary btn-sm"
+										data-modal-open={ fmt.Sprintf("details-modal-%d", o.ID) }
 									>
-										@components.IconCheck("icon-xs")
-										<span>تدقيق واعتماد</span>
+										@components.IconEye("icon-xs")
+										<span>بيانات التسجيل</span>
 									</button>
+
+									if string(o.Status) != "approved" {
+										<button
+											type="button"
+											class="btn btn-primary btn-sm"
+											data-modal-open={ fmt.Sprintf("review-modal-%d", o.ID) }
+										>
+											@components.IconCheck("icon-xs")
+											<span>تدقيق واعتماد</span>
+										</button>
+									}
+
+									<!-- Persistent Registration Details Modal -->
+									@components.Modal(components.ModalProps{
+										ID:    fmt.Sprintf("details-modal-%d", o.ID),
+										Title: fmt.Sprintf("ملف بيانات التسجيل: %s", o.LegalName),
+										Size:  "lg",
+									}) {
+										<div style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+											<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); font-size:0.875rem;">
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم القانوني للمنشأة</span>
+													<strong style="color:var(--text); font-size:1rem;">{ o.LegalName }</strong>
+												</div>
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">نوع الحساب</span>
+													<span class="badge badge-sky">{ orgTypeAr(string(o.Type)) }</span>
+												</div>
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم التجاري (عربي)</span>
+													<strong style="color:var(--text);">{ o.TradeName["ar"] }</strong>
+												</div>
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم التجاري (إنجليزي)</span>
+													<span style="color:var(--text);" dir="ltr">{ o.TradeName["en"] }</span>
+												</div>
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">رقم السجل التجاري</span>
+													<strong class="tabular-nums" style="color:var(--text);">{ o.CommercialRegister }</strong>
+												</div>
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الرقم الضريبي</span>
+													<span class="tabular-nums" style="color:var(--text);">{ o.TaxNumber }</span>
+												</div>
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">رقم ترخيص المؤسسة الصيدلية</span>
+													<strong class="tabular-nums" style="color:var(--accent);">{ o.PharmacistLicense }</strong>
+												</div>
+												<div>
+													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الحالة الحالية</span>
+													if string(o.Status) == "approved" {
+														<span class="badge badge-emerald">معتمد ونشط</span>
+													} else if string(o.Status) == "rejected" {
+														<span class="badge badge-danger">مرفوض</span>
+													} else {
+														<span class="badge badge-sky">قيد التدقيق</span>
+													}
+												</div>
+											</div>
+
+											<div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
+												<a href="/admin/documents" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent);">
+													@components.IconFile("icon-xs")
+													<span>عرض المستندات والملفات المرفقة في مركز الوثائق</span>
+												</a>
+												<button
+													type="button"
+													class="btn btn-secondary"
+													data-modal-close={ fmt.Sprintf("details-modal-%d", o.ID) }
+												>
+													إغلاق
+												</button>
+											</div>
+										</div>
+									}
 
 									<!-- Full Review Modal -->
 									@components.Modal(components.ModalProps{
@@ -138,12 +213,12 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 													<div><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
 													<div><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
 												</div>
-<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
-														<a href="/admin/documents" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
-															@components.IconFile("icon-xs")
-															<span>فتح ملف الترخيص والمرفقات الرسمية عبر مركز المستندات (PDF/صورة)</span>
-														</a>
-													</div>
+												<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+													<a href="/admin/documents" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
+														@components.IconFile("icon-xs")
+														<span>فتح ملف الترخيص والمرفقات الرسمية عبر مركز المستندات (PDF/صورة)</span>
+													</a>
+												</div>
 											</div>
 
 											<div class="form-group" style="margin:0;">
