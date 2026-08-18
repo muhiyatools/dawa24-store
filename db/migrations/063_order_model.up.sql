@@ -15,20 +15,22 @@ BEGIN;
 -- 1. Status enum parity (Laravel: pending, processing, confirmed, on_hold,
 --    shipped, in_transit, out_for_delivery, delivered, completed, cancelled,
 --    failed, returned, refunded).
-UPDATE commerce.orders        SET status = 'out_for_delivery' WHERE status = 'ready_for_pickup';
+ALTER TABLE commerce.orders DROP CONSTRAINT IF EXISTS orders_status_check;
+ALTER TABLE commerce.order_shipments DROP CONSTRAINT IF EXISTS order_shipments_status_check;
+
+UPDATE commerce.orders          SET status = 'out_for_delivery' WHERE status = 'ready_for_pickup';
 UPDATE commerce.order_shipments SET status = 'out_for_delivery' WHERE status = 'ready_for_pickup';
 
-ALTER TABLE commerce.orders DROP CONSTRAINT IF EXISTS orders_status_check;
 ALTER TABLE commerce.orders ADD CONSTRAINT orders_status_check
     CHECK (status IN ('pending','processing','confirmed','on_hold','shipped',
                       'in_transit','out_for_delivery','delivered','completed',
                       'cancelled','failed','returned','refunded'));
 
-ALTER TABLE commerce.order_shipments DROP CONSTRAINT IF EXISTS order_shipments_status_check;
 ALTER TABLE commerce.order_shipments ADD CONSTRAINT order_shipments_status_check
     CHECK (status IN ('pending','processing','confirmed','on_hold','shipped',
                       'in_transit','out_for_delivery','delivered','completed',
                       'cancelled','failed','returned','refunded'));
+
 
 -- 2. Order-to-offer model.
 ALTER TABLE commerce.orders

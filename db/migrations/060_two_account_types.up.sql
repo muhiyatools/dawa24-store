@@ -21,13 +21,18 @@ BEGIN;
 -- ---------------------------------------------------------------------------
 -- Organizations: two types
 -- ---------------------------------------------------------------------------
+ALTER TABLE org.organizations DROP CONSTRAINT IF EXISTS organizations_type_check;
+
 UPDATE org.organizations SET type = 'vendor'
   WHERE type IN ('supplier','company','agency');
 
 UPDATE org.organizations SET type = 'customer'
   WHERE type IN ('pharmacy','chain_pharmacy','individual');
 
-ALTER TABLE org.organizations DROP CONSTRAINT IF EXISTS organizations_type_check;
+UPDATE org.organizations SET type = 'customer'
+  WHERE type NOT IN ('customer','vendor') OR type IS NULL;
+
+ALTER TABLE org.organizations ALTER COLUMN type SET NOT NULL;
 ALTER TABLE org.organizations ADD CONSTRAINT organizations_type_check
   CHECK (type IN ('customer','vendor'));
 
@@ -38,6 +43,7 @@ COMMENT ON COLUMN org.organizations.type IS
 ALTER TABLE org.organizations
   ADD COLUMN IF NOT EXISTS is_chain BOOLEAN NOT NULL DEFAULT false;
 UPDATE org.organizations SET is_chain = true WHERE branch_count > 1;
+
 
 COMMENT ON COLUMN org.organizations.is_chain IS
   'سلسلة صيدليات — chain flag: customer with several branches, not a third type';

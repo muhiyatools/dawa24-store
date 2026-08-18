@@ -43,8 +43,11 @@ SELECT setval(pg_get_serial_sequence('promo.highlight_section_items', 'id'),
 
 -- 4. Items must reference a real section: the org table enforced it.
 ALTER TABLE promo.highlight_section_items
-    ADD CONSTRAINT IF NOT EXISTS highlight_section_items_non_empty
+    DROP CONSTRAINT IF EXISTS highlight_section_items_non_empty;
+ALTER TABLE promo.highlight_section_items
+    ADD CONSTRAINT highlight_section_items_non_empty
         CHECK (product_id IS NOT NULL OR offer_id IS NOT NULL);
+
 
 -- 5. Tenant isolation: organization rows are tenant-scoped, platform rows are
 --    visible to everyone (the policy short-circuits on owner_type).

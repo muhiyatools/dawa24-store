@@ -7,6 +7,10 @@
 
 BEGIN;
 
+ALTER TABLE ingest.import_sessions
+    DROP CONSTRAINT IF EXISTS import_sessions_file_upload_id_fkey;
+
+
 INSERT INTO platform_admin.documents (
     public_id, organization_id, user_id, title, document_type, storage_key,
     original_name, file_url, status, mime_type, size_bytes, meta, created_at, updated_at
@@ -15,8 +19,19 @@ SELECT public_id, organization_id, user_id, filename, 'import_file', storage_key
        filename, '', 'pending', mime_type, file_size_bytes, NULL, created_at, now()
 FROM ingest.file_uploads;
 
-ALTER TABLE ingest.import_sessions
-    DROP CONSTRAINT IF EXISTS import_sessions_file_upload_id_fkey;
+-- Map import_sessions to new documents by storage_key
+UPDATE ingest.import_sessions s
+SET file_upload_id = d.id
+FROM platform_admin.documents d
+JOIN ingest.file_uploads fu ON fu.storage_key = d.storage_key
+WHERE s.file_upload_id = fu.id;
+
+-- Null out any orphaned IDs before adding foreign key
+UPDATE ingest.import_sessions s
+SET file_upload_id = NULL
+WHERE file_upload_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM platform_admin.documents d WHERE d.id = s.file_upload_id
+);
 
 ALTER TABLE ingest.import_sessions
     ADD CONSTRAINT import_sessions_file_upload_id_fkey
@@ -25,3 +40,4 @@ ALTER TABLE ingest.import_sessions
 DROP TABLE ingest.file_uploads;
 
 COMMIT;
+
