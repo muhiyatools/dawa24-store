@@ -1,0 +1,224 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type VendorRoleItem struct {
+	Key         string
+	NameAr      string
+	NameEn      string
+	Description string
+	Permissions []string
+	MemberCount int
+	BadgeColor  string
+}
+
+templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir string) {
+	@layouts.VendorShell("إدارة الأدوار وصلاحيات المنشأة", "team", lang, dir) {
+		<div style="max-width:1160px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:2rem;">
+			
+			<!-- Header Action Bar -->
+			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+				<div>
+					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+						<div style="width:38px; height:38px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconSettings("icon-sm")
+						</div>
+						<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0;">
+							إدارة الأدوار ومصفوفة الصلاحيات
+						</h1>
+					</div>
+					<p style="color:var(--text-secondary); font-size:0.925rem; margin:0;">
+						تحديد الصلاحيات الإدارية، العملياتية، والمالية لمدراء الفروع وموظفي التوريد والمبيعات
+					</p>
+				</div>
+
+				<div style="display:flex; gap:0.75rem; align-items:center;">
+					<a href="/vendor/team" class="btn btn-secondary" style="font-weight:700;">
+						@components.IconUsers("icon-xs")
+						<span>فريق العمل والموظفين</span>
+					</a>
+				</div>
+			</div>
+
+			<!-- Role Cards Grid -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:1.25rem;">
+				
+				<!-- Role 1: Owner / Super Admin -->
+				<div class="card" style="margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;">
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+							<div>
+								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">مالك المنشأة (Owner)</h3>
+								<span style="font-size:0.775rem; color:var(--text-muted);">أعلى مستوى صلاحيات للنظام</span>
+							</div>
+							<span class="badge badge-emerald">كامل الصلاحيات</span>
+						</div>
+						<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;">
+							إدارة شاملة لبيانات الشركة، الحساب البنكي، ترخيص المؤسسة، الاعتماد المالي، وتعيين كبار المدراء.
+						</p>
+						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>تعديل إعدادات المنشأة والمستندات الرسمية</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>إدارة الحسابات البنكية والمحفظة والتحويلات</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>إضافة وحذف الفروع وتعيين المدراء</span>
+							</div>
+						</div>
+					</div>
+					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["org_owner"]) }</strong></span>
+						<span style="color:var(--accent); font-weight:700;">دور نظامي أساسي</span>
+					</div>
+				</div>
+
+				<!-- Role 2: Branch & Operations Manager -->
+				<div class="card" style="margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;">
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+							<div>
+								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">مدير العمليات والتوريد (Manager)</h3>
+								<span style="font-size:0.775rem; color:var(--text-muted);">إدارة الفروع والشحنات</span>
+							</div>
+							<span class="badge badge-sky">إداري</span>
+						</div>
+						<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;">
+							إدارة أوامر الشراء، التسعير، قبول طلبات الصيدليات، وجدولة تسليم الأدوية والشحنات المبردة.
+						</p>
+						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>قبول ورفض وتحديث حالات أوامر التوريد</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>تحديث عروض الأسعار ونطاقات التغطية الجغرافية</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>متابعة أداء الموظفين وإسناد الشحنات</span>
+							</div>
+						</div>
+					</div>
+					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["manager"]) }</strong></span>
+						<span style="color:var(--accent); font-weight:700;">مفعل</span>
+					</div>
+				</div>
+
+				<!-- Role 3: Warehouse & Inventory Keeper -->
+				<div class="card" style="margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;">
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+							<div>
+								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">أمين المخزن (Warehouse Keeper)</h3>
+								<span style="font-size:0.775rem; color:var(--text-muted);">إدارة المخزون والتشغيلات</span>
+							</div>
+							<span class="badge badge-amber">مخزني</span>
+						</div>
+						<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;">
+							جرد المخازن، تسجيل الدفعات وتواريخ الصلاحية، واستيراد وتحديث ملفات الأرصدة.
+						</p>
+						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>تعديل وجرد الأرصدة والكميات المتاحة</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>تسجيل أرقام التشغيلات وتواريخ انتهاء الصلاحية</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>إجراء التحويلات المخزنية بين مستودعات الفروع</span>
+							</div>
+						</div>
+					</div>
+					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["warehouse"]) }</strong></span>
+						<span style="color:var(--accent); font-weight:700;">مفعل</span>
+					</div>
+				</div>
+
+				<!-- Role 4: Financial Accountant -->
+				<div class="card" style="margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;">
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+							<div>
+								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">المحاسب المالي (Accountant)</h3>
+								<span style="font-size:0.775rem; color:var(--text-muted);">الفواتير والمحفظة</span>
+							</div>
+							<span class="badge badge-purple">مالي</span>
+						</div>
+						<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;">
+							إصدار وتدقيق الفواتير الإلكترونية، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.
+						</p>
+						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>تصدير الفواتير الإلكترونية المعتمدة للضرائب</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>عرض كشوف العمليات المالية للمحفظة</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>متابعة مديونيات ودفعات الصيدليات</span>
+							</div>
+						</div>
+					</div>
+					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["accountant"]) }</strong></span>
+						<span style="color:var(--accent); font-weight:700;">مفعل</span>
+					</div>
+				</div>
+
+				<!-- Role 5: Sales Representative -->
+				<div class="card" style="margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;">
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+							<div>
+								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">مندوب مبيعات وتوريد (Sales Rep)</h3>
+								<span style="font-size:0.775rem; color:var(--text-muted);">المبيعات والتواصل مع الصيدليات</span>
+							</div>
+							<span class="badge badge-slate">مبيعات</span>
+						</div>
+						<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;">
+							الرد على طلبات تسعير الصيدليات، التنسيق مع المناديب، ومتابعة تسليم وتوقيع إيصالات الشحنات.
+						</p>
+						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>استقبال والرد على طلبات الصيدليات المباشرة</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>تحديث خط سير ومواعيد تسليم الشحنة للصيدلية</span>
+							</div>
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								@components.IconCheck("icon-xs")
+								<span>تسجيل إشعارات الاستلام الموقعة</span>
+							</div>
+						</div>
+					</div>
+					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["employee"]) }</strong></span>
+						<span style="color:var(--accent); font-weight:700;">مفعل</span>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	}
+}

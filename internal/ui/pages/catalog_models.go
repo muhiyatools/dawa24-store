@@ -9,6 +9,7 @@ import (
 // Every price here is resolved through promo.EffectivePrice by the handler.
 type SupplierOffer struct {
 	OfferID          int64
+	VariantID        int64
 	SupplierID       int64
 	SupplierName     string
 	SupplierRating   float64

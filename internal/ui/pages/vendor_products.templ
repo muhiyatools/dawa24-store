@@ -23,24 +23,98 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 		@VendorVariantsTable(data.Variants, lang)
 	} else {
 		@layouts.VendorShell("عروض وأصناف التوريد المتاحة", "products", lang, dir) {
-			<div style="display:flex; flex-direction:column; gap:2rem;">
+			<div style="display:flex; flex-direction:column; gap:1.75rem;" x-data="{ searchQuery: '', statusFilter: 'all' }">
 				
 				<!-- Header Bar -->
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
 					<div>
-						<h2 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0;">
-							قائمة أصناف وعروض التوريد
-						</h2>
-						<p style="color:var(--text-secondary); font-size:0.925rem; margin:0.25rem 0 0 0;">
-							إدارة أسعار التوريد، العبوات، تواريخ الصلاحية، والأرصدة المتاحة للطلب من الصيدليات
+						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+							<div style="width:38px; height:38px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconPackage("icon-sm")
+							</div>
+							<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0;">
+								قائمة أصناف وعروض التوريد
+							</h1>
+						</div>
+						<p style="color:var(--text-secondary); font-size:0.925rem; margin:0;">
+							إدارة أسعار الجملة، العبوات، أرقام التشغيلات، تواريخ الصلاحية، والأرصدة المتاحة للطلب الفوري
 						</p>
 					</div>
 
-					<a href="/vendor/variants/new" class="btn btn-primary" style="font-weight:800; padding:0.7rem 1.5rem;">
-						@components.IconPlus("icon-xs")
-						<span>إضافة عرض توريد لصنف</span>
-					</a>
+					<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+						<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:700;">
+							@components.IconUpload("icon-xs")
+							<span>استيراد وتحديث الكتالوج (Excel / CSV)</span>
+						</a>
+						<a href="/vendor/variants/new" class="btn btn-primary" style="font-weight:800; padding:0.7rem 1.5rem;">
+							@components.IconPlus("icon-xs")
+							<span>إضافة عرض توريد لصنف</span>
+						</a>
+					</div>
 				</div>
+
+				<!-- Stats Strip -->
+				if len(data.Variants) > 0 {
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; margin-bottom:0.25rem;">إجمالي الأصناف المعروضة</div>
+							<div style="font-size:1.6rem; font-weight:800; color:var(--text);" class="tabular-nums">
+								{ fmt.Sprintf("%d", len(data.Variants)) }
+							</div>
+						</div>
+						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; margin-bottom:0.25rem;">إجمالي الرصيد والعبوات</div>
+							<div style="font-size:1.6rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+								{ fmt.Sprintf("%d", calculateTotalStock(data.Variants)) }
+							</div>
+						</div>
+						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; margin-bottom:0.25rem;">الأصناف الجاهزة للتوريد</div>
+							<div style="font-size:1.6rem; font-weight:800; color:var(--success-text);" class="tabular-nums">
+								{ fmt.Sprintf("%d", calculateActiveCount(data.Variants)) }
+							</div>
+						</div>
+					</div>
+				}
+
+				<!-- Search & Filter Bar -->
+				if len(data.Variants) > 0 {
+					<div class="card" style="margin-bottom:0; padding:1rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+						<div style="flex:1; min-width:260px; max-width:420px; position:relative;">
+							<input
+								type="text"
+								x-model="searchQuery"
+								placeholder="ابحث باسم الدواء، المادة الفعالة، رقم التشغيلة، أو SKU..."
+								class="form-input"
+								style="padding-inline-start:2.25rem; font-size:0.875rem;"
+							/>
+							<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+								@components.IconSearch("icon-xs")
+							</div>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<button
+								type="button"
+								@click="statusFilter = 'all'"
+								:style="statusFilter === 'all' ? 'background:var(--accent); color:#ffffff; font-weight:700;' : 'background:var(--surface-sunken); color:var(--text-secondary);'"
+								class="btn btn-sm"
+								style="border:1px solid var(--border); border-radius:var(--radius-md);"
+							>
+								الكل ({ fmt.Sprintf("%d", len(data.Variants)) })
+							</button>
+							<button
+								type="button"
+								@click="statusFilter = 'in_stock'"
+								:style="statusFilter === 'in_stock' ? 'background:var(--accent); color:#ffffff; font-weight:700;' : 'background:var(--surface-sunken); color:var(--text-secondary);'"
+								class="btn btn-sm"
+								style="border:1px solid var(--border); border-radius:var(--radius-md);"
+							>
+								المتوفر بالمخزن
+							</button>
+						</div>
+					</div>
+				}
 
 				<!-- Variants Content -->
 				<div id="vendor-products-content">
@@ -54,108 +128,213 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 	if len(variants) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
-			Title:       "لا توجد أصناف توريد مسجلة",
-			Message:     "قم باختيار الأدوية من الكتالوج المعتمد وإضافة عروض الأسعار والكميات المتاحة لديك.",
+			Title:       "لا توجد أصناف توريد مسجلة حالياً",
+			Message:     "قم باختيار الأدوية من الكتالوج المعتمد وإضافة عروض الأسعار والكميات المتاحة لديك لبدء استقبال الطلبيات.",
 			ActionLabel: "+ إضافة عرض توريد جديد",
 			ActionURL:   "/vendor/variants/new",
 		})
-
 	} else {
-		<div class="card" style="padding:0; overflow:hidden; border:1px solid var(--border); border-radius:var(--radius-xl);">
-			<div class="table-container" style="margin:0; border:none;">
-				<table class="table" style="margin:0;">
-					<thead>
-						<tr>
-							<th>الصنف الدوائي المعتمد</th>
-							<th>اسم العبوة والمواصفات</th>
-							<th>رقم التشغيلة</th>
-							<th>سعر التوريد</th>
-							<th>الرصيد المتاح</th>
-							<th>تاريخ الصلاحية</th>
-							<th>مستودع الشحن</th>
-							<th>الحالة</th>
-							<th>الإجراءات</th>
-						</tr>
-					</thead>
-					<tbody>
-						for _, v := range variants {
-							<tr id={ fmt.Sprintf("variant-row-%d", v.Variant.ID) }>
-								<td>
-									<div style="display:flex; align-items:center; gap:0.75rem;">
-										<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-											if v.MasterProduct != nil && v.MasterProduct.Image != "" {
-												<img src={ v.MasterProduct.Image } alt="Product" style="width:100%; height:100%; object-fit:cover;" />
+		<div class="table-container">
+			<table class="data-table" style="min-width:1050px;">
+				<thead>
+					<tr>
+						<th style="width:26%;">الصنف الدوائي المعتمد</th>
+						<th style="width:16%;">المواصفات و SKU</th>
+						<th style="width:11%;">رقم التشغيلة</th>
+						<th style="width:12%;">سعر التوريد</th>
+						<th style="width:10%;">الرصيد المتاح</th>
+						<th style="width:10%;">تاريخ الصلاحية</th>
+						<th style="width:10%;">مستودع الشحن</th>
+						<th style="width:5%; text-align:center;">الإجراءات</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, v := range variants {
+						<tr
+							id={ fmt.Sprintf("variant-row-%d", v.Variant.ID) }
+							x-show={ fmt.Sprintf("(!searchQuery || '%s %s %s'.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || (statusFilter === 'in_stock' && %d > 0))",
+								escapeJS(getProductName(v)),
+								escapeJS(v.Variant.Name.Get(i18n.Lang(lang))),
+								escapeJS(v.Variant.BatchNumber),
+								v.Variant.StockQty) }
+						>
+							<!-- Product Info & Avatar -->
+							<td>
+								<div style="display:flex; align-items:center; gap:0.85rem;">
+									<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+										if v.MasterProduct != nil && v.MasterProduct.Image != "" {
+											<img src={ v.MasterProduct.Image } alt="Product" style="width:100%; height:100%; object-fit:contain; padding:2px;" />
+										} else {
+											<div style="color:var(--accent);">
+												@components.IconPill("icon-sm")
+											</div>
+										}
+									</div>
+									<div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+										<div style="font-weight:800; color:var(--text); font-size:0.95rem; line-height:1.3; word-break:break-word;">
+											if v.MasterProduct != nil {
+												{ v.MasterProduct.Name.Get(i18n.Lang(lang)) }
 											} else {
-												@components.IconPill("icon-xs")
+												صنف دوائي
 											}
 										</div>
-										<div>
-											<div style="font-weight:800; color:var(--text);">
-												if v.MasterProduct != nil {
-													{ v.MasterProduct.Name.Get(i18n.Lang(lang)) }
-												} else {
-													صنف دوائي
-												}
-											</div>
+										<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-muted);">
 											if v.MasterProduct != nil && v.MasterProduct.DosageForm != "" {
-												<div style="font-size:0.75rem; color:var(--text-muted);">{ v.MasterProduct.DosageForm }</div>
+												<span class="badge badge-slate" style="font-size:0.7rem; padding:0.1rem 0.4rem;">{ v.MasterProduct.DosageForm }</span>
+											}
+											if v.MasterProduct != nil && v.MasterProduct.ManufacturingCompanies != "" {
+												<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">{ v.MasterProduct.ManufacturingCompanies }</span>
 											}
 										</div>
 									</div>
-								</td>
-								<td>
-									<strong style="color:var(--text);">{ v.Variant.Name.Get(i18n.Lang(lang)) }</strong>
-									if v.Variant.SKU != "" {
-										<div style="font-size:0.75rem; color:var(--text-muted);" class="tabular-nums">SKU: { v.Variant.SKU }</div>
-									}
-								</td>
-								<td class="tabular-nums" style="font-weight:700; color:var(--text-secondary);">
-									if v.Variant.BatchNumber != "" {
-										{ v.Variant.BatchNumber }
-									} else {
-										<span style="color:var(--text-muted); font-weight:normal;">-</span>
-									}
-								</td>
-								<td class="tabular-nums" style="font-weight:800; color:var(--accent); font-size:1.05rem;">
-									{ v.Variant.Price.String() } ج.م
-								</td>
-								<td class="tabular-nums" style="font-weight:800; color:var(--text);">
-									{ fmt.Sprintf("%d عبوة", v.Variant.StockQty) }
-								</td>
-								<td class="tabular-nums" style="color:var(--text-secondary); font-size:0.85rem;">
-									if v.Variant.ExpiryDate != nil {
-										{ v.Variant.ExpiryDate.Format("2006-01-02") }
-									} else {
-										<span style="color:var(--text-muted);">-</span>
-									}
-								</td>
-								<td>
-									if v.BranchName != "" {
-										<span class="badge badge-slate" style="font-weight:700;">{ v.BranchName }</span>
-									} else {
-										<span style="color:var(--text-muted); font-size:0.85rem;">المستودع الرئيسي</span>
-									}
-								</td>
-								<td>
-									if v.Variant.Status == "active" || v.Variant.Status == "" {
-										<span class="badge badge-emerald" style="font-weight:800;">متاح للطلب</span>
-									} else {
-										<span class="badge badge-slate" style="font-weight:800;">غير متاح</span>
-									}
-								</td>
+								</div>
+							</td>
 
-								<td>
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } style="margin:0;" onsubmit="return confirm('هل تريد إزالة هذا العرض من الكتالوج؟');">
-										<button type="submit" class="btn btn-icon" style="color:var(--danger); background:transparent; border:none; width:32px; height:32px;" title="حذف العرض">
-											@components.IconClose("icon-xs")
+							<!-- Variant Name & SKU -->
+							<td>
+								<div style="font-weight:700; color:var(--text); font-size:0.875rem;">
+									{ v.Variant.Name.Get(i18n.Lang(lang)) }
+								</div>
+								if v.Variant.SKU != "" {
+									<span class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted); display:inline-block; margin-top:2px;">
+										SKU: { v.Variant.SKU }
+									</span>
+								}
+							</td>
+
+							<!-- Batch Number -->
+							<td>
+								if v.Variant.BatchNumber != "" {
+									<span class="badge badge-slate tabular-nums" style="font-weight:700; font-size:0.8rem;">
+										{ v.Variant.BatchNumber }
+									</span>
+								} else {
+									<span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+								}
+							</td>
+
+							<!-- Wholesale Price -->
+							<td>
+								<div class="tabular-nums" style="font-weight:800; color:var(--accent); font-size:1.1rem; line-height:1.2;">
+									{ v.Variant.Price.String() } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
+								</div>
+								if v.Variant.MinOrderQty > 1 {
+									<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">
+										الحد الأدنى: { fmt.Sprintf("%d", v.Variant.MinOrderQty) }
+									</div>
+								}
+							</td>
+
+							<!-- Stock Quantity -->
+							<td>
+								if v.Variant.StockQty > 10 {
+									<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.825rem;">
+										{ fmt.Sprintf("%d عبوة", v.Variant.StockQty) }
+									</span>
+								} else if v.Variant.StockQty > 0 {
+									<span class="badge badge-amber tabular-nums" style="font-weight:800; font-size:0.825rem;">
+										{ fmt.Sprintf("%d متبقي", v.Variant.StockQty) }
+									</span>
+								} else {
+									<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem; color:var(--danger);">
+										نفد الرصيد
+									</span>
+								}
+							</td>
+
+							<!-- Expiry Date -->
+							<td>
+								if v.Variant.ExpiryDate != nil {
+									<div class="tabular-nums" style="font-weight:700; color:var(--text-secondary); font-size:0.85rem;">
+										{ v.Variant.ExpiryDate.Format("2006-01-02") }
+									</div>
+								} else {
+									<span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+								}
+							</td>
+
+							<!-- Shipping Branch / Warehouse -->
+							<td>
+								if v.BranchName != "" {
+									<span class="badge badge-sky" style="font-weight:700; font-size:0.775rem;">
+										{ v.BranchName }
+									</span>
+								} else {
+									<span style="color:var(--text-secondary); font-size:0.8rem;">المستودع الرئيسي</span>
+								}
+							</td>
+
+							<!-- Actions -->
+							<td style="text-align:center;">
+								<div style="display:flex; align-items:center; justify-content:center; gap:0.35rem;">
+									if v.Variant.ProductID > 0 {
+										<a
+											href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.Variant.ProductID)) }
+											target="_blank"
+											class="btn btn-secondary btn-icon"
+											style="width:32px; height:32px; color:var(--accent);"
+											title="معاينة في صفحة الكتالوج والمتجر"
+										>
+											@components.IconEye("icon-xs")
+										</a>
+									}
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض؟');">
+										<button
+											type="submit"
+											class="btn btn-secondary btn-icon"
+											style="width:32px; height:32px; color:var(--danger);"
+											title="حذف العرض"
+										>
+											@components.IconTrash("icon-xs")
 										</button>
 									</form>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
 		</div>
 	}
+}
+
+func calculateTotalStock(variants []*VendorVariantView) int {
+	total := 0
+	for _, v := range variants {
+		if v != nil && v.Variant != nil {
+			total += v.Variant.StockQty
+		}
+	}
+	return total
+}
+
+func calculateActiveCount(variants []*VendorVariantView) int {
+	count := 0
+	for _, v := range variants {
+		if v != nil && v.Variant != nil && v.Variant.StockQty > 0 {
+			count++
+		}
+	}
+	return count
+}
+
+func getProductName(v *VendorVariantView) string {
+	if v == nil || v.MasterProduct == nil {
+		return ""
+	}
+	return v.MasterProduct.Name.Get(i18n.AR) + " " + v.MasterProduct.Name.Get(i18n.EN)
+}
+
+func escapeJS(s string) string {
+	res := ""
+	for _, c := range s {
+		if c == '\'' {
+			res += "\\'"
+		} else if c == '\\' {
+			res += "\\\\"
+		} else {
+			res += string(c)
+		}
+	}
+	return res
 }

@@ -12,54 +12,117 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// offersForProduct turns the approved promo offers selling the product into
-// storefront rows. Every price passes through promo.EffectivePrice.
+// offersForProduct turns the approved vendor variants and promo offers selling the product into
+// storefront rows. Every price passes through promo.EffectivePrice when discounts apply.
 func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Product, variants []*catalog.ProductVariant) []pages.SupplierOffer {
-	if h.promoSvc == nil || h.orgSvc == nil || product == nil {
+	if product == nil {
 		return nil
 	}
 
-	rows, err := h.promoSvc.ListOffersForProduct(ctx, product.ID)
-	if err != nil {
-		h.log.WarnContext(ctx, "load offers for product", "product_id", product.ID, "error", err)
-		return nil
-	}
+	offers := make([]pages.SupplierOffer, 0, len(variants)+2)
+	seenSuppliers := make(map[int64]int) // supplierID -> index in offers
 
-	listPrice := product.EffectivePrice()
-	if len(variants) > 0 && variants[0].Price.IsPositive() {
-		listPrice = variants[0].Price
-	}
-
-	offers := make([]pages.SupplierOffer, 0, len(rows))
-	seen := make(map[int64]bool, len(rows))
-	for _, row := range rows {
-		if row == nil || row.Offer == nil || row.Product == nil || seen[row.Offer.ID] {
+	// 1. Process all direct vendor supply variants
+	for _, v := range variants {
+		if v == nil || v.OrganizationID <= 0 {
 			continue
 		}
-		seen[row.Offer.ID] = true
 
-		price, bd := promo.EffectivePrice(listPrice, row.Product, row.Offer)
-
-		offer := pages.SupplierOffer{
-			OfferID:         row.Offer.ID,
-			SupplierID:      row.Offer.OrganizationID,
-			Price:           price,
-			OldPrice:        bd.ListPrice,
-			DiscountAmount:  bd.DiscountAmount,
-			DiscountBPS:     bd.DiscountBPS,
-			MinOrderQty:     row.Product.CustomQty,
+		// Verify supplier organization
+		var orgn *org.Organization
+		if h.orgSvc != nil {
+			orgn, _ = h.orgSvc.GetOrganization(ctx, v.OrganizationID)
+		}
+		supplierName := orgName(orgn)
+		if supplierName == "" {
+			supplierName = "مورد معتمد"
 		}
 
-		if orgn, err := h.orgSvc.GetOrganization(ctx, row.Offer.OrganizationID); err == nil && orgn != nil {
-			offer.SupplierName = orgName(orgn)
-			offer.IsVerified = orgn.Status == org.StatusApproved
-		}
-		if offer.SupplierName == "" {
-			offer.SupplierName = "مورد معتمد"
+		minQty := v.MinOrderQty
+		if minQty <= 0 {
+			minQty = 1
 		}
 
-		offers = append(offers, offer)
+		expiryStr := ""
+		if v.ExpiryDate != nil {
+			expiryStr = v.ExpiryDate.Format("2006-01-02")
+		}
+
+		price := v.Price
+		if !price.IsPositive() && product.EffectivePrice().IsPositive() {
+			price = product.EffectivePrice()
+		}
+
+		off := pages.SupplierOffer{
+			VariantID:        v.ID,
+			SupplierID:       v.OrganizationID,
+			SupplierName:     supplierName,
+			IsVerified:       orgn == nil || orgn.Status == org.StatusApproved,
+			Price:            price,
+			OldPrice:         price,
+			AvailableStock:   v.StockQty,
+			MinOrderQty:      minQty,
+			BatchNumber:      v.BatchNumber,
+			ExpiryDate:       expiryStr,
+			DeliveryEstimate: "توصيل خلال 24 ساعة",
+			ColdChain:        true,
+		}
+
+		seenSuppliers[v.OrganizationID] = len(offers)
+		offers = append(offers, off)
 	}
+
+	// 2. Check for promotional discounts from promo module
+	if h.promoSvc != nil {
+		if rows, err := h.promoSvc.ListOffersForProduct(ctx, product.ID); err == nil {
+			listPrice := product.EffectivePrice()
+			for _, row := range rows {
+				if row == nil || row.Offer == nil || row.Product == nil {
+					continue
+				}
+
+				price, bd := promo.EffectivePrice(listPrice, row.Product, row.Offer)
+
+				if idx, found := seenSuppliers[row.Offer.OrganizationID]; found {
+					// Apply promo discount to existing supplier offer
+					offers[idx].OfferID = row.Offer.ID
+					offers[idx].Price = price
+					offers[idx].OldPrice = bd.ListPrice
+					offers[idx].DiscountAmount = bd.DiscountAmount
+					offers[idx].DiscountBPS = bd.DiscountBPS
+				} else {
+					var orgn *org.Organization
+					if h.orgSvc != nil {
+						orgn, _ = h.orgSvc.GetOrganization(ctx, row.Offer.OrganizationID)
+					}
+					sName := orgName(orgn)
+					if sName == "" {
+						sName = "مورد معتمد"
+					}
+
+					newOffer := pages.SupplierOffer{
+						OfferID:          row.Offer.ID,
+						SupplierID:       row.Offer.OrganizationID,
+						SupplierName:     sName,
+						IsVerified:       orgn == nil || orgn.Status == org.StatusApproved,
+						Price:            price,
+						OldPrice:         bd.ListPrice,
+						DiscountAmount:   bd.DiscountAmount,
+						DiscountBPS:      bd.DiscountBPS,
+						MinOrderQty:      row.Product.CustomQty,
+						DeliveryEstimate: "توصيل خلال 24 ساعة",
+						ColdChain:        true,
+					}
+					if newOffer.MinOrderQty <= 0 {
+						newOffer.MinOrderQty = 1
+					}
+					seenSuppliers[row.Offer.OrganizationID] = len(offers)
+					offers = append(offers, newOffer)
+				}
+			}
+		}
+	}
+
 	return offers
 }
 

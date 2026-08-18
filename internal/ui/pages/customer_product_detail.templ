@@ -219,7 +219,9 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 					if len(offers) > 0 {
 					<form action="/cart/add" method="POST" x-data="{ qty: 1 }" style="display:flex; flex-direction:column; gap:var(--space-3); margin:0;">
 						<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
-						if len(variants) > 0 {
+						if offers[0].VariantID > 0 {
+							<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", offers[0].VariantID) } />
+						} else if len(variants) > 0 {
 							<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", variants[0].ID) } />
 						} else {
 							<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", product.ID) } />
@@ -244,8 +246,9 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</button>
 					</form>
 					} else {
-						<div style="padding:var(--space-3); border:1px dashed var(--border-strong); border-radius:var(--radius-md); font-size:var(--text-xs); color:var(--text-muted); text-align:center;">
-							لا توجد عروض نشطة حالياً لهذا الصنف من موردين معتمدين — راجع الكتالوج لاحقاً.
+						<div style="padding:var(--space-4); border:1px dashed var(--border-strong); border-radius:var(--radius-md); font-size:var(--text-xs); color:var(--text-secondary); text-align:center; background:var(--surface-sunken); line-height:1.6;">
+							<div style="font-weight:700; color:var(--warning-text); margin-bottom:0.25rem;">تنبيه التغطية والمخزون</div>
+							عذراً، لا توجد عروض توريد متوفرة لهذا الصنف في نطاق تغطية صيدليتك حالياً، أو نفدت الكميات من جميع الموردين القريبين.
 						</div>
 					}
 
@@ -293,8 +296,16 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 				<!-- Offers List -->
 				<div style="display:flex; flex-direction:column; gap:var(--space-3);">
 					if len(offers) == 0 {
-						<div style="padding:var(--space-5); border:1px dashed var(--border-strong); border-radius:var(--radius-md); text-align:center; color:var(--text-muted); font-size:var(--text-sm);">
-							لا توجد عروض نشطة من موردين معتمدين لهذا الصنف حالياً.
+						<div style="padding:var(--space-6); border:1px dashed var(--border-strong); border-radius:var(--radius-xl); text-align:center; color:var(--text-secondary); background:var(--surface-sunken);">
+							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--surface-raised); color:var(--warning-text); display:flex; align-items:center; justify-content:center; margin:0 auto var(--space-3) auto; border:1px solid var(--border);">
+								@components.IconTruck("icon-sm")
+							</div>
+							<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
+								لا توجد عروض توريد متاحة للصيدلية حالياً
+							</h4>
+							<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.6; max-width:600px; margin:0 auto;">
+								عذراً، لا توجد عروض توريد متوفرة لهذا الصنف في نطاق تغطية صيدليتك حالياً، أو نفدت الكميات من جميع الموردين القريبين. يمكنك مراجعة الكتالوج لاحقاً أو طلب توفير الصنف من الموردين المعتمدين.
+							</p>
 						</div>
 					}
 					for idx, offer := range offers {
@@ -353,7 +364,9 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							<div>
 								<form action="/cart/add" method="POST" style="display:flex; align-items:center; gap:var(--space-2); margin:0; justify-content:flex-end;">
 									<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
-									if len(variants) > 0 {
+									if offer.VariantID > 0 {
+										<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", offer.VariantID) } />
+									} else if len(variants) > 0 {
 										<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", variants[0].ID) } />
 									} else {
 										<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", product.ID) } />
