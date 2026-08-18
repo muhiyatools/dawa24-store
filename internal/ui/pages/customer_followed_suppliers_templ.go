@@ -117,7 +117,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h3><div style=\"display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;\"><span class=\"badge badge-emerald\" style=\"font-size:0.72rem; padding:0.15rem 0.45rem;\">موزع أدوية معتمد</span> <span class=\"badge badge-sky\" style=\"font-size:0.72rem; padding:0.15rem 0.45rem;\">شحن مبرد</span></div></div></div><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h3><div style=\"display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;\"><span class=\"badge badge-emerald\" style=\"font-size:0.72rem; padding:0.15rem 0.45rem;\">مورد أدوية معتمد</span></div></div></div><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

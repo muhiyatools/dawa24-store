@@ -33,8 +33,10 @@ Usage:
   cli migrate-data      Run legacy MariaDB to PostgreSQL ETL pipeline
   cli seed              Seed default platform reference data
   cli seed-users        Create development sign-in accounts (non-prod only)
+  cli reset-db          Wipe all rows and reset DB to clean zero state (admin only)
   cli health            Verify database and cache connectivity
 `
+
 }
 
 func run() error {
@@ -112,6 +114,17 @@ func run() error {
 		}
 		fmt.Print(seedUsersSummary())
 		return nil
+
+	case "reset-db":
+		if cfg.Env == "prod" {
+			return errors.New("reset-db refuses to run with APP_ENV=prod")
+		}
+		if err := runResetDB(ctx, db, log); err != nil {
+			return err
+		}
+		fmt.Print(resetDBHelp())
+		return nil
+
 
 	case "health":
 		if err := db.Health(ctx); err != nil {

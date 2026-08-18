@@ -175,20 +175,21 @@ type Requirement struct {
 func RequirementsFor(orgType string) []Requirement {
 	if orgType == "vendor" {
 		return []Requirement{
-			{DocCommercialRegister, true},
-			{DocTaxCard, true},
-			{DocPharmacyLicense, true},
+			{DocCommercialRegister, false},
+			{DocTaxCard, false},
+			{DocPharmacyLicense, false},
 			{DocAuthorizationLetter, false},
 		}
 	}
 	return []Requirement{
-		{DocCommercialRegister, true},
-		{DocTaxCard, true},
-		{DocPharmacyLicense, true},
-		{DocPharmacistLicense, true},
+		{DocCommercialRegister, false},
+		{DocTaxCard, false},
+		{DocPharmacyLicense, false},
+		{DocPharmacistLicense, false},
 		{DocAuthorizationLetter, false},
 	}
 }
+
 
 // DocumentFilter for administrative cross-tenant search.
 type DocumentFilter struct {

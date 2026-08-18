@@ -14,14 +14,9 @@ func TestRequirementsFor(t *testing.T) {
 	t.Run("customer", func(t *testing.T) {
 		reqs := RequirementsFor("customer")
 		assert.Len(t, reqs, 5)
-		pharmacistFound, pharmacistRequired := false, false
 		for _, r := range reqs {
-			if r.DocType == DocPharmacistLicense {
-				pharmacistFound, pharmacistRequired = true, r.Required
-			}
+			assert.False(t, r.Required, "all document types should be individually optional")
 		}
-		assert.True(t, pharmacistFound)
-		assert.True(t, pharmacistRequired)
 	})
 
 	t.Run("vendor", func(t *testing.T) {
@@ -29,6 +24,7 @@ func TestRequirementsFor(t *testing.T) {
 		assert.Len(t, reqs, 4)
 		for _, r := range reqs {
 			assert.NotEqual(t, DocPharmacistLicense, r.DocType)
+			assert.False(t, r.Required, "all document types should be individually optional")
 		}
 	})
 
@@ -71,48 +67,36 @@ func TestService_MissingRequiredDocuments(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "complete customer clears",
+			name:    "one verified document clears",
 			orgID:   77,
 			orgType: "customer",
 			docs: []*Document{
 				doc(DocCommercialRegister, StatusVerified, false),
-				doc(DocTaxCard, StatusVerified, false),
-				doc(DocPharmacyLicense, StatusVerified, false),
-				doc(DocPharmacistLicense, StatusVerified, false),
 			},
 		},
 		{
-			name:    "customer missing pharmacist card",
+			name:    "no verified documents fails",
 			orgID:   77,
 			orgType: "customer",
-			docs: []*Document{
-				doc(DocCommercialRegister, StatusVerified, false),
-				doc(DocTaxCard, StatusVerified, false),
-				doc(DocPharmacyLicense, StatusVerified, false),
-			},
-			want: []DocumentType{DocPharmacistLicense},
+			docs:    []*Document{},
+			want:    []DocumentType{DocCommercialRegister},
 		},
 		{
-			name:    "pending does not satisfy",
+			name:    "pending does not satisfy when no verified docs exist",
 			orgID:   77,
 			orgType: "customer",
 			docs: []*Document{
 				doc(DocCommercialRegister, StatusPending, false),
-				doc(DocTaxCard, StatusVerified, false),
-				doc(DocPharmacyLicense, StatusVerified, false),
-				doc(DocPharmacistLicense, StatusVerified, false),
+				doc(DocTaxCard, StatusPending, false),
 			},
 			want: []DocumentType{DocCommercialRegister},
 		},
 		{
-			name:    "rejected does not satisfy",
+			name:    "rejected does not satisfy when no verified docs exist",
 			orgID:   77,
 			orgType: "customer",
 			docs: []*Document{
 				doc(DocCommercialRegister, StatusRejected, false),
-				doc(DocTaxCard, StatusVerified, false),
-				doc(DocPharmacyLicense, StatusVerified, false),
-				doc(DocPharmacistLicense, StatusVerified, false),
 			},
 			want: []DocumentType{DocCommercialRegister},
 		},
@@ -122,20 +106,20 @@ func TestService_MissingRequiredDocuments(t *testing.T) {
 			orgType: "customer",
 			docs: []*Document{
 				doc(DocCommercialRegister, StatusVerified, true),
-				doc(DocTaxCard, StatusVerified, false),
-				doc(DocPharmacyLicense, StatusVerified, false),
-				doc(DocPharmacistLicense, StatusVerified, false),
 			},
 			want: []DocumentType{DocCommercialRegister},
 		},
 		{
-			name:    "authorization letter never required",
+			name:    "at least one verified among mixed docs clears",
 			orgID:   77,
 			orgType: "customer",
-			docs:   []*Document{doc(DocAuthorizationLetter, StatusPending, false)},
-			want: []DocumentType{DocCommercialRegister, DocTaxCard, DocPharmacyLicense, DocPharmacistLicense},
+			docs: []*Document{
+				doc(DocCommercialRegister, StatusPending, false),
+				doc(DocTaxCard, StatusVerified, false),
+			},
 		},
 	}
+
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

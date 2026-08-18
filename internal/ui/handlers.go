@@ -16,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
@@ -27,6 +28,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
 
 // UIHandler serves server-rendered HTML pages via Templ.
 type UIHandler struct {
@@ -94,9 +96,13 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 	// first route is defined. Group gives these routes their own middleware
 	// stack without touching the parent, and without wrapping them in a gate.
 	r.Group(func(pub chi.Router) {
+		if h.idSvc != nil {
+			pub.Use(identityHttp.OptionalAuth(h.idSvc, "dawa24_session"))
+		}
 		pub.Use(h.visitorMiddleware)
 		RegisterStaticRoutes(pub)
 		RegisterUploadRoutes(pub)
+
 
 		// Public & Auth (marketing, catalogue browsing, sign-in)
 		pub.Get("/", h.HomePage)
@@ -303,7 +309,15 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Get("/onboarding/pending", h.OnboardingPendingPage)
 	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
 
+	// Documents (Rebuild V2 §4.2) - accessible by both pending and approved orgs
+	r.Get("/customer/documents", h.OrganizationDocumentsPage)
+	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
+	r.Get("/documents", h.OrganizationDocumentsPage)
+	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
+	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
+
 	// Settings (account surface, both shells)
+
 	r.Get("/settings", h.SettingsIndex)
 	r.Get("/settings/profile", h.SettingsProfilePage)
 	r.Get("/settings/addresses", h.SettingsAddressesPage)

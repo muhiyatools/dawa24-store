@@ -95,11 +95,14 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			return fmt.Errorf("identity postgres: register owner membership: %w", err)
 		}
 
-		// 4. The main branch. city_id is the only registration form field that
-		// belongs on the branch rather than the organization.
-		if _, err := tx.Exec(txCtx, `INSERT INTO org.branches (organization_id, name, city_id, is_main) VALUES ($1, $2, $3, true);`, result.OrganizationID, tradeName, orgIn.CityID); err != nil {
+		// 4. The main branch with full address and GPS coordinates.
+		if _, err := tx.Exec(txCtx, `INSERT INTO org.branches (organization_id, name, city_id, address, latitude, longitude, google_maps_url, is_main)`+
+			`VALUES ($1, $2, $3, $4, $5, $6, $7, true);`,
+			result.OrganizationID, tradeName, orgIn.CityID, orgIn.Address, orgIn.Latitude, orgIn.Longitude, orgIn.GoogleMapsURL,
+		); err != nil {
 			return fmt.Errorf("identity postgres: register main branch: %w", err)
 		}
+
 
 		// 5. Audit the privileged creation in the same transaction.
 		if err := database.WriteAudit(txCtx, tx, database.AuditEntry{

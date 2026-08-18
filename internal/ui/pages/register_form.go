@@ -23,8 +23,13 @@ type RegisterFormData struct {
 	LicenseDocumentURL string
 	CityID             string
 	BranchCount        string
+	Address            string
+	Latitude           string
+	Longitude          string
+	GoogleMapsURL      string
 	Error              string
 }
+
 
 // AlpineState renders the Alpine.js x-data payload for the two-step form.
 // If an account type is already present (a failed submit re-render), the form

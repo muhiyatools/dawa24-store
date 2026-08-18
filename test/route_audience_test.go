@@ -85,8 +85,9 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 		"RegisterCustomerRoutes": {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireCustomer", "authctx.RequireApproved"},
 		"RegisterVendorRoutes":   {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireVendor", "authctx.RequireApproved"},
 		"RegisterAdminRoutes":    {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireStaff"},
-		"RegisterSharedRoutes":   {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireApproved"},
+		"RegisterSharedRoutes":   {"identityHttp.RequireAuth", "identityHttp.ResolveTenant"},
 	}
+
 
 
 	for i, line := range lines {

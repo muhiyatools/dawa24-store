@@ -264,17 +264,22 @@ func NormalizeOrgType(t string) (string, bool) {
 // RegisterOrgInput carries the organization details a signup collects, per the
 // account type chosen in step 1 of the registration form.
 type RegisterOrgInput struct {
-	Type               string `json:"type"`
-	LegalName          string `json:"legal_name"`
-	TradeNameAr        string `json:"trade_name_ar"`
-	TradeNameEn        string `json:"trade_name_en"`
-	CommercialRegister string `json:"commercial_register"`
-	TaxNumber          string `json:"tax_number,omitempty"`
-	PharmacistLicense  string `json:"pharmacist_license,omitempty"`
-	LicenseDocumentURL string `json:"license_document_url,omitempty"`
-	CityID             *int64 `json:"city_id,omitempty"`
-	BranchCount        *int   `json:"branch_count,omitempty"`
+	Type               string   `json:"type"`
+	LegalName          string   `json:"legal_name"`
+	TradeNameAr        string   `json:"trade_name_ar"`
+	TradeNameEn        string   `json:"trade_name_en"`
+	CommercialRegister string   `json:"commercial_register"`
+	TaxNumber          string   `json:"tax_number,omitempty"`
+	PharmacistLicense  string   `json:"pharmacist_license,omitempty"`
+	LicenseDocumentURL string   `json:"license_document_url,omitempty"`
+	CityID             *int64   `json:"city_id,omitempty"`
+	BranchCount        *int     `json:"branch_count,omitempty"`
+	Address            string   `json:"address,omitempty"`
+	Latitude           *float64 `json:"latitude,omitempty"`
+	Longitude          *float64 `json:"longitude,omitempty"`
+	GoogleMapsURL      string   `json:"google_maps_url,omitempty"`
 }
+
 
 // RegisterOrgResult reports what the one-transaction signup created.
 type RegisterOrgResult struct {

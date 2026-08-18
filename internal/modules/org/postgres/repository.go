@@ -137,12 +137,13 @@ func (r *Repository) ListOrganizations(
 	var list []*org.Organization
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, legal_name, trade_name, tax_number, commercial_register,
+			SELECT id, public_id, COALESCE(NULLIF(legal_name, ''), NULLIF(name->>'ar', ''), NULLIF(trade_name->>'ar', ''), ''), trade_name, tax_number, commercial_register,
 			       COALESCE(pharmacist_license, ''),
 			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
 			       COALESCE(owner_id, 0), approved_at, approved_by,
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
 			FROM org.organizations
+
 			WHERE ($1::text IS NULL OR type = $1)
 			  AND ($2::text IS NULL OR status = $2)
 			ORDER BY created_at DESC

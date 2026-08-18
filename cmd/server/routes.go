@@ -194,9 +194,9 @@ func mountModuleRoutes(
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
-		uiRouter.Use(authctx.RequireApproved(log))
 		uiHandler.RegisterSharedRoutes(uiRouter)
 	})
+
 }
 
 

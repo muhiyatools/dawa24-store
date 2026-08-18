@@ -214,9 +214,9 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="reg-city">المحافظة *</label>
+								<label class="form-label" for="reg-city">المدينة / المحافظة *</label>
 								<select id="reg-city" name="city_id" required class="form-select">
-									<option value="" disabled selected={ form.CityID == "" }>اختر المحافظة</option>
+									<option value="" disabled selected={ form.CityID == "" }>اختر المدينة</option>
 									for _, c := range cities {
 										<option value={ fmt.Sprintf("%d", c.ID) } selected={ form.CitySelected(c.ID) }>{ c.Name.Get(i18n.Lang(lang)) }</option>
 									}
@@ -229,9 +229,22 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						</div>
 
 						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="reg-address">العنوان التفصيلي للمقر / الصيدلية *</label>
+							<input type="text" id="reg-address" name="address" required class="form-input" placeholder="اسم الشارع، رقم العقار، الحي، بجوار..." value={ form.Address } />
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
+							@components.MapPicker(components.MapPickerProps{
+								NamePrefix: "branch",
+								Label:      "تحديد الموقع الجغرافي والإحداثيات للفرع الرئيسي (GPS) *",
+							})
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" for="reg-password">كلمة المرور (8 أحرف على الأقل) *</label>
 							<input type="password" id="reg-password" name="password" required minlength="8" class="form-input" placeholder="••••••••" />
 						</div>
+
 
 						<button type="submit" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; margin-top:0.75rem; justify-content:center;">
 							@components.IconCheck("icon-xs")

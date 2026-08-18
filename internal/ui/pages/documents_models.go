@@ -57,20 +57,22 @@ func BuildOrganizationDocumentsData(docs []*attachments.Document, vendor bool) *
 	data := &OrganizationDocumentsData{Docs: docs}
 	data.Requirements = docRequirements(vendor)
 
-	seen := map[attachments.DocumentType]bool{}
-	for _, req := range data.Requirements {
-		if !req.Required {
-			continue
+	hasVerified := false
+	for _, d := range docs {
+		if d != nil && d.Status == attachments.StatusVerified && d.DeletedAt == nil {
+			hasVerified = true
+			break
 		}
-		if d := data.LatestFor(req.DocType); d == nil || d.Status != attachments.StatusVerified {
-			if !seen[req.DocType] {
-				seen[req.DocType] = true
-				data.Missing = append(data.Missing, req)
-			}
+	}
+
+	if !hasVerified {
+		data.Missing = []DocRequirement{
+			{TitleAr: "مستند رسمي معتمد واحد على الأقل (السجل التجاري، ترخيص الصيدلية، أو البطاقة الضريبية)"},
 		}
 	}
 	return data
 }
+
 
 // LatestFor returns the newest document of the given type, or nil.
 func (d *OrganizationDocumentsData) LatestFor(t attachments.DocumentType) *attachments.Document {

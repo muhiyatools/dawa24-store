@@ -54,6 +54,11 @@ func (h *UIHandler) TermsPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if actor, ok := authctx.From(ctx); ok && actor.UserID > 0 {
+		http.Redirect(w, r, landingPathForActor(actor), http.StatusSeeOther)
+		return
+	}
+
 	lang, dir := h.localeAndDir(r)
 	errorMsg := r.URL.Query().Get("error")
 
@@ -65,6 +70,11 @@ func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *UIHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if actor, ok := authctx.From(ctx); ok && actor.UserID > 0 {
+		http.Redirect(w, r, landingPathForActor(actor), http.StatusSeeOther)
+		return
+	}
+
 	lang, dir := h.localeAndDir(r)
 
 	form := pages.RegisterFormData{
@@ -76,6 +86,7 @@ func (h *UIHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorContext(ctx, "render register page", "error", err)
 	}
 }
+
 
 // listCities loads the Egyptian cities for the registration form's city picker.
 func (h *UIHandler) listCities(ctx context.Context) []*platformadmin.City {
@@ -190,6 +201,18 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	// Process license attachment file if uploaded
 	licenseURL, _ := saveUploadedFile(r, "license_file", "licenses")
 
+	var latPtr, lonPtr *float64
+	if latStr := r.PostFormValue("branch_lat"); latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil && lat != 0 {
+			latPtr = &lat
+		}
+	}
+	if lonStr := r.PostFormValue("branch_lon"); lonStr != "" {
+		if lon, err := strconv.ParseFloat(lonStr, 64); err == nil && lon != 0 {
+			lonPtr = &lon
+		}
+	}
+
 	form := pages.RegisterFormData{
 		AccountType:        r.PostFormValue("account_type"),
 		Name:               r.PostFormValue("name"),
@@ -204,6 +227,10 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		LicenseDocumentURL: licenseURL,
 		CityID:             r.PostFormValue("city_id"),
 		BranchCount:        r.PostFormValue("branch_count"),
+		Address:            r.PostFormValue("address"),
+		Latitude:           r.PostFormValue("branch_lat"),
+		Longitude:          r.PostFormValue("branch_lon"),
+		GoogleMapsURL:      r.PostFormValue("branch_google_maps_url"),
 	}
 
 	if h.idSvc == nil {
@@ -228,8 +255,13 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			LicenseDocumentURL: form.LicenseDocumentURL,
 			CityID:             parseInt64Ptr(form.CityID),
 			BranchCount:        parseIntPtr(form.BranchCount),
+			Address:            form.Address,
+			Latitude:           latPtr,
+			Longitude:          lonPtr,
+			GoogleMapsURL:      form.GoogleMapsURL,
 		},
 	})
+
 	if err != nil {
 		h.log.WarnContext(ctx, "ui registration failed", "email", form.Email, "error", err)
 		// Re-render with the entered values still in the fields — an empty form
@@ -344,3 +376,24 @@ func landingPathForSession(sess *identity.Session) string {
 	}
 	return "/catalog"
 }
+
+// landingPathForActor routes an authenticated actor to their home surface.
+func landingPathForActor(actor authctx.Actor) string {
+	if actor.IsStaff {
+		return "/admin/dashboard"
+	}
+	switch actor.OrgStatus {
+	case "pending":
+		return "/onboarding/pending"
+	case "rejected":
+		return "/onboarding/pending?rejected=1"
+	}
+	switch actor.OrgType {
+	case "vendor":
+		return "/vendor/dashboard"
+	case "customer":
+		return "/customer/dashboard"
+	}
+	return "/catalog"
+}
+

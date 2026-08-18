@@ -62,25 +62,40 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 											@components.IconBuilding("icon-md")
 										</div>
 										<div>
-											<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">{ s.TradeName.Get(i18n.Lang(lang)) }</h3>
-											<span class="badge badge-emerald" style="font-size:var(--text-xs); margin-top:2px;">{ OrgTypeLabel(s.Type) }</span>
+											<h3 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0;">
+												if s.TradeName.Get(i18n.Lang(lang)) != "" {
+													{ s.TradeName.Get(i18n.Lang(lang)) }
+												} else {
+													{ s.LegalName }
+												}
+											</h3>
+											<span class="badge badge-sky" style="font-size:var(--text-xs); margin-top:2px;">{ OrgTypeLabel(s.Type) }</span>
 										</div>
 									</div>
 								</div>
 
-								<div style="font-size:var(--text-sm); color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-4);">
-									<div><strong>الاسم القانوني:</strong> { s.LegalName }</div>
+								<div style="font-size:var(--text-sm); color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-3);">
+									if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
+										<div><strong>الاسم القانوني:</strong> { s.LegalName }</div>
+									}
 									if s.CommercialRegister != "" {
 										<div style="margin-top:2px; color:var(--text-muted);"><strong>السجل التجاري:</strong> <span class="tabular-nums">{ s.CommercialRegister }</span></div>
 									}
 								</div>
 
-								<div style="display:flex; gap:var(--space-1); flex-wrap:wrap; margin-bottom:var(--space-4);">
-									<span class="badge badge-sky">توصيل 24 ساعة</span>
-									<span class="badge badge-amber">شحن مبرد</span>
-									<span class="badge badge-emerald">فواتير إلكترونية</span>
+								<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-4);">
+									<div style="display:inline-flex; align-items:center; gap:4px; font-size:var(--text-xs); font-weight:700; background:var(--surface-sunken); padding:4px 8px; border-radius:var(--radius-md); border:1px solid var(--border);">
+										<span style="color:#f59e0b;">★</span>
+										if s.Rating > 0 {
+											<span class="tabular-nums">{ fmt.Sprintf("%.1f", float64(s.Rating)) }</span>
+										} else {
+											<span style="color:var(--text-muted);">5.0</span>
+										}
+									</div>
+									<span class="badge badge-emerald" style="font-size:11px;">مورد معتمد</span>
 								</div>
 							</div>
+
 
 							<div style="border-top:1px solid var(--border); padding-top:var(--space-4);">
 								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary" style="width:100%; justify-content:center; font-weight:600;">
