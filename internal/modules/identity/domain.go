@@ -5,6 +5,7 @@ package identity
 import (
 	"strings"
 	"time"
+	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -109,6 +110,31 @@ type Permission struct {
 	Description string    `json:"description,omitempty"`
 }
 
+// ValidatePassword checks that the password meets security requirements:
+// at least 8 characters, with uppercase, lowercase, digit, and special character.
+func ValidatePassword(password string) error {
+	if len(password) < 8 {
+		return apperr.Validation("password.too_short", "كلمة المرور يجب أن لا تقل عن 8 أحرف.", nil)
+	}
+	var hasUpper, hasLower, hasDigit, hasSpecial bool
+	for _, ch := range password {
+		switch {
+		case unicode.IsUpper(ch):
+			hasUpper = true
+		case unicode.IsLower(ch):
+			hasLower = true
+		case unicode.IsDigit(ch):
+			hasDigit = true
+		case unicode.IsPunct(ch) || unicode.IsSymbol(ch):
+			hasSpecial = true
+		}
+	}
+	if !hasUpper || !hasLower || !hasDigit || !hasSpecial {
+		return apperr.Validation("password.weak", "كلمة المرور يجب أن تحتوي على أحرف كبيرة وصغيرة وأرقام ورموز خاصة (مثل @ أو $ أو !).", nil)
+	}
+	return nil
+}
+
 // HashPassword hashes a plain-text password using bcrypt (cost 10).
 func HashPassword(password string) (string, error) {
 	if len(password) < 8 {
@@ -120,6 +146,7 @@ func HashPassword(password string) (string, error) {
 	}
 	return string(bytes), nil
 }
+
 
 // CheckPassword verifies a plaintext password against a bcrypt hash ($2y$ or $2a$).
 func CheckPassword(hash, password string) bool {

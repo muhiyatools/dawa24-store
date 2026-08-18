@@ -248,25 +248,84 @@ function switchTab(tabId, specificList) {
   history.replaceState(null, null, '#' + tabId);
 }
 
-// 2-Step Registration Controller
+// 3-Step Registration Onboarding Controller & Password Strength Meter
 function initRegistrationStepper() {
+  const form = document.getElementById('registration-onboarding-form');
   const typeCards = document.querySelectorAll('[data-account-type]');
   const hiddenInput = document.getElementById('reg-account-type-input');
   const badgeLabel = document.getElementById('reg-selected-badge');
+
   const step1 = document.getElementById('reg-step-1');
   const step2 = document.getElementById('reg-step-2');
+  const step3 = document.getElementById('reg-step-3');
+
   const stepIndicator1 = document.getElementById('step-indicator-1');
   const stepIndicator2 = document.getElementById('step-indicator-2');
-  const backBtn = document.getElementById('reg-back-to-step-1');
+  const stepIndicator3 = document.getElementById('step-indicator-3');
+
+  const gotoStep2Btn = document.getElementById('reg-goto-step-2');
+  const backToStep1Btns = [document.getElementById('reg-back-to-step-1'), document.getElementById('reg-step-2-back')];
+  const gotoStep3Btn = document.getElementById('reg-goto-step-3');
+  const backToStep2Btns = [document.getElementById('reg-step-3-back'), document.getElementById('reg-step-3-back-btn')];
 
   if (!step1 || !step2) return;
 
+  function showStep(stepNum) {
+    [step1, step2, step3].forEach((s, idx) => {
+      if (!s) return;
+      s.style.display = (idx + 1 === stepNum) ? 'flex' : 'none';
+      if (idx + 1 === stepNum) s.classList.add('active');
+      else s.classList.remove('active');
+    });
+
+    const indicators = [stepIndicator1, stepIndicator2, stepIndicator3];
+    indicators.forEach((ind, idx) => {
+      if (!ind) return;
+      const num = ind.querySelector('.step-num');
+      if (idx + 1 === stepNum) {
+        ind.style.color = 'var(--accent)';
+        if (num) {
+          num.style.background = 'var(--accent)';
+          num.style.color = '#ffffff';
+          num.style.border = 'none';
+          num.textContent = (idx + 1).toString();
+        }
+      } else if (idx + 1 < stepNum) {
+        ind.style.color = 'var(--success, #10b981)';
+        if (num) {
+          num.style.background = 'var(--success, #10b981)';
+          num.style.color = '#ffffff';
+          num.style.border = 'none';
+          num.textContent = '✓';
+        }
+      } else {
+        ind.style.color = 'var(--text-muted)';
+        if (num) {
+          num.style.background = 'var(--surface-raised)';
+          num.style.color = 'var(--text-secondary)';
+          num.style.border = '1px solid var(--border)';
+          num.textContent = (idx + 1).toString();
+        }
+      }
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Invalidate Leaflet maps if moving to step 2
+    if (stepNum === 2 && typeof L !== 'undefined') {
+      setTimeout(() => {
+        document.querySelectorAll('[data-map-picker] .leaflet-container').forEach((c) => {
+          if (c._leaflet_map) c._leaflet_map.invalidateSize();
+        });
+      }, 150);
+    }
+  }
+
+  // Account Type Selection Cards
   typeCards.forEach((card) => {
     card.addEventListener('click', () => {
       const type = card.getAttribute('data-account-type');
       if (hiddenInput) hiddenInput.value = type;
 
-      // Update card visual state
       typeCards.forEach((c) => {
         const isThis = c === card;
         c.style.borderColor = isThis ? 'var(--accent)' : 'var(--border)';
@@ -284,14 +343,11 @@ function initRegistrationStepper() {
         }
       });
 
-      // Update badge label
       if (badgeLabel) {
         if (type === 'supplier' || type === 'vendor') badgeLabel.textContent = 'نوع الحساب: مورّد / شركة ومستودع أدوية';
-        else if (type === 'individual') badgeLabel.textContent = 'نوع الحساب: حساب مهني فردي (صيدلي / باحث عن عمل)';
         else badgeLabel.textContent = 'نوع الحساب: صيدلية / منشأة طبية مرخصة';
       }
 
-      // Conditionally show/hide type specific fields
       document.querySelectorAll('[data-type-visibility]').forEach((el) => {
         const allowed = el.getAttribute('data-type-visibility').split(' ');
         const isVisible = allowed.includes(type);
@@ -301,76 +357,155 @@ function initRegistrationStepper() {
           input.required = isVisible;
         }
       });
-
-      // For individual account, legal name & commercial register are not mandatory
-      const legalNameInput = document.getElementById('reg-legal-name');
-      const crInput = document.getElementById('reg-cr');
-      const legalNameGroup = legalNameInput ? legalNameInput.closest('.form-group') : null;
-      const tradeNameGroup = document.getElementById('reg-trade-ar') ? document.getElementById('reg-trade-ar').closest('.grid-group, div') : null;
-      const crGroup = crInput ? crInput.closest('.grid-group, div') : null;
-
-      if (type === 'individual') {
-        if (legalNameInput) { legalNameInput.required = false; if (legalNameGroup) legalNameGroup.style.display = 'none'; }
-        if (crInput) { crInput.required = false; }
-        if (tradeNameGroup) { tradeNameGroup.style.display = 'none'; }
-        if (crGroup) { crGroup.style.display = 'none'; }
-      } else {
-        if (legalNameInput) { legalNameInput.required = true; if (legalNameGroup) legalNameGroup.style.display = 'block'; }
-        if (crInput) { crInput.required = true; }
-        if (tradeNameGroup) { tradeNameGroup.style.display = 'grid'; }
-        if (crGroup) { crGroup.style.display = 'grid'; }
-      }
-
-      // Switch steps
-      step1.classList.remove('active');
-      step2.classList.add('active');
-
-      if (stepIndicator1) {
-        stepIndicator1.style.color = 'var(--text-muted)';
-        const num = stepIndicator1.querySelector('.step-num');
-        if (num) {
-          num.style.background = 'var(--surface-raised)';
-          num.style.color = 'var(--text-secondary)';
-          num.style.border = '1px solid var(--border)';
-        }
-      }
-      if (stepIndicator2) {
-        stepIndicator2.style.color = 'var(--accent)';
-        const num = stepIndicator2.querySelector('.step-num');
-        if (num) {
-          num.style.background = 'var(--accent)';
-          num.style.color = '#ffffff';
-          num.style.border = 'none';
-        }
-      }
     });
   });
 
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      step2.classList.remove('active');
-      step1.classList.add('active');
+  if (gotoStep2Btn) gotoStep2Btn.addEventListener('click', () => showStep(2));
+  backToStep1Btns.forEach((b) => { if (b) b.addEventListener('click', () => showStep(1)); });
 
-      if (stepIndicator1) {
-        stepIndicator1.style.color = 'var(--accent)';
-        const num = stepIndicator1.querySelector('.step-num');
-        if (num) {
-          num.style.background = 'var(--accent)';
-          num.style.color = '#ffffff';
-          num.style.border = 'none';
+  if (gotoStep3Btn) {
+    gotoStep3Btn.addEventListener('click', () => {
+      // Validate step 2 required fields
+      const legalName = document.getElementById('reg-legal-name');
+      const tradeAr = document.getElementById('reg-trade-ar');
+      const cr = document.getElementById('reg-cr');
+      const address = document.getElementById('reg-address');
+
+      if (legalName && legalName.required && !legalName.value.trim()) {
+        legalName.focus();
+        showToast('يرجى كتابة الاسم القانوني للمنشأة.', 'warning');
+        return;
+      }
+      if (tradeAr && tradeAr.required && !tradeAr.value.trim()) {
+        tradeAr.focus();
+        showToast('يرجى كتابة الاسم التجاري للمنشأة.', 'warning');
+        return;
+      }
+      if (cr && cr.required && !cr.value.trim()) {
+        cr.focus();
+        showToast('يرجى كتابة رقم السجل التجاري.', 'warning');
+        return;
+      }
+      if (address && address.required && !address.value.trim()) {
+        address.focus();
+        showToast('يرجى تحديد موقع المنشأة وكتابة العنوان التفصيلي.', 'warning');
+        return;
+      }
+
+      showStep(3);
+    });
+  }
+
+  backToStep2Btns.forEach((b) => { if (b) b.addEventListener('click', () => showStep(2)); });
+
+  // Real-Time Password Strength Meter & Security Checklist
+  const pwdInput = document.getElementById('reg-password');
+  const togglePwdBtn = document.getElementById('reg-toggle-pwd');
+  const strengthLabel = document.getElementById('pass-strength-label');
+  const barSegments = document.querySelectorAll('#pwd-strength-bars .strength-bar-seg');
+  const ruleLen = document.getElementById('rule-length');
+  const ruleCase = document.getElementById('rule-casing');
+  const ruleNum = document.getElementById('rule-number');
+  const ruleSpec = document.getElementById('rule-special');
+
+  if (togglePwdBtn && pwdInput) {
+    togglePwdBtn.addEventListener('click', () => {
+      const isPass = pwdInput.type === 'password';
+      pwdInput.type = isPass ? 'text' : 'password';
+      togglePwdBtn.textContent = isPass ? '🔒' : '👁️';
+    });
+  }
+
+  if (pwdInput) {
+    pwdInput.addEventListener('input', () => {
+      const val = pwdInput.value;
+      const hasLen = val.length >= 8;
+      const hasUpper = /[A-Z]/.test(val);
+      const hasLower = /[a-z]/.test(val);
+      const hasCasing = hasUpper && hasLower;
+      const hasNum = /[0-9]/.test(val);
+      const hasSpec = /[^A-Za-z0-9]/.test(val);
+
+      function updateRule(el, pass) {
+        if (!el) return;
+        const icon = el.querySelector('.rule-icon');
+        if (pass) {
+          el.style.color = 'var(--success, #10b981)';
+          if (icon) { icon.textContent = '✓'; icon.style.color = 'var(--success, #10b981)'; }
+        } else {
+          el.style.color = 'var(--text-secondary)';
+          if (icon) { icon.textContent = '●'; icon.style.color = 'var(--text-muted)'; }
         }
       }
-      if (stepIndicator2) {
-        stepIndicator2.style.color = 'var(--text-muted)';
-        const num = stepIndicator2.querySelector('.step-num');
-        if (num) {
-          num.style.background = 'var(--surface-raised)';
-          num.style.color = 'var(--text-secondary)';
-          num.style.border = '1px solid var(--border)';
+
+      updateRule(ruleLen, hasLen);
+      updateRule(ruleCase, hasCasing);
+      updateRule(ruleNum, hasNum);
+      updateRule(ruleSpec, hasSpec);
+
+      let score = 0;
+      if (hasLen) score++;
+      if (hasCasing) score++;
+      if (hasNum) score++;
+      if (hasSpec) score++;
+
+      const colors = ['#ef4444', '#f97316', '#eab308', '#10b981'];
+      const labels = ['أدخل كلمة المرور', 'ضعيفة جداً 🔴', 'ضعيفة 🟠', 'متوسطة 🟡', 'قوية ومطابقة للمعايير 🟢'];
+
+      if (val.length === 0) {
+        if (strengthLabel) { strengthLabel.textContent = labels[0]; strengthLabel.style.color = 'var(--text-muted)'; }
+        barSegments.forEach((b) => { b.style.background = 'var(--border)'; });
+      } else {
+        const color = colors[score - 1] || colors[0];
+        if (strengthLabel) {
+          strengthLabel.textContent = labels[score] || labels[1];
+          strengthLabel.style.color = color;
         }
+        barSegments.forEach((b, idx) => {
+          b.style.background = idx < score ? color : 'var(--border)';
+        });
       }
     });
   }
+}
+
+// Live Reverse Geocoding via OpenStreetMap Nominatim
+let reverseGeocodeTimer = null;
+function fetchDetailedAddressFromCoords(lat, lon) {
+  clearTimeout(reverseGeocodeTimer);
+  reverseGeocodeTimer = setTimeout(async () => {
+    try {
+      const addressInput = document.getElementById('reg-address') || document.querySelector('input[name="address"]');
+      const hint = document.getElementById('reg-address-hint');
+      if (!addressInput) return;
+
+      if (hint) hint.textContent = '⏳ جلب العنوان بالتفصيل...';
+      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=ar`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!resp.ok) {
+        if (hint) hint.textContent = '📍 تم تحديد الإحداثيات بنجاح';
+        return;
+      }
+      const data = await resp.json();
+      if (data && data.address) {
+        const a = data.address;
+        const parts = [];
+        if (a.road || a.street) parts.push(a.road || a.street);
+        if (a.neighbourhood || a.suburb || a.quarter) parts.push(a.neighbourhood || a.suburb || a.quarter);
+        if (a.city || a.town || a.village || a.county) parts.push(a.city || a.town || a.village || a.county);
+        if (a.state) parts.push(a.state);
+
+        const fullAddr = parts.filter(Boolean).join('، ');
+        if (fullAddr) {
+          addressInput.value = fullAddr;
+          if (hint) hint.textContent = '📍 تم تحديث العنوان تلقائياً من الخريطة';
+        }
+      }
+    } catch (e) {
+      console.warn('Reverse geocoding error:', e);
+    }
+  }, 400);
 }
 
 // Egyptian Cities Coordinates Reference Table
@@ -481,25 +616,7 @@ function syncCityDropdownsWithCoordinates(lat, lon) {
   const closest = findClosestEgyptianCity(lat, lon);
   if (!closest) return null;
 
-  // 1. Sync any outer city select on page (e.g. registration #reg-city, branch city selects)
-  const outerCitySelects = document.querySelectorAll('#reg-city, select[name="city_id"], select[name="city"]');
-  outerCitySelects.forEach((selectEl) => {
-    let matchedOption = null;
-    for (let i = 0; i < selectEl.options.length; i++) {
-      const opt = selectEl.options[i];
-      const optText = opt.textContent || '';
-      if (optText.includes(closest.name) || closest.name.includes(optText.trim())) {
-        matchedOption = opt;
-        break;
-      }
-    }
-    if (matchedOption && selectEl.value !== matchedOption.value) {
-      selectEl.value = matchedOption.value;
-      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  });
-
-  // 2. Sync MapPicker toolbar city select if present
+  // 1. Sync MapPicker toolbar city select if present
   const mapCitySelects = document.querySelectorAll('[data-city-selector]');
   mapCitySelects.forEach((selectEl) => {
     let bestOpt = null;
@@ -516,13 +633,21 @@ function syncCityDropdownsWithCoordinates(lat, lon) {
         }
       }
     }
-    if (bestOpt && minOptDist < 0.35) {
+    if (bestOpt && minOptDist < 0.45) {
       selectEl.value = bestOpt.value;
+      // Sync hidden city ID
+      const cityId = bestOpt.dataset.cityId;
+      if (cityId) {
+        document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"], input[name="city_id"]').forEach((hi) => {
+          hi.value = cityId;
+        });
+      }
     }
   });
 
   return closest;
 }
+
 
 // Universal Dropdown Toggle
 function initDropdowns() {
@@ -729,8 +854,11 @@ function initMapPickers() {
       gmapsLinks.forEach((link) => { link.href = gmapsUrl; });
       if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
 
-      // Sync city selectors
+      // Sync city selectors and hidden city ID
       syncCityDropdownsWithCoordinates(fixedLat, fixedLon);
+
+      // Auto-fetch detailed street/district address via Reverse Geocoding
+      fetchDetailedAddressFromCoords(fixedLat, fixedLon);
     }
 
     // Map Click Handler
@@ -783,7 +911,7 @@ function initMapPickers() {
           const parsedLat = parseFloat(match[1]);
           const parsedLon = parseFloat(match[2]);
           if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
-            updateCoordinates(parsedLat, parsedLon, 15);
+            updateCoordinates(parsedLat, parsedLon, 16);
             showToast('تم استخراج وتحديث الإحداثيات تلقائياً من الرابط 📍', 'success');
           }
         }
@@ -793,7 +921,6 @@ function initMapPickers() {
     }
 
     // City Preset Selector
-
     if (citySelect) {
       citySelect.addEventListener('change', (e) => {
         const val = e.target.value;
@@ -802,10 +929,18 @@ function initMapPickers() {
         if (!isNaN(cLat) && !isNaN(cLon)) {
           updateCoordinates(cLat, cLon, 13);
         }
+        if (e.target.selectedOptions && e.target.selectedOptions[0]) {
+          const cityId = e.target.selectedOptions[0].dataset.cityId;
+          if (cityId) {
+            document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"], input[name="city_id"]').forEach((hi) => {
+              hi.value = cityId;
+            });
+          }
+        }
       });
     }
 
-    // GPS Locate Me Button
+    // GPS Locate Me Button (High Accuracy)
     if (locateBtn) {
       locateBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -815,7 +950,7 @@ function initMapPickers() {
         }
 
         locateBtn.disabled = true;
-        locateBtn.innerHTML = '<span>⏳ جارٍ التحديد...</span>';
+        locateBtn.innerHTML = '<span>⏳ جارٍ التحديد بدقة...</span>';
 
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -823,12 +958,12 @@ function initMapPickers() {
             locateBtn.innerHTML = '<span>📍 موقعي الحالي</span>';
             const userLat = pos.coords.latitude;
             const userLon = pos.coords.longitude;
-            updateCoordinates(userLat, userLon, 15);
+            updateCoordinates(userLat, userLon, 16);
             const nearest = syncCityDropdownsWithCoordinates(userLat, userLon);
             if (nearest) {
-              showToast(`تم تحديد موقعك بدقة وتحديث المحافظة إلى: ${nearest.name} 📍`, 'success');
+              showToast(`تم تحديد موقعك بدقة عالية وتحديث المحافظة التابعة إلى: ${nearest.name} 📍`, 'success');
             } else {
-              showToast('تم تحديد موقعك الجغرافي بنجاح.', 'success');
+              showToast('تم تحديد موقعك الجغرافي بدقة.', 'success');
             }
           },
           (err) => {
@@ -837,10 +972,11 @@ function initMapPickers() {
             console.warn('Geolocation error:', err.message);
             showToast('تعذر جلب موقع GPS. يرجى تفعيل إذن الوصول للموقع في المتصفح.', 'warning');
           },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       });
     }
+
 
     // Auto Invalidate Size for Modals and Tabs
     const modalParent = container.closest('.modal-overlay, .modal-backdrop, dialog, .tab-pane');

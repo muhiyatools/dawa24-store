@@ -233,6 +233,33 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		GoogleMapsURL:      r.PostFormValue("branch_google_maps_url"),
 	}
 
+	password := r.PostFormValue("password")
+	if err := identity.ValidatePassword(password); err != nil {
+		form.Error = err.Error()
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.RegisterPage(lang, dir, form, h.listCities(ctx)).Render(ctx, w)
+		return
+	}
+
+	cityIDStr := r.PostFormValue("branch_city_id")
+	if cityIDStr == "" {
+		cityIDStr = r.PostFormValue("city_id")
+	}
+
+	var cityIDPtr *int64
+	if id, err := strconv.ParseInt(cityIDStr, 10, 64); err == nil && id > 0 {
+		cityIDPtr = &id
+	} else if latPtr != nil && lonPtr != nil {
+		if nearestID := h.findNearestCityID(ctx, *latPtr, *lonPtr); nearestID > 0 {
+			cityIDPtr = &nearestID
+		}
+	}
+
+	branchCount := 1
+	if bc, err := strconv.Atoi(r.PostFormValue("branch_count")); err == nil && bc > 1 {
+		branchCount = bc
+	}
+
 	if h.idSvc == nil {
 		http.Redirect(w, r, "/auth/register?error=service_unavailable", http.StatusSeeOther)
 		return
@@ -240,7 +267,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 	_, sess, _, err := h.idSvc.RegisterOrganization(ctx, identity.RegisterOrganizationInput{
 		Email:    form.Email,
-		Password: r.PostFormValue("password"),
+		Password: password,
 		NameAr:   form.Name,
 		NameEn:   form.Name,
 		Phone:    form.Phone,
@@ -253,8 +280,8 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			TaxNumber:          form.TaxNumber,
 			PharmacistLicense:  form.PharmacistLicense,
 			LicenseDocumentURL: form.LicenseDocumentURL,
-			CityID:             parseInt64Ptr(form.CityID),
-			BranchCount:        parseIntPtr(form.BranchCount),
+			CityID:             cityIDPtr,
+			BranchCount:        &branchCount,
 			Address:            form.Address,
 			Latitude:           latPtr,
 			Longitude:          lonPtr,
@@ -273,6 +300,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
 
 	if sess != nil {
 		http.SetCookie(w, &http.Cookie{
@@ -396,4 +424,27 @@ func landingPathForActor(actor authctx.Actor) string {
 	}
 	return "/catalog"
 }
+
+func (h *UIHandler) findNearestCityID(ctx context.Context, lat, lon float64) int64 {
+	cities := h.listCities(ctx)
+	if len(cities) == 0 {
+		return 1
+	}
+	var bestID int64 = cities[0].ID
+	var minDist float64 = 1e9
+	for _, c := range cities {
+		if c.Latitude == 0 && c.Longitude == 0 {
+			continue
+		}
+		dLat := lat - c.Latitude
+		dLon := lon - c.Longitude
+		dist := dLat*dLat + dLon*dLon
+		if dist < minDist {
+			minDist = dist
+			bestID = c.ID
+		}
+	}
+	return bestID
+}
+
 

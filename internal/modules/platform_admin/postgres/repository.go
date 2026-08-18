@@ -123,7 +123,7 @@ func (r *Repository) ListCountries(ctx context.Context) ([]*platformadmin.Countr
 func (r *Repository) ListCities(ctx context.Context, countryID int64) ([]*platformadmin.City, error) {
 	var list []*platformadmin.City
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, country_id, name, is_active FROM platform_admin.cities WHERE country_id = $1 AND is_active = true ORDER BY id ASC;`
+		query := `SELECT id, country_id, name, COALESCE(latitude, 0.0), COALESCE(longitude, 0.0), is_active FROM platform_admin.cities WHERE (country_id = $1 OR $1 = 0) AND is_active = true ORDER BY id ASC;`
 		rows, err := tx.Query(txCtx, query, countryID)
 		if err != nil {
 			return err
@@ -132,7 +132,7 @@ func (r *Repository) ListCities(ctx context.Context, countryID int64) ([]*platfo
 
 		for rows.Next() {
 			var c platformadmin.City
-			if err := rows.Scan(&c.ID, &c.CountryID, &c.Name, &c.IsActive); err != nil {
+			if err := rows.Scan(&c.ID, &c.CountryID, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive); err != nil {
 				return err
 			}
 			list = append(list, &c)
@@ -141,6 +141,7 @@ func (r *Repository) ListCities(ctx context.Context, countryID int64) ([]*platfo
 	})
 	return list, err
 }
+
 
 // ListCurrencies returns supported currencies.
 func (r *Repository) ListCurrencies(ctx context.Context) ([]*platformadmin.Currency, error) {

@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 )
 
 // MapPickerProps defines configuration for the geographic coordinate and radius picker.
@@ -14,6 +15,7 @@ type MapPickerProps struct {
 	ReadOnly     bool
 	ShowRadius   bool
 	Height       string
+	Cities       []*platformadmin.City
 }
 
 templ MapPicker(props MapPickerProps) {
@@ -42,6 +44,7 @@ templ MapPicker(props MapPickerProps) {
 		gmapsLinkURL := fmt.Sprintf("https://www.google.com/maps?q=%.8f,%.8f", latVal, lonVal)
 	}}
 	<div class="map-picker-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-4); background:var(--surface-raised); display:flex; flex-direction:column; gap:var(--space-3);" data-map-picker>
+		<input type="hidden" name={ fmt.Sprintf("%s_city_id", namePrefix) } data-map-city-id />
 		<!-- Header Toolbar -->
 		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-2);">
 			<div>
@@ -64,34 +67,37 @@ templ MapPicker(props MapPickerProps) {
 
 			<!-- Toolbar Buttons -->
 			<div style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;">
-				<!-- City Jump Selector -->
+				<!-- City Jump Selector (Dynamic from Database) -->
 				<select class="form-select text-xs" style="padding:0.25rem 0.5rem; font-size:11px; width:auto;" data-city-selector>
-					<option value="">-- انتقال لمدينة --</option>
-					<option value="30.0444,31.2357">القاهرة (Cairo)</option>
-					<option value="30.0131,31.2089">الجيزة (Giza)</option>
-					<option value="31.2001,29.9187">الإسكندرية (Alexandria)</option>
-					<option value="31.0409,31.3785">المنصورة (Mansoura)</option>
-					<option value="30.7865,31.0004">طنطا (Tanta)</option>
-					<option value="30.5877,31.5020">الزقازيق (Zagazig)</option>
-					<option value="31.2653,32.3019">بورسعيد (Port Said)</option>
-					<option value="30.5965,32.2715">الإسماعيلية (Ismailia)</option>
-					<option value="29.9668,32.5498">السويس (Suez)</option>
-					<option value="27.1801,31.1837">أسيوط (Asyut)</option>
-					<option value="26.5569,31.6948">سوهاج (Sohag)</option>
-					<option value="25.6872,32.6396">الأقصر (Luxor)</option>
-					<option value="24.0889,32.8998">أسوان (Aswan)</option>
-					<option value="27.2579,33.8116">الغردقة (Hurghada)</option>
-					<option value="27.9158,34.3299">شرم الشيخ (Sharm El-Sheikh)</option>
-					<option value="29.9870,30.9500">6 أكتوبر (6th October)</option>
-					<option value="30.3000,31.7333">العاشر من رمضان (10th Ramadan)</option>
-					<option value="30.0300,31.4700">القاهرة الجديدة والتجمع</option>
-					<option value="30.2200,31.4600">مدينة العبور</option>
+					<option value="">-- انتقال لمدينة / محافظة --</option>
+					if len(props.Cities) > 0 {
+						for _, c := range props.Cities {
+							<option value={ fmt.Sprintf("%.4f,%.4f", c.Latitude, c.Longitude) } data-city-id={ fmt.Sprintf("%d", c.ID) }>{ c.Name.Get("ar") }</option>
+						}
+					} else {
+						<option value="30.0444,31.2357">القاهرة (Cairo)</option>
+						<option value="30.0131,31.2089">الجيزة (Giza)</option>
+						<option value="31.2001,29.9187">الإسكندرية (Alexandria)</option>
+						<option value="31.0409,31.3785">المنصورة (Mansoura)</option>
+						<option value="30.7865,31.0004">طنطا (Tanta)</option>
+						<option value="30.5877,31.5020">الزقازيق (Zagazig)</option>
+						<option value="31.2653,32.3019">بورسعيد (Port Said)</option>
+						<option value="30.5965,32.2715">الإسماعيلية (Ismailia)</option>
+						<option value="29.9668,32.5498">السويس (Suez)</option>
+						<option value="27.1801,31.1837">أسيوط (Asyut)</option>
+						<option value="26.5569,31.6948">سوهاج (Sohag)</option>
+						<option value="25.6872,32.6396">الأقصر (Luxor)</option>
+						<option value="24.0889,32.8998">أسوان (Aswan)</option>
+						<option value="27.2579,33.8116">الغردقة (Hurghada)</option>
+						<option value="27.9158,34.3299">شرم الشيخ (Sharm El-Sheikh)</option>
+					}
 				</select>
 
 				<!-- Current Location GPS Button -->
-				<button type="button" class="btn btn-secondary btn-sm" style="padding:0.25rem 0.6rem; font-size:11px; gap:4px;" data-locate-me-btn title="تحديد موقعي الحالي">
+				<button type="button" class="btn btn-secondary btn-sm" style="padding:0.25rem 0.6rem; font-size:11px; gap:4px;" data-locate-me-btn title="تحديد موقعي الحالي بدقة">
 					<span>📍 موقعي الحالي</span>
 				</button>
+
 
 				<!-- Google Maps Link Button -->
 				<a

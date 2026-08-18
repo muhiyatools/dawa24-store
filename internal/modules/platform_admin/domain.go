@@ -33,8 +33,11 @@ type City struct {
 	ID        int64     `json:"id"`
 	CountryID int64     `json:"country_id"`
 	Name      i18n.Text `json:"name"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
 	IsActive  bool      `json:"is_active"`
 }
+
 
 // Validate ensures setting keys are non-empty.
 func (s *SystemSetting) Validate() error {
