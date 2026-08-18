@@ -33,10 +33,27 @@ SELECT public_id, organization_id, user_id, original_name, storage_key, size_byt
 FROM platform_admin.documents
 WHERE document_type = 'import_file';
 
-DELETE FROM platform_admin.documents WHERE document_type = 'import_file';
-
+-- The FK still points at platform_admin.documents, so it must come off before
+-- the sessions can be re-pointed; assigning a file_uploads id while the old
+-- constraint is live violates it.
 ALTER TABLE ingest.import_sessions
     DROP CONSTRAINT IF EXISTS import_sessions_file_upload_id_fkey;
+
+-- file_upload_id holds documents.id values, while the rows inserted above were
+-- given fresh identity ids. Re-point the sessions through storage_key.
+UPDATE ingest.import_sessions s
+SET file_upload_id = f.id
+FROM platform_admin.documents d
+JOIN ingest.file_uploads f ON f.storage_key = d.storage_key
+WHERE d.document_type = 'import_file'
+  AND s.file_upload_id = d.id;
+
+UPDATE ingest.import_sessions s
+SET file_upload_id = NULL
+WHERE s.file_upload_id IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM ingest.file_uploads f WHERE f.id = s.file_upload_id);
+
+DELETE FROM platform_admin.documents WHERE document_type = 'import_file';
 
 ALTER TABLE ingest.import_sessions
     ADD CONSTRAINT import_sessions_file_upload_id_fkey

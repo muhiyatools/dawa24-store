@@ -11,7 +11,11 @@ BEGIN;
 ALTER TABLE promo.highlight_sections
     ADD COLUMN IF NOT EXISTS owner_type      TEXT NOT NULL DEFAULT 'platform'
         CHECK (owner_type IN ('platform','organization')),
-    ADD COLUMN IF NOT EXISTS organization_id BIGINT REFERENCES org.organizations(id) ON DELETE CASCADE;
+    ADD COLUMN IF NOT EXISTS organization_id BIGINT REFERENCES org.organizations(id) ON DELETE CASCADE,
+    -- org.highlight_sections tracks updated_at and the promo table never did.
+    -- The merged table must carry it, or the organization rows lose their
+    -- modification history on the way across.
+    ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT now();
 
 -- The old UNIQUE(slug) cannot survive the merge: an organization's 'best' and
 -- the platform's 'best' are different rows. Platform slugs stay unique.

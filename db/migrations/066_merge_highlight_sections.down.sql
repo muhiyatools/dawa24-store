@@ -81,6 +81,9 @@ ALTER TABLE promo.highlight_sections
 
 ALTER TABLE promo.highlight_sections
     DROP COLUMN IF EXISTS organization_id,
-    DROP COLUMN IF EXISTS owner_type;
+    DROP COLUMN IF EXISTS owner_type,
+    -- The up migration adds updated_at to carry the organization rows'
+    -- history; the promo table never had it, so the rollback removes it.
+    DROP COLUMN IF EXISTS updated_at;
 
 COMMIT;
