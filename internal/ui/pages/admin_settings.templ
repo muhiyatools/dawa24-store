@@ -3,155 +3,668 @@ package pages
 import (
 	"fmt"
 
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// AdminSettingsValues carries the stored platform settings and feature flags into the form.
+// AdminSettingsValues carries the stored platform settings, feature flags, AI, and site branding.
 type AdminSettingsValues struct {
-	SupportEmail   string
-	CommissionRate string
-	FeatureFlags   []features.FeatureFlag
+	ActiveTab       string // "features", "site", "ai", "policies"
+	SupportEmail    string
+	CommissionRate  string
+	FeatureFlags    []features.FeatureFlag
+	AISettings      *platformadmin.AISettings
+	GatewaySettings *platformadmin.GatewaySettings
+	SiteSettings    *platformadmin.SiteSettings
+	Policies        []*platformadmin.Policy
+	PolicyKey       string
 }
 
 templ AdminSettings(values AdminSettingsValues, lang, dir string) {
-	@layouts.AdminShell("إعدادات المنصة ومفاتيح الميزات | Platform Settings", "settings", lang, dir) {
-		<div style="max-width:840px; margin:0 auto; display:flex; flex-direction:column; gap:var(--space-6);">
+	@layouts.AdminShell("إعدادات المنصة والهوية | Platform Settings", "settings", lang, dir) {
+		<div style="max-width:1050px; margin:0 auto;" x-data={ fmt.Sprintf("adminSettingsTabs('%s')", values.ActiveTab) }>
 			
-			<!-- 1. Feature Flags & Module Toggles (مفاتيح تشغيل الأنظمة والوظائف) -->
-			<div class="card" style="margin-bottom:0;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-3);">
-					<div style="display:flex; align-items:center; gap:var(--space-3);">
-						@components.IconShield("icon-md")
+			<!-- Header -->
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:0.6rem;">
+					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						@components.IconSettings("icon-sm")
+					</div>
+					<div>
+						<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
+							إعدادات المنصة والمنظومة
+						</h2>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+							إدارة الهوية البصرية، بيانات التواصل، الذكاء الاصطناعي، بوابات الربط، ومفاتيح الميزات
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Tabs Bar -->
+			<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.75rem; flex-wrap:wrap;">
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'features' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
+					@click="activeTab = 'features'"
+				>
+					@components.IconShield("icon-xs")
+					<span>1. ميزات المنصة والعمولة</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'site' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
+					@click="activeTab = 'site'"
+				>
+					@components.IconBuilding("icon-xs")
+					<span>2. إعدادات الموقع والهوية</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'ai' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
+					@click="activeTab = 'ai'"
+				>
+					@components.IconLayers("icon-xs")
+					<span>3. الذكاء الاصطناعي وبوابة الربط</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'policies' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
+					@click="activeTab = 'policies'"
+				>
+					@components.IconFile("icon-xs")
+					<span>4. إدارة السياسات والشروط</span>
+				</button>
+			</div>
+
+			<!-- TAB 1: Platform & Features -->
+			<div x-show="activeTab === 'features'" style="display:flex; flex-direction:column; gap:1.5rem;">
+				
+				<!-- Feature Flags -->
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 						<div>
-							<h2 class="card-title" style="margin:0; font-size:var(--text-lg);">
+							<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
 								مفاتيح تشغيل الميزات والأنظمة (Feature Flags)
-							</h2>
-							<p style="font-size:var(--text-xs); color:var(--text-secondary); margin-top:2px;">
-								التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، وحسابات الباحثين عن عمل.
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+								التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، والعروض
 							</p>
 						</div>
 					</div>
-				</div>
 
-				<div style="display:grid; gap:var(--space-3);">
-					for _, flag := range values.FeatureFlags {
-						<div style="display:flex; justify-content:space-between; align-items:center; padding:var(--space-3) var(--space-4); background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
-							<div>
-								<div style="display:flex; align-items:center; gap:var(--space-2);">
-									<strong style="font-size:var(--text-sm); color:var(--text);">
-										if flag.Name["ar"] != "" {
-											{ flag.Name["ar"] }
+					<div style="display:grid; gap:0.75rem;">
+						for _, flag := range values.FeatureFlags {
+							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
+								<div>
+									<div style="display:flex; align-items:center; gap:0.5rem;">
+										<strong style="font-size:0.9rem; color:var(--text);">
+											if flag.Name["ar"] != "" {
+												{ flag.Name["ar"] }
+											} else {
+												{ flag.Key }
+											}
+										</strong>
+										if flag.IsEnabled {
+											<span class="badge badge-emerald" style="font-size:0.7rem;">نشط ومفعل</span>
+										} else {
+											<span class="badge badge-slate" style="font-size:0.7rem;">معطل حالياً</span>
+										}
+										<span class="badge badge-sky" style="font-family:monospace; font-size:10px;">{ flag.Key }</span>
+									</div>
+									<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:3px;">
+										if flag.Description["ar"] != "" {
+											{ flag.Description["ar"] }
 										} else {
 											{ flag.Key }
 										}
-									</strong>
-									if flag.IsEnabled {
-										<span class="badge badge-emerald text-xs">نشط ومفعل</span>
-									} else {
-										<span class="badge badge-slate text-xs">معطل حالياً</span>
-									}
-									<span class="badge badge-sky text-xs" style="font-family:monospace; font-size:10px;">{ flag.Key }</span>
+									</div>
 								</div>
-								<div class="text-xs" style="color:var(--text-secondary); margin-top:3px;">
-									if flag.Description["ar"] != "" {
-										{ flag.Description["ar"] }
+
+								<form method="POST" action="/admin/settings/features/toggle" style="margin:0;">
+									<input type="hidden" name="key" value={ flag.Key }/>
+									<input type="hidden" name="enabled" value={ fmt.Sprintf("%t", !flag.IsEnabled) }/>
+									if flag.IsEnabled {
+										<button
+											type="submit"
+											class="btn btn-sm"
+											style="min-width:120px; justify-content:center; background:#10b981; color:#ffffff; border:1px solid #059669; font-weight:700; border-radius:var(--radius-full);"
+											title="انقر لتعطيل الميزة"
+										>
+											@components.IconCheck("icon-xs")
+											<span>مفعل (Active)</span>
+										</button>
 									} else {
-										{ flag.Key }
+										<button
+											type="submit"
+											class="btn btn-sm btn-secondary"
+											style="min-width:120px; justify-content:center; background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); font-weight:600; border-radius:var(--radius-full);"
+											title="انقر لتفعيل الميزة"
+										>
+											<span>✕ معطل (Disabled)</span>
+										</button>
 									}
+								</form>
+							</div>
+						}
+					</div>
+				</div>
+
+				<!-- General Configuration -->
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						@components.IconSettings("icon-md")
+						<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
+							الإعدادات المالية والمنظومة
+						</h3>
+					</div>
+
+					<form action="/admin/settings" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">العملة الافتراضية للمعاملات</label>
+								<input type="text" value="EGP (الجنيه المصري)" disabled class="form-input" style="background:var(--surface-sunken); color:var(--text-muted);"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اللغات المعتمدة في النظام</label>
+								<input type="text" value="العربية (الرئيسية)، English" disabled class="form-input" style="background:var(--surface-sunken); color:var(--text-muted);"/>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">بريد إشعارات الدعم الفني *</label>
+								<input type="email" name="support_email" value={ values.SupportEmail } required class="form-input" dir="ltr"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نسبة عمولة المنصة الافتراضية (%) *</label>
+								<input type="number" name="commission_rate" value={ values.CommissionRate } step="0.1" min="0" max="100" required class="form-input tabular-nums"/>
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ إعدادات المنصة</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+			</div>
+
+			<!-- TAB 2: Site Info & Visual Identity -->
+			<div x-show="activeTab === 'site'" style="display:flex; flex-direction:column; gap:1.5rem;">
+				
+				<!-- Sub-tab Bar inside Site Settings -->
+				<div class="card" style="margin-bottom:0;" x-data="{ siteSubTab: 'contact' }">
+					
+					<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.5rem; padding-bottom:0.75rem;">
+						<button
+							type="button"
+							class="btn btn-sm"
+							:class="siteSubTab === 'contact' ? 'btn-primary' : 'btn-secondary'"
+							@click="siteSubTab = 'contact'"
+							style="font-weight:700;"
+						>
+							@components.IconBuilding("icon-xs")
+							<span>بيانات التواصل والفوتر</span>
+						</button>
+						<button
+							type="button"
+							class="btn btn-sm"
+							:class="siteSubTab === 'socials' ? 'btn-primary' : 'btn-secondary'"
+							@click="siteSubTab = 'socials'"
+							style="font-weight:700;"
+						>
+							@components.IconLayers("icon-xs")
+							<span>روابط التواصل الاجتماعي (10)</span>
+						</button>
+						<button
+							type="button"
+							class="btn btn-sm"
+							:class="siteSubTab === 'branding' ? 'btn-primary' : 'btn-secondary'"
+							@click="siteSubTab = 'branding'"
+							style="font-weight:700;"
+						>
+							@components.IconPackage("icon-xs")
+							<span>الهوية البصرية والشعار</span>
+						</button>
+					</div>
+
+					<!-- 1. Contact Info Form -->
+					<div x-show="siteSubTab === 'contact'">
+						<form action="/admin/settings/site" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
+							<input type="hidden" name="section" value="contact"/>
+							
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">اسم المنصة / الموقع (Site Name) *</label>
+									<input type="text" name="site_name" value={ values.SiteSettings.SiteName } required class="form-input"/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">وصف المنصة المختصر (Tagline)</label>
+									<input type="text" name="site_description" value={ values.SiteSettings.SiteDescription } class="form-input"/>
 								</div>
 							</div>
 
-							<form method="POST" action="/admin/settings/features/toggle" style="margin:0;">
-								<input type="hidden" name="key" value={ flag.Key }/>
-								<input type="hidden" name="enabled" value={ fmt.Sprintf("%t", !flag.IsEnabled) }/>
-								if flag.IsEnabled {
-									<button
-										type="submit"
-										class="btn btn-sm"
-										style="min-width:130px; justify-content:center; background:#10b981; color:#ffffff; border:1px solid #059669; font-weight:700; border-radius:var(--radius-full);"
-										title="انقر لتعطيل الميزة"
-									>
-										@components.IconCheck("icon-xs")
-										<span>مفعل (Active)</span>
-									</button>
-								} else {
-									<button
-										type="submit"
-										class="btn btn-sm btn-secondary"
-										style="min-width:130px; justify-content:center; background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); font-weight:600; border-radius:var(--radius-full);"
-										title="انقر لتفعيل الميزة"
-									>
-										<span>✕ معطل (Disabled)</span>
-									</button>
-								}
-							</form>
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">بريد التواصل العام (Contact Email) *</label>
+									<input type="email" name="contact_email" value={ values.SiteSettings.ContactEmail } required class="form-input" dir="ltr"/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">بريد الدعم الفني (Support Email) *</label>
+									<input type="email" name="support_email" value={ values.SiteSettings.SupportEmail } required class="form-input" dir="ltr"/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">رقم الهاتف الرسمي (Phone) *</label>
+									<input type="text" name="phone" value={ values.SiteSettings.Phone } required class="form-input tabular-nums" dir="ltr"/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">رقم واتساب المباشر (WhatsApp) *</label>
+									<input type="text" name="whatsapp" value={ values.SiteSettings.WhatsApp } required class="form-input tabular-nums" dir="ltr" placeholder="201065397000"/>
+								</div>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">العنوان الرئيسي للمقر (Head Office Address)</label>
+								<input type="text" name="address" value={ values.SiteSettings.Address } class="form-input" placeholder="القاهرة، جمهورية مصر العربية"/>
+							</div>
+
+							<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
+								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+									@components.IconCheck("icon-xs")
+									<span>حفظ وتحديث بيانات التواصل</span>
+								</button>
+							</div>
+						</form>
+					</div>
+
+					<!-- 2. Social Media Links Form -->
+					<div x-show="siteSubTab === 'socials'">
+						<form action="/admin/settings/site" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
+							<input type="hidden" name="section" value="socials"/>
+
+							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.5rem 0;">
+								سيتم حفظ هذه الروابط في قاعدة البيانات وعكسها تلقائياً في الفوتر وكافة الأقسام الرسمية للموقع.
+							</p>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">Facebook</label>
+									<input type="url" name="social_facebook" value={ values.SiteSettings.SocialLinks["facebook"] } class="form-input" dir="ltr" placeholder="https://facebook.com/dawa24"/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">Twitter / X</label>
+									<input type="url" name="social_twitter" value={ values.SiteSettings.SocialLinks["twitter"] } class="form-input" dir="ltr" placeholder="https://twitter.com/dawa24"/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">Instagram</label>
+									<input type="url" name="social_instagram" value={ values.SiteSettings.SocialLinks["instagram"] } class="form-input" dir="ltr" placeholder="https://instagram.com/dawa24"/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">LinkedIn</label>
+									<input type="url" name="social_linkedin" value={ values.SiteSettings.SocialLinks["linkedin"] } class="form-input" dir="ltr" placeholder="https://linkedin.com/company/dawa24"/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">YouTube</label>
+									<input type="url" name="social_youtube" value={ values.SiteSettings.SocialLinks["youtube"] } class="form-input" dir="ltr" placeholder="https://youtube.com/@dawa24"/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">TikTok</label>
+									<input type="url" name="social_tiktok" value={ values.SiteSettings.SocialLinks["tiktok"] } class="form-input" dir="ltr" placeholder="https://tiktok.com/@dawa24"/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">Snapchat</label>
+									<input type="url" name="social_snapchat" value={ values.SiteSettings.SocialLinks["snapchat"] } class="form-input" dir="ltr" placeholder="https://snapchat.com/add/dawa24"/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">Telegram</label>
+									<input type="url" name="social_telegram" value={ values.SiteSettings.SocialLinks["telegram"] } class="form-input" dir="ltr" placeholder="https://t.me/dawa24"/>
+								</div>
+							</div>
+
+							<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
+								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+									@components.IconCheck("icon-xs")
+									<span>حفظ روابط التواصل الاجتماعي</span>
+								</button>
+							</div>
+						</form>
+					</div>
+
+					<!-- 3. Branding & Logo Form -->
+					<div x-show="siteSubTab === 'branding'" x-data="{ logoPreview: '' }">
+						<form action="/admin/settings/branding" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem;">
+							
+							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+								<div style="width:120px; height:80px; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; padding:0.5rem; overflow:hidden;">
+									<img
+										:src="logoPreview || '/static/img/logo.png'"
+										alt="Logo Preview"
+										style="max-width:100%; max-height:100%; object-fit:contain;"
+									/>
+								</div>
+								<div>
+									<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+										الشعار الرسمي للمنصة (Platform Logo)
+									</h4>
+									<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
+										عند تغيير الشعار، سيتم تطبيقه فورياً على كافة واجهات الهيدر والفوتر والصفحات والشاشات.
+									</p>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">رفع ملف الشعار الجديد (PNG / SVG / WEBP)</label>
+									<input
+										type="file"
+										name="logo_file"
+										accept="image/*"
+										class="form-input"
+										@change="const file = $event.target.files[0]; if (file) logoPreview = URL.createObjectURL(file)"
+									/>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">أو مسار/رابط الشعار المباشر (Logo URL)</label>
+									<input
+										type="text"
+										name="logo_url"
+										value={ values.SiteSettings.LogoURL }
+										class="form-input"
+										dir="ltr"
+										placeholder="/static/img/logo.png"
+									/>
+								</div>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">أيقونة المتصفح المفضلة (Favicon URL / Path)</label>
+								<input type="text" name="favicon_url" value={ values.SiteSettings.FaviconURL } class="form-input" dir="ltr" placeholder="/static/img/logo.png"/>
+							</div>
+
+							<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
+								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+									@components.IconCheck("icon-xs")
+									<span>حفظ وتطبيق الهوية البصرية</span>
+								</button>
+							</div>
+						</form>
+					</div>
+
+				</div>
+
+			</div>
+
+			<!-- TAB 3: AI & Gateway Integrations -->
+			<div x-show="activeTab === 'ai'" style="display:flex; flex-direction:column; gap:1.5rem;">
+				
+				<!-- AI Configuration Card -->
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								🤖
+							</div>
+							<div>
+								<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
+									إعدادات الذكاء الاصطناعي (AI Provider Configuration)
+								</h3>
+								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+									الربط مع النماذج التوليدية (Gemini / OpenAI / Anthropic / DeepSeek) ومساعد العمليات الدوائية
+								</p>
+							</div>
+						</div>
+						if values.AISettings.IsActive {
+							<span class="badge badge-emerald">مفعل ونشط</span>
+						} else {
+							<span class="badge badge-slate">معطل</span>
+						}
+					</div>
+
+					<form action="/admin/settings/ai" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">مزود الخدمة (AI Provider) *</label>
+								<select name="provider" class="form-select">
+									<option value="gemini" selected={ values.AISettings.Provider == "gemini" }>Google Gemini (Flash / Pro)</option>
+									<option value="openai" selected={ values.AISettings.Provider == "openai" }>OpenAI (GPT-4o / GPT-4o-mini)</option>
+									<option value="anthropic" selected={ values.AISettings.Provider == "anthropic" }>Anthropic (Claude 3.5 Sonnet)</option>
+									<option value="deepseek" selected={ values.AISettings.Provider == "deepseek" }>DeepSeek AI (V3 / R1)</option>
+									<option value="custom" selected={ values.AISettings.Provider == "custom" }>بوابة مخصصة (Custom Gateway)</option>
+								</select>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم النموذج (Model Name) *</label>
+								<input type="text" name="model" value={ values.AISettings.Model } required class="form-input" dir="ltr" placeholder="gemini-1.5-pro"/>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">مفتاح API السري (API Secret Key) *</label>
+								<input type="password" name="api_key" value={ values.AISettings.APIKey } class="form-input" dir="ltr" placeholder="AIzaSy... / sk-proj-..."/>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نقطة نهاية الخدمة أو البوابة (Endpoint URL)</label>
+								<input type="url" name="endpoint_url" value={ values.AISettings.EndpointURL } class="form-input" dir="ltr" placeholder="https://generativelanguage.googleapis.com/v1beta"/>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">درجة الإبداع (Temperature: 0.0 - 1.0)</label>
+								<input type="number" name="temperature" value={ fmt.Sprintf("%.2f", values.AISettings.Temperature) } step="0.05" min="0" max="1" class="form-input tabular-nums"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الحد الأقصى للرموز (Max Tokens)</label>
+								<input type="number" name="max_tokens" value={ fmt.Sprintf("%d", values.AISettings.MaxTokens) } step="256" min="256" max="32768" class="form-input tabular-nums"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">حالة تشغيل الذكاء الاصطناعي</label>
+								<select name="is_active" class="form-select">
+									<option value="true" selected={ values.AISettings.IsActive }>مفعل (Active)</option>
+									<option value="false" selected={ !values.AISettings.IsActive }>معطل (Disabled)</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">التعليمات التوجيهية للنموذج (System Prompt)</label>
+							<textarea name="system_prompt" rows="3" class="form-input" placeholder="أنت المساعد الذكي لمنصة دواء 24...">{ values.AISettings.SystemPrompt }</textarea>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ إعدادات الذكاء الاصطناعي</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Gateway Configuration Card -->
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								🌐
+							</div>
+							<div>
+								<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
+									بوابة الربط والتكامل (API Gateway & External Integrations)
+								</h3>
+								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+									إدارة خادم البوابة ونقاط التكامل والربط مع المنظومات والأنظمة الخارجية
+								</p>
+							</div>
+						</div>
+						if values.GatewaySettings.IsActive {
+							<span class="badge badge-emerald">بوابة متصلة</span>
+						} else {
+							<span class="badge badge-slate">بوابة معطلة</span>
+						}
+					</div>
+
+					<form action="/admin/settings/gateway" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نقطة نهاية البوابة (Gateway Base URL) *</label>
+								<input type="url" name="endpoint_url" value={ values.GatewaySettings.EndpointURL } required class="form-input" dir="ltr" placeholder="https://api.dawa24.com/v1"/>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">بيئة العمل (Environment) *</label>
+								<select name="environment" class="form-select">
+									<option value="production" selected={ values.GatewaySettings.Environment == "production" }>الإنتاج الفعلي (Production Live)</option>
+									<option value="sandbox" selected={ values.GatewaySettings.Environment == "sandbox" }>بيئة الاختبار التجريبية (Sandbox / Staging)</option>
+								</select>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">مهلة الطلب بالثواني (Timeout Seconds)</label>
+								<input type="number" name="timeout_seconds" value={ fmt.Sprintf("%d", values.GatewaySettings.TimeoutSeconds) } min="5" max="120" class="form-input tabular-nums"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">مفتاح المصادقة (Gateway Auth Token)</label>
+								<input type="password" name="api_key" value={ values.GatewaySettings.APIKey } class="form-input" dir="ltr" placeholder="Bearer Token / API Key"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">حالة البوابة</label>
+								<select name="is_active" class="form-select">
+									<option value="true" selected={ values.GatewaySettings.IsActive }>مفعلة (Active)</option>
+									<option value="false" selected={ !values.GatewaySettings.IsActive }>معطلة (Disabled)</option>
+								</select>
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ إعدادات بوابة الربط</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+			</div>
+
+			<!-- TAB 4: Policies & Terms -->
+			<div x-show="activeTab === 'policies'" style="display:flex; flex-direction:column; gap:1.5rem;">
+				
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap; gap:1rem;">
+						<div>
+							<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
+								إدارة السياسات والوثائق القانونية
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+								تعديل ونشر الإصدارات المعتمدة لسياسة الخصوصية، شروط الاستخدام، واتفاقيات التوريد وعكسها فورياً على صفحات الموقع
+							</p>
+						</div>
+
+						<div style="display:flex; gap:0.5rem;">
+							<a href="/admin/policies" class="btn btn-primary btn-sm" style="font-weight:700;">
+								@components.IconPlus("icon-xs")
+								<span>فتح شاشة إدارة السياسات الموسعة</span>
+							</a>
+						</div>
+					</div>
+
+					if len(values.Policies) == 0 {
+						@components.EmptyState(components.EmptyStateProps{
+							Title:   "لا توجد سياسات مسجلة",
+							Message: "يمكنك إنشاء وإدارة إصدارات السياسات من خلال شاشة السياسات.",
+						})
+					} else {
+						<div class="table-container" style="overflow-x:auto;">
+							<table class="data-table" style="width:100%; border-collapse:collapse;">
+								<thead>
+									<tr>
+										<th style="width:20%; text-align:start;">السياسة القانونية</th>
+										<th style="width:12%; text-align:center;">رقم الإصدار</th>
+										<th style="width:30%; text-align:start;">العنوان (عربي / English)</th>
+										<th style="width:18%; text-align:center;">حالة النشر</th>
+										<th style="width:20%; text-align:start;">تاريخ التحديث</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, p := range values.Policies {
+										<tr>
+											<td style="text-align:start;">
+												<span class="badge badge-slate" style="font-weight:700;">{ policyKeyAr(p.PolicyKey) }</span>
+											</td>
+											<td style="text-align:center;">
+												<strong class="tabular-nums" style="color:var(--accent); font-size:0.9rem;">v{ p.Version }</strong>
+											</td>
+											<td style="text-align:start;">
+												<div style="font-weight:700; color:var(--text); font-size:0.875rem;">{ p.Title["ar"] }</div>
+												if p.Title["en"] != "" {
+													<div style="font-size:0.75rem; color:var(--text-muted);">{ p.Title["en"] }</div>
+												}
+											</td>
+											<td style="text-align:center;">
+												if p.IsPublished {
+													<span class="badge badge-emerald">
+														@components.IconCheck("icon-xs")
+														<span>منشور ونشط</span>
+													</span>
+												} else {
+													<span class="badge badge-amber">مسودة غير منشورة</span>
+												}
+											</td>
+											<td style="text-align:start;" class="tabular-nums">
+												<span style="font-size:0.8rem; color:var(--text-secondary);">{ p.UpdatedAt.Format("2006-01-02 15:04") }</span>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
 						</div>
 					}
-
 				</div>
+
 			</div>
 
-			<!-- 2. General Platform Configuration -->
-			<div class="card" style="margin-bottom:0;">
-				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:var(--space-3);">
-					@components.IconSettings("icon-md")
-					<h2 class="card-title" style="margin:0; font-size:var(--text-lg);">
-						الإعدادات العامة وبيانات منظومة دواء 24
-					</h2>
-				</div>
-				<form action="/admin/settings" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
-					<div class="form-group">
-						<label class="form-label" for="currency">
-							العملة الافتراضية للمعاملات
-						</label>
-						<input id="currency" type="text" name="currency" value="EGP (الجنيه المصري)" disabled class="form-input" style="background:var(--neutral-50); color:var(--neutral-500);"/>
-						<p class="dropzone-hint" style="margin-top:0.35rem;">العملة ثابتة على مستوى المنصة ولا يمكن تغييرها من هنا.</p>
-					</div>
-					<div class="form-group">
-						<label class="form-label" for="languages">
-							اللغات المعتمدة في النظام
-						</label>
-						<input id="languages" type="text" name="languages" value="العربية (الرئيسية)، English" disabled class="form-input" style="background:var(--neutral-50); color:var(--neutral-500);"/>
-					</div>
-					<div class="form-group">
-						<label class="form-label" for="support_email">
-							بريد الدعم الفني والإشعارات
-						</label>
-						<input
-							id="support_email"
-							type="email"
-							name="support_email"
-							value={ values.SupportEmail }
-							required
-							class="form-input"
-						/>
-					</div>
-					<div class="form-group">
-						<label class="form-label" for="commission_rate">
-							نسبة عمولة المنصة الافتراضية (%)
-						</label>
-						<input
-							id="commission_rate"
-							type="number"
-							name="commission_rate"
-							value={ values.CommissionRate }
-							step="0.1"
-							min="0"
-							max="100"
-							required
-							class="form-input tabular-nums"
-						/>
-					</div>
-					<div style="display:flex; justify-content:flex-end; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;">
-						<button type="submit" class="btn btn-primary" style="padding:0.65rem 1.75rem;">
-							@components.IconCheck("icon-xs")
-							<span>حفظ التعديلات</span>
-						</button>
-					</div>
-				</form>
-			</div>
 		</div>
+
+		<script>
+			function adminSettingsTabs(initialTab) {
+				return {
+					activeTab: initialTab || 'features'
+				};
+			}
+		</script>
 	}
 }

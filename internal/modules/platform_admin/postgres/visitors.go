@@ -41,8 +41,8 @@ func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platform
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.visitors;`).Scan(&out.Total)
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.visitors WHERE visited_at = CURRENT_DATE;`).Scan(&out.Today)
 
-		// Platform business summary stats
-		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM org.organizations WHERE type = 'pharmacy' AND deleted_at IS NULL;`).Scan(&out.TotalPharmacies)
+		// Platform business summary stats (strictly from live database tables)
+		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM org.organizations WHERE type IN ('pharmacy', 'customer') AND deleted_at IS NULL;`).Scan(&out.TotalPharmacies)
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM org.organizations WHERE type IN ('supplier', 'vendor') AND deleted_at IS NULL;`).Scan(&out.TotalSuppliers)
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM catalog.products WHERE deleted_at IS NULL;`).Scan(&out.TotalProducts)
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.orders;`).Scan(&out.TotalOrders)
@@ -73,26 +73,26 @@ func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platform
 		}
 
 		var err error
-		if out.ByCountry, err = scanGroup(`SELECT COALESCE(NULLIF(country, ''), 'مصر 🇪🇬'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByCountry, err = scanGroup(`SELECT COALESCE(NULLIF(country, ''), 'غير محدد'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByCity, err = scanGroup(`SELECT COALESCE(NULLIF(city, ''), 'القاهرة'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByCity, err = scanGroup(`SELECT COALESCE(NULLIF(city, ''), 'غير محدد'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByDevice, err = scanGroup(`SELECT device, COUNT(*) FROM platform_admin.visitors GROUP BY device ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByDevice, err = scanGroup(`SELECT COALESCE(NULLIF(device, ''), 'أخرى'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByOS, err = scanGroup(`SELECT os, COUNT(*) FROM platform_admin.visitors GROUP BY os ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByOS, err = scanGroup(`SELECT COALESCE(NULLIF(os, ''), 'أخرى'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByBrowser, err = scanGroup(`SELECT browser, COUNT(*) FROM platform_admin.visitors GROUP BY browser ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByBrowser, err = scanGroup(`SELECT COALESCE(NULLIF(browser, ''), 'أخرى'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
 
 		rows, err := tx.Query(txCtx, `
 			SELECT id, visitor_key, ip, user_agent, browser, device, os,
-			       COALESCE(NULLIF(country, ''), 'مصر 🇪🇬') AS country,
-			       COALESCE(NULLIF(city, ''), 'القاهرة') AS city,
+			       COALESCE(NULLIF(country, ''), 'غير محدد') AS country,
+			       COALESCE(NULLIF(city, ''), 'غير محدد') AS city,
 			       visited_at, created_at
 			FROM platform_admin.visitors ORDER BY created_at DESC LIMIT $1;`,
 			limit)

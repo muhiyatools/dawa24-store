@@ -158,7 +158,7 @@ func (s *Service) CreatePolicyVersion(ctx context.Context, p *Policy) error {
 	return nil
 }
 
-// PublishPolicyVersion marks a version as active and unpublishes other versions.
+// PublishPolicyVersion makes a specific version the live active document.
 func (s *Service) PublishPolicyVersion(ctx context.Context, id int64) error {
 	if err := s.repo.PublishPolicyVersion(ctx, id); err != nil {
 		return err
@@ -167,3 +167,208 @@ func (s *Service) PublishPolicyVersion(ctx context.Context, id int64) error {
 	return nil
 }
 
+// GetAISettings loads AI configuration from database settings.
+func (s *Service) GetAISettings(ctx context.Context) (*AISettings, error) {
+	setting, err := s.repo.GetSetting(ctx, "ai_configuration")
+	if err != nil || setting == nil || setting.Value == nil {
+		return &AISettings{
+			Provider:     "gemini",
+			Model:        "gemini-1.5-pro",
+			Temperature:  0.7,
+			MaxTokens:    2048,
+			SystemPrompt: "أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.",
+			IsActive:     true,
+		}, nil
+	}
+	v := setting.Value
+	ai := &AISettings{
+		Provider:     getString(v, "provider", "gemini"),
+		Model:        getString(v, "model", "gemini-1.5-pro"),
+		APIKey:       getString(v, "api_key", ""),
+		EndpointURL:  getString(v, "endpoint_url", "https://generativelanguage.googleapis.com/v1beta"),
+		Temperature:  getFloat(v, "temperature", 0.7),
+		MaxTokens:    getInt(v, "max_tokens", 2048),
+		SystemPrompt: getString(v, "system_prompt", ""),
+		IsActive:     getBool(v, "is_active", true),
+	}
+	return ai, nil
+}
+
+// SaveAISettings writes AI configuration to database settings.
+func (s *Service) SaveAISettings(ctx context.Context, ai *AISettings) error {
+	val := map[string]any{
+		"provider":      ai.Provider,
+		"model":         ai.Model,
+		"api_key":       ai.APIKey,
+		"endpoint_url":  ai.EndpointURL,
+		"temperature":   ai.Temperature,
+		"max_tokens":    ai.MaxTokens,
+		"system_prompt": ai.SystemPrompt,
+		"is_active":     ai.IsActive,
+	}
+	return s.repo.SetSetting(ctx, &SystemSetting{
+		Key:         "ai_configuration",
+		Value:       val,
+		Description: "Platform AI LLM Provider Configuration",
+		IsPublic:    false,
+	})
+}
+
+// GetGatewaySettings loads API Gateway settings from database.
+func (s *Service) GetGatewaySettings(ctx context.Context) (*GatewaySettings, error) {
+	setting, err := s.repo.GetSetting(ctx, "gateway_configuration")
+	if err != nil || setting == nil || setting.Value == nil {
+		return &GatewaySettings{
+			EndpointURL:    "https://api.dawa24.com/v1",
+			Environment:    "production",
+			TimeoutSeconds: 30,
+			IsActive:       true,
+		}, nil
+	}
+	v := setting.Value
+	gw := &GatewaySettings{
+		EndpointURL:    getString(v, "endpoint_url", "https://api.dawa24.com/v1"),
+		Environment:    getString(v, "environment", "production"),
+		TimeoutSeconds: getInt(v, "timeout_seconds", 30),
+		APIKey:         getString(v, "api_key", ""),
+		IsActive:       getBool(v, "is_active", true),
+	}
+	return gw, nil
+}
+
+// SaveGatewaySettings writes API Gateway settings to database.
+func (s *Service) SaveGatewaySettings(ctx context.Context, gw *GatewaySettings) error {
+	val := map[string]any{
+		"endpoint_url":    gw.EndpointURL,
+		"environment":     gw.Environment,
+		"timeout_seconds": gw.TimeoutSeconds,
+		"api_key":         gw.APIKey,
+		"is_active":       gw.IsActive,
+	}
+	return s.repo.SetSetting(ctx, &SystemSetting{
+		Key:         "gateway_configuration",
+		Value:       val,
+		Description: "Platform API Gateway Endpoints Configuration",
+		IsPublic:    false,
+	})
+}
+
+// GetSiteSettings loads public website branding, contact info, and social links.
+func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
+	setting, err := s.repo.GetSetting(ctx, "site_public_settings")
+	if err != nil || setting == nil || setting.Value == nil {
+		return &SiteSettings{
+			SiteName:        "دواء 24",
+			SiteDescription: "المنصة الرائدة لتوريد وتوزيع الأدوية والمستلزمات الطبية",
+			LogoURL:         "/static/img/logo.png",
+			FaviconURL:      "/static/img/logo.png",
+			ContactEmail:    "info@dawa24.com",
+			SupportEmail:    "support@dawa24.com",
+			Phone:           "01065397000",
+			WhatsApp:        "201065397000",
+			Address:         "القاهرة، جمهورية مصر العربية",
+			SocialLinks: map[string]string{
+				"facebook":  "https://facebook.com/dawa24",
+				"twitter":   "https://twitter.com/dawa24",
+				"instagram": "https://instagram.com/dawa24",
+				"linkedin":  "https://linkedin.com/company/dawa24",
+				"youtube":   "https://youtube.com/@dawa24",
+				"tiktok":    "https://tiktok.com/@dawa24",
+				"snapchat":  "https://snapchat.com/add/dawa24",
+				"whatsapp":  "https://wa.me/201065397000",
+				"telegram":  "https://t.me/dawa24",
+			},
+		}, nil
+	}
+	v := setting.Value
+	socialMap := map[string]string{}
+	if rawSocial, ok := v["social_links"].(map[string]any); ok {
+		for k, val := range rawSocial {
+			socialMap[k] = fmt.Sprintf("%v", val)
+		}
+	} else if rawSocialStr, ok := v["social_links"].(map[string]string); ok {
+		socialMap = rawSocialStr
+	}
+
+	ss := &SiteSettings{
+		SiteName:        getString(v, "site_name", "دواء 24"),
+		SiteDescription: getString(v, "site_description", "المنصة الرائدة لتوريد الأدوية"),
+		LogoURL:         getString(v, "logo_url", "/static/img/logo.png"),
+		FaviconURL:      getString(v, "favicon_url", "/static/img/logo.png"),
+		ContactEmail:    getString(v, "contact_email", "info@dawa24.com"),
+		SupportEmail:    getString(v, "support_email", "support@dawa24.com"),
+		Phone:           getString(v, "phone", "01065397000"),
+		WhatsApp:        getString(v, "whatsapp", "201065397000"),
+		Address:         getString(v, "address", "القاهرة، جمهورية مصر العربية"),
+		SocialLinks:     socialMap,
+	}
+	return ss, nil
+}
+
+// SaveSiteSettings writes public site settings and branding to database.
+func (s *Service) SaveSiteSettings(ctx context.Context, ss *SiteSettings) error {
+	val := map[string]any{
+		"site_name":        ss.SiteName,
+		"site_description": ss.SiteDescription,
+		"logo_url":         ss.LogoURL,
+		"favicon_url":      ss.FaviconURL,
+		"contact_email":    ss.ContactEmail,
+		"support_email":    ss.SupportEmail,
+		"phone":            ss.Phone,
+		"whatsapp":         ss.WhatsApp,
+		"address":          ss.Address,
+		"social_links":     ss.SocialLinks,
+	}
+	return s.repo.SetSetting(ctx, &SystemSetting{
+		Key:         "site_public_settings",
+		Value:       val,
+		Description: "Public website branding, contact info, and social media",
+		IsPublic:    true,
+	})
+}
+
+func getString(m map[string]any, k, def string) string {
+	if val, ok := m[k]; ok {
+		if s, ok := val.(string); ok && s != "" {
+			return s
+		}
+	}
+	return def
+}
+
+func getFloat(m map[string]any, k string, def float64) float64 {
+	if val, ok := m[k]; ok {
+		switch v := val.(type) {
+		case float64:
+			return v
+		case int:
+			return float64(v)
+		case int64:
+			return float64(v)
+		}
+	}
+	return def
+}
+
+func getInt(m map[string]any, k string, def int) int {
+	if val, ok := m[k]; ok {
+		switch v := val.(type) {
+		case int:
+			return v
+		case float64:
+			return int(v)
+		case int64:
+			return int(v)
+		}
+	}
+	return def
+}
+
+func getBool(m map[string]any, k string, def bool) bool {
+	if val, ok := m[k]; ok {
+		if b, ok := val.(bool); ok {
+			return b
+		}
+	}
+	return def
+}

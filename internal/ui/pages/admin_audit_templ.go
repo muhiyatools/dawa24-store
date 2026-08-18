@@ -12,7 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -50,7 +50,7 @@ func AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) templ.Com
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\" x-data=\"adminAuditManager()\"><!-- Header Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\" x-data=\"adminAuditManager()\"><!-- Header --><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -58,7 +58,7 @@ func AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 class=\"card-title\" style=\"margin:0; font-size:1.5rem; font-weight:800;\">سجل العمليات والتدقيق الأمني (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 class=\"card-title\" style=\"margin:0; font-size:1.4rem; font-weight:800;\">سجل العمليات والتدقيق الأمني (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -71,140 +71,150 @@ func AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">التتبع الزمني الشامل لكافة العمليات الإدارية، الحسابات، وتعديلات الكتالوج وأوامر التوريد</p></div></div></div><!-- Search and Filter Bar -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات</p></div></div><!-- Quick Search & Filter Controls --><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالمستخدم، المنظمة، أو الإجراء...\" class=\"form-input\" style=\"width:280px; padding:0.45rem 0.85rem; font-size:0.85rem;\"> <select x-model=\"filterSeverity\" class=\"form-select\" style=\"width:140px; padding:0.45rem 0.85rem; font-size:0.85rem;\"><option value=\"\">كافة درجات الأهمية</option> <option value=\"عادي\">عادي (Info)</option> <option value=\"متوسط\">متوسط (Warning)</option> <option value=\"حرج\">حرج (Critical)</option></select> <select x-model=\"filterModule\" class=\"form-select\" style=\"width:140px; padding:0.45rem 0.85rem; font-size:0.85rem;\"><option value=\"\">كافة الأقسام</option> <option value=\"المنشآت\">المنشآت</option> <option value=\"المستخدمين\">المستخدمين</option> <option value=\"الكتالوج\">الكتالوج</option> <option value=\"أوامر التوريد\">أوامر التوريد</option> <option value=\"الأمان والصلاحيات\">الأمان والصلاحيات</option> <option value=\"الهيكل المؤسسي\">الهيكل المؤسسي</option></select></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if len(entries) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div style=\"margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"flex:1; min-width:280px; max-width:480px; position:relative;\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"ابحث بالفاعل، الإجراء، المعرف، أو نوع الكيان...\" class=\"form-input\" style=\"padding-inline-start:2.25rem; font-size:0.875rem;\"><div style=\"position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><select x-model=\"typeFilter\" class=\"form-select\" style=\"font-size:0.825rem; padding:0.4rem 0.8rem;\"><option value=\"all\">جميع أنواع الكيانات</option> <option value=\"organization\">المنشآت والشركات</option> <option value=\"identity.user\">المستخدمين</option> <option value=\"product\">الأصناف الدوائية</option> <option value=\"order\">أوامر التوريد</option> <option value=\"branch\">الفروع والمستودعات</option> <option value=\"institutional_work\">الهيكل المؤسسي</option></select></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
 			if len(entries) == 0 {
 				templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد عمليات مسجلة في سجل التدقيق بعد",
-					Message: "سيتم تسجيل وتوثيق كافة العمليات والأحداث الأمنية والإدارية هنا تلقائياً.",
+					Title:   "سجل التدقيق فارغ",
+					Message: "لم يتم تسجيل أي عمليات إدارية أو أحداث حتى الآن.",
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th style=\"width:16%;\">التاريخ والوقت</th><th style=\"width:20%;\">الفاعل / المستخدم</th><th style=\"width:24%;\">الإجراء المنفذ</th><th style=\"width:15%;\">نوع الكيان</th><th style=\"width:15%;\">المعرّف</th><th style=\"width:10%; text-align:end;\">التفاصيل</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"data-table\" style=\"min-width:1150px; width:100%; border-collapse:collapse;\"><thead><tr><th style=\"width:5%; text-align:center;\">المعرف</th><th style=\"width:10%; text-align:start;\">التوقيت</th><th style=\"width:13%; text-align:start;\">المستخدم</th><th style=\"width:12%; text-align:start;\">المنظمة</th><th style=\"width:14%; text-align:start;\">القسم والإجراء</th><th style=\"width:18%; text-align:start;\">العنوان والوصف</th><th style=\"width:8%; text-align:center;\">الأهمية</th><th style=\"width:12%; text-align:start;\">عنوان IP والمسار</th><th style=\"width:8%; text-align:center;\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, e := range entries {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<tr x-show=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- Embedded JSON for safe Alpine inspection --> <script type=\"application/json\" id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var4 string
-					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("(!searchQuery || '%s %s %s %s %s'.toLowerCase().includes(searchQuery.toLowerCase())) && (typeFilter === 'all' || '%s'.includes(typeFilter))",
-						escapeJS(e.ActorName),
-						escapeJS(e.ActorEmail),
-						escapeJS(e.ActionLabelAr),
-						escapeJS(e.EntityTypeAr),
-						escapeJS(e.EntityID),
-						e.EntityType))
+					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("audit-data-%d", e.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 90, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 83, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><!-- Timestamp --><td class=\"tabular-nums\" style=\"font-size:0.85rem; color:var(--text-secondary);\"><div style=\"font-weight:700; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">\n\t\t\t\t\t\t\t\t\t{ templ.Raw(auditEntryJSON(e)) }\n\t\t\t\t\t\t\t\t</script> <tr x-show=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
-					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(e.CreatedAt.Format("2006-01-02"))
+					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("matchesFilter('%s', '%s', '%s', '%s', '%s', '%s')",
+						escapeJS(e.ActorName),
+						escapeJS(e.OrganizationName),
+						escapeJS(e.ActionLabelAr),
+						escapeJS(e.Title),
+						escapeJS(e.Severity),
+						escapeJS(e.Module)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 94, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 94, Col: 29}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div style=\"font-size:0.75rem; color:var(--text-muted);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"><!-- 1. المعرف --><td style=\"text-align:center;\"><span class=\"tabular-nums badge badge-slate\" style=\"font-weight:700; font-size:0.75rem;\">#")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var6 string
-					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(e.CreatedAt.Format("15:04:05"))
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", e.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 95, Col: 99}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 99, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></td><!-- Actor --><td><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-full); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--accent); font-weight:800; font-size:0.8rem; flex-shrink:0;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if e.ActorUserID != nil && *e.ActorUserID > 0 {
-						templ_7745c5c3_Err = components.IconUser("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = components.IconShield("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div style=\"min-width:0;\"><div style=\"font-weight:800; color:var(--text); font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></td><!-- 2. التوقيت --><td style=\"text-align:start;\"><div class=\"tabular-nums\" style=\"font-weight:700; font-size:0.825rem; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActorName)
+					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(e.CreatedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 110, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 106, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"tabular-nums\" style=\"font-size:0.75rem; color:var(--text-muted);\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var8 string
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(e.CreatedAt.Format("15:04:05"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 109, Col: 43}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></td><!-- 3. المستخدم --><td style=\"text-align:start;\"><div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var9 string
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActorName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 116, Col: 24}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if e.ActorEmail != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"font-size:0.75rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;\" dir=\"ltr\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var8 string
-						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActorEmail)
+						var templ_7745c5c3_Var10 string
+						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActorEmail)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 113, Col: 155}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 120, Col: 26}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div></td><!-- Action --><td><div style=\"display:flex; flex-direction:column; gap:2px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</td><!-- 4. المنظمة --><td style=\"text-align:start;\"><div style=\"font-weight:600; color:var(--text-secondary); font-size:0.825rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var9 = []any{"badge", auditActionBadgeClass(e.Action)}
-					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
+					var templ_7745c5c3_Var11 string
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(e.OrganizationName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 128, Col: 31}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></td><!-- 5. القسم والإجراء --><td style=\"text-align:start;\"><div style=\"display:flex; flex-direction:column; gap:0.2rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var12 = []any{"badge", auditBadgeClass(e.Action)}
+					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -212,115 +222,142 @@ func AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var9).String())
+					var templ_7745c5c3_Var13 string
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var12).String())
 					if templ_7745c5c3_Err != nil {
 						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 1, Col: 0}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" style=\"font-weight:700; width:fit-content;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" style=\"font-weight:700; font-size:0.75rem; align-self:flex-start;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if e.ActionLabelAr != "" {
-						var templ_7745c5c3_Var11 string
-						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActionLabelAr)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 124, Col: 30}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						var templ_7745c5c3_Var12 string
-						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(e.Action)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 126, Col: 23}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
+					var templ_7745c5c3_Var14 string
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActionLabelAr)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 136, Col: 29}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span> <span style=\"font-size:0.7rem; color:var(--text-muted); font-family:monospace;\" dir=\"ltr\">")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var13 string
-					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(e.Action)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 129, Col: 111}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span> <span style=\"font-size:0.7rem; color:var(--text-muted);\">القسم: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></div></td><!-- Entity Type --><td><span class=\"badge badge-slate\" style=\"font-weight:700;\">")
+					var templ_7745c5c3_Var15 string
+					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(e.Module)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 139, Col: 34}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if e.EntityTypeAr != "" {
-						var templ_7745c5c3_Var14 string
-						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(e.EntityTypeAr)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 137, Col: 28}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						var templ_7745c5c3_Var15 string
-						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(e.EntityType)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 139, Col: 26}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></td><!-- Entity ID --><td><span class=\"tabular-nums\" style=\"font-size:0.825rem; font-family:monospace; color:var(--text-secondary);\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></div></td><!-- 6. العنوان والوصف --><td style=\"text-align:start;\"><div style=\"font-weight:700; color:var(--text); font-size:0.85rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(truncateStr(e.EntityID, 20))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(e.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 147, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 147, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></td><!-- Details Modal Trigger --><td style=\"text-align:end;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"font-size:0.75rem; font-weight:700; color:var(--accent);\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:2px; line-height:1.3; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openDetailsModal({ id: %d, action: '%s', actionLabel: '%s', actor: '%s', actorEmail: '%s', entityType: '%s', entityId: '%s', date: '%s', before: %s, after: %s })",
-						e.ID,
-						escapeJS(e.Action),
-						escapeJS(e.ActionLabelAr),
-						escapeJS(e.ActorName),
-						escapeJS(e.ActorEmail),
-						escapeJS(e.EntityTypeAr),
-						escapeJS(e.EntityID),
-						e.CreatedAt.Format("2006-01-02 15:04:05"),
-						toJSONSafe(e.Before),
-						toJSONSafe(e.After)))
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(e.Description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 167, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 150, Col: 26}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></td><!-- 7. الأهمية --><td style=\"text-align:center;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var18 = []any{"badge", severityBadgeClass(e.Severity)}
+					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var18...)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var19 string
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var18).String())
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 1, Col: 0}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" style=\"font-size:0.75rem; font-weight:700;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var20 string
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(e.Severity)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 157, Col: 23}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></td><!-- 8. عنوان IP والمسار --><td style=\"text-align:start;\"><div class=\"tabular-nums\" style=\"font-size:0.775rem; font-family:monospace; color:var(--text); direction:ltr; text-align:start;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var21 string
+					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(e.IPAddress)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 164, Col: 24}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><div style=\"font-size:0.7rem; color:var(--text-muted); direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:140px; white-space:nowrap;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var22 string
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(e.Route)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 167, Col: 20}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div></td><!-- 9. الإجراءات --><td style=\"text-align:center;\"><div style=\"display:flex; align-items:center; justify-content:center; gap:0.3rem;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.3rem 0.6rem; font-size:0.75rem; font-weight:700; color:var(--accent);\" @click=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var23 string
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openDetails(%d)", e.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 178, Col: 57}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" title=\"عرض تفاصيل العملية وفروقات البيانات\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -328,25 +365,25 @@ func AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>التفاصيل</span></button></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>تفاصيل</span></button></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<!-- Audit Log Details & Diff Modal --><div x-show=\"isDetailsOpen\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;\" :style=\"isDetailsOpen ? 'display:flex;' : 'display:none;'\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"card\" style=\"max-width:720px; width:100%; max-height:85vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!-- Inspection & Details Diff Modal --><div x-show=\"isDetailsOpen\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;\" :style=\"isDetailsOpen ? 'display:flex;' : 'display:none;'\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"card\" style=\"max-width:850px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconFile("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconClock("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\" x-text=\"selectedLog.actionLabel || selectedLog.action\"></h3><span style=\"font-size:0.75rem; color:var(--text-muted);\" x-text=\"selectedLog.date\"></span></div></div><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\" x-text=\"'تفاصيل العملية #' + (selected ? selected.id : '')\"></h3><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:2px;\" x-text=\"selected ? selected.title : ''\"></div></div></div><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -354,7 +391,7 @@ func AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</button></div><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Meta Info Grid --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem; background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); font-size:0.85rem;\"><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem; margin-bottom:2px;\">الفاعل المنفذ:</span> <strong style=\"color:var(--text);\" x-text=\"selectedLog.actor\"></strong> <span style=\"color:var(--text-secondary); display:block; font-size:0.75rem;\" x-text=\"selectedLog.actorEmail\" dir=\"ltr\"></span></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem; margin-bottom:2px;\">الكيان المستهدف:</span> <strong style=\"color:var(--text);\" x-text=\"selectedLog.entityType\"></strong> <span style=\"color:var(--text-secondary); display:block; font-size:0.75rem; font-family:monospace;\" x-text=\"selectedLog.entityId\" dir=\"ltr\"></span></div></div><!-- Payload Diff --><div><h4 style=\"font-size:0.95rem; font-weight:700; color:var(--text); margin:0 0 0.5rem 0;\">البيانات والمدخلات (Changes & Payload)</h4><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><!-- Before --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem;\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.4rem;\">القيم السابقة (Before)</div><pre style=\"margin:0; font-size:0.75rem; color:var(--text); max-height:220px; overflow:auto; white-space:pre-wrap; font-family:monospace;\" x-text=\"JSON.stringify(selectedLog.before || {}, null, 2)\"></pre></div><!-- After --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem;\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--accent); margin-bottom:0.4rem;\">القيم الجديدة (After)</div><pre style=\"margin:0; font-size:0.75rem; color:var(--text); max-height:220px; overflow:auto; white-space:pre-wrap; font-family:monospace;\" x-text=\"JSON.stringify(selectedLog.after || {}, null, 2)\"></pre></div></div></div><div style=\"display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary\">إغلاق</button></div></div></div></div></div><script>\n\t\t\tfunction adminAuditManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsearchQuery: '',\n\t\t\t\t\ttypeFilter: 'all',\n\t\t\t\t\tisDetailsOpen: false,\n\t\t\t\t\tselectedLog: {},\n\n\t\t\t\t\topenDetailsModal(log) {\n\t\t\t\t\t\tthis.selectedLog = log;\n\t\t\t\t\t\tthis.isDetailsOpen = true;\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></div><template x-if=\"selected\"><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Metadata Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.85rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">المستخدم المنفّذ:</div><div style=\"font-weight:700; color:var(--text); font-size:0.9rem;\" x-text=\"selected.actor_name\"></div><div style=\"font-size:0.75rem; color:var(--text-muted);\" x-text=\"selected.actor_email\"></div></div><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">المنظمة / الجهة:</div><div style=\"font-weight:700; color:var(--text); font-size:0.9rem;\" x-text=\"selected.organization_name || 'المنصة الرئيسية'\"></div></div><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">القسم والإجراء:</div><div style=\"font-weight:700; color:var(--accent); font-size:0.9rem;\" x-text=\"selected.module + ' — ' + selected.action_label_ar\"></div></div><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">عنوان IP والمسار:</div><div class=\"tabular-nums\" style=\"font-weight:700; color:var(--text); font-size:0.85rem; direction:ltr; text-align:start;\" x-text=\"selected.ip_address\"></div><div style=\"font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;\" x-text=\"selected.route\"></div></div></div><!-- Description --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;\">شرح وبيان العملية:</div><div style=\"font-size:0.875rem; color:var(--text); line-height:1.5;\" x-text=\"selected.description\"></div></div><!-- Before / After JSON Diff --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div style=\"display:flex; flex-direction:column; gap:0.4rem;\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--danger);\">الحالة السابقة (Before):</div><pre style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem; font-size:0.75rem; color:var(--text-secondary); max-height:220px; overflow-y:auto; direction:ltr; text-align:start; white-space:pre-wrap; margin:0;\" x-text=\"formatJSON(selected.before)\"></pre></div><div style=\"display:flex; flex-direction:column; gap:0.4rem;\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--success);\">الحالة الجديدة (After):</div><pre style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem; font-size:0.75rem; color:var(--text-secondary); max-height:220px; overflow-y:auto; direction:ltr; text-align:start; white-space:pre-wrap; margin:0;\" x-text=\"formatJSON(selected.after)\"></pre></div></div><!-- Close Button --><div style=\"display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary\">إغلاق النافذة</button></div></div></template></div></div></div><script>\n\t\t\tfunction adminAuditManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsearchQuery: '',\n\t\t\t\t\tfilterSeverity: '',\n\t\t\t\t\tfilterModule: '',\n\t\t\t\t\tisDetailsOpen: false,\n\t\t\t\t\tselected: null,\n\n\t\t\t\t\topenDetails(id) {\n\t\t\t\t\t\tconst el = document.getElementById('audit-data-' + id);\n\t\t\t\t\t\tif (el) {\n\t\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\t\tthis.selected = JSON.parse(el.textContent);\n\t\t\t\t\t\t\t\tthis.isDetailsOpen = true;\n\t\t\t\t\t\t\t} catch (err) {\n\t\t\t\t\t\t\t\tconsole.error('Error parsing audit log data:', err);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\n\t\t\t\t\tformatJSON(obj) {\n\t\t\t\t\t\tif (!obj || Object.keys(obj).length === 0) return '(لا توجد بيانات مسجلة)';\n\t\t\t\t\t\treturn JSON.stringify(obj, null, 2);\n\t\t\t\t\t},\n\n\t\t\t\t\tmatchesFilter(actor, org, action, title, severity, module) {\n\t\t\t\t\t\tconst q = this.searchQuery.toLowerCase().trim();\n\t\t\t\t\t\tif (this.filterSeverity && !severity.includes(this.filterSeverity)) return false;\n\t\t\t\t\t\tif (this.filterModule && !module.includes(this.filterModule)) return false;\n\t\t\t\t\t\tif (!q) return true;\n\t\t\t\t\t\treturn (\n\t\t\t\t\t\t\tactor.toLowerCase().includes(q) ||\n\t\t\t\t\t\t\torg.toLowerCase().includes(q) ||\n\t\t\t\t\t\t\taction.toLowerCase().includes(q) ||\n\t\t\t\t\t\t\ttitle.toLowerCase().includes(q)\n\t\t\t\t\t\t);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -368,35 +405,36 @@ func AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) templ.Com
 	})
 }
 
-func auditActionBadgeClass(action string) string {
-	if action == "org.registered" || action == "catalog.product.created" || action == "order.created" || action == "catalog.variant.created" {
-		return "badge-emerald"
-	}
-	if action == "identity.user.role_assigned" || action == "identity.user.mfa_reset" {
-		return "badge-amber"
-	}
-	if action == "org.rejected" || action == "catalog.product.deleted" || action == "catalog.variant.deleted" {
-		return "badge-danger"
-	}
-	return "badge-sky"
-}
-
-func truncateStr(s string, max int) string {
-	if len(s) <= max {
-		return s
-	}
-	return s[:max] + "..."
-}
-
-func toJSONSafe(v any) string {
-	if v == nil {
-		return "{}"
-	}
-	b, err := json.Marshal(v)
+func auditEntryJSON(e *platformadmin.AuditEntry) string {
+	b, err := json.Marshal(e)
 	if err != nil {
 		return "{}"
 	}
 	return string(b)
+}
+
+func auditBadgeClass(action string) string {
+	switch {
+	case action == "org.approved" || action == "identity.user.registered" || action == "catalog.product.created":
+		return "badge-emerald"
+	case action == "org.rejected" || action == "catalog.product.deleted" || action == "identity.user.mfa_reset":
+		return "badge-danger"
+	case action == "org.suspended" || action == "identity.user.status_changed":
+		return "badge-amber"
+	default:
+		return "badge-sky"
+	}
+}
+
+func severityBadgeClass(s string) string {
+	switch {
+	case s == "حرج (Critical)" || s == "critical":
+		return "badge-danger"
+	case s == "متوسط (Warning)" || s == "warning":
+		return "badge-amber"
+	default:
+		return "badge-slate"
+	}
 }
 
 var _ = templruntime.GeneratedTemplate

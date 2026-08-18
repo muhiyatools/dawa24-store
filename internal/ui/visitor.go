@@ -88,9 +88,29 @@ func truncateIP(remoteAddr string) string {
 	return host
 }
 
-// detectCountryAndCity determines geographic info from headers and locale.
+// detectCountryAndCity determines geographic info from headers and network address.
 func detectCountryAndCity(r *http.Request) (country, city string) {
-	// 1. Check CDN / Cloudflare headers
+	// 1. Check if private or local address
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = r.RemoteAddr
+	}
+	host = strings.TrimSpace(host)
+	ip := net.ParseIP(host)
+	if ip != nil && (ip.IsLoopback() || ip.IsPrivate()) {
+		// If explicit geo headers are provided via reverse proxy/CDN, use them
+		if cfCountry := strings.TrimSpace(r.Header.Get("CF-IPCountry")); cfCountry != "" && len(cfCountry) == 2 {
+			country = mapCountryCode(cfCountry)
+			city = strings.TrimSpace(r.Header.Get("CF-IPCity"))
+			if city == "" {
+				city = "غير محدد"
+			}
+			return country, city
+		}
+		return "شبكة داخلية 🖥️", "بيئة التطوير (Local)"
+	}
+
+	// 2. Check CDN / Cloudflare / Proxy headers
 	if cfCountry := strings.TrimSpace(r.Header.Get("CF-IPCountry")); cfCountry != "" && len(cfCountry) == 2 {
 		country = mapCountryCode(cfCountry)
 	}
@@ -106,25 +126,30 @@ func detectCountryAndCity(r *http.Request) (country, city string) {
 		}
 	}
 
-	// 2. Fallback based on accept-language or default Egypt
+	// 3. Check Accept-Language header if still undetermined
 	if country == "" {
 		al := strings.ToLower(r.Header.Get("Accept-Language"))
-		if strings.Contains(al, "ar-sa") {
-			country = "السعودية 🇸🇦"
-			city = "الرياض"
-		} else if strings.Contains(al, "ar-ae") {
-			country = "الإمارات 🇦🇪"
-			city = "دبي"
-		} else if strings.Contains(al, "ar-kw") {
-			country = "الكويت 🇰🇼"
-			city = "مدينة الكويت"
-		} else {
+		switch {
+		case strings.Contains(al, "ar-eg"):
 			country = "مصر 🇪🇬"
-			city = "القاهرة"
+		case strings.Contains(al, "ar-sa"):
+			country = "السعودية 🇸🇦"
+		case strings.Contains(al, "ar-ae"):
+			country = "الإمارات 🇦🇪"
+		case strings.Contains(al, "ar-kw"):
+			country = "الكويت 🇰🇼"
+		case strings.Contains(al, "ar-jo"):
+			country = "الأردن 🇯🇴"
+		case strings.Contains(al, "en-us"):
+			country = "الولايات المتحدة 🇺🇸"
+		case strings.Contains(al, "en-gb"):
+			country = "المملكة المتحدة 🇬🇧"
+		default:
+			country = "دولي / Global 🌐"
 		}
 	}
 	if city == "" {
-		city = "القاهرة"
+		city = "غير محدد"
 	}
 	return country, city
 }

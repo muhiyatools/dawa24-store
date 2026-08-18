@@ -175,13 +175,18 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	// The form used to carry these two values as literals in the markup, so it
-	// always displayed the defaults regardless of what had been saved.
+	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
+	if tab == "" {
+		tab = "features"
+	}
+
 	values := pages.AdminSettingsValues{
+		ActiveTab:      tab,
 		SupportEmail:   "support@dawa24.eg",
 		CommissionRate: "1.5",
 		FeatureFlags:   features.List(),
 	}
+
 	if h.adminSvc != nil {
 		if s, err := h.adminSvc.GetSetting(ctx, settingSupportEmail); err == nil && s != nil {
 			if v, ok := s.Value["value"].(string); ok && v != "" {
@@ -193,6 +198,11 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 				values.CommissionRate = v
 			}
 		}
+
+		values.AISettings, _ = h.adminSvc.GetAISettings(ctx)
+		values.GatewaySettings, _ = h.adminSvc.GetGatewaySettings(ctx)
+		values.SiteSettings, _ = h.adminSvc.GetSiteSettings(ctx)
+		values.Policies, _ = h.adminSvc.ListPolicyVersions(ctx, "")
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -210,19 +220,18 @@ func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-
 	key := strings.TrimSpace(r.PostFormValue("key"))
 	enabledStr := strings.TrimSpace(r.PostFormValue("enabled"))
 	enabled := enabledStr == "true" || enabledStr == "1"
 
 	if key == "" {
-		h.redirectWithNotice(w, r, "/admin/settings", "error", "مفتاح الميزة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "مفتاح الميزة غير صالح.")
 		return
 	}
 
 	if err := features.GetEngine().Set(ctx, key, enabled, actor.UserID); err != nil {
 		h.log.ErrorContext(ctx, "failed to toggle feature flag", "key", key, "error", err)
-		h.redirectWithNotice(w, r, "/admin/settings", "error", "فشل تحديث حالة الميزة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "فشل تحديث حالة الميزة.")
 		return
 	}
 
@@ -230,25 +239,14 @@ func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Requ
 	if enabled {
 		msg = "تم تفعيل الميزة بنجاح."
 	}
-	h.redirectWithNotice(w, r, "/admin/settings", "success", msg)
+	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", msg)
 }
 
-
-// AdminSettingsSubmit persists the platform settings.
-//
-// This previously logged the submitted values and redirected with
-// ?saved=true, writing nothing. The page then re-rendered its hardcoded
-// defaults, which happened to match what had just been typed often enough that
-// the form looked like it worked.
+// AdminSettingsSubmit persists the general platform settings.
 func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
-	// Form actions in this package always answer with a redirect, so a refresh
-	// cannot resubmit and the reader lands back on a real page. An error is
-	// carried as a notice rather than rendered as an error page.
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings", "error",
-			"خدمة الإعدادات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "خدمة الإعدادات غير متاحة حالياً.")
 		return
 	}
 
@@ -256,12 +254,12 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 	commissionRate := strings.TrimSpace(r.PostFormValue("commission_rate"))
 
 	if supportEmail == "" || !strings.Contains(supportEmail, "@") {
-		h.redirectWithNotice(w, r, "/admin/settings", "error", "بريد الدعم الفني غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "بريد الدعم الفني غير صالح.")
 		return
 	}
 	rate, err := strconv.ParseFloat(commissionRate, 64)
 	if err != nil || rate < 0 || rate > 100 {
-		h.redirectWithNotice(w, r, "/admin/settings", "error", "نسبة العمولة يجب أن تكون بين 0 و 100.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "نسبة العمولة يجب أن تكون بين 0 و 100.")
 		return
 	}
 
@@ -282,13 +280,167 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 	for _, s := range settings {
 		if err := h.adminSvc.SetSetting(ctx, s); err != nil {
 			h.log.ErrorContext(ctx, "save platform setting", "error", err, "key", s.Key)
-			h.redirectWithNotice(w, r, "/admin/settings", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
 	h.log.InfoContext(ctx, "platform settings updated", "support_email", supportEmail, "commission_rate", commissionRate)
-	h.redirectWithNotice(w, r, "/admin/settings", "success", "تم حفظ الإعدادات بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", "تم حفظ إعدادات المنصة بنجاح.")
+}
+
+// AdminSiteSettingsSubmit persists public contact info and social media links.
+func (h *UIHandler) AdminSiteSettingsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", "خدمة الإعدادات غير متاحة.")
+		return
+	}
+
+	curr, _ := h.adminSvc.GetSiteSettings(ctx)
+	if curr == nil {
+		curr = &platformadmin.SiteSettings{SocialLinks: map[string]string{}}
+	}
+	if curr.SocialLinks == nil {
+		curr.SocialLinks = map[string]string{}
+	}
+
+	section := r.FormValue("section")
+	if section == "contact" {
+		curr.SiteName = strings.TrimSpace(r.FormValue("site_name"))
+		curr.SiteDescription = strings.TrimSpace(r.FormValue("site_description"))
+		curr.ContactEmail = strings.TrimSpace(r.FormValue("contact_email"))
+		curr.SupportEmail = strings.TrimSpace(r.FormValue("support_email"))
+		curr.Phone = strings.TrimSpace(r.FormValue("phone"))
+		curr.WhatsApp = strings.TrimSpace(r.FormValue("whatsapp"))
+		curr.Address = strings.TrimSpace(r.FormValue("address"))
+	} else if section == "socials" {
+		curr.SocialLinks["facebook"] = strings.TrimSpace(r.FormValue("social_facebook"))
+		curr.SocialLinks["twitter"] = strings.TrimSpace(r.FormValue("social_twitter"))
+		curr.SocialLinks["instagram"] = strings.TrimSpace(r.FormValue("social_instagram"))
+		curr.SocialLinks["linkedin"] = strings.TrimSpace(r.FormValue("social_linkedin"))
+		curr.SocialLinks["youtube"] = strings.TrimSpace(r.FormValue("social_youtube"))
+		curr.SocialLinks["tiktok"] = strings.TrimSpace(r.FormValue("social_tiktok"))
+		curr.SocialLinks["snapchat"] = strings.TrimSpace(r.FormValue("social_snapchat"))
+		curr.SocialLinks["telegram"] = strings.TrimSpace(r.FormValue("social_telegram"))
+		if curr.WhatsApp != "" {
+			curr.SocialLinks["whatsapp"] = "https://wa.me/" + curr.WhatsApp
+		}
+	}
+
+	if err := h.adminSvc.SaveSiteSettings(ctx, curr); err != nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", "تم حفظ وتحديث إعدادات الموقع بنجاح.")
+}
+
+// AdminBrandingSubmit updates platform logo and favicon.
+func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", "خدمة الإعدادات غير متاحة.")
+		return
+	}
+
+	curr, _ := h.adminSvc.GetSiteSettings(ctx)
+	if curr == nil {
+		curr = &platformadmin.SiteSettings{}
+	}
+
+	logoURL := strings.TrimSpace(r.FormValue("logo_url"))
+	faviconURL := strings.TrimSpace(r.FormValue("favicon_url"))
+
+	// Check if a new logo file was uploaded
+	if err := r.ParseMultipartForm(10 << 20); err == nil {
+		file, _, err := r.FormFile("logo_file")
+		if err == nil && file != nil {
+			defer file.Close()
+			savePath := "internal/ui/static/img/logo.png"
+			if out, err := os.Create(savePath); err == nil {
+				defer out.Close()
+				_, _ = io.Copy(out, file)
+				logoURL = "/static/img/logo.png"
+			}
+		}
+	}
+
+	if logoURL != "" {
+		curr.LogoURL = logoURL
+	}
+	if faviconURL != "" {
+		curr.FaviconURL = faviconURL
+	}
+
+	if err := h.adminSvc.SaveSiteSettings(ctx, curr); err != nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", "تم حفظ وتطبيق الهوية البصرية بنجاح.")
+}
+
+// AdminAISettingsSubmit updates AI provider and parameters.
+func (h *UIHandler) AdminAISettingsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", "خدمة الذكاء الاصطناعي غير متاحة.")
+		return
+	}
+
+	temp, _ := strconv.ParseFloat(r.FormValue("temperature"), 64)
+	maxTokens, _ := strconv.Atoi(r.FormValue("max_tokens"))
+	if maxTokens <= 0 {
+		maxTokens = 2048
+	}
+
+	ai := &platformadmin.AISettings{
+		Provider:     strings.TrimSpace(r.FormValue("provider")),
+		Model:        strings.TrimSpace(r.FormValue("model")),
+		APIKey:       strings.TrimSpace(r.FormValue("api_key")),
+		EndpointURL:  strings.TrimSpace(r.FormValue("endpoint_url")),
+		Temperature:  temp,
+		MaxTokens:    maxTokens,
+		SystemPrompt: strings.TrimSpace(r.FormValue("system_prompt")),
+		IsActive:     r.FormValue("is_active") == "true",
+	}
+
+	if err := h.adminSvc.SaveAISettings(ctx, ai); err != nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ إعدادات الذكاء الاصطناعي بنجاح.")
+}
+
+// AdminGatewaySettingsSubmit updates Gateway endpoints and parameters.
+func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", "خدمة البوابة غير متاحة.")
+		return
+	}
+
+	timeout, _ := strconv.Atoi(r.FormValue("timeout_seconds"))
+	if timeout <= 0 {
+		timeout = 30
+	}
+
+	gw := &platformadmin.GatewaySettings{
+		EndpointURL:    strings.TrimSpace(r.FormValue("endpoint_url")),
+		Environment:    strings.TrimSpace(r.FormValue("environment")),
+		TimeoutSeconds: timeout,
+		APIKey:         strings.TrimSpace(r.FormValue("api_key")),
+		IsActive:       r.FormValue("is_active") == "true",
+	}
+
+	if err := h.adminSvc.SaveGatewaySettings(ctx, gw); err != nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ إعدادات بوابة الربط بنجاح.")
 }
 
 // Administrative actions on user accounts.
@@ -520,47 +672,99 @@ func localizeAuditEntry(e *platformadmin.AuditEntry) {
 	if e == nil {
 		return
 	}
+	e.Severity = "عادي (Info)"
 	switch e.Action {
 	case "org.registered":
+		e.Module = "المنشآت"
 		e.ActionLabelAr = "تسجيل منشأة جديدة"
+		e.Title = "طلب تسجيل منشأة جديدة"
+		e.Description = "تم تقديم ملف ترخيص وسجل تجاري لمنشأة دوائية جديدة"
 	case "org.approved", "org.status_updated":
+		e.Module = "المنشآت"
 		e.ActionLabelAr = "تحديث حالة اعتماد المنشأة"
+		e.Title = "اعتماد أو ترخيص منشأة"
+		e.Description = "تم التحقق من الوثائق والموافقة على حساب المنشأة"
 	case "org.rejected":
+		e.Module = "المنشآت"
 		e.ActionLabelAr = "رفض اعتماد المنشأة"
+		e.Title = "رفض اعتماد منشأة"
+		e.Description = "تم رفض ملف المنشأة بسبب عدم استيفاء التراخيص"
+		e.Severity = "حرج (Critical)"
 	case "org.suspended":
+		e.Module = "المنشآت"
 		e.ActionLabelAr = "إيقاف المنشأة مؤقتاً"
+		e.Title = "إيقاف حساب منشأة"
+		e.Description = "تم تعليق حساب المنشأة مؤقتاً لمخالفة اللوائح"
+		e.Severity = "متوسط (Warning)"
 	case "identity.user.registered":
+		e.Module = "المستخدمين"
 		e.ActionLabelAr = "تسجيل حساب مستخدم جديد"
+		e.Title = "إنشاء حساب مستخدم"
+		e.Description = "تم تسجيل عضو أو صيدلي جديد في النظام"
 	case "identity.user.status_changed":
+		e.Module = "المستخدمين"
 		e.ActionLabelAr = "تغيير حالة حساب المستخدم"
+		e.Title = "تعديل حالة الحساب"
+		e.Description = "تحديث حالة التفعيل أو الإيقاف لحساب المستخدم"
+		e.Severity = "متوسط (Warning)"
 	case "identity.user.role_assigned":
+		e.Module = "الأمان والصلاحيات"
 		e.ActionLabelAr = "تعيين دور وصلاحية للمستخدم"
+		e.Title = "إسناد صلاحية أمنية"
+		e.Description = "تعديل رتبة وصلاحيات المستخدم داخل المنصة"
+		e.Severity = "متوسط (Warning)"
 	case "identity.user.mfa_reset":
+		e.Module = "الأمان والصلاحيات"
 		e.ActionLabelAr = "إعادة ضبط التحقق الثنائي (MFA)"
+		e.Title = "إعادة ضبط أمني (MFA)"
+		e.Description = "إعادة ضبط مفاتيح المصادقة الثنائية لحساب المستخدم"
+		e.Severity = "حرج (Critical)"
 	case "catalog.product.created", "product.created":
+		e.Module = "الكتالوج"
 		e.ActionLabelAr = "إضافة صنف دوائي جديد"
+		e.Title = "إضافة دواء للكتالوج"
+		e.Description = "إدراج صنف دوائي ومستحضر معتمد في الكتالوج الموحد"
 	case "catalog.product.updated", "product.updated":
+		e.Module = "الكتالوج"
 		e.ActionLabelAr = "تعديل بيانات الصنف الدوائي"
+		e.Title = "تحديث بيانات دواء"
+		e.Description = "تعديل الأسعار أو المادة الفعالة أو بيانات الصنف"
 	case "catalog.product.deleted", "product.deleted":
+		e.Module = "الكتالوج"
 		e.ActionLabelAr = "حذف صنف من الكتالوج"
+		e.Title = "حذف صنف دوائي"
+		e.Description = "إلغاء أو حذف صنف دوائي من الكتالوج المعتمد"
+		e.Severity = "حرج (Critical)"
 	case "catalog.variant.created", "variant.created":
+		e.Module = "عروض الموردين"
 		e.ActionLabelAr = "إضافة عرض توريد جديد"
-	case "catalog.variant.deleted", "variant.deleted":
-		e.ActionLabelAr = "حذف عرض توريد"
+		e.Title = "إضافة عرض سعر دوائي"
+		e.Description = "طرح عرض أسعار وتوريد جديد لصنف معتمد"
 	case "order.created":
+		e.Module = "أوامر التوريد"
 		e.ActionLabelAr = "إنشاء طلب توريد جديد"
+		e.Title = "إنشاء أمر توريد"
+		e.Description = "تم تقديم أمر توريد دوائي جديد من صيدلية"
 	case "order.status_updated", "order.status_changed":
+		e.Module = "أوامر التوريد"
 		e.ActionLabelAr = "تحديث حالة أمر التوريد"
-	case "branch.created":
-		e.ActionLabelAr = "إضافة فرع مستودع جديد"
-	case "branch.manager_assigned":
-		e.ActionLabelAr = "تعيين مدير للفرع"
+		e.Title = "تحديث حالة الشحن/التوريد"
+		e.Description = "تغيير حالة الطلب الدوائي بين التجهيز والتوصيل والاستلام"
 	case "institutional_work.created":
+		e.Module = "الهيكل المؤسسي"
 		e.ActionLabelAr = "إضافة تصنيف هيكل مؤسسي"
+		e.Title = "إضافة هيكل مؤسسي جديد"
+		e.Description = "إنشاء تصنيف هيكلي جديد للمنشآت والمستودعات"
 	case "institutional_work.updated":
+		e.Module = "الهيكل المؤسسي"
 		e.ActionLabelAr = "تعديل تصنيف هيكل مؤسسي"
+		e.Title = "تعديل هيكل مؤسسي"
+		e.Description = "تحديث بيانات تصنيف هيكلي أو باقة التسعير"
 	default:
+		e.Module = "النظام"
 		e.ActionLabelAr = e.Action
+		e.Title = e.Action
+		e.Description = "عملية إدارية مسجلة بالنظام"
 	}
 
 	switch e.EntityType {
@@ -584,6 +788,15 @@ func localizeAuditEntry(e *platformadmin.AuditEntry) {
 
 	if e.ActorName == "" {
 		e.ActorName = "النظام / System"
+	}
+	if e.OrganizationName == "" {
+		e.OrganizationName = "المنصة الرئيسية"
+	}
+	if e.IPAddress == "" {
+		e.IPAddress = "127.0.0.1 (Local)"
+	}
+	if e.Route == "" {
+		e.Route = "/admin/" + e.EntityType
 	}
 }
 

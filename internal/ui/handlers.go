@@ -282,6 +282,10 @@ func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	r.Post("/admin/institutional/{id}/status", h.AdminInstitutionalStatusSubmit)
 
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
+	r.Post("/admin/settings/site", h.AdminSiteSettingsSubmit)
+	r.Post("/admin/settings/branding", h.AdminBrandingSubmit)
+	r.Post("/admin/settings/ai", h.AdminAISettingsSubmit)
+	r.Post("/admin/settings/gateway", h.AdminGatewaySettingsSubmit)
 	r.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
 	r.Post("/admin/content", h.AdminContentSubmit)
 	r.Post("/admin/translations", h.AdminTranslationsSubmit)

@@ -3,13 +3,13 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
-	@layouts.AdminShell("التحليلات والمؤشرات والزيارات | Analytics", "analytics", lang, dir) {
+	@layouts.AdminShell("التحليلات والمؤشرات الحية | Platform Analytics", "analytics", lang, dir) {
 		
 		<!-- Header -->
 		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;">
@@ -19,114 +19,105 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 				</div>
 				<div>
 					<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
-						لوحة المؤشرات وتحليلات الزوار والمنصة
+						التحليلات والمؤشرات الحية
 					</h2>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-						تحليل جغرافي وتوزيع للأجهزة والمتصفحات وحركة الزيارات وأداء التوريد
+						تحليل جغرافي وتوزيع للأجهزة وحركة الزيارات وأداء التوريد الحقيقي من قاعدة البيانات
 					</p>
 				</div>
 			</div>
+
+			<div style="display:flex; align-items:center; gap:0.75rem;">
+				<span class="badge badge-emerald" style="font-weight:700; padding:0.4rem 0.85rem; font-size:0.8rem;">
+					@components.IconCheck("icon-xs")
+					<span>بيانات حية ومتزامنة</span>
+				</span>
+			</div>
 		</div>
 
-		<!-- Top KPI Stats Row -->
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+		<!-- 1. Live KPI Summary Cards (100% Real Database Queries) -->
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.75rem;">
+			
 			<!-- Total Visits -->
-			<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">إجمالي الزيارات</span>
-					<div style="width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconEye("icon-xs")
-					</div>
+			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid var(--accent);">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">إجمالي الزيارات</span>
+					<div style="color:var(--accent);">@components.IconEye("icon-sm")</div>
 				</div>
-				<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", a.Total) }</div>
+				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
+					{ fmt.Sprintf("%d", a.Total) }
+				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">زيارات موثقة تراكمياً</div>
 			</div>
 
 			<!-- Today Visits -->
-			<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">زيارات اليوم</span>
-					<div style="width:28px; height:28px; border-radius:var(--radius-md); background:var(--success-surface); color:var(--success-text); display:flex; align-items:center; justify-content:center;">
-						@components.IconClock("icon-xs")
-					</div>
+			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #10b981;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">زيارات اليوم</span>
+					<div style="color:#10b981;">@components.IconClock("icon-sm")</div>
 				</div>
-				<div style="font-size:1.75rem; font-weight:900; color:var(--success-text);" class="tabular-nums">{ fmt.Sprintf("%d", a.Today) }</div>
+				<div style="font-size:1.85rem; font-weight:800; color:#10b981; margin-top:0.35rem;" class="tabular-nums">
+					{ fmt.Sprintf("%d", a.Today) }
+				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">خلال الـ 24 ساعة الحالية</div>
 			</div>
 
-			<!-- Pharmacies -->
-			<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">الصيدليات المسجلة</span>
-					<div style="width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconBuilding("icon-xs")
-					</div>
+			<!-- Registered Pharmacies -->
+			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #3b82f6;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الصيدليات المسجلة</span>
+					<div style="color:#3b82f6;">@components.IconBuilding("icon-sm")</div>
 				</div>
-				<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">
-					if a.TotalPharmacies > 0 {
-						{ fmt.Sprintf("%d", a.TotalPharmacies) }
-					} else {
-						<span>48</span>
-					}
+				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
+					{ fmt.Sprintf("%d", a.TotalPharmacies) }
 				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">صيدليات معتمدة بالنظام</div>
 			</div>
 
-			<!-- Suppliers -->
-			<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">الموردين المعتمدين</span>
-					<div style="width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconShield("icon-xs")
-					</div>
+			<!-- Approved Suppliers -->
+			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #8b5cf6;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الموردين المعتمدين</span>
+					<div style="color:#8b5cf6;">@components.IconShield("icon-sm")</div>
 				</div>
-				<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">
-					if a.TotalSuppliers > 0 {
-						{ fmt.Sprintf("%d", a.TotalSuppliers) }
-					} else {
-						<span>14</span>
-					}
+				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
+					{ fmt.Sprintf("%d", a.TotalSuppliers) }
 				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">شركات ومستودعات توزيع</div>
 			</div>
 
-			<!-- Orders -->
-			<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">أوامر التوريد</span>
-					<div style="width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconTruck("icon-xs")
-					</div>
+			<!-- Supply Orders -->
+			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #f59e0b;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">أوامر التوريد</span>
+					<div style="color:#f59e0b;">@components.IconTruck("icon-sm")</div>
 				</div>
-				<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">
-					if a.TotalOrders > 0 {
-						{ fmt.Sprintf("%d", a.TotalOrders) }
-					} else {
-						<span>128</span>
-					}
+				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
+					{ fmt.Sprintf("%d", a.TotalOrders) }
 				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">إجمالي عمليات الشراء</div>
 			</div>
 
-			<!-- Platform Volume -->
-			<div class="card hover-lift" style="margin-bottom:0; padding:1.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">حجم التداولات</span>
-					<div style="width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconTag("icon-xs")
-					</div>
+			<!-- Platform GMV -->
+			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #06b6d4;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">حجم التداولات</span>
+					<div style="color:#06b6d4;">@components.IconTag("icon-sm")</div>
 				</div>
-				<div style="font-size:1.4rem; font-weight:900; color:var(--accent);" class="tabular-nums">
-					if a.TotalGMV != "" && a.TotalGMV != "0.00 ج.م" {
-						{ a.TotalGMV }
-					} else {
-						<span>2,480,500 ج.م</span>
-					}
+				<div style="font-size:1.45rem; font-weight:800; color:var(--accent); margin-top:0.35rem;" class="tabular-nums">
+					{ a.TotalGMV }
 				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">قيمة أوامر التوريد المنفذة</div>
 			</div>
+
 		</div>
 
-		<!-- Geographical Distribution & Devices Row -->
+		<!-- 2. Geographic & Devices Distribution -->
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
 			
 			<!-- Countries Breakdown -->
 			<div class="card" style="margin-bottom:0;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
 						<span>🌍</span>
 						<span>توزيع الزوار حسب الدول</span>
@@ -157,134 +148,161 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 
 			<!-- Cities Breakdown -->
 			<div class="card" style="margin-bottom:0;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
 						<span>🏙️</span>
 						<span>أكثر المدن والمحافظات نشاطاً</span>
 					</h3>
-					<span class="badge badge-slate" style="font-size:0.75rem;">مصر والإقليم</span>
+					<span class="badge badge-slate" style="font-size:0.75rem;">المناطق والمدن</span>
 				</div>
 
 				if len(a.ByCity) == 0 {
 					<div style="padding:1.5rem 0; text-align:center; color:var(--text-muted); font-size:0.875rem;">
-						جاري تجميع بيانات المدن...
+						جاري رصد بيانات المدن والمناطق...
 					</div>
 				} else {
 					<div style="display:flex; flex-direction:column; gap:0.6rem;">
 						for city, count := range a.ByCity {
-							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
-								<span style="font-weight:700; color:var(--text); font-size:0.875rem;">{ city }</span>
-								<span class="badge badge-sky tabular-nums" style="font-weight:800;">{ fmt.Sprintf("%d", count) }</span>
+							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.85rem; background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
+								<span style="font-weight:700; font-size:0.875rem; color:var(--text);">{ city }</span>
+								<span class="badge badge-sky" style="font-weight:800; font-size:0.8rem;">{ fmt.Sprintf("%d", count) }</span>
 							</div>
 						}
 					</div>
 				}
 			</div>
 
-			<!-- Devices, OS & Browsers Breakdown -->
+			<!-- Devices, OS & Browsers -->
 			<div class="card" style="margin-bottom:0;">
-				<h3 class="card-title" style="margin:0 0 1rem 0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-					<span>📱</span>
-					<span>الأجهزة والمتصفحات</span>
-				</h3>
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
+						<span>📱</span>
+						<span>الأجهزة والمتصفحات</span>
+					</h3>
+				</div>
 
-				<div style="display:flex; flex-direction:column; gap:1rem;">
-					<!-- Devices -->
+				<div style="display:flex; flex-direction:column; gap:0.85rem;">
+					<!-- Device -->
 					<div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">نوع الجهاز:</div>
-						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">نوع الجهاز:</div>
+						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
 							for d, count := range a.ByDevice {
-								<span class="badge badge-slate" style="padding:0.35rem 0.65rem; font-size:0.8rem;">
-									<strong>{ d }:</strong> <span class="tabular-nums" style="margin-inline-start:4px;">{ fmt.Sprintf("%d", count) }</span>
+								<span class="badge badge-slate" style="font-size:0.75rem;">
+									{ d }: <strong>{ fmt.Sprintf("%d", count) }</strong>
 								</span>
 							}
 						</div>
 					</div>
 
-					<!-- Operating Systems -->
+					<!-- OS -->
 					<div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">نظام التشغيل:</div>
-						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">نظام التشغيل:</div>
+						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
 							for os, count := range a.ByOS {
-								<span class="badge badge-slate" style="padding:0.35rem 0.65rem; font-size:0.8rem;">
-									<strong>{ os }:</strong> <span class="tabular-nums" style="margin-inline-start:4px;">{ fmt.Sprintf("%d", count) }</span>
+								<span class="badge badge-purple" style="font-size:0.75rem;">
+									{ os }: <strong>{ fmt.Sprintf("%d", count) }</strong>
 								</span>
 							}
 						</div>
 					</div>
 
-					<!-- Browsers -->
+					<!-- Browser -->
 					<div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المتصفح:</div>
-						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">المتصفح:</div>
+						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
 							for b, count := range a.ByBrowser {
-								<span class="badge badge-sky" style="padding:0.35rem 0.65rem; font-size:0.8rem;">
-									<strong>{ b }:</strong> <span class="tabular-nums" style="margin-inline-start:4px;">{ fmt.Sprintf("%d", count) }</span>
+								<span class="badge badge-emerald" style="font-size:0.75rem;">
+									{ b }: <strong>{ fmt.Sprintf("%d", count) }</strong>
 								</span>
 							}
 						</div>
 					</div>
 				</div>
 			</div>
+
 		</div>
 
-		<!-- Recent Visits Table -->
+		<!-- 3. Recent Visits Table (Fixed RTL Column Alignment) -->
 		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
 				<div>
 					<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
 						أحدث الزيارات المسجلة على المنصة
 					</h3>
-					<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
+					<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
 						سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول
 					</p>
 				</div>
-				<span class="badge badge-emerald" style="font-weight:700;">
-					محدّث لحظياً
-				</span>
+				<span class="badge badge-emerald" style="font-size:0.75rem;">محدّث لحظياً</span>
 			</div>
 
 			if len(a.Recent) == 0 {
-				<p style="color:var(--text-muted); font-size:0.9rem; padding:1.5rem 0; text-align:center;">لا توجد زيارات مسجلة بعد.</p>
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد زيارات مسجلة",
+					Message: "سيتم تسجيل الزيارات فور استخدام المنصة.",
+				})
 			} else {
-				<div class="table-container">
-					<table class="data-table">
+				<div class="table-container" style="overflow-x:auto;">
+					<table class="data-table" style="min-width:1000px; width:100%; border-collapse:collapse;">
 						<thead>
 							<tr>
-								<th style="width:16%;">التاريخ والوقت</th>
-								<th style="width:22%;">الدولة والمدينة</th>
-								<th style="width:18%;">عنوان IP (المحمي)</th>
-								<th style="width:14%;">نوع الجهاز</th>
-								<th style="width:15%;">المتصفح</th>
-								<th style="width:15%;">نظام التشغيل</th>
+								<th style="width:18%; text-align:start;">التاريخ والوقت</th>
+								<th style="width:22%; text-align:start;">الدولة والمدينة</th>
+								<th style="width:18%; text-align:center;">عنوان IP (المحمي)</th>
+								<th style="width:14%; text-align:center;">نوع الجهاز</th>
+								<th style="width:14%; text-align:center;">المتصفح</th>
+								<th style="width:14%; text-align:center;">نظام التشغيل</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, v := range a.Recent {
 								<tr>
-									<td class="tabular-nums" style="font-size:0.85rem;">
-										<div style="font-weight:700; color:var(--text);">{ v.VisitedAt.Format("2006-01-02") }</div>
-										<div style="font-size:0.75rem; color:var(--text-muted);">{ v.CreatedAt.Format("15:04:05") }</div>
-									</td>
-									<td>
-										<div style="font-weight:800; color:var(--text); font-size:0.9rem; display:flex; align-items:center; gap:0.4rem;">
-											<span>{ v.Country }</span>
+									<!-- 1. Timestamp (Start Aligned) -->
+									<td style="text-align:start;">
+										<div class="tabular-nums" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											{ v.VisitedAt }
 										</div>
-										if v.City != "" {
-											<div style="font-size:0.75rem; color:var(--text-muted);">{ v.City }</div>
-										}
+										<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">
+											{ v.CreatedAt.Format("15:04:05") }
+										</div>
 									</td>
-									<td class="tabular-nums" dir="ltr" style="font-family:monospace; font-size:0.85rem; color:var(--text-secondary);">
-										{ v.IP }
+
+									<!-- 2. Country & City (Start Aligned) -->
+									<td style="text-align:start;">
+										<div style="font-weight:700; color:var(--text); font-size:0.875rem;">
+											{ v.Country }
+										</div>
+										<div style="font-size:0.775rem; color:var(--text-muted); margin-top:2px;">
+											{ v.City }
+										</div>
 									</td>
-									<td>
-										<span class="badge badge-slate" style="font-weight:700;">{ v.Device }</span>
+
+									<!-- 3. IP (Center Aligned) -->
+									<td style="text-align:center;">
+										<span class="badge badge-slate tabular-nums" style="font-family:monospace; font-size:0.775rem; direction:ltr;">
+											{ v.IP }
+										</span>
 									</td>
-									<td>
-										<span class="badge badge-sky" style="font-weight:700;">{ v.Browser }</span>
+
+									<!-- 4. Device (Center Aligned) -->
+									<td style="text-align:center;">
+										<span class="badge badge-sky" style="font-size:0.75rem; text-transform:capitalize;">
+											{ v.Device }
+										</span>
 									</td>
-									<td>
-										<span class="badge badge-slate" style="font-weight:700;">{ v.OS }</span>
+
+									<!-- 5. Browser (Center Aligned) -->
+									<td style="text-align:center;">
+										<span class="badge badge-purple" style="font-size:0.75rem; text-transform:capitalize;">
+											{ v.Browser }
+										</span>
+									</td>
+
+									<!-- 6. OS (Center Aligned) -->
+									<td style="text-align:center;">
+										<span class="badge badge-slate" style="font-size:0.75rem; text-transform:capitalize;">
+											{ v.OS }
+										</span>
 									</td>
 								</tr>
 							}
@@ -293,6 +311,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 				</div>
 			}
 		</div>
+
 	}
 }
 
@@ -301,11 +320,11 @@ func calcPercent(count, total int) int {
 		return 100
 	}
 	p := (count * 100) / total
-	if p < 5 {
-		return 5
-	}
 	if p > 100 {
 		return 100
+	}
+	if p < 1 && count > 0 {
+		return 1
 	}
 	return p
 }

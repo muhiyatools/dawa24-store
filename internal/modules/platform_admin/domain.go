@@ -147,21 +147,62 @@ type Translation struct {
 
 // AuditEntry is one row of the platform audit trail, for /admin/audit.
 type AuditEntry struct {
-	ID             int64          `json:"id"`
-	OrganizationID *int64         `json:"organization_id,omitempty"`
-	ActorUserID    *int64         `json:"actor_user_id,omitempty"`
-	ActorName      string         `json:"actor_name,omitempty"`
-	ActorEmail     string         `json:"actor_email,omitempty"`
-	Action         string         `json:"action"`
-	ActionLabelAr  string         `json:"action_label_ar,omitempty"`
-	EntityType     string         `json:"entity_type"`
-	EntityTypeAr   string         `json:"entity_type_ar,omitempty"`
-	EntityID       string         `json:"entity_id"`
-	IPAddress      string         `json:"ip_address,omitempty"`
-	UserAgent      string         `json:"user_agent,omitempty"`
-	Before         map[string]any `json:"before,omitempty"`
-	After          map[string]any `json:"after,omitempty"`
-	CreatedAt      time.Time      `json:"created_at"`
+	ID               int64          `json:"id"`
+	OrganizationID   *int64         `json:"organization_id,omitempty"`
+	OrganizationName string         `json:"organization_name,omitempty"`
+	ActorUserID      *int64         `json:"actor_user_id,omitempty"`
+	ActorName        string         `json:"actor_name,omitempty"`
+	ActorEmail       string         `json:"actor_email,omitempty"`
+	Module           string         `json:"module,omitempty"` // Section / Module (القسم)
+	Action           string         `json:"action"`           // Action (الإجراء)
+	ActionLabelAr    string         `json:"action_label_ar,omitempty"`
+	Title            string         `json:"title,omitempty"`       // Title (العنوان)
+	Description      string         `json:"description,omitempty"` // Description (الوصف)
+	Severity         string         `json:"severity,omitempty"`    // info, warning, critical (الأهمية)
+	IPAddress        string         `json:"ip_address,omitempty"`  // IP address (عنوان IP)
+	Route            string         `json:"route,omitempty"`       // Route / URL path (المسار)
+	UserAgent        string         `json:"user_agent,omitempty"`
+	EntityType       string         `json:"entity_type"`
+	EntityTypeAr     string         `json:"entity_type_ar,omitempty"`
+	EntityID         string         `json:"entity_id"`
+	Before           map[string]any `json:"before,omitempty"`
+	After            map[string]any `json:"after,omitempty"`
+	CreatedAt        time.Time      `json:"created_at"`
+}
+
+// AISettings defines configuration for artificial intelligence LLM providers.
+type AISettings struct {
+	Provider     string  `json:"provider"`      // gemini, openai, anthropic, deepseek, custom
+	Model        string  `json:"model"`         // e.g. gemini-1.5-pro, gpt-4o
+	APIKey       string  `json:"api_key"`       // API secret key
+	EndpointURL  string  `json:"endpoint_url"`  // Custom or Gateway URL
+	Temperature  float64 `json:"temperature"`   // 0.0 - 1.0
+	MaxTokens    int     `json:"max_tokens"`    // default 2048
+	SystemPrompt string  `json:"system_prompt"` // Default platform assistant prompt
+	IsActive     bool    `json:"is_active"`
+}
+
+// GatewaySettings defines configuration for platform API gateways and external integrations.
+type GatewaySettings struct {
+	EndpointURL    string `json:"endpoint_url"`    // Gateway Base URL
+	Environment    string `json:"environment"`     // production / sandbox
+	TimeoutSeconds int    `json:"timeout_seconds"` // Request timeout
+	APIKey         string `json:"api_key"`
+	IsActive       bool   `json:"is_active"`
+}
+
+// SiteSettings defines public website branding, contact info, and social media.
+type SiteSettings struct {
+	SiteName        string            `json:"site_name"`
+	SiteDescription string            `json:"site_description"`
+	LogoURL         string            `json:"logo_url"`
+	FaviconURL      string            `json:"favicon_url"`
+	ContactEmail    string            `json:"contact_email"`
+	SupportEmail    string            `json:"support_email"`
+	Phone           string            `json:"phone"`
+	WhatsApp        string            `json:"whatsapp"`
+	Address         string            `json:"address"`
+	SocialLinks     map[string]string `json:"social_links"` // facebook, twitter, instagram, linkedin, youtube, tiktok, snapchat, whatsapp, telegram
 }
 
 // Policy represents a versioned platform policy document (Terms, Privacy, Refund, etc.).

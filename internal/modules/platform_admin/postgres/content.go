@@ -111,17 +111,23 @@ func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*pl
 	var list []*platformadmin.AuditEntry
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `
-			SELECT a.id, a.organization_id, a.actor_user_id,
+			SELECT a.id, a.organization_id,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), 'المنصة الرئيسية') AS org_name,
+			       a.actor_user_id,
 			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email, 'النظام / System') AS actor_name,
 			       COALESCE(u.email, '') AS actor_email,
-			       a.action, a.entity_type, a.entity_id, a.before, a.after, a.created_at
+			       a.action, a.entity_type, a.entity_id,
+			       COALESCE(HOST(a.ip), '') AS ip_addr,
+			       COALESCE(a.request_id, '') AS req_id,
+			       a.before, a.after, a.created_at
 			FROM platform.audit_log a
 			LEFT JOIN identity.users u ON a.actor_user_id = u.id
+			LEFT JOIN org.organizations o ON a.organization_id = o.id
 			ORDER BY a.created_at DESC
 			LIMIT $1 OFFSET $2;
 		`
 		if limit <= 0 || limit > 100 {
-			limit = 20
+			limit = 50
 		}
 		rows, err := tx.Query(txCtx, query, limit, offset)
 		if err != nil {
@@ -130,9 +136,16 @@ func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*pl
 		defer rows.Close()
 		for rows.Next() {
 			var e platformadmin.AuditEntry
-			if err := rows.Scan(&e.ID, &e.OrganizationID, &e.ActorUserID, &e.ActorName, &e.ActorEmail, &e.Action, &e.EntityType, &e.EntityID, &e.Before, &e.After, &e.CreatedAt); err != nil {
+			var ipAddr, reqID string
+			if err := rows.Scan(
+				&e.ID, &e.OrganizationID, &e.OrganizationName, &e.ActorUserID,
+				&e.ActorName, &e.ActorEmail, &e.Action, &e.EntityType, &e.EntityID,
+				&ipAddr, &reqID, &e.Before, &e.After, &e.CreatedAt,
+			); err != nil {
 				return err
 			}
+			e.IPAddress = ipAddr
+			e.Route = reqID
 			list = append(list, &e)
 		}
 		return rows.Err()
