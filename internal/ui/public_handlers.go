@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -213,21 +214,58 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	accountType := r.PostFormValue("account_type")
+	if accountType == "" || accountType == "pharmacy" {
+		accountType = "customer"
+	} else if accountType == "supplier" {
+		accountType = "vendor"
+	}
+
+	name := strings.TrimSpace(r.PostFormValue("name"))
+	email := strings.TrimSpace(r.PostFormValue("email"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	legalName := strings.TrimSpace(r.PostFormValue("legal_name"))
+	tradeNameAr := strings.TrimSpace(r.PostFormValue("trade_name_ar"))
+	tradeNameEn := strings.TrimSpace(r.PostFormValue("trade_name_en"))
+	cr := strings.TrimSpace(r.PostFormValue("commercial_register"))
+	taxNum := strings.TrimSpace(r.PostFormValue("tax_number"))
+	licenseNum := strings.TrimSpace(r.PostFormValue("pharmacist_license"))
+	address := strings.TrimSpace(r.PostFormValue("address"))
+
+	if legalName == "" {
+		if tradeNameAr != "" {
+			legalName = tradeNameAr
+		} else if name != "" {
+			legalName = name
+		} else {
+			legalName = "منشأة جديدة"
+		}
+	}
+	if tradeNameAr == "" {
+		tradeNameAr = legalName
+	}
+	if name == "" {
+		name = legalName
+	}
+	if address == "" {
+		address = "المقر الرئيسي"
+	}
+
 	form := pages.RegisterFormData{
-		AccountType:        r.PostFormValue("account_type"),
-		Name:               r.PostFormValue("name"),
-		Email:              r.PostFormValue("email"),
-		Phone:              r.PostFormValue("phone"),
-		LegalName:          r.PostFormValue("legal_name"),
-		TradeNameAr:        r.PostFormValue("trade_name_ar"),
-		TradeNameEn:        r.PostFormValue("trade_name_en"),
-		CommercialRegister: r.PostFormValue("commercial_register"),
-		TaxNumber:          r.PostFormValue("tax_number"),
-		PharmacistLicense:  r.PostFormValue("pharmacist_license"),
+		AccountType:        accountType,
+		Name:               name,
+		Email:              email,
+		Phone:              phone,
+		LegalName:          legalName,
+		TradeNameAr:        tradeNameAr,
+		TradeNameEn:        tradeNameEn,
+		CommercialRegister: cr,
+		TaxNumber:          taxNum,
+		PharmacistLicense:  licenseNum,
 		LicenseDocumentURL: licenseURL,
 		CityID:             r.PostFormValue("city_id"),
 		BranchCount:        r.PostFormValue("branch_count"),
-		Address:            r.PostFormValue("address"),
+		Address:            address,
 		Latitude:           r.PostFormValue("branch_lat"),
 		Longitude:          r.PostFormValue("branch_lon"),
 		GoogleMapsURL:      r.PostFormValue("branch_google_maps_url"),
@@ -291,8 +329,6 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		h.log.WarnContext(ctx, "ui registration failed", "email", form.Email, "error", err)
-		// Re-render with the entered values still in the fields — an empty form
-		// on error loses the signup.
 		form.Error = h.safeMessage(err, lang)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if rerr := pages.RegisterPage(lang, dir, form, h.listCities(ctx)).Render(ctx, w); rerr != nil {

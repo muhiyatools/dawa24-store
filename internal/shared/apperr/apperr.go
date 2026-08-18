@@ -130,6 +130,12 @@ func (e *Error) LocalizedMsg(lang string) string {
 		if arMsg, ok := arabicMessages[e.Code]; ok {
 			return arMsg
 		}
+		// If e.Msg already contains Arabic letters, return e.Msg directly
+		for _, r := range e.Msg {
+			if r >= 0x0600 && r <= 0x06FF {
+				return e.Msg
+			}
+		}
 		if arMsg, ok := arabicMessages[string(e.Kind)]; ok {
 			return arMsg
 		}
@@ -141,15 +147,25 @@ func (e *Error) LocalizedMsg(lang string) string {
 }
 
 var arabicMessages = map[string]string{
-	"auth.required": "تسجيل الدخول مطلوب للمتابعة.",
-	"auth.invalid":  "بيانات الدخول غير صحيحة.",
-	"auth.locked":   "تم قفل الحساب مؤقتاً بسبب المحاولات المتكررة.",
-	"validation":    "بيانات الطلب غير صالحة.",
-	"not_found":     "العنصر المطلوب غير موجود.",
-	"conflict":      "تعارض في بيانات العملية.",
-	"unauthorized":  "غير مصرح بهذا الإجراء.",
-	"forbidden":     "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
-	"rate_limited":  "تم تجاوز الحد المسموح للطلبات. يرجى المحاولة لاحقاً.",
-	"unavailable":   "الخدمة غير متوفرة مؤقتاً. يرجى إعادة المحاولة.",
-	"internal":      "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+	"auth.required":                  "تسجيل الدخول مطلوب للمتابعة.",
+	"auth.invalid":                   "بيانات الدخول غير صحيحة.",
+	"auth.locked":                    "تم قفل الحساب مؤقتاً بسبب المحاولات المتكررة.",
+	"user.email_exists":              "البريد الإلكتروني مسجل مسبقاً في النظام. يرجى تسجيل الدخول أو استخدام بريد آخر.",
+	"org.commercial_register_exists": "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى.",
+	"org.legal_name_required":        "الاسم القانوني للمنشأة مطلوب.",
+	"org.cr_required":                "رقم السجل التجاري أو الرقم الضريبي مطلوب.",
+	"org.license_required":           "رقم ترخيص المؤسسة الصيدلية مطلوب.",
+	"org.tax_required":               "الرقم الضريبي مطلوب للموردين والشركات.",
+	"org.type_invalid":               "يرجى تحديد نوع الحساب بشكل صحيح.",
+	"email.invalid":                  "يرجى إدخال عنوان بريد إلكتروني صالح.",
+	"password.too_short":             "كلمة المرور يجب أن لا تقل عن 8 أحرف.",
+	"password.weak":                  "كلمة المرور يجب أن تحتوي على أحرف كبيرة وصغيرة وأرقام ورموز خاصة.",
+	"validation":                     "بيانات الطلب غير صالحة.",
+	"not_found":                      "العنصر المطلوب غير موجود.",
+	"conflict":                       "تعارض في بيانات العملية.",
+	"unauthorized":                   "غير مصرح بهذا الإجراء.",
+	"forbidden":                      "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+	"rate_limited":                   "تم تجاوز الحد المسموح للطلبات. يرجى المحاولة لاحقاً.",
+	"unavailable":                    "الخدمة غير متوفرة مؤقتاً. يرجى إعادة المحاولة.",
+	"internal":                       "حدث خطأ في النظام. يرجى المحاولة مرة أخرى.",
 }

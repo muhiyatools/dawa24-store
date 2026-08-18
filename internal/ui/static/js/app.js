@@ -310,13 +310,16 @@ function initRegistrationStepper() {
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Invalidate Leaflet maps if moving to step 2
-    if (stepNum === 2 && typeof L !== 'undefined') {
-      setTimeout(() => {
-        document.querySelectorAll('[data-map-picker] .leaflet-container').forEach((c) => {
-          if (c._leaflet_map) c._leaflet_map.invalidateSize();
-        });
-      }, 150);
+    // Invalidate Leaflet maps on step change with multiple safety timeouts
+    if (typeof L !== 'undefined') {
+      [50, 150, 300, 600].forEach((delay) => {
+        setTimeout(() => {
+          document.querySelectorAll('[data-map-picker] .map-canvas, [data-map-picker], .leaflet-container').forEach((c) => {
+            if (c._leaflet_map) c._leaflet_map.invalidateSize();
+          });
+          window.dispatchEvent(new Event('resize'));
+        }, delay);
+      });
     }
   }
 
@@ -464,6 +467,54 @@ function initRegistrationStepper() {
         barSegments.forEach((b, idx) => {
           b.style.background = idx < score ? color : 'var(--border)';
         });
+      }
+    });
+  }
+
+  // Form Submit Interceptor
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      const name = document.getElementById('reg-name');
+      const email = document.getElementById('reg-email');
+      const phone = document.getElementById('reg-phone');
+      const password = document.getElementById('reg-password');
+
+      if (name && !name.value.trim()) {
+        e.preventDefault();
+        name.focus();
+        showToast('يرجى إدخال اسم المسؤول / الصيدلي المسؤول.', 'warning');
+        return;
+      }
+      if (email && !email.value.trim()) {
+        e.preventDefault();
+        email.focus();
+        showToast('يرجى إدخال البريد الإلكتروني الرسمي.', 'warning');
+        return;
+      }
+      if (phone && !phone.value.trim()) {
+        e.preventDefault();
+        phone.focus();
+        showToast('يرجى إدخال رقم الهاتف.', 'warning');
+        return;
+      }
+      if (password) {
+        const val = password.value;
+        if (val.length < 8) {
+          e.preventDefault();
+          password.focus();
+          showToast('كلمة المرور يجب أن لا تقل عن 8 أحرف.', 'warning');
+          return;
+        }
+        const hasUpper = /[A-Z]/.test(val);
+        const hasLower = /[a-z]/.test(val);
+        const hasNum = /[0-9]/.test(val);
+        const hasSpec = /[^A-Za-z0-9]/.test(val);
+        if (!hasUpper || !hasLower || !hasNum || !hasSpec) {
+          e.preventDefault();
+          password.focus();
+          showToast('كلمة المرور يجب أن تحتوي على أحرف كبيرة وصغيرة وأرقام ورموز خاصة (@, $, !).', 'warning');
+          return;
+        }
       }
     });
   }
@@ -802,12 +853,34 @@ function initMapPickers() {
       scrollWheelZoom: true,
     });
 
+    canvas._leaflet_map = map;
+    container._leaflet_map = map;
+
     // Add standard OpenStreetMap tiles
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
 
+    // Auto resize observer on canvas container
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(() => {
+        map.invalidateSize();
+      });
+      ro.observe(canvas);
+      ro.observe(container);
+    }
+    if (window.IntersectionObserver) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => map.invalidateSize(), 50);
+            setTimeout(() => map.invalidateSize(), 200);
+          }
+        });
+      });
+      io.observe(canvas);
+    }
 
     // Custom pulse marker icon (matches Laravel reference)
     const customIcon = L.divIcon({

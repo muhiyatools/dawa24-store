@@ -160,13 +160,13 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 						<div class="form-group" style="margin-bottom:0;" data-type-visibility="vendor customer">
 							<label class="form-label" for="reg-legal-name">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label>
-							<input type="text" id="reg-legal-name" name="legal_name" required class="form-input" placeholder="صيدلية الأمل الحديثة ش.م.م" value={ form.LegalName } />
+							<input type="text" id="reg-legal-name" name="legal_name" class="form-input" placeholder="صيدلية الأمل الحديثة ش.م.م" value={ form.LegalName } />
 						</div>
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" data-type-visibility="vendor customer">
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-trade-ar">الاسم التجاري (عربي) *</label>
-								<input type="text" id="reg-trade-ar" name="trade_name_ar" required class="form-input" value={ form.TradeNameAr } placeholder="صيدلية الأمل" />
+								<input type="text" id="reg-trade-ar" name="trade_name_ar" class="form-input" value={ form.TradeNameAr } placeholder="صيدلية الأمل" />
 							</div>
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-trade-en">الاسم التجاري (إنجليزي)</label>
@@ -177,7 +177,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" data-type-visibility="vendor customer">
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-cr">رقم السجل التجاري *</label>
-								<input type="text" id="reg-cr" name="commercial_register" required class="form-input tabular-nums" value={ form.CommercialRegister } placeholder="CR-94819" />
+								<input type="text" id="reg-cr" name="commercial_register" class="form-input tabular-nums" value={ form.CommercialRegister } placeholder="CR-94819" />
 							</div>
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-tax">الرقم الضريبي (الفاتورة الإلكترونية)</label>
@@ -193,7 +193,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						<!-- Official Operating License / CR File Attachment -->
 						<div class="form-group" style="margin-bottom:0;" data-type-visibility="vendor customer">
 							<label class="form-label" for="reg-license-file" style="display:flex; justify-content:space-between; align-items:center;">
-								<span>إرفاق صورة الترخيص / السجل التجاري الرسمي *</span>
+								<span>إرفاق صورة الترخيص / السجل التجاري الرسمي</span>
 								<span style="font-size:0.75rem; color:var(--text-muted);">PDF, PNG, JPG حتى 20 ميجابايت</span>
 							</label>
 							<input type="file" id="reg-license-file" name="license_file" accept=".pdf,.png,.jpg,.jpeg" class="form-input" style="padding:0.45rem;" />
@@ -216,7 +216,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								<span>العنوان التفصيلي للمقر / الصيدلية *</span>
 								<span style="font-size:0.75rem; color:var(--accent);" id="reg-address-hint">📍 يُملأ تلقائياً عند تحديد الموقع على الخريطة</span>
 							</label>
-							<input type="text" id="reg-address" name="address" required class="form-input" placeholder="اسم الشارع، رقم العقار، الحي، بجوار..." value={ form.Address } />
+							<input type="text" id="reg-address" name="address" class="form-input" placeholder="اسم الشارع، رقم العقار، الحي، بجوار..." value={ form.Address } />
 						</div>
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.75rem;">
@@ -243,17 +243,17 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" for="reg-name">اسم المسؤول / الصيدلي المسؤول *</label>
-							<input type="text" id="reg-name" name="name" required class="form-input" placeholder="د. أحمد محمود" value={ form.Name } />
+							<input type="text" id="reg-name" name="name" class="form-input" placeholder="د. أحمد محمود" value={ form.Name } />
 						</div>
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-email">البريد الإلكتروني الرسمي *</label>
-								<input type="email" id="reg-email" name="email" required class="form-input tabular-nums" placeholder="pharmacy@dawa24.eg" value={ form.Email } />
+								<input type="email" id="reg-email" name="email" class="form-input tabular-nums" placeholder="pharmacy@dawa24.eg" value={ form.Email } />
 							</div>
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-phone">رقم الهاتف / الواتساب *</label>
-								<input type="tel" id="reg-phone" name="phone" required class="form-input tabular-nums" placeholder="01012345678" value={ form.Phone } />
+								<input type="tel" id="reg-phone" name="phone" class="form-input tabular-nums" placeholder="01012345678" value={ form.Phone } />
 							</div>
 						</div>
 
@@ -264,7 +264,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								<span id="pass-strength-label" style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">أدخل كلمة المرور</span>
 							</div>
 							<div style="position:relative;">
-								<input type="password" id="reg-password" name="password" required minlength="8" class="form-input" placeholder="••••••••" style="padding-inline-end:2.5rem;" />
+								<input type="password" id="reg-password" name="password" class="form-input" placeholder="••••••••" style="padding-inline-end:2.5rem;" />
 								<button type="button" id="reg-toggle-pwd" style="position:absolute; inset-inline-end:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; display:flex; align-items:center;">
 									👁️
 								</button>

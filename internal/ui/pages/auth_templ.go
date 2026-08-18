@@ -212,27 +212,27 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>تغيير النوع</span></button></div><div class=\"form-group\" style=\"margin-bottom:0;\" data-type-visibility=\"vendor customer\"><label class=\"form-label\" for=\"reg-legal-name\">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label> <input type=\"text\" id=\"reg-legal-name\" name=\"legal_name\" required class=\"form-input\" placeholder=\"صيدلية الأمل الحديثة ش.م.م\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>تغيير النوع</span></button></div><div class=\"form-group\" style=\"margin-bottom:0;\" data-type-visibility=\"vendor customer\"><label class=\"form-label\" for=\"reg-legal-name\">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label> <input type=\"text\" id=\"reg-legal-name\" name=\"legal_name\" class=\"form-input\" placeholder=\"صيدلية الأمل الحديثة ش.م.م\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.LegalName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 163, Col: 176}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 163, Col: 167}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" data-type-visibility=\"vendor customer\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-trade-ar\">الاسم التجاري (عربي) *</label> <input type=\"text\" id=\"reg-trade-ar\" name=\"trade_name_ar\" required class=\"form-input\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" data-type-visibility=\"vendor customer\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-trade-ar\">الاسم التجاري (عربي) *</label> <input type=\"text\" id=\"reg-trade-ar\" name=\"trade_name_ar\" class=\"form-input\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TradeNameAr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 169, Col: 118}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 169, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -251,14 +251,14 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" placeholder=\"Al Amal Pharmacy\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" data-type-visibility=\"vendor customer\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-cr\">رقم السجل التجاري *</label> <input type=\"text\" id=\"reg-cr\" name=\"commercial_register\" required class=\"form-input tabular-nums\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" placeholder=\"Al Amal Pharmacy\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" data-type-visibility=\"vendor customer\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-cr\">رقم السجل التجاري *</label> <input type=\"text\" id=\"reg-cr\" name=\"commercial_register\" class=\"form-input tabular-nums\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.CommercialRegister)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 180, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 180, Col: 129}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -290,7 +290,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" placeholder=\"EDA-LIC-2024-884\"></div><!-- Official Operating License / CR File Attachment --><div class=\"form-group\" style=\"margin-bottom:0;\" data-type-visibility=\"vendor customer\"><label class=\"form-label\" for=\"reg-license-file\" style=\"display:flex; justify-content:space-between; align-items:center;\"><span>إرفاق صورة الترخيص / السجل التجاري الرسمي *</span> <span style=\"font-size:0.75rem; color:var(--text-muted);\">PDF, PNG, JPG حتى 20 ميجابايت</span></label> <input type=\"file\" id=\"reg-license-file\" name=\"license_file\" accept=\".pdf,.png,.jpg,.jpeg\" class=\"form-input\" style=\"padding:0.45rem;\"><p style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">يتم مراجعة الملف واعتماد ترخيص المنشأة من إدارة المنصة خلال 24 ساعة للبدء في عمليات التوريد والشراء.</p></div><!-- Interactive Map with GPS Location & Live Reverse Geocoding --><div class=\"form-group\" style=\"margin-bottom:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" placeholder=\"EDA-LIC-2024-884\"></div><!-- Official Operating License / CR File Attachment --><div class=\"form-group\" style=\"margin-bottom:0;\" data-type-visibility=\"vendor customer\"><label class=\"form-label\" for=\"reg-license-file\" style=\"display:flex; justify-content:space-between; align-items:center;\"><span>إرفاق صورة الترخيص / السجل التجاري الرسمي</span> <span style=\"font-size:0.75rem; color:var(--text-muted);\">PDF, PNG, JPG حتى 20 ميجابايت</span></label> <input type=\"file\" id=\"reg-license-file\" name=\"license_file\" accept=\".pdf,.png,.jpg,.jpeg\" class=\"form-input\" style=\"padding:0.45rem;\"><p style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">يتم مراجعة الملف واعتماد ترخيص المنشأة من إدارة المنصة خلال 24 ساعة للبدء في عمليات التوريد والشراء.</p></div><!-- Interactive Map with GPS Location & Live Reverse Geocoding --><div class=\"form-group\" style=\"margin-bottom:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -302,14 +302,14 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-address\" style=\"display:flex; justify-content:space-between; align-items:center;\"><span>العنوان التفصيلي للمقر / الصيدلية *</span> <span style=\"font-size:0.75rem; color:var(--accent);\" id=\"reg-address-hint\">📍 يُملأ تلقائياً عند تحديد الموقع على الخريطة</span></label> <input type=\"text\" id=\"reg-address\" name=\"address\" required class=\"form-input\" placeholder=\"اسم الشارع، رقم العقار، الحي، بجوار...\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-address\" style=\"display:flex; justify-content:space-between; align-items:center;\"><span>العنوان التفصيلي للمقر / الصيدلية *</span> <span style=\"font-size:0.75rem; color:var(--accent);\" id=\"reg-address-hint\">📍 يُملأ تلقائياً عند تحديد الموقع على الخريطة</span></label> <input type=\"text\" id=\"reg-address\" name=\"address\" class=\"form-input\" placeholder=\"اسم الشارع، رقم العقار، الحي، بجوار...\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 219, Col: 189}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 219, Col: 180}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -339,46 +339,46 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>بيانات المنشأة</span></button></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-name\">اسم المسؤول / الصيدلي المسؤول *</label> <input type=\"text\" id=\"reg-name\" name=\"name\" required class=\"form-input\" placeholder=\"د. أحمد محمود\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>بيانات المنشأة</span></button></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-name\">اسم المسؤول / الصيدلي المسؤول *</label> <input type=\"text\" id=\"reg-name\" name=\"name\" class=\"form-input\" placeholder=\"د. أحمد محمود\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 246, Col: 135}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 246, Col: 126}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-email\">البريد الإلكتروني الرسمي *</label> <input type=\"email\" id=\"reg-email\" name=\"email\" required class=\"form-input tabular-nums\" placeholder=\"pharmacy@dawa24.eg\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-email\">البريد الإلكتروني الرسمي *</label> <input type=\"email\" id=\"reg-email\" name=\"email\" class=\"form-input tabular-nums\" placeholder=\"pharmacy@dawa24.eg\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 252, Col: 148}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 252, Col: 139}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-phone\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"reg-phone\" name=\"phone\" required class=\"form-input tabular-nums\" placeholder=\"01012345678\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"reg-phone\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"reg-phone\" name=\"phone\" class=\"form-input tabular-nums\" placeholder=\"01012345678\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 256, Col: 139}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 256, Col: 130}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"></div></div><!-- Password Field with Modern Live Strength Meter --><div class=\"form-group\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;\"><label class=\"form-label\" for=\"reg-password\" style=\"margin-bottom:0;\">كلمة المرور *</label> <span id=\"pass-strength-label\" style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">أدخل كلمة المرور</span></div><div style=\"position:relative;\"><input type=\"password\" id=\"reg-password\" name=\"password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\" style=\"padding-inline-end:2.5rem;\"> <button type=\"button\" id=\"reg-toggle-pwd\" style=\"position:absolute; inset-inline-end:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; display:flex; align-items:center;\">👁️</button></div><!-- Strength Progress Bars --><div style=\"display:grid; grid-template-columns:repeat(4, 1fr); gap:4px; margin-top:0.5rem;\" id=\"pwd-strength-bars\"><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div></div><!-- Real-Time Password Checklist --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-top:0.6rem; font-size:0.75rem; color:var(--text-secondary);\" id=\"pwd-checklist\"><div id=\"rule-length\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> 8 أحرف على الأقل</div><div id=\"rule-casing\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> حرف كبير (A-Z) وصغير (a-z)</div><div id=\"rule-number\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> رقم واحد على الأقل (0-9)</div><div id=\"rule-special\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> رمز خاص (@, $, !, %, *, #)</div></div></div><div style=\"display:grid; grid-template-columns:1fr 2fr; gap:0.75rem; margin-top:0.75rem;\"><button type=\"button\" id=\"reg-step-3-back-btn\" class=\"btn btn-secondary\" style=\"padding:0.85rem; font-weight:700; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"></div></div><!-- Password Field with Modern Live Strength Meter --><div class=\"form-group\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;\"><label class=\"form-label\" for=\"reg-password\" style=\"margin-bottom:0;\">كلمة المرور *</label> <span id=\"pass-strength-label\" style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">أدخل كلمة المرور</span></div><div style=\"position:relative;\"><input type=\"password\" id=\"reg-password\" name=\"password\" class=\"form-input\" placeholder=\"••••••••\" style=\"padding-inline-end:2.5rem;\"> <button type=\"button\" id=\"reg-toggle-pwd\" style=\"position:absolute; inset-inline-end:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; display:flex; align-items:center;\">👁️</button></div><!-- Strength Progress Bars --><div style=\"display:grid; grid-template-columns:repeat(4, 1fr); gap:4px; margin-top:0.5rem;\" id=\"pwd-strength-bars\"><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div></div><!-- Real-Time Password Checklist --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-top:0.6rem; font-size:0.75rem; color:var(--text-secondary);\" id=\"pwd-checklist\"><div id=\"rule-length\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> 8 أحرف على الأقل</div><div id=\"rule-casing\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> حرف كبير (A-Z) وصغير (a-z)</div><div id=\"rule-number\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> رقم واحد على الأقل (0-9)</div><div id=\"rule-special\" style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"rule-icon\" style=\"color:var(--text-muted);\">●</span> رمز خاص (@, $, !, %, *, #)</div></div></div><div style=\"display:grid; grid-template-columns:1fr 2fr; gap:0.75rem; margin-top:0.75rem;\"><button type=\"button\" id=\"reg-step-3-back-btn\" class=\"btn btn-secondary\" style=\"padding:0.85rem; font-weight:700; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -99,33 +99,24 @@ func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrgani
 }
 
 // validateOrgInput enforces the per-account-type required fields described in
-// the registration form. Two account types exist (Rebuild V2 rule 1): a
-// customer (صيدلية) needs its pharmacy licence; a vendor (مورّد) needs the
-// commercial register and tax number.
+// the registration form.
 func validateOrgInput(in RegisterOrgInput) error {
+	if in.LegalName == "" {
+		return apperr.Validation("org.legal_name_required", "الاسم القانوني للمنشأة مطلوب.", nil)
+	}
 	switch in.Type {
 	case OrgTypeVendor:
-		if in.LegalName == "" {
-			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
-		}
-		if in.CommercialRegister == "" {
-			return apperr.Validation("org.cr_required", "Commercial registration number is required.", nil)
-		}
-		if in.TaxNumber == "" {
-			return apperr.Validation("org.tax_required", "Tax number is required for suppliers.", nil)
+		if in.CommercialRegister == "" && in.TaxNumber == "" {
+			return apperr.Validation("org.cr_required", "يرجى إدخال رقم السجل التجاري أو الرقم الضريبي للمنشأة.", nil)
 		}
 	case OrgTypeCustomer:
-		if in.LegalName == "" {
-			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
-		}
-		if in.CommercialRegister == "" {
-			return apperr.Validation("org.cr_required", "Commercial registration number is required.", nil)
-		}
-		if in.PharmacistLicense == "" {
-			return apperr.Validation("org.license_required", "Pharmacist licence number is required for pharmacies.", nil)
+		// Pharmacy / customer account
+		if in.CommercialRegister == "" && in.PharmacistLicense == "" {
+			return apperr.Validation("org.license_required", "يرجى إدخال رقم السجل التجاري أو ترخيص المؤسسة الصيدلية.", nil)
 		}
 	default:
-		return apperr.Validation("org.type_invalid", "Choose an account type: customer (pharmacy) or vendor.", nil)
+		return apperr.Validation("org.type_invalid", "يرجى تحديد نوع الحساب: صيدلية أو مورد.", nil)
 	}
 	return nil
 }
+

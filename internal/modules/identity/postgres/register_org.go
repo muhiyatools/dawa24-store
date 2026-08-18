@@ -63,14 +63,14 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 
 		var status string
 		err = tx.QueryRow(txCtx, `INSERT INTO org.organizations (name, legal_name, trade_name, tax_number, commercial_register, type, status, pharmacist_license, branch_count, owner_id)`+
-			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), $4, $5, $6, NULLIF($7, ''), $8, $9)`+
+			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), NULLIF($4, ''), $5, $6, NULLIF($7, ''), $8, $9)`+
 			`RETURNING id, public_id, type, status;`,
 			orgIn.LegalName, tradeName, orgIn.TaxNumber, orgIn.CommercialRegister,
 			orgIn.Type, orgStatus, orgIn.PharmacistLicense, orgIn.BranchCount, u.ID,
 		).Scan(&result.OrganizationID, &result.OrganizationPublicID, &result.OrganizationType, &status)
 		if err != nil {
 			if database.IsUniqueViolation(err) {
-				return apperr.Conflict("org.commercial_register_exists", "An organization with this commercial registration already exists.")
+				return apperr.Conflict("org.commercial_register_exists", "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى.")
 			}
 			return fmt.Errorf("identity postgres: register organization: %w", err)
 		}
@@ -95,13 +95,24 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			return fmt.Errorf("identity postgres: register owner membership: %w", err)
 		}
 
-		// 4. The main branch with full address and GPS coordinates.
+		// 4. Validate or fallback city_id for main branch FK to ensure zero foreign key errors
+		var branchCityID *int64 = orgIn.CityID
+		if branchCityID != nil {
+			var cityExists bool
+			_ = tx.QueryRow(txCtx, `SELECT EXISTS (SELECT 1 FROM platform_admin.cities WHERE id = $1);`, *branchCityID).Scan(&cityExists)
+			if !cityExists {
+				branchCityID = nil
+			}
+		}
+
+		// 4b. The main branch with full address and GPS coordinates.
 		if _, err := tx.Exec(txCtx, `INSERT INTO org.branches (organization_id, name, city_id, address, latitude, longitude, google_maps_url, is_main)`+
 			`VALUES ($1, $2, $3, $4, $5, $6, $7, true);`,
-			result.OrganizationID, tradeName, orgIn.CityID, orgIn.Address, orgIn.Latitude, orgIn.Longitude, orgIn.GoogleMapsURL,
+			result.OrganizationID, tradeName, branchCityID, orgIn.Address, orgIn.Latitude, orgIn.Longitude, orgIn.GoogleMapsURL,
 		); err != nil {
 			return fmt.Errorf("identity postgres: register main branch: %w", err)
 		}
+
 
 
 		// 5. Audit the privileged creation in the same transaction.

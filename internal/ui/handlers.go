@@ -411,14 +411,25 @@ func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err erro
 
 // safeMessage returns wording that may be shown to a user.
 func (h *UIHandler) safeMessage(err error, lang string) string {
+	if err == nil {
+		return ""
+	}
 	if appErr, ok := apperr.As(err); ok {
 		return appErr.LocalizedMsg(lang)
 	}
-	if lang == "ar" {
-		return "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+	errStr := err.Error()
+	if strings.Contains(errStr, "email") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505")) {
+		return "البريد الإلكتروني مسجل مسبقاً في النظام. يرجى تسجيل الدخول أو استخدام بريد آخر."
 	}
-	return "An unexpected error occurred. Please try again."
+	if strings.Contains(errStr, "commercial_register") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505")) {
+		return "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى."
+	}
+	if lang == "ar" {
+		return "تعذر إتمام العملية. يرجى مراجعة البيانات المدخلة والمحاولة مرة أخرى."
+	}
+	return "Operation could not be completed. Please review your input and try again."
 }
+
 
 // statusForError maps an error onto a response code. A full page load that
 // returns 200 for a failure is invisible to uptime checks and to the browser.
