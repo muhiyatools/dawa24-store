@@ -121,12 +121,19 @@ type Visitor struct {
 
 // VisitorAnalytics is the aggregate view for the admin analytics page.
 type VisitorAnalytics struct {
-	Total     int
-	Today     int
-	ByDevice  map[string]int
-	ByOS      map[string]int
-	ByBrowser map[string]int
-	Recent    []*Visitor
+	Total           int
+	Today           int
+	ByCountry       map[string]int
+	ByCity          map[string]int
+	ByDevice        map[string]int
+	ByOS            map[string]int
+	ByBrowser       map[string]int
+	TotalPharmacies int
+	TotalSuppliers  int
+	TotalOrders     int
+	TotalProducts   int
+	TotalGMV        string
+	Recent          []*Visitor
 }
 
 // Translation is one bilingual UI string override (platform_admin.translations).
@@ -143,9 +150,15 @@ type AuditEntry struct {
 	ID             int64          `json:"id"`
 	OrganizationID *int64         `json:"organization_id,omitempty"`
 	ActorUserID    *int64         `json:"actor_user_id,omitempty"`
+	ActorName      string         `json:"actor_name,omitempty"`
+	ActorEmail     string         `json:"actor_email,omitempty"`
 	Action         string         `json:"action"`
+	ActionLabelAr  string         `json:"action_label_ar,omitempty"`
 	EntityType     string         `json:"entity_type"`
+	EntityTypeAr   string         `json:"entity_type_ar,omitempty"`
 	EntityID       string         `json:"entity_id"`
+	IPAddress      string         `json:"ip_address,omitempty"`
+	UserAgent      string         `json:"user_agent,omitempty"`
 	Before         map[string]any `json:"before,omitempty"`
 	After          map[string]any `json:"after,omitempty"`
 	CreatedAt      time.Time      `json:"created_at"`

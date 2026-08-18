@@ -11,16 +11,18 @@ import (
 
 templ AdminProducts(lang, dir string, products []*catalog.Product) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
-		<div class="card" style="margin-bottom:0; overflow:visible;">
+		<div class="card" style="margin-bottom:0; overflow:visible;" x-data="adminProductsManager()">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">
-					@components.IconPill("icon-md")
+					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						@components.IconPackage("icon-sm")
+					</div>
 					<div>
-						<h2 class="card-title" style="margin:0;">
+						<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
 							دليل الأصناف الدوائية المعتمدة ({ fmt.Sprintf("%d", len(products)) })
 						</h2>
-						<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
-							إدارة الكتالوج الرسمي للأدوية والمستحضرات المعتمدة من هيئة الدواء المصرية EDA.
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+							إدارة الكتالوج الرسمي الموحد للأدوية والمستحضرات المعتمدة من هيئة الدواء المصرية (EDA)
 						</p>
 					</div>
 				</div>
@@ -28,14 +30,51 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
 					@components.ModalTrigger("import-products-modal", "btn btn-secondary") {
 						@components.IconUpload("icon-xs")
-						<span>استيراد أصناف من ملف Excel / CSV</span>
+						<span>استيراد أصناف (Excel / CSV)</span>
 					}
 					@components.ModalTrigger("create-master-product-modal", "btn btn-primary") {
 						@components.IconPlus("icon-xs")
-						<span>إضافة صنف دوائي أساسي (Master Product)</span>
+						<span>إضافة صنف دوائي أساسي</span>
 					}
 				</div>
 			</div>
+
+			<!-- Search and Filter Bar -->
+			if len(products) > 0 {
+				<div style="margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+					<div style="flex:1; min-width:280px; max-width:480px; position:relative;">
+						<input
+							type="text"
+							x-model="searchQuery"
+							placeholder="ابحث باسم الدواء، المادة الفعالة، الشركة، أو رقم EDA..."
+							class="form-input"
+							style="padding-inline-start:2.25rem; font-size:0.875rem;"
+						/>
+						<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+							@components.IconSearch("icon-xs")
+						</div>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+						<select x-model="dosageFilter" class="form-select" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
+							<option value="all">كل الأشكال الصيدلية</option>
+							<option value="أقراص">أقراص</option>
+							<option value="كبسولات">كبسولات</option>
+							<option value="شراب">شراب</option>
+							<option value="حقن">حقن وأمبولات</option>
+							<option value="نقط">نقط</option>
+							<option value="فوار">فوار</option>
+						</select>
+
+						<select x-model="statusFilter" class="form-select" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
+							<option value="all">جميع الحالات</option>
+							<option value="active">نشط ومعتمد</option>
+							<option value="pending">قيد التدقيق</option>
+							<option value="inactive">موقوف</option>
+						</select>
+					</div>
+				</div>
+			}
 
 			if len(products) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
@@ -43,77 +82,120 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					Message: "يمكنك إضافة الأصناف والمستحضرات الطبية الأساسية ليتمكن الموردون من إضافة عروض أسعارهم وتوريدها.",
 				})
 			} else {
-				<div class="table-container" style="overflow:visible;">
+				<div class="table-container">
 					<table class="data-table">
 						<thead>
 							<tr>
-								<th>الصورة</th>
-								<th>اسم المستحضر</th>
-								<th>الاسم العلمي والمادة الفعالة</th>
-								<th>الشكل الصيدلي</th>
-								<th>الشركة المصنعة</th>
-								<th>الحالة</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th style="width:50px;">الصورة</th>
+								<th style="width:25%;">اسم المستحضر</th>
+								<th style="width:24%;">الاسم العلمي والمادة الفعالة</th>
+								<th style="width:12%;">الشكل الصيدلي</th>
+								<th style="width:16%;">الشركة المصنعة</th>
+								<th style="width:11%;">الحالة</th>
+								<th style="width:12%; text-align:end;">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, p := range products {
-								<tr>
+								<tr
+									x-show={ fmt.Sprintf("(!searchQuery || '%s %s %s %s %s'.toLowerCase().includes(searchQuery.toLowerCase())) && (dosageFilter === 'all' || '%s' === dosageFilter) && (statusFilter === 'all' || '%s' === statusFilter)",
+										escapeJS(p.Name.Get("ar")),
+										escapeJS(p.Name.Get("en")),
+										escapeJS(p.ScientificName),
+										escapeJS(p.Active),
+										escapeJS(p.ManufacturingCompanies),
+										escapeJS(p.DosageForm),
+										p.Status) }
+								>
 									<td style="width:50px;">
 										if p.Image != "" {
-											<img src={ p.Image } alt={ p.Name.Get(i18n.Lang(lang)) } style="width:40px; height:40px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--neutral-200);" />
+											<img src={ p.Image } alt={ p.Name.Get(i18n.Lang(lang)) } style="width:42px; height:42px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface-raised); padding:2px;" />
 										} else {
-											<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--neutral-100); display:flex; align-items:center; justify-content:center; color:var(--neutral-400);">
+											<div style="width:42px; height:42px; border-radius:var(--radius-md); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); border:1px solid var(--border);">
 												@components.IconPill("icon-xs")
 											</div>
 										}
 									</td>
 									<td>
-										<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">{ p.Name.Get(i18n.Lang(lang)) }</div>
+										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ p.Name.Get(i18n.Lang(lang)) }</div>
 										if p.Name.Get("en") != "" && lang == "ar" {
-											<div style="font-size:0.75rem; color:var(--neutral-500);">{ p.Name.Get("en") }</div>
+											<div style="font-size:0.75rem; color:var(--text-muted);">{ p.Name.Get("en") }</div>
+										}
+										if p.Barcode != "" {
+											<div style="font-size:0.725rem; color:var(--text-secondary); margin-top:2px;" class="tabular-nums">EDA: { p.Barcode }</div>
 										}
 									</td>
 									<td>
-										<div style="font-weight:700; color:var(--primary-700); font-size:0.875rem;">{ p.ScientificName }</div>
+										<div style="font-weight:700; color:var(--accent); font-size:0.875rem;">{ p.ScientificName }</div>
 										if p.Active != "" {
-											<div style="font-size:0.75rem; color:var(--neutral-500);">{ p.Active }</div>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">{ p.Active }</div>
 										}
 									</td>
 									<td>
-										<span class="badge badge-slate">{ p.DosageForm }</span>
+										<span class="badge badge-slate" style="font-weight:700;">{ p.DosageForm }</span>
 									</td>
 									<td>
-										<span style="font-size:0.875rem; color:var(--neutral-700);">{ p.ManufacturingCompanies }</span>
+										<span style="font-size:0.875rem; color:var(--text-secondary);">{ p.ManufacturingCompanies }</span>
 									</td>
 									<td>
 										if p.Status == "active" {
-											<span class="badge badge-emerald">نشط ومعتمد</span>
+											<span class="badge badge-emerald" style="font-weight:800;">نشط ومعتمد</span>
 										} else if p.Status == "pending" {
-											<span class="badge badge-sky">قيد التدقيق</span>
+											<span class="badge badge-sky" style="font-weight:800;">قيد التدقيق</span>
 										} else {
-											<span class="badge badge-danger">موقوف</span>
+											<span class="badge badge-danger" style="font-weight:800;">موقوف</span>
 										}
 									</td>
 									<td style="text-align:end;">
-										<div class="table-actions" style="justify-content:flex-end;">
+										<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
+											<!-- Edit Button -->
+											<button
+												type="button"
+												class="btn btn-secondary btn-icon"
+												style="width:32px; height:32px; color:var(--accent);"
+												title="تعديل بيانات الدواء"
+												@click={ fmt.Sprintf("openEditModal({ id: %d, name_ar: '%s', name_en: '%s', generic_name: '%s', active_ingredient: '%s', dosage_form: '%s', manufacturer: '%s', eda_reg_number: '%s', price: '%s', image: '%s', description_ar: '%s', description_en: '%s', status: '%s' })",
+													p.ID,
+													escapeJS(p.Name.Get("ar")),
+													escapeJS(p.Name.Get("en")),
+													escapeJS(p.ScientificName),
+													escapeJS(p.Active),
+													escapeJS(p.DosageForm),
+													escapeJS(p.ManufacturingCompanies),
+													escapeJS(p.Barcode),
+													p.Price.String(),
+													escapeJS(p.Image),
+													escapeJS(p.Description.Get("ar")),
+													escapeJS(p.Description.Get("en")),
+													p.Status) }
+											>
+												@components.IconEdit("icon-xs")
+											</button>
+
+											<!-- Status Toggle -->
 											if p.Status == "pending" || p.Status == "inactive" || p.Status == "rejected" {
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)) } style="margin:0;">
 													<input type="hidden" name="status" value="active" />
-													<button type="submit" class="btn btn-primary btn-sm">
+													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--success-text);" title="تفعيل الصنف">
 														@components.IconCheck("icon-xs")
-														<span>تفعيل</span>
 													</button>
 												</form>
 											}
 											if p.Status == "active" {
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)) } style="margin:0;">
 													<input type="hidden" name="status" value="inactive" />
-													<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">
-														<span>إيقاف</span>
+													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--warning-text);" title="إيقاف الصنف">
+														@components.IconMinus("icon-xs")
 													</button>
 												</form>
 											}
+
+											<!-- Delete Button -->
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/delete", p.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الصنف الدوائي الأساسي؟');">
+												<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--danger);" title="حذف الصنف">
+													@components.IconTrash("icon-xs")
+												</button>
+											</form>
 										</div>
 									</td>
 								</tr>
@@ -176,9 +258,15 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 						</div>
 					</div>
 
-					<div class="form-group" style="margin:0;">
-						<label class="form-label" for="prod-image">صورة المستحضر الرسمية (اختياري)</label>
-						<input type="file" id="prod-image" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin:0;">
+							<label class="form-label" for="prod-image">رفع صورة جديدة</label>
+							<input type="file" id="prod-image" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
+						</div>
+						<div class="form-group" style="margin:0;">
+							<label class="form-label" for="prod-image-url">أو رابط الصورة (URL)</label>
+							<input type="text" id="prod-image-url" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
+						</div>
 					</div>
 
 					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
@@ -201,6 +289,141 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					</div>
 				</form>
 			}
+
+			<!-- Master Product Edit Modal -->
+			<div
+				x-show="isEditModalOpen"
+				style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isEditModalOpen ? 'display:flex;' : 'display:none;'"
+				@keydown.escape.window="isEditModalOpen = false"
+			>
+				<div
+					@click.outside="isEditModalOpen = false"
+					class="card"
+					style="max-width:760px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconEdit("icon-xs")
+							</div>
+							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+								تعديل بيانات الصنف الدوائي المعتمد
+							</h3>
+						</div>
+						<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form :action="'/admin/products/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم الدواء / المستحضر (عربي) *</label>
+								<input type="text" name="name_ar" x-model="editData.name_ar" required class="form-input" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم الدواء (إنجليزي) *</label>
+								<input type="text" name="name_en" x-model="editData.name_en" required class="form-input" dir="ltr" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الاسم العلمي (Scientific Name) *</label>
+								<input type="text" name="generic_name" x-model="editData.generic_name" required class="form-input" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">المادة الفعالة والتركيز *</label>
+								<input type="text" name="active_ingredient" x-model="editData.active_ingredient" required class="form-input" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الشكل الصيدلي (Dosage Form) *</label>
+								<select name="dosage_form" x-model="editData.dosage_form" required class="form-select">
+									<option value="أقراص">أقراص (Tablets)</option>
+									<option value="كبسولات">كبسولات (Capsules)</option>
+									<option value="شراب">شراب (Syrup / Suspension)</option>
+									<option value="حقن">أمبولات وحقن (Injections)</option>
+									<option value="مرهم / كريم">مرهم / كريم (Ointment / Cream)</option>
+									<option value="نقط">نقط (Drops)</option>
+									<option value="فوار">أكياس فوار (Sachets)</option>
+									<option value="مستلزمات طبية">مستلزمات طبية (Medical Supplies)</option>
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الشركة المصنعة / المنتجة *</label>
+								<input type="text" name="manufacturer" x-model="editData.manufacturer" required class="form-input" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">رقم التسجيل بهيئة الدواء (EDA)</label>
+								<input type="text" name="eda_reg_number" x-model="editData.eda_reg_number" class="form-input tabular-nums" />
+							</div>
+						</div>
+
+						<!-- Image Section with Preview -->
+						<div style="background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:grid; grid-template-columns:80px 1fr; gap:1.25rem; align-items:center;">
+							<div style="width:80px; height:80px; border-radius:var(--radius-lg); background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+								<template x-if="editData.image">
+									<img :src="editData.image" alt="Preview" style="width:100%; height:100%; object-fit:contain; padding:4px;" />
+								</template>
+								<template x-if="!editData.image">
+									<div style="color:var(--text-muted);">
+										@components.IconPill("icon-md")
+									</div>
+								</template>
+							</div>
+
+							<div style="display:flex; flex-direction:column; gap:0.5rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label" style="font-size:0.8rem;">رابط صورة الدواء (Image URL)</label>
+									<input type="text" name="image_url" x-model="editData.image" class="form-input" dir="ltr" placeholder="https://..." />
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label" style="font-size:0.8rem;">أو رفع صورة من الجهاز</label>
+									<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.35rem;" />
+								</div>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">حالة الصنف بالكتالوج</label>
+								<select name="status" x-model="editData.status" class="form-select">
+									<option value="active">نشط ومعتمد (Active)</option>
+									<option value="pending">قيد التدقيق (Pending)</option>
+									<option value="inactive">موقوف (Inactive)</option>
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">السعر الأساسي المعتمد (ج.م)</label>
+								<input type="number" step="0.01" name="price" x-model="editData.price" class="form-input tabular-nums" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الوصف ودواعي الاستعمال (عربي)</label>
+								<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الوصف (إنجليزي)</label>
+								<textarea name="description_en" x-model="editData.description_en" rows="2" class="form-input" dir="ltr"></textarea>
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ التعديلات في الكتالوج</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
 
 			<!-- Bulk Import Excel / CSV Modal -->
 			@components.Modal(components.ModalProps{
@@ -244,5 +467,36 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 				</form>
 			}
 		</div>
+
+		<script>
+			function adminProductsManager() {
+				return {
+					searchQuery: '',
+					dosageFilter: 'all',
+					statusFilter: 'all',
+					isEditModalOpen: false,
+					editData: {
+						id: 0,
+						name_ar: '',
+						name_en: '',
+						generic_name: '',
+						active_ingredient: '',
+						dosage_form: 'أقراص',
+						manufacturer: '',
+						eda_reg_number: '',
+						price: '0.00',
+						image: '',
+						description_ar: '',
+						description_en: '',
+						status: 'active'
+					},
+
+					openEditModal(data) {
+						this.editData = { ...data };
+						this.isEditModalOpen = true;
+					}
+				};
+			}
+		</script>
 	}
 }

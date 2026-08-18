@@ -41,6 +41,8 @@ func (h *UIHandler) recordVisitor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	browser, device, osName := parseUserAgent(r.UserAgent())
+	country, city := detectCountryAndCity(r)
+
 	_ = h.adminSvc.RecordVisitor(r.Context(), &platformadmin.Visitor{
 		VisitorKey: key,
 		IP:         truncateIP(r.RemoteAddr),
@@ -48,6 +50,8 @@ func (h *UIHandler) recordVisitor(w http.ResponseWriter, r *http.Request) {
 		Browser:    browser,
 		Device:     device,
 		OS:         osName,
+		Country:    country,
+		City:       city,
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -82,6 +86,82 @@ func truncateIP(remoteAddr string) string {
 		return ip.Mask(net.CIDRMask(64, 128)).String()
 	}
 	return host
+}
+
+// detectCountryAndCity determines geographic info from headers and locale.
+func detectCountryAndCity(r *http.Request) (country, city string) {
+	// 1. Check CDN / Cloudflare headers
+	if cfCountry := strings.TrimSpace(r.Header.Get("CF-IPCountry")); cfCountry != "" && len(cfCountry) == 2 {
+		country = mapCountryCode(cfCountry)
+	}
+	if country == "" {
+		if xCountry := strings.TrimSpace(r.Header.Get("X-Country-Code")); xCountry != "" {
+			country = mapCountryCode(xCountry)
+		}
+	}
+	if city == "" {
+		city = strings.TrimSpace(r.Header.Get("CF-IPCity"))
+		if city == "" {
+			city = strings.TrimSpace(r.Header.Get("X-City-Name"))
+		}
+	}
+
+	// 2. Fallback based on accept-language or default Egypt
+	if country == "" {
+		al := strings.ToLower(r.Header.Get("Accept-Language"))
+		if strings.Contains(al, "ar-sa") {
+			country = "السعودية 🇸🇦"
+			city = "الرياض"
+		} else if strings.Contains(al, "ar-ae") {
+			country = "الإمارات 🇦🇪"
+			city = "دبي"
+		} else if strings.Contains(al, "ar-kw") {
+			country = "الكويت 🇰🇼"
+			city = "مدينة الكويت"
+		} else {
+			country = "مصر 🇪🇬"
+			city = "القاهرة"
+		}
+	}
+	if city == "" {
+		city = "القاهرة"
+	}
+	return country, city
+}
+
+func mapCountryCode(code string) string {
+	switch strings.ToUpper(code) {
+	case "EG":
+		return "مصر 🇪🇬"
+	case "SA":
+		return "السعودية 🇸🇦"
+	case "AE":
+		return "الإمارات 🇦🇪"
+	case "KW":
+		return "الكويت 🇰🇼"
+	case "JO":
+		return "الأردن 🇯🇴"
+	case "OM":
+		return "عمان 🇴🇲"
+	case "QA":
+		return "قطر 🇶🇦"
+	case "BH":
+		return "البحرين 🇧🇭"
+	case "IQ":
+		return "العراق 🇮🇶"
+	case "LY":
+		return "ليبيا 🇱🇾"
+	case "SD":
+		return "السودان 🇸🇩"
+	case "US":
+		return "الولايات المتحدة 🇺🇸"
+	case "GB", "UK":
+		return "المملكة المتحدة 🇬🇧"
+	case "DE":
+		return "ألمانيا 🇩🇪"
+	default:
+		return strings.ToUpper(code)
+	}
 }
 
 // parseUserAgent does a lightweight, dependency-free split of the user agent.

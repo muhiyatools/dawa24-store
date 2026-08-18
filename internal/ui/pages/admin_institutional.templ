@@ -1,0 +1,433 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
+	@layouts.AdminShell("الهيكل المؤسسي وأنواعه | Institutional Structure", "institutional", lang, dir) {
+		<div class="card" style="margin-bottom:0;" x-data="adminInstitutionalManager()">
+			
+			<!-- Header Action Bar -->
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:0.6rem;">
+					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						@components.IconBuilding("icon-sm")
+					</div>
+					<div>
+						<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
+							الهيكل المؤسسي وأنواعه ({ fmt.Sprintf("%d", len(items)) })
+						</h2>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+							إدارة التصنيفات الهيكلية للمنشآت والمستودعات والصيدليات وباقات التسعير المرتبطة
+						</p>
+					</div>
+				</div>
+
+				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+					@components.ModalTrigger("create-institutional-modal", "btn btn-primary") {
+						@components.IconPlus("icon-xs")
+						<span>إضافة تصنيف هيكلي جديد</span>
+					}
+				</div>
+			</div>
+
+			if len(items) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد تصنيفات هيكلية مضافة",
+					Message: "يمكنك إضافة تصنيفات الهيكل المؤسسي لربط فروع الموردين والصيدليات بها وتحديد خطط الأسعار والاشتراك.",
+				})
+			} else {
+				<div style="display:flex; flex-direction:column; gap:1.5rem;">
+					for _, root := range items {
+						<div class="card hover-lift" style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; margin-bottom:0;">
+							
+							<!-- Main Parent Header -->
+							<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+								<div style="display:flex; align-items:center; gap:0.85rem;">
+									<div style="width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:900;">
+										@components.IconLayers("icon-sm")
+									</div>
+									<div>
+										<div style="display:flex; align-items:center; gap:0.5rem;">
+											<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0;">
+												{ root.Title.Get("ar") }
+											</h3>
+											<span class={ "badge", pricingBadgeClass(string(root.PricingType)) } style="font-weight:700;">
+												{ pricingTypeAr(string(root.PricingType)) }
+											</span>
+											if root.IsActive {
+												<span class="badge badge-emerald" style="font-weight:700;">نشط</span>
+											} else {
+												<span class="badge badge-danger" style="font-weight:700;">موقوف</span>
+											}
+										</div>
+										if root.Title.Get("en") != "" {
+											<div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">{ root.Title.Get("en") }</div>
+										}
+										if root.Description.Get("ar") != "" {
+											<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.4rem 0 0 0; line-height:1.4;">
+												{ root.Description.Get("ar") }
+											</p>
+										}
+									</div>
+								</div>
+
+								<!-- Parent Actions -->
+								<div style="display:flex; align-items:center; gap:0.4rem;">
+									<!-- Edit -->
+									<button
+										type="button"
+										class="btn btn-secondary btn-icon"
+										style="width:34px; height:34px; color:var(--accent);"
+										title="تعديل التصنيف الرئيسي"
+										@click={ fmt.Sprintf("openEditModal({ id: %d, title_ar: '%s', title_en: '%s', description_ar: '%s', description_en: '%s', icon: '%s', pricing_type: '%s', parent_id: 0, is_active: %t })",
+											root.ID,
+											escapeJS(root.Title.Get("ar")),
+											escapeJS(root.Title.Get("en")),
+											escapeJS(root.Description.Get("ar")),
+											escapeJS(root.Description.Get("en")),
+											escapeJS(root.Icon),
+											string(root.PricingType),
+											root.IsActive) }
+									>
+										@components.IconEdit("icon-xs")
+									</button>
+
+									<!-- Status Toggle -->
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", root.ID)) } style="margin:0;">
+										<button type="submit" class="btn btn-secondary btn-icon" style="width:34px; height:34px;" title="تغيير حالة التفعيل">
+											if root.IsActive {
+												<span style="color:var(--warning-text);">@components.IconMinus("icon-xs")</span>
+											} else {
+												<span style="color:var(--success-text);">@components.IconCheck("icon-xs")</span>
+											}
+										</button>
+									</form>
+
+									<!-- Delete -->
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", root.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا التصنيف وكافة الفروع التابعة له؟');">
+										<button type="submit" class="btn btn-secondary btn-icon" style="width:34px; height:34px; color:var(--danger);" title="حذف">
+											@components.IconTrash("icon-xs")
+										</button>
+									</form>
+								</div>
+							</div>
+
+							<!-- Children / Sub-categories Grid -->
+							if len(root.Children) > 0 {
+								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+									for _, child := range root.Children {
+										<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.15rem; display:flex; flex-direction:column; justify-content:space-between; gap:0.75rem;">
+											<div>
+												<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.35rem;">
+													<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+														{ child.Title.Get("ar") }
+													</div>
+													<span class={ "badge", pricingBadgeClass(string(child.PricingType)) } style="font-size:0.7rem;">
+														{ pricingTypeAr(string(child.PricingType)) }
+													</span>
+												</div>
+												if child.Title.Get("en") != "" {
+													<div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.35rem;">{ child.Title.Get("en") }</div>
+												}
+												if child.Description.Get("ar") != "" {
+													<p style="font-size:0.8rem; color:var(--text-secondary); margin:0; line-height:1.4;">
+														{ child.Description.Get("ar") }
+													</p>
+												}
+											</div>
+
+											<!-- Child Footer / Stats & Actions -->
+											<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.6rem; margin-top:0.25rem;">
+												<span style="font-size:0.75rem; color:var(--text-secondary);" class="tabular-nums">
+													{ fmt.Sprintf("%d منشأة مرتبطة", child.BranchCount) }
+												</span>
+
+												<div style="display:flex; align-items:center; gap:0.3rem;">
+													<!-- Edit Child -->
+													<button
+														type="button"
+														class="btn btn-secondary btn-icon"
+														style="width:28px; height:28px; color:var(--accent);"
+														title="تعديل"
+														@click={ fmt.Sprintf("openEditModal({ id: %d, title_ar: '%s', title_en: '%s', description_ar: '%s', description_en: '%s', icon: '%s', pricing_type: '%s', parent_id: %d, is_active: %t })",
+															child.ID,
+															escapeJS(child.Title.Get("ar")),
+															escapeJS(child.Title.Get("en")),
+															escapeJS(child.Description.Get("ar")),
+															escapeJS(child.Description.Get("en")),
+															escapeJS(child.Icon),
+															string(child.PricingType),
+															root.ID,
+															child.IsActive) }
+													>
+														@components.IconEdit("icon-xs")
+													</button>
+
+													<!-- Status Child -->
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", child.ID)) } style="margin:0;">
+														<button type="submit" class="btn btn-secondary btn-icon" style="width:28px; height:28px;" title="تغيير الحالة">
+															if child.IsActive {
+																<span style="color:var(--success-text);">@components.IconCheck("icon-xs")</span>
+															} else {
+																<span style="color:var(--warning-text);">@components.IconMinus("icon-xs")</span>
+															}
+														</button>
+													</form>
+
+													<!-- Delete Child -->
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", child.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا النوع الفرعي؟');">
+														<button type="submit" class="btn btn-secondary btn-icon" style="width:28px; height:28px; color:var(--danger);" title="حذف">
+															@components.IconTrash("icon-xs")
+														</button>
+													</form>
+												</div>
+											</div>
+										</div>
+									}
+								</div>
+							} else {
+								<div style="background:var(--surface-raised); border:1px dashed var(--border); border-radius:var(--radius-lg); padding:1rem; text-align:center; color:var(--text-muted); font-size:0.825rem;">
+									لا توجد أنواع فرعية مضافة تحت هذا التصنيف الرئيسي بعد.
+								</div>
+							}
+						</div>
+					}
+				</div>
+			}
+
+			<!-- Create Institutional Work Modal -->
+			@components.Modal(components.ModalProps{
+				ID:    "create-institutional-modal",
+				Title: "إضافة تصنيف هيكل مؤسسي جديد",
+				Size:  "lg",
+			}) {
+				<form method="POST" action="/admin/institutional/new" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">اسم التصنيف المؤسسي (عربي) *</label>
+							<input type="text" name="title_ar" required class="form-input" placeholder="مستودع مركزي رئيسي" />
+						</div>
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">الاسم بالإنجليزية (English) *</label>
+							<input type="text" name="title_en" required class="form-input" dir="ltr" placeholder="Central Main Warehouse" />
+						</div>
+					</div>
+
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">التصنيف الأب الرئيسي (Parent Group)</label>
+							<select name="parent_id" class="form-select">
+								<option value="0">تصنيف رئيسي مستقل (Root Category)</option>
+								for _, p := range items {
+									<option value={ fmt.Sprintf("%d", p.ID) }>{ p.Title.Get("ar") }</option>
+								}
+							</select>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">نوع التسعير والاشتراك (Pricing Type) *</label>
+							<select name="pricing_type" required class="form-select">
+								<option value="free">مجاني (Free)</option>
+								<option value="subscription">اشتراك دوري (Subscription)</option>
+								<option value="paid">مدفوع ثابت (Paid)</option>
+								<option value="monthly">شهري (Monthly)</option>
+								<option value="per_project">لكل مشروع / توريد (Per Project)</option>
+								<option value="hourly">بالساعة (Hourly)</option>
+							</select>
+						</div>
+					</div>
+
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">الأيقونة الرمزية (Icon Name)</label>
+							<select name="icon" class="form-select">
+								<option value="building">مبنى / منشأة (Building)</option>
+								<option value="truck">شاحنة / نقل وتوزيع (Truck)</option>
+								<option value="pill">دواء / صيدلية (Pill)</option>
+								<option value="shield">أمان / مستشفى (Shield)</option>
+								<option value="layers">طبقات / فروع (Layers)</option>
+								<option value="package">صندوق / مصنع (Package)</option>
+							</select>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">طريقة العرض (View Type)</label>
+							<select name="view_type" class="form-select">
+								<option value="1">نمط البطاقات الشبكية (Grid Cards)</option>
+								<option value="2">نمط القائمة التفصيلية (List View)</option>
+							</select>
+						</div>
+					</div>
+
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">الوصف التفصيلي (عربي)</label>
+							<textarea name="description_ar" rows="2" class="form-input" placeholder="شرح لطبيعة المنشأة والتصنيف والاشتراك..."></textarea>
+						</div>
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">الوصف (إنجليزي)</label>
+							<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="Description of this institutional work..."></textarea>
+						</div>
+					</div>
+
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+						<button type="submit" class="btn btn-primary" style="font-weight:800;">
+							@components.IconCheck("icon-xs")
+							<span>حفظ وإضافة التصنيف</span>
+						</button>
+					</div>
+				</form>
+			}
+
+			<!-- Edit Modal -->
+			<div
+				x-show="isEditModalOpen"
+				style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isEditModalOpen ? 'display:flex;' : 'display:none;'"
+				@keydown.escape.window="isEditModalOpen = false"
+			>
+				<div
+					@click.outside="isEditModalOpen = false"
+					class="card"
+					style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconEdit("icon-xs")
+							</div>
+							<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0;">
+								تعديل التصنيف المؤسسي
+							</h3>
+						</div>
+						<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form :action="'/admin/institutional/' + editData.id + '/edit'" method="POST" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم التصنيف (عربي) *</label>
+								<input type="text" name="title_ar" x-model="editData.title_ar" required class="form-input" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الاسم بالإنجليزية (English) *</label>
+								<input type="text" name="title_en" x-model="editData.title_en" required class="form-input" dir="ltr" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">التصنيف الأب الرئيسي</label>
+								<select name="parent_id" x-model="editData.parent_id" class="form-select">
+									<option value="0">تصنيف رئيسي مستقل (Root Category)</option>
+									for _, p := range items {
+										<option value={ fmt.Sprintf("%d", p.ID) }>{ p.Title.Get("ar") }</option>
+									}
+								</select>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نوع التسعير والاشتراك *</label>
+								<select name="pricing_type" x-model="editData.pricing_type" required class="form-select">
+									<option value="free">مجاني (Free)</option>
+									<option value="subscription">اشتراك دوري (Subscription)</option>
+									<option value="paid">مدفوع ثابت (Paid)</option>
+									<option value="monthly">شهري (Monthly)</option>
+									<option value="per_project">لكل مشروع / توريد (Per Project)</option>
+									<option value="hourly">بالساعة (Hourly)</option>
+								</select>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الوصف التفصيلي (عربي)</label>
+								<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الوصف (إنجليزي)</label>
+								<textarea name="description_en" x-model="editData.description_en" rows="2" class="form-input" dir="ltr"></textarea>
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ التعديلات</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+		</div>
+
+		<script>
+			function adminInstitutionalManager() {
+				return {
+					isEditModalOpen: false,
+					editData: {
+						id: 0,
+						title_ar: '',
+						title_en: '',
+						description_ar: '',
+						description_en: '',
+						icon: 'building',
+						pricing_type: 'free',
+						parent_id: 0,
+						is_active: true
+					},
+
+					openEditModal(data) {
+						this.editData = { ...data };
+						this.isEditModalOpen = true;
+					}
+				};
+			}
+		</script>
+	}
+}
+
+func pricingTypeAr(p string) string {
+	switch p {
+	case "free":
+		return "مجاني"
+	case "subscription":
+		return "اشتراك دوري"
+	case "paid":
+		return "مدفوع"
+	case "monthly":
+		return "شهري"
+	case "per_project":
+		return "لكل مشروع"
+	case "hourly":
+		return "بالساعة"
+	default:
+		return p
+	}
+}
+
+func pricingBadgeClass(p string) string {
+	switch p {
+	case "free":
+		return "badge-emerald"
+	case "subscription":
+		return "badge-purple"
+	case "paid":
+		return "badge-sky"
+	case "monthly":
+		return "badge-amber"
+	default:
+		return "badge-slate"
+	}
+}

@@ -374,4 +374,49 @@ func (s *Service) SubmitReview(ctx context.Context, rev *Review) error {
 	return nil
 }
 
+// CreateInstitutionalWork creates a new institutional structure category.
+func (s *Service) CreateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error {
+	if err := s.repo.CreateInstitutionalWork(ctx, iw); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "institutional work created", "id", iw.ID, "title_ar", iw.Title.Get("ar"))
+	return nil
+}
+
+// GetInstitutionalWork returns an institutional work by its ID.
+func (s *Service) GetInstitutionalWork(ctx context.Context, id int64) (*InstitutionalWork, error) {
+	return s.repo.GetInstitutionalWorkByID(ctx, id)
+}
+
+// UpdateInstitutionalWork updates an existing institutional category.
+func (s *Service) UpdateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error {
+	return s.repo.UpdateInstitutionalWork(ctx, iw)
+}
+
+// DeleteInstitutionalWork soft-deletes an institutional category.
+func (s *Service) DeleteInstitutionalWork(ctx context.Context, id int64) error {
+	return s.repo.DeleteInstitutionalWork(ctx, id)
+}
+
+// ToggleInstitutionalWorkStatus toggles active/inactive state of an institutional category.
+func (s *Service) ToggleInstitutionalWorkStatus(ctx context.Context, id int64) error {
+	return s.repo.ToggleInstitutionalWorkStatus(ctx, id)
+}
+
+// ListInstitutionalWorks returns the full hierarchical tree of institutional categories.
+func (s *Service) ListInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*InstitutionalWork, error) {
+	return s.repo.ListInstitutionalWorks(ctx, onlyActive)
+}
+
+// AssignBranchInstitutionalWorks assigns institutional categories to a branch.
+func (s *Service) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
+	return s.repo.AssignBranchInstitutionalWorks(ctx, branchID, workIDs)
+}
+
+// GetBranchInstitutionalWorks returns all institutional categories assigned to a branch.
+func (s *Service) GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*InstitutionalWork, error) {
+	return s.repo.GetBranchInstitutionalWorks(ctx, branchID)
+}
+
+
 

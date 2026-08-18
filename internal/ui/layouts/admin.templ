@@ -51,6 +51,10 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 						@components.IconPackage("icon-sm")
 						<span>كتالوج الأدوية المعتمدة</span>
 					</a>
+					<a href="/admin/institutional" class={ "sidebar-link", templ.KV("active", activeNav == "institutional") }>
+						@components.IconLayers("icon-sm")
+						<span>الهيكل المؤسسي وأنواعه</span>
+					</a>
 					<a href="/admin/cities" class={ "sidebar-link", templ.KV("active", activeNav == "cities") }>
 						@components.IconLocation("icon-sm")
 						<span>المحافظات والمدن (125)</span>

@@ -256,6 +256,40 @@ func (m *mockOrgRepo) ReplyToReview(_ context.Context, reviewID, orgID int64, re
 	return nil
 }
 
+func (m *mockOrgRepo) CreateInstitutionalWork(_ context.Context, iw *InstitutionalWork) error {
+	iw.ID = m.nextID
+	m.nextID++
+	return nil
+}
+
+func (m *mockOrgRepo) GetInstitutionalWorkByID(_ context.Context, id int64) (*InstitutionalWork, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) UpdateInstitutionalWork(_ context.Context, _ *InstitutionalWork) error {
+	return nil
+}
+
+func (m *mockOrgRepo) DeleteInstitutionalWork(_ context.Context, _ int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) ToggleInstitutionalWorkStatus(_ context.Context, _ int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) ListInstitutionalWorks(_ context.Context, _ bool) ([]*InstitutionalWork, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) AssignBranchInstitutionalWorks(_ context.Context, _ int64, _ []int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) GetBranchInstitutionalWorks(_ context.Context, _ int64) ([]*InstitutionalWork, error) {
+	return nil, nil
+}
+
 func TestOrgLifecycleAndBranches(t *testing.T) {
 
 	ctx := context.Background()

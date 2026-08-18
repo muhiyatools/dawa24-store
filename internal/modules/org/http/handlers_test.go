@@ -164,6 +164,38 @@ func (r stubRepo) ListEmployees(ctx context.Context, orgID int64) ([]*org.Employ
 	r.fail("ListEmployees")
 	return nil, nil
 }
+func (r stubRepo) CreateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
+	r.fail("CreateInstitutionalWork")
+	return nil
+}
+func (r stubRepo) GetInstitutionalWorkByID(ctx context.Context, id int64) (*org.InstitutionalWork, error) {
+	r.fail("GetInstitutionalWorkByID")
+	return nil, nil
+}
+func (r stubRepo) UpdateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
+	r.fail("UpdateInstitutionalWork")
+	return nil
+}
+func (r stubRepo) DeleteInstitutionalWork(ctx context.Context, id int64) error {
+	r.fail("DeleteInstitutionalWork")
+	return nil
+}
+func (r stubRepo) ToggleInstitutionalWorkStatus(ctx context.Context, id int64) error {
+	r.fail("ToggleInstitutionalWorkStatus")
+	return nil
+}
+func (r stubRepo) ListInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*org.InstitutionalWork, error) {
+	r.fail("ListInstitutionalWorks")
+	return nil, nil
+}
+func (r stubRepo) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
+	r.fail("AssignBranchInstitutionalWorks")
+	return nil
+}
+func (r stubRepo) GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
+	r.fail("GetBranchInstitutionalWorks")
+	return nil, nil
+}
 
 type happyRepo struct{}
 
@@ -171,6 +203,31 @@ func (happyRepo) AssignBranchManager(ctx context.Context, orgID, branchID int64,
 	return nil
 }
 func (happyRepo) ListEmployees(ctx context.Context, orgID int64) ([]*org.EmployeeView, error) {
+	return nil, nil
+}
+func (happyRepo) CreateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
+	iw.ID = 1
+	return nil
+}
+func (happyRepo) GetInstitutionalWorkByID(ctx context.Context, id int64) (*org.InstitutionalWork, error) {
+	return nil, nil
+}
+func (happyRepo) UpdateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
+	return nil
+}
+func (happyRepo) DeleteInstitutionalWork(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) ToggleInstitutionalWorkStatus(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) ListInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*org.InstitutionalWork, error) {
+	return nil, nil
+}
+func (happyRepo) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
+	return nil
+}
+func (happyRepo) GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
 	return nil, nil
 }
 

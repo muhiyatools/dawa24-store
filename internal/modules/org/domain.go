@@ -255,3 +255,43 @@ func (b *Branch) Validate() error {
 	}
 	return nil
 }
+
+// PricingType defines the commercial tier/billing classification for institutional works.
+type PricingType string
+
+const (
+	PricingFree         PricingType = "free"
+	PricingPaid         PricingType = "paid"
+	PricingSubscription PricingType = "subscription"
+	PricingPerProject   PricingType = "per_project"
+	PricingHourly       PricingType = "hourly"
+	PricingMonthly      PricingType = "monthly"
+)
+
+// InstitutionalWork represents an organizational structural node/type (الهيكل المؤسسي).
+type InstitutionalWork struct {
+	ID                 int64                `json:"id"`
+	PublicID           string               `json:"public_id"`
+	Title              i18n.Text            `json:"title"`
+	Description        i18n.Text            `json:"description"`
+	Icon               string               `json:"icon"`
+	PricingType        PricingType          `json:"pricing_type"`
+	IsActive           bool                 `json:"is_active"`
+	ViewType           int                  `json:"view_type"`
+	Slug               string               `json:"slug"`
+	ParentID           *int64               `json:"parent_id,omitempty"`
+	ParentTitle        string               `json:"parent_title,omitempty"`
+	Children           []*InstitutionalWork `json:"children,omitempty"`
+	AllowedConnections []int64              `json:"allowed_connections,omitempty"`
+	BranchCount        int                  `json:"branch_count,omitempty"`
+	CreatedAt          time.Time            `json:"created_at"`
+	UpdatedAt          time.Time            `json:"updated_at"`
+}
+
+// BranchInstitutionalWork joins branches to institutional work types.
+type BranchInstitutionalWork struct {
+	ID                  int64     `json:"id"`
+	BranchID            int64     `json:"branch_id"`
+	InstitutionalWorkID int64     `json:"institutional_work_id"`
+	CreatedAt           time.Time `json:"created_at"`
+}

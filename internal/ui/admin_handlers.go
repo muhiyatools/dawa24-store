@@ -502,12 +502,88 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 
 	var entries []*platformadmin.AuditEntry
 	if h.adminSvc != nil {
-		entries, _ = h.adminSvc.ListAuditLog(ctx, 50, 0)
+		if list, err := h.adminSvc.ListAuditLog(ctx, 100, 0); err == nil {
+			for _, e := range list {
+				localizeAuditEntry(e)
+			}
+			entries = list
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminAudit(lang, dir, entries).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin audit", "error", err)
+	}
+}
+
+func localizeAuditEntry(e *platformadmin.AuditEntry) {
+	if e == nil {
+		return
+	}
+	switch e.Action {
+	case "org.registered":
+		e.ActionLabelAr = "تسجيل منشأة جديدة"
+	case "org.approved", "org.status_updated":
+		e.ActionLabelAr = "تحديث حالة اعتماد المنشأة"
+	case "org.rejected":
+		e.ActionLabelAr = "رفض اعتماد المنشأة"
+	case "org.suspended":
+		e.ActionLabelAr = "إيقاف المنشأة مؤقتاً"
+	case "identity.user.registered":
+		e.ActionLabelAr = "تسجيل حساب مستخدم جديد"
+	case "identity.user.status_changed":
+		e.ActionLabelAr = "تغيير حالة حساب المستخدم"
+	case "identity.user.role_assigned":
+		e.ActionLabelAr = "تعيين دور وصلاحية للمستخدم"
+	case "identity.user.mfa_reset":
+		e.ActionLabelAr = "إعادة ضبط التحقق الثنائي (MFA)"
+	case "catalog.product.created", "product.created":
+		e.ActionLabelAr = "إضافة صنف دوائي جديد"
+	case "catalog.product.updated", "product.updated":
+		e.ActionLabelAr = "تعديل بيانات الصنف الدوائي"
+	case "catalog.product.deleted", "product.deleted":
+		e.ActionLabelAr = "حذف صنف من الكتالوج"
+	case "catalog.variant.created", "variant.created":
+		e.ActionLabelAr = "إضافة عرض توريد جديد"
+	case "catalog.variant.deleted", "variant.deleted":
+		e.ActionLabelAr = "حذف عرض توريد"
+	case "order.created":
+		e.ActionLabelAr = "إنشاء طلب توريد جديد"
+	case "order.status_updated", "order.status_changed":
+		e.ActionLabelAr = "تحديث حالة أمر التوريد"
+	case "branch.created":
+		e.ActionLabelAr = "إضافة فرع مستودع جديد"
+	case "branch.manager_assigned":
+		e.ActionLabelAr = "تعيين مدير للفرع"
+	case "institutional_work.created":
+		e.ActionLabelAr = "إضافة تصنيف هيكل مؤسسي"
+	case "institutional_work.updated":
+		e.ActionLabelAr = "تعديل تصنيف هيكل مؤسسي"
+	default:
+		e.ActionLabelAr = e.Action
+	}
+
+	switch e.EntityType {
+	case "organization", "org":
+		e.EntityTypeAr = "منشأة / شركة"
+	case "identity.user", "user":
+		e.EntityTypeAr = "مستخدم"
+	case "catalog.product", "product":
+		e.EntityTypeAr = "صنف دوائي"
+	case "catalog.variant", "product_variant", "variant":
+		e.EntityTypeAr = "عرض توريد"
+	case "order", "commerce.order":
+		e.EntityTypeAr = "أمر توريد"
+	case "branch", "org.branch":
+		e.EntityTypeAr = "فرع مستودع / صيدلية"
+	case "institutional_work":
+		e.EntityTypeAr = "هيكل مؤسسي"
+	default:
+		e.EntityTypeAr = e.EntityType
+	}
+
+	if e.ActorName == "" {
+		e.ActorName = "النظام / System"
 	}
 }
 
@@ -659,6 +735,88 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	h.redirectWithNotice(w, r, "/admin/products", "success", "تمت إضافة الصنف الدوائي الأساسي بنجاح إلى الدليل المعتمد.")
+}
+
+// AdminProductEditSubmit updates an existing master medicine in the catalog.
+func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "معرف الدواء غير صالح.")
+		return
+	}
+
+	_ = r.ParseMultipartForm(32 << 20)
+
+	prod, _, err := h.catSvc.GetProduct(database.AsSystem(ctx), id)
+	if err != nil || prod == nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "الصنف الدوائي غير موجود.")
+		return
+	}
+
+	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.FormValue("name_en"))
+	if nameAr == "" && nameEn == "" {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى كتابة اسم الصنف الدوائي بالعربية أو الإنجليزية.")
+		return
+	}
+	if nameAr == "" {
+		nameAr = nameEn
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+
+	imgURL, _ := saveUploadedFile(r, "product_image", "products")
+	if imgURL == "" {
+		imgURL = r.FormValue("image_url")
+	}
+	if imgURL == "" {
+		imgURL = prod.Image
+	}
+
+	priceVal, _ := money.Parse(r.FormValue("price"))
+
+	prod.Name = i18n.New(nameAr, nameEn)
+	prod.Description = i18n.New(r.FormValue("description_ar"), r.FormValue("description_en"))
+	prod.ScientificName = r.FormValue("generic_name")
+	prod.Active = r.FormValue("active_ingredient")
+	prod.DosageForm = r.FormValue("dosage_form")
+	prod.ManufacturingCompanies = r.FormValue("manufacturer")
+	prod.SKU = r.FormValue("eda_reg_number")
+	prod.Barcode = r.FormValue("eda_reg_number")
+	prod.Image = imgURL
+	prod.Price = priceVal
+	if st := r.FormValue("status"); st != "" {
+		prod.Status = catalog.ProductStatus(st)
+	}
+
+	if err := h.catSvc.UpdateProduct(database.AsSystem(ctx), prod); err != nil {
+		h.log.ErrorContext(ctx, "admin update product failed", "error", err, "id", id)
+		h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/products", "success", "تم تحديث بيانات الصنف الدوائي والصورة بنجاح في الكتالوج.")
+}
+
+// AdminProductDeleteSubmit deletes a master medicine from the catalog.
+func (h *UIHandler) AdminProductDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.catSvc != nil {
+		if err := h.catSvc.DeleteProduct(database.AsSystem(ctx), id); err != nil {
+			h.log.ErrorContext(ctx, "admin delete product failed", "error", err, "id", id)
+			h.redirectWithNotice(w, r, "/admin/products", "error", "فشل في حذف الصنف الدوائي: "+err.Error())
+			return
+		}
+	}
+	h.redirectWithNotice(w, r, "/admin/products", "success", "تم حذف الصنف الدوائي من الكتالوج المعتمد.")
 }
 
 // AdminProductsSampleCSV streams a UTF-8 BOM CSV template with sample pharmaceutical products.
@@ -1212,6 +1370,136 @@ func (h *UIHandler) AdminPolicyPublishSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	h.redirectWithNotice(w, r, "/admin/policies", "success", "تم نشر الإصدار وتفعيله للجمهور.")
+}
+
+// AdminInstitutionalPage renders the institutional hierarchy and types dashboard.
+func (h *UIHandler) AdminInstitutionalPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	var items []*org.InstitutionalWork
+	if h.orgSvc != nil {
+		items, _ = h.orgSvc.ListInstitutionalWorks(ctx, false)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminInstitutional(lang, dir, items).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin institutional", "error", err)
+	}
+}
+
+// AdminInstitutionalNewSubmit creates a new institutional work category.
+func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", "خدمة الهيكل المؤسسي غير متاحة.")
+		return
+	}
+
+	titleAr := strings.TrimSpace(r.FormValue("title_ar"))
+	titleEn := strings.TrimSpace(r.FormValue("title_en"))
+	if titleAr == "" && titleEn == "" {
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", "يرجى كتابة اسم التصنيف المؤسسي.")
+		return
+	}
+	if titleAr == "" {
+		titleAr = titleEn
+	}
+	if titleEn == "" {
+		titleEn = titleAr
+	}
+
+	var parentID *int64
+	if pid, err := strconv.ParseInt(r.FormValue("parent_id"), 10, 64); err == nil && pid > 0 {
+		parentID = &pid
+	}
+
+	viewType, _ := strconv.Atoi(r.FormValue("view_type"))
+	if viewType <= 0 {
+		viewType = 1
+	}
+
+	iw := &org.InstitutionalWork{
+		Title:       i18n.New(titleAr, titleEn),
+		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
+		Icon:        r.FormValue("icon"),
+		PricingType: org.PricingType(r.FormValue("pricing_type")),
+		IsActive:    true,
+		ViewType:    viewType,
+		Slug:        titleEn,
+		ParentID:    parentID,
+	}
+
+	if err := h.orgSvc.CreateInstitutionalWork(ctx, iw); err != nil {
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تمت إضافة تصنيف الهيكل المؤسسي بنجاح.")
+}
+
+// AdminInstitutionalEditSubmit updates an existing institutional category.
+func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", "معرف التصنيف غير صالح.")
+		return
+	}
+
+	titleAr := strings.TrimSpace(r.FormValue("title_ar"))
+	titleEn := strings.TrimSpace(r.FormValue("title_en"))
+	if titleAr == "" && titleEn == "" {
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", "يرجى كتابة اسم التصنيف المؤسسي.")
+		return
+	}
+	if titleAr == "" {
+		titleAr = titleEn
+	}
+	if titleEn == "" {
+		titleEn = titleAr
+	}
+
+	var parentID *int64
+	if pid, err := strconv.ParseInt(r.FormValue("parent_id"), 10, 64); err == nil && pid > 0 {
+		parentID = &pid
+	}
+
+	iw := &org.InstitutionalWork{
+		ID:          id,
+		Title:       i18n.New(titleAr, titleEn),
+		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
+		PricingType: org.PricingType(r.FormValue("pricing_type")),
+		IsActive:    true,
+		ParentID:    parentID,
+	}
+
+	if err := h.orgSvc.UpdateInstitutionalWork(ctx, iw); err != nil {
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم تحديث بيانات التصنيف المؤسسي بنجاح.")
+}
+
+// AdminInstitutionalDeleteSubmit soft deletes an institutional category.
+func (h *UIHandler) AdminInstitutionalDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.orgSvc != nil {
+		_ = h.orgSvc.DeleteInstitutionalWork(ctx, id)
+	}
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم حذف التصنيف المؤسسي.")
+}
+
+// AdminInstitutionalStatusSubmit toggles active status of an institutional category.
+func (h *UIHandler) AdminInstitutionalStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && h.orgSvc != nil {
+		_ = h.orgSvc.ToggleInstitutionalWorkStatus(ctx, id)
+	}
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم تحديث حالة تفعيل التصنيف.")
 }
 
 // AdminDocumentsPage renders the official documents audit registry.

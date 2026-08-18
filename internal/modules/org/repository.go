@@ -51,4 +51,14 @@ type Repository interface {
 
 	CreatePolicy(ctx context.Context, p *Policy) error
 	ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*Policy, error)
+
+	// Institutional Works (الهيكل المؤسسي وأنواعه)
+	CreateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error
+	GetInstitutionalWorkByID(ctx context.Context, id int64) (*InstitutionalWork, error)
+	UpdateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error
+	DeleteInstitutionalWork(ctx context.Context, id int64) error
+	ToggleInstitutionalWorkStatus(ctx context.Context, id int64) error
+	ListInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*InstitutionalWork, error)
+	AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error
+	GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*InstitutionalWork, error)
 }
