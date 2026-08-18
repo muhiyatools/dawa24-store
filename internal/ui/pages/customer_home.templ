@@ -15,7 +15,7 @@ type HomeStats struct {
 }
 
 templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, stats HomeStats, lang, dir string) {
-	@layouts.CustomerShell("منصة التوريد الدوائي | DAWA24", lang, dir) {
+	@layouts.PublicShell("منصة التوريد الدوائي | DAWA24", lang, dir) {
 		<style>
 			.hero-capsule-bg {
 				position: absolute;

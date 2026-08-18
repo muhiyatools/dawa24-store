@@ -92,11 +92,6 @@ func (s *Service) UpsertContentBlock(ctx context.Context, b *ContentBlock) error
 	return s.repo.UpsertContentBlock(ctx, b)
 }
 
-// GetPublishedPolicy returns the latest published policy for a slug.
-func (s *Service) GetPublishedPolicy(ctx context.Context, slug string) (*PrivacyPolicy, error) {
-	return s.repo.GetPublishedPolicy(ctx, slug)
-}
-
 // RecordVisitor records one visitor-session-day, deduplicated by key+day.
 func (s *Service) RecordVisitor(ctx context.Context, v *Visitor) error {
 	if v.VisitorKey == "" {

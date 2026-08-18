@@ -58,6 +58,37 @@ func (m *mockPromoRepo) ListActiveOffers(_ context.Context, limit, offset int) (
 	return list, nil
 }
 
+func (m *mockPromoRepo) ListOffersForProduct(_ context.Context, productID int64) ([]*OfferProductWithOffer, error) {
+	var list []*OfferProductWithOffer
+	for _, o := range m.offers {
+		if !o.IsActive {
+			continue
+		}
+		for _, pid := range o.ProductIDs {
+			if pid == productID {
+				list = append(list, &OfferProductWithOffer{
+					Offer: o,
+					Product: &OfferProduct{
+						ProductID: pid,
+						CustomQty: 1,
+					},
+				})
+			}
+		}
+	}
+	return list, nil
+}
+
+func (m *mockPromoRepo) ListOffersVisibleTo(_ context.Context, latitude, longitude float64, dayOfWeek, limit, offset int) ([]*VisibleOffer, error) {
+	var list []*VisibleOffer
+	for _, o := range m.offers {
+		if o.IsActive {
+			list = append(list, &VisibleOffer{Offer: o, VendorBranchID: o.OrganizationID})
+		}
+	}
+	return list, nil
+}
+
 func (m *mockPromoRepo) ListOffers(_ context.Context, _, _ int) ([]*Offer, error) {
 	var list []*Offer
 	for _, o := range m.offers {
@@ -137,6 +168,26 @@ func (m *mockPromoRepo) ListHighlightSections(_ context.Context) ([]*HighlightSe
 	return list, nil
 }
 
+func (m *mockPromoRepo) ListHighlightSectionsByOrg(_ context.Context, orgID int64) ([]*HighlightSection, error) {
+	var list []*HighlightSection
+	for _, s := range m.sections {
+		if s.OwnerType == "organization" && s.OrganizationID != nil && *s.OrganizationID == orgID {
+			list = append(list, s)
+		}
+	}
+	return list, nil
+}
+
+func (m *mockPromoRepo) AddHighlightItem(_ context.Context, item *HighlightSectionItem) error {
+	item.ID = m.nextID
+	m.nextID++
+	return nil
+}
+
+func (m *mockPromoRepo) ListHighlightItems(_ context.Context, _ int64) ([]*HighlightSectionItem, error) {
+	return nil, nil
+}
+
 func (m *mockPromoRepo) ExpirePromotions(_ context.Context) (int64, error) {
 	return 0, nil
 }
@@ -178,7 +229,7 @@ func TestPromoServiceLifecycle(t *testing.T) {
 		Title:         i18n.New("خصم الصيف", "Summer Discount"),
 		DiscountType:  DiscountPercentage,
 		DiscountValue: discVal,
-		MinOrderValue: minOrder,
+		MinOrderAmount: minOrder,
 		StartsAt:      now,
 		ExpiresAt:     now.Add(7 * 24 * time.Hour),
 		IsActive:      true,
@@ -274,6 +325,30 @@ func TestPromoServiceLifecycle(t *testing.T) {
 	secs, err := svc.ListHighlightSections(ctx)
 	if err != nil || len(secs) != 1 {
 		t.Fatalf("ListHighlightSections failed: %v", err)
+	}
+
+	// 6b. Organization-owned highlight sections (066)
+	orgSec, err := svc.CreateOrganizationHighlightSection(ctx, 7, i18n.New("الأكثر مبيعاً", "Best sellers"), "best")
+	if err != nil || orgSec.ID <= 0 {
+		t.Fatalf("CreateOrganizationHighlightSection failed: %v", err)
+	}
+	if orgSec.OwnerType != "organization" || orgSec.OrganizationID == nil || *orgSec.OrganizationID != 7 {
+		t.Errorf("org section owner mismatch: %+v", orgSec)
+	}
+	if _, err := svc.CreateOrganizationHighlightSection(ctx, 7, i18n.Text{}, ""); err == nil {
+		t.Error("empty-title org section should be rejected")
+	}
+	orgSecs, err := svc.ListHighlightSectionsByOrg(ctx, 7)
+	if err != nil || len(orgSecs) != 1 {
+		t.Fatalf("ListHighlightSectionsByOrg failed: %v", err)
+	}
+	pid := int64(42)
+	if err := svc.AddHighlightItem(ctx, orgSec.ID, &pid, nil); err != nil {
+		t.Fatalf("AddHighlightItem failed: %v", err)
+	}
+	items, err := svc.ListHighlightItems(ctx, orgSec.ID)
+	if err != nil || len(items) != 0 {
+		t.Fatalf("ListHighlightItems failed: %v", err)
 	}
 
 	_, err = svc.ExpirePromotions(ctx)

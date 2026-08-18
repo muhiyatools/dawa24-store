@@ -14,9 +14,7 @@ func (r *Repository) ListOffers(ctx context.Context, limit, offset int) ([]*prom
 	var offers []*promo.Offer
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const query = `
-			SELECT id, public_id, organization_id, title, description, discount_type,
-			       discount_value, min_order_value, starts_at, expires_at, is_active,
-			       views_count, clicks_count, created_at, updated_at, deleted_at
+			SELECT ` + offerColumns + `
 			FROM promo.offers
 			WHERE deleted_at IS NULL
 			ORDER BY id DESC
@@ -31,17 +29,11 @@ func (r *Repository) ListOffers(ctx context.Context, limit, offset int) ([]*prom
 		}
 		defer rows.Close()
 		for rows.Next() {
-			var o promo.Offer
-			var discType string
-			if err := rows.Scan(
-				&o.ID, &o.PublicID, &o.OrganizationID, &o.Title, &o.Description,
-				&discType, &o.DiscountValue, &o.MinOrderValue, &o.StartsAt, &o.ExpiresAt,
-				&o.IsActive, &o.ViewsCount, &o.ClicksCount, &o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
-			); err != nil {
+			o, err := scanOffer(rows)
+			if err != nil {
 				return err
 			}
-			o.DiscountType = promo.DiscountType(discType)
-			offers = append(offers, &o)
+			offers = append(offers, o)
 		}
 		return rows.Err()
 	})

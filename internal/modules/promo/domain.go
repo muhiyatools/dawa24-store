@@ -23,11 +23,18 @@ type Offer struct {
 	ID             int64        `json:"id"`
 	PublicID       string       `json:"public_id"`
 	OrganizationID int64        `json:"organization_id"`
+	BranchID       *int64       `json:"branch_id,omitempty"` // publishing vendor branch (062)
 	Title          i18n.Text    `json:"title"`
 	Description    i18n.Text    `json:"description,omitempty"`
 	DiscountType   DiscountType `json:"discount_type"`
 	DiscountValue  money.Amount `json:"discount_value"`
-	MinOrderValue  money.Amount `json:"min_order_value"`
+	MinOrderAmount money.Amount `json:"min_order_amount"` // offer minimum order value (062)
+	AdminStatus    string       `json:"admin_status"`     // pending | approved | rejected (062)
+	AdminNotes     string       `json:"admin_notes,omitempty"`
+	ApprovedAt     *time.Time   `json:"approved_at,omitempty"`
+	ApprovedBy     int64        `json:"approved_by,omitempty"`
+	RejectedAt     *time.Time   `json:"rejected_at,omitempty"`
+	RejectedBy     int64        `json:"rejected_by,omitempty"`
 	StartsAt       time.Time    `json:"starts_at"`
 	ExpiresAt      time.Time    `json:"expires_at"`
 	IsActive       bool         `json:"is_active"`
@@ -37,6 +44,40 @@ type Offer struct {
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 	DeletedAt      *time.Time   `json:"deleted_at,omitempty"`
+}
+
+// OfferProductWithOffer carries an offer line together with the offer it
+// belongs to — the shape storefront lookups return.
+type OfferProductWithOffer struct {
+	Product *OfferProduct
+	Offer   *Offer
+}
+
+// VisibleOffer is an offer the pharmacy branch can actually buy: the vendor
+// branch's weekly coverage circle contains the pharmacy branch's coordinates,
+// on the requested day.
+type VisibleOffer struct {
+	Offer          *Offer
+	VendorBranchID int64
+	Metres         int
+}
+
+// IsApproved reports whether the platform cleared the offer for commerce.
+func (o *Offer) IsApproved() bool { return o.AdminStatus == "approved" }
+
+// OfferProduct is one line of an offer: the product (or variant) being sold
+// and the custom pricing the vendor set for it (062).
+type OfferProduct struct {
+	ID                    int64         `json:"id"`
+	OfferID               int64         `json:"offer_id"`
+	ProductID             int64         `json:"product_id"`
+	VariantID             *int64        `json:"variant_id,omitempty"`
+	CustomPrice           *money.Amount `json:"custom_price,omitempty"`           // full override of the list price
+	CustomDiscountPercent *float64      `json:"custom_discount_percentage,omitempty"` // percent, e.g. 15.00 = 15%
+	CustomDiscountAmount  *money.Amount `json:"custom_discount_amount,omitempty"`
+	CustomQty             int           `json:"custom_qty"`
+	MaxQtyPerOrder        *int          `json:"max_qty_per_order,omitempty"`
+	CreatedAt             time.Time     `json:"created_at"`
 }
 
 // OfferPackage represents a tier for sponsoring and promoting offers.
@@ -88,7 +129,7 @@ func (o *Offer) CalculateDiscount(subtotal money.Amount) (money.Amount, error) {
 	if !o.IsActive || o.DiscountValue.IsZero() {
 		return money.Zero, nil
 	}
-	if o.MinOrderValue.IsPositive() && subtotal.Minor() < o.MinOrderValue.Minor() {
+	if o.MinOrderAmount.IsPositive() && subtotal.Minor() < o.MinOrderAmount.Minor() {
 		return money.Zero, nil
 	}
 
@@ -178,16 +219,19 @@ func (o *Offer) Validate() error {
 	return nil
 }
 
-// HighlightSection represents a curated section on the homepage or storefront.
+// HighlightSection represents a curated section on the homepage or storefront
+// (066: one table serves both the platform and organization-owned rows).
 type HighlightSection struct {
-	ID           int64                  `json:"id"`
-	PublicID     string                 `json:"public_id"`
-	Title        i18n.Text              `json:"title"`
-	Slug         string                 `json:"slug"`
-	DisplayOrder int                    `json:"display_order"`
-	IsActive     bool                   `json:"is_active"`
-	Items        []HighlightSectionItem `json:"items,omitempty"`
-	CreatedAt    time.Time              `json:"created_at"`
+	ID             int64                  `json:"id"`
+	PublicID       string                 `json:"public_id"`
+	OwnerType      string                 `json:"owner_type"`       // platform | organization (066)
+	OrganizationID *int64                 `json:"organization_id,omitempty"` // owner when organization (066)
+	Title          i18n.Text              `json:"title"`
+	Slug           string                 `json:"slug"`
+	DisplayOrder   int                    `json:"display_order"`
+	IsActive       bool                   `json:"is_active"`
+	Items          []HighlightSectionItem `json:"items,omitempty"`
+	CreatedAt      time.Time              `json:"created_at"`
 }
 
 // HighlightSectionItem represents an item within a highlight section.

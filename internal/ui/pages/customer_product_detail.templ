@@ -7,8 +7,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerProductDetail(product *catalog.Product, variants []*catalog.ProductVariant, lang, dir string) {
-	@layouts.CustomerShell(productTitle(product), lang, dir) {
+templ CustomerProductDetail(product *catalog.Product, variants []*catalog.ProductVariant, offers []SupplierOffer, lang, dir string) {
+	@layouts.PublicShell(productTitle(product), lang, dir) {
 		<div class="product-detail-container" style="max-width:1160px; margin:1rem auto 4rem auto; display:flex; flex-direction:column; gap:var(--space-6);">
 			
 			<!-- Breadcrumb Navigation -->
@@ -187,29 +187,36 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						}
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
 							<div style="font-size:var(--text-xs); color:var(--text-secondary); font-weight:600;">سعر التوريد للصيدلية:</div>
-							<span class="badge badge-emerald">أفضل عرض</span>
-						</div>
-						<div style="font-size:var(--text-2xl); font-weight:800; color:var(--accent); line-height:1.1;" class="tabular-nums">
-							if len(GetOffersForProduct(product)) > 0 {
-								{ GetOffersForProduct(product)[0].Price.String() } ج.م
-							} else if product.NetPrice().IsPositive() {
-								{ product.NetPrice().String() } ج.م
-							} else {
-								38.50 ج.م
+							if len(offers) > 0 {
+								<span class="badge badge-emerald">أفضل عرض</span>
 							}
 						</div>
+						if len(offers) > 0 {
+							@components.PriceTag(components.PriceBreakdown{
+								ListPrice:      offers[0].OldPrice,
+								Price:          offers[0].Price,
+								DiscountAmount: offers[0].DiscountAmount,
+								DiscountBPS:    offers[0].DiscountBPS,
+								Large:          true,
+							})
+						} else if product.NetPrice().IsPositive() {
+							@components.PriceTag(components.PriceBreakdown{ Price: product.NetPrice(), Large: true })
+						} else {
+							<div style="font-size:var(--text-2xl); font-weight:800; color:var(--text-muted);" class="tabular-nums">—</div>
+						}
 						<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:var(--space-1);">
 							شامل ضريبة القيمة المضافة والفاتورة الإلكترونية
 						</div>
-						if len(GetOffersForProduct(product)) > 0 {
+						if len(offers) > 0 {
 							<div style="font-size:var(--text-xs); color:var(--text-secondary); margin-top:var(--space-2); display:flex; align-items:center; gap:var(--space-1);">
 								<span>المورد المعتمد:</span>
-								<strong style="color:var(--text);">{ GetOffersForProduct(product)[0].SupplierName }</strong>
+								<strong style="color:var(--text);">{ offers[0].SupplierName }</strong>
 							</div>
 						}
 					</div>
 
 
+					if len(offers) > 0 {
 					<form action="/cart/add" method="POST" x-data="{ qty: 1 }" style="display:flex; flex-direction:column; gap:var(--space-3); margin:0;">
 						<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 						if len(variants) > 0 {
@@ -217,11 +224,9 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						} else {
 							<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", product.ID) } />
 						}
-						if len(GetOffersForProduct(product)) > 0 {
-							<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", GetOffersForProduct(product)[0].SupplierID) } />
-						} else {
-							<input type="hidden" name="vendor_org_id" value="1" />
-						}
+						<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
+						<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", offers[0].OfferID) } />
+						<input type="hidden" name="offer_price" value={ offers[0].Price.String() } />
 						<input type="hidden" name="quantity" :value="qty" />
 
 						<div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.35rem 0.65rem;">
@@ -238,6 +243,11 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							<span>إضافة للطلبية بأفضل سعر</span>
 						</button>
 					</form>
+					} else {
+						<div style="padding:var(--space-3); border:1px dashed var(--border-strong); border-radius:var(--radius-md); font-size:var(--text-xs); color:var(--text-muted); text-align:center;">
+							لا توجد عروض نشطة حالياً لهذا الصنف من موردين معتمدين — راجع الكتالوج لاحقاً.
+						</div>
+					}
 
 					<div style="border-top:1px solid var(--border); padding-top:var(--space-3);">
 						<div style="display:flex; align-items:center; gap:var(--space-2); color:var(--text); font-weight:600; font-size:var(--text-xs); margin-bottom:var(--space-2);">
@@ -276,13 +286,18 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 					</div>
 
 					<div class="badge badge-sky" style="font-weight:600;">
-						<span>3 موردين يقدمون هذا الصنف</span>
+						<span>{ fmt.Sprintf("%d", len(offers)) } موردين يقدمون هذا الصنف</span>
 					</div>
 				</div>
 
 				<!-- Offers List -->
 				<div style="display:flex; flex-direction:column; gap:var(--space-3);">
-					for idx, offer := range GetOffersForProduct(product) {
+					if len(offers) == 0 {
+						<div style="padding:var(--space-5); border:1px dashed var(--border-strong); border-radius:var(--radius-md); text-align:center; color:var(--text-muted); font-size:var(--text-sm);">
+							لا توجد عروض نشطة من موردين معتمدين لهذا الصنف حالياً.
+						</div>
+					}
+					for idx, offer := range offers {
 						<div
 							x-data={ fmt.Sprintf("{ qty: %d, minQty: %d, maxStock: %d }", offer.MinOrderQty, offer.MinOrderQty, offer.AvailableStock) }
 							style="display:grid; grid-template-columns:1.4fr 1.2fr 1fr 1.4fr; gap:var(--space-4); align-items:center; padding:var(--space-4); background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); transition:border-color 150ms var(--ease-default);"
@@ -295,9 +310,11 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										<span class="badge badge-emerald" style="font-size:10px;">مورد معتمد</span>
 									}
 								</div>
-								<div style="display:flex; align-items:center; gap:var(--space-1); font-size:var(--text-xs);">
-									@components.RatingStars(offer.SupplierRating, offer.ReviewCount)
-								</div>
+								if offer.SupplierRating > 0 {
+									<div style="display:flex; align-items:center; gap:var(--space-1); font-size:var(--text-xs);">
+										@components.RatingStars(offer.SupplierRating, offer.ReviewCount)
+									</div>
+								}
 							</div>
 
 							<!-- Col 2: Batch & Delivery -->
@@ -307,20 +324,27 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 									<span style="margin:0 var(--space-1); color:var(--border-strong);">|</span>
 									<span style="color:var(--text-muted);">الصلاحية:</span> <strong class="tabular-nums" style="color:var(--text);">{ offer.ExpiryDate }</strong>
 								</div>
-								<div style="color:var(--accent); font-weight:600; display:flex; align-items:center; gap:var(--space-1);">
-									@components.IconTruck("icon-xs")
-									<span>{ offer.DeliveryEstimate }</span>
-								</div>
+								if offer.DeliveryEstimate != "" {
+									<div style="color:var(--accent); font-weight:600; display:flex; align-items:center; gap:var(--space-1);">
+										@components.IconTruck("icon-xs")
+										<span>{ offer.DeliveryEstimate }</span>
+									</div>
+								}
 							</div>
 
 							<!-- Col 3: Pricing & Stock -->
 							<div>
-								<div style="font-size:var(--text-lg); font-weight:700; color:var(--accent);" class="tabular-nums">
-									{ offer.Price.String() } ج.م
-								</div>
+								@components.PriceTag(components.PriceBreakdown{
+									ListPrice:      offer.OldPrice,
+									Price:          offer.Price,
+									DiscountAmount: offer.DiscountAmount,
+									DiscountBPS:    offer.DiscountBPS,
+								})
 								<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;">
-									الرصيد: <strong class="tabular-nums" style="color:var(--text-secondary);">{ fmt.Sprintf("%d", offer.AvailableStock) }</strong>
-									<span style="margin:0 var(--space-1); color:var(--border-strong);">•</span>
+									if offer.AvailableStock > 0 {
+										الرصيد: <strong class="tabular-nums" style="color:var(--text-secondary);">{ fmt.Sprintf("%d", offer.AvailableStock) }</strong>
+										<span style="margin:0 var(--space-1); color:var(--border-strong);">•</span>
+									}
 									الحد الأدنى: <span class="tabular-nums">{ fmt.Sprintf("%d", offer.MinOrderQty) }</span>
 								</div>
 							</div>
@@ -335,6 +359,8 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", product.ID) } />
 									}
 									<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", offer.SupplierID) } />
+									<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", offer.OfferID) } />
+									<input type="hidden" name="offer_price" value={ offer.Price.String() } />
 
 									<!-- Stepper -->
 									<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:2px; display:inline-flex; align-items:center;">

@@ -50,18 +50,18 @@ func runSeedUsers(ctx context.Context, db *database.DB, log *slog.Logger) error 
 			email:   "vendor@dawa24.test",
 			nameAr:  "مورّد الاختبار",
 			nameEn:  "Test Supplier",
-			role:    "customer",
+			role:    "user",
 			orgName: "شركة دواء للتوزيع",
-			orgType: "supplier",
+			orgType: "vendor",
 			orgRole: "org_owner",
 		},
 		{
 			email:   "pharmacy@dawa24.test",
 			nameAr:  "صيدلية الاختبار",
 			nameEn:  "Test Pharmacy",
-			role:    "customer",
+			role:    "user",
 			orgName: "صيدلية الشفاء",
-			orgType: "pharmacy",
+			orgType: "customer",
 			orgRole: "org_owner",
 		},
 	}
@@ -177,8 +177,8 @@ Development sign-in accounts (password is the same for all three):
   password: %s
 
   admin@dawa24.test       super_admin   /admin/dashboard
-  vendor@dawa24.test      supplier      /vendor/products
-  pharmacy@dawa24.test    pharmacy      /catalog
+  vendor@dawa24.test      vendor        /vendor/products
+  pharmacy@dawa24.test    customer      /catalog
 
 Sign in at /auth/login. Re-running this command resets the passwords and
 clears any suspension applied while testing.

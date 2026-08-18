@@ -86,10 +86,6 @@ func (m *mockPlatformAdminRepo) UpsertContentBlock(_ context.Context, _ *Content
 	return nil
 }
 
-func (m *mockPlatformAdminRepo) GetPublishedPolicy(_ context.Context, _ string) (*PrivacyPolicy, error) {
-	return nil, nil
-}
-
 func (m *mockPlatformAdminRepo) RecordVisitor(_ context.Context, _ *Visitor) error {
 	return nil
 }

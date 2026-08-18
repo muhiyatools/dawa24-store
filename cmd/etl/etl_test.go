@@ -98,6 +98,7 @@ func TestETLOrgTransformation(t *testing.T) {
 		TaxNumber:          "123-456-789",
 		CommercialRegister: "CR-998877",
 		Phone:              "+2022345678",
+		Type:               "company",
 		Status:             "active",
 		CreatedAt:          time.Now(),
 	}
@@ -110,7 +111,13 @@ func TestETLOrgTransformation(t *testing.T) {
 	if tgt.TaxNumber != "123-456-789" {
 		t.Fatalf("expected TaxNumber '123-456-789', got '%s'", tgt.TaxNumber)
 	}
-	if tgt.Type != "supplier" {
-		t.Fatalf("expected type 'supplier', got '%s'", tgt.Type)
+	if tgt.Type != "vendor" {
+		t.Fatalf("expected type 'vendor' for legacy 'company', got '%s'", tgt.Type)
+	}
+	if got := LegacyOrgType("chain_pharmacy"); got != "customer" {
+		t.Fatalf("expected 'customer' for legacy 'chain_pharmacy', got '%s'", got)
+	}
+	if got := LegacyUserRole("vendor"); got != "user" {
+		t.Fatalf("expected 'user' platform role for legacy 'vendor', got '%s'", got)
 	}
 }

@@ -22,31 +22,41 @@ func NewRepository(db *database.DB) *Repository {
 	return &Repository{db: db}
 }
 
-// CreateFileUpload records a pointer to a stored import file.
+// DocumentTypeImportFile marks uploaded import files inside
+// platform_admin.documents (070 — one attachment table; mirrors
+// attachments.DocImportFile without crossing the module boundary).
+const DocumentTypeImportFile = "import_file"
+
+// CreateFileUpload records a pointer to a stored import file. Uploads live on
+// platform_admin.documents since 070; documents has no RLS, so these run as
+// system with the tenant columns filtered explicitly.
 func (r *Repository) CreateFileUpload(ctx context.Context, f *ingest.FileUpload) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO ingest.file_uploads (
-				organization_id, user_id, filename, storage_key, file_size_bytes, mime_type
-			) VALUES ($1, $2, $3, $4, $5, $6)
+			INSERT INTO platform_admin.documents (
+				organization_id, user_id, title, document_type, storage_key,
+				original_name, file_url, status, mime_type, size_bytes
+			) VALUES ($1, $2, $3, $4, $5, $6, '', 'pending', $7, $8)
 			RETURNING id, public_id, created_at;
 		`
 		return tx.QueryRow(txCtx, query,
-			f.OrganizationID, f.UserID, f.Filename, f.StorageKey, f.FileSizeBytes, f.MimeType,
+			f.OrganizationID, f.UserID, f.Filename, DocumentTypeImportFile,
+			f.StorageKey, f.Filename, f.MimeType, f.FileSizeBytes,
 		).Scan(&f.ID, &f.PublicID, &f.CreatedAt)
 	})
 }
 
-// GetFileUploadByID retrieves an upload record by ID.
+// GetFileUploadByID retrieves an upload record by ID (platform_admin.documents
+// since 070).
 func (r *Repository) GetFileUploadByID(ctx context.Context, id int64) (*ingest.FileUpload, error) {
 	var f ingest.FileUpload
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, user_id, filename, storage_key, file_size_bytes, mime_type, created_at
-			FROM ingest.file_uploads
-			WHERE id = $1;
+			SELECT id, public_id, organization_id, user_id, original_name, storage_key, size_bytes, mime_type, created_at
+			FROM platform_admin.documents
+			WHERE id = $1 AND document_type = $2;
 		`
-		return tx.QueryRow(txCtx, query, id).Scan(
+		return tx.QueryRow(txCtx, query, id, DocumentTypeImportFile).Scan(
 			&f.ID, &f.PublicID, &f.OrganizationID, &f.UserID, &f.Filename,
 			&f.StorageKey, &f.FileSizeBytes, &f.MimeType, &f.CreatedAt,
 		)

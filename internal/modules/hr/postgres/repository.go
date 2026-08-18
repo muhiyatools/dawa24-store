@@ -20,31 +20,41 @@ func NewRepository(db *database.DB) *Repository {
 	return &Repository{db: db}
 }
 
-// CreateEmployee inserts an employee under the active tenant.
+// CreateEmployee inserts an employee under the active tenant. Employees live
+// on org.members since 069; a user who is already a member is upgraded with
+// the HR fields instead of conflicting on (organization_id, user_id).
 func (r *Repository) CreateEmployee(ctx context.Context, e *hr.Employee) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO hr.employees (
-				organization_id, user_id, employee_code, job_title,
-				base_salary, variable_salary, status, hired_at
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			INSERT INTO org.members (
+				organization_id, user_id, role_key, status,
+				employee_code, job_title, base_salary, variable_salary, hired_at
+			) VALUES ($1, $2, 'org_pharmacist', $3, $4, $5, $6, $7, $8)
+			ON CONFLICT (organization_id, user_id) DO UPDATE SET
+				employee_code = EXCLUDED.employee_code,
+				job_title = EXCLUDED.job_title,
+				base_salary = EXCLUDED.base_salary,
+				variable_salary = EXCLUDED.variable_salary,
+				status = EXCLUDED.status,
+				hired_at = EXCLUDED.hired_at,
+				updated_at = now()
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
-			e.OrganizationID, e.UserID, e.EmployeeCode, e.JobTitle,
-			e.BaseSalary, e.VariableSalary, e.Status, e.HiredAt,
+			e.OrganizationID, e.UserID, e.Status, e.EmployeeCode, e.JobTitle,
+			e.BaseSalary, e.VariableSalary, e.HiredAt,
 		).Scan(&e.ID, &e.PublicID, &e.CreatedAt, &e.UpdatedAt)
 	})
 }
 
-// GetEmployeeByID retrieves an employee profile.
+// GetEmployeeByID retrieves an employee profile (org.members since 069).
 func (r *Repository) GetEmployeeByID(ctx context.Context, id int64) (*hr.Employee, error) {
 	var e hr.Employee
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, user_id, employee_code, job_title,
 			       base_salary, variable_salary, status, hired_at, created_at, updated_at
-			FROM hr.employees
+			FROM org.members
 			WHERE id = $1;
 		`
 		return tx.QueryRow(txCtx, query, id).Scan(
@@ -61,14 +71,16 @@ func (r *Repository) GetEmployeeByID(ctx context.Context, id int64) (*hr.Employe
 	return &e, nil
 }
 
-// ListEmployees retrieves paginated employees for the tenant.
+// ListEmployees retrieves paginated employees for the tenant (org.members
+// since 069).
 func (r *Repository) ListEmployees(ctx context.Context, limit, offset int) ([]*hr.Employee, error) {
 	var list []*hr.Employee
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, user_id, employee_code, job_title,
 			       base_salary, variable_salary, status, hired_at, created_at, updated_at
-			FROM hr.employees
+			FROM org.members
+			WHERE employee_code <> ''
 			ORDER BY id ASC
 			LIMIT $1 OFFSET $2;
 		`

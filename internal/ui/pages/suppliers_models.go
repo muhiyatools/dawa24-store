@@ -22,18 +22,20 @@ type SupplierProfileData struct {
 }
 
 // OrgTypeLabel maps an organization type onto an Arabic label.
+//
+// Two types exist (Rebuild V2 rule 1); legacy values are mapped by migration
+// 060, but labels stay tolerant so admin screens can render rows from an old
+// dump until the ETL runs.
 func OrgTypeLabel(t org.OrganizationType) string {
 	switch t {
-	case org.TypeSupplier:
+	case org.TypeVendor:
 		return "مورّد / شركة أدوية"
-	case org.TypePharmacy:
+	case org.TypeCustomer:
 		return "صيدلية"
-	case org.TypeChainPharmacy:
-		return "سلسلة صيدليات"
-	case "company":
-		return "شركة"
-	case "agency":
-		return "وكالة"
+	case "supplier", "company", "agency":
+		return "مورّد / شركة أدوية"
+	case "pharmacy", "chain_pharmacy", "individual":
+		return "صيدلية"
 	default:
 		return string(t)
 	}

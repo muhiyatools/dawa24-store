@@ -11,7 +11,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 	if isPartial {
 		@CustomerOrdersList(orders)
 	} else {
-		@layouts.PharmacyShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
+		@layouts.CustomerShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
 			<div class="orders-page-container" style="max-width:100%;">
 				<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
 					<div style="display:flex; align-items:center; gap:0.6rem;">

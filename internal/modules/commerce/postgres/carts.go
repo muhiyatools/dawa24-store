@@ -47,7 +47,7 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 
 		queryItems := `
 			SELECT ci.id, ci.cart_id, ci.product_id, ci.product_variant_id, ci.quantity, ci.unit_price,
-			       ci.created_at, ci.updated_at,
+			       ci.offer_id, ci.created_at, ci.updated_at,
 			       COALESCE(p.organization_id, 0), COALESCE(p.name, '{"ar":"","en":""}'::jsonb),
 			       COALESCE(o.name, '{"ar":"","en":""}'::jsonb), COALESCE(o.min_order_price, 10.00)
 			FROM commerce.cart_items ci
@@ -66,7 +66,8 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			var item commerce.CartItem
 			if err := rows.Scan(
 				&item.ID, &item.CartID, &item.ProductID, &item.ProductVariantID,
-				&item.Quantity, &item.UnitPrice, &item.CreatedAt, &item.UpdatedAt,
+				&item.Quantity, &item.UnitPrice, &item.OfferID,
+				&item.CreatedAt, &item.UpdatedAt,
 				&item.OrganizationID, &item.ProductName, &item.SupplierName, &item.MinOrderPrice,
 			); err != nil {
 				return err
@@ -85,14 +86,15 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 func (r *Repository) AddToCartItem(ctx context.Context, cartID int64, item *commerce.CartItem) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO commerce.cart_items (cart_id, product_id, product_variant_id, quantity, unit_price)
-			VALUES ($1, $2, $3, $4, $5)
+			INSERT INTO commerce.cart_items (cart_id, product_id, product_variant_id, quantity, unit_price, offer_id)
+			VALUES ($1, $2, $3, $4, $5, $6)
 			ON CONFLICT (cart_id, product_variant_id) DO UPDATE SET
 				quantity = commerce.cart_items.quantity + EXCLUDED.quantity,
 				unit_price = EXCLUDED.unit_price,
+				offer_id = COALESCE(EXCLUDED.offer_id, commerce.cart_items.offer_id),
 				updated_at = now();
 		`
-		_, err := tx.Exec(txCtx, query, cartID, item.ProductID, item.ProductVariantID, item.Quantity, item.UnitPrice)
+		_, err := tx.Exec(txCtx, query, cartID, item.ProductID, item.ProductVariantID, item.Quantity, item.UnitPrice, item.OfferID)
 		return err
 	})
 }

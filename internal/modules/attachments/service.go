@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -25,6 +27,98 @@ func NewService(repo Repository, storage *storage.Client, log *slog.Logger) *Ser
 		storage: storage,
 		log:     log,
 	}
+}
+
+// MissingRequiredDocuments returns the required document types the
+// organization has no verified copy of, or nil when the org can trade.
+// Used by the commerce/promo gates (Rebuild V2 §4.2).
+func (s *Service) MissingRequiredDocuments(ctx context.Context, orgID int64, orgType string) ([]DocumentType, error) {
+	if orgID <= 0 {
+		return nil, apperr.Unauthorized()
+	}
+
+	docs, err := s.repo.ListByOrganization(ctx, orgID)
+	if err != nil {
+		return nil, fmt.Errorf("attachments.MissingRequiredDocuments: %w", err)
+	}
+
+	verified := map[DocumentType]bool{}
+for _, d := range docs {
+			if d != nil && d.Status == StatusVerified && d.DeletedAt == nil {
+				verified[d.DocumentType] = true
+			}
+		}
+
+	var missing []DocumentType
+	for _, req := range RequirementsFor(orgType) {
+		if req.Required && !verified[req.DocType] {
+			missing = append(missing, req.DocType)
+		}
+	}
+	return missing, nil
+}
+
+// RegisterUpload records a document that was already uploaded through the
+// local /uploads flow (Rebuild V2 §4.2) — the organization-owned files screen
+// uses this instead of presigned storage when object storage is absent.
+// Unlike PresignUpload it needs no storage client: the uploader hands over
+// the final public URL.
+func (s *Service) RegisterUpload(ctx context.Context, actor authctx.Actor, docType DocumentType, url, originalName string) (*Document, error) {
+	if actor.OrgID <= 0 {
+		return nil, apperr.Unauthorized()
+	}
+
+	validMimes, ok := allowedMIMEs[docType]
+	if !ok {
+		return nil, apperr.Validation("document.type_invalid", "نوع المستند غير صالح", map[string]string{"document_type": "نوع غير مدعوم"})
+	}
+
+	ext := strings.ToLower(filepath.Ext(originalName))
+	mime := "application/octet-stream"
+	switch ext {
+	case "", ".pdf":
+		mime = "application/pdf"
+	case ".png":
+		mime = "image/png"
+	case ".jpg", ".jpeg":
+		mime = "image/jpeg"
+	case ".webp":
+		mime = "image/webp"
+	}
+	mimeMatched := false
+	for _, m := range validMimes {
+		if m == mime {
+			mimeMatched = true
+			break
+		}
+	}
+	if !mimeMatched {
+		return nil, apperr.Validation("document.mime_unsupported", "صيغة الملف غير مسموح بها لهذا النوع", map[string]string{"mime_type": "صيغة غير مدعومة"})
+	}
+
+	url = strings.TrimSpace(url)
+	if url == "" {
+		return nil, apperr.Validation("document.file_required", "ملف المستند مطلوب", nil)
+	}
+
+	orgID := actor.OrgID
+	doc := &Document{
+		OrganizationID: &orgID,
+		DocumentType:   docType,
+		FileURL:        url,
+		OriginalName:   strings.TrimSpace(originalName),
+		MimeType:       mime,
+		Status:         StatusPending,
+		Meta: map[string]interface{}{
+			"uploader_user_id": actor.UserID,
+		},
+	}
+
+	created, err := s.repo.Create(ctx, doc)
+	if err != nil {
+		return nil, fmt.Errorf("attachments.RegisterUpload: %w", err)
+	}
+	return created, nil
 }
 
 // PresignUpload validates file parameters, reserves a pending document row, and returns a secure presigned PUT URL.

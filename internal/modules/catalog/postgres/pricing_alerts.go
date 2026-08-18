@@ -10,19 +10,20 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-// SetCustomerPricing upserts per-customer custom pricing.
+// SetCustomerPricing upserts per-customer custom pricing (071: canonical
+// price/discount columns).
 func (r *Repository) SetCustomerPricing(ctx context.Context, m *catalog.CustomerProductMapping) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO catalog.customer_product_mappings (
-				organization_id, customer_org_id, product_id, product_variant_id, custom_price, discount_bps, is_active
+				organization_id, customer_org_id, product_id, product_variant_id, price, discount, is_active
 			) VALUES ($1, $2, $3, $4, $5, $6, $7)
 			ON CONFLICT (organization_id, customer_org_id, product_id, product_variant_id)
-			DO UPDATE SET custom_price = EXCLUDED.custom_price, discount_bps = EXCLUDED.discount_bps, is_active = EXCLUDED.is_active, updated_at = now()
+			DO UPDATE SET price = EXCLUDED.price, discount = EXCLUDED.discount, is_active = EXCLUDED.is_active, updated_at = now()
 			RETURNING id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
-			m.OrganizationID, m.CustomerOrgID, m.ProductID, m.ProductVariantID, m.CustomPrice, m.DiscountBps, m.IsActive,
+			m.OrganizationID, m.CustomerOrgID, m.ProductID, m.ProductVariantID, m.Price, m.Discount, m.IsActive,
 		).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 	})
 }
@@ -32,14 +33,14 @@ func (r *Repository) GetCustomerPricing(ctx context.Context, vendorOrgID, custom
 	var m catalog.CustomerProductMapping
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, organization_id, customer_org_id, product_id, product_variant_id, custom_price, discount_bps, is_active, created_at, updated_at
+			SELECT id, organization_id, customer_org_id, product_id, product_variant_id, price, discount, is_active, created_at, updated_at
 			FROM catalog.customer_product_mappings
 			WHERE organization_id = $1 AND customer_org_id = $2 AND product_id = $3 AND is_active = true
 			LIMIT 1;
 		`
 		err := tx.QueryRow(txCtx, query, vendorOrgID, customerOrgID, productID).Scan(
 			&m.ID, &m.OrganizationID, &m.CustomerOrgID, &m.ProductID, &m.ProductVariantID,
-			&m.CustomPrice, &m.DiscountBps, &m.IsActive, &m.CreatedAt, &m.UpdatedAt,
+			&m.Price, &m.Discount, &m.IsActive, &m.CreatedAt, &m.UpdatedAt,
 		)
 		if err != nil {
 			if database.IsNotFound(err) {

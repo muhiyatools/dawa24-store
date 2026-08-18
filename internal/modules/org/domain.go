@@ -11,12 +11,17 @@ import (
 )
 
 // OrganizationType defines the classification of a tenant.
+//
+// Two types only (Rebuild V2 rule 1): customer (صيدلية) and vendor (مورّد).
+// The legacy supplier/company/agency values became 'vendor' and the legacy
+// pharmacy/chain_pharmacy/individual values became 'customer' (migration 060).
+// is_chain marks a customer with several branches. Platform admin is staff,
+// not a type.
 type OrganizationType string
 
 const (
-	TypeSupplier      OrganizationType = "supplier"
-	TypePharmacy      OrganizationType = "pharmacy"
-	TypeChainPharmacy OrganizationType = "chain_pharmacy"
+	TypeVendor   OrganizationType = "vendor"
+	TypeCustomer OrganizationType = "customer"
 )
 
 // OrganizationStatus defines the approval state of an organization.
@@ -39,7 +44,6 @@ type Organization struct {
 	TaxNumber          string             `json:"tax_number"`
 	CommercialRegister string             `json:"commercial_register"`
 	PharmacistLicense  string             `json:"pharmacist_license,omitempty"`
-	LicenseDocumentURL string             `json:"license_document_url,omitempty"`
 	VerificationNotes  string             `json:"verification_notes,omitempty"`
 	RejectionReason    string             `json:"rejection_reason,omitempty"`
 	OwnerID            int64              `json:"owner_id,omitempty"`
@@ -231,7 +235,7 @@ func (o *Organization) Validate() error {
 		return apperr.Validation("org.cr_required", "Commercial registration number is required.", nil)
 	}
 	if o.Type == "" {
-		o.Type = TypePharmacy
+		o.Type = TypeCustomer
 	}
 	if o.Status == "" {
 		o.Status = StatusPending
@@ -248,25 +252,4 @@ func (b *Branch) Validate() error {
 		return apperr.Validation("branch.code_required", "Branch code is required.", nil)
 	}
 	return nil
-}
-
-// HighlightSection is a supplier-curated merchandising row on its storefront.
-type HighlightSection struct {
-	ID             int64     `json:"id"`
-	OrganizationID int64     `json:"organization_id"`
-	Title          i18n.Text `json:"title"`
-	Slug           string    `json:"slug,omitempty"`
-	DisplayOrder   int       `json:"display_order"`
-	IsActive       bool      `json:"is_active"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-}
-
-// HighlightSectionItem is one product or offer inside a highlight section.
-type HighlightSectionItem struct {
-	ID           int64  `json:"id"`
-	SectionID    int64  `json:"section_id"`
-	ProductID    *int64 `json:"product_id,omitempty"`
-	OfferID      *int64 `json:"offer_id,omitempty"`
-	DisplayOrder int    `json:"display_order"`
 }

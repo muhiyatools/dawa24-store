@@ -197,7 +197,17 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		}
 	}
 
+	if orgType != "" {
+		normType, wasLegacy := NormalizeOrgType(orgType)
+		if wasLegacy {
+			s.log.WarnContext(ctx, "legacy organization type normalized at login",
+				"original", orgType, "normalized", normType, "user_id", user.ID)
+		}
+		orgType = normType
+	}
+
 	permissions, err := s.repo.GetPermissionsForUser(ctx, user.ID, orgID)
+
 	if err != nil {
 		permissions = []string{}
 	}
@@ -333,6 +343,13 @@ func (s *Service) SwitchActiveOrg(ctx context.Context, userID, targetOrgID int64
 		}
 	}
 
+	normType, wasLegacy := NormalizeOrgType(orgType)
+	if wasLegacy {
+		s.log.WarnContext(ctx, "legacy organization type normalized on switch",
+			"original", orgType, "normalized", normType, "user_id", userID, "org_id", targetOrgID)
+	}
+	orgType = normType
+
 	sess := &Session{
 		UserID:      user.ID,
 		PublicID:    user.PublicID,
@@ -352,6 +369,34 @@ func (s *Service) SwitchActiveOrg(ctx context.Context, userID, targetOrgID int64
 
 	s.log.InfoContext(ctx, "switched active organization", "user_id", userID, "org_id", targetOrgID, "org_type", orgType)
 	return sess, nil
+}
+
+// GetOrgInfoForUser retrieves and normalizes organization details and permissions for a user membership.
+func (s *Service) GetOrgInfoForUser(ctx context.Context, userID, orgID int64) (orgType, orgStatus string, perms []string, err error) {
+	orgs, err := s.repo.ListUserOrganizations(ctx, userID)
+	if err != nil {
+		return "", "", nil, err
+	}
+	found := false
+	for _, o := range orgs {
+		if o.OrganizationID == orgID {
+			orgType = o.OrgType
+			orgStatus = o.OrgStatus
+			found = true
+			break
+		}
+	}
+	if !found {
+		return "", "", nil, apperr.Forbidden("org.not_a_member", "You are not a member of that organization.")
+	}
+	normType, wasLegacy := NormalizeOrgType(orgType)
+	if wasLegacy {
+		s.log.WarnContext(ctx, "legacy organization type normalized on membership resolution",
+			"original", orgType, "normalized", normType, "user_id", userID, "org_id", orgID)
+	}
+	orgType = normType
+	perms, _ = s.repo.GetPermissionsForUser(ctx, userID, orgID)
+	return orgType, orgStatus, perms, nil
 }
 
 func stringsContains(s, substr string) bool {

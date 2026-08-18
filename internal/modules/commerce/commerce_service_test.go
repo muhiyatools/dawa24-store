@@ -44,25 +44,31 @@ func TestCommerceOrderStateMachineTransitions(t *testing.T) {
 		t.Fatalf("Transition to Confirmed failed: %v", err)
 	}
 
-	// 2. Confirmed -> Processing (Allowed)
-	err = svc.TransitionOrderStatus(ctx, order.ID, StatusProcessing, &userID, "Processing")
-	if err != nil {
-		t.Fatalf("Transition to Processing failed: %v", err)
-	}
-
-	// 3. Processing -> Shipped (Allowed)
+	// 2. Confirmed -> Shipped (Allowed; the 063 DAG ships straight from confirmed)
 	err = svc.TransitionOrderStatus(ctx, order.ID, StatusShipped, &userID, "Dispatched")
 	if err != nil {
 		t.Fatalf("Transition to Shipped failed: %v", err)
 	}
 
-	// 4. Shipped -> Delivered (Allowed)
+	// 3. Shipped -> In Transit (Allowed)
+	err = svc.TransitionOrderStatus(ctx, order.ID, StatusInTransit, &userID, "Picked up by courier")
+	if err != nil {
+		t.Fatalf("Transition to In Transit failed: %v", err)
+	}
+
+	// 4. In Transit -> Out For Delivery (Allowed)
+	err = svc.TransitionOrderStatus(ctx, order.ID, StatusOutForDelivery, &userID, "With courier")
+	if err != nil {
+		t.Fatalf("Transition to Out For Delivery failed: %v", err)
+	}
+
+	// 5. Out For Delivery -> Delivered (Allowed)
 	err = svc.TransitionOrderStatus(ctx, order.ID, StatusDelivered, &userID, "Delivered to buyer")
 	if err != nil {
 		t.Fatalf("Transition to Delivered failed: %v", err)
 	}
 
-	// 5. Delivered -> Processing (Disallowed conflict)
+	// 6. Delivered -> Processing (Disallowed conflict)
 	err = svc.TransitionOrderStatus(ctx, order.ID, StatusProcessing, &userID, "Invalid rewind")
 	if err == nil {
 		t.Fatal("expected conflict on invalid status transition, got nil")

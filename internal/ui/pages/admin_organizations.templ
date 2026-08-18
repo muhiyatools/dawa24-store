@@ -30,14 +30,11 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 				<a href="/admin/organizations" class={ "btn btn-sm", templ.KV("btn-primary", currentType == ""), templ.KV("btn-secondary", currentType != "") }>
 					<span>كافة المنشآت ({ fmt.Sprintf("%d", len(orgs)) })</span>
 				</a>
-				<a href="/admin/organizations?type=supplier" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "supplier" || currentType == "vendor"), templ.KV("btn-secondary", currentType != "supplier" && currentType != "vendor") }>
-					<span>الموردون وشركات الأدوية (Suppliers / Vendors)</span>
+				<a href="/admin/organizations?type=vendor" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "vendor"), templ.KV("btn-secondary", currentType != "vendor") }>
+					<span>الموردون وشركات الأدوية (Vendors)</span>
 				</a>
-				<a href="/admin/organizations?type=pharmacy" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "pharmacy"), templ.KV("btn-secondary", currentType != "pharmacy") }>
-					<span>الصيدليات والمراكز الطبية (Pharmacies)</span>
-				</a>
-				<a href="/admin/organizations?type=individual" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "individual"), templ.KV("btn-secondary", currentType != "individual") }>
-					<span>الحسابات المهنية الفردية (Professionals)</span>
+				<a href="/admin/organizations?type=customer" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "customer"), templ.KV("btn-secondary", currentType != "customer") }>
+					<span>الصيدليات والمراكز الطبية (Customers)</span>
 				</a>
 			</div>
 
@@ -74,10 +71,8 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 										</div>
 									</td>
 									<td>
-										if string(o.Type) == "supplier" || string(o.Type) == "vendor" {
+										if string(o.Type) == "vendor" {
 											<span class="badge badge-sky">مورد / شركة أدوية</span>
-										} else if string(o.Type) == "individual" {
-											<span class="badge badge-purple">حساب مهني فردي</span>
 										} else {
 											<span class="badge badge-emerald">صيدلية مرخصة</span>
 										}
@@ -96,14 +91,10 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 										}
 									</td>
 									<td>
-										if o.LicenseDocumentURL != "" {
-											<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.3rem;">
-												@components.IconFile("icon-xs")
-												<span>معاينة</span>
-											</a>
-										} else {
-											<span class="badge badge-slate" style="font-size:0.75rem;">غير مرفق</span>
-										}
+										<a href="/admin/documents" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.3rem;">
+											@components.IconFile("icon-xs")
+											<span>مركز المستندات</span>
+										</a>
 									</td>
 									<td>
 										if string(o.Status) == "approved" {

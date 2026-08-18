@@ -13,11 +13,12 @@ The `catalog` bounded context manages pharmaceutical products, packaging variant
   - `catalog.brands` — Pharmaceutical manufacturers and brands.
   - `catalog.products` — Tenant-owned master product records with full 34-column legacy parity (`dosage_form`, `scientific_name`, `pharmacology`, `active`, `concentration`, `unit`, `price`, `discount`).
   - `catalog.product_variants` (renamed from legacy `product_childerns`) — Specific packaging, concentration, or SKU variations.
-  - `catalog.product_infos` & `catalog.product_clients` — Metadata extensions and custom vendor mappings.
+  - `catalog.product_infos` — Metadata extensions.
+  - `catalog.customer_product_mappings` — One per-customer pricing/mapping table (071): vendor-set pricing (`price`, `discount` percent, `customer_org_id`) and import rows (`raw_name`, `branch_id`, `source` `excel|csv|link|manual`, `status`). Superseded `catalog.product_clients` and `catalog.saving_products`.
 
 ## Invariants & Rules
 
-1. **Row Level Security:** Enforced with `FORCE ROW LEVEL SECURITY` on `catalog.products`, `catalog.product_variants`, `catalog.product_infos`, and `catalog.product_clients` using `platform.tenant_visible(organization_id)`.
+1. **Row Level Security:** Enforced with `FORCE ROW LEVEL SECURITY` on `catalog.products`, `catalog.product_variants`, `catalog.product_infos`, and `catalog.customer_product_mappings` using `platform.tenant_visible(organization_id)`; the mappings policy additionally lets the linked customer org read its pricing rows (dual-org policy, proven in `test/integration/rls_test.go`). `catalog.product_clients` and `catalog.saving_products` were dropped in 071.
 2. **Arabic Trigram Search:** Indexed with `pg_trgm` GIN indexes over `platform.normalize_arabic(name->>'ar')`. Matches Arabic search terms regardless of alef, teh marbuta, or yah variations.
 3. **Monetary Precision:** All prices and discounts are stored and computed via `money.Amount` (minor unit integer arithmetic).
 

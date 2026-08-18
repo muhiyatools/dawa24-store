@@ -221,7 +221,7 @@ func SettingsProfile(lang, dir string, user *identity.User) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -439,7 +439,7 @@ func SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, citi
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -646,7 +646,7 @@ func SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*i
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -958,7 +958,7 @@ func SettingsOrganization(lang, dir string, o *org.Organization, branches []*org
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1104,7 +1104,7 @@ func SettingsPreferences(lang, dir string, p *identity.UserPreferences) templ.Co
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var50), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var50), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1183,7 +1183,7 @@ func SettingsPaymentMethods(lang, dir string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("طرق الدفع | Payment Methods", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var59), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("طرق الدفع | Payment Methods", "settings", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var59), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

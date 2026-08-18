@@ -29,7 +29,7 @@ func (h *UIHandler) RequestsPage(w http.ResponseWriter, r *http.Request) {
 		data.Requests, _ = h.wfSvc.ListInbox(ctx, actor.OrganizationID, r.URL.Query().Get("status"), 50, 0)
 	}
 	if h.orgSvc != nil {
-		typ := org.TypeSupplier
+		typ := org.TypeVendor
 		status := org.StatusApproved
 		data.Suppliers, _ = h.orgSvc.ListOrganizations(ctx, &typ, &status, 50, 0)
 	}

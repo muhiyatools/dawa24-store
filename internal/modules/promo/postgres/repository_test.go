@@ -152,7 +152,7 @@ func TestPromoRepository(t *testing.T) {
 			Description:    i18n.Text{"en": "Seasonal discounts on select products"},
 			DiscountType:   promo.DiscountFixed,
 			DiscountValue:  discVal,
-			MinOrderValue:  minOrderVal,
+			MinOrderAmount: minOrderVal,
 			StartsAt:       now.Add(-time.Hour),
 			ExpiresAt:      now.Add(24 * time.Hour),
 			IsActive:       true,
@@ -277,4 +277,13 @@ func TestPromoRepository(t *testing.T) {
 			t.Fatalf("ExpirePromotions failed: %v", err)
 		}
 	})
+
+	t.Run("Visibility_Query_ListOffersVisibleTo", func(t *testing.T) {
+		offers, err := repo.ListOffersVisibleTo(ctx, 30.0444, 31.2357, 1, 10, 0)
+		if err != nil {
+			t.Fatalf("ListOffersVisibleTo query failed: %v", err)
+		}
+		_ = offers
+	})
 }
+

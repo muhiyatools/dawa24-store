@@ -304,34 +304,6 @@ func (s *Service) ListPolicies(ctx context.Context, orgID int64) ([]*Policy, err
 	return s.repo.ListPoliciesByOrg(ctx, orgID)
 }
 
-// CreateHighlightSection adds a merchandising row for an organization.
-func (s *Service) CreateHighlightSection(ctx context.Context, orgID int64, title i18n.Text, slug string) (*HighlightSection, error) {
-	if title.IsEmpty() {
-		return nil, apperr.Validation("highlight.title_required", "A highlight section title is required.", nil)
-	}
-	sec := &HighlightSection{
-		OrganizationID: orgID,
-		Title:          title,
-		Slug:           slug,
-		IsActive:       true,
-	}
-	if err := s.repo.CreateHighlightSection(ctx, sec); err != nil {
-		return nil, err
-	}
-	return sec, nil
-}
-
-// ListHighlightSections returns an organization's merchandising rows.
-func (s *Service) ListHighlightSections(ctx context.Context, orgID int64) ([]*HighlightSection, error) {
-	return s.repo.ListHighlightSections(ctx, orgID)
-}
-
-// AddHighlightItem adds a product or offer to a highlight section.
-func (s *Service) AddHighlightItem(ctx context.Context, sectionID int64, productID, offerID *int64) error {
-	item := &HighlightSectionItem{SectionID: sectionID, ProductID: productID, OfferID: offerID}
-	return s.repo.AddHighlightItem(ctx, item)
-}
-
 // UpdateOrganization updates organization details.
 func (s *Service) UpdateOrganization(ctx context.Context, o *Organization) error {
 	if err := o.Validate(); err != nil {

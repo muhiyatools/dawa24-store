@@ -402,7 +402,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.CustomerShell("كتالوج الأدوية والمستلزمات | Catalog", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.PublicShell("كتالوج الأدوية والمستلزمات | Catalog", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

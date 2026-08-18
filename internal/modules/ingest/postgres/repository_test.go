@@ -75,7 +75,7 @@ func resetFixtures(t *testing.T, db *database.DB) {
 		if _, err := tx.Exec(txCtx, `DELETE FROM ingest.import_sessions WHERE organization_id = $1`, testOrgID); err != nil {
 			return fmt.Errorf("delete import_sessions: %w", err)
 		}
-		if _, err := tx.Exec(txCtx, `DELETE FROM ingest.file_uploads WHERE organization_id = $1`, testOrgID); err != nil {
+		if _, err := tx.Exec(txCtx, `DELETE FROM platform_admin.documents WHERE organization_id = $1 AND document_type = 'import_file'`, testOrgID); err != nil {
 			return fmt.Errorf("delete file_uploads: %w", err)
 		}
 		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID); err != nil {

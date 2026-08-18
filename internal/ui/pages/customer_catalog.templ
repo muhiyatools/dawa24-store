@@ -23,7 +23,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@CustomerCatalogList(data.Products, lang)
 	} else {
-		@layouts.CustomerShell("كتالوج الأدوية والمستلزمات | Catalog", lang, dir) {
+		@layouts.PublicShell("كتالوج الأدوية والمستلزمات | Catalog", lang, dir) {
 			<div class="catalog-page-container" style="display:grid; grid-template-columns:280px 1fr; gap:var(--space-6); margin-top:var(--space-4); align-items:start;">
 				
 				<!-- Right Filter Sidebar -->

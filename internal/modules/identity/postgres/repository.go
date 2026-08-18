@@ -270,8 +270,6 @@ func (r *Repository) GetPermissionsForUser(ctx context.Context, userID int64, or
 			FROM identity.permissions p
 			JOIN identity.role_permissions rp ON rp.permission_key = p.key
 			WHERE rp.role_key IN (
-				SELECT role_key FROM identity.user_roles WHERE user_id = $1
-				UNION
 				SELECT role FROM identity.users WHERE id = $1
 				UNION
 				SELECT role_key FROM org.members WHERE user_id = $1 AND organization_id = $2 AND status = 'active'
@@ -303,8 +301,6 @@ func (r *Repository) GetRolesForUser(ctx context.Context, userID int64) ([]strin
 	var roles []string
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT role_key FROM identity.user_roles WHERE user_id = $1
-			UNION
 			SELECT role FROM identity.users WHERE id = $1;
 		`
 		rows, err := tx.Query(txCtx, query, userID)

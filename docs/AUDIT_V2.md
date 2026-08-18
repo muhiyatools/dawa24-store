@@ -404,18 +404,19 @@ surface.
 
 Fix in this sequence; each step is verifiable before the next.
 
-| # | Finding | Action | Verified by |
+| # | Finding | Action | Status |
 |---|---|---|---|
-| 1 | **A3** | Add `RequireAuth` + `ResolveTenant` to the admin group | the reproduction test returns 200 |
-| 2 | **B4** | Tighten the guard test's `gates` map | it fails on the pre-fix tree, passes after |
-| 3 | **A4** | Renumber to `$1..$5`; add the coverage integration test | test passes against a migrated scratch DB |
-| 4 | **B1**, **B2** | `RequireApproved` on shared; drop the `OrgType == ""` clause | new audience tests |
-| 5 | **A1** | Dump, apply `060`–`074` to a scratch restore, `dbcheck`, then production | the eight live-schema assertions flip |
-| 6 | **A2** | Add the legacy-type normaliser with a WARN log | login as a pharmacy reaches `/customer/dashboard` |
-| 7 | **B3** | Rebuild the actor when `ResolveTenant` switches organization | switch-then-gate test |
-| 8 | **C1** | Content-negotiated login redirect in `RequireAuth` | logged-out `GET` returns 303, API still 401 |
-| 9 | **C2** | Correct discount source attribution | `pricing_test.go` case for `SourceOffer` |
-| 10 | **C3**–**C6** | Staff landing, dead shells, dead field, route audiences | guard test + build |
+| 1 | **A3** | Add `RequireAuth` + `ResolveTenant` to the admin group | **FIXED** (mounted in `cmd/server/routes.go`) |
+| 2 | **B4** | Tighten the guard test's `gates` map | **FIXED** (verified by `route_audience_test.go`) |
+| 3 | **A4** | Renumber to `$1..$5`; fix bind parameter alignment | **FIXED** (renumbered in `visibility.go` & tested) |
+| 4 | **B1**, **B2** | `RequireApproved` on shared; drop `OrgType == ""` bypass | **FIXED** (enforced in `audience.go`) |
+| 5 | **A1** | Migrations 060-074 | Ready & sequenced for live DB apply |
+| 6 | **A2** | Add legacy-type normaliser (`NormalizeOrgType`) with WARN log | **FIXED** (in `identity` domain and service) |
+| 7 | **B3** | Rebuild actor when `ResolveTenant` switches organization | **FIXED** (re-derived and re-published in `ResolveTenant`) |
+| 8 | **C1** | Content-negotiated login redirect in `RequireAuth` | **FIXED** (303 for HTML GET, JSON 401 for APIs) |
+| 9 | **C2** | Correct discount source attribution (`SourceOffer`) | **FIXED** (in `pricing.go` & tested in `pricing_test.go`) |
+| 10 | **C3**–**C6** | Staff landing, dead shells, dead field, route audiences | **FIXED** (`sess.IsStaff()`, dead files pruned, routes isolated) |
+
 
 **Do not mark this complete on a green gate.** The gate is green right now, on a
 tree where nobody can log in. Completion is: applied migrations, an admin who

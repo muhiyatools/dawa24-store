@@ -6,7 +6,7 @@ import (
 )
 
 templ ContactPage(lang, dir string, submitted bool) {
-	@layouts.CustomerShell("تواصل معنا | Contact", lang, dir) {
+	@layouts.PublicShell("تواصل معنا | Contact", lang, dir) {
 		<div style="max-width:560px;">
 			<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;">تواصل معنا</h2>
 			<p style="color:var(--neutral-500); font-size:0.9rem; margin-bottom:1.5rem;">فريق دعم دواء 24 جاهز للرد على استفساراتك.</p>

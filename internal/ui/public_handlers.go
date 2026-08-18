@@ -326,9 +326,10 @@ func landingPathForSession(sess *identity.Session) string {
 	if sess == nil {
 		return "/catalog"
 	}
-	if sess.Role == "super_admin" || sess.Role == "admin" || sess.Role == "developer" {
+	if sess.IsStaff() {
 		return "/admin/dashboard"
 	}
+
 	switch sess.OrgStatus {
 	case "pending":
 		return "/onboarding/pending"
@@ -336,15 +337,10 @@ func landingPathForSession(sess *identity.Session) string {
 		return "/onboarding/pending?rejected=1"
 	}
 	switch sess.OrgType {
-	case "supplier":
+	case "vendor":
 		return "/vendor/dashboard"
-	case "pharmacy", "chain_pharmacy":
-		return "/pharmacy/dashboard"
-	case "individual":
-		return "/user/dashboard"
-	}
-	if sess.Role == "individual" {
-		return "/user/dashboard"
+	case "customer":
+		return "/customer/dashboard"
 	}
 	return "/catalog"
 }

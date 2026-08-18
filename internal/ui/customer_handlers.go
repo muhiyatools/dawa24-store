@@ -9,11 +9,13 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
 
 func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -108,8 +110,10 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	offers := h.offersForProduct(ctx, product, variants)
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerProductDetail(product, variants, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.CustomerProductDetail(product, variants, offers, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render product detail page", "error", err)
 	}
 }
@@ -124,7 +128,7 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if actor.Role != "pharmacy" && actor.Role != "chain_pharmacy" && actor.Role != "customer" {
+	if !actor.IsCustomer() {
 		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، الشراء وسلة الطلبات متاحة حصرياً للصيدليات المرخصة.")
 		return
 	}
@@ -157,7 +161,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if actor.Role != "pharmacy" && actor.Role != "chain_pharmacy" && actor.Role != "customer" {
+	if !actor.IsCustomer() {
 		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، إتمام الشراء والتوريد متاح حصرياً للصيدليات المرخصة.")
 		return
 	}
@@ -181,27 +185,27 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		addrs, _ = h.idSvc.ListAddresses(ctx, userID)
 	}
 
-	if len(addrs) == 0 {
-		addrs = append(addrs,
-			&identity.UserAddress{
-				ID:        1,
-				UserID:    userID,
-				Title:     "الفرع الرئيسي (صيدلية الأمل)",
-				Recipient: "د. أحمد محمود (مدير الصيدلية)",
-				Phone:     "01012345678",
-				Address:   "شارع عباس العقاد، تقاطع مصطفى النحاس، مدينة نصر، القاهرة",
-				IsDefault: true,
-			},
-			&identity.UserAddress{
-				ID:        2,
-				UserID:    userID,
-				Title:     "فرع مصر الجديدة",
-				Recipient: "د. سارة عادل",
-				Phone:     "01098765432",
-				Address:   "شارع الأهرام، روكسي، مصر الجديدة، القاهرة",
-				IsDefault: false,
-			},
-		)
+	if len(addrs) == 0 && h.orgSvc != nil && actor.OrganizationID > 0 {
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
+			for _, b := range branches {
+				title := b.Name["ar"]
+				if title == "" {
+					title = b.Name["en"]
+				}
+				if title == "" {
+					title = "فرع الصيدلية"
+				}
+				addrs = append(addrs, &identity.UserAddress{
+					ID:        b.ID,
+					UserID:    userID,
+					Title:     title,
+					Recipient: actor.DisplayName(),
+					Phone:     b.Phone,
+					Address:   b.Address,
+					IsDefault: b.IsMain,
+				})
+			}
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -209,6 +213,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		h.log.ErrorContext(ctx, "render checkout page", "error", err)
 	}
 }
+
 
 func (h *UIHandler) CustomerOrdersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -305,7 +310,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if actor.Role != "pharmacy" && actor.Role != "chain_pharmacy" && actor.Role != "customer" {
+	if !actor.IsCustomer() {
 		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، إضافة الأدوية وطلب التوريد متاح حصرياً للصيدليات المرخصة.")
 		return
 	}
@@ -334,7 +339,20 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		Quantity:         qty,
 	}
 
-	if h.catSvc != nil && productID > 0 {
+	if priceStr := r.PostFormValue("offer_price"); priceStr != "" {
+		if amt, err := money.Parse(priceStr); err == nil {
+			item.UnitPrice = amt
+		}
+	}
+
+	// Keep the offer identity so checkout can carry it into the order
+	// (migration 064). Parsed defensively; a bogus id degrades to a
+	// non-offer cart line.
+	if offerID, err := strconv.ParseInt(r.PostFormValue("offer_id"), 10, 64); err == nil && offerID > 0 {
+		item.OfferID = &offerID
+	}
+
+	if h.catSvc != nil && productID > 0 && item.UnitPrice.IsZero() {
 		if prod, _, err := h.catSvc.GetProduct(ctx, productID); err == nil && prod != nil {
 			item.ProductName = prod.Name
 			item.UnitPrice = prod.EffectivePrice()
@@ -424,6 +442,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var items []commerce.CheckoutLineItem
+	var offerID int64
 	for _, it := range cart.Items {
 		pID := it.ProductID
 		vID := it.ProductVariantID
@@ -447,6 +466,16 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 			Quantity:         it.Quantity,
 			UnitPrice:        uPrice,
 		})
+		// One offer per order (main_orders parity). If the cart mixes offers,
+		// the order degrades to a legacy non-offer order — the cart-per-offer
+		// UI is Phase 5.
+		if it.OfferID != nil {
+			if offerID == 0 {
+				offerID = *it.OfferID
+			} else if offerID != *it.OfferID {
+				offerID = 0
+			}
+		}
 	}
 
 	paymentMethod := r.PostFormValue("payment_method")
@@ -454,12 +483,34 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		paymentMethod = "cod"
 	}
 
-	order, err := h.commSvc.Checkout(ctx, commerce.CheckoutInput{
+	input := commerce.CheckoutInput{
 		CustomerID:    userID,
 		PaymentMethod: paymentMethod,
 		Notes:         r.PostFormValue("notes"),
 		Items:         items,
-	})
+	}
+	if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
+		input.CustomerOrgID = actor.OrganizationID
+	}
+	if offerID > 0 {
+		input.OfferID = offerID
+		// The offer is the authority for the minimum order amount and the
+		// fulfilling vendor branch; the buying branch comes from the shell
+		// selector, validated against the actor's own branches.
+		if h.promoSvc != nil {
+			if offer, err := h.promoSvc.GetOffer(ctx, offerID); err == nil && offer != nil {
+				input.MinOrderAmount = offer.MinOrderAmount
+				if offer.BranchID != nil && *offer.BranchID > 0 {
+					input.VendorBranchID = offer.BranchID
+				}
+			}
+		}
+		if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
+			input.BranchID = buying.Active
+		}
+	}
+
+	order, err := h.commSvc.Checkout(ctx, input)
 	if err != nil {
 		h.log.ErrorContext(ctx, "checkout failed", "error", err)
 		h.renderError(w, r, err)
@@ -479,3 +530,126 @@ func (h *UIHandler) MarkNotificationReadSubmit(w http.ResponseWriter, r *http.Re
 	}
 	http.Redirect(w, r, "/notifications", http.StatusSeeOther)
 }
+
+// CustomerBranchesPage renders the pharmacy's own branches screen in CustomerShell.
+func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches", http.StatusSeeOther)
+		return
+	}
+
+	var branches []*org.Branch
+	if h.orgSvc != nil {
+		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+	}
+
+
+	data := pages.CustomerBranchesData{
+		Branches: branches,
+		Cities:   h.listCities(ctx),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.CustomerBranches(data, lang, dir, actor.Permissions).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render customer branches page", "error", err)
+	}
+}
+
+// CustomerBranchNewSubmit creates a new pharmacy branch for the customer organization.
+func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches", http.StatusSeeOther)
+		return
+	}
+
+	_ = r.ParseForm()
+
+	nameAr := r.PostFormValue("name_ar")
+	nameEn := r.PostFormValue("name_en")
+	if nameAr == "" {
+		nameAr = "فرع صيدلية"
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+	code := r.PostFormValue("code")
+	address := r.PostFormValue("address")
+	phone := r.PostFormValue("phone")
+	gmaps := r.PostFormValue("google_maps_url")
+	isMain := r.PostFormValue("is_main") == "true"
+
+	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
+	var cityID *int64
+	if cityIDVal > 0 {
+		cityID = &cityIDVal
+	}
+
+	var latPtr, lngPtr *float64
+	if latStr := r.PostFormValue("latitude"); latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+			latPtr = &lat
+		}
+	}
+	if lngStr := r.PostFormValue("longitude"); lngStr != "" {
+		if lng, err := strconv.ParseFloat(lngStr, 64); err == nil {
+			lngPtr = &lng
+		}
+	}
+
+	b := &org.Branch{
+		OrganizationID: actor.OrganizationID,
+		Name:           i18n.New(nameAr, nameEn),
+		Code:           code,
+		WarehouseType:  "pharmacy",
+		Address:        address,
+		Phone:          phone,
+		GoogleMapsURL:  gmaps,
+		CityID:         cityID,
+		Latitude:       latPtr,
+		Longitude:      lngPtr,
+		IsMain:         isMain,
+		Status:         "active",
+	}
+
+	if h.orgSvc != nil {
+		if err := h.orgSvc.CreateBranch(ctx, b); err != nil {
+			h.log.ErrorContext(ctx, "customer create branch error", "error", err)
+			h.redirectWithNotice(w, r, "/customer/branches", "error", "فشل في حفظ فرع الصيدلية: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم إضافة فرع الصيدلية بنجاح.")
+}
+
+// CustomerBranchDeleteSubmit deletes a branch owned by the customer organization.
+func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/customer/branches", "error", "معرف الفرع غير صالح.")
+		return
+	}
+
+	if h.orgSvc != nil {
+		if err := h.orgSvc.DeleteBranch(ctx, actor.OrganizationID, id); err != nil {
+			h.redirectWithNotice(w, r, "/customer/branches", "error", "فشل في حذف الفرع: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم حذف الفرع بنجاح.")
+}
+

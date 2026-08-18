@@ -7,7 +7,7 @@ import (
 )
 
 templ InvoicesPage(lang, dir string, data InvoicesData) {
-	@layouts.PharmacyShell("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, nil) {
+	@layouts.CustomerShell("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, nil) {
 		<div style="max-width:100%; margin:0 0 4rem 0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
 				<div>

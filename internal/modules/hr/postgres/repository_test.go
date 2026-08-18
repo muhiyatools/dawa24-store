@@ -73,8 +73,8 @@ func resetFixtures(t *testing.T, db *database.DB) {
 		if _, err := tx.Exec(txCtx, `DELETE FROM hr.work_times WHERE organization_id = $1`, testOrgID); err != nil {
 			return fmt.Errorf("delete work_times: %w", err)
 		}
-		if _, err := tx.Exec(txCtx, `DELETE FROM hr.employees WHERE organization_id = $1`, testOrgID); err != nil {
-			return fmt.Errorf("delete employees: %w", err)
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.members WHERE organization_id = $1`, testOrgID); err != nil {
+			return fmt.Errorf("delete members: %w", err)
 		}
 		if _, err := tx.Exec(txCtx, `DELETE FROM identity.users WHERE id = $1`, testUserID); err != nil {
 			return fmt.Errorf("delete users: %w", err)

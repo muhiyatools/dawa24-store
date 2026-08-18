@@ -3,13 +3,25 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ MessagesPage(lang, dir string, data MessagesData) {
-	@layouts.CustomerShell("الرسائل | Messages", lang, dir) {
-		<div style="display:grid; grid-template-columns:300px 1fr; gap:1.25rem; height:70vh;">
+	if actor, ok := authctx.From(ctx); ok && actor.IsVendor() {
+		@layouts.VendorShell("الرسائل | Messages", "messages", lang, dir) {
+			@MessagesContent(lang, dir, data)
+		}
+	} else {
+		@layouts.CustomerShell("الرسائل | Messages", "messages", lang, dir, nil) {
+			@MessagesContent(lang, dir, data)
+		}
+	}
+}
+
+templ MessagesContent(lang, dir string, data MessagesData) {
+	<div style="display:grid; grid-template-columns:300px 1fr; gap:1.25rem; height:70vh;">
 			<aside class="card" style="margin-bottom:0; overflow-y:auto;">
 				<h2 class="card-title" style="margin:0 0 0.75rem;">المحادثات</h2>
 				if len(data.Items) == 0 {
@@ -55,5 +67,4 @@ templ MessagesPage(lang, dir string, data MessagesData) {
 				}
 			</section>
 		</div>
-	}
 }

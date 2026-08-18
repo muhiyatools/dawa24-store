@@ -109,7 +109,8 @@ func isRelevantColumnValue(col, val string) bool {
 	case "status":
 		switch val {
 		case "pending", "approved", "rejected", "suspended", "active", "inactive", "confirmed",
-			"processing", "ready_for_pickup", "shipped", "delivered", "cancelled", "returned", "unread", "read", "resolved":
+			"processing", "on_hold", "shipped", "in_transit", "out_for_delivery", "delivered",
+			"completed", "cancelled", "failed", "returned", "refunded", "unread", "read", "resolved":
 			return true
 		}
 	case "payment_status":

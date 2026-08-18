@@ -9,7 +9,7 @@ import (
 )
 
 templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []string) {
-	@layouts.PharmacyShell("لوحة التحكم", "dashboard", lang, dir, perms) {
+	@layouts.CustomerShell("لوحة التحكم", "dashboard", lang, dir, perms) {
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 			<div class="card hover-lift" style="margin-bottom:0;">
 				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">طلبات مفتوحة</span>

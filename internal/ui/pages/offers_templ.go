@@ -39,7 +39,7 @@ func OffersPage(lang, dir string, offers []*promo.Offer) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if actor, ok := authctx.From(ctx); ok && (actor.Role == "pharmacy" || actor.Role == "chain_pharmacy") {
+		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 			templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -58,7 +58,7 @@ func OffersPage(lang, dir string, offers []*promo.Offer) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.PharmacyShell("العروض المتاحة والتخفيضات | Pharmacy Offers", "offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.CustomerShell("العروض المتاحة والتخفيضات | Pharmacy Offers", "offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -81,7 +81,7 @@ func OffersPage(lang, dir string, offers []*promo.Offer) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.CustomerShell("العروض الحصرية والتخفيضات | Exclusive Offers", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.PublicShell("العروض الحصرية والتخفيضات | Exclusive Offers", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -278,7 +278,7 @@ func OfferDetail(lang, dir string, o *promo.Offer) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if actor, ok := authctx.From(ctx); ok && (actor.Role == "pharmacy" || actor.Role == "chain_pharmacy") {
+		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 			templ_7745c5c3_Var13 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -297,7 +297,7 @@ func OfferDetail(lang, dir string, o *promo.Offer) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.PharmacyShell("تفاصيل العرض | Offer Detail", "offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.CustomerShell("تفاصيل العرض | Offer Detail", "offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -320,7 +320,7 @@ func OfferDetail(lang, dir string, o *promo.Offer) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.CustomerShell("تفاصيل العرض | Offer Detail", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.PublicShell("تفاصيل العرض | Offer Detail", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

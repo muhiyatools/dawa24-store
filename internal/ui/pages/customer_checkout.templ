@@ -10,7 +10,7 @@ import (
 )
 
 templ CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, lang, dir string) {
-	@layouts.CustomerShell("إتمام أمر الشراء والتوريد | B2B Checkout", lang, dir) {
+	@layouts.CustomerShell("إتمام أمر الشراء والتوريد | B2B Checkout", "checkout", lang, dir, nil) {
 		<div class="checkout-page-container" style="max-width:1160px; margin:1.5rem auto 5rem auto; padding:0 1rem;">
 			
 			<!-- Header -->
@@ -137,7 +137,7 @@ templ CustomerCheckout(cart *commerce.Cart, addresses []*identity.UserAddress, l
 												<div style="font-weight:800; font-size:0.95rem; color:var(--text);">
 													خصم مباشر من رصيد المحفظة الإلكترونية
 												</div>
-												<span class="badge badge-sky" style="font-weight:700;">الرصيد المتاح: 5,420.00 ج.م</span>
+												<span class="badge badge-sky" style="font-weight:700;">تسوية فورية من المحفظة</span>
 											</div>
 											<div style="font-size:0.8rem; color:var(--text-secondary);">
 												تنفيذ فوري للطلبية مع تأكيد حجز التشغيلات لدى الموردين بدون انتظار التحصيل

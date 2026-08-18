@@ -311,3 +311,142 @@ func TestTenantIsolation_Members(t *testing.T) {
 		t.Fatalf("read as system failed: %v", err)
 	}
 }
+
+// TestTenantIsolation_CustomerProductMappings proves the dual-org policy on
+// catalog.customer_product_mappings (071): the supplier (organization_id) and
+// the customer (customer_org_id) may both read the row; any third tenant and
+// any tenant-less query must see nothing; and writes are owner-only.
+func TestTenantIsolation_CustomerProductMappings(t *testing.T) {
+	db := getTestDB(t)
+	if db == nil {
+		return
+	}
+	defer db.Close()
+
+	ctx := context.Background()
+	const orgA int64 = 8701 // supplier
+	const orgB int64 = 8702 // customer
+	const orgC int64 = 8703 // unrelated tenant
+
+	err := db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		for _, org := range []int64{orgA, orgB, orgC} {
+			if _, err := tx.Exec(txCtx, `
+				INSERT INTO org.organizations (id, name)
+				VALUES ($1, '{"ar":"مؤسسة فصل","en":"Mapping Org"}')
+				ON CONFLICT (id) DO NOTHING;`, org); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("setup failed: %v", err)
+	}
+
+	// Cleanup leftovers from a previous run.
+	err = db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.customer_product_mappings WHERE organization_id IN ($1,$2,$3) OR customer_org_id IN ($1,$2,$3)`, orgA, orgB, orgC); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.products WHERE organization_id = $1`, orgA); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("reset fixtures: %v", err)
+	}
+
+	ctxA := database.WithTenant(ctx, orgA)
+	var productID int64
+	var mappingID int64
+	err = db.InTx(ctxA, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, `
+			INSERT INTO catalog.products (organization_id, name, status)
+			VALUES ($1, '{"ar":"منتج خصم","en":"Priced Product"}', 'active')
+			RETURNING id;`, orgA).Scan(&productID); err != nil {
+			return err
+		}
+		// Supplier A prices a product for customer B.
+		return tx.QueryRow(txCtx, `
+			INSERT INTO catalog.customer_product_mappings (organization_id, customer_org_id, product_id, price, source, status, is_active)
+			VALUES ($1, $2, $3, 45.00, 'manual', 'processed', true)
+			RETURNING id;`, orgA, orgB, productID).Scan(&mappingID)
+	})
+	if err != nil {
+		t.Fatalf("insert mapping as org A failed: %v", err)
+	}
+
+	// 1. Customer B may read the row (customer_org_id side).
+	ctxB := database.WithTenant(ctx, orgB)
+	err = db.InReadTx(ctxB, func(txCtx context.Context, tx pgx.Tx) error {
+		var count int
+		if err := tx.QueryRow(txCtx, "SELECT count(*) FROM catalog.customer_product_mappings WHERE id = $1", mappingID).Scan(&count); err != nil {
+			return err
+		}
+		if count != 1 {
+			t.Errorf("Customer B should read supplier A's pricing row for it; count = %d; want 1", count)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("read as customer B failed: %v", err)
+	}
+
+	// 2. Unrelated tenant C MUST NOT see the row.
+	ctxC := database.WithTenant(ctx, orgC)
+	err = db.InReadTx(ctxC, func(txCtx context.Context, tx pgx.Tx) error {
+		var count int
+		if err := tx.QueryRow(txCtx, "SELECT count(*) FROM catalog.customer_product_mappings WHERE id = $1", mappingID).Scan(&count); err != nil {
+			return err
+		}
+		if count != 0 {
+			t.Errorf("SECURITY LEAK: Org C read supplier A's pricing row! count = %d; want 0", count)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("read as org C failed: %v", err)
+	}
+
+	// 3. Tenant-less query MUST NOT see the row.
+	err = db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		var count int
+		if err := tx.QueryRow(txCtx, "SELECT count(*) FROM catalog.customer_product_mappings WHERE id = $1", mappingID).Scan(&count); err != nil {
+			return err
+		}
+		if count != 0 {
+			t.Errorf("SECURITY LEAK: tenant-less query read the pricing row! count = %d; want 0", count)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("tenant-less read failed: %v", err)
+	}
+
+	// 4. System sees it.
+	err = db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var count int
+		if err := tx.QueryRow(txCtx, "SELECT count(*) FROM catalog.customer_product_mappings WHERE id = $1", mappingID).Scan(&count); err != nil {
+			return err
+		}
+		if count != 1 {
+			t.Errorf("System query failed to find the mapping: count = %d; want 1", count)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("system read failed: %v", err)
+	}
+
+	// 5. Org C must not be able to write a row owned by org A.
+	err = db.InTx(ctxC, func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `
+			INSERT INTO catalog.customer_product_mappings (organization_id, customer_org_id, product_id, price, source, status, is_active)
+			VALUES ($1, $2, $3, 40.00, 'manual', 'processed', true);`, orgA, orgB, productID)
+		return err
+	})
+	if err == nil {
+		t.Errorf("SECURITY LEAK: Org C inserted a pricing row owned by Org A!")
+	}
+}

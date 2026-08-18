@@ -77,10 +77,8 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 								</div>
 							</td>
 							<td>
-								if string(o.Type) == "supplier" || string(o.Type) == "vendor" {
+								if string(o.Type) == "vendor" {
 									<span class="badge badge-sky">مورد / شركة أدوية</span>
-								} else if string(o.Type) == "individual" {
-									<span class="badge badge-purple">حساب مهني فردي</span>
 								} else {
 									<span class="badge badge-emerald">صيدلية مرخصة</span>
 								}
@@ -98,16 +96,12 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 									<span style="color:var(--neutral-400); font-size:0.8rem;">غير محدد</span>
 								}
 							</td>
-							<td>
-								if o.LicenseDocumentURL != "" {
-									<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.35rem;">
-										@components.IconFile("icon-xs")
-										<span>معاينة الترخيص</span>
-									</a>
-								} else {
-									<span class="badge badge-slate" style="font-size:0.75rem;">غير مرفق</span>
-								}
-							</td>
+<td>
+										<a href="/admin/documents" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.35rem;">
+											@components.IconFile("icon-xs")
+											<span>معاينة الترخيص عبر مركز المستندات</span>
+										</a>
+									</td>
 							<td>
 								if string(o.Status) == "approved" {
 									<span class="badge badge-emerald">معتمد ونشط</span>
@@ -144,18 +138,12 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 													<div><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
 													<div><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
 												</div>
-												if o.LicenseDocumentURL != "" {
-													<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
-														<a href={ templ.SafeURL(o.LicenseDocumentURL) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
+<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+														<a href="/admin/documents" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
 															@components.IconFile("icon-xs")
-															<span>فتح ملف الترخيص والمرفقات الرسمية (PDF/صورة)</span>
+															<span>فتح ملف الترخيص والمرفقات الرسمية عبر مركز المستندات (PDF/صورة)</span>
 														</a>
 													</div>
-												} else {
-													<div style="margin-top:0.5rem; color:var(--danger); font-size:0.8rem; font-weight:600;">
-														⚠️ لم يتم إرفاق ملف ترخيص رسمي أثناء التسجيل.
-													</div>
-												}
 											</div>
 
 											<div class="form-group" style="margin:0;">
@@ -207,14 +195,10 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 
 func orgTypeAr(t string) string {
 	switch t {
-	case "supplier", "vendor":
+	case "vendor":
 		return "مورّد / شركة أدوية"
-	case "pharmacy":
+	case "customer":
 		return "صيدلية / منشأة طبية"
-	case "chain_pharmacy":
-		return "سلسلة صيدليات"
-	case "individual":
-		return "حساب مهني فردي"
 	default:
 		return t
 	}

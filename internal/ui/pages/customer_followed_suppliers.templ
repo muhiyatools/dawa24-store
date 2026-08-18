@@ -9,7 +9,7 @@ import (
 )
 
 templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) {
-	@layouts.PharmacyShell("الموردون المتابعون", "followed", lang, dir, nil) {
+	@layouts.CustomerShell("الموردون المتابعون", "followed", lang, dir, nil) {
 		<div class="followed-suppliers-container" style="max-width:100%;">
 			
 			<!-- Page Header -->

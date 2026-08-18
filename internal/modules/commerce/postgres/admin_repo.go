@@ -23,9 +23,7 @@ func (r *Repository) AdminSearchOrders(ctx context.Context, query string, limit,
 	var list []*commerce.Order
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		const sql = `
-			SELECT id, public_id, order_number, customer_id, organization_id, status,
-			       subtotal, discount_amount, shipping_fee, tax_amount, total_amount,
-			       payment_method, payment_status, notes, created_at, updated_at, deleted_at
+			SELECT ` + orderColumns + `
 			FROM commerce.orders
 			WHERE deleted_at IS NULL
 			  AND ($1::text = '' OR order_number ILIKE '%' || $1 || '%')
@@ -46,18 +44,11 @@ func (r *Repository) AdminSearchOrders(ctx context.Context, query string, limit,
 		defer rows.Close()
 
 		for rows.Next() {
-			var o commerce.Order
-			var statusStr string
-			if err := rows.Scan(
-				&o.ID, &o.PublicID, &o.OrderNumber, &o.CustomerID, &o.OrganizationID, &statusStr,
-				&o.Subtotal, &o.DiscountAmount, &o.ShippingFee, &o.TaxAmount, &o.TotalAmount,
-				&o.PaymentMethod, &o.PaymentStatus, &o.Notes,
-				&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
-			); err != nil {
+			o, err := scanOrder(rows)
+			if err != nil {
 				return err
 			}
-			o.Status = commerce.OrderStatus(statusStr)
-			list = append(list, &o)
+			list = append(list, o)
 		}
 		return rows.Err()
 	})

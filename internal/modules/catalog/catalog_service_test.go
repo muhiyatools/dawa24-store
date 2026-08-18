@@ -126,11 +126,12 @@ func TestCatalogServiceCustomerPricingAndAlerts(t *testing.T) {
 
 	// Customer Pricing
 	cpPrice, _ := money.Parse("38.00")
+	customerOrgID := int64(100)
 	cp := &CustomerProductMapping{
 		OrganizationID: 42,
-		CustomerOrgID:  100,
+		CustomerOrgID:  &customerOrgID,
 		ProductID:      1,
-		CustomPrice:    cpPrice,
+		Price:          cpPrice,
 	}
 	if err := svc.SetCustomerPricing(ctx, cp); err != nil {
 		t.Fatalf("SetCustomerPricing failed: %v", err)
@@ -140,8 +141,8 @@ func TestCatalogServiceCustomerPricingAndAlerts(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetCustomerPricing failed: %v", err)
 	}
-	if gotCP.CustomPrice != cpPrice {
-		t.Errorf("got custom price %v, want %v", gotCP.CustomPrice, cpPrice)
+	if gotCP.Price != cpPrice {
+		t.Errorf("got custom price %v, want %v", gotCP.Price, cpPrice)
 	}
 
 	// Alerts

@@ -162,6 +162,34 @@ func GenerateStorageKey(docType DocumentType, orgID *int64, userID *int64, origi
 	return fmt.Sprintf("common/%s/%s%s", docType, fileUUID, ext)
 }
 
+// Requirement is one entry of the mandatory-document table (Rebuild V2 §4.2):
+// a document type and whether the audience must hold it to trade.
+type Requirement struct {
+	DocType  DocumentType
+	Required bool
+}
+
+// RequirementsFor returns the document requirements of an organization type.
+// "vendor" trades on the EDA license; every other type is treated as a
+// customer (صيدلية) audience.
+func RequirementsFor(orgType string) []Requirement {
+	if orgType == "vendor" {
+		return []Requirement{
+			{DocCommercialRegister, true},
+			{DocTaxCard, true},
+			{DocPharmacyLicense, true},
+			{DocAuthorizationLetter, false},
+		}
+	}
+	return []Requirement{
+		{DocCommercialRegister, true},
+		{DocTaxCard, true},
+		{DocPharmacyLicense, true},
+		{DocPharmacistLicense, true},
+		{DocAuthorizationLetter, false},
+	}
+}
+
 // DocumentFilter for administrative cross-tenant search.
 type DocumentFilter struct {
 	OrganizationID *int64

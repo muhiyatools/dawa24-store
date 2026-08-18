@@ -1,0 +1,54 @@
+package components
+
+import (
+	"strconv"
+
+	"github.com/muhiya/dawa24-store/internal/shared/format"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+)
+
+// PriceBreakdown mirrors promo.DiscountBreakdown at the view layer, keeping
+// this package free of module imports. Build it in the handler from
+// promo.EffectivePrice (Rebuild V2 §3.4).
+type PriceBreakdown struct {
+	ListPrice      money.Amount // list price, struck through when a discount applies
+	Price          money.Amount // the price the customer actually pays
+	DiscountAmount money.Amount // saved amount, shown as توفير X when positive
+	DiscountBPS    int64        // effective percent in basis points (1500 = 15%)
+	Large          bool        // buy-box scale for the final price
+}
+
+// percentFromBPS renders basis points as a trimmed percent ("15", "12.5").
+func percentFromBPS(bps int64) string {
+	return strconv.FormatFloat(float64(bps)/100, 'f', -1, 64)
+}
+
+// PriceTag renders a discounted price the way Laravel did: list price struck
+// through, the discounted price prominent, a خصم % badge and a توفير line.
+// With no discount it collapses to the price alone.
+templ PriceTag(bd PriceBreakdown) {
+	<div style="display:flex; flex-direction:column; gap:2px; align-items:flex-start;">
+		if bd.DiscountAmount.IsPositive() && bd.ListPrice.Minor() > bd.Price.Minor() {
+			<div style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;">
+				<span class="tabular-nums" style="font-size:var(--text-xs); color:var(--text-muted); text-decoration:line-through;">
+					{ format.Money(bd.ListPrice, "ar") }
+				</span>
+				if bd.DiscountBPS > 0 {
+					<span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:800; font-size:11px; padding:1px 8px; border-radius:var(--radius-sm);">
+						خصم { percentFromBPS(bd.DiscountBPS) }%
+					</span>
+				}
+			</div>
+			<span class={ "money", templ.KV("money-lg", bd.Large) } style="font-variant-numeric: tabular-nums; font-weight:800; color:var(--accent); line-height:1.1;">
+				{ format.Money(bd.Price, "ar") }
+			</span>
+			<span class="tabular-nums" style="font-size:var(--text-xs); font-weight:600; color:#15803d;">
+				توفير { format.Money(bd.DiscountAmount, "ar") }
+			</span>
+		} else {
+			<span class={ "money", templ.KV("money-lg", bd.Large) } style="font-variant-numeric: tabular-nums; font-weight:800; color:var(--accent); line-height:1.1;">
+				{ format.Money(bd.Price, "ar") }
+			</span>
+		}
+	</div>
+}

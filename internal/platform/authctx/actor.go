@@ -26,9 +26,12 @@ type Actor struct {
 	UserID         int64
 	OrganizationID int64
 	OrgID          int64 // Alias for OrganizationID
-	BranchID       *int64
-	Role           string
+	OrgType        string // "customer" | "vendor" | "" for a user with no organization or staff-only
+	OrgStatus      string // pending | approved | rejected | suspended
+	BranchID       *int64 // non-nil when the member is bound to one branch
+	Role           string // platform role
 	Permissions    []string
+	IsStaff        bool
 	Email          string
 	Name           string
 }
@@ -36,6 +39,18 @@ type Actor struct {
 // IsPlatformAdmin reports whether the actor has super_admin or admin role.
 func (a Actor) IsPlatformAdmin() bool {
 	return a.Role == "super_admin" || a.Role == "admin"
+}
+
+// IsCustomer reports whether the actor belongs to a customer (صيدلية) tenant.
+// An organization member with no resolved type is treated as a customer so a
+// pending organization cannot reach vendor surfaces by omission.
+func (a Actor) IsCustomer() bool {
+	return !a.IsStaff && a.OrgType != "vendor"
+}
+
+// IsVendor reports whether the actor belongs to a vendor (مورّد) tenant.
+func (a Actor) IsVendor() bool {
+	return !a.IsStaff && a.OrgType == "vendor"
 }
 
 
@@ -52,14 +67,11 @@ func (a Actor) DisplayName() string {
 		}
 		return a.Email
 	}
-	if a.Role == "pharmacy" {
-		return "صيدلي معتمد"
-	}
-	if a.Role == "supplier" || a.Role == "vendor" {
-		return "مورّد أدوية"
-	}
-	if a.Role == "admin" || a.Role == "super_admin" {
+	if a.IsStaff {
 		return "مدير المنصة"
+	}
+	if a.OrgType == "vendor" {
+		return "مورّد أدوية"
 	}
 	return "صيدلي معتمد"
 }
@@ -78,6 +90,34 @@ func (a Actor) Can(permission string) bool {
 // middleware should call this.
 func WithActor(ctx context.Context, a Actor) context.Context {
 	return context.WithValue(ctx, ctxKeyActor, a)
+}
+
+// BranchOption names one of the customer's own branches in the shell selector.
+type BranchOption struct {
+	ID   int64
+	Name string // localized display name
+}
+
+// BuyingBranch is the branch the customer is buying for: one of their own
+// branches, chosen in the customer shell and persisted per browser. The
+// option list always comes from the database; only the selection rides the
+// cookie, and handlers resolve coordinates from the branch record.
+type BuyingBranch struct {
+	Branches []BranchOption
+	Active   *int64
+}
+
+type ctxKeyBuyingBranch struct{}
+
+// WithBuyingBranch binds the customer's branch selection to the context.
+func WithBuyingBranch(ctx context.Context, b BuyingBranch) context.Context {
+	return context.WithValue(ctx, ctxKeyBuyingBranch{}, b)
+}
+
+// BuyingBranchFrom returns the branch selection bound for this request.
+func BuyingBranchFrom(ctx context.Context) (BuyingBranch, bool) {
+	b, ok := ctx.Value(ctxKeyBuyingBranch{}).(BuyingBranch)
+	return b, ok
 }
 
 // From returns the authenticated caller, if any.

@@ -121,7 +121,7 @@ func TestOrgRepository(t *testing.T) {
 		o := &org.Organization{
 			LegalName:          "Test Org Alpha",
 			CommercialRegister: "CR-ALPHA-01",
-			Type:               org.TypePharmacy,
+			Type:               org.TypeCustomer,
 			Status:             org.StatusPending,
 			CreditLimit:        money.FromMinor(500000),
 			PaymentTermsDays:   30,

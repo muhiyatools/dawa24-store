@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -27,19 +28,6 @@ import (
 // halfway leaves no orphan user and no orphan organization.
 func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User, orgIn identity.RegisterOrgInput) (*identity.RegisterOrgResult, error) {
 	result := &identity.RegisterOrgResult{}
-
-	if orgIn.Type == "individual" {
-		u.Role = "individual"
-		if orgIn.LegalName == "" {
-			orgIn.LegalName = u.Name.Get(i18n.AR)
-			if orgIn.LegalName == "" {
-				orgIn.LegalName = u.Email
-			}
-		}
-		if orgIn.TradeNameAr == "" {
-			orgIn.TradeNameAr = orgIn.LegalName
-		}
-	}
 
 	// trade_name is NOT NULL in the schema; an empty trade name falls back to
 	// the legal name, matching CreateOrganization's reader-facing behaviour.
@@ -68,22 +56,17 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			return fmt.Errorf("identity postgres: register security: %w", err)
 		}
 
-		// 2. The organization (individual accounts are active by default).
+		// 2. The organization. Both account types wait for platform approval:
+		// the documents uploaded at registration are reviewed before commerce
+		// begins (Rebuild V2 §4.1).
 		orgStatus := "pending"
-		cr := orgIn.CommercialRegister
-		if orgIn.Type == "individual" {
-			orgStatus = "active"
-			if cr == "" {
-				cr = fmt.Sprintf("IND-%d", u.ID)
-			}
-		}
 
 		var status string
-		err = tx.QueryRow(txCtx, `INSERT INTO org.organizations (name, legal_name, trade_name, tax_number, commercial_register, type, status, pharmacist_license, license_document_url, branch_count, owner_id)`+
-			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), $4, $5, $6, NULLIF($7, ''), $8, $9, $10)`+
+		err = tx.QueryRow(txCtx, `INSERT INTO org.organizations (name, legal_name, trade_name, tax_number, commercial_register, type, status, pharmacist_license, branch_count, owner_id)`+
+			`VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), $1, $2, NULLIF($3, ''), $4, $5, $6, NULLIF($7, ''), $8, $9)`+
 			`RETURNING id, public_id, type, status;`,
-			orgIn.LegalName, tradeName, orgIn.TaxNumber, cr,
-			orgIn.Type, orgStatus, orgIn.PharmacistLicense, orgIn.LicenseDocumentURL, orgIn.BranchCount, u.ID,
+			orgIn.LegalName, tradeName, orgIn.TaxNumber, orgIn.CommercialRegister,
+			orgIn.Type, orgStatus, orgIn.PharmacistLicense, orgIn.BranchCount, u.ID,
 		).Scan(&result.OrganizationID, &result.OrganizationPublicID, &result.OrganizationType, &status)
 		if err != nil {
 			if database.IsUniqueViolation(err) {
@@ -92,6 +75,19 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			return fmt.Errorf("identity postgres: register organization: %w", err)
 		}
 		result.OrganizationStatus = status
+
+		// 2b. The license file uploaded at registration survives as a document
+		// (Rebuild V2 §4.1) — it is reviewed but never consumed, so the admin
+		// documents registry sees it after approval.
+		if imgURL := strings.TrimSpace(orgIn.LicenseDocumentURL); imgURL != "" {
+			if _, err := tx.Exec(txCtx,
+				`INSERT INTO platform_admin.documents (organization_id, title, document_type, storage_key, status, original_name, file_url) `+
+					`VALUES ($1, 'السجل التجاري / الترخيص', 'commercial_register', $2, 'pending', '', '')`,
+				result.OrganizationID, imgURL,
+			); err != nil {
+				return fmt.Errorf("identity postgres: register license document: %w", err)
+			}
+		}
 
 		// 3. The owner membership. role_id stays NULL; role_key carries the
 		// authorization decision and is what the permission resolver reads.

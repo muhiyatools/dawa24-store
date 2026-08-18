@@ -43,6 +43,7 @@ type SourceOrg struct {
 	TaxNumber          string
 	CommercialRegister string
 	Phone              string
+	Type               string
 	Status             string
 	CreatedAt          time.Time
 }
@@ -124,12 +125,38 @@ func (t *Transformer) TransformUser(src *SourceUser) *TargetUser {
 			"ar": normName,
 			"en": src.Name,
 		},
-		Role:      src.Role,
+		Role:      LegacyUserRole(src.Role),
 		Status:    "active",
 		Language:  "ar",
 		Phone:     cleanPhone(src.Phone),
 		CreatedAt: src.CreatedAt.UTC(),
 		UpdatedAt: src.CreatedAt.UTC(),
+	}
+}
+
+// LegacyOrgType maps a MariaDB organizations.type value onto one of the two
+// account types (Rebuild V2 rule 1). Legacy: supplier/company/agency are
+// vendors; pharmacy/chain_pharmacy/individual are customers. This answers the
+// question 034 left open: company and agency are suppliers.
+func LegacyOrgType(t string) string {
+	switch strings.ToLower(strings.TrimSpace(t)) {
+	case "vendor", "supplier", "company", "agency":
+		return "vendor"
+	default:
+		return "customer"
+	}
+}
+
+// LegacyUserRole maps a legacy users.role onto the platform-role vocabulary
+// migration 060 enforces. Everything non-staff becomes 'user'; the legacy
+// vendor/customer/pharmacy/individual roles expressed capability, which now
+// comes from the organization membership.
+func LegacyUserRole(r string) string {
+	switch strings.ToLower(strings.TrimSpace(r)) {
+	case "super_admin", "admin", "support", "developer":
+		return strings.ToLower(strings.TrimSpace(r))
+	default:
+		return "user"
 	}
 }
 
@@ -149,7 +176,7 @@ func (t *Transformer) TransformOrg(src *SourceOrg) *TargetOrg {
 		TaxNumber:          src.TaxNumber,
 		CommercialRegister: src.CommercialRegister,
 		Phone:              cleanPhone(src.Phone),
-		Type:               "supplier",
+		Type:               LegacyOrgType(src.Type),
 		Status:             "approved",
 		CreditLimit:        money.Zero,
 		PaymentTermsDays:   30,

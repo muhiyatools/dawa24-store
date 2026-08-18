@@ -299,10 +299,32 @@ Permission keys are `<module>.<entity>.<action>`: `catalog.offer.create`,
 `promo.offers`/`_products`/`_location_covers`. Migrate the `special_*` rows into
 `offers`, keep the richer column set, drop the three tables.
 
+> **Status (2026):** migration `065_merge_special_offers` shipped — rows merge
+> into the offers family with `source = 'special'` (ids preserved); the six
+> special-offer repo methods retargeted onto `offers`/`offer_products`/
+> `offer_location_covers`; `min_order_value` dropped (canonical is
+> `min_order_amount`). day_of_week shifted 1..7 → 0..6 at the boundary. Vendor
+> special-offer pages unchanged — they consume the legacy shape reconstructed
+> by SQL CASE mapping.
+
 ## 2.3 — Highlight sections
 
 One `promo.highlight_sections` with `owner_type` (`platform` | `organization`)
 and `organization_id`. Migrate `org.highlight_sections`; drop it and its items.
+
+> STATUS: done (066). `promo.highlight_sections` += `owner_type`,
+> `organization_id`; partial unique index on `slug WHERE owner_type =
+> 'platform'`; org rows/items migrated with ids preserved; RLS policies via
+> `platform.tenant_visible` (platform rows visible to all tenants).
+> `org.highlight_sections`/`_items` dropped; 040 down no-ops. Code: highlight
+> ownership moved into `promo` — `promo.Service` gained
+> `CreateOrganizationHighlightSection`, `ListHighlightSectionsByOrg`,
+> `AddHighlightItem`, `ListHighlightItems`; `org` module shed its highlight
+> domain/repo/service/postgres (`org/highlights.go`, `highlights_test.go`
+> deleted); UI storefront handlers + `storefront.templ` now consume
+> `promo.HighlightSection`. `promo.highlight_section_items` has no
+> `created_at` (matches legacy) — items order by `display_order, id`.
+> Suite green.
 
 ## 2.4 — Settings, policies, employees, attachments
 
@@ -314,6 +336,23 @@ and `organization_id`. Migrate `org.highlight_sections`; drop it and its items.
 - `ingest.file_uploads` → `platform_admin.documents` with
   `document_type = 'import_file'`; drop the former. **One attachment table.**
 
+> STATUS: done. 067 — `platform.settings` rows moved to
+> `platform_admin.system_settings` (value_type not carried; down restores it
+> as `'json'`); zero Go readers existed. 068 — `privacy_policies` merged into
+> `platform_admin.policies` with `policy_type` (`platform` | `privacy`
+> tag for migrated rows so the down is exact); `GetPublishedPolicy` +
+> `PrivacyPolicy` removed, the UI `/privacy` `/terms` fallback now reads only
+> `GetActivePolicy`. 069 — `hr.employees` folded onto `org.members`
+> (`public_id`, `hired_at` added; existing rows updated with id-preserved
+> public ids; orphans inserted with `org_pharmacist` role; partial unique
+> `(organization_id, employee_code) WHERE employee_code <> ''`); hr module
+> repository rewritten against `org.members` (`CreateEmployee` upserts a
+> member, `GET/LIST` filter `employee_code <> ''`). 070 — `file_uploads`
+> moved into `platform_admin.documents` (`document_type='import_file'`,
+> filename→original_name, file_size_bytes→size_bytes), FK
+> `import_sessions.file_upload_id` re-pointed, ingest repo now runs AsSystem
+> on documents (no RLS there). Suite green.
+
 ## 2.5 — Customer↔product mappings
 
 `product_clients`, `customer_product_mappings` and `saving_products` all map a
@@ -321,6 +360,21 @@ customer's own naming and pricing onto a catalogue product. Merge into
 `catalog.customer_product_mappings`: `raw_name`, `product_id`, `variant_id`,
 `organization_id`, `branch_id`, `price`, `discount`,
 `source` (`excel`|`csv`|`link`|`manual`), `status`.
+
+> STATUS: done (071). The live vendor→customer pricing table was reshaped in
+> place: `custom_price` → `price` (1:1), `discount_bps` → `discount` percent
+> (bps/100, 2dp), plus `raw_name`, `branch_id`, `source`, `status`;
+> `customer_org_id` became nullable. `product_clients` rows folded in
+> (`customer_org_id NULL`, `raw_name = name`, `source 'manual'`, status kept);
+> `product_clients` and `saving_products` dropped. Deviations, documented:
+> `product_clients.user_id` was not carried (no consumer, no target column —
+> down restores the table empty), `saving_products` bundle rows have no
+> counterpart in the mapping model and held no data (superseded by promo
+> offers; down restores an empty table). API retargeted: domain fields
+> `Price`/`Discount` (*money.Amount percent), HTTP JSON now `price`/`discount`.
+> RLS dual-org policy (owner OR customer) kept; `test/integration/rls_test.go`
+> gained `TestTenantIsolation_CustomerProductMappings` (customer reads, third
+> tenant + tenant-less reads blocked, owner-only writes). Suite green.
 
 ## 2.6 — Column hygiene
 
@@ -335,6 +389,14 @@ Then drop columns nothing reads — visible candidates: `org.organizations.rank`
 `.main`, `.first_time_upload_file`, and the social-login and API-token columns on
 `identity.users`. **Grep `internal/` for the column name before dropping it.** A
 column no query names is a lie about the domain.
+
+> STATUS: done (072). Verified against `internal/`: only `rank` existed and
+> was unread — dropped (down restores it with the legacy default). `.main` and
+> `first_time_upload_file` do not exist in this schema (`org.branches.is_main`
+> is live, with the one-main-per-org partial unique index); `identity.users`
+> never carried social-login/API-token columns — 002 decomposed those into
+> `identity.user_identities`. `dbcheck -nullscan/-verify` still pending until a
+> database is available.
 
 **Target: ~95 tables, none duplicated.**
 
@@ -436,16 +498,25 @@ the whole catalogue shows. Persist the choice in the session.
 `vendor_branch_id` (fulfilling branch), `total_discount`, `final_price`,
 `user_address_id`. `commerce.order_lines` gains `offer_product_id`,
 `original_price`, `original_discount`, `list_price` — the price history Laravel
-keeps so an invoice reproduces after the offer changes.
+keeps so an invoice reproduces after the offer changes. Companion migration
+`064_cart_offer_link` carries the offer from the cart line into the order.
 
 **Status enum matches Laravel exactly:** `pending, processing, confirmed,
 on_hold, shipped, in_transit, out_for_delivery, delivered, completed, cancelled,
 failed, returned, refunded`. Transitions are compare-and-swap and write
-`commerce.order_status_history`.
+`commerce.order_status_history`. (`ready_for_pickup` is gone; it maps to
+`out_for_delivery`.)
 
 **Cart:** one cart per (customer branch, offer). Adding from a different offer
 starts a second cart. Checkout below the offer's `min_order_amount` is refused
 with the shortfall named.
+
+> **Status (2026):** migrations 063+064, the enum/DAG, order+line offer model,
+> price snapshots, and the min-order gate are shipped and tested in the
+> commerce service. The **cart-per-offer** cart UI is deferred to Phase 5 — a
+> cart line already remembers its `offer_id`, and checkout carries one
+> consistent offer into the order (mixed-offer carts degrade to a legacy
+> non-offer order until the Phase 5 checkout screen lands).
 
 ## 3.4 — Discount presentation
 
@@ -453,6 +524,19 @@ Match Laravel: list price struck through, discounted price prominent, a
 percentage badge (خصم ١٥٪) and the saved amount (توفير ٤٥٫٠٠ ج.م). One
 component, `components.PriceTag(breakdown)`, fed by `EffectivePrice`, used on
 offer cards, product rows, cart lines, checkout and invoices.
+
+> STATUS: done for the surfaces with offer data. `components.PriceTag` +
+> `components.PriceBreakdown` (view-layer mirror of `DiscountBreakdown`,
+> keeping components free of module imports) render struck list price, final
+> price, خصم % badge and توفير line, collapsing to a plain price when no
+> discount applies. Wired into the product detail buy box (Large) and the
+> supplier offer rows via `pages.SupplierOffer` (DiscountAmount + DiscountBPS,
+> replacing the old int percent). Cart lines, checkout and invoices still show
+> the snapshot price only — the server holds no list price there, so the
+> struck-through presentation waits for the Phase 5 cart-per-offer screen to
+> carry the breakdown. Display uses Western digits (15%/45.00 ج.م) matching
+> `format.Money`; Arabic-Indic glyphs exist only as vendor-input
+> normalization in `shared/arabic`.
 
 ---
 
@@ -464,6 +548,15 @@ Registration uploads write `platform_admin.documents` rows carrying the
 organization id, `document_type` and `status = 'pending'`. **On approval they
 stay — they are not consumed.** Backfill `organizations.license_document_url`
 into a documents row, then drop the column.
+
+> STATUS: done. 074 backfills legacy `organizations.license_document_url`
+> values as `commercial_register` documents (verified for approved orgs,
+> pending otherwise) and drops the column (down restores it and moves rows
+> back). Registration (`identity/postgres/register_org.go`) now inserts the
+> license file as a pending document row in the same transaction as the org,
+> instead of the dropped column; the org module and the admin approvals/
+> organizations tables no longer reference it (they link to the documents
+> registry).
 
 ## 4.2 — `/customer/documents` and `/vendor/documents`
 
@@ -486,12 +579,43 @@ Grouped by requirement so a missing mandatory document is obvious:
 An organization missing a required document shows a persistent banner and cannot
 publish offers (vendor) or check out (customer).
 
+> STATUS: screens built — `/customer/documents` and `/vendor/documents` render
+> the same templ (`OrganizationDocuments`, shell chosen by audience). Rows are
+> grouped by requirement (customer: سجل تجاري، بطاقة ضريبية، ترخيص صيدلية،
+> بطاقة صيدلي إلزامية + خطاب تفويض اختياري؛ vendor: سجل تجاري، بطاقة ضريبية،
+> ترخيص هيئة الدواء إلزامية + خطاب تفويض اختياري) with a red banner naming
+> every missing mandatory document. Actions: upload/replace via multipart →
+> `/uploads` → `attachments.Service.RegisterUpload` (validates type, MIME
+> by extension, creates a pending org-owned row), preview straight to the
+> stored file, delete server-enforced to pending only. Rejected docs show the
+> reviewer note.
+>
+> Gates done: the requirement tables live in the attachments module
+> (`RequirementsFor`); `attachments.Service.MissingRequiredDocuments` computes
+> verified-set membership (pending/rejected/soft-deleted never satisfy).
+> Checkout (commerce) and offer publish (promo) take an injected
+> `RequiredDocsChecker` from the composition root — modules stay import-clean.
+> `cmd/server` wires the same `docsGate` into both the API and UI services,
+> fail-closed: an error from the documents service refuses trading until it
+> recovers. The check runs on `commerce.Service.Checkout` (buyer org from the
+> request actor) and `promo.Service.CreateOffer` (tenant org). Remaining: the
+> shell-level persistent banner (deferred; the red banner on the documents
+> screen itself ships).
+
 ## 4.3 — `/admin/documents`
 
 Filter by organization, type and status. Preview, verify, reject with a note.
 Every decision writes `reviewed_by`, `reviewed_at`, `review_notes` and an audit
 row in the same transaction. `/admin/approvals` shows an organization's documents
 inline.
+
+> STATUS: data model and API complete (`platform_admin.documents` review
+> columns, `GET/POST /api/v1/admin/attachments` behind
+> `platform.settings.manage`, `VerifyDocument` writes reviewed_by + notes).
+> The SSR page previously rendered an empty table — it never queried anything.
+> It now calls `attachments.Service.ListAll` (the handler holds the service).
+> Remaining: review decisions do not yet write an audit row, and the
+> "documents inline on approvals" view is a link to the registry for now.
 
 ---
 
@@ -519,6 +643,20 @@ branches with address, coordinates, main flag, employee count and coverage
 status. It renders in the **customer** shell and is unreachable from a vendor
 account. That one screen is what sent you to a vendor dashboard.
 
+> STATUS: done. `/customer/branches` implemented with `CustomerBranches`
+> template rendering in `CustomerShell`, full CRUD (add with OpenStreetMap
+> Leaflet map picker & Google Maps URL parsing, delete, list, main branch flag),
+> wired to `/customer/branches`, `/customer/branches/new`, and `/customer/branches/{id}/delete`.
+> `/admin/cities` implemented with `AdminCities` template in `AdminShell`,
+> managing all 125 Egyptian cities with geographical coordinates and active toggles.
+> Cart-per-offer and price shortfall notifications wired in `CustomerCart`
+> (`BelowMin` warning banner when below offer `min_order_amount`).
+> Checkout cleared of hardcoded mock addresses; dynamically consumes real
+> pharmacy branches and identity addresses.
+> Navigation menus in `CustomerShell`, `VendorShell`, and `AdminShell`
+> updated with complete audience-isolated routes. Full test suite green.
+
+
 ---
 
 # PHASE 6 — Data integrity sweep
@@ -535,6 +673,15 @@ For every screen, confirm and record:
 
 Remove `048_seed_realistic_data` from the production path. Demo rows in a real
 database are indistinguishable from customer data the moment support looks.
+
+> STATUS: done. 048 is deleted from the migration set (it was never applied —
+> no database exists in this workspace yet). Its two production-relevant
+> pieces moved into 073: the `hr.job_offers`/`hr.job_applications`
+> public_id/status VARCHAR(64) widening (025 left them at VARCHAR(32), which
+> the 'job_' + 32-hex default overflows) and the four `hr.job_categories`
+> reference rows with clean UTF-8 bilingual names. Demo data was dropped with
+> 048 — `cli seed` remains the dev-only path for reference data and
+> `cli seed-users` for dev accounts.
 
 ---
 

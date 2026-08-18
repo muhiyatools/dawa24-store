@@ -9,7 +9,7 @@ import (
 )
 
 templ FinderQuestionPage(lang, dir string, q *catalog.FinderQuestion, options []*catalog.FinderOption) {
-	@layouts.CustomerShell("دليل اختيار المنتج | Finder", lang, dir) {
+	@layouts.PublicShell("دليل اختيار المنتج | Finder", lang, dir) {
 		<div style="max-width:560px;">
 			<div class="card" style="margin-bottom:0;">
 				<h2 style="font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0 0 1.25rem;">{ q.Question.Get(i18n.Lang(lang)) }</h2>
@@ -32,7 +32,7 @@ templ FinderQuestionPage(lang, dir string, q *catalog.FinderQuestion, options []
 }
 
 templ FinderResultPage(lang, dir string, r *catalog.FinderResult) {
-	@layouts.CustomerShell("النتيجة | Finder", lang, dir) {
+	@layouts.PublicShell("النتيجة | Finder", lang, dir) {
 		<div style="max-width:560px;">
 			<div class="card" style="margin-bottom:0; text-align:center;">
 				<h2 style="font-size:1.4rem; font-weight:900; color:var(--primary-700); margin:0 0 0.75rem;">{ r.Title.Get(i18n.Lang(lang)) }</h2>

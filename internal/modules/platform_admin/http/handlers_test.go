@@ -80,11 +80,6 @@ func (r stubRepo) UpsertContentBlock(context.Context, *platformadmin.ContentBloc
 	return nil
 }
 
-func (r stubRepo) GetPublishedPolicy(context.Context, string) (*platformadmin.PrivacyPolicy, error) {
-	r.fail("GetPublishedPolicy")
-	return nil, nil
-}
-
 func (r stubRepo) RecordVisitor(context.Context, *platformadmin.Visitor) error {
 	r.fail("RecordVisitor")
 	return nil
@@ -194,10 +189,6 @@ func (happyRepo) GetContentBlockByKey(ctx context.Context, key string) (*platfor
 func (happyRepo) UpsertContentBlock(ctx context.Context, b *platformadmin.ContentBlock) error {
 	b.ID = 1
 	return nil
-}
-
-func (happyRepo) GetPublishedPolicy(ctx context.Context, slug string) (*platformadmin.PrivacyPolicy, error) {
-	return &platformadmin.PrivacyPolicy{ID: 1, Slug: slug, Title: i18n.Text{"ar": "سياسة"}, Content: i18n.Text{"ar": "نص"}}, nil
 }
 
 func (happyRepo) RecordVisitor(ctx context.Context, v *platformadmin.Visitor) error {

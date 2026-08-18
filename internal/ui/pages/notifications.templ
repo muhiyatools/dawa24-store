@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -10,9 +11,19 @@ import (
 templ Notifications(logs []*notifications.NotificationLog, unreadCount int, lang, dir string, isPartial bool) {
 	if isPartial {
 		@NotificationsList(logs)
+	} else if actor, ok := authctx.From(ctx); ok && actor.IsVendor() {
+		@layouts.VendorShell("الإشعارات والتنبيهات | Notifications", "notifications", lang, dir) {
+			@NotificationsContent(logs, unreadCount, lang)
+		}
 	} else {
-		@layouts.CustomerShell("الإشعارات والتنبيهات | Notifications", lang, dir) {
-			<div class="notifications-page-container" style="max-width:880px; margin:1.5rem auto;">
+		@layouts.CustomerShell("الإشعارات والتنبيهات | Notifications", "notifications", lang, dir, nil) {
+			@NotificationsContent(logs, unreadCount, lang)
+		}
+	}
+}
+
+templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount int, lang string) {
+	<div class="notifications-page-container" style="max-width:880px; margin:1.5rem auto;">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
 					<div style="display:flex; align-items:center; gap:0.6rem;">
 						@components.IconBell("icon-md")
@@ -31,8 +42,6 @@ templ Notifications(logs []*notifications.NotificationLog, unreadCount int, lang
 					@NotificationsList(logs)
 				</div>
 			</div>
-		}
-	}
 }
 
 templ NotificationsList(logs []*notifications.NotificationLog) {

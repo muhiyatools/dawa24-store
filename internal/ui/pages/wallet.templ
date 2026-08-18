@@ -16,7 +16,7 @@ type WalletViewData struct {
 }
 
 templ WalletPage(data WalletViewData, lang, dir string) {
-	@layouts.PharmacyShell("المحفظة والمعاملات المالية", "wallet", lang, dir, nil) {
+	@layouts.CustomerShell("المحفظة والمعاملات المالية", "wallet", lang, dir, nil) {
 		<div style="max-width:100%; margin:0 0 4rem 0;">
 			<!-- Header with Quick Action Buttons -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4); margin-bottom:var(--space-6);">

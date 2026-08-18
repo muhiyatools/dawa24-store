@@ -185,7 +185,7 @@ func JobsPage(lang, dir string, jobs []*hr.JobOffer) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("بوابة التوظيف وفرص العمل في القطاع الدوائي", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("بوابة التوظيف وفرص العمل في القطاع الدوائي", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -447,7 +447,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("تفاصيل الوظيفة والتقديم", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("تفاصيل الوظيفة والتقديم", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

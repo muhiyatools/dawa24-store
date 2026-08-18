@@ -14,6 +14,14 @@ import (
 type Service struct {
 	repo Repository
 	log  *slog.Logger
+
+	reqDocs RequiredDocsChecker
+}
+
+// SetRequiredDocsChecker installs the §4.2 documents gate. When set, Checkout
+// refuses to proceed for organizations with missing mandatory documents.
+func (s *Service) SetRequiredDocsChecker(fn RequiredDocsChecker) {
+	s.reqDocs = fn
 }
 
 // NewService creates a new commerce service.
@@ -32,18 +40,41 @@ type CheckoutLineItem struct {
 	ProductName      i18n.Text    `json:"product_name"`
 	VariantName      i18n.Text    `json:"variant_name,omitempty"`
 	SKU              string       `json:"sku,omitempty"`
+	OfferProductID   *int64       `json:"offer_product_id,omitempty"` // offer_product line sold under (063)
 	UnitPrice        money.Amount `json:"unit_price"`
 	Quantity         int          `json:"quantity"`
 	DiscountAmount   money.Amount `json:"discount_amount"`
+	ListPrice        money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
+	OriginalPrice    money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
+	OriginalDiscount money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
 }
 
 // CheckoutInput contains all details required to finalize a purchase.
 type CheckoutInput struct {
-	CustomerID    int64              `json:"customer_id"`
-	PaymentMethod string             `json:"payment_method"`
-	Notes         string             `json:"notes,omitempty"`
-	Items         []CheckoutLineItem `json:"items"`
+	CustomerID     int64              `json:"customer_id"`
+	OfferID        int64              `json:"offer_id"`                   // the offer this order belongs to (063)
+	BranchID       *int64             `json:"branch_id,omitempty"`        // customer branch buying for
+	VendorBranchID *int64             `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
+	UserAddressID  *int64             `json:"user_address_id,omitempty"`  // delivery address (063)
+	PaymentMethod  string             `json:"payment_method"`
+	ShippingFee    money.Amount       `json:"shipping_fee,omitempty"`
+	TaxAmount      money.Amount       `json:"tax_amount,omitempty"`
+	Notes          string             `json:"notes,omitempty"`
+	Items          []CheckoutLineItem `json:"items"`
+	// MinOrderAmount is the approved offer's minimum order amount. It is
+	// supplied by the caller (which owns the offer data) and enforced here so
+	// every checkout path is gated in one place.
+	MinOrderAmount money.Amount `json:"min_order_amount,omitempty"`
+	// CustomerOrgID is the buyer's organization. The documents gate
+	// (Rebuild V2 §4.2) checks it; the API/UI layers fill it from the actor.
+	CustomerOrgID int64 `json:"customer_org_id,omitempty"`
 }
+
+// RequiredDocsChecker is injected from composition root (Rebuild V2 §4.2): it
+// must return an error when the organization cannot trade (missing mandatory
+// documents). The commerce module cannot import the attachments module, so the
+// checker is a plain function set by cmd/server.
+type RequiredDocsChecker func(ctx context.Context, orgID int64, orgType string) error
 
 // Checkout processes an order and partitions it into vendor shipments with exact price snapshots.
 func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, error) {
@@ -52,6 +83,11 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 	}
 	if len(input.Items) == 0 {
 		return nil, apperr.Validation("checkout.empty_cart", "Cannot checkout an empty cart.", nil)
+	}
+	if s.reqDocs != nil && input.CustomerOrgID > 0 {
+		if err := s.reqDocs(ctx, input.CustomerOrgID, "customer"); err != nil {
+			return nil, err
+		}
 	}
 
 	now := time.Now().UTC()
@@ -88,10 +124,14 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 			ProductName:      item.ProductName,
 			VariantName:      item.VariantName,
 			SKU:              item.SKU,
+			OfferProductID:   item.OfferProductID,
 			UnitPrice:        item.UnitPrice,
 			Quantity:         item.Quantity,
 			DiscountAmount:   item.DiscountAmount,
 			TotalPrice:       lineTotal,
+			ListPrice:        item.ListPrice,
+			OriginalPrice:    item.OriginalPrice,
+			OriginalDiscount: item.OriginalDiscount,
 		}
 
 		vendorMap[item.VendorOrgID] = append(vendorMap[item.VendorOrgID], line)
@@ -100,6 +140,17 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		if addErr != nil {
 			return nil, apperr.Internal(addErr)
 		}
+	}
+
+	// Enforce the offer's minimum order amount (063). The sanctioned minimum is
+	// supplied by the caller from the approved offer; every checkout path is
+	// gated here, server-side.
+	if input.MinOrderAmount.IsPositive() && orderSubtotal.Minor() < input.MinOrderAmount.Minor() {
+		return nil, apperr.Validation("checkout.min_order_not_met",
+			"Order total is below the offer's minimum order amount.", map[string]string{
+				"order_total":     orderSubtotal.String(),
+				"min_order_total": input.MinOrderAmount.String(),
+			})
 	}
 
 	var shipments []*OrderShipment
@@ -122,15 +173,42 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		})
 	}
 
+	// Offer discounts over the lines (063): the offer's TotalDiscount reproduces
+	// the invoice, FinalPrice is what the customer pays net.
+	var totalDiscount money.Amount
+	for _, line := range allLines {
+		var addErr error
+		totalDiscount, addErr = totalDiscount.Add(line.DiscountAmount)
+		if addErr != nil {
+			return nil, apperr.Internal(addErr)
+		}
+	}
+	// Subtotal is already net of line discounts (legacy behaviour). TotalDiscount
+	// reproduces the invoice's discount total (063); FinalPrice is what the
+	// customer pays: the net total plus freight and tax.
+	finalPrice := orderSubtotal
+	if input.ShippingFee.IsPositive() {
+		finalPrice, _ = finalPrice.Add(input.ShippingFee)
+	}
+	if input.TaxAmount.IsPositive() {
+		finalPrice, _ = finalPrice.Add(input.TaxAmount)
+	}
+
 	order := &Order{
 		OrderNumber:    orderNumber,
 		CustomerID:     input.CustomerID,
+		OfferID:        input.OfferID,
+		BranchID:       input.BranchID,
+		VendorBranchID: input.VendorBranchID,
+		UserAddressID:  input.UserAddressID,
 		Status:         StatusPending,
 		Subtotal:       orderSubtotal,
 		DiscountAmount: money.Zero,
-		ShippingFee:    money.Zero,
-		TaxAmount:      money.Zero,
-		TotalAmount:    orderSubtotal,
+		TotalDiscount:  totalDiscount,
+		ShippingFee:    input.ShippingFee,
+		TaxAmount:      input.TaxAmount,
+		TotalAmount:    finalPrice,
+		FinalPrice:     finalPrice,
 		PaymentMethod:  input.PaymentMethod,
 		PaymentStatus:  PaymentUnpaid,
 		Notes:          input.Notes,

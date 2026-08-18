@@ -235,7 +235,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PharmacyShell("لوحة التحكم", "dashboard", lang, dir, perms).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("لوحة التحكم", "dashboard", lang, dir, perms).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

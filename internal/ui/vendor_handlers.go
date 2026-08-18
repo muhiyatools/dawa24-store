@@ -10,9 +10,9 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
-	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
@@ -450,39 +450,8 @@ func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Reques
 	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم تحديث حالة حساب الموظف.")
 }
 
-// UserDashboardPage renders the dashboard for individual professionals.
-func (h *UIHandler) UserDashboardPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/user/dashboard", http.StatusSeeOther)
-		return
-	}
-
-	var user *identity.User
-	if h.idSvc != nil {
-		user, _ = h.idSvc.GetUserByID(ctx, actor.UserID)
-	}
-
-	var applications []*hr.JobApplication
-	if h.hrSvc != nil {
-		applications, _ = h.hrSvc.ListApplicationsByUser(ctx, actor.UserID)
-	}
-
-	data := pages.UserDashboardData{
-		User:         user,
-		Applications: applications,
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.UserDashboardPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render user dashboard page", "error", err)
-	}
-}
-
 // VendorInventoryPage renders the inventory stock view.
+
 func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)

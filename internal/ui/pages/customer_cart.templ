@@ -13,7 +13,7 @@ templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 	if isPartial {
 		@CustomerCartContent(cart, lang)
 	} else {
-		@layouts.CustomerShell("سلة المشتريات | Shopping Cart", lang, dir) {
+		@layouts.CustomerShell("سلة المشتريات | Shopping Cart", "cart", lang, dir, nil) {
 			<div class="cart-page-container" style="max-width:1160px; margin:1.5rem auto 8rem auto; min-height:75vh;">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
 					<div>
@@ -93,8 +93,18 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 							</div>
 						</div>
 
+						if group.BelowMin {
+							<div style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-lg); padding:0.6rem 0.85rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--danger);">
+								@components.IconAlertCircle("icon-xs")
+								<span>
+									الحد الأدنى للتوريد من هذا العرض هو <strong class="tabular-nums">{ group.MinOrderPrice.String() } ج.م</strong> (يتبقى <strong class="tabular-nums">{ money.FromMinor(group.MinOrderPrice.Minor() - group.Subtotal.Minor()).String() } ج.م</strong> لإتمام الشراء)
+								</span>
+							</div>
+						}
+
 						<!-- Items Table / List -->
 						<div style="display:flex; flex-direction:column; gap:1rem;">
+
 							for _, item := range group.Items {
 								<div style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem; background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); flex-wrap:wrap; gap:1rem;">
 									<div style="display:flex; align-items:center; gap:0.85rem; flex:1; min-width:240px;">

@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -122,9 +123,14 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.promoSvc != nil {
-		if offers, err := h.promoSvc.ListActiveOffers(ctx, 10, 0); err == nil {
-			data.ActiveOffers = len(offers)
-			data.Offers = offers
+		if visible := h.visibleOffersForActor(ctx, &actor, 10); len(visible) > 0 {
+			data.Offers = make([]*promo.Offer, 0, len(visible))
+			for _, v := range visible {
+				if v.Offer != nil {
+					data.Offers = append(data.Offers, v.Offer)
+				}
+			}
+			data.ActiveOffers = len(data.Offers)
 		}
 	}
 

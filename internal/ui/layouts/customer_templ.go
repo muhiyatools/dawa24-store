@@ -14,7 +14,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-func CustomerShell(title string, lang string, dir string) templ.Component {
+// PublicShell is the marketing layout for pages a visitor may reach without
+// signing in: navbar + footer around the content. Authenticated screens never
+// render it — they use the sidebar shells (Rebuild V2 §1.5).
+func PublicShell(title string, lang string, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -78,11 +81,11 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if actor, ok := authctx.From(ctx); ok {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- Cart Button: Restricted strictly to licensed pharmacies --> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- Cart Button: customer-only surface --> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if actor.Role == "pharmacy" || actor.Role == "chain_pharmacy" {
+				if actor.IsCustomer() {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<a href=\"/cart\" class=\"btn btn-secondary btn-icon\" title=\"سلة المشتريات\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -135,7 +138,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(actor.DisplayName())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/customer.templ`, Line: 97, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/customer.templ`, Line: 100, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -164,7 +167,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(actor.DisplayName())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/customer.templ`, Line: 114, Col: 32}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/customer.templ`, Line: 117, Col: 32}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -174,38 +177,28 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if actor.Role == "admin" || actor.Role == "super_admin" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-sky\" style=\"font-size:0.675rem; padding:0.1rem 0.4rem;\">مدير النظام العام</span>")
+				if actor.IsStaff {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-sky\" style=\"font-size:0.675rem; padding:0.1rem 0.4rem;\">فريق المنصة</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if actor.Role == "vendor" || actor.Role == "supplier" || actor.Role == "company" {
+				} else if actor.IsVendor() {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-emerald\" style=\"font-size:0.675rem; padding:0.1rem 0.4rem;\">مورد معتمد</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if actor.Role == "employer" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-amber\" style=\"font-size:0.675rem; padding:0.1rem 0.4rem;\">موظف منشأة</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else if actor.Role == "individual" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-sky\" style=\"font-size:0.675rem; padding:0.1rem 0.4rem;\">حساب مهني فردي</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"badge badge-slate\" style=\"font-size:0.675rem; padding:0.1rem 0.4rem;\">صيدلية معتمدة</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-slate\" style=\"font-size:0.675rem; padding:0.1rem 0.4rem;\">صيدلية معتمدة</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div></div></div><!-- 1. Wallet Balance Snapshot (for non-individual users) -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div></div></div><!-- 1. Wallet Balance Snapshot (staff have their own surface) -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if actor.Role != "individual" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/wallet\" class=\"dropdown-item\" style=\"background:var(--accent-subtle); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800); font-weight:600; justify-content:space-between; padding:0.65rem 0.85rem;\"><div style=\"display:flex; align-items:center; gap:0.45rem;\">")
+				if !actor.IsStaff {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<a href=\"/wallet\" class=\"dropdown-item\" style=\"background:var(--accent-subtle); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800); font-weight:600; justify-content:space-between; padding:0.65rem 0.85rem;\"><div style=\"display:flex; align-items:center; gap:0.45rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -213,17 +206,17 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span style=\"font-size:0.825rem;\">رصيد المحفظة</span></div><span class=\"tabular-nums\" style=\"color:var(--accent-hover); font-weight:700; font-size:0.95rem;\">5,420.00 ج.م</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span style=\"font-size:0.825rem;\">المحفظة</span></div><span class=\"dropdown-item-arrow\">←</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<!-- 2. Dashboard -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<!-- 2. Dashboard -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if actor.Role == "admin" || actor.Role == "super_admin" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<a href=\"/admin/dashboard\" class=\"dropdown-item\" style=\"font-weight:600;\">")
+				if actor.IsStaff {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<a href=\"/admin/dashboard\" class=\"dropdown-item\" style=\"font-weight:600;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -231,25 +224,12 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>لوحة التحكم الرئيسية</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>لوحة التحكم الرئيسية</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "org_manager" || actor.Role == "company" || actor.Role == "employer" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<a href=\"/vendor/dashboard\" class=\"dropdown-item\" style=\"font-weight:600;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconChart("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>لوحة تحكم المورد</span></a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else if actor.Role == "individual" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<a href=\"/user/dashboard\" class=\"dropdown-item\" style=\"font-weight:600;\">")
+				} else if actor.IsVendor() {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<a href=\"/vendor/dashboard\" class=\"dropdown-item\" style=\"font-weight:600;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -257,12 +237,12 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span>لوحة تحكم الحساب المهني</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>لوحة تحكم المورد</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<a href=\"/pharmacy/dashboard\" class=\"dropdown-item\" style=\"font-weight:600;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<a href=\"/customer/dashboard\" class=\"dropdown-item\" style=\"font-weight:600;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -270,17 +250,43 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>لوحة تحكم الصيدلية</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>لوحة تحكم الصيدلية</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<!-- 3. Profile -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<!-- 3. Profile -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if actor.Role == "admin" || actor.Role == "super_admin" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<a href=\"/admin/dashboard\" class=\"dropdown-item\">")
+				if actor.IsStaff {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<a href=\"/admin/dashboard\" class=\"dropdown-item\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconUser("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span>الملف الشخصي والحساب</span></a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if actor.IsVendor() {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<a href=\"/vendor/dashboard\" class=\"dropdown-item\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconUser("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span>الملف الشخصي والحساب</span></a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<a href=\"/customer/dashboard\" class=\"dropdown-item\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -292,52 +298,13 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if actor.Role == "supplier" || actor.Role == "vendor" || actor.Role == "company" || actor.Role == "employer" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<a href=\"/vendor/dashboard\" class=\"dropdown-item\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconUser("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span>الملف الشخصي والحساب</span></a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else if actor.Role == "individual" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<a href=\"/user/dashboard\" class=\"dropdown-item\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconUser("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>الملف المهني والسيرة الذاتية</span></a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<a href=\"/pharmacy/dashboard\" class=\"dropdown-item\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconUser("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span>الملف الشخصي والحساب</span></a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<!-- 4. Orders (for pharmacies and vendors) -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<!-- 4. Orders -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if actor.Role == "pharmacy" || actor.Role == "chain_pharmacy" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<a href=\"/orders\" class=\"dropdown-item\">")
+				if actor.IsCustomer() {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<a href=\"/orders\" class=\"dropdown-item\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -345,12 +312,12 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>طلبياتي وأوامر التوريد</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>طلبياتي وأوامر التوريد</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if actor.Role == "vendor" || actor.Role == "supplier" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<a href=\"/vendor/orders\" class=\"dropdown-item\">")
+				} else if actor.IsVendor() {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<a href=\"/vendor/orders\" class=\"dropdown-item\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -358,12 +325,12 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span>أوامر التوريد والشحنات</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span>أوامر التوريد والشحنات</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<!-- 5. Favourites --><a href=\"/favorites\" class=\"dropdown-item\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<!-- 5. Favourites --><a href=\"/favorites\" class=\"dropdown-item\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -371,12 +338,12 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span>قائمة المفضلة</span></a><!-- 6. Followed Suppliers (for pharmacies) -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>قائمة المفضلة</span></a><!-- 6. Followed Suppliers (for customers) -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if actor.Role == "pharmacy" || actor.Role == "chain_pharmacy" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<a href=\"/suppliers/followed\" class=\"dropdown-item\">")
+				if actor.IsCustomer() {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<a href=\"/suppliers/followed\" class=\"dropdown-item\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -384,30 +351,12 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>الموردون المتابعون</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>الموردون المتابعون</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<!-- Jobs Applied (for individuals) -->")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if actor.Role == "individual" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<a href=\"/user/applications\" class=\"dropdown-item\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconFile("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>طلبات التوظيف المقدمة</span></a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"dropdown-divider\"></div><!-- Theme Selector (Light / Dark / System) --><div style=\"padding:0.4rem 0.6rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;\">مظهر المنصة:</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"dropdown-divider\"></div><!-- Theme Selector (Light / Dark / System) --><div style=\"padding:0.4rem 0.6rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;\">مظهر المنصة:</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -415,7 +364,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><div class=\"dropdown-divider\"></div><!-- 7. Logout --><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0;\"><button type=\"submit\" class=\"dropdown-item\" style=\"color:var(--danger); font-weight:600;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><div class=\"dropdown-divider\"></div><!-- 7. Logout --><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0;\"><button type=\"submit\" class=\"dropdown-item\" style=\"color:var(--danger); font-weight:600;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -423,17 +372,17 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>تسجيل الخروج</span></button></form></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span>تسجيل الخروج</span></button></form></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"padding:0.55rem 1.125rem;\">تسجيل الدخول</a> <a href=\"/auth/register\" class=\"btn btn-primary\" style=\"padding:0.55rem 1.25rem;\">إنشاء حساب جديد</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"padding:0.55rem 1.125rem;\">تسجيل الدخول</a> <a href=\"/auth/register\" class=\"btn btn-primary\" style=\"padding:0.55rem 1.25rem;\">إنشاء حساب جديد</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div></header><main class=\"page-container\" style=\"flex:1; min-height:calc(100vh - 220px);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div></header><main class=\"page-container\" style=\"flex:1; min-height:calc(100vh - 220px);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -441,7 +390,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</main><!-- Redesigned Production Footer with clean links and ample spacing --> <footer class=\"site-footer\"><div class=\"footer-content\"><!-- Company Info & Mission --><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24.com\" style=\"height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:var(--surface-raised); padding:4px;\"></div><h3 style=\"font-size:1.15rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;\">دواء 24</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; max-width:540px;\">منصة التوريد توفر تجربة شاملة لربط العملاء بالموردين، وتدعم التواصل المباشر والتحليلات المتقدمة مع دعم فني متواصل على مدار الساعة.</p><div class=\"footer-social-links\"><a href=\"https://wa.me/201065397000\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"تواصل عبر واتساب\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</main><!-- Redesigned Production Footer with clean links and ample spacing --> <footer class=\"site-footer\"><div class=\"footer-content\"><!-- Company Info & Mission --><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24.com\" style=\"height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:var(--surface-raised); padding:4px;\"></div><h3 style=\"font-size:1.15rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;\">دواء 24</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; max-width:540px;\">منصة التوريد توفر تجربة شاملة لربط العملاء بالموردين، وتدعم التواصل المباشر والتحليلات المتقدمة مع دعم فني متواصل على مدار الساعة.</p><div class=\"footer-social-links\"><a href=\"https://wa.me/201065397000\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"تواصل عبر واتساب\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -449,7 +398,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</a> <a href=\"https://facebook.com\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"فيسبوك\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</a> <a href=\"https://facebook.com\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"فيسبوك\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -457,7 +406,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</a> <a href=\"https://linkedin.com\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"لينكد إن\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</a> <a href=\"https://linkedin.com\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"لينكد إن\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -465,7 +414,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</a> <a href=\"https://twitter.com\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"منصة إكس\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</a> <a href=\"https://twitter.com\" target=\"_blank\" rel=\"noopener\" class=\"footer-social-btn\" title=\"منصة إكس\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -473,33 +422,33 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</a></div></div><!-- Quick Links --><div><h4 style=\"font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;\">روابط المنصة</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;\"><li><a href=\"/catalog\">كتالوج الأدوية والمستلزمات</a></li>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</a></div></div><!-- Quick Links --><div><h4 style=\"font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;\">روابط المنصة</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;\"><li><a href=\"/catalog\">كتالوج الأدوية والمستلزمات</a></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if features.Enabled(ctx, "offers.enabled") {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<li><a href=\"/offers\">العروض والتخفيضات</a></li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<li><a href=\"/offers\">العروض والتخفيضات</a></li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<li><a href=\"/suppliers\">دليل الموردين المعتمدين</a></li>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<li><a href=\"/suppliers\">دليل الموردين المعتمدين</a></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if features.Enabled(ctx, "jobs.enabled") {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<li><a href=\"/jobs\">وظائف التوظيف الصيدلي والمهني</a></li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<li><a href=\"/jobs\">وظائف التوظيف الصيدلي والمهني</a></li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if features.Enabled(ctx, "services.enabled") {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<li><a href=\"/services\">الخدمات المؤسسية</a></li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<li><a href=\"/services\">الخدمات المؤسسية</a></li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الشركاء والموردين</a></li><li><a href=\"/privacy\">سياسة الخصوصية</a></li><li><a href=\"/terms\">الشروط والأحكام</a></li></ul></div><!-- Contact & Support --><div><h4 style=\"font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;\">التواصل والدعم الفني</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);\"><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الشركاء والموردين</a></li><li><a href=\"/privacy\">سياسة الخصوصية</a></li><li><a href=\"/terms\">الشروط والأحكام</a></li></ul></div><!-- Contact & Support --><div><h4 style=\"font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;\">التواصل والدعم الفني</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);\"><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -507,7 +456,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<a href=\"mailto:info@dawa24.com\" style=\"direction:ltr; font-weight:700; color:var(--accent-hover);\">info@dawa24.com</a></li><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<a href=\"mailto:info@dawa24.com\" style=\"direction:ltr; font-weight:700; color:var(--accent-hover);\">info@dawa24.com</a></li><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -515,7 +464,7 @@ func CustomerShell(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<a href=\"tel:01065397000\" class=\"tabular-nums\" style=\"direction:ltr; font-weight:700; color:var(--accent-hover);\">01065397000</a></li><li style=\"font-size:0.825rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.6;\">الدعم الفني متاح على مدار الساعة للمؤسسات والصيدليات المعتمدة.</li></ul></div></div><div class=\"footer-bottom\"><div><p>جميع الحقوق محفوظة © 2026 دواء 24 — ترخيص واعتماد المنشآت الطبية والصيدلانية</p></div><div style=\"display:flex; gap:1.75rem;\"><a href=\"/faq\">الأسئلة الشائعة</a> <a href=\"/privacy\">الخصوصية</a> <a href=\"/terms\">الشروط</a></div></div></footer>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<a href=\"tel:01065397000\" class=\"tabular-nums\" style=\"direction:ltr; font-weight:700; color:var(--accent-hover);\">01065397000</a></li><li style=\"font-size:0.825rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.6;\">الدعم الفني متاح على مدار الساعة للمؤسسات والصيدليات المعتمدة.</li></ul></div></div><div class=\"footer-bottom\"><div><p>جميع الحقوق محفوظة © 2026 دواء 24 — ترخيص واعتماد المنشآت الطبية والصيدلانية</p></div><div style=\"display:flex; gap:1.75rem;\"><a href=\"/faq\">الأسئلة الشائعة</a> <a href=\"/privacy\">الخصوصية</a> <a href=\"/terms\">الشروط</a></div></div></footer>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

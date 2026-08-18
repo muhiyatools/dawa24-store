@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ VendorStorefront(lang, dir string, sections []*org.HighlightSection, products []*catalog.Product) {
+templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection, products []*catalog.Product) {
 	@layouts.VendorShell("واجهة المتجر", "storefront", lang, dir) {
 		<div class="card" style="margin-bottom:1.25rem;">
 			<h2 class="card-title" style="margin:0 0 1rem;">قسم ترويجي جديد</h2>

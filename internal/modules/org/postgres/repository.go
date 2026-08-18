@@ -50,7 +50,7 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, legal_name, trade_name, tax_number, commercial_register,
-			       COALESCE(pharmacist_license, ''), COALESCE(license_document_url, ''),
+			       COALESCE(pharmacist_license, ''),
 			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
 			       COALESCE(owner_id, 0), approved_at, approved_by,
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
@@ -60,7 +60,7 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 		var typeStr, statusStr string
 		err := tx.QueryRow(txCtx, query, id).Scan(
 			&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
-			&o.PharmacistLicense, &o.LicenseDocumentURL, &o.VerificationNotes, &o.RejectionReason,
+			&o.PharmacistLicense, &o.VerificationNotes, &o.RejectionReason,
 			&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
 			&typeStr, &statusStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
 		)
@@ -136,7 +136,7 @@ func (r *Repository) ListOrganizations(
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, legal_name, trade_name, tax_number, commercial_register,
-			       COALESCE(pharmacist_license, ''), COALESCE(license_document_url, ''),
+			       COALESCE(pharmacist_license, ''),
 			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
 			       COALESCE(owner_id, 0), approved_at, approved_by,
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
@@ -169,7 +169,7 @@ func (r *Repository) ListOrganizations(
 			var tStr, sStr string
 			if err := rows.Scan(
 				&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
-				&o.PharmacistLicense, &o.LicenseDocumentURL, &o.VerificationNotes, &o.RejectionReason,
+				&o.PharmacistLicense, &o.VerificationNotes, &o.RejectionReason,
 				&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
 				&tStr, &sStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
 			); err != nil {

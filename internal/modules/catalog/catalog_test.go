@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"testing"
@@ -159,18 +160,25 @@ func (m *mockCatalogRepo) ListBrands(_ context.Context) ([]*Brand, error) {
 }
 
 func (m *mockCatalogRepo) SetCustomerPricing(_ context.Context, cm *CustomerProductMapping) error {
-	key := string(rune(cm.OrganizationID)) + ":" + string(rune(cm.CustomerOrgID)) + ":" + string(rune(cm.ProductID))
+	key := fmt.Sprintf("%d:%d:%d", cm.OrganizationID, deref64(cm.CustomerOrgID), cm.ProductID)
 	m.customerPricing[key] = cm
 	return nil
 }
 
 func (m *mockCatalogRepo) GetCustomerPricing(_ context.Context, vendorOrgID, customerOrgID, productID int64) (*CustomerProductMapping, error) {
-	key := string(rune(vendorOrgID)) + ":" + string(rune(customerOrgID)) + ":" + string(rune(productID))
+	key := fmt.Sprintf("%d:%d:%d", vendorOrgID, customerOrgID, productID)
 	cm, ok := m.customerPricing[key]
 	if !ok {
 		return nil, apperr.NotFound("customer_pricing")
 	}
 	return cm, nil
+}
+
+func deref64(p *int64) int64 {
+	if p == nil {
+		return 0
+	}
+	return *p
 }
 
 func (m *mockCatalogRepo) CreateProductAlert(_ context.Context, a *ProductAlert) error {

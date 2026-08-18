@@ -9,12 +9,12 @@ import (
 )
 
 templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
-	if actor, ok := authctx.From(ctx); ok && (actor.Role == "pharmacy" || actor.Role == "chain_pharmacy") {
-		@layouts.PharmacyShell("دليل الموردين المعتمدين | Suppliers Directory", "suppliers", lang, dir, nil) {
+	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+		@layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", "suppliers", lang, dir, nil) {
 			@SuppliersDirectoryContent(lang, dir, data)
 		}
 	} else {
-		@layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", lang, dir) {
+		@layouts.PublicShell("دليل الموردين المعتمدين | Suppliers Directory", lang, dir) {
 			@SuppliersDirectoryContent(lang, dir, data)
 		}
 	}
@@ -97,7 +97,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 
 
 templ SupplierProfile(lang, dir string, data SupplierProfileData) {
-	@layouts.CustomerShell(fmt.Sprintf("%s | ملف المورد المعتمد", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir) {
+	@layouts.PublicShell(fmt.Sprintf("%s | ملف المورد المعتمد", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir) {
 		<div class="supplier-profile-container" style="max-width:1160px; margin:1rem auto 5rem auto; display:flex; flex-direction:column; gap:var(--space-6);">
 			
 			<!-- Breadcrumbs -->

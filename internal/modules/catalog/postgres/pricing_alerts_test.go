@@ -42,9 +42,9 @@ func TestCustomerPricingAndAlerts(t *testing.T) {
 	t.Run("CustomerPricing", func(t *testing.T) {
 		m := &catalog.CustomerProductMapping{
 			OrganizationID: orgID,
-			CustomerOrgID:  customerOrgID,
+			CustomerOrgID:  &customerOrgID,
 			ProductID:      prod.ID,
-			CustomPrice:    money.FromMinor(800),
+			Price:          money.FromMinor(800),
 			IsActive:       true,
 		}
 		if err := repo.SetCustomerPricing(ctx, m); err != nil {
@@ -55,8 +55,8 @@ func TestCustomerPricingAndAlerts(t *testing.T) {
 		if err != nil {
 			t.Fatalf("GetCustomerPricing failed: %v", err)
 		}
-		if got.CustomPrice.Minor() != 800 {
-			t.Errorf("money round-trip failed: got %v", got.CustomPrice)
+		if got.Price.Minor() != 800 {
+			t.Errorf("money round-trip failed: got %v", got.Price)
 		}
 	})
 

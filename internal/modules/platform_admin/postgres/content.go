@@ -76,31 +76,6 @@ func (r *Repository) UpsertContentBlock(ctx context.Context, b *platformadmin.Co
 	})
 }
 
-// GetPublishedPolicy returns the newest published policy for a slug.
-func (r *Repository) GetPublishedPolicy(ctx context.Context, slug string) (*platformadmin.PrivacyPolicy, error) {
-	var p platformadmin.PrivacyPolicy
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `
-			SELECT id, slug, title, content, is_published, version, published_at, updated_at
-			FROM platform_admin.privacy_policies
-			WHERE slug = $1 AND is_published = true
-			ORDER BY version DESC LIMIT 1;
-		`
-		err := tx.QueryRow(txCtx, query, slug).Scan(&p.ID, &p.Slug, &p.Title, &p.Content, &p.IsPublished, &p.Version, &p.PublishedAt, &p.UpdatedAt)
-		if err != nil {
-			if database.IsNotFound(err) {
-				return apperr.NotFound("policy")
-			}
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &p, nil
-}
-
 // ListTranslations returns all UI translations.
 func (r *Repository) ListTranslations(ctx context.Context) ([]*platformadmin.Translation, error) {
 	var list []*platformadmin.Translation

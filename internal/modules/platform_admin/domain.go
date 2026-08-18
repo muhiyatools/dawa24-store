@@ -101,19 +101,6 @@ type ContentBlock struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// PrivacyPolicy is a versioned, publishable legal document (legacy
-// privacy_policies). Terms and privacy are both stored here, keyed by slug.
-type PrivacyPolicy struct {
-	ID          int64     `json:"id"`
-	Slug        string    `json:"slug"`
-	Title       i18n.Text `json:"title"`
-	Content     i18n.Text `json:"content"`
-	IsPublished bool      `json:"is_published"`
-	Version     int       `json:"version"`
-	PublishedAt time.Time `json:"published_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
 // Visitor is one analytics row: a unique visitor on a unique day.
 type Visitor struct {
 	ID         int64     `json:"id"`

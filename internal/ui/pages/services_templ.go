@@ -133,7 +133,7 @@ func ServicesPage(lang, dir string, services []*workflow.InstitutionalService) t
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الخدمات المؤسسية | Services", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("الخدمات المؤسسية | Services", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -232,7 +232,7 @@ func ServiceDetail(lang, dir string, s *workflow.InstitutionalService) templ.Com
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("خدمة | Service", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("خدمة | Service", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

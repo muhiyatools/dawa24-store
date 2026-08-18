@@ -60,7 +60,7 @@ func PrivacyPolicy() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("سياسة الخصوصية | Privacy Policy", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("سياسة الخصوصية | Privacy Policy", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -115,7 +115,7 @@ func TermsOfService() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("شروط الخدمة | Terms of Service", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("شروط الخدمة | Terms of Service", "ar", "rtl").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

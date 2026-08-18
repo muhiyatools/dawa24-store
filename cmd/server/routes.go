@@ -56,6 +56,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // mountModuleRoutes registers domain handlers across all platform bounded contexts.
@@ -85,6 +88,24 @@ func mountModuleRoutes(
 	attachRepo := attachmentsPostgres.NewRepository(db)
 	attachSvc := attachments.NewService(attachRepo, storageClient, log)
 
+	// §4.2 documents gate: an organization with missing mandatory documents
+	// cannot check out (customer) or publish offers (vendor). Composed here
+	// because modules must not import each other. Fail closed: if the
+	// documents service errors, trading is refused until it recovers.
+	docsGate := func(ctx context.Context, orgID int64, orgType string) error {
+		if orgID <= 0 {
+			return nil
+		}
+		missing, err := attachSvc.MissingRequiredDocuments(ctx, orgID, orgType)
+		if err != nil {
+			return err
+		}
+		if len(missing) > 0 {
+			return apperr.Validation("documents.incomplete", "Organization must attach its mandatory documents before trading.", nil)
+		}
+		return nil
+	}
+
 	// 2. Identity & Auth
 	idRepo := identityPostgres.NewRepository(db)
 	sessionStore := identity.NewSessionStore(deps.CacheHandle(), cfg.Session)
@@ -99,7 +120,7 @@ func mountModuleRoutes(
 		// Attachments API
 		attachmentsHttp.NewHandler(attachSvc, log).RegisterRoutes(protected)
 
-		mountAuthenticatedModules(protected, cfg, log, deps, ai, storageClient)
+		mountAuthenticatedModules(protected, cfg, log, deps, ai, storageClient, docsGate)
 	})
 
 	// 13. Templ SSR Frontend & Static Assets
@@ -120,27 +141,64 @@ func mountModuleRoutes(
 	wfRepoUI := workflowPostgres.NewRepository(db)
 	hrRepoUI := hrPostgres.NewRepository(db)
 
+	commSvcUI := commerce.NewService(commRepoUI, log)
+	commSvcUI.SetRequiredDocsChecker(docsGate)
+	promoSvcUI := promo.NewService(promoRepoUI, log)
+	promoSvcUI.SetRequiredDocsChecker(docsGate)
+
 	uiHandler := ui.NewUIHandler(
 		catalog.NewService(catRepoUI, log),
 		org.NewService(orgRepoUI, log),
 		ingest.NewService(ingRepoUI, log),
-		commerce.NewService(commRepoUI, log),
+		commSvcUI,
 		inventory.NewService(invRepoUI, log),
 		idSvc,
 		notifications.NewService(notifRepoUI, log),
-		promo.NewService(promoRepoUI, log),
+		promoSvcUI,
 		platformadmin.NewService(adminRepoUI, log),
 		billing.NewService(billRepoUI, log),
 		chat.NewService(chatRepoUI, log),
 		workflow.NewService(wfRepoUI, log),
 		hr.NewService(hrRepoUI, log),
+		attachSvc,
 		log,
 	)
+
+	// Audience-gated UI groups (Rebuild V2 §1.3). Every route is registered
+	// under exactly one group; a route living outside these groups means it is
+	// reachable by anyone regardless of account type — test/route_audience_test.go
+	// walks the app the same way admin_guard_test.go does and forbids that.
+	uiHandler.RegisterPublicRoutes(r)
+
 	r.Group(func(uiRouter chi.Router) {
-		uiRouter.Use(identityHttp.OptionalAuth(idSvc, cfg.Session.CookieName))
-		uiHandler.RegisterPageRoutes(uiRouter)
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(authctx.RequireCustomer(log))
+		uiRouter.Use(authctx.RequireApproved(log))
+		uiRouter.Use(uiHandler.BuyingBranchSelector)
+		uiHandler.RegisterCustomerRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(authctx.RequireVendor(log))
+		uiRouter.Use(authctx.RequireApproved(log))
+		uiHandler.RegisterVendorRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(authctx.RequireStaff(log))
+		uiHandler.RegisterAdminRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(authctx.RequireApproved(log))
+		uiHandler.RegisterSharedRoutes(uiRouter)
 	})
 }
+
 
 // mountAuthenticatedModules registers every module whose endpoints require a logged-in caller.
 func mountAuthenticatedModules(
@@ -150,6 +208,7 @@ func mountAuthenticatedModules(
 	deps *dependencies,
 	ai gateway.Client,
 	storageClient *storage.Client,
+	docsGate func(ctx context.Context, orgID int64, orgType string) error,
 ) {
 	db := deps.Handle()
 
@@ -166,6 +225,7 @@ func mountAuthenticatedModules(
 	// 4. Commerce
 	commRepo := commercePostgres.NewRepository(db)
 	commSvc := commerce.NewService(commRepo, log)
+	commSvc.SetRequiredDocsChecker(commerce.RequiredDocsChecker(docsGate))
 	commerceHttp.NewHandler(commSvc, log).RegisterRoutes(r)
 
 	// 5. Billing & Entitlements
@@ -186,6 +246,7 @@ func mountAuthenticatedModules(
 	// 7. Promo, Offers & Ads
 	promoRepo := promoPostgres.NewRepository(db)
 	promoSvc := promo.NewService(promoRepo, log)
+	promoSvc.SetRequiredDocsChecker(promo.RequiredDocsChecker(docsGate))
 	promoHttp.NewHandler(promoSvc, log).RegisterRoutes(r)
 
 	// 8. Workflow

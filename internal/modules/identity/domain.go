@@ -236,11 +236,30 @@ type MeResponse struct {
 // internal/modules/org but are re-declared here so identity can validate the
 // input without importing another module (module boundary: modules/A must not
 // import modules/B).
+//
+// Two types only (Rebuild V2 rule 1): customer (صيدلية) and vendor (مورّد).
+// Every legacy value — pharmacy, chain_pharmacy, supplier, company, agency,
+// individual — maps onto these two. Platform admin is staff, not a type.
 const (
-	OrgTypeSupplier      = "supplier"
-	OrgTypePharmacy      = "pharmacy"
-	OrgTypeChainPharmacy = "chain_pharmacy"
+	OrgTypeVendor   = "vendor"
+	OrgTypeCustomer = "customer"
 )
+
+// NormalizeOrgType maps legacy organization type values ('pharmacy', 'chain_pharmacy',
+// 'individual', 'supplier', 'company', 'agency') onto the two canonical values ('customer', 'vendor').
+func NormalizeOrgType(t string) (string, bool) {
+	switch t {
+	case OrgTypeCustomer, OrgTypeVendor:
+		return t, false
+	case "pharmacy", "chain_pharmacy", "individual":
+		return OrgTypeCustomer, true
+	case "supplier", "company", "agency":
+		return OrgTypeVendor, true
+	default:
+		return t, false
+	}
+}
+
 
 // RegisterOrgInput carries the organization details a signup collects, per the
 // account type chosen in step 1 of the registration form.

@@ -70,7 +70,7 @@ func ContactPage(lang, dir string, submitted bool) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("تواصل معنا | Contact", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("تواصل معنا | Contact", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

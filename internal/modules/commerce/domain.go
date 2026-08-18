@@ -11,17 +11,23 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
-// OrderStatus defines the canonical lifecycle states for customer orders and vendor shipments.
+// OrderStatus defines the canonical lifecycle states, matching Laravel's
+// main_orders/adv_orders enum exactly (Rebuild V2 §3.3).
 type OrderStatus string
 
 const (
 	StatusPending        OrderStatus = "pending"
-	StatusConfirmed      OrderStatus = "confirmed"
 	StatusProcessing     OrderStatus = "processing"
-	StatusReadyForPickup OrderStatus = "ready_for_pickup"
+	StatusConfirmed      OrderStatus = "confirmed"
+	StatusOnHold         OrderStatus = "on_hold"
 	StatusShipped        OrderStatus = "shipped"
+	StatusInTransit      OrderStatus = "in_transit"
+	StatusOutForDelivery OrderStatus = "out_for_delivery"
 	StatusDelivered      OrderStatus = "delivered"
+	StatusCompleted      OrderStatus = "completed"
 	StatusCancelled      OrderStatus = "cancelled"
+	StatusFailed         OrderStatus = "failed"
+	StatusReturned       OrderStatus = "returned"
 	StatusRefunded       OrderStatus = "refunded"
 )
 
@@ -58,25 +64,33 @@ type CartItem struct {
 	ProductName      i18n.Text    `json:"product_name,omitempty"`
 	SupplierName     i18n.Text    `json:"supplier_name,omitempty"`
 	MinOrderPrice    money.Amount `json:"min_order_price,omitempty"`
-	Quantity         int          `json:"quantity"`
+OfferID        *int64       `json:"offer_id,omitempty"` // offer the item was added under (064)
+	Quantity       int          `json:"quantity"`
 	UnitPrice        money.Amount `json:"unit_price"`
 	CreatedAt        time.Time    `json:"created_at"`
 	UpdatedAt        time.Time    `json:"updated_at"`
 }
 
-// Order represents a master customer order spanning one or more vendor shipments.
+// Order represents a master customer order placed against one offer
+// (main_orders parity, Rebuild V2 §3.3).
 type Order struct {
 	ID             int64            `json:"id"`
 	PublicID       string           `json:"public_id"`
 	OrderNumber    string           `json:"order_number"`
 	CustomerID     int64            `json:"customer_id"`
 	OrganizationID *int64           `json:"organization_id,omitempty"`
+	OfferID        int64            `json:"offer_id"` // the offer this order belongs to (063)
+	BranchID       *int64           `json:"branch_id,omitempty"`       // customer branch buying for
+	VendorBranchID *int64           `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
+	UserAddressID  *int64           `json:"user_address_id,omitempty"`
 	Status         OrderStatus      `json:"status"`
 	Subtotal       money.Amount     `json:"subtotal"`
 	DiscountAmount money.Amount     `json:"discount_amount"`
+	TotalDiscount  money.Amount     `json:"total_discount"` // offer discounts over lines (063)
 	ShippingFee    money.Amount     `json:"shipping_fee"`
 	TaxAmount      money.Amount     `json:"tax_amount"`
 	TotalAmount    money.Amount     `json:"total_amount"`
+	FinalPrice     money.Amount     `json:"final_price"` // paid after discount (063)
 	PaymentMethod  string           `json:"payment_method"`
 	PaymentStatus  PaymentStatus    `json:"payment_status"`
 	Notes          string           `json:"notes,omitempty"`
@@ -118,10 +132,14 @@ type OrderLine struct {
 	ProductName      i18n.Text    `json:"product_name"`
 	VariantName      i18n.Text    `json:"variant_name,omitempty"`
 	SKU              string       `json:"sku,omitempty"`
+	OfferProductID   *int64       `json:"offer_product_id,omitempty"` // offer_product sold under (063)
 	UnitPrice        money.Amount `json:"unit_price"`
 	Quantity         int          `json:"quantity"`
 	DiscountAmount   money.Amount `json:"discount_amount"`
 	TotalPrice       money.Amount `json:"total_price"`
+	ListPrice        money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
+	OriginalPrice    money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
+	OriginalDiscount money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
 	CreatedAt        time.Time    `json:"created_at"`
 }
 
@@ -137,25 +155,34 @@ type OrderStatusHistory struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
-// IsValidStatusTransition validates order state machine transitions.
+// IsValidStatusTransition validates order state machine transitions. Compare-
+// and-swap callers pass the status they read and the status they want; anything
+// outside the DAG below is refused. Terminal states: cancelled, returned,
+// failed, refunded, completed (only refundable afterwards).
 func IsValidStatusTransition(from, to OrderStatus) bool {
 	if from == to {
 		return true
 	}
 	switch from {
 	case StatusPending:
-		return to == StatusConfirmed || to == StatusCancelled
-	case StatusConfirmed:
-		return to == StatusProcessing || to == StatusCancelled
+		return to == StatusProcessing || to == StatusConfirmed || to == StatusCancelled || to == StatusOnHold
 	case StatusProcessing:
-		return to == StatusReadyForPickup || to == StatusShipped || to == StatusCancelled
-	case StatusReadyForPickup:
-		return to == StatusShipped || to == StatusDelivered || to == StatusCancelled
+		return to == StatusConfirmed || to == StatusOnHold || to == StatusCancelled || to == StatusFailed
+	case StatusConfirmed:
+		return to == StatusShipped || to == StatusOnHold || to == StatusCancelled || to == StatusFailed
+	case StatusOnHold:
+		return to == StatusProcessing || to == StatusConfirmed || to == StatusCancelled || to == StatusFailed
 	case StatusShipped:
-		return to == StatusDelivered || to == StatusRefunded
+		return to == StatusInTransit || to == StatusOutForDelivery || to == StatusReturned || to == StatusFailed
+	case StatusInTransit:
+		return to == StatusOutForDelivery || to == StatusReturned || to == StatusFailed
+	case StatusOutForDelivery:
+		return to == StatusDelivered || to == StatusReturned || to == StatusFailed
 	case StatusDelivered:
+		return to == StatusCompleted || to == StatusReturned || to == StatusRefunded
+	case StatusCompleted:
 		return to == StatusRefunded
-	case StatusCancelled, StatusRefunded:
+	case StatusCancelled, StatusFailed, StatusReturned, StatusRefunded:
 		return false // Terminal states
 	default:
 		return false

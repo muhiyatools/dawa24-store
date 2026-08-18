@@ -3,14 +3,26 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ RequestsPage(lang, dir, statusFilter string, data RequestsData) {
-	@layouts.CustomerShell("الطلبات | Requests", lang, dir) {
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+	if actor, ok := authctx.From(ctx); ok && actor.IsVendor() {
+		@layouts.VendorShell("الطلبات | Requests", "requests", lang, dir) {
+			@RequestsContent(lang, statusFilter, data)
+		}
+	} else {
+		@layouts.CustomerShell("الطلبات | Requests", "requests", lang, dir, nil) {
+			@RequestsContent(lang, statusFilter, data)
+		}
+	}
+}
+
+templ RequestsContent(lang, statusFilter string, data RequestsData) {
+	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
 			<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;">طلبات المستندات والإجراءات</h2>
 		</div>
 
@@ -96,5 +108,4 @@ templ RequestsPage(lang, dir, statusFilter string, data RequestsData) {
 				</div>
 			}
 		</div>
-	}
 }

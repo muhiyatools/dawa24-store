@@ -8,7 +8,7 @@ import (
 )
 
 templ FavoritesPage(lang, dir string, products []*catalog.Product) {
-	@layouts.PharmacyShell("الأدوية والمستلزمات المفضلة", "favorites", lang, dir, nil) {
+	@layouts.CustomerShell("الأدوية والمستلزمات المفضلة", "favorites", lang, dir, nil) {
 		<div style="max-width:100%; margin:0 0 3rem 0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">

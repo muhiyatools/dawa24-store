@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
-	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -93,7 +92,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 				}
 
 				<form method="POST" action="/auth/register" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem;">
-					<input type="hidden" name="account_type" id="reg-account-type-input" value="pharmacy" />
+					<input type="hidden" name="account_type" id="reg-account-type-input" value="customer" />
 
 					<!-- STEP 1: Select Account Type -->
 					<section id="reg-step-1" class="form-step active">
@@ -102,10 +101,10 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						</h2>
 
 						<div style="display:flex; flex-direction:column; gap:0.9rem;">
-							<!-- Option 1: Supplier / Pharma Company -->
+							<!-- Option 1: Vendor / Supplier / Pharma Company -->
 							<div
 								class="type-card hover-lift"
-								data-account-type="supplier"
+								data-account-type="vendor"
 								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; cursor:pointer; transition:all 0.15s ease;"
 							>
 								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -120,10 +119,10 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								</div>
 							</div>
 
-							<!-- Option 2: Pharmacy / Medical Facility -->
+							<!-- Option 2: Customer / Pharmacy / Medical Facility -->
 							<div
 								class="type-card hover-lift"
-								data-account-type="pharmacy"
+								data-account-type="customer"
 								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--primary-600); border-radius:var(--radius-xl); background:var(--primary-50); cursor:pointer; transition:all 0.15s ease;"
 							>
 								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -137,26 +136,6 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
-
-							if features.Enabled(ctx, "jobs.seeker_accounts") {
-								<!-- Option 3: Individual Account -->
-								<div
-									class="type-card hover-lift"
-									data-account-type="individual"
-									style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; cursor:pointer; transition:all 0.15s ease;"
-								>
-									<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-										@components.IconUser("icon-sm")
-									</div>
-									<div style="flex:1;">
-										<div style="font-weight:900; color:var(--neutral-900); font-size:1rem;">حساب فردي / صيدلي وباحث عن عمل</div>
-										<div style="font-size:0.825rem; color:var(--neutral-600); margin-top:0.15rem;">إنشاء ملف مهني شخصي والتقديم المباشر على وظائف الصيدليات والشركات المعتمدة</div>
-									</div>
-									<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;">
-										@components.IconCheck("icon-xs")
-									</div>
-								</div>
-							}
 						</div>
 					</section>
 
@@ -189,12 +168,12 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;" data-type-visibility="supplier pharmacy">
+						<div class="form-group" style="margin-bottom:0;" data-type-visibility="vendor customer">
 							<label class="form-label" for="reg-legal-name">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label>
 							<input type="text" id="reg-legal-name" name="legal_name" required class="form-input" placeholder="صيدلية الأمل الحديثة ش.م.م" value={ form.LegalName } />
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" data-type-visibility="supplier pharmacy">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" data-type-visibility="vendor customer">
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-trade-ar">الاسم التجاري (عربي) *</label>
 								<input type="text" id="reg-trade-ar" name="trade_name_ar" required class="form-input" value={ form.TradeNameAr } placeholder="صيدلية الأمل" />
@@ -205,7 +184,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" data-type-visibility="supplier pharmacy">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" data-type-visibility="vendor customer">
 							<div class="form-group" style="margin-bottom:0;">
 								<label class="form-label" for="reg-cr">رقم السجل التجاري *</label>
 								<input type="text" id="reg-cr" name="commercial_register" required class="form-input tabular-nums" value={ form.CommercialRegister } placeholder="CR-94819" />
@@ -216,13 +195,13 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;" data-type-visibility="pharmacy">
+						<div class="form-group" style="margin-bottom:0;" data-type-visibility="customer">
 							<label class="form-label" for="reg-license">رقم ترخيص المؤسسة الصيدلية (نقابة الصيادلة / هيئة الدواء)</label>
 							<input type="text" id="reg-license" name="pharmacist_license" class="form-input tabular-nums" value={ form.PharmacistLicense } placeholder="EDA-LIC-2024-884" />
 						</div>
 
 						<!-- Official Operating License / CR File Attachment -->
-						<div class="form-group" style="margin-bottom:0;" data-type-visibility="supplier pharmacy">
+						<div class="form-group" style="margin-bottom:0;" data-type-visibility="vendor customer">
 							<label class="form-label" for="reg-license-file" style="display:flex; justify-content:space-between; align-items:center;">
 								<span>إرفاق صورة الترخيص / السجل التجاري الرسمي *</span>
 								<span style="font-size:0.75rem; color:var(--neutral-500);">PDF, PNG, JPG حتى 20 ميجابايت</span>
@@ -243,7 +222,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									}
 								</select>
 							</div>
-							<div class="form-group" style="margin-bottom:0;" data-type-visibility="pharmacy">
+							<div class="form-group" style="margin-bottom:0;" data-type-visibility="customer">
 								<label class="form-label" for="reg-branches">عدد الفروع (اختياري)</label>
 								<input type="number" id="reg-branches" name="branch_count" min="1" class="form-input tabular-nums" value={ form.BranchCount } placeholder="1" />
 							</div>

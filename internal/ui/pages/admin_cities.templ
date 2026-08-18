@@ -1,0 +1,182 @@
+package pages
+
+import (
+	"fmt"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type AdminCitiesData struct {
+	Cities     []*platformadmin.City
+	TotalCount int
+	Query      string
+}
+
+templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
+	@layouts.AdminShell("إدارة المحافظات والمدن الجغرافية", "cities", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+			<!-- Header -->
+			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+				<div>
+					<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
+						المحافظات والمدن الجغرافية 🌍
+					</h2>
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;">
+						إدارة التقسيم الجغرافي والإحداثيات المكانية لمحافظات ومراكز جمهورية مصر العربية الـ 125 المستخدمة في حساب دوائر التغطية وشحن الأدوية.
+					</p>
+				</div>
+
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<a href="#new-city-card" class="btn btn-primary btn-sm" style="font-weight:700;">
+						@components.IconPlus("icon-xs")
+						<span>+ إضافة مدينة / منطقة</span>
+					</a>
+				</div>
+			</div>
+
+			<!-- Metrics -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي المدن والمراكز</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.Cities)) }</div>
+				</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">المحافظات الرئيسية</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--accent);" class="tabular-nums">27</div>
+				</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">حالة النطاق الجغرافي</div>
+					<div style="margin-top:0.35rem;">
+						<span class="badge badge-emerald" style="font-size:0.775rem;">تغطية جغرافية مكتملة (100%)</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main Layout: Table + Add Form -->
+			<div style="display:grid; grid-template-columns:1.4fr 1fr; gap:1.75rem; align-items:start;">
+				
+				<!-- Left: Cities Table -->
+				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+							سجل المدن والمراكز المعتمدة
+						</h3>
+						<span class="badge badge-sky tabular-nums" style="font-weight:700;">{ fmt.Sprintf("%d", len(data.Cities)) } مدينة</span>
+					</div>
+
+					<div style="overflow-x:auto;">
+						<table style="width:100%; text-align:start; border-collapse:collapse; font-size:0.85rem;">
+							<thead>
+								<tr style="border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">
+									<th style="padding:0.6rem 0.75rem;">المدينة / المركز</th>
+									<th style="padding:0.6rem 0.75rem;">المحافظة / الإقليم</th>
+									<th style="padding:0.6rem 0.75rem;">الإحداثيات</th>
+									<th style="padding:0.6rem 0.75rem;">الحالة</th>
+									<th style="padding:0.6rem 0.75rem; text-align:end;">الإجراء</th>
+								</tr>
+							</thead>
+							<tbody style="divide-y:1px solid var(--border);">
+								for _, c := range data.Cities {
+									<tr style="border-bottom:1px solid var(--border);">
+										<td style="padding:0.75rem;">
+											<div style="font-weight:800; color:var(--text);">
+												if c.Name["ar"] != "" {
+													{ c.Name["ar"] }
+												} else {
+													{ c.Name["en"] }
+												}
+											</div>
+											if c.Name["en"] != "" && c.Name["ar"] != "" {
+												<div style="font-size:0.725rem; color:var(--text-muted);">{ c.Name["en"] }</div>
+											}
+										</td>
+										<td style="padding:0.75rem;">
+											<span class="badge badge-slate" style="font-size:0.725rem;">مصر (EG)</span>
+										</td>
+										<td style="padding:0.75rem; font-family:monospace; font-size:0.775rem;" class="tabular-nums">
+											<span style="color:var(--accent);">30.04, 31.23</span>
+										</td>
+										<td style="padding:0.75rem;">
+											if c.IsActive {
+												<span class="badge badge-emerald" style="font-size:0.7rem;">مفعلة</span>
+											} else {
+												<span class="badge badge-gray" style="font-size:0.7rem;">معطلة</span>
+											}
+										</td>
+										<td style="padding:0.75rem; text-align:end;">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } style="margin:0; display:inline;">
+												<button type="submit" class="btn btn-secondary btn-xs" style="font-size:0.725rem;">
+													if c.IsActive {
+														<span>تعطيل</span>
+													} else {
+														<span>تفعيل</span>
+													}
+												</button>
+											</form>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Right: Add City Form -->
+				<div id="new-city-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; position:sticky; top:calc(var(--header-height) + 1.5rem);">
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconPlus("icon-xs")
+						</div>
+						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+							إضافة مدينة / منطقة جديدة
+						</h3>
+					</div>
+
+					<form method="POST" action="/admin/cities/new" style="display:flex; flex-direction:column; gap:1rem;">
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								اسم المدينة بالعربية <span style="color:var(--danger);">*</span>
+							</label>
+							<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input" style="width:100%;"/>
+						</div>
+
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								اسم المدينة بالإنجليزية
+							</label>
+							<input type="text" name="name_en" placeholder="New Mansoura" class="form-input" style="width:100%;"/>
+						</div>
+
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								الإقليم / المحافظة التابعة
+							</label>
+							<input type="text" name="region_ar" placeholder="محافظة الدقهلية - الدلتا" class="form-input" style="width:100%;"/>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									خط العرض (Latitude)
+								</label>
+								<input type="text" name="latitude" placeholder="31.4250" class="form-input tabular-nums" style="width:100%;"/>
+							</div>
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									خط الطول (Longitude)
+								</label>
+								<input type="text" name="longitude" placeholder="31.6800" class="form-input tabular-nums" style="width:100%;"/>
+							</div>
+						</div>
+
+						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
+							@components.IconCheck("icon-xs")
+							<span>حفظ وإضافة المدينة</span>
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	}
+}

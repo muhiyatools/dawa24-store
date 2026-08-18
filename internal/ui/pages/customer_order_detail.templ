@@ -38,7 +38,7 @@ func isStepActive(status commerce.OrderStatus, step int) bool {
 }
 
 templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, lang, dir string) {
-	@layouts.CustomerShell(fmt.Sprintf("طلب #%s | Order Detail", order.OrderNumber), lang, dir) {
+	@layouts.CustomerShell(fmt.Sprintf("طلب #%s | Order Detail", order.OrderNumber), "orders", lang, dir, nil) {
 		<div class="order-detail-container" style="max-width:1160px; margin:1rem auto 4rem auto; display:flex; flex-direction:column; gap:2rem;">
 			
 			<!-- Breadcrumb Navigation -->

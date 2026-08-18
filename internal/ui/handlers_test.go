@@ -13,15 +13,56 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
-func setupTestRouter() http.Handler {
+func newTestRouter(actor *authctx.Actor) http.Handler {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	handler := ui.NewUIHandler(
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
 	)
 
+	// Mirrors cmd/server/routes.go, except session-based RequireAuth is
+	// replaced by a stub that carries an optional test actor.
+	stubAuth := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			if _, ok := authctx.From(req.Context()); ok {
+				next.ServeHTTP(w, req)
+				return
+			}
+			if actor != nil {
+				next.ServeHTTP(w, req.WithContext(authctx.WithActor(req.Context(), *actor)))
+				return
+			}
+			next.ServeHTTP(w, req)
+		})
+	}
+
 	r := chi.NewRouter()
-	handler.RegisterPageRoutes(r)
+	handler.RegisterPublicRoutes(r)
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
+		uiRouter.Use(authctx.RequireCustomer(logger))
+		uiRouter.Use(authctx.RequireApproved(logger))
+		handler.RegisterCustomerRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
+		uiRouter.Use(authctx.RequireVendor(logger))
+		uiRouter.Use(authctx.RequireApproved(logger))
+		handler.RegisterVendorRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
+		uiRouter.Use(authctx.RequireStaff(logger))
+		handler.RegisterAdminRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
+		handler.RegisterSharedRoutes(uiRouter)
+	})
 	return r
+}
+
+func setupTestRouter() http.Handler {
+	return newTestRouter(nil)
 }
 
 func TestPublicAndAuthPageRoutes(t *testing.T) {
@@ -73,27 +114,18 @@ func TestHTMXPartialHeaderHandling(t *testing.T) {
 }
 
 func TestAuthenticatedUIRoutesWithActor(t *testing.T) {
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	handler := ui.NewUIHandler(
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
-	)
-
-	r := chi.NewRouter()
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			actor := authctx.Actor{
-				UserID:         100,
-				OrganizationID: 200,
-				Role:           "pharmacy",
-			}
-			next.ServeHTTP(w, req.WithContext(authctx.WithActor(req.Context(), actor)))
-		})
-	})
-	handler.RegisterPageRoutes(r)
+	actor := authctx.Actor{
+		UserID:         100,
+		OrganizationID: 200,
+		Role:           "user",
+		OrgType:        "customer",
+		OrgStatus:      "approved",
+	}
+	router := newTestRouter(&actor)
 
 	req := httptest.NewRequest("GET", "/cart", nil)
 	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, req)
+	router.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
 		t.Errorf("GET /cart with actor returned status %d, want 200", rec.Code)

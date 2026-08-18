@@ -27,13 +27,18 @@ func (r *Repository) CreateOffer(ctx context.Context, o *promo.Offer) error {
 		query := `
 			INSERT INTO promo.offers (
 				organization_id, title, description, discount_type, discount_value,
-				min_order_value, starts_at, expires_at, is_active
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+				branch_id, admin_status, min_order_amount,
+				starts_at, expires_at, is_active
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 			RETURNING id, public_id, created_at, updated_at;
 		`
+		if o.AdminStatus == "" {
+			o.AdminStatus = "pending"
+		}
 		err := tx.QueryRow(txCtx, query,
 			o.OrganizationID, o.Title, o.Description, string(o.DiscountType),
-			o.DiscountValue, o.MinOrderValue, o.StartsAt, o.ExpiresAt, o.IsActive,
+			o.DiscountValue, o.BranchID, o.AdminStatus,
+			o.MinOrderAmount, o.StartsAt, o.ExpiresAt, o.IsActive,
 		).Scan(&o.ID, &o.PublicID, &o.CreatedAt, &o.UpdatedAt)
 		if err != nil {
 			return fmt.Errorf("promo postgres: create offer: %w", err)
@@ -51,28 +56,20 @@ func (r *Repository) CreateOffer(ctx context.Context, o *promo.Offer) error {
 
 // GetOfferByID retrieves an offer and its mapped product IDs.
 func (r *Repository) GetOfferByID(ctx context.Context, id int64) (*promo.Offer, error) {
-	var o promo.Offer
+	var offer *promo.Offer
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT id, public_id, organization_id, title, description, discount_type,
-			       discount_value, min_order_value, starts_at, expires_at, is_active,
-			       views_count, clicks_count, created_at, updated_at, deleted_at
+		var err error
+		offer, err = scanOffer(tx.QueryRow(txCtx, `
+			SELECT `+offerColumns+`
 			FROM promo.offers
 			WHERE id = $1 AND deleted_at IS NULL;
-		`
-		var discType string
-		err := tx.QueryRow(txCtx, query, id).Scan(
-			&o.ID, &o.PublicID, &o.OrganizationID, &o.Title, &o.Description,
-			&discType, &o.DiscountValue, &o.MinOrderValue, &o.StartsAt, &o.ExpiresAt,
-			&o.IsActive, &o.ViewsCount, &o.ClicksCount, &o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
-		)
+		`, id))
 		if err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("offer")
 			}
 			return err
 		}
-		o.DiscountType = promo.DiscountType(discType)
 
 		rows, err := tx.Query(txCtx, `SELECT product_id FROM promo.offer_products WHERE offer_id = $1;`, id)
 		if err != nil {
@@ -85,26 +82,25 @@ func (r *Repository) GetOfferByID(ctx context.Context, id int64) (*promo.Offer, 
 			if err := rows.Scan(&pID); err != nil {
 				return err
 			}
-			o.ProductIDs = append(o.ProductIDs, pID)
+			offer.ProductIDs = append(offer.ProductIDs, pID)
 		}
 		return rows.Err()
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &o, nil
+	return offer, nil
 }
 
-// ListActiveOffers returns all currently active offers across all vendors.
+// ListActiveOffers returns all approved offers currently running across vendors.
 func (r *Repository) ListActiveOffers(ctx context.Context, limit, offset int) ([]*promo.Offer, error) {
 	var offers []*promo.Offer
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, title, description, discount_type,
-			       discount_value, min_order_value, starts_at, expires_at, is_active,
-			       views_count, clicks_count, created_at, updated_at, deleted_at
+			SELECT ` + offerColumns + `
 			FROM promo.offers
-			WHERE is_active = true AND starts_at <= now() AND expires_at >= now() AND deleted_at IS NULL
+			WHERE is_active = true AND admin_status = 'approved'
+			  AND starts_at <= now() AND expires_at >= now() AND deleted_at IS NULL
 			ORDER BY id DESC
 			LIMIT $1 OFFSET $2;
 		`
@@ -118,17 +114,11 @@ func (r *Repository) ListActiveOffers(ctx context.Context, limit, offset int) ([
 		defer rows.Close()
 
 		for rows.Next() {
-			var o promo.Offer
-			var discType string
-			if err := rows.Scan(
-				&o.ID, &o.PublicID, &o.OrganizationID, &o.Title, &o.Description,
-				&discType, &o.DiscountValue, &o.MinOrderValue, &o.StartsAt, &o.ExpiresAt,
-				&o.IsActive, &o.ViewsCount, &o.ClicksCount, &o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
-			); err != nil {
+			o, err := scanOffer(rows)
+			if err != nil {
 				return err
 			}
-			o.DiscountType = promo.DiscountType(discType)
-			offers = append(offers, &o)
+			offers = append(offers, o)
 		}
 		return rows.Err()
 	})
@@ -246,24 +236,29 @@ func (r *Repository) RecordAdClick(ctx context.Context, adID int64, userID *int6
 	})
 }
 
-// CreateHighlightSection creates a homepage curated section.
+// CreateHighlightSection creates a homepage curated section. platform rows
+// are created via the promo API; organization rows carry owner_type +
+// organization_id (066).
 func (r *Repository) CreateHighlightSection(ctx context.Context, h *promo.HighlightSection) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO promo.highlight_sections (title, slug, display_order, is_active)
-			VALUES ($1, $2, $3, $4)
+			INSERT INTO promo.highlight_sections (title, slug, display_order, is_active, owner_type, organization_id)
+			VALUES ($1, $2, $3, $4, $5, $6)
 			RETURNING id, public_id, created_at;
 		`
-		return tx.QueryRow(txCtx, query, h.Title, h.Slug, h.DisplayOrder, h.IsActive).
+		if h.OwnerType == "" {
+			h.OwnerType = "platform"
+		}
+		return tx.QueryRow(txCtx, query, h.Title, h.Slug, h.DisplayOrder, h.IsActive, h.OwnerType, h.OrganizationID).
 			Scan(&h.ID, &h.PublicID, &h.CreatedAt)
 	})
 }
 
-// ListHighlightSections returns all active highlight sections.
+// ListHighlightSections returns all active platform curated sections.
 func (r *Repository) ListHighlightSections(ctx context.Context) ([]*promo.HighlightSection, error) {
 	var list []*promo.HighlightSection
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, public_id, title, slug, display_order, is_active, created_at FROM promo.highlight_sections WHERE is_active = true ORDER BY display_order ASC;`
+		query := `SELECT id, public_id, title, slug, display_order, is_active, owner_type, organization_id, created_at FROM promo.highlight_sections WHERE is_active = true AND owner_type = 'platform' ORDER BY display_order ASC;`
 		rows, err := tx.Query(txCtx, query)
 		if err != nil {
 			return err
@@ -272,7 +267,7 @@ func (r *Repository) ListHighlightSections(ctx context.Context) ([]*promo.Highli
 
 		for rows.Next() {
 			var h promo.HighlightSection
-			if err := rows.Scan(&h.ID, &h.PublicID, &h.Title, &h.Slug, &h.DisplayOrder, &h.IsActive, &h.CreatedAt); err != nil {
+			if err := rows.Scan(&h.ID, &h.PublicID, &h.Title, &h.Slug, &h.DisplayOrder, &h.IsActive, &h.OwnerType, &h.OrganizationID, &h.CreatedAt); err != nil {
 				return err
 			}
 			list = append(list, &h)
@@ -304,23 +299,32 @@ func (r *Repository) ExpirePromotions(ctx context.Context) (int64, error) {
 	return totalExpired, err
 }
 
-// CreateSpecialOffer inserts a Laravel-parity special offer with products.
+// CreateSpecialOffer inserts the vendor's special offer onto promo.offers
+// (Rebuild V2 §2.2 — the special_offers family merged into offers/065). The
+// legacy status vocabulary maps onto the offers flags: draft -> is_draft,
+// active -> is_active, anything else -> inactive.
 func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO promo.special_offers (
-				organization_id, branch_id, title, description, discount_percentage,
-				discount_amount, min_order_amount, total_price, start_date, end_date,
-				status, admin_status, image
+			INSERT INTO promo.offers (
+				organization_id, branch_id, title, description,
+				discount_type, discount_value, min_order_amount, total_price,
+				starts_at, expires_at, is_active, is_draft, admin_status, image, source
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-				COALESCE(NULLIF($11, ''), 'active'), COALESCE(NULLIF($12, ''), 'approved'), COALESCE($13, '')
+				$1, $2, $3, $4,
+				CASE WHEN $5 > 0 THEN 'fixed'::text ELSE 'percentage'::text END,
+				CASE WHEN $5 > 0 THEN $5 ELSE $6 END,
+				$7, $8, $9, $10,
+				COALESCE($11, 'active') = 'active',
+				COALESCE($11, 'active') = 'draft',
+				COALESCE(NULLIF($12, ''), 'approved'), COALESCE($13, ''), 'special'
 			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		err := tx.QueryRow(txCtx, query,
-			o.OrganizationID, o.BranchID, o.Title, o.Description, o.DiscountPercentage,
-			o.DiscountAmount, o.MinOrderAmount, o.TotalPrice, o.StartDate, o.EndDate,
+			o.OrganizationID, o.BranchID, o.Title, o.Description,
+			o.DiscountAmount, o.DiscountPercentage,
+			o.MinOrderAmount, o.TotalPrice, o.StartDate, o.EndDate,
 			o.Status, o.AdminStatus, o.Image,
 		).Scan(&o.ID, &o.PublicID, &o.CreatedAt, &o.UpdatedAt)
 		if err != nil {
@@ -329,30 +333,43 @@ func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 
 		for _, p := range o.Products {
 			pQuery := `
-				INSERT INTO promo.special_offer_products (
-					offer_id, variant_id, custom_price, discount_percentage, discount_amount, quantity
-				) VALUES ($1, $2, $3, $4, $5, $6);
+				INSERT INTO promo.offer_products (
+					offer_id, product_id, variant_id, custom_price,
+					custom_discount_percentage, custom_discount_amount, custom_qty
+				) VALUES ($1, (SELECT product_id FROM catalog.product_variants WHERE id = $2), $2, $3, $4, $5, $6);
 			`
-			_, _ = tx.Exec(txCtx, pQuery, o.ID, p.VariantID, p.CustomPrice, p.DiscountPercentage, p.DiscountAmount, p.Quantity)
+			_, err := tx.Exec(txCtx, pQuery, o.ID, p.VariantID, p.CustomPrice, p.DiscountPercentage, p.DiscountAmount, p.Quantity)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
 	})
 }
 
-// GetSpecialOfferByID retrieves a special offer with its products and locations.
+// GetSpecialOfferByID retrieves a special offer with its products and locations
+// from the merged offers family (065). The legacy special_offers shape is
+// reproduced: discount fields split back into percentage/amount, dates into
+// start/end, and the status derives from is_active/is_draft.
 func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.SpecialOffer, error) {
 	var o promo.SpecialOffer
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT so.id, so.public_id, so.organization_id, so.branch_id, COALESCE(b.name->>'ar', ''),
-			       so.title, so.description, COALESCE(so.discount_percentage, 0),
-			       COALESCE(so.discount_amount, 0), COALESCE(so.min_order_amount, 0), COALESCE(so.total_price, 0),
-			       so.start_date, so.end_date, so.status, so.admin_status, COALESCE(so.image, ''),
-			       so.created_at, so.updated_at
-			FROM promo.special_offers so
-			LEFT JOIN org.branches b ON b.id = so.branch_id
-			WHERE so.id = $1;
+			SELECT o.id, o.public_id, o.organization_id, o.branch_id, COALESCE(b.name->>'ar', ''),
+			       o.title, o.description,
+			       CASE WHEN o.discount_type = 'percentage' THEN o.discount_value ELSE 0 END,
+			       CASE WHEN o.discount_type = 'fixed'      THEN o.discount_value ELSE 0 END,
+			       COALESCE(o.min_order_amount, 0), COALESCE(o.total_price, 0),
+			       o.starts_at, o.expires_at,
+			       CASE WHEN o.is_draft   THEN 'draft'
+			            WHEN o.is_active  THEN 'active'
+			            ELSE 'inactive' END,
+			       o.admin_status, COALESCE(o.image, ''),
+			       o.created_at, o.updated_at
+			FROM promo.offers o
+			LEFT JOIN org.branches b ON b.id = o.branch_id
+			WHERE o.id = $1 AND o.deleted_at IS NULL;
 		`
 		err := tx.QueryRow(txCtx, query, id).Scan(
 			&o.ID, &o.PublicID, &o.OrganizationID, &o.BranchID, &o.BranchName,
@@ -371,8 +388,8 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 		// Load Products
 		pRows, _ := tx.Query(txCtx, `
 			SELECT p.id, p.offer_id, p.variant_id, COALESCE(pv.sku, ''), COALESCE(pv.price, 0),
-			       p.custom_price, p.discount_percentage, p.discount_amount, p.quantity, p.created_at
-			FROM promo.special_offer_products p
+			       p.custom_price, p.custom_discount_percentage, p.custom_discount_amount, p.custom_qty, p.created_at
+			FROM promo.offer_products p
 			LEFT JOIN catalog.product_variants pv ON pv.id = p.variant_id
 			WHERE p.offer_id = $1;
 		`, id)
@@ -392,10 +409,10 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 		// Load Locations
 		lRows, _ := tx.Query(txCtx, `
 			SELECT l.id, l.offer_id, l.city_id, COALESCE(c.name->>'ar', ''),
-			       l.address_ar, l.address_en, l.latitude, l.longitude, l.radius,
-			       l.day_of_week, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
+			       l.address_ar, l.address_en, l.latitude, l.longitude, l.radius_meters,
+			       l.day_of_week + 1, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
 			       l.status, l.admin_status, l.created_at
-			FROM promo.special_offer_locations l
+			FROM promo.offer_location_covers l
 			LEFT JOIN platform_admin.cities c ON c.id = l.city_id
 			WHERE l.offer_id = $1;
 		`, id)
@@ -422,20 +439,29 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 	return &o, nil
 }
 
-// ListSpecialOffersByOrg returns all special offers for an organization.
+// ListSpecialOffersByOrg returns all special offers for an organization from
+// the merged offers family (065 records carry source = 'special').
 func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*promo.SpecialOffer, error) {
 	var list []*promo.SpecialOffer
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT so.id, so.public_id, so.organization_id, so.branch_id, COALESCE(b.name->>'ar', ''),
-			       so.title, so.description, COALESCE(so.discount_percentage, 0),
-			       COALESCE(so.discount_amount, 0), COALESCE(so.min_order_amount, 0), COALESCE(so.total_price, 0),
-			       so.start_date, so.end_date, so.status, so.admin_status, COALESCE(so.image, ''),
-			       so.created_at, so.updated_at
-			FROM promo.special_offers so
-			LEFT JOIN org.branches b ON b.id = so.branch_id
-			WHERE so.organization_id = $1
-			ORDER BY so.created_at DESC;
+			SELECT o.id, o.public_id, o.organization_id, o.branch_id, COALESCE(b.name->>'ar', ''),
+			       o.title, o.description,
+			       CASE WHEN o.discount_type = 'percentage' THEN o.discount_value ELSE 0 END,
+			       CASE WHEN o.discount_type = 'fixed'      THEN o.discount_value ELSE 0 END,
+			       COALESCE(o.min_order_amount, 0), COALESCE(o.total_price, 0),
+			       o.starts_at, o.expires_at,
+			       CASE WHEN o.is_draft   THEN 'draft'
+			            WHEN o.is_active  THEN 'active'
+			            ELSE 'inactive' END,
+			       o.admin_status, COALESCE(o.image, ''),
+			       o.created_at, o.updated_at
+			FROM promo.offers o
+			LEFT JOIN org.branches b ON b.id = o.branch_id
+			WHERE o.organization_id = $1
+			  AND o.source = 'special'
+			  AND o.deleted_at IS NULL
+			ORDER BY o.created_at DESC;
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {
@@ -461,10 +487,11 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 	return list, err
 }
 
-// DeleteSpecialOffer deletes a special offer.
+// DeleteSpecialOffer deletes a special offer (cascades to its products and
+// location covers through the offers family).
 func (r *Repository) DeleteSpecialOffer(ctx context.Context, id, orgID int64) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		tag, err := tx.Exec(txCtx, `DELETE FROM promo.special_offers WHERE id = $1 AND organization_id = $2;`, id, orgID)
+		tag, err := tx.Exec(txCtx, `DELETE FROM promo.offers WHERE id = $1 AND organization_id = $2;`, id, orgID)
 		if err != nil {
 			return err
 		}
@@ -476,15 +503,17 @@ func (r *Repository) DeleteSpecialOffer(ctx context.Context, id, orgID int64) er
 }
 
 // AddSpecialOfferLocation inserts a geographic coverage entry for an offer.
+// day_of_week shifts from the legacy 1..7 to the offers family 0..6 (0 = Sunday).
 func (r *Repository) AddSpecialOfferLocation(ctx context.Context, loc *promo.SpecialOfferLocation) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO promo.special_offer_locations (
-				offer_id, city_id, address_ar, address_en, latitude, longitude,
-				radius, day_of_week, time_from, time_to, status, admin_status
+			INSERT INTO promo.offer_location_covers (
+				organization_id, offer_id, city_id, address_ar, address_en, latitude, longitude,
+				radius_meters, day_of_week, time_from, time_to, status, admin_status
 			) VALUES (
+				(SELECT organization_id FROM promo.offers WHERE id = $1),
 				$1, $2, $3, $4, $5, $6,
-				COALESCE($7, 500), COALESCE($8, 1), NULLIF($9, '')::time, NULLIF($10, '')::time,
+				COALESCE($7, 500), COALESCE($8, 1) - 1, NULLIF($9, '')::time, NULLIF($10, '')::time,
 				COALESCE(NULLIF($11, ''), 'active'), COALESCE(NULLIF($12, ''), 'approved')
 			)
 			RETURNING id, created_at;
@@ -496,16 +525,17 @@ func (r *Repository) AddSpecialOfferLocation(ctx context.Context, loc *promo.Spe
 	})
 }
 
-// ListSpecialOfferLocations lists coverage locations for an offer.
+// ListSpecialOfferLocations lists coverage locations for an offer,
+// restoring the legacy 1..7 day_of_week numbering.
 func (r *Repository) ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*promo.SpecialOfferLocation, error) {
 	var list []*promo.SpecialOfferLocation
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT l.id, l.offer_id, l.city_id, COALESCE(c.name->>'ar', ''),
-			       l.address_ar, l.address_en, l.latitude, l.longitude, l.radius,
-			       l.day_of_week, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
+			       l.address_ar, l.address_en, l.latitude, l.longitude, l.radius_meters,
+			       l.day_of_week + 1, COALESCE(to_char(l.time_from, 'HH24:MI'), ''), COALESCE(to_char(l.time_to, 'HH24:MI'), ''),
 			       l.status, l.admin_status, l.created_at
-			FROM promo.special_offer_locations l
+			FROM promo.offer_location_covers l
 			LEFT JOIN platform_admin.cities c ON c.id = l.city_id
 			WHERE l.offer_id = $1
 			ORDER BY l.day_of_week ASC, l.id ASC;

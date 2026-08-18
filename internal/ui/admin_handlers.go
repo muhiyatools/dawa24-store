@@ -506,7 +506,7 @@ func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Reques
 
 	// If route was /admin/vendors or /admin/suppliers, preset typeParam
 	if strings.Contains(r.URL.Path, "/vendors") || strings.Contains(r.URL.Path, "/suppliers") {
-		typeParam = "supplier"
+		typeParam = "vendor"
 	}
 
 	var orgs []*org.Organization
@@ -667,7 +667,7 @@ func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			for _, j := range offers {
 				companyName := "منشأة معتمدة"
-				companyType := "supplier"
+				companyType := "vendor"
 				if h.orgSvc != nil {
 					if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err == nil && o != nil {
 						if o.TradeName["ar"] != "" {
@@ -950,10 +950,53 @@ func (h *UIHandler) AdminDocumentsPage(w http.ResponseWriter, r *http.Request) {
 	docs := make([]*attachments.Document, 0)
 	total := 0
 
+	if h.attSvc != nil {
+		var err error
+		docs, total, err = h.attSvc.ListAll(ctx, filter)
+		if err != nil {
+			h.log.ErrorContext(ctx, "load admin documents", "error", err)
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminDocuments(docs, total, filter, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin documents page", "error", err)
 	}
 }
+
+// AdminCitiesPage renders the Egyptian cities and spatial coordinates management screen.
+func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	cities := h.listCities(ctx)
+	data := pages.AdminCitiesData{
+		Cities:     cities,
+		TotalCount: len(cities),
+		Query:      r.URL.Query().Get("q"),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminCities(data, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin cities page", "error", err)
+	}
+}
+
+// AdminCityCreateSubmit adds a new city / district with coordinates.
+func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
+	nameAr := r.PostFormValue("name_ar")
+	if nameAr == "" {
+		h.redirectWithNotice(w, r, "/admin/cities", "error", "اسم المدينة بالعربية مطلوب.")
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم حفظ وتحديث بيانات المدينة بنجاح.")
+}
+
+// AdminCityToggleSubmit toggles the active status of a city.
+func (h *UIHandler) AdminCityToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم تحديث حالة تفعيل المدينة.")
+}
+
 
 

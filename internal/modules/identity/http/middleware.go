@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
+
 
 type ctxKey int
 
@@ -37,22 +39,35 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := extractToken(r, cookieName)
 			if token == "" {
+				if r.Method == http.MethodGet && strings.Contains(r.Header.Get("Accept"), "text/html") {
+					q := url.Values{}
+					q.Set("redirect", r.URL.RequestURI())
+					http.Redirect(w, r, "/auth/login?"+q.Encode(), http.StatusSeeOther)
+					return
+				}
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
 
 			sess, err := service.ValidateSession(r.Context(), token)
 			if err != nil {
+				if r.Method == http.MethodGet && strings.Contains(r.Header.Get("Accept"), "text/html") {
+					q := url.Values{}
+					q.Set("redirect", r.URL.RequestURI())
+					http.Redirect(w, r, "/auth/login?"+q.Encode(), http.StatusSeeOther)
+					return
+				}
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
 
+
+			// The session's active organization is the trusted default. A zero
+			// org means the user has no organization membership (or is staff),
+			// and no query then runs under a guessed tenant — the previous
+			// hardcoded fallback to organization 1 handed a pharmacy account
+			// another tenant's data via RLS scoping.
 			activeOrgID := sess.ActiveOrgID
-			if activeOrgID == 0 {
-				if sess.Role == "vendor" || sess.Role == "admin" || sess.Role == "pharmacy" {
-					activeOrgID = 1
-				}
-			}
 
 			ctx := WithSession(r.Context(), sess)
 			if activeOrgID > 0 {
@@ -61,11 +76,18 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 			// Publish the caller through the platform-level actor context so
 			// other modules can identify them without importing this one, and
 			// without trusting anything in the request.
+			//
+			// OrgType and OrgStatus come from the session, which login built
+			// from org.members joined to org.organizations — never from the
+			// request (Rebuild V2 §1.2).
 			ctx = authctx.WithActor(ctx, authctx.Actor{
 				UserID:         sess.UserID,
 				OrganizationID: activeOrgID,
+				OrgType:        sess.OrgType,
+				OrgStatus:      sess.OrgStatus,
 				Role:           sess.Role,
 				Permissions:    sess.Permissions,
+				IsStaff:        sess.IsStaff(),
 				Email:          sess.Email,
 			})
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -89,12 +111,9 @@ func OptionalAuth(service *identity.Service, cookieName string) func(http.Handle
 				return
 			}
 
+			// Same rule as RequireAuth: the session's active organization is
+			// the only tenant default; there is no guessed fallback.
 			activeOrgID := sess.ActiveOrgID
-			if activeOrgID == 0 {
-				if sess.Role == "vendor" || sess.Role == "admin" || sess.Role == "pharmacy" {
-					activeOrgID = 1
-				}
-			}
 
 			ctx := WithSession(r.Context(), sess)
 			if activeOrgID > 0 {
@@ -103,8 +122,11 @@ func OptionalAuth(service *identity.Service, cookieName string) func(http.Handle
 			ctx = authctx.WithActor(ctx, authctx.Actor{
 				UserID:         sess.UserID,
 				OrganizationID: activeOrgID,
+				OrgType:        sess.OrgType,
+				OrgStatus:      sess.OrgStatus,
 				Role:           sess.Role,
 				Permissions:    sess.Permissions,
+				IsStaff:        sess.IsStaff(),
 				Email:          sess.Email,
 			})
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -178,17 +200,19 @@ func ResolveTenant(service *identity.Service, log *slog.Logger) func(http.Handle
 					httpx.Error(w, r, log, apperr.Unauthorized())
 					return
 				case requested != orgID:
-					belongs, err := service.UserBelongsToOrg(ctx, sess.UserID, requested)
+					newType, newStatus, newPerms, err := service.GetOrgInfoForUser(ctx, sess.UserID, requested)
 					if err != nil {
 						httpx.Error(w, r, log, err)
 						return
 					}
-					if !belongs {
-						httpx.Error(w, r, log, apperr.Forbidden("org.not_a_member",
-							"You are not a member of that organization."))
-						return
-					}
 					orgID = requested
+					if actor, ok := authctx.From(ctx); ok {
+						actor.OrganizationID = orgID
+						actor.OrgType = newType
+						actor.OrgStatus = newStatus
+						actor.Permissions = newPerms
+						ctx = authctx.WithActor(ctx, actor)
+					}
 				}
 			}
 
@@ -197,6 +221,7 @@ func ResolveTenant(service *identity.Service, log *slog.Logger) func(http.Handle
 			}
 
 			next.ServeHTTP(w, r.WithContext(ctx))
+
 		})
 	}
 }

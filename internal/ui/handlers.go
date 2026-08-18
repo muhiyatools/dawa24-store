@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
@@ -42,6 +43,7 @@ type UIHandler struct {
 	chatSvc  *chat.Service
 	wfSvc    *workflow.Service
 	hrSvc    *hr.Service
+	attSvc   *attachments.Service
 	log      *slog.Logger
 }
 
@@ -60,6 +62,7 @@ func NewUIHandler(
 	chatSvc *chat.Service,
 	wfSvc *workflow.Service,
 	hrSvc *hr.Service,
+	attSvc *attachments.Service,
 	log *slog.Logger,
 ) *UIHandler {
 	return &UIHandler{
@@ -76,17 +79,20 @@ func NewUIHandler(
 		chatSvc:  chatSvc,
 		wfSvc:    wfSvc,
 		hrSvc:    hrSvc,
+		attSvc:   attSvc,
 		log:      log,
 	}
 }
 
-// RegisterPageRoutes registers HTML view endpoints across all screens.
-func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
+// RegisterPublicRoutes mounts everything a visitor may reach without signing
+// in, wrapped only in OptionalAuth for the visitor analytics middleware.
+// Rebuild V2 §1.3: these are the only routes without a forced audience.
+func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 	r.Use(h.visitorMiddleware)
 	RegisterStaticRoutes(r)
 	RegisterUploadRoutes(r)
 
-	// Public & Auth (8 screens)
+	// Public & Auth (marketing, catalogue browsing, sign-in)
 	r.Get("/", h.HomePage)
 	r.Get("/privacy", h.PrivacyPage)
 	r.Get("/terms", h.TermsPage)
@@ -101,53 +107,89 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/auth/reset", h.ResetPasswordPage)
 	r.Get("/onboarding", h.OnboardingPage)
 	r.Get("/lang/{code}", h.SetLanguage)
-	r.Get("/onboarding/pending", h.OnboardingPendingPage)
-	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
-	r.Post("/upload", h.UploadAPISubmit)
 
-	// Customer Buyer Experience (7 screens)
+	// Public catalogue and directory
 	r.Get("/catalog", h.CustomerCatalogPage)
 	r.Get("/catalog/{id}", h.CustomerProductDetailPage)
+	r.Get("/suppliers", h.SuppliersPage)
+	r.Get("/suppliers/{id}", h.SupplierProfilePage)
+	r.Get("/offers", h.OffersPage)
+	r.Get("/offers/{id}", h.OfferDetailPage)
+	r.Get("/jobs", h.JobsPage)
+	r.Get("/jobs/{id}", h.JobDetailPage)
+	r.Get("/services", h.ServicesPage)
+	r.Get("/services/{id}", h.ServiceDetailPage)
+	r.Get("/finder", h.FinderPage)
+	r.Get("/finder/{id}", h.FinderQuestionByIDPage)
+	r.Get("/finder/result/{id}", h.FinderResultByIDPage)
+	r.Get("/compare", h.ComparePlansPage)
+	r.Get("/compare/tool", h.CompareToolPage)
+
+	// Form actions that work signed-out (sign-up must be reachable pre-login)
+	r.Post("/auth/login", h.LoginSubmit)
+	r.Post("/auth/logout", h.LogoutSubmit)
+	r.Get("/auth/logout", h.LogoutSubmit)
+	r.Post("/auth/register", h.RegisterSubmit)
+	r.Post("/contact", h.ContactSubmit)
+	r.Post("/upload", h.UploadAPISubmit)
+	r.Post("/offers/{id}/click", h.OfferClickSubmit)
+	r.Post("/services/{id}/request", h.ServiceRequestSubmit)
+}
+
+// RegisterCustomerRoutes mounts the customer (صيدلية) surface. The plan's
+// reported bug lived here: a pharmacy account could previously open every
+// /vendor/* page because nothing stopped the vendor screen rendering. The
+// group is gated by RequireCustomer — a vendor who spells /customer/* gets the
+// same 404 as a stranger (the URL space does not exist for them).
+func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
+	r.Get("/customer/dashboard", h.PharmacyDashboardPage)
+	// Legacy URL kept as a redirect so bookmarks survive the rename.
+	r.Get("/pharmacy/dashboard", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/customer/dashboard", http.StatusFound)
+	})
+
+	r.Post("/customer/set-branch", h.SetBuyingBranchSubmit)
+
 	r.Get("/cart", h.CustomerCartPage)
 	r.Get("/checkout", h.CustomerCheckoutPage)
 	r.Get("/orders", h.CustomerOrdersPage)
 	r.Get("/orders/{id}", h.CustomerOrderDetailPage)
-	r.Get("/notifications", h.NotificationsPage)
-	r.Get("/wallet", h.WalletPage)
-	r.Get("/invoices", h.InvoicesPage)
 	r.Get("/favorites", h.FavoritesPage)
-
-	// Public & Followed suppliers directory
-	r.Get("/suppliers", h.SuppliersPage)
 	r.Get("/suppliers/followed", h.FollowedSuppliersPage)
-	r.Get("/suppliers/{id}", h.SupplierProfilePage)
-	r.Get("/offers", h.OffersPage)
-	r.Get("/offers/{id}", h.OfferDetailPage)
-	r.Get("/messages", h.MessagesPage)
-	r.Get("/messages/{id}", h.MessagesConversationPage)
-	r.Get("/jobs", h.JobsPage)
-	r.Get("/services", h.ServicesPage)
-	r.Get("/finder", h.FinderPage)
-	r.Get("/compare", h.ComparePlansPage)
-	r.Get("/compare/tool", h.CompareToolPage)
-	r.Get("/finder/{id}", h.FinderQuestionByIDPage)
-	r.Get("/finder/result/{id}", h.FinderResultByIDPage)
-	r.Get("/services/{id}", h.ServiceDetailPage)
-	r.Post("/services/{id}/request", h.ServiceRequestSubmit)
-	r.Get("/jobs/{id}", h.JobDetailPage)
-	r.Get("/requests", h.RequestsPage)
 
-	// Settings (account surface)
-	r.Get("/settings", h.SettingsIndex)
-	r.Get("/settings/profile", h.SettingsProfilePage)
-	r.Get("/settings/addresses", h.SettingsAddressesPage)
-	r.Get("/settings/security", h.SettingsSecurityPage)
-	r.Get("/settings/organization", h.SettingsOrganizationPage)
-	r.Get("/settings/employees", h.SettingsEmployeesPage)
-	r.Get("/settings/preferences", h.SettingsPreferencesPage)
-	r.Get("/settings/payment-methods", h.SettingsPaymentMethodsPage)
+	r.Post("/cart/add", h.AddToCartSubmit)
+	r.Post("/cart/remove", h.RemoveFromCartSubmit)
+	r.Post("/cart/update-quantity", h.UpdateCartQuantitySubmit)
+	r.Post("/checkout", h.CheckoutSubmit)
+	r.Post("/favorites/{id}/remove", h.FavoriteRemoveSubmit)
+	r.Post("/favorites/{id}/add", h.FavoriteAddSubmit)
+	r.Post("/favorites/{id}/toggle", h.FavoriteToggleSubmit)
+	r.Post("/favorites/toggle", h.FavoriteToggleSubmit)
 
-	// Vendor Supplier Experience
+	// Organization documents (Rebuild V2 §4.2) — the upload/delete POSTs live
+	// in both audience groups, the page itself is audience-prefixed.
+	r.Get("/customer/documents", h.OrganizationDocumentsPage)
+	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
+	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
+
+	// Pharmacy Branches & Delivery Receiving Locations (Rebuild V2 §5)
+	r.Get("/customer/branches", h.CustomerBranchesPage)
+	r.Post("/customer/branches/new", h.CustomerBranchNewSubmit)
+	r.Post("/customer/branches/{id}/delete", h.CustomerBranchDeleteSubmit)
+
+	// Customer interactions
+	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
+	r.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
+	r.Post("/suppliers/{id}/quote", h.SupplierQuoteSubmit)
+	r.Post("/finder/answer", h.FinderAnswerSubmit)
+	r.Post("/compare/subscribe", h.CompareSubscribeSubmit)
+}
+
+
+
+// RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
+// RequireVendor.
+func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
 	r.Get("/vendor/products", h.VendorProductsPage)
 	r.Get("/vendor/products/new", h.VendorVariantNewPage)
@@ -157,14 +199,17 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/vendor/branches", h.VendorBranchesPage)
 	r.Post("/vendor/branches/new", h.VendorBranchNewSubmit)
 	r.Post("/vendor/branches/{id}/delete", h.VendorBranchDeleteSubmit)
+	r.Post("/vendor/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
 	r.Get("/vendor/team", h.VendorTeamPage)
 	r.Post("/vendor/team/new", h.VendorTeamNewSubmit)
 	r.Post("/vendor/team/{id}/toggle", h.VendorTeamToggleSubmit)
 	r.Get("/vendor/inventory", h.VendorInventoryPage)
+	r.Post("/vendor/inventory/{id}/adjust", h.VendorStockAdjustSubmit)
 	r.Get("/vendor/coverage", h.VendorCoveragePage)
 	r.Get("/vendor/transfers", h.VendorTransfersPage)
 	r.Get("/vendor/ingest", h.VendorIngestPage)
 	r.Get("/vendor/orders", h.VendorOrdersPage)
+	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
 	r.Get("/vendor/offers", h.VendorOffersPage)
 	r.Get("/vendor/offers/new", h.VendorOfferNewPage)
 	r.Post("/vendor/offers/new", h.VendorOfferNewSubmit)
@@ -172,18 +217,23 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/vendor/offers/{id}/locations/new", h.VendorOfferLocationNewSubmit)
 	r.Post("/vendor/offers/{id}/delete", h.VendorOfferDeleteSubmit)
 	r.Get("/vendor/storefront", h.VendorStorefrontPage)
+	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
+	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)
 	r.Get("/vendor/jobs", h.VendorJobsPage)
+	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
+
+	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
+	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
+	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
+	r.Post("/requests/{id}/respond", h.RequestRespondSubmit)
+}
 
 
-	// User / Individual Experience
-	r.Get("/user/dashboard", h.UserDashboardPage)
-	r.Get("/user/applications", h.UserDashboardPage)
-	r.Get("/my-applications", h.UserDashboardPage)
-
-	// Pharmacy Buyer Experience
-	r.Get("/pharmacy/dashboard", h.PharmacyDashboardPage)
-
-	// Platform Admin Experience
+// RegisterAdminRoutes mounts the platform staff surface, gated by RequireStaff
+// (super_admin, admin, support, developer). Every handler behind it runs
+// platform-wide work (database.AsSystem) — this gate is what keeps a pharmacy
+// account away from /admin/users and the rest.
+func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	r.Get("/admin/dashboard", h.AdminDashboardPage)
 	r.Get("/admin/approvals", h.AdminApprovalsPage)
 	r.Get("/admin/documents", h.AdminDocumentsPage)
@@ -205,73 +255,20 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Get("/admin/finder", h.AdminFinderPage)
 	r.Get("/admin/services", h.AdminServicesPage)
 	r.Get("/admin/plans", h.AdminPlansPage)
+	r.Get("/admin/cities", h.AdminCitiesPage)
 
-
-	// Interactive Form & Action Handlers
-	r.Post("/auth/login", h.LoginSubmit)
-	r.Post("/auth/logout", h.LogoutSubmit)
-	r.Get("/auth/logout", h.LogoutSubmit)
-	r.Post("/auth/register", h.RegisterSubmit)
-	r.Post("/contact", h.ContactSubmit)
-	r.Post("/cart/add", h.AddToCartSubmit)
-	r.Post("/cart/remove", h.RemoveFromCartSubmit)
-	r.Post("/cart/update-quantity", h.UpdateCartQuantitySubmit)
-	r.Post("/checkout", h.CheckoutSubmit)
-	r.Post("/favorites/{id}/remove", h.FavoriteRemoveSubmit)
-	r.Post("/favorites/{id}/add", h.FavoriteAddSubmit)
-	r.Post("/favorites/{id}/toggle", h.FavoriteToggleSubmit)
-	r.Post("/favorites/toggle", h.FavoriteToggleSubmit)
-	r.Post("/settings/profile", h.SettingsProfileSubmit)
-	r.Post("/settings/addresses", h.SettingsAddressSubmit)
-	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
-	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
-	r.Post("/settings/security/plan/{id}", h.SettingsSessionPlanPurchaseSubmit)
-	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
-	r.Post("/settings/organization/branch", h.SettingsBranchCreateSubmit)
-	r.Post("/settings/organization/branch/{id}/delete", h.SettingsBranchDeleteSubmit)
-	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
-	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
-	r.Post("/settings/employees/create", h.SettingsEmployeeCreateSubmit)
-	r.Post("/settings/employees/add", h.SettingsEmployeeCreateSubmit)
-	r.Post("/settings/employees/{id}/delete", h.SettingsEmployeeDeleteSubmit)
-	r.Post("/settings/employees/assign-manager", h.SettingsBranchManagerAssignSubmit)
-	r.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
-	r.Post("/vendor/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
-	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
-
-
-	r.Post("/settings/payment-methods", h.SettingsPaymentMethodsSubmit)
-	r.Post("/wallet/deposit", h.WalletDepositSubmit)
-	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)
-	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
-	r.Post("/offers/{id}/click", h.OfferClickSubmit)
-	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
-	r.Post("/jobs/{id}/apply", h.JobApplySubmit)
-	r.Post("/finder/answer", h.FinderAnswerSubmit)
-	r.Post("/compare/subscribe", h.CompareSubscribeSubmit)
-	r.Post("/requests", h.RequestCreateSubmit)
-	r.Post("/requests/{id}/respond", h.RequestRespondSubmit)
-	r.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
-	r.Post("/suppliers/{id}/quote", h.SupplierQuoteSubmit)
-	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
-	r.Get("/notifications/dropdown", h.NotificationsDropdownPartial)
-	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
-	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
-	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
-	r.Post("/vendor/inventory/{id}/adjust", h.VendorStockAdjustSubmit)
-	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
-	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)
-	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
 	r.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
 	r.Post("/admin/content", h.AdminContentSubmit)
-
 	r.Post("/admin/translations", h.AdminTranslationsSubmit)
 	r.Post("/admin/organizations/{id}/approve", h.AdminOrgApproveSubmit)
 	r.Post("/admin/organizations/{id}/reject", h.AdminOrgRejectSubmit)
 	r.Post("/admin/organizations/{id}/suspend", h.AdminOrgSuspendSubmit)
 	r.Post("/admin/products/{id}/status", h.AdminProductStatusSubmit)
 	r.Post("/admin/offers/{id}/status", h.AdminOfferStatusSubmit)
+	r.Post("/admin/cities/new", h.AdminCityCreateSubmit)
+	r.Post("/admin/cities/{id}/toggle", h.AdminCityToggleSubmit)
+
 	r.Post("/admin/finder/question", h.AdminFinderQuestionSubmit)
 	r.Post("/admin/finder/result", h.AdminFinderResultSubmit)
 	r.Post("/admin/finder/option", h.AdminFinderOptionSubmit)
@@ -287,6 +284,64 @@ func (h *UIHandler) RegisterPageRoutes(r chi.Router) {
 	r.Post("/admin/policies", h.AdminPolicyCreateSubmit)
 	r.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
 }
+
+// RegisterSharedRoutes mounts the account surface that both customers and
+// vendors use — settings, documents, wallet, invoices, messages,
+// notifications, requests. The pages render inside the caller's own shell,
+// chosen from actor.OrgType (Rebuild V2 §1.5), so no audience gate is needed
+// here beyond authentication.
+func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
+	r.Get("/onboarding/pending", h.OnboardingPendingPage)
+	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
+
+	// Settings (account surface, both shells)
+	r.Get("/settings", h.SettingsIndex)
+	r.Get("/settings/profile", h.SettingsProfilePage)
+	r.Get("/settings/addresses", h.SettingsAddressesPage)
+	r.Get("/settings/security", h.SettingsSecurityPage)
+	r.Get("/settings/organization", h.SettingsOrganizationPage)
+	r.Get("/settings/employees", h.SettingsEmployeesPage)
+	r.Get("/settings/preferences", h.SettingsPreferencesPage)
+	r.Get("/settings/payment-methods", h.SettingsPaymentMethodsPage)
+
+	r.Post("/settings/profile", h.SettingsProfileSubmit)
+	r.Post("/settings/addresses", h.SettingsAddressSubmit)
+	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
+	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
+	r.Post("/settings/security/plan/{id}", h.SettingsSessionPlanPurchaseSubmit)
+	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
+	r.Post("/settings/organization/branch", h.SettingsBranchCreateSubmit)
+	r.Post("/settings/organization/branch/{id}/delete", h.SettingsBranchDeleteSubmit)
+	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
+	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
+	r.Post("/settings/employees/create", h.SettingsEmployeeCreateSubmit)
+	r.Post("/settings/employees/add", h.SettingsEmployeeCreateSubmit)
+	r.Post("/settings/employees/{id}/delete", h.SettingsEmployeeDeleteSubmit)
+	r.Post("/settings/employees/assign-manager", h.SettingsBranchManagerAssignSubmit)
+	r.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
+	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
+	r.Post("/settings/payment-methods", h.SettingsPaymentMethodsSubmit)
+
+	// Wallet, invoices, messages, requests
+	r.Get("/wallet", h.WalletPage)
+	r.Get("/invoices", h.InvoicesPage)
+	r.Get("/messages", h.MessagesPage)
+	r.Get("/messages/{id}", h.MessagesConversationPage)
+	r.Get("/requests", h.RequestsPage)
+
+	r.Post("/wallet/deposit", h.WalletDepositSubmit)
+	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)
+	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
+	r.Post("/requests", h.RequestCreateSubmit)
+
+	// Notifications (bell and page)
+	r.Get("/notifications", h.NotificationsPage)
+	r.Get("/notifications/dropdown", h.NotificationsDropdownPartial)
+	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
+	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
+	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
+}
+
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {
 	ctx := r.Context()

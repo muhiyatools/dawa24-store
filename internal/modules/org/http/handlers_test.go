@@ -124,23 +124,6 @@ func (r stubRepo) ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*org.Po
 	return nil, nil
 }
 
-func (r stubRepo) CreateHighlightSection(ctx context.Context, s *org.HighlightSection) error {
-	r.fail("CreateHighlightSection")
-	return nil
-}
-func (r stubRepo) ListHighlightSections(ctx context.Context, orgID int64) ([]*org.HighlightSection, error) {
-	r.fail("ListHighlightSections")
-	return nil, nil
-}
-func (r stubRepo) AddHighlightItem(ctx context.Context, item *org.HighlightSectionItem) error {
-	r.fail("AddHighlightItem")
-	return nil
-}
-func (r stubRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*org.HighlightSectionItem, error) {
-	r.fail("ListHighlightItems")
-	return nil, nil
-}
-
 func (r stubRepo) ReviewOrganization(ctx context.Context, id int64, status org.OrganizationStatus, notes, rejectionReason string, adminID int64) error {
 	r.fail("ReviewOrganization")
 	return nil
@@ -197,7 +180,7 @@ func (happyRepo) CreateOrganization(ctx context.Context, o *org.Organization) er
 	return nil
 }
 func (happyRepo) GetOrganizationByID(ctx context.Context, id int64) (*org.Organization, error) {
-	return &org.Organization{ID: id, LegalName: "Al-Amal Pharmacy", CommercialRegister: "CR-101", Type: org.TypePharmacy, Status: org.StatusApproved}, nil
+	return &org.Organization{ID: id, LegalName: "Al-Amal Pharmacy", CommercialRegister: "CR-101", Type: org.TypeCustomer, Status: org.StatusApproved}, nil
 }
 func (happyRepo) UpdateOrganizationStatus(ctx context.Context, id int64, status org.OrganizationStatus) error {
 	return nil
@@ -270,20 +253,6 @@ func (happyRepo) ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*org.Pol
 	return []*org.Policy{{ID: 1, OrganizationID: orgID, Title: "Refund Policy"}}, nil
 }
 
-func (happyRepo) CreateHighlightSection(ctx context.Context, s *org.HighlightSection) error {
-	s.ID = 1
-	return nil
-}
-func (happyRepo) ListHighlightSections(ctx context.Context, orgID int64) ([]*org.HighlightSection, error) {
-	return []*org.HighlightSection{{ID: 1, OrganizationID: orgID, Title: i18n.Text{"ar": "الأكثر مبيعاً"}, IsActive: true}}, nil
-}
-func (happyRepo) AddHighlightItem(ctx context.Context, item *org.HighlightSectionItem) error {
-	item.ID = 1
-	return nil
-}
-func (happyRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*org.HighlightSectionItem, error) {
-	return nil, nil
-}
 func (happyRepo) CreateRole(ctx context.Context, role *org.Role) error {
 	role.ID = 1
 	return nil
@@ -451,7 +420,7 @@ func TestOrgHandler_HappyPaths(t *testing.T) {
 		body       string
 		wantStatus int
 	}{
-		{"RegisterOrg", http.MethodPost, "/api/v1/org/organizations", `{"legal_name":"Al-Amal","commercial_register":"CR-101","type":"pharmacy","credit_limit":"1000.00","payment_terms_days":30}`, http.StatusCreated},
+		{"RegisterOrg", http.MethodPost, "/api/v1/org/organizations", `{"legal_name":"Al-Amal","commercial_register":"CR-101","type":"customer","credit_limit":"1000.00","payment_terms_days":30}`, http.StatusCreated},
 		{"GetOrg", http.MethodGet, "/api/v1/org/organizations/1", "", http.StatusOK},
 		{"UpdateOrg", http.MethodPut, "/api/v1/org/organizations/1", `{"legal_name":"Al-Amal Updated","commercial_register":"CR-101"}`, http.StatusOK},
 		{"DeleteOrg", http.MethodDelete, "/api/v1/org/organizations/1", "", http.StatusOK},

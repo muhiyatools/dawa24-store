@@ -10,7 +10,7 @@ import (
 )
 
 templ ServicesPage(lang, dir string, services []*workflow.InstitutionalService) {
-	@layouts.CustomerShell("الخدمات المؤسسية | Services", lang, dir) {
+	@layouts.PublicShell("الخدمات المؤسسية | Services", lang, dir) {
 		<h2 style="font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0 0 1.5rem;">الخدمات المؤسسية</h2>
 		if len(services) == 0 {
 			@components.EmptyState(components.EmptyStateProps{
@@ -38,7 +38,7 @@ templ ServicesPage(lang, dir string, services []*workflow.InstitutionalService) 
 }
 
 templ ServiceDetail(lang, dir string, s *workflow.InstitutionalService) {
-	@layouts.CustomerShell("خدمة | Service", lang, dir) {
+	@layouts.PublicShell("خدمة | Service", lang, dir) {
 		<div style="max-width:680px;">
 			<div class="card" style="margin-bottom:0;">
 				<span class="badge badge-emerald">{ pricingLabel(s.PricingType) }</span>

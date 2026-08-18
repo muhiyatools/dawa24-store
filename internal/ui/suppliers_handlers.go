@@ -20,7 +20,7 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 
 	data := pages.SupplierDirectoryData{}
 	if h.orgSvc != nil {
-		typ := org.TypeSupplier
+		typ := org.TypeVendor
 		status := org.StatusApproved
 		data.Suppliers, _ = h.orgSvc.ListOrganizations(ctx, &typ, &status, 50, 0)
 	}

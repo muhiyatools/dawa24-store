@@ -51,9 +51,4 @@ type Repository interface {
 
 	CreatePolicy(ctx context.Context, p *Policy) error
 	ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*Policy, error)
-
-	CreateHighlightSection(ctx context.Context, s *HighlightSection) error
-	ListHighlightSections(ctx context.Context, orgID int64) ([]*HighlightSection, error)
-	AddHighlightItem(ctx context.Context, item *HighlightSectionItem) error
-	ListHighlightItems(ctx context.Context, sectionID int64) ([]*HighlightSectionItem, error)
 }

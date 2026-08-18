@@ -99,10 +99,12 @@ func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrgani
 }
 
 // validateOrgInput enforces the per-account-type required fields described in
-// the registration form.
+// the registration form. Two account types exist (Rebuild V2 rule 1): a
+// customer (صيدلية) needs its pharmacy licence; a vendor (مورّد) needs the
+// commercial register and tax number.
 func validateOrgInput(in RegisterOrgInput) error {
 	switch in.Type {
-	case OrgTypeSupplier:
+	case OrgTypeVendor:
 		if in.LegalName == "" {
 			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
 		}
@@ -112,7 +114,7 @@ func validateOrgInput(in RegisterOrgInput) error {
 		if in.TaxNumber == "" {
 			return apperr.Validation("org.tax_required", "Tax number is required for suppliers.", nil)
 		}
-	case OrgTypePharmacy:
+	case OrgTypeCustomer:
 		if in.LegalName == "" {
 			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
 		}
@@ -122,21 +124,8 @@ func validateOrgInput(in RegisterOrgInput) error {
 		if in.PharmacistLicense == "" {
 			return apperr.Validation("org.license_required", "Pharmacist licence number is required for pharmacies.", nil)
 		}
-	case OrgTypeChainPharmacy:
-		if in.LegalName == "" {
-			return apperr.Validation("org.legal_name_required", "Legal name is required.", nil)
-		}
-		if in.PharmacistLicense == "" {
-			return apperr.Validation("org.license_required", "Pharmacist licence number is required for pharmacies.", nil)
-		}
-		if in.BranchCount == nil || *in.BranchCount < 2 {
-			return apperr.Validation("org.branch_count_required", "A chain pharmacy needs at least 2 branches.", nil)
-		}
-	case "individual":
-		// Individual professionals have no required commercial register or tax card
-		return nil
 	default:
-		return apperr.Validation("org.type_invalid", "Choose an account type: supplier, pharmacy, chain pharmacy, or individual.", nil)
+		return apperr.Validation("org.type_invalid", "Choose an account type: customer (pharmacy) or vendor.", nil)
 	}
 	return nil
 }

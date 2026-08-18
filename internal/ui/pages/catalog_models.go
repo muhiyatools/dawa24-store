@@ -1,21 +1,23 @@
 package pages
 
 import (
-	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
-// SupplierOffer represents a distinct verified vendor/supplier offering a product.
+// SupplierOffer represents one real vendor offer line shown on the storefront.
+// Every price here is resolved through promo.EffectivePrice by the handler.
 type SupplierOffer struct {
+	OfferID          int64
 	SupplierID       int64
 	SupplierName     string
 	SupplierRating   float64
 	ReviewCount      int
 	IsVerified       bool
-	Price            money.Amount
-	OldPrice         money.Amount
-	DiscountPercent  int
+	Price            money.Amount // final price (after offers) — the buy price
+	OldPrice         money.Amount // list price before the offer
+	DiscountAmount   money.Amount // saved amount off the list price
+	DiscountBPS      int64        // effective percent in basis points (1500 = 15%)
 	AvailableStock   int
 	MinOrderQty      int
 	BatchNumber      string
@@ -43,67 +45,4 @@ type CatalogFilterParams struct {
 	DosageForm   string
 	Sort         string
 	InStock      bool
-}
-
-// GetMockOffersForProduct returns verified supplier offers for a given product.
-func GetOffersForProduct(p *catalog.Product) []SupplierOffer {
-	if p == nil {
-		return nil
-	}
-
-	baseMinor := p.EffectivePrice().Minor()
-	if baseMinor <= 0 {
-		baseMinor = 3500 // fallback 35.00 EGP
-	}
-
-	return []SupplierOffer{
-		{
-			SupplierID:       101,
-			SupplierName:     "مستودع أدوية النيل المركز للتوزيع",
-			SupplierRating:   4.9,
-			ReviewCount:      214,
-			IsVerified:       true,
-			Price:            money.FromMinor(baseMinor),
-			OldPrice:         money.FromMinor(int64(float64(baseMinor) * 1.15)),
-			DiscountPercent:  15,
-			AvailableStock:   850,
-			MinOrderQty:      5,
-			BatchNumber:      fmt.Sprintf("NL-%d82", p.ID*7+10),
-			ExpiryDate:       "2028-06",
-			DeliveryEstimate: "توصيل سريع خلال 24 ساعة",
-			ColdChain:        true,
-		},
-		{
-			SupplierID:       102,
-			SupplierName:     "الشركة المتحدة لتوزيع الأدوية (UCP)",
-			SupplierRating:   4.8,
-			ReviewCount:      189,
-			IsVerified:       true,
-			Price:            money.FromMinor(int64(float64(baseMinor) * 1.04)),
-			OldPrice:         money.FromMinor(int64(float64(baseMinor) * 1.12)),
-			DiscountPercent:  8,
-			AvailableStock:   1420,
-			MinOrderQty:      3,
-			BatchNumber:      fmt.Sprintf("UC-%d41", p.ID*3+99),
-			ExpiryDate:       "2028-09",
-			DeliveryEstimate: "تسليم في نفس اليوم للمحافظات الرئيسية",
-			ColdChain:        false,
-		},
-		{
-			SupplierID:       103,
-			SupplierName:     "شركة فارما تريد للخدمات الصيدلية",
-			SupplierRating:   4.7,
-			ReviewCount:      96,
-			IsVerified:       true,
-			Price:            money.FromMinor(int64(float64(baseMinor) * 1.08)),
-			OldPrice:         money.FromMinor(int64(float64(baseMinor) * 1.10)),
-			DiscountPercent:  5,
-			AvailableStock:   320,
-			MinOrderQty:      10,
-			BatchNumber:      fmt.Sprintf("PT-%d02", p.ID*11+15),
-			ExpiryDate:       "2027-12",
-			DeliveryEstimate: "توصيل خلال 48 ساعة",
-			ColdChain:        false,
-		},
-	}
 }

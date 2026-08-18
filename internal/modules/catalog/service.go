@@ -167,7 +167,7 @@ func (s *Service) UpdateBrand(ctx context.Context, b *Brand) error {
 
 // SetCustomerPricing stores customer-specific custom price or discount terms.
 func (s *Service) SetCustomerPricing(ctx context.Context, m *CustomerProductMapping) error {
-	if m.OrganizationID <= 0 || m.CustomerOrgID <= 0 || m.ProductID <= 0 {
+	if m.OrganizationID <= 0 || m.CustomerOrgID == nil || *m.CustomerOrgID <= 0 || m.ProductID <= 0 {
 		return apperr.Validation("mapping.invalid", "Organization, customer, and product IDs are required.", nil)
 	}
 	return s.repo.SetCustomerPricing(ctx, m)

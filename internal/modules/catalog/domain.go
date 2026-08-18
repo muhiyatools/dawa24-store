@@ -171,18 +171,24 @@ func (p *Product) Validate() error {
 	return nil
 }
 
-// CustomerProductMapping defines customer-specific custom pricing and discount terms.
+// CustomerProductMapping defines a per-customer pricing/discount row and, for
+// import rows (071), the customer's own name for the product. Vendor-set rows
+// carry customer_org_id; import rows carry NULL and a raw_name.
 type CustomerProductMapping struct {
-	ID               int64        `json:"id"`
-	OrganizationID   int64        `json:"organization_id"`
-	CustomerOrgID    int64        `json:"customer_org_id"`
-	ProductID        int64        `json:"product_id"`
-	ProductVariantID *int64       `json:"product_variant_id,omitempty"`
-	CustomPrice      money.Amount `json:"custom_price"`
-	DiscountBps      *int         `json:"discount_bps,omitempty"`
-	IsActive         bool         `json:"is_active"`
-	CreatedAt        time.Time    `json:"created_at"`
-	UpdatedAt        time.Time    `json:"updated_at"`
+	ID               int64         `json:"id"`
+	OrganizationID   int64         `json:"organization_id"`
+	CustomerOrgID    *int64        `json:"customer_org_id,omitempty"`
+	ProductID        int64         `json:"product_id"`
+	ProductVariantID *int64        `json:"product_variant_id,omitempty"`
+	RawName          string        `json:"raw_name"`
+	BranchID         *int64        `json:"branch_id,omitempty"`
+	Price            money.Amount  `json:"price"`
+	Discount         *money.Amount `json:"discount,omitempty"` // percent, 2dp
+	Source           string        `json:"source"`             // excel | csv | link | manual
+	Status           string        `json:"status"`             // pending | processed | rejected
+	IsActive         bool          `json:"is_active"`
+	CreatedAt        time.Time     `json:"created_at"`
+	UpdatedAt        time.Time     `json:"updated_at"`
 }
 
 // ProductAlert represents user notification triggers for price drops and restocks.
@@ -196,17 +202,6 @@ type ProductAlert struct {
 	IsTriggered bool         `json:"is_triggered"`
 	TriggeredAt *time.Time   `json:"triggered_at,omitempty"`
 	CreatedAt   time.Time    `json:"created_at"`
-}
-
-// SavingProduct represents promotional bundled deals.
-type SavingProduct struct {
-	ID             int64        `json:"id"`
-	OrganizationID int64        `json:"organization_id"`
-	ProductID      int64        `json:"product_id"`
-	BundleQuantity int          `json:"bundle_quantity"`
-	BundleDiscount money.Amount `json:"bundle_discount"`
-	IsActive       bool         `json:"is_active"`
-	CreatedAt      time.Time    `json:"created_at"`
 }
 
 // FinderQuestion is one step of the guided product-finder questionnaire.

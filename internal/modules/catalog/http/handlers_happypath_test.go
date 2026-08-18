@@ -86,7 +86,7 @@ func (happyRepo) SetCustomerPricing(ctx context.Context, m *catalog.CustomerProd
 	return nil
 }
 func (happyRepo) GetCustomerPricing(ctx context.Context, organizationID, customerOrgID, productID int64) (*catalog.CustomerProductMapping, error) {
-	return &catalog.CustomerProductMapping{ProductID: productID, CustomerOrgID: customerOrgID, CustomPrice: money.MustParse("45.00")}, nil
+	return &catalog.CustomerProductMapping{ProductID: productID, CustomerOrgID: &customerOrgID, Price: money.MustParse("45.00")}, nil
 }
 func (happyRepo) CreateProductAlert(ctx context.Context, a *catalog.ProductAlert) error {
 	a.ID = 1
@@ -184,7 +184,7 @@ func TestCatalogHandler_HappyPaths(t *testing.T) {
 		{"GetBrand", http.MethodGet, "/api/v1/catalog/brands/1", "", http.StatusOK},
 		{"UpdateBrand", http.MethodPut, "/api/v1/catalog/brands/1", `{"name":{"en":"GSK Updated"},"status":"active"}`, http.StatusOK},
 		{"DeleteBrand", http.MethodDelete, "/api/v1/catalog/brands/1", "", http.StatusNoContent},
-		{"SetCustomerPricing", http.MethodPost, "/api/v1/catalog/pricing/customer", `{"organization_id":1,"customer_org_id":2,"product_id":1,"custom_price":"45.00"}`, http.StatusOK},
+		{"SetCustomerPricing", http.MethodPost, "/api/v1/catalog/pricing/customer", `{"organization_id":1,"customer_org_id":2,"product_id":1,"price":"45.00"}`, http.StatusOK},
 		{"GetCustomerPricing", http.MethodGet, "/api/v1/catalog/pricing/customer?product_id=1&customer_org_id=2", "", http.StatusOK},
 		{"CreateAlert", http.MethodPost, "/api/v1/catalog/alerts", `{"user_id":1,"product_id":1,"alert_type":"price_drop","target_price":"45.00"}`, http.StatusCreated},
 		{"ListAlerts", http.MethodGet, "/api/v1/catalog/alerts", "", http.StatusOK},

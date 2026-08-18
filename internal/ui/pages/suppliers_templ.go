@@ -37,7 +37,7 @@ func SuppliersDirectory(lang, dir string, data SupplierDirectoryData) templ.Comp
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if actor, ok := authctx.From(ctx); ok && (actor.Role == "pharmacy" || actor.Role == "chain_pharmacy") {
+		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 			templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -56,7 +56,7 @@ func SuppliersDirectory(lang, dir string, data SupplierDirectoryData) templ.Comp
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.PharmacyShell("دليل الموردين المعتمدين | Suppliers Directory", "suppliers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", "suppliers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -79,7 +79,7 @@ func SuppliersDirectory(lang, dir string, data SupplierDirectoryData) templ.Comp
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.PublicShell("دليل الموردين المعتمدين | Suppliers Directory", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -951,7 +951,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell(fmt.Sprintf("%s | ملف المورد المعتمد", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell(fmt.Sprintf("%s | ملف المورد المعتمد", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

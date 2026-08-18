@@ -12,6 +12,34 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
+// orderColumns is the canonical order projection (063: offer_id,
+// branch_id, vendor_branch_id, user_address_id, total_discount, final_price).
+// All order scans use it so the column order lives in exactly one place.
+const orderColumns = `id, public_id, order_number, customer_id, organization_id,
+	offer_id, branch_id, vendor_branch_id, user_address_id, status,
+	subtotal, discount_amount, total_discount, shipping_fee, tax_amount,
+	total_amount, final_price, payment_method, payment_status, notes,
+	created_at, updated_at, deleted_at`
+
+// scanOrder scans one order row (pgx.Row covers both QueryRow and Rows).
+func scanOrder(row pgx.Row) (*commerce.Order, error) {
+	var o commerce.Order
+	var statusStr, payStatusStr string
+	if err := row.Scan(
+		&o.ID, &o.PublicID, &o.OrderNumber, &o.CustomerID, &o.OrganizationID,
+		&o.OfferID, &o.BranchID, &o.VendorBranchID, &o.UserAddressID,
+		&statusStr, &o.Subtotal, &o.DiscountAmount, &o.TotalDiscount, &o.ShippingFee,
+		&o.TaxAmount, &o.TotalAmount, &o.FinalPrice,
+		&o.PaymentMethod, &payStatusStr, &o.Notes,
+		&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
+	); err != nil {
+		return nil, err
+	}
+	o.Status = commerce.OrderStatus(statusStr)
+	o.PaymentStatus = commerce.PaymentStatus(payStatusStr)
+	return &o, nil
+}
+
 // CreateOrder writes the master order, its vendor shipment partitions, and line item snapshots atomically.
 func (r *Repository) CreateOrder(
 	ctx context.Context,
@@ -23,16 +51,19 @@ func (r *Repository) CreateOrder(
 		// 1. Insert master order
 		queryOrder := `
 			INSERT INTO commerce.orders (
-				order_number, customer_id, organization_id, status, subtotal,
-				discount_amount, shipping_fee, tax_amount, total_amount,
-				payment_method, payment_status, notes
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+				order_number, customer_id, organization_id, offer_id, branch_id,
+				vendor_branch_id, user_address_id, status, subtotal,
+				discount_amount, total_discount, shipping_fee, tax_amount, total_amount,
+				final_price, payment_method, payment_status, notes
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		err := tx.QueryRow(txCtx, queryOrder,
-			order.OrderNumber, order.CustomerID, order.OrganizationID, string(order.Status),
-			order.Subtotal, order.DiscountAmount, order.ShippingFee, order.TaxAmount,
-			order.TotalAmount, order.PaymentMethod, string(order.PaymentStatus), order.Notes,
+			order.OrderNumber, order.CustomerID, order.OrganizationID, order.OfferID,
+			order.BranchID, order.VendorBranchID, order.UserAddressID, string(order.Status),
+			order.Subtotal, order.DiscountAmount, order.TotalDiscount, order.ShippingFee,
+			order.TaxAmount, order.TotalAmount, order.FinalPrice,
+			order.PaymentMethod, string(order.PaymentStatus), order.Notes,
 		).Scan(&order.ID, &order.PublicID, &order.CreatedAt, &order.UpdatedAt)
 		if err != nil {
 			return fmt.Errorf("commerce postgres: insert order: %w", err)
@@ -73,14 +104,16 @@ func (r *Repository) CreateOrder(
 				INSERT INTO commerce.order_lines (
 					order_id, shipment_id, organization_id, product_id,
 					product_variant_id, product_name, variant_name, sku,
-					unit_price, quantity, discount_amount, total_price
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+					offer_product_id, unit_price, quantity, discount_amount,
+					total_price, list_price, original_price, original_discount
+				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 				RETURNING id, created_at;
 			`
 			err := tx.QueryRow(txCtx, queryLine,
 				line.OrderID, line.ShipmentID, line.OrganizationID, line.ProductID,
 				line.ProductVariantID, line.ProductName, line.VariantName, line.SKU,
-				line.UnitPrice, line.Quantity, line.DiscountAmount, line.TotalPrice,
+				line.OfferProductID, line.UnitPrice, line.Quantity, line.DiscountAmount,
+				line.TotalPrice, line.ListPrice, line.OriginalPrice, line.OriginalDiscount,
 			).Scan(&line.ID, &line.CreatedAt)
 			if err != nil {
 				return fmt.Errorf("commerce postgres: insert order line: %w", err)
@@ -99,70 +132,52 @@ func (r *Repository) CreateOrder(
 
 // GetOrderByID retrieves order details.
 func (r *Repository) GetOrderByID(ctx context.Context, id int64) (*commerce.Order, error) {
-	var o commerce.Order
+	var o *commerce.Order
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, order_number, customer_id, organization_id, status,
-			       subtotal, discount_amount, shipping_fee, tax_amount, total_amount,
-			       payment_method, payment_status, notes, created_at, updated_at, deleted_at
+			SELECT ` + orderColumns + `
 			FROM commerce.orders
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
-		var statusStr, payStatusStr string
-		err := tx.QueryRow(txCtx, query, id).Scan(
-			&o.ID, &o.PublicID, &o.OrderNumber, &o.CustomerID, &o.OrganizationID,
-			&statusStr, &o.Subtotal, &o.DiscountAmount, &o.ShippingFee, &o.TaxAmount,
-			&o.TotalAmount, &o.PaymentMethod, &payStatusStr, &o.Notes,
-			&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
-		)
+		var err error
+		o, err = scanOrder(tx.QueryRow(txCtx, query, id))
 		if err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("order")
 			}
 			return err
 		}
-		o.Status = commerce.OrderStatus(statusStr)
-		o.PaymentStatus = commerce.PaymentStatus(payStatusStr)
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &o, nil
+	return o, nil
 }
 
 // GetOrderByNumber retrieves an order by its public business identifier.
 func (r *Repository) GetOrderByNumber(ctx context.Context, number string) (*commerce.Order, error) {
-	var o commerce.Order
+	var o *commerce.Order
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, order_number, customer_id, organization_id, status,
-			       subtotal, discount_amount, shipping_fee, tax_amount, total_amount,
-			       payment_method, payment_status, notes, created_at, updated_at, deleted_at
+			SELECT ` + orderColumns + `
 			FROM commerce.orders
 			WHERE order_number = $1 AND deleted_at IS NULL;
 		`
-		var statusStr, payStatusStr string
-		err := tx.QueryRow(txCtx, query, number).Scan(
-			&o.ID, &o.PublicID, &o.OrderNumber, &o.CustomerID, &o.OrganizationID,
-			&statusStr, &o.Subtotal, &o.DiscountAmount, &o.ShippingFee, &o.TaxAmount,
-			&o.TotalAmount, &o.PaymentMethod, &payStatusStr, &o.Notes,
-			&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
-		)
+		var err error
+		o, err = scanOrder(tx.QueryRow(txCtx, query, number))
 		if err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("order")
 			}
 			return err
 		}
-		o.Status = commerce.OrderStatus(statusStr)
-		o.PaymentStatus = commerce.PaymentStatus(payStatusStr)
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &o, nil
+	return o, nil
 }
 
 // UpdateOrderStatus transitions order status and records an entry in the audit history.
@@ -208,9 +223,7 @@ func (r *Repository) ListOrdersByCustomer(ctx context.Context, customerID int64,
 	var orders []*commerce.Order
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, order_number, customer_id, organization_id, status,
-			       subtotal, discount_amount, shipping_fee, tax_amount, total_amount,
-			       payment_method, payment_status, notes, created_at, updated_at, deleted_at
+			SELECT ` + orderColumns + `
 			FROM commerce.orders
 			WHERE customer_id = $1 AND deleted_at IS NULL
 			ORDER BY created_at DESC
@@ -226,19 +239,11 @@ func (r *Repository) ListOrdersByCustomer(ctx context.Context, customerID int64,
 		defer rows.Close()
 
 		for rows.Next() {
-			var o commerce.Order
-			var statusStr, payStatusStr string
-			if err := rows.Scan(
-				&o.ID, &o.PublicID, &o.OrderNumber, &o.CustomerID, &o.OrganizationID,
-				&statusStr, &o.Subtotal, &o.DiscountAmount, &o.ShippingFee, &o.TaxAmount,
-				&o.TotalAmount, &o.PaymentMethod, &payStatusStr, &o.Notes,
-				&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
-			); err != nil {
+			o, err := scanOrder(rows)
+			if err != nil {
 				return err
 			}
-			o.Status = commerce.OrderStatus(statusStr)
-			o.PaymentStatus = commerce.PaymentStatus(payStatusStr)
-			orders = append(orders, &o)
+			orders = append(orders, o)
 		}
 		return rows.Err()
 	})

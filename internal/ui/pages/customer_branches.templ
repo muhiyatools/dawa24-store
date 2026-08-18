@@ -1,0 +1,257 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type CustomerBranchesData struct {
+	Branches []*org.Branch
+	Cities   []*platformadmin.City
+}
+
+templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms []string) {
+	@layouts.CustomerShell("فروع الصيدلية ومواقع الاستلام", "branches", lang, dir, perms) {
+		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+			<!-- Header Banner -->
+			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+				<div>
+					<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
+						فروع الصيدلية ومواقع الاستلام 📍
+					</h2>
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;">
+						إدارة فروع الصيدلية ومواقع استلام شحنات الأدوية. يتم استخدام إحداثيات كل فرع لتحديد العروض والموردين الذين يغطون موقعك الجغرافي.
+					</p>
+				</div>
+				<a href="#new-branch-form" class="btn btn-primary btn-sm" style="font-weight:700;">
+					@components.IconPlus("icon-xs")
+					<span>+ إضافة فرع جديد</span>
+				</a>
+			</div>
+
+			<!-- Metrics Strip -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الفروع المسجلة</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.Branches)) }</div>
+				</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">الفرع الرئيسي للشراء</div>
+					<div style="font-size:1.15rem; font-weight:800; color:var(--accent);">
+						if len(data.Branches) > 0 {
+							<span>{ data.Branches[0].Name["ar"] }</span>
+						} else {
+							<span>غير محدد</span>
+						}
+					</div>
+				</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">حالة التغطية الجغرافية</div>
+					<div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;">
+						<span class="badge badge-emerald" style="font-size:0.775rem;">نشط ومغطى بالتوريد</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main 2-Column Split Layout -->
+			<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1.75rem; align-items:start;">
+				
+				<!-- Left Column: Existing Pharmacy Branches List -->
+				<div style="display:flex; flex-direction:column; gap:1rem;">
+					<div style="font-size:1.1rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
+						@components.IconBuilding("icon-xs")
+						<span>قائمة فروع الصيدلية الحالية</span>
+					</div>
+
+					if len(data.Branches) == 0 {
+						<div style="padding:2.5rem; text-align:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl);">
+							<div style="font-size:2rem; margin-bottom:0.5rem;">🏥</div>
+							<h3 style="font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">لم تقم بإضافة فروع بعد</h3>
+							<p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
+						</div>
+					} else {
+						<div style="display:flex; flex-direction:column; gap:1rem;">
+							for _, b := range data.Branches {
+								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; gap:0.85rem;">
+									<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+										<div>
+											<div style="display:flex; align-items:center; gap:0.5rem;">
+												<strong style="font-size:1.05rem; color:var(--text);">
+													if b.Name["ar"] != "" {
+														{ b.Name["ar"] }
+													} else {
+														{ b.Name["en"] }
+													}
+												</strong>
+												if b.IsMain {
+													<span class="badge badge-emerald" style="font-size:0.7rem;">الفرع الرئيسي</span>
+												}
+											</div>
+											if b.Code != "" {
+												<span class="badge badge-slate tabular-nums" style="font-size:0.7rem; margin-top:0.25rem;">كود: { b.Code }</span>
+											}
+										</div>
+
+										<div style="display:flex; align-items:center; gap:0.4rem;">
+											if !b.IsMain {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
+													<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
+														<span>حذف</span>
+													</button>
+												</form>
+											}
+										</div>
+									</div>
+
+									<div style="font-size:0.825rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.3rem;">
+										if b.Address != "" {
+											<div><span>العنوان: </span><strong style="color:var(--text);">{ b.Address }</strong></div>
+										}
+										if b.Phone != "" {
+											<div><span>الهاتف: </span><strong class="tabular-nums" style="color:var(--text);">{ b.Phone }</strong></div>
+										}
+									</div>
+
+									<!-- Coordinates Badge & Google Maps Link -->
+									<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); padding:0.5rem 0.75rem; border-radius:var(--radius-lg); font-size:0.775rem;">
+										<div style="display:flex; align-items:center; gap:0.4rem; color:var(--accent);">
+											<span>📍 الإحداثيات:</span>
+											if b.Latitude != nil && b.Longitude != nil {
+												<span class="tabular-nums" style="font-weight:700;">{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
+											} else {
+												<span style="color:var(--text-muted);">غير محددة</span>
+											}
+										</div>
+
+										if b.GoogleMapsURL != "" {
+											<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" style="color:var(--accent); font-weight:700; text-decoration:none; font-size:0.75rem;">
+												عرض على الخريطة ↗
+											</a>
+										} else if b.Latitude != nil && b.Longitude != nil {
+											<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" style="color:var(--accent); font-weight:700; text-decoration:none; font-size:0.75rem;">
+												عرض على الخريطة ↗
+											</a>
+										}
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
+
+				<!-- Right Column: Add New Pharmacy Branch Form -->
+				<div id="new-branch-form" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; position:sticky; top:calc(var(--header-height) + 1.5rem);">
+					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconPlus("icon-xs")
+						</div>
+						<div>
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+								إضافة فرع صيدلية جديد
+							</h3>
+							<p style="font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;">
+								أدخل بيانات الفرع وموقعه الجغرافي على الخريطة
+							</p>
+						</div>
+					</div>
+
+					<form method="POST" action="/customer/branches/new" style="display:flex; flex-direction:column; gap:1.1rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									اسم الفرع بالعربية <span style="color:var(--danger);">*</span>
+								</label>
+								<input type="text" name="name_ar" required placeholder="صيدلية الأمل - فرع المعادي" class="form-input" style="width:100%;"/>
+							</div>
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									اسم الفرع بالإنجليزية
+								</label>
+								<input type="text" name="name_en" placeholder="Al Amal Pharmacy - Maadi" class="form-input" style="width:100%;"/>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									كود الفرع الداخلي
+								</label>
+								<input type="text" name="code" placeholder="PH-01" class="form-input tabular-nums" style="width:100%;"/>
+							</div>
+							<div>
+								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+									المحافظة / المدينة <span style="color:var(--danger);">*</span>
+								</label>
+								<select name="city_id" required class="form-input" style="width:100%;">
+									<option value="">-- اختر المدينة / المحافظة --</option>
+									for _, c := range data.Cities {
+										<option value={ fmt.Sprintf("%d", c.ID) }>
+											if c.Name["ar"] != "" {
+												{ c.Name["ar"] }
+											} else {
+												{ c.Name["en"] }
+											}
+										</option>
+									}
+								</select>
+							</div>
+						</div>
+
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								العنوان التفصيلي <span style="color:var(--danger);">*</span>
+							</label>
+							<input type="text" name="address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input" style="width:100%;"/>
+						</div>
+
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								رقم الهاتف للتواصل
+							</label>
+							<input type="tel" name="phone" placeholder="01012345678" class="form-input tabular-nums" style="width:100%;"/>
+						</div>
+
+						<!-- Leaflet Map Picker -->
+						<div style="display:flex; flex-direction:column; gap:0.5rem;">
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);">
+								🗺️ موقع الفرع على الخريطة (OpenStreetMap / GPS)
+							</label>
+							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
+								<div class="map-container map-canvas" style="height:210px; width:100%; z-index:1;"></div>
+								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.8rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;">
+									<span data-map-coords-badge class="tabular-nums" style="font-weight:700; color:var(--accent);">30.0444, 31.2357</span>
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs" style="font-weight:700;">📍 موقعي</button>
+								</div>
+								<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
+								<input type="hidden" name="longitude" data-map-input="lon" value="31.2357"/>
+							</div>
+						</div>
+
+						<!-- Google Maps URL Input -->
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								🔗 رابط خرائط Google (Google Maps URL)
+							</label>
+							<input type="url" name="google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input" style="width:100%; font-size:0.8rem;"/>
+						</div>
+
+						<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+							<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.825rem; font-weight:700; color:var(--text);">
+								<input type="checkbox" name="is_main" value="true" style="width:16px; height:16px; accent-color:var(--accent);"/>
+								<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
+							</label>
+						</div>
+
+						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
+							@components.IconCheck("icon-xs")
+							<span>حفظ وإضافة فرع الصيدلية</span>
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	}
+}

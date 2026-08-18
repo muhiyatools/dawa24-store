@@ -62,7 +62,7 @@ func GetFAQs() []FAQItem {
 }
 
 templ FAQPage(lang, dir string) {
-	@layouts.CustomerShell("الأسئلة الشائعة | FAQ", lang, dir) {
+	@layouts.PublicShell("الأسئلة الشائعة | FAQ", lang, dir) {
 		<div style="max-width:960px; margin:1rem auto 3rem auto;">
 			<!-- Header -->
 			<div style="text-align:center; margin-bottom:2.5rem;">

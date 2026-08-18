@@ -132,7 +132,7 @@ func FinderQuestionPage(lang, dir string, q *catalog.FinderQuestion, options []*
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("دليل اختيار المنتج | Finder", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("دليل اختيار المنتج | Finder", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -205,7 +205,7 @@ func FinderResultPage(lang, dir string, r *catalog.FinderResult) templ.Component
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("النتيجة | Finder", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("النتيجة | Finder", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

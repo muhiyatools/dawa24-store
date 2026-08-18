@@ -38,6 +38,13 @@ type Session struct {
 	MaxLoginSessions *int `json:"max_login_sessions,omitempty"`
 }
 
+// IsStaff reports whether this session belongs to platform staff. Platform
+// admin is staff, not an account type (Rebuild V2 rule 1); an organization
+// member's capability comes from the membership, never from the platform role.
+func (s *Session) IsStaff() bool {
+	return s.Role == "super_admin" || s.Role == "admin" || s.Role == "support" || s.Role == "developer"
+}
+
 // SessionStore handles session persistence in Redis.
 // SessionStore holds the cache handle rather than a redis.Client.
 //

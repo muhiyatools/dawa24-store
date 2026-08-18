@@ -39,6 +39,14 @@ func (r stubRepo) ListActiveOffers(context.Context, int, int) ([]*promo.Offer, e
 	r.fail("ListActiveOffers")
 	return nil, nil
 }
+func (r stubRepo) ListOffersForProduct(context.Context, int64) ([]*promo.OfferProductWithOffer, error) {
+	r.fail("ListOffersForProduct")
+	return nil, nil
+}
+func (r stubRepo) ListOffersVisibleTo(context.Context, float64, float64, int, int, int) ([]*promo.VisibleOffer, error) {
+	r.fail("ListOffersVisibleTo")
+	return nil, nil
+}
 
 func (r stubRepo) ListOffers(context.Context, int, int) ([]*promo.Offer, error) {
 	r.fail("ListOffers")
@@ -78,6 +86,18 @@ func (r stubRepo) CreateHighlightSection(context.Context, *promo.HighlightSectio
 }
 func (r stubRepo) ListHighlightSections(context.Context) ([]*promo.HighlightSection, error) {
 	r.fail("ListHighlightSections")
+	return nil, nil
+}
+func (r stubRepo) ListHighlightSectionsByOrg(context.Context, int64) ([]*promo.HighlightSection, error) {
+	r.fail("ListHighlightSectionsByOrg")
+	return nil, nil
+}
+func (r stubRepo) AddHighlightItem(context.Context, *promo.HighlightSectionItem) error {
+	r.fail("AddHighlightItem")
+	return nil
+}
+func (r stubRepo) ListHighlightItems(context.Context, int64) ([]*promo.HighlightSectionItem, error) {
+	r.fail("ListHighlightItems")
 	return nil, nil
 }
 func (r stubRepo) ExpirePromotions(context.Context) (int64, error) {
@@ -136,6 +156,13 @@ func (happyRepo) ListActiveOffers(ctx context.Context, limit, offset int) ([]*pr
 	}}, nil
 }
 
+func (happyRepo) ListOffersForProduct(ctx context.Context, productID int64) ([]*promo.OfferProductWithOffer, error) {
+	return nil, nil
+}
+func (happyRepo) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int) ([]*promo.VisibleOffer, error) {
+	return nil, nil
+}
+
 func (happyRepo) ListOffers(ctx context.Context, limit, offset int) ([]*promo.Offer, error) {
 	return []*promo.Offer{{ID: 1, OrganizationID: 1, Title: i18n.Text{"en": "Summer Sale"}, IsActive: true}}, nil
 }
@@ -168,6 +195,16 @@ func (happyRepo) CreateHighlightSection(ctx context.Context, h *promo.HighlightS
 }
 func (happyRepo) ListHighlightSections(ctx context.Context) ([]*promo.HighlightSection, error) {
 	return []*promo.HighlightSection{{ID: 1, Title: i18n.Text{"en": "Featured"}}}, nil
+}
+func (happyRepo) ListHighlightSectionsByOrg(ctx context.Context, orgID int64) ([]*promo.HighlightSection, error) {
+	return []*promo.HighlightSection{{ID: 1, OwnerType: "organization", OrganizationID: &orgID, Title: i18n.Text{"ar": "الأكثر مبيعاً"}}}, nil
+}
+func (happyRepo) AddHighlightItem(ctx context.Context, item *promo.HighlightSectionItem) error {
+	item.ID = 1
+	return nil
+}
+func (happyRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*promo.HighlightSectionItem, error) {
+	return nil, nil
 }
 func (happyRepo) ExpirePromotions(ctx context.Context) (int64, error) {
 	return 0, nil

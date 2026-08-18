@@ -11,12 +11,12 @@ import (
 )
 
 templ OffersPage(lang, dir string, offers []*promo.Offer) {
-	if actor, ok := authctx.From(ctx); ok && (actor.Role == "pharmacy" || actor.Role == "chain_pharmacy") {
-		@layouts.PharmacyShell("العروض المتاحة والتخفيضات | Pharmacy Offers", "offers", lang, dir, nil) {
+	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+		@layouts.CustomerShell("العروض المتاحة والتخفيضات | Pharmacy Offers", "offers", lang, dir, nil) {
 			@OffersContent(lang, offers)
 		}
 	} else {
-		@layouts.CustomerShell("العروض الحصرية والتخفيضات | Exclusive Offers", lang, dir) {
+		@layouts.PublicShell("العروض الحصرية والتخفيضات | Exclusive Offers", lang, dir) {
 			@OffersContent(lang, offers)
 		}
 	}
@@ -107,12 +107,12 @@ templ OffersContent(lang string, offers []*promo.Offer) {
 }
 
 templ OfferDetail(lang, dir string, o *promo.Offer) {
-	if actor, ok := authctx.From(ctx); ok && (actor.Role == "pharmacy" || actor.Role == "chain_pharmacy") {
-		@layouts.PharmacyShell("تفاصيل العرض | Offer Detail", "offers", lang, dir, nil) {
+	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+		@layouts.CustomerShell("تفاصيل العرض | Offer Detail", "offers", lang, dir, nil) {
 			@OfferDetailContent(lang, o)
 		}
 	} else {
-		@layouts.CustomerShell("تفاصيل العرض | Offer Detail", lang, dir) {
+		@layouts.PublicShell("تفاصيل العرض | Offer Detail", lang, dir) {
 			@OfferDetailContent(lang, o)
 		}
 	}
