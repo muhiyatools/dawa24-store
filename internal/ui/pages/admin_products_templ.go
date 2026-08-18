@@ -426,7 +426,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<form method=\"POST\" action=\"/admin/products/import\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:1.25rem; text-align:start;\"><div style=\"background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;\"><div style=\"font-weight:700; color:var(--text); margin-bottom:0.35rem;\">تحميل نموذج ملف الاستيراد الجاهز:</div><p style=\"font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.75rem; line-height:1.5;\">قم بتحميل النموذج المعتمد وفتحه عبر برنامج Excel أو Google Sheets وتعبئة أسماء الأدوية، المواد الفعالة، والشركات المصنعة.</p><a href=\"/admin/products/sample.csv\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; color:var(--accent); width:100%; justify-content:center; gap:0.4rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<form method=\"POST\" action=\"/admin/products/import\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:1.25rem; text-align:start;\"><div style=\"background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;\"><div style=\"font-weight:700; color:var(--text); margin-bottom:0.35rem;\">تحميل نموذج ملف الاستيراد الجاهز:</div><p style=\"font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.75rem; line-height:1.5;\">قم بتحميل النموذج المعتمد بصيغة Excel أو CSV وتعبئة أسماء الأدوية، المواد الفعالة، والشركات المصنعة.</p><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;\"><a href=\"/admin/products/sample.xlsx\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -434,7 +434,15 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>تحميل نموذج ملف استيراد تجريبي (Sample CSV)</span></a></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"import-file\">اختر ملف Excel / CSV المكتمل *</label> <input type=\"file\" id=\"import-file\" name=\"import_file\" required accept=\".csv,.xlsx,.xls,.txt\" class=\"form-input\" style=\"padding:0.5rem;\"><p style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;\">الصيغ المدعومة: CSV (مفصول بفواصل أو فواصل منقوطة) وترميز UTF-8 المتوافق مع Excel.</p></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; gap:0.4rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>نموذج ملف Excel (.xlsx)</span></a> <a href=\"/admin/products/sample.csv\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconDownload("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>نموذج ملف CSV (.csv)</span></a></div></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"import-file\">اختر ملف Excel / CSV المكتمل *</label> <input type=\"file\" id=\"import-file\" name=\"import_file\" required accept=\".csv,.xlsx,.xls,.txt\" class=\"form-input\" style=\"padding:0.5rem;\"><p style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;\">الصيغ المدعومة: CSV (مفصول بفواصل أو فواصل منقوطة) وترميز UTF-8 المتوافق مع Excel.</p></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; gap:0.4rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -442,7 +450,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>بدء استيراد وإضافة الأصناف</span></button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span>بدء استيراد وإضافة الأصناف</span></button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -456,7 +464,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

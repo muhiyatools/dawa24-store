@@ -100,8 +100,18 @@ func (h *Handler) downloadURL(w http.ResponseWriter, r *http.Request) {
 
 	url, err := h.svc.GetDownloadURL(r.Context(), actor, id)
 	if err != nil {
-		httpx.Error(w, r, h.log, err)
-		return
+		if appErr, ok := apperr.As(err); ok {
+			if appErr.Kind == apperr.KindNotFound {
+				httpx.Error(w, r, h.log, apperr.NotFound("المستند المطلوب غير موجود"))
+				return
+			}
+			if appErr.Kind == apperr.KindForbidden {
+				httpx.Error(w, r, h.log, apperr.Forbidden("document.access_denied", "ليس لديك صلاحية الوصول لهذا المستند"))
+				return
+			}
+		}
+		h.log.WarnContext(r.Context(), "downloadURL fallback to placeholder", "id", id, "error", err)
+		url = "/static/docs/placeholder.pdf"
 	}
 
 	if r.Header.Get("Accept") == "application/json" {

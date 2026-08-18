@@ -148,6 +148,8 @@ func TestFormActionRoutes(t *testing.T) {
 		{"POST", "/notifications/123/read"},
 		{"POST", "/vendor/variants/new"},
 		{"POST", "/vendor/orders/456/status"},
+		{"POST", "/admin/products/new"},
+		{"POST", "/admin/products/import"},
 	}
 
 	for _, route := range actionRoutes {
@@ -163,4 +165,46 @@ func TestFormActionRoutes(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAdminProductSampleDownloads(t *testing.T) {
+	actor := authctx.Actor{
+		UserID:    1,
+		Role:      "super_admin",
+		IsStaff:   true,
+		OrgStatus: "approved",
+	}
+	router := newTestRouter(&actor)
+
+	t.Run("GET /admin/products/sample.csv", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/admin/products/sample.csv", nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("want 200, got %d", rec.Code)
+		}
+		if ct := rec.Header().Get("Content-Type"); ct != "text/csv; charset=utf-8" {
+			t.Fatalf("want text/csv, got %q", ct)
+		}
+		if len(rec.Body.Bytes()) < 100 {
+			t.Fatalf("CSV content too small: %d bytes", len(rec.Body.Bytes()))
+		}
+	})
+
+	t.Run("GET /admin/products/sample.xlsx", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/admin/products/sample.xlsx", nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("want 200, got %d", rec.Code)
+		}
+		if ct := rec.Header().Get("Content-Type"); ct != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" {
+			t.Fatalf("want spreadsheetml.sheet, got %q", ct)
+		}
+		if len(rec.Body.Bytes()) < 100 {
+			t.Fatalf("XLSX content too small: %d bytes", len(rec.Body.Bytes()))
+		}
+	})
 }

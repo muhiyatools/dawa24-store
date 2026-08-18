@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -21,6 +24,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 
@@ -588,7 +592,7 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 
 	var products []*catalog.Product
 	if h.catSvc != nil {
-		products, _ = h.catSvc.Search(ctx, catalog.SearchParams{Limit: 100})
+		products, _ = h.catSvc.Search(database.AsSystem(ctx), catalog.SearchParams{Limit: 200})
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -602,7 +606,7 @@ func (h *UIHandler) AdminProductStatusSubmit(w http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err == nil && h.catSvc != nil {
-		_, _ = h.catSvc.SetProductsStatus(ctx, []int64{id}, catalog.ProductStatus(r.PostFormValue("status")))
+		_, _ = h.catSvc.SetProductsStatus(database.AsSystem(ctx), []int64{id}, catalog.ProductStatus(r.PostFormValue("status")))
 	}
 	http.Redirect(w, r, "/admin/products", http.StatusSeeOther)
 }
@@ -642,11 +646,14 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 		Active:                 r.FormValue("active_ingredient"),
 		DosageForm:             r.FormValue("dosage_form"),
 		ManufacturingCompanies: r.FormValue("manufacturer"),
+		SKU:                    r.FormValue("eda_reg_number"),
+		Barcode:                r.FormValue("eda_reg_number"),
 		Image:                  imgURL,
 		Status:                 catalog.StatusActive,
 	}
 
-	if _, err := h.catSvc.CreateProduct(ctx, prod); err != nil {
+	if _, err := h.catSvc.CreateProduct(database.AsSystem(ctx), prod); err != nil {
+		h.log.ErrorContext(ctx, "admin create product failed", "error", err)
 		h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
@@ -692,39 +699,75 @@ func (h *UIHandler) AdminProductsSampleCSV(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// AdminProductsImportSubmit handles bulk uploading and parsing of Excel/CSV product files.
-func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
-		return
+// AdminProductsSampleXLSX streams a styled Excel (.xlsx) template file for bulk products import.
+func (h *UIHandler) AdminProductsSampleXLSX(w http.ResponseWriter, r *http.Request) {
+	f := excelize.NewFile()
+	defer f.Close()
+
+	sheet := "Sheet1"
+	headers := []string{
+		"اسم الصنف بالعربي",
+		"اسم الصنف بالإنجليزي",
+		"الاسم العلمي",
+		"المادة الفعالة",
+		"الشكل الصيدلي",
+		"الشركة المصنعة",
+		"رقم التسجيل EDA",
+		"السعر",
+		"الوصف بالعربي",
+		"الوصف بالإنجليزي",
 	}
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "حجم الملف كبير جداً أو تعذر قراءة البيانات.")
-		return
+	for i, head := range headers {
+		colName, _ := excelize.ColumnNumberToName(i + 1)
+		_ = f.SetCellValue(sheet, fmt.Sprintf("%s1", colName), head)
 	}
 
-	file, _, err := r.FormFile("import_file")
-	if err != nil {
-		file, _, err = r.FormFile("file")
+	sampleRows := [][]string{
+		{"كونجستال أقراص", "Congestal Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", "أقراص", "Eva Pharma", "EDA-10293", "25.00", "لعلاج أعراض نزلات البرد والإنفلونزا", "For cold and flu relief"},
+		{"بانادول إكسترا", "Panadol Extra", "Paracetamol + Caffeine", "Paracetamol 500mg + Caffeine 65mg", "أقراص", "GSK", "EDA-88421", "35.00", "مسكن للآلام وخافض للحرارة", "Pain reliever and fever reducer"},
+		{"أوجمنتين 1 جم أقراص", "Augmentin 1g Tablets", "Amoxicillin + Clavulanic Acid", "Amoxicillin 875mg + Clavulanate 125mg", "أقراص", "GlaxoSmithKline", "EDA-33910", "89.50", "مضاد حيوي واسع المجال", "Broad spectrum antibiotic"},
+		{"أنتينال كبسول", "Antinal Capsules", "Nifuroxazide", "Nifuroxazide 200mg", "كبسولات", "Amoun Pharmaceutical", "EDA-22194", "30.00", "مطهر معوي ومضاد للإسهال", "Intestinal antiseptic"},
+		{"كتفاست فوار", "Catafast Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", "فوار", "Novartis", "EDA-54210", "65.00", "مسكن سريع المفعول ومضاد للالتهاب", "Fast acting pain relief"},
 	}
-	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى اختيار ملف CSV أو Excel صالح للاستيراد.")
-		return
-	}
-	defer file.Close()
 
-	content, err := io.ReadAll(file)
-	if err != nil || len(content) == 0 {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "الملف المرفوع فارغ أو تعذرت قراءته.")
-		return
+	for rIdx, row := range sampleRows {
+		for cIdx, val := range row {
+			colName, _ := excelize.ColumnNumberToName(cIdx + 1)
+			_ = f.SetCellValue(sheet, fmt.Sprintf("%s%d", colName, rIdx+2), val)
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"dawa24_products_sample.xlsx\"")
+	_ = f.Write(w)
+}
+
+func parseUploadedProductRows(content []byte, filename string) ([][]string, error) {
+	ext := strings.ToLower(filepath.Ext(filename))
+	// If Excel format (.xlsx) or starts with PK zip header
+	if ext == ".xlsx" || ext == ".xlsm" || bytes.HasPrefix(content, []byte("PK\x03\x04")) {
+		f, err := excelize.OpenReader(bytes.NewReader(content))
+		if err != nil {
+			return nil, fmt.Errorf("تعذر قراءة ملف Excel: %w", err)
+		}
+		defer f.Close()
+
+		sheets := f.GetSheetList()
+		if len(sheets) == 0 {
+			return nil, errors.New("ملف Excel لا يحتوي على أي صفحات بيانات")
+		}
+		rows, err := f.GetRows(sheets[0])
+		if err != nil {
+			return nil, fmt.Errorf("تعذر استخراج بيانات صفوف Excel: %w", err)
+		}
+		return rows, nil
 	}
 
 	// Remove UTF-8 BOM if present
 	content = bytes.TrimPrefix(content, []byte{0xEF, 0xBB, 0xBF})
 
-	// Detect delimiter (comma or semicolon or tab)
+	// Detect delimiter
 	firstLine := string(bytes.Split(content, []byte("\n"))[0])
 	var delimiter rune = ','
 	if strings.Count(firstLine, ";") > strings.Count(firstLine, ",") {
@@ -738,9 +781,46 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 	reader.LazyQuotes = true
 	reader.TrimLeadingSpace = true
 
-	records, err := reader.ReadAll()
+	return reader.ReadAll()
+}
+
+// AdminProductsImportSubmit handles bulk uploading and parsing of Excel/CSV product files.
+func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
+		return
+	}
+
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "حجم الملف كبير جداً أو تعذر قراءة البيانات.")
+		return
+	}
+
+	file, header, err := r.FormFile("import_file")
+	if err != nil {
+		file, header, err = r.FormFile("file")
+	}
+	if err != nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى اختيار ملف CSV أو Excel صالح للاستيراد.")
+		return
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil || len(content) == 0 {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "الملف المرفوع فارغ أو تعذرت قراءته.")
+		return
+	}
+
+	filename := ""
+	if header != nil {
+		filename = header.Filename
+	}
+
+	records, err := parseUploadedProductRows(content, filename)
 	if err != nil || len(records) < 2 {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "تنسيق ملف CSV غير صحيح أو لا يحتوي على صفوف بيانات.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", "تنسيق الملف غير صالح أو لا يحتوي على صفوف بيانات.")
 		return
 	}
 
@@ -768,13 +848,14 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	importedCount := 0
+	var lastErr error
 	for rowIdx := 1; rowIdx < len(records); rowIdx++ {
 		row := records[rowIdx]
 		if len(row) == 0 {
 			continue
 		}
 
-		nameAr := findCol(row, "اسم الصنف بالعربي", "اسم الصنف", "الاسم بالعربي", "name_ar", "name", "product_name")
+		nameAr := findCol(row, "اسم الصنف بالعربي", "اسم الصنف", "الاسم بالعربي", "name_ar", "name", "product_name", "اسم الدواء", "المستحضر")
 		nameEn := findCol(row, "اسم الصنف بالإنجليزي", "الاسم بالانجليزي", "الاسم بالإنجليزية", "name_en", "trade_name", "english_name")
 		if nameAr == "" && nameEn == "" {
 			if len(row) > 0 && strings.TrimSpace(row[0]) != "" {
@@ -801,6 +882,8 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 		descAr := findCol(row, "الوصف بالعربي", "الوصف", "description_ar", "description")
 		descEn := findCol(row, "الوصف بالإنجليزي", "الوصف بالانجليزي", "description_en")
 
+		priceVal, _ := money.Parse(findCol(row, "السعر", "price", "سعر الجمهور"))
+
 		prod := &catalog.Product{
 			Name:                   i18n.New(nameAr, nameEn),
 			Description:            i18n.New(descAr, descEn),
@@ -810,16 +893,23 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 			ManufacturingCompanies: mfg,
 			SKU:                    eda,
 			Barcode:                eda,
+			Price:                  priceVal,
 			Status:                 catalog.StatusActive,
 		}
 
-		if _, err := h.catSvc.CreateProduct(ctx, prod); err == nil {
+		if _, err := h.catSvc.CreateProduct(database.AsSystem(ctx), prod); err == nil {
 			importedCount++
+		} else {
+			lastErr = err
 		}
 	}
 
 	if importedCount == 0 {
-		h.redirectWithNotice(w, r, "/admin/products", "warning", "لم يتم استيراد أي أصناف. يرجى التأكد من تطابق أعمدة الملف مع النموذج التجريبي.")
+		errMsg := "لم يتم استيراد أي أصناف. يرجى التأكد من تطابق أعمدة الملف مع النموذج التجريبي."
+		if lastErr != nil {
+			errMsg = fmt.Sprintf("فشل استيراد الأصناف: %s", h.safeMessage(lastErr, langOf(r)))
+		}
+		h.redirectWithNotice(w, r, "/admin/products", "error", errMsg)
 		return
 	}
 

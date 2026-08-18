@@ -28,8 +28,6 @@ func (s *Service) CreateProduct(ctx context.Context, p *Product) (*Product, erro
 		orgID, ok := database.TenantFrom(ctx)
 		if ok && orgID > 0 {
 			p.OrganizationID = orgID
-		} else {
-			p.OrganizationID = 1 // Default platform master catalog org
 		}
 	}
 

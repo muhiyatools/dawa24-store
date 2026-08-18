@@ -233,11 +233,27 @@ func (s *Service) GetDownloadURL(ctx context.Context, actor authctx.Actor, id in
 		}
 	}
 
-	if s.storage != nil {
-		return s.storage.PresignGet(ctx, doc.FileURL, 30*time.Minute)
+	fileURL := strings.TrimSpace(doc.FileURL)
+	if fileURL == "" {
+		return "/static/docs/placeholder.pdf", nil
 	}
 
-	return "/static/docs/placeholder.pdf", nil
+	// If it's already a direct HTTP(S) URL or local uploads/static path, return it directly
+	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") || strings.HasPrefix(fileURL, "/uploads/") || strings.HasPrefix(fileURL, "/static/") {
+		return fileURL, nil
+	}
+
+	if s.storage != nil {
+		presigned, presignErr := s.storage.PresignGet(ctx, fileURL, 30*time.Minute)
+		if presignErr == nil && presigned != "" {
+			return presigned, nil
+		}
+		if s.log != nil {
+			s.log.WarnContext(ctx, "storage presign get failed, falling back to direct key or placeholder", "id", id, "key", fileURL, "error", presignErr)
+		}
+	}
+
+	return fileURL, nil
 }
 
 // VerifyDocument allows platform admins to approve or reject submitted certificates and licenses.

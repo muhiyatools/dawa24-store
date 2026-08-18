@@ -23,22 +23,24 @@ func NewRepository(db *database.DB) *Repository {
 
 // CreateProduct inserts a new product for the active organization.
 func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		if p.OrganizationID == 0 {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if p.OrganizationID <= 0 {
 			var firstOrgID int64
 			err := tx.QueryRow(txCtx, `SELECT id FROM org.organizations WHERE status = 'approved' OR type = 'vendor' ORDER BY id ASC LIMIT 1`).Scan(&firstOrgID)
-			if err != nil || firstOrgID == 0 {
+			if err != nil || firstOrgID <= 0 {
 				_ = tx.QueryRow(txCtx, `SELECT id FROM org.organizations ORDER BY id ASC LIMIT 1`).Scan(&firstOrgID)
 			}
 			if firstOrgID > 0 {
 				p.OrganizationID = firstOrgID
 			} else {
-				_ = tx.QueryRow(txCtx, `
+				err = tx.QueryRow(txCtx, `
 					INSERT INTO org.organizations (name, legal_name, trade_name, type, status)
 					VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'دواء 24 - الكتالوج المعتمد', '{"ar":"دواء 24","en":"Dawa24"}'::jsonb, 'vendor', 'approved')
 					RETURNING id
 				`).Scan(&firstOrgID)
-				p.OrganizationID = firstOrgID
+				if err == nil {
+					p.OrganizationID = firstOrgID
+				}
 			}
 		}
 
@@ -150,7 +152,7 @@ func (r *Repository) DeleteProduct(ctx context.Context, id int64) error {
 // SearchProducts performs fuzzy Arabic search and filters.
 func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchParams) ([]*catalog.Product, error) {
 	var products []*catalog.Product
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, category_id, brand_id, branch_id,
 			       name, description, sku, barcode, price, discount, old_price, image,
@@ -169,8 +171,10 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			LIMIT $4 OFFSET $5;
 		`
 		limit := params.Limit
-		if limit <= 0 || limit > 100 {
-			limit = 20
+		if limit <= 0 {
+			limit = 50
+		} else if limit > 1000 {
+			limit = 1000
 		}
 
 		rows, err := tx.Query(txCtx, query, params.Query, params.CategoryID, params.BrandID, limit, params.Offset, params.MinPrice, params.MaxPrice)
