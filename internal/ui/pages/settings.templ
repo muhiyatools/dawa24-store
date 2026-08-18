@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -30,7 +31,7 @@ templ settingsTabs(active string) {
 }
 
 templ SettingsProfile(lang, dir string, user *identity.User) {
-	@layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil) {
+	@layouts.ShellFor("الإعدادات", "settings", lang, dir, authctx.FromContext(ctx)) {
 		<div style="max-width:640px;">
 			@settingsTabs("profile")
 			<div class="card" style="margin-top:1rem;">
@@ -79,7 +80,8 @@ templ SettingsProfile(lang, dir string, user *identity.User) {
 }
 
 templ SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, cities []*platformadmin.City, history []*identity.UserAddressHistory) {
-	@layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil) {
+	@layouts.ShellFor("الإعدادات", "settings", lang, dir, authctx.FromContext(ctx)) {
+
 		<div style="max-width:720px;">
 			@settingsTabs("addresses")
 			<div class="card" style="margin-top:1rem;">
@@ -178,7 +180,7 @@ templ SettingsAddresses(lang, dir string, addresses []*identity.UserAddress, cit
 
 
 templ SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*identity.SessionPlan) {
-	@layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil) {
+	@layouts.ShellFor("الإعدادات", "settings", lang, dir, authctx.FromContext(ctx)) {
 		<div style="max-width:720px;">
 			@settingsTabs("security")
 			<div class="card" style="margin-top:1rem;">
@@ -241,7 +243,8 @@ templ SettingsSecurity(lang, dir string, sessions []*identity.Session, plans []*
 
 
 templ SettingsOrganization(lang, dir string, o *org.Organization, branches []*org.Branch, members []*org.Member) {
-	@layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil) {
+	@layouts.ShellFor("الإعدادات", "settings", lang, dir, authctx.FromContext(ctx)) {
+
 		<div style="max-width:720px;">
 			@settingsTabs("organization")
 			<div class="card" style="margin-top:1rem;">
@@ -356,7 +359,7 @@ templ SettingsOrganization(lang, dir string, o *org.Organization, branches []*or
 
 
 templ SettingsPreferences(lang, dir string, p *identity.UserPreferences) {
-	@layouts.CustomerShell("الإعدادات", "settings", lang, dir, nil) {
+	@layouts.ShellFor("الإعدادات", "settings", lang, dir, authctx.FromContext(ctx)) {
 		<div style="max-width:560px;">
 			@settingsTabs("preferences")
 			<div class="card" style="margin-top:1rem;">
@@ -397,7 +400,8 @@ templ SettingsPreferences(lang, dir string, p *identity.UserPreferences) {
 }
 
 templ SettingsPaymentMethods(lang, dir string) {
-	@layouts.CustomerShell("طرق الدفع | Payment Methods", "settings", lang, dir, nil) {
+	@layouts.ShellFor("طرق الدفع | Payment Methods", "settings", lang, dir, authctx.FromContext(ctx)) {
+
 		<div style="max-width:760px;" x-data="{ payType: 'bank_account' }">
 			@settingsTabs("payments")
 			<div class="card" style="margin-top:1rem; padding:2rem;">

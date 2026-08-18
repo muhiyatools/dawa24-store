@@ -239,8 +239,35 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 	}, nil
 }
 
+// ChangePassword verifies current password and updates to the new hashed password.
+func (s *Service) ChangePassword(ctx context.Context, userID int64, currentPassword, newPassword string) error {
+	user, err := s.repo.GetUserByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if !CheckPassword(user.PasswordHash, currentPassword) {
+		return apperr.Validation("auth.invalid_password", "كلمة المرور الحالية غير صحيحة.", nil)
+	}
+	if len(newPassword) < 8 {
+		return apperr.Validation("auth.weak_password", "كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل.", nil)
+	}
+
+	hash, err := HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = hash
+	user.UpdatedAt = time.Now()
+	if err := s.repo.UpdateUser(ctx, user); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "user password updated", "user_id", userID)
+	return nil
+}
+
 // Logout terminates a session.
 func (s *Service) Logout(ctx context.Context, token string) error {
+
 	if s.sessionStore == nil {
 		return nil
 	}

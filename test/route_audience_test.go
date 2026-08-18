@@ -143,3 +143,42 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 		}
 	}
 }
+
+// TestSharedPagesDoNotHardcodeShells asserts that pages rendered by shared routes
+// do not directly hardcode a concrete @layouts.*Shell, but use @layouts.ShellFor
+// so both pharmacies and suppliers see their own shell.
+func TestSharedPagesDoNotHardcodeShells(t *testing.T) {
+	const root = ".."
+	sharedTemplates := []string{
+		"settings_employees.templ",
+		"settings_unified.templ",
+		"settings.templ",
+		"wallet.templ",
+		"notifications.templ",
+		"messages.templ",
+		"requests.templ",
+		"organization_documents.templ",
+		"customer_invoices.templ",
+	}
+
+	concreteShells := []string{
+		"@layouts.CustomerShell",
+		"@layouts.VendorShell",
+		"@layouts.AdminShell",
+	}
+
+	for _, tmplName := range sharedTemplates {
+		path := filepath.Join(root, "internal", "ui", "pages", tmplName)
+		content, err := os.ReadFile(path)
+		if err != nil {
+			// If file does not exist, continue
+			continue
+		}
+		src := string(content)
+		for _, shell := range concreteShells {
+			if strings.Contains(src, shell) {
+				t.Errorf("shared template %s names concrete %s; shared templates must use @layouts.ShellFor instead", tmplName, shell)
+			}
+		}
+	}
+}

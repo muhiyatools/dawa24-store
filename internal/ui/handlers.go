@@ -190,7 +190,9 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/suppliers/{id}/quote", h.SupplierQuoteSubmit)
 	r.Post("/finder/answer", h.FinderAnswerSubmit)
 	r.Post("/compare/subscribe", h.CompareSubscribeSubmit)
+	r.Post("/reviews/submit", h.ReviewSubmit)
 }
+
 
 // RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
 // RequireVendor.
@@ -213,7 +215,10 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/coverage", h.VendorCoveragePage)
 	r.Get("/vendor/transfers", h.VendorTransfersPage)
 	r.Get("/vendor/ingest", h.VendorIngestPage)
+	r.Post("/vendor/ingest/upload", h.VendorIngestUploadSubmit)
+	r.Post("/vendor/ingest/{id}/commit", h.VendorIngestCommitSubmit)
 	r.Get("/vendor/orders", h.VendorOrdersPage)
+
 	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
 	r.Get("/vendor/offers", h.VendorOffersPage)
 	r.Get("/vendor/offers/new", h.VendorOfferNewPage)
@@ -309,10 +314,13 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Get("/settings/payment-methods", h.SettingsPaymentMethodsPage)
 
 	r.Post("/settings/profile", h.SettingsProfileSubmit)
+	r.Post("/settings/password", h.SettingsPasswordSubmit)
 	r.Post("/settings/addresses", h.SettingsAddressSubmit)
 	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
 	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
+	r.Post("/settings/sessions/revoke", h.SettingsSessionRevokeSubmit)
 	r.Post("/settings/security/plan/{id}", h.SettingsSessionPlanPurchaseSubmit)
+
 	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
 	r.Post("/settings/organization/branch", h.SettingsBranchCreateSubmit)
 	r.Post("/settings/organization/branch/{id}/delete", h.SettingsBranchDeleteSubmit)

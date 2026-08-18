@@ -359,11 +359,19 @@ func (s *Service) AddReviewWithRatings(ctx context.Context, rev *Review, ratings
 	return s.repo.AddReviewWithRatings(ctx, rev, ratings)
 }
 
-// ReplyToReview adds a vendor response to a review.
-func (s *Service) ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error {
-	if response == "" {
-		return apperr.Validation("review.reply_empty", "Reply cannot be empty.", nil)
+// SubmitReview records a review and its individual criteria ratings.
+func (s *Service) SubmitReview(ctx context.Context, rev *Review) error {
+	if rev.Rating < 1 {
+		rev.Rating = 5
 	}
-	return s.repo.ReplyToReview(ctx, reviewID, orgID, response, responderID)
+	if rev.Rating > 5 {
+		rev.Rating = 5
+	}
+	if err := s.repo.AddReview(ctx, rev); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "review submitted", "org_id", rev.OrganizationID, "user_id", rev.UserID, "rating", rev.Rating)
+	return nil
 }
+
 

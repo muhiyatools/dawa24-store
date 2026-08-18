@@ -1,5 +1,7 @@
 package components
 
+import "fmt"
+
 // ReviewModalProps configures the multi-criteria feedback dialog.
 type ReviewModalProps struct {
 	ID             string
@@ -43,17 +45,17 @@ templ ReviewModal(props ReviewModalProps) {
 				</button>
 			</div>
 
-			<form method="POST" action="/api/v1/reviews">
-				<input type="hidden" name="organization_id" value={ templ.EscapeString(string(rune(props.TargetOrgID))) }/>
+			<form method="POST" action="/reviews/submit">
+				<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", props.TargetOrgID) }/>
 				if props.OrderID != nil {
-					<input type="hidden" name="order_id" value={ templ.EscapeString(string(rune(*props.OrderID))) }/>
+					<input type="hidden" name="order_id" value={ fmt.Sprintf("%d", *props.OrderID) }/>
 				}
 				<input type="hidden" name="context" value={ props.Context }/>
 
 				<!-- Overall & Criteria Ratings -->
 				<div style="margin-bottom:var(--space-5);">
 					<label class="form-label" style="font-weight:600; margin-bottom:var(--space-3); display:block; color:var(--text);">
-						معايير التقييم والجودة
+						معايير التقييم والجودة (من 1 إلى 5 نجوم)
 					</label>
 					
 					<div style="display:grid; gap:var(--space-3); background:var(--surface-sunken); padding:var(--space-4); border-radius:var(--radius-md); border:1px solid var(--border);">
@@ -61,10 +63,11 @@ templ ReviewModal(props ReviewModalProps) {
 							keys := props.CriteriaKeys
 							labels := props.CriteriaLabels
 							if len(keys) == 0 {
-								keys = []string{"delivery_speed", "product_quality", "rep_service", "price_fairness", "order_accuracy", "packaging"}
-								labels = []string{"سرعة التوصيل", "جودة المنتجات", "تعامل المندوب", "مناسبة الأسعار", "دقة تنفيذ الطلب", "جودة التغليف"}
+								keys = []string{"rep", "speed", "quality"}
+								labels = []string{"تقييم المندوب والتواصل", "سرعة التوصيل والتجهيز", "جودة الأصناف والتعامل"}
 							}
 						}}
+
 						for i, key := range keys {
 							<div style="display:flex; justify-content:space-between; align-items:center; gap:var(--space-3);">
 								<span style="font-size:var(--text-sm); font-weight:500; color:var(--text);">

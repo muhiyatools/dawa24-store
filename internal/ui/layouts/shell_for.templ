@@ -1,0 +1,26 @@
+package layouts
+
+import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+)
+
+// ShellFor renders the appropriate dashboard shell based on the actor's audience:
+//   - customer (صيدلية) → CustomerShell (with permissions)
+//   - vendor (مورّد)     → VendorShell
+//   - staff (إدارة)      → AdminShell
+//   - default           → CustomerShell
+templ ShellFor(title string, activeNav string, lang string, dir string, actor authctx.Actor) {
+	if actor.IsStaff {
+		@AdminShell(title, activeNav, lang, dir) {
+			{ children... }
+		}
+	} else if actor.OrgType == "vendor" {
+		@VendorShell(title, activeNav, lang, dir) {
+			{ children... }
+		}
+	} else {
+		@CustomerShell(title, activeNav, lang, dir, actor.Permissions) {
+			{ children... }
+		}
+	}
+}

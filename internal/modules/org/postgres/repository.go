@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"math"
 
 	"github.com/jackc/pgx/v5"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
+
 
 // Repository implements org.Repository using PostgreSQL.
 type Repository struct {
@@ -425,7 +427,8 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 // ListEmployees returns comprehensive employee rows with user, role, and branch details.
 func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.EmployeeView, error) {
 	var list []*org.EmployeeView
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+
 		query := `
 			SELECT m.id, m.organization_id, m.user_id, m.branch_id, m.role_id, m.role_key,
 			       m.org_role_id, COALESCE(m.employee_code, ''), COALESCE(m.job_title, ''),
@@ -543,26 +546,61 @@ func (r *Repository) RemoveMember(ctx context.Context, orgID, userID int64) erro
 	})
 }
 
-// AddReview adds a review for an organization.
+// AddReview adds a review for an organization with individual criteria ratings.
 func (r *Repository) AddReview(ctx context.Context, rev *org.Review) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if len(rev.Ratings) > 0 {
+			total := 0
+			for _, rating := range rev.Ratings {
+				total += rating.Score
+			}
+			rev.Rating = int(math.Round(float64(total) / float64(len(rev.Ratings))))
+		}
+		if rev.Rating < 1 {
+			rev.Rating = 5
+		}
 		query := `
 			INSERT INTO org.organization_reviews (organization_id, user_id, rating, review_text, is_approved)
 			VALUES ($1, $2, $3, $4, $5)
 			RETURNING id, public_id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query, rev.OrganizationID, rev.UserID, rev.Rating, rev.ReviewText, rev.IsApproved).
+		err := tx.QueryRow(txCtx, query, rev.OrganizationID, rev.UserID, rev.Rating, rev.ReviewText, rev.IsApproved).
 			Scan(&rev.ID, &rev.PublicID, &rev.CreatedAt, &rev.UpdatedAt)
+		if err != nil {
+			return err
+		}
+
+		for _, rr := range rev.Ratings {
+			crit := rr.Criterion
+			if crit == "" {
+				continue
+			}
+			qRating := `
+				INSERT INTO org.review_ratings (review_id, criterion, score)
+				VALUES ($1, $2, $3)
+				ON CONFLICT (review_id, criterion) DO UPDATE SET score = EXCLUDED.score;
+			`
+			if _, err := tx.Exec(txCtx, qRating, rev.ID, crit, rr.Score); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 }
 
-// ListReviewsByOrg returns approved reviews for an organization.
+// ListReviewsByOrg returns approved reviews for an organization, joining reviewer organization name.
 func (r *Repository) ListReviewsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*org.Review, error) {
 	var list []*org.Review
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, user_id, rating, review_text, is_approved, created_at, updated_at
-			FROM org.organization_reviews WHERE organization_id = $1 AND is_approved = true ORDER BY created_at DESC LIMIT $2 OFFSET $3;
+			SELECT r.id, r.public_id, r.organization_id, r.user_id, r.rating, r.review_text, r.is_approved, r.created_at, r.updated_at,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.trade_name->>'en', ''), NULLIF(o.name->>'ar', ''), NULLIF(o.name->>'en', ''), 'صيدلية معتمدة') AS reviewer_org_name
+			FROM org.organization_reviews r
+			LEFT JOIN org.members m ON m.user_id = r.user_id
+			LEFT JOIN org.organizations o ON o.id = m.organization_id
+			WHERE r.organization_id = $1 AND r.is_approved = true
+			ORDER BY r.created_at DESC
+			LIMIT $2 OFFSET $3;
 		`
 		if limit <= 0 || limit > 100 {
 			limit = 20
@@ -575,18 +613,21 @@ func (r *Repository) ListReviewsByOrg(ctx context.Context, orgID int64, limit, o
 		for rows.Next() {
 			var rev org.Review
 			var revText *string
-			if err := rows.Scan(&rev.ID, &rev.PublicID, &rev.OrganizationID, &rev.UserID, &rev.Rating, &revText, &rev.IsApproved, &rev.CreatedAt, &rev.UpdatedAt); err != nil {
+			var orgName string
+			if err := rows.Scan(&rev.ID, &rev.PublicID, &rev.OrganizationID, &rev.UserID, &rev.Rating, &revText, &rev.IsApproved, &rev.CreatedAt, &rev.UpdatedAt, &orgName); err != nil {
 				return err
 			}
 			if revText != nil {
 				rev.ReviewText = *revText
 			}
+			rev.ReviewerOrgName = orgName
 			list = append(list, &rev)
 		}
 		return rows.Err()
 	})
 	return list, err
 }
+
 
 // ToggleFollower toggles follower status for a user and organization.
 func (r *Repository) ToggleFollower(ctx context.Context, orgID, userID int64) (bool, error) {

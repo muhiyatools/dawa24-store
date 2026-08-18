@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -18,10 +19,12 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
+
 )
 
 
@@ -532,6 +535,92 @@ func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
 		h.log.ErrorContext(ctx, "render vendor ingest page", "error", err)
 	}
 }
+
+// VendorIngestUploadSubmit processes vendor catalog files via the Ingest service.
+func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		httpx.JSON(w, http.StatusUnauthorized, map[string]any{"error": "Unauthorized"})
+		return
+	}
+
+	if h.ingSvc == nil {
+		httpx.JSON(w, http.StatusServiceUnavailable, map[string]any{"error": "Ingest service unavailable"})
+		return
+	}
+
+	if err := r.ParseMultipartForm(50 << 20); err != nil {
+		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "Failed to parse uploaded file"})
+		return
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "No file provided"})
+		return
+	}
+	defer file.Close()
+
+	upload := &ingest.FileUpload{
+		OrganizationID: actor.OrganizationID,
+		UserID:         actor.UserID,
+		Filename:       header.Filename,
+		StorageKey:     fmt.Sprintf("orgs/%d/uploads/%d_%s", actor.OrganizationID, time.Now().UnixNano(), header.Filename),
+		FileSizeBytes:  header.Size,
+		MimeType:       header.Header.Get("Content-Type"),
+		CreatedAt:      time.Now().UTC(),
+	}
+
+	regUpload, err := h.ingSvc.RegisterUpload(ctx, upload)
+	if err != nil {
+		h.log.ErrorContext(ctx, "failed to register file upload", "error", err)
+		httpx.JSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
+		return
+	}
+
+	session, err := h.ingSvc.StartSession(ctx, regUpload.ID, []string{"Barcode", "Name", "Price", "Quantity"}, 0.8)
+
+	if err != nil {
+		h.log.ErrorContext(ctx, "failed to start ingest session", "error", err)
+		httpx.JSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{
+		"session_id": session.ID,
+		"filename":   header.Filename,
+		"status":     session.Status,
+		"total_rows": session.TotalRows,
+	})
+}
+
+// VendorIngestCommitSubmit confirms and commits the matched items to inventory.
+func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		httpx.JSON(w, http.StatusUnauthorized, map[string]any{"error": "Unauthorized"})
+		return
+	}
+
+	sessionID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "Invalid session ID"})
+		return
+	}
+
+	if h.ingSvc != nil {
+		if err := h.ingSvc.CommitSession(ctx, sessionID); err != nil {
+			h.log.ErrorContext(ctx, "failed to commit ingest session", "error", err, "session_id", sessionID)
+			httpx.JSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
+			return
+		}
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{"success": true})
+}
+
 
 // VendorOrdersPage renders supplier order fulfillments.
 func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {

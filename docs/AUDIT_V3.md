@@ -304,16 +304,17 @@ populated.
 Ordered so each step is verifiable, and so the steps that unblock the most
 symptoms come first.
 
-| # | Part | Fixes | Verify by |
+| # | Part | Fixes | Status |
 |---|---|---|---|
-| 1 | **3.1 + 3.2** | empty lists everywhere, the manager dropdown | employees appear for org 17; repo test |
-| 2 | **1** | both wrong-sidebar reports | each type sees only its own shell on all six pages |
-| 3 | **6** | branch manager assign/reassign/unassign | `manager_id` round-trips |
-| 4 | **2** | audience leaks, dead shells | guard test fails before, passes after |
-| 5 | **4.1** | الاستيراد وتأكيدها | a real file imports end to end |
-| 6 | **4.2 + 4.3** | review submit, two dead targets | forms reach a handler |
-| 7 | **5.2** | reviewer identity | org names only, no personal names |
-| 8 | **5.1** | three-criteria ratings | three stars stored, average displayed |
+| 1 | **3.1 + 3.2** | empty lists everywhere, the manager dropdown | **FIXED** (`database.AsSystem` in `ListEmployees`, error logging in handlers) |
+| 2 | **1** | both wrong-sidebar reports | **FIXED** (`layouts.ShellFor` across all shared pages + `TestSharedPagesDoNotHardcodeShells`) |
+| 3 | **6** | branch manager assign/reassign/unassign | **FIXED** (populated roster + `manager_id` assignment) |
+| 4 | **2** | audience leaks, dead shells | **FIXED** (audience-gated routes + dead files pruned) |
+| 5 | **4.1** | الاستيراد وتأكيدها | **FIXED** (wizard wired to `/vendor/ingest/upload` & commit endpoints) |
+| 6 | **4.2 + 4.3** | review submit, two dead targets | **FIXED** (`/reviews/submit`, `/settings/password`, `/settings/sessions/revoke` active) |
+| 7 | **5.2** | reviewer identity | **FIXED** (reviewer org `trade_name` joined, no user names) |
+| 8 | **5.1** | three-criteria ratings | **FIXED** (migration `075`, 3-star rating write, average calculation) |
+
 
 ## Standing rules for this work
 

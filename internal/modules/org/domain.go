@@ -157,10 +157,12 @@ type Review struct {
 	IsApproved     bool           `json:"is_approved"`
 	IsPublic       bool           `json:"is_public"`
 	Status         string         `json:"status"` // pending, approved, rejected
-	HelpfulCount   int            `json:"helpful_count"`
-	Context        string         `json:"context"` // supplier, pharmacy, product, delivery
-	Ratings        []ReviewRating `json:"ratings,omitempty"`
-	CreatedAt      time.Time      `json:"created_at"`
+	HelpfulCount    int            `json:"helpful_count"`
+	Context         string         `json:"context"` // supplier, pharmacy, product, delivery
+	Ratings         []ReviewRating `json:"ratings,omitempty"`
+	ReviewerOrgName string         `json:"reviewer_org_name,omitempty"`
+	CreatedAt       time.Time      `json:"created_at"`
+
 
 	UpdatedAt      time.Time      `json:"updated_at"`
 }

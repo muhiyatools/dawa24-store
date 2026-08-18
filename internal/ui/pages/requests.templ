@@ -10,16 +10,11 @@ import (
 )
 
 templ RequestsPage(lang, dir, statusFilter string, data RequestsData) {
-	if actor, ok := authctx.From(ctx); ok && actor.IsVendor() {
-		@layouts.VendorShell("الطلبات | Requests", "requests", lang, dir) {
-			@RequestsContent(lang, statusFilter, data)
-		}
-	} else {
-		@layouts.CustomerShell("الطلبات | Requests", "requests", lang, dir, nil) {
-			@RequestsContent(lang, statusFilter, data)
-		}
+	@layouts.ShellFor("الطلبات | Requests", "requests", lang, dir, authctx.FromContext(ctx)) {
+		@RequestsContent(lang, statusFilter, data)
 	}
 }
+
 
 templ RequestsContent(lang, statusFilter string, data RequestsData) {
 	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">

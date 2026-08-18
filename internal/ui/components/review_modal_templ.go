@@ -8,6 +8,8 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "fmt"
+
 // ReviewModalProps configures the multi-criteria feedback dialog.
 type ReviewModalProps struct {
 	ID             string
@@ -47,7 +49,7 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(props.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 16, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 18, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -65,7 +67,7 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(props.TargetName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 32, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 34, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -93,14 +95,14 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">×</button></div><form method=\"POST\" action=\"/api/v1/reviews\"><input type=\"hidden\" name=\"organization_id\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">×</button></div><form method=\"POST\" action=\"/reviews/submit\"><input type=\"hidden\" name=\"organization_id\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.EscapeString(string(rune(props.TargetOrgID))))
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", props.TargetOrgID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 47, Col: 107}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 49, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
@@ -116,9 +118,9 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.EscapeString(string(rune(*props.OrderID))))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", *props.OrderID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 49, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 51, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -136,21 +138,21 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(props.Context)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 51, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 53, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"><!-- Overall & Criteria Ratings --><div style=\"margin-bottom:var(--space-5);\"><label class=\"form-label\" style=\"font-weight:600; margin-bottom:var(--space-3); display:block; color:var(--text);\">معايير التقييم والجودة</label><div style=\"display:grid; gap:var(--space-3); background:var(--surface-sunken); padding:var(--space-4); border-radius:var(--radius-md); border:1px solid var(--border);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"><!-- Overall & Criteria Ratings --><div style=\"margin-bottom:var(--space-5);\"><label class=\"form-label\" style=\"font-weight:600; margin-bottom:var(--space-3); display:block; color:var(--text);\">معايير التقييم والجودة (من 1 إلى 5 نجوم)</label><div style=\"display:grid; gap:var(--space-3); background:var(--surface-sunken); padding:var(--space-4); border-radius:var(--radius-md); border:1px solid var(--border);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		keys := props.CriteriaKeys
 		labels := props.CriteriaLabels
 		if len(keys) == 0 {
-			keys = []string{"delivery_speed", "product_quality", "rep_service", "price_fairness", "order_accuracy", "packaging"}
-			labels = []string{"سرعة التوصيل", "جودة المنتجات", "تعامل المندوب", "مناسبة الأسعار", "دقة تنفيذ الطلب", "جودة التغليف"}
+			keys = []string{"rep", "speed", "quality"}
+			labels = []string{"تقييم المندوب والتواصل", "سرعة التوصيل والتجهيز", "جودة الأصناف والتعامل"}
 		}
 		for i, key := range keys {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"display:flex; justify-content:space-between; align-items:center; gap:var(--space-3);\"><span style=\"font-size:var(--text-sm); font-weight:500; color:var(--text);\">")
@@ -161,7 +163,7 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(labels[i])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 72, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 75, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -171,7 +173,7 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 74, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 77, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -185,7 +187,7 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue("rating_" + key)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 78, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/review_modal.templ`, Line: 81, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {

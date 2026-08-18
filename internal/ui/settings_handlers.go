@@ -268,8 +268,41 @@ func (h *UIHandler) SettingsSessionRevokeSubmit(w http.ResponseWriter, r *http.R
 	if h.idSvc != nil {
 		_ = h.idSvc.RevokeSession(ctx, r.PostFormValue("token"), actor.UserID)
 	}
-	http.Redirect(w, r, "/settings/security", http.StatusSeeOther)
+	h.redirectWithNotice(w, r, "/settings#security", "success", "تم إلغاء الجلسة.")
 }
+
+// SettingsPasswordSubmit updates the user's password from the settings form.
+func (h *UIHandler) SettingsPasswordSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil {
+		h.redirectWithNotice(w, r, "/settings#security", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	_ = r.ParseForm()
+	curr := r.PostFormValue("current_password")
+	newPass := r.PostFormValue("new_password")
+	confirmPass := r.PostFormValue("new_password_confirmation")
+
+	if newPass == "" || newPass != confirmPass {
+		h.redirectWithNotice(w, r, "/settings#security", "error", "كلمة المرور الجديدة غير متطابقة.")
+		return
+	}
+
+	if err := h.idSvc.ChangePassword(ctx, actor.UserID, curr, newPass); err != nil {
+		h.redirectWithNotice(w, r, "/settings#security", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/settings#security", "success", "تم تغيير كلمة المرور بنجاح.")
+}
+
 
 // SettingsOrganizationPage renders the organization profile and branches.
 func (h *UIHandler) SettingsOrganizationPage(w http.ResponseWriter, r *http.Request) {
@@ -529,20 +562,27 @@ func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
 			employees = emps
+		} else {
+			h.log.ErrorContext(ctx, "failed to list employees", "error", err, "org_id", actor.OrganizationID)
 		}
 		if b, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
 			branches = b
+		} else {
+			h.log.ErrorContext(ctx, "failed to list branches", "error", err, "org_id", actor.OrganizationID)
 		}
 		if rl, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID); err == nil {
 			roles = rl
+		} else {
+			h.log.ErrorContext(ctx, "failed to list roles", "error", err, "org_id", actor.OrganizationID)
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsEmployees(employees, branches, roles, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.SettingsEmployees(employees, branches, roles, lang, dir, actor).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render settings employees", "error", err)
 	}
 }
+
 
 // SettingsEmployeeCreateSubmit creates a new employee account and assigns them to the organization and branch.
 func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.Request) {

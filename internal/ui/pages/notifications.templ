@@ -11,16 +11,13 @@ import (
 templ Notifications(logs []*notifications.NotificationLog, unreadCount int, lang, dir string, isPartial bool) {
 	if isPartial {
 		@NotificationsList(logs)
-	} else if actor, ok := authctx.From(ctx); ok && actor.IsVendor() {
-		@layouts.VendorShell("الإشعارات والتنبيهات | Notifications", "notifications", lang, dir) {
-			@NotificationsContent(logs, unreadCount, lang)
-		}
 	} else {
-		@layouts.CustomerShell("الإشعارات والتنبيهات | Notifications", "notifications", lang, dir, nil) {
+		@layouts.ShellFor("الإشعارات والتنبيهات | Notifications", "notifications", lang, dir, authctx.FromContext(ctx)) {
 			@NotificationsContent(logs, unreadCount, lang)
 		}
 	}
 }
+
 
 templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount int, lang string) {
 	<div class="notifications-page-container" style="max-width:880px; margin:1.5rem auto;">

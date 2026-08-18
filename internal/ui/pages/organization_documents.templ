@@ -11,16 +11,11 @@ import (
 )
 
 templ OrganizationDocuments(lang, dir string, data *OrganizationDocumentsData, perms []string) {
-	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-		@layouts.CustomerShell("مستندات المنشأة", "documents", lang, dir, perms) {
-			@OrganizationDocumentsContent(lang, data)
-		}
-	} else {
-		@layouts.VendorShell("مستندات المنشأة", "documents", lang, dir) {
-			@OrganizationDocumentsContent(lang, data)
-		}
+	@layouts.ShellFor("مستندات المنشأة", "documents", lang, dir, authctx.FromContext(ctx)) {
+		@OrganizationDocumentsContent(lang, data)
 	}
 }
+
 
 templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) {
 	<div style="display:flex; flex-direction:column; gap:var(--space-5);">

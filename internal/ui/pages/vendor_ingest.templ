@@ -174,11 +174,13 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 							رجوع لاختيار ملف آخر
 						</button>
 
-						<button type="button" class="btn btn-primary" @click="step = 3" style="padding:0.75rem 2.25rem; font-weight:800;">
-							<span>الموافقة وتفعيل الأرصدة</span>
+						<button type="button" class="btn btn-primary" :disabled="committing" @click="commitImport()" style="padding:0.75rem 2.25rem; font-weight:800;">
+							<span x-text="committing ? 'جاري تفعيل الأرصدة...' : 'الموافقة وتفعيل الأرصدة'"></span>
 							@components.IconCheck("icon-xs")
 						</button>
 					</div>
+
+					<div x-show="errorMessage" style="display:none; background:var(--danger-bg); border:1px solid var(--danger-border); color:var(--danger); padding:0.75rem 1rem; border-radius:var(--radius-lg); margin-top:1.25rem; font-weight:600;" x-text="errorMessage"></div>
 				</div>
 
 				<!-- Step 3: Success Confirmation -->
@@ -194,7 +196,7 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 					</p>
 
 					<div style="display:flex; justify-content:center; gap:1rem;">
-						<button type="button" class="btn btn-secondary" @click="step = 1; selectedFile = null; fileName = '';">
+						<button type="button" class="btn btn-secondary" @click="step = 1; selectedFile = null; fileName = ''; errorMessage = '';">
 							استيراد ملف جديد
 						</button>
 						<a href="/vendor/products" class="btn btn-primary" style="font-weight:800;">
@@ -267,8 +269,11 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 					fileName: '',
 					fileSize: '',
 					uploading: false,
+					committing: false,
 					uploadProgress: 0,
 					uploadStatus: '',
+					sessionId: null,
+					errorMessage: '',
 
 					handleFileSelect(event) {
 						const file = event.target.files[0];
@@ -276,24 +281,63 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 						this.selectedFile = file;
 						this.fileName = file.name;
 						this.fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت';
+						this.errorMessage = '';
 					},
 
-					startProcessing() {
+					async startProcessing() {
 						if (!this.selectedFile) return;
 						this.uploading = true;
+						this.errorMessage = '';
 						this.uploadProgress = 20;
-						this.uploadStatus = 'قراءة أعمدة الملف وتحليل الباركود...';
+						this.uploadStatus = 'جاري رفع الملف وقراءة الجداول...';
 
-						setTimeout(() => {
+						const formData = new FormData();
+						formData.append('file', this.selectedFile);
+
+						try {
+							const res = await fetch('/vendor/ingest/upload', {
+								method: 'POST',
+								body: formData
+							});
 							this.uploadProgress = 65;
 							this.uploadStatus = 'مطابقة الأصناف مع الكتالوج الوطني للدواء...';
-						}, 400);
 
-						setTimeout(() => {
+							if (!res.ok) {
+								const data = await res.json().catch(() => ({}));
+								throw new Error(data.error || 'فشل رفع ومعالجة الملف');
+							}
+							const data = await res.json();
+							this.sessionId = data.session_id;
 							this.uploadProgress = 100;
 							this.uploading = false;
 							this.step = 2;
-						}, 900);
+						} catch (err) {
+							this.uploading = false;
+							this.errorMessage = err.message || 'حدث خطأ أثناء معالجة الملف';
+						}
+					},
+
+					async commitImport() {
+						if (!this.sessionId) {
+							this.step = 3;
+							return;
+						}
+						this.committing = true;
+						this.errorMessage = '';
+						try {
+							const res = await fetch('/vendor/ingest/' + this.sessionId + '/commit', {
+								method: 'POST'
+							});
+							if (!res.ok) {
+								const data = await res.json().catch(() => ({}));
+								throw new Error(data.error || 'فشل تأكيد وتفعيل الأرصدة');
+							}
+							this.committing = false;
+							this.step = 3;
+						} catch (err) {
+							this.committing = false;
+							this.errorMessage = err.message || 'حدث خطأ أثناء تأكيد الاستيراد';
+						}
 					}
 				};
 			}
@@ -320,5 +364,6 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 				document.body.removeChild(link);
 			}
 		</script>
+
 	}
 }

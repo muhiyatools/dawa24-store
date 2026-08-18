@@ -2,12 +2,14 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ InvoicesPage(lang, dir string, data InvoicesData) {
-	@layouts.CustomerShell("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, nil) {
+	@layouts.ShellFor("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, authctx.FromContext(ctx)) {
+
 		<div style="max-width:100%; margin:0 0 4rem 0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
 				<div>

@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -14,7 +15,8 @@ type UnifiedSettingsData struct {
 }
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
-	@layouts.CustomerShell("إعدادات الحساب والمنشأة", "settings", lang, dir, nil) {
+	@layouts.ShellFor("إعدادات الحساب والمنشأة", "settings", lang, dir, authctx.FromContext(ctx)) {
+
 		<div style="max-width:100%; margin:0 0 4rem 0;">
 			<!-- Page Header -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">

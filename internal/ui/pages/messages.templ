@@ -9,16 +9,11 @@ import (
 )
 
 templ MessagesPage(lang, dir string, data MessagesData) {
-	if actor, ok := authctx.From(ctx); ok && actor.IsVendor() {
-		@layouts.VendorShell("الرسائل | Messages", "messages", lang, dir) {
-			@MessagesContent(lang, dir, data)
-		}
-	} else {
-		@layouts.CustomerShell("الرسائل | Messages", "messages", lang, dir, nil) {
-			@MessagesContent(lang, dir, data)
-		}
+	@layouts.ShellFor("الرسائل | Messages", "messages", lang, dir, authctx.FromContext(ctx)) {
+		@MessagesContent(lang, dir, data)
 	}
 }
+
 
 templ MessagesContent(lang, dir string, data MessagesData) {
 	<div style="display:grid; grid-template-columns:300px 1fr; gap:1.25rem; height:70vh;">

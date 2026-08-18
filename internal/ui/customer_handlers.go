@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
 
 
 func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
@@ -652,4 +654,68 @@ func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Re
 
 	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم حذف الفرع بنجاح.")
 }
+
+// ReviewSubmit handles customer feedback submissions with multi-criteria rating.
+func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	_ = r.ParseForm()
+	targetOrgID, _ := strconv.ParseInt(r.PostFormValue("organization_id"), 10, 64)
+	if targetOrgID <= 0 {
+		h.redirectWithNotice(w, r, "/suppliers", "error", "المؤسسة المستهدفة غير صالحة.")
+		return
+	}
+
+	var orderID *int64
+	if oIDStr := r.PostFormValue("order_id"); oIDStr != "" {
+		if oID, err := strconv.ParseInt(oIDStr, 10, 64); err == nil && oID > 0 {
+			orderID = &oID
+		}
+	}
+
+	repScore, _ := strconv.Atoi(r.PostFormValue("rating_rep"))
+	speedScore, _ := strconv.Atoi(r.PostFormValue("rating_speed"))
+	qualityScore, _ := strconv.Atoi(r.PostFormValue("rating_quality"))
+
+	if repScore < 1 {
+		repScore = 5
+	}
+	if speedScore < 1 {
+		speedScore = 5
+	}
+	if qualityScore < 1 {
+		qualityScore = 5
+	}
+
+	rev := &org.Review{
+		OrganizationID: targetOrgID,
+		UserID:         actor.UserID,
+		OrderID:        orderID,
+		Title:          r.PostFormValue("title"),
+		ReviewText:     r.PostFormValue("review_text"),
+		Context:        r.PostFormValue("context"),
+		IsApproved:     true,
+		Ratings: []org.ReviewRating{
+			{Criterion: "rep", Score: repScore},
+			{Criterion: "speed", Score: speedScore},
+			{Criterion: "quality", Score: qualityScore},
+		},
+	}
+
+	if h.orgSvc != nil {
+		if err := h.orgSvc.SubmitReview(ctx, rev); err != nil {
+			h.log.ErrorContext(ctx, "failed to submit review", "error", err, "target_org_id", targetOrgID)
+			h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "error", "فشل إضافة التقييم: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "success", "تم إرسال تقييمك بنجاح. شكراً لمشاركتك!")
+}
+
 

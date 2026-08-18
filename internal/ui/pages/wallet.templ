@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -16,7 +17,8 @@ type WalletViewData struct {
 }
 
 templ WalletPage(data WalletViewData, lang, dir string) {
-	@layouts.CustomerShell("المحفظة والمعاملات المالية", "wallet", lang, dir, nil) {
+	@layouts.ShellFor("المحفظة والمعاملات المالية", "wallet", lang, dir, authctx.FromContext(ctx)) {
+
 		<div style="max-width:100%; margin:0 0 4rem 0;">
 			<!-- Header with Quick Action Buttons -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4); margin-bottom:var(--space-6);">
