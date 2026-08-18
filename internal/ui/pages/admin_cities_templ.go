@@ -197,7 +197,19 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">إضافة مدينة / منطقة جديدة</h3></div><form method=\"POST\" action=\"/admin/cities/new\" style=\"display:flex; flex-direction:column; gap:1rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المدينة بالعربية <span style=\"color:var(--danger);\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"مثال: المنصورة الجديدة\" class=\"form-input\" style=\"width:100%;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المدينة بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"New Mansoura\" class=\"form-input\" style=\"width:100%;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">الإقليم / المحافظة التابعة</label> <input type=\"text\" name=\"region_ar\" placeholder=\"محافظة الدقهلية - الدلتا\" class=\"form-input\" style=\"width:100%;\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">خط العرض (Latitude)</label> <input type=\"text\" name=\"latitude\" placeholder=\"31.4250\" class=\"form-input tabular-nums\" style=\"width:100%;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">خط الطول (Longitude)</label> <input type=\"text\" name=\"longitude\" placeholder=\"31.6800\" class=\"form-input tabular-nums\" style=\"width:100%;\"></div></div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.65rem; width:100%; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">إضافة مدينة / منطقة جديدة</h3></div><form method=\"POST\" action=\"/admin/cities/new\" style=\"display:flex; flex-direction:column; gap:1rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المدينة بالعربية <span style=\"color:var(--danger);\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"مثال: المنصورة الجديدة\" class=\"form-input\" style=\"width:100%;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المدينة بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"New Mansoura\" class=\"form-input\" style=\"width:100%;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;\">الإقليم / المحافظة التابعة</label> <input type=\"text\" name=\"region_ar\" placeholder=\"محافظة الدقهلية - الدلتا\" class=\"form-input\" style=\"width:100%;\"></div><div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.MapPicker(components.MapPickerProps{
+				NamePrefix: "city",
+				Label:      "تحديد الموقع الجغرافي للمدينة / المركز (GPS)",
+				Height:     "240px",
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.65rem; width:100%; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -205,7 +217,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>حفظ وإضافة المدينة</span></button></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>حفظ وإضافة المدينة</span></button></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

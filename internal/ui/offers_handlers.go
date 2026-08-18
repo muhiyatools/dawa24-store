@@ -7,13 +7,19 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // OffersPage renders the public offers listing.
 func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if !features.Enabled(ctx, "offers.enabled") {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
+
 
 	var offers []*promo.Offer
 	if h.promoSvc != nil {

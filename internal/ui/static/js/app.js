@@ -266,9 +266,27 @@ function initRegistrationStepper() {
       const type = card.getAttribute('data-account-type');
       if (hiddenInput) hiddenInput.value = type;
 
+      // Update card visual state
+      typeCards.forEach((c) => {
+        const isThis = c === card;
+        c.style.borderColor = isThis ? 'var(--accent)' : 'var(--border)';
+        c.style.background = isThis ? 'var(--accent-subtle)' : 'var(--surface-raised)';
+        const icon = c.querySelector('.type-icon');
+        if (icon) {
+          icon.style.background = isThis ? 'var(--accent)' : 'var(--surface-sunken)';
+          icon.style.color = isThis ? '#ffffff' : 'var(--text-secondary)';
+        }
+        const check = c.querySelector('.type-check');
+        if (check) {
+          check.style.borderColor = isThis ? 'var(--accent)' : 'var(--border)';
+          check.style.background = isThis ? 'var(--accent)' : 'transparent';
+          check.style.color = isThis ? '#ffffff' : 'transparent';
+        }
+      });
+
       // Update badge label
       if (badgeLabel) {
-        if (type === 'supplier') badgeLabel.textContent = 'نوع الحساب: مورّد / شركة ومستودع أدوية';
+        if (type === 'supplier' || type === 'vendor') badgeLabel.textContent = 'نوع الحساب: مورّد / شركة ومستودع أدوية';
         else if (type === 'individual') badgeLabel.textContent = 'نوع الحساب: حساب مهني فردي (صيدلي / باحث عن عمل)';
         else badgeLabel.textContent = 'نوع الحساب: صيدلية / منشأة طبية مرخصة';
       }
@@ -308,14 +326,22 @@ function initRegistrationStepper() {
       step2.classList.add('active');
 
       if (stepIndicator1) {
-        stepIndicator1.style.color = 'var(--neutral-500)';
+        stepIndicator1.style.color = 'var(--text-muted)';
         const num = stepIndicator1.querySelector('.step-num');
-        if (num) { num.style.background = 'var(--neutral-200)'; num.style.color = 'var(--neutral-700)'; }
+        if (num) {
+          num.style.background = 'var(--surface-raised)';
+          num.style.color = 'var(--text-secondary)';
+          num.style.border = '1px solid var(--border)';
+        }
       }
       if (stepIndicator2) {
-        stepIndicator2.style.color = 'var(--primary-700)';
+        stepIndicator2.style.color = 'var(--accent)';
         const num = stepIndicator2.querySelector('.step-num');
-        if (num) { num.style.background = 'var(--primary-600)'; num.style.color = '#fff'; }
+        if (num) {
+          num.style.background = 'var(--accent)';
+          num.style.color = '#ffffff';
+          num.style.border = 'none';
+        }
       }
     });
   });
@@ -326,17 +352,176 @@ function initRegistrationStepper() {
       step1.classList.add('active');
 
       if (stepIndicator1) {
-        stepIndicator1.style.color = 'var(--primary-700)';
+        stepIndicator1.style.color = 'var(--accent)';
         const num = stepIndicator1.querySelector('.step-num');
-        if (num) { num.style.background = 'var(--primary-600)'; num.style.color = '#fff'; }
+        if (num) {
+          num.style.background = 'var(--accent)';
+          num.style.color = '#ffffff';
+          num.style.border = 'none';
+        }
       }
       if (stepIndicator2) {
-        stepIndicator2.style.color = 'var(--neutral-500)';
+        stepIndicator2.style.color = 'var(--text-muted)';
         const num = stepIndicator2.querySelector('.step-num');
-        if (num) { num.style.background = 'var(--neutral-200)'; num.style.color = 'var(--neutral-700)'; }
+        if (num) {
+          num.style.background = 'var(--surface-raised)';
+          num.style.color = 'var(--text-secondary)';
+          num.style.border = '1px solid var(--border)';
+        }
       }
     });
   }
+}
+
+// Egyptian Cities Coordinates Reference Table
+const EGYPT_CITIES_COORDS = [
+  { name: 'القاهرة', lat: 30.0444, lon: 31.2357 },
+  { name: 'القاهرة الجديدة', lat: 30.0131, lon: 31.2089 },
+  { name: 'الشروق', lat: 30.1219, lon: 31.3665 },
+  { name: 'مدينة بدر', lat: 30.1842, lon: 31.2482 },
+  { name: 'الجيزة', lat: 30.0131, lon: 31.2089 },
+  { name: 'مدينة ستة أكتوبر', lat: 30.0648, lon: 30.9706 },
+  { name: 'الشيخ زايد', lat: 30.1111, lon: 30.8544 },
+  { name: 'الحوامدية', lat: 29.9667, lon: 31.3000 },
+  { name: 'أوسيم', lat: 29.8833, lon: 31.2333 },
+  { name: 'البدرشين', lat: 29.8167, lon: 31.2833 },
+  { name: 'الإسكندرية', lat: 31.2001, lon: 29.9187 },
+  { name: 'برج العرب', lat: 31.0333, lon: 29.7667 },
+  { name: 'مدينة برج العرب الجديدة', lat: 30.9164, lon: 29.5553 },
+  { name: 'شبرا الخيمة', lat: 30.4500, lon: 31.1833 },
+  { name: 'الخصوص', lat: 30.4667, lon: 31.1833 },
+  { name: 'بنها', lat: 30.4667, lon: 31.1833 },
+  { name: 'قليوب', lat: 30.1833, lon: 31.2167 },
+  { name: 'العبور', lat: 30.2000, lon: 31.3167 },
+  { name: 'بور سعيد', lat: 31.2654, lon: 32.3020 },
+  { name: 'بور فؤاد', lat: 31.2333, lon: 32.3167 },
+  { name: 'السويس', lat: 29.9668, lon: 32.5498 },
+  { name: 'الإسماعيلية', lat: 30.5965, lon: 32.2715 },
+  { name: 'فايد', lat: 30.3333, lon: 32.3000 },
+  { name: 'القنطرة شرق', lat: 30.8333, lon: 32.3167 },
+  { name: 'طنطا', lat: 30.7865, lon: 31.0004 },
+  { name: 'المحلة الكبرى', lat: 30.9667, lon: 31.1667 },
+  { name: 'كفر الزيات', lat: 30.8167, lon: 30.8167 },
+  { name: 'زفتى', lat: 30.7167, lon: 31.2500 },
+  { name: 'المنصورة', lat: 31.0409, lon: 31.3785 },
+  { name: 'ميت غمر', lat: 30.7167, lon: 31.2500 },
+  { name: 'السنبلاوين', lat: 30.8833, lon: 31.4667 },
+  { name: 'دكرنس', lat: 31.0833, lon: 31.6000 },
+  { name: 'بلقاس', lat: 31.2333, lon: 31.3667 },
+  { name: 'طلخا', lat: 31.0500, lon: 31.3667 },
+  { name: 'الزقازيق', lat: 30.5877, lon: 31.5020 },
+  { name: 'العاشر من رمضان', lat: 30.3000, lon: 31.7333 },
+  { name: 'بلبيس', lat: 30.4167, lon: 31.5667 },
+  { name: 'فاقوس', lat: 30.7333, lon: 31.8000 },
+  { name: 'منيا القمح', lat: 30.5167, lon: 31.3500 },
+  { name: 'أبو حماد', lat: 30.5500, lon: 31.6833 },
+  { name: 'أبو كبير', lat: 30.7333, lon: 31.6667 },
+  { name: 'دمنهور', lat: 31.0409, lon: 30.4667 },
+  { name: 'كفر الدوار', lat: 31.1333, lon: 30.1333 },
+  { name: 'إدكو', lat: 31.3000, lon: 30.3000 },
+  { name: 'رشيد', lat: 31.4000, lon: 30.4167 },
+  { name: 'شبين الكوم', lat: 30.5522, lon: 31.0094 },
+  { name: 'منوف', lat: 30.4667, lon: 30.9333 },
+  { name: 'أشمون', lat: 30.3000, lon: 30.9833 },
+  { name: 'قويسنا', lat: 30.5667, lon: 31.1500 },
+  { name: 'مدينة السادات', lat: 30.3833, lon: 30.5167 },
+  { name: 'كفر الشيخ', lat: 31.1107, lon: 30.9388 },
+  { name: 'دسوق', lat: 31.1333, lon: 30.6500 },
+  { name: 'فوه', lat: 31.2000, lon: 30.5500 },
+  { name: 'دمياط', lat: 31.4165, lon: 31.8133 },
+  { name: 'دمياط الجديدة', lat: 31.4333, lon: 31.6667 },
+  { name: 'رأس البر', lat: 31.5167, lon: 31.8167 },
+  { name: 'الفيوم', lat: 29.3084, lon: 30.8428 },
+  { name: 'بني سويف', lat: 29.0661, lon: 31.0994 },
+  { name: 'المنيا', lat: 28.1099, lon: 30.7503 },
+  { name: 'ملوي', lat: 27.7333, lon: 30.8333 },
+  { name: 'أسيوط', lat: 27.1801, lon: 31.1837 },
+  { name: 'ديروط', lat: 27.5667, lon: 30.8167 },
+  { name: 'سوهاج', lat: 26.5569, lon: 31.6948 },
+  { name: 'طهطا', lat: 26.7667, lon: 31.5000 },
+  { name: 'جرجا', lat: 26.3333, lon: 31.8833 },
+  { name: 'قنا', lat: 26.1642, lon: 32.7267 },
+  { name: 'نجع حمادي', lat: 26.0500, lon: 32.2500 },
+  { name: 'الأقصر', lat: 25.6872, lon: 32.6396 },
+  { name: 'إسنا', lat: 25.2833, lon: 32.5500 },
+  { name: 'أسوان', lat: 24.0889, lon: 32.8998 },
+  { name: 'إدفو', lat: 24.9833, lon: 32.8667 },
+  { name: 'كوم أمبو', lat: 24.4667, lon: 32.9500 },
+  { name: 'مطروح', lat: 31.3525, lon: 27.2453 },
+  { name: 'العلمين', lat: 30.8333, lon: 28.9500 },
+  { name: 'سيوة', lat: 29.2000, lon: 25.5167 },
+  { name: 'الغردقة', lat: 27.2579, lon: 33.8116 },
+  { name: 'سفاجا', lat: 26.7292, lon: 33.9365 },
+  { name: 'مرسى علم', lat: 25.0676, lon: 34.8966 },
+  { name: 'الخارجة', lat: 25.4390, lon: 30.5586 },
+  { name: 'الداخلة', lat: 25.5167, lon: 28.9667 },
+  { name: 'العريش', lat: 31.1316, lon: 33.7984 },
+  { name: 'الطور', lat: 28.2410, lon: 33.6230 },
+  { name: 'شرم الشيخ', lat: 27.9158, lon: 34.3299 },
+  { name: 'دهب', lat: 28.5094, lon: 34.5137 },
+  { name: 'نويبع', lat: 29.0436, lon: 34.6644 },
+  { name: 'طابا', lat: 29.4925, lon: 34.8967 },
+  { name: 'رأس سدر', lat: 29.5892, lon: 32.7144 }
+];
+
+function findClosestEgyptianCity(lat, lon) {
+  let closest = null;
+  let minDist = Infinity;
+  for (const c of EGYPT_CITIES_COORDS) {
+    const d = Math.hypot(lat - c.lat, lon - c.lon);
+    if (d < minDist) {
+      minDist = d;
+      closest = c;
+    }
+  }
+  return closest;
+}
+
+function syncCityDropdownsWithCoordinates(lat, lon) {
+  const closest = findClosestEgyptianCity(lat, lon);
+  if (!closest) return null;
+
+  // 1. Sync any outer city select on page (e.g. registration #reg-city, branch city selects)
+  const outerCitySelects = document.querySelectorAll('#reg-city, select[name="city_id"], select[name="city"]');
+  outerCitySelects.forEach((selectEl) => {
+    let matchedOption = null;
+    for (let i = 0; i < selectEl.options.length; i++) {
+      const opt = selectEl.options[i];
+      const optText = opt.textContent || '';
+      if (optText.includes(closest.name) || closest.name.includes(optText.trim())) {
+        matchedOption = opt;
+        break;
+      }
+    }
+    if (matchedOption && selectEl.value !== matchedOption.value) {
+      selectEl.value = matchedOption.value;
+      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
+  // 2. Sync MapPicker toolbar city select if present
+  const mapCitySelects = document.querySelectorAll('[data-city-selector]');
+  mapCitySelects.forEach((selectEl) => {
+    let bestOpt = null;
+    let minOptDist = Infinity;
+    for (let i = 0; i < selectEl.options.length; i++) {
+      const opt = selectEl.options[i];
+      if (!opt.value) continue;
+      const [optLat, optLon] = opt.value.split(',').map((v) => parseFloat(v.trim()));
+      if (!isNaN(optLat) && !isNaN(optLon)) {
+        const d = Math.hypot(lat - optLat, lon - optLon);
+        if (d < minOptDist) {
+          minOptDist = d;
+          bestOpt = opt;
+        }
+      }
+    }
+    if (bestOpt && minOptDist < 0.35) {
+      selectEl.value = bestOpt.value;
+    }
+  });
+
+  return closest;
 }
 
 // Universal Dropdown Toggle
@@ -469,10 +654,10 @@ function initMapPickers() {
     const canvas = container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') || container;
     if (!canvas) return;
 
-    const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"]') || document.querySelector('[data-map-input="lat"], input[name="latitude"]');
-    const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"]') || document.querySelector('[data-map-input="lon"], input[name="longitude"]');
+    const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"]') || document.querySelector('[data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"]');
+    const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"]') || document.querySelector('[data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"]');
     const radiusInput = container.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"]') || document.querySelector('[data-map-radius], [data-map-input="radius"]');
-    const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"]') || document.querySelector('[data-map-input="google_url"], input[name="google_maps_url"]');
+    const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]') || document.querySelector('[data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
     const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]');
     const gmapsLinks = container.querySelectorAll('[data-google-maps-link]');
     const citySelect = container.querySelector('[data-city-selector], [data-map-city], select[name="city_id"]') || document.querySelector('[data-map-city]');
@@ -543,6 +728,9 @@ function initMapPickers() {
       if (gmapsInput) gmapsInput.value = gmapsUrl;
       gmapsLinks.forEach((link) => { link.href = gmapsUrl; });
       if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
+
+      // Sync city selectors
+      syncCityDropdownsWithCoordinates(fixedLat, fixedLon);
     }
 
     // Map Click Handler
@@ -636,7 +824,12 @@ function initMapPickers() {
             const userLat = pos.coords.latitude;
             const userLon = pos.coords.longitude;
             updateCoordinates(userLat, userLon, 15);
-            showToast('تم تحديد موقعك الجغرافي بنجاح.', 'success');
+            const nearest = syncCityDropdownsWithCoordinates(userLat, userLon);
+            if (nearest) {
+              showToast(`تم تحديد موقعك بدقة وتحديث المحافظة إلى: ${nearest.name} 📍`, 'success');
+            } else {
+              showToast('تم تحديد موقعك الجغرافي بنجاح.', 'success');
+            }
           },
           (err) => {
             locateBtn.disabled = false;

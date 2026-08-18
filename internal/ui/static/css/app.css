@@ -903,6 +903,86 @@ a:hover {
 }
 
 /* ============================================================
+   MODAL & DIALOG SYSTEM
+   ============================================================ */
+dialog.modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: visible;
+  z-index: var(--z-modal, 1000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+dialog.modal:not([open]) {
+  display: none !important;
+}
+
+dialog.modal::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-box {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  padding: var(--space-6);
+  width: min(94vw, 560px);
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-3);
+}
+
+.modal-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.modal-close {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+}
+
+.modal-close:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.modal-body {
+  color: var(--text);
+}
+
+/* ============================================================
    GOOGLE MAPS PICKER
    ============================================================ */
 .map-canvas {
@@ -917,6 +997,7 @@ a:hover {
   border-radius: var(--radius-lg);
   pointer-events: auto;
 }
+
 
 /* ============================================================
    RESPONSIVE

@@ -193,10 +193,11 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || !actor.IsPlatformAdmin() {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/settings", http.StatusSeeOther)
 		return
 	}
+
 
 	key := strings.TrimSpace(r.PostFormValue("key"))
 	enabledStr := strings.TrimSpace(r.PostFormValue("enabled"))
@@ -990,8 +991,9 @@ func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request
 		h.redirectWithNotice(w, r, "/admin/cities", "error", "اسم المدينة بالعربية مطلوب.")
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم حفظ وتحديث بيانات المدينة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم حفظ وتحديث بيانات وإحداثيات المدينة بنجاح.")
 }
+
 
 // AdminCityToggleSubmit toggles the active status of a city.
 func (h *UIHandler) AdminCityToggleSubmit(w http.ResponseWriter, r *http.Request) {

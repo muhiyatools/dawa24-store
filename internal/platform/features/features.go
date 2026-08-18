@@ -68,51 +68,84 @@ func Init(ctx context.Context, db *database.DB, log *slog.Logger) (*Engine, erro
 	return e, nil
 }
 
+var defaultCoreFlags = []FeatureFlag{
+	{Key: "jobs.enabled", Name: map[string]string{"ar": "قسم الوظائف والتوظيف", "en": "Jobs & Careers"}, Description: map[string]string{"ar": "تفعيل قسم الوظائف وإعلانات التوظيف في الموقع والفوتر", "en": "Job board and postings"}, IsEnabled: true},
+	{Key: "jobs.seeker_accounts", Name: map[string]string{"ar": "حسابات باحث عن عمل", "en": "Job Seeker Accounts"}, Description: map[string]string{"ar": "السماح بالتسجيل في المنصة كباحث عن عمل صيدلاني أو مهني", "en": "Allow job seeker registration"}, IsEnabled: true},
+	{Key: "reviews.enabled", Name: map[string]string{"ar": "التقييمات ومراجعات الجودة", "en": "Reviews & Quality Ratings"}, Description: map[string]string{"ar": "تفعيل التقييم متعدد المعايير للموردين والصيدليات", "en": "Multi-criteria reviews"}, IsEnabled: true},
+	{Key: "offers.enabled", Name: map[string]string{"ar": "العروض والتخفيضات", "en": "Promotional Offers"}, Description: map[string]string{"ar": "تفعيل قسم العروض والخصومات الخاصة", "en": "Promotions and flash sales"}, IsEnabled: true},
+	{Key: "finder.enabled", Name: map[string]string{"ar": "دليل وباحث الأدوية الذكي", "en": "Product Finder"}, Description: map[string]string{"ar": "تفعيل باحث الأدوية والمثائل والبدائل", "en": "Medicine and active ingredient finder"}, IsEnabled: true},
+	{Key: "services.enabled", Name: map[string]string{"ar": "الخدمات المؤسسية", "en": "Institutional Services"}, Description: map[string]string{"ar": "تفعيل طلبات الخدمات المؤسسية للمستشفيات والشركات", "en": "Corporate and institutional services"}, IsEnabled: true},
+	{Key: "compare.enabled", Name: map[string]string{"ar": "مقارنة خطط التوريد", "en": "Plan Comparison"}, Description: map[string]string{"ar": "تفعيل جداول مقارنة الخطط والاشتراكات", "en": "Subscription plan comparisons"}, IsEnabled: true},
+}
+
 // Reload queries the database for all feature flags and updates in-memory cache.
 func (e *Engine) Reload(ctx context.Context) error {
 	newFlags := make(map[string]bool)
 	var newList []FeatureFlag
 
-	err := e.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT key, name, description, is_enabled, updated_by, updated_at FROM platform_admin.feature_flags;`
-		rows, err := tx.Query(txCtx, query)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
+	// Populate defaults first
+	for _, df := range defaultCoreFlags {
+		newFlags[df.Key] = df.IsEnabled
+		newList = append(newList, df)
+	}
 
-		for rows.Next() {
-			var key string
-			var nameBytes, descBytes []byte
-			var isEnabled bool
-			var updatedBy *int64
-			var updatedAt time.Time
-
-			if err := rows.Scan(&key, &nameBytes, &descBytes, &isEnabled, &updatedBy, &updatedAt); err != nil {
+	if e.db != nil {
+		_ = e.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+			query := `SELECT key, name, description, is_enabled, updated_by, updated_at FROM platform_admin.feature_flags;`
+			rows, err := tx.Query(txCtx, query)
+			if err != nil {
 				return err
 			}
+			defer rows.Close()
 
-			newFlags[key] = isEnabled
+			for rows.Next() {
+				var key string
+				var nameBytes, descBytes []byte
+				var isEnabled bool
+				var updatedBy *int64
+				var updatedAt time.Time
 
-			name := make(map[string]string)
-			desc := make(map[string]string)
-			_ = json.Unmarshal(nameBytes, &name)
-			_ = json.Unmarshal(descBytes, &desc)
+				if err := rows.Scan(&key, &nameBytes, &descBytes, &isEnabled, &updatedBy, &updatedAt); err != nil {
+					return err
+				}
 
-			newList = append(newList, FeatureFlag{
-				Key:         key,
-				Name:        name,
-				Description: desc,
-				IsEnabled:   isEnabled,
-				UpdatedBy:   updatedBy,
-				UpdatedAt:   updatedAt,
-			})
-		}
-		return rows.Err()
-	})
+				newFlags[key] = isEnabled
 
-	if err != nil {
-		return fmt.Errorf("features.Reload: %w", err)
+				name := make(map[string]string)
+				desc := make(map[string]string)
+				_ = json.Unmarshal(nameBytes, &name)
+				_ = json.Unmarshal(descBytes, &desc)
+
+				// Update or add in list
+				found := false
+				for i := range newList {
+					if newList[i].Key == key {
+						newList[i].IsEnabled = isEnabled
+						if len(name) > 0 {
+							newList[i].Name = name
+						}
+						if len(desc) > 0 {
+							newList[i].Description = desc
+						}
+						newList[i].UpdatedBy = updatedBy
+						newList[i].UpdatedAt = updatedAt
+						found = true
+						break
+					}
+				}
+				if !found {
+					newList = append(newList, FeatureFlag{
+						Key:         key,
+						Name:        name,
+						Description: desc,
+						IsEnabled:   isEnabled,
+						UpdatedBy:   updatedBy,
+						UpdatedAt:   updatedAt,
+					})
+				}
+			}
+			return rows.Err()
+		})
 	}
 
 	e.mu.Lock()
@@ -125,6 +158,9 @@ func (e *Engine) Reload(ctx context.Context) error {
 
 // Enabled checks if a feature flag is enabled in memory. Default is true for unknown flags.
 func (e *Engine) Enabled(key string) bool {
+	if e == nil {
+		return true
+	}
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	if val, ok := e.flags[key]; ok {
@@ -135,6 +171,9 @@ func (e *Engine) Enabled(key string) bool {
 
 // List returns a copy of all registered feature flags.
 func (e *Engine) List() []FeatureFlag {
+	if e == nil {
+		return defaultCoreFlags
+	}
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	res := make([]FeatureFlag, len(e.list))
@@ -144,26 +183,42 @@ func (e *Engine) List() []FeatureFlag {
 
 // Set updates a feature flag in the database and immediately flushes the in-memory cache.
 func (e *Engine) Set(ctx context.Context, key string, enabled bool, updatedBy int64) error {
-	err := e.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			INSERT INTO platform_admin.feature_flags (key, name, is_enabled, updated_by, updated_at)
-			VALUES ($1, jsonb_build_object('ar', $1, 'en', $1), $2, $3, now())
-			ON CONFLICT (key) DO UPDATE
-			SET is_enabled = EXCLUDED.is_enabled,
-			    updated_by = EXCLUDED.updated_by,
-			    updated_at = now();
-		`
-		_, err := tx.Exec(txCtx, query, key, enabled, updatedBy)
-		return err
-	})
+	if e == nil {
+		return fmt.Errorf("features engine not initialized")
+	}
 
-	if err != nil {
-		return fmt.Errorf("features.Set: %w", err)
+	e.mu.Lock()
+	e.flags[key] = enabled
+	for i := range e.list {
+		if e.list[i].Key == key {
+			e.list[i].IsEnabled = enabled
+		}
+	}
+	e.mu.Unlock()
+
+	if e.db != nil {
+		err := e.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+			query := `
+				INSERT INTO platform_admin.feature_flags (key, name, description, is_enabled, updated_by, updated_at)
+				VALUES ($1, jsonb_build_object('ar', $1, 'en', $1), '{"ar":"","en":""}'::jsonb, $2, NULLIF($3, 0), now())
+				ON CONFLICT (key) DO UPDATE
+				SET is_enabled = EXCLUDED.is_enabled,
+				    updated_by = EXCLUDED.updated_by,
+				    updated_at = now();
+			`
+			_, err := tx.Exec(txCtx, query, key, enabled, updatedBy)
+			return err
+		})
+
+		if err != nil {
+			return fmt.Errorf("features.Set: %w", err)
+		}
 	}
 
 	_ = e.Reload(ctx)
 	return nil
 }
+
 
 // Global accessor functions:
 

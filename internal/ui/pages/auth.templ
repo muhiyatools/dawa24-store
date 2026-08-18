@@ -57,29 +57,29 @@ templ LoginPage(lang, dir, errorMsg string) {
 
 templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadmin.City) {
 	@layouts.Base("إنشاء حساب جديد", lang, dir) {
-		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-50) 0%, var(--bg-app) 100%);">
+		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);">
 			<div
-				class="card hover-lift"
-				style="width:100%; max-width:620px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl);"
+				class="card"
+				style="width:100%; max-width:620px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);"
 			>
 				<!-- Brand Header -->
 				<div style="text-align:center; margin-bottom:1.75rem;">
 					<a href="/" style="display:inline-block; margin-bottom:1rem;">
 						<img src="/static/img/logo.png" alt="DAWA24" style="height:54px; object-fit:contain;" />
 					</a>
-					<h1 style="font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;">إنشاء حساب جديد</h1>
-					<p style="color:var(--neutral-500); font-size:0.9rem; margin-top:0.35rem;">انضم لمنظومة التوريد الدوائي الذكي — دواء 24</p>
+					<h1 style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0;">إنشاء حساب جديد</h1>
+					<p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.35rem;">انضم لمنظومة التوريد الدوائي الذكي — دواء 24</p>
 				</div>
 
 				<!-- Step Indicator -->
-				<div style="display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:1.75rem; padding:0.5rem; background:var(--neutral-50); border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
-					<div id="step-indicator-1" style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800; color:var(--primary-700);">
-						<span class="step-num" style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; background:var(--primary-600); color:#fff;">1</span>
+				<div style="display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:1.75rem; padding:0.5rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
+					<div id="step-indicator-1" style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800; color:var(--accent);">
+						<span class="step-num" style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; background:var(--accent); color:#fff;">1</span>
 						<span>نوع الحساب</span>
 					</div>
-					<span style="color:var(--neutral-300);">—</span>
-					<div id="step-indicator-2" style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800; color:var(--neutral-500);">
-						<span class="step-num" style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; background:var(--neutral-200); color:var(--neutral-700);">2</span>
+					<span style="color:var(--text-muted);">—</span>
+					<div id="step-indicator-2" style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:800; color:var(--text-muted);">
+						<span class="step-num" style="width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; background:var(--surface-raised); color:var(--text-secondary); border:1px solid var(--border);">2</span>
 						<span>بيانات المنشأة والتراخيص</span>
 					</div>
 				</div>
@@ -96,7 +96,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 					<!-- STEP 1: Select Account Type -->
 					<section id="reg-step-1" class="form-step active">
-						<h2 style="font-size:1rem; font-weight:800; color:var(--neutral-800); margin-bottom:1rem; text-align:center;">
+						<h2 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:1rem; text-align:center;">
 							يرجى تحديد نوع حساب المنشأة للبدء:
 						</h2>
 
@@ -105,16 +105,16 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							<div
 								class="type-card hover-lift"
 								data-account-type="vendor"
-								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--neutral-200); border-radius:var(--radius-xl); background:#ffffff; cursor:pointer; transition:all 0.15s ease;"
+								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); cursor:pointer; transition:all 0.15s ease;"
 							>
-								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+								<div class="type-icon" style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--surface-sunken); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 									@components.IconBuilding("icon-sm")
 								</div>
 								<div style="flex:1;">
-									<div style="font-weight:900; color:var(--neutral-900); font-size:1rem;">مورّد / شركة ومستودع أدوية</div>
-									<div style="font-size:0.825rem; color:var(--neutral-600); margin-top:0.15rem;">توريد وبيع الأصناف الدوائية والمستلزمات للصيدليات والمستشفيات</div>
+									<div style="font-weight:800; color:var(--text); font-size:1rem;">مورّد / شركة ومستودع أدوية</div>
+									<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">توريد وبيع الأصناف الدوائية والمستلزمات للصيدليات والمستشفيات</div>
 								</div>
-								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--neutral-300); display:flex; align-items:center; justify-content:center;">
+								<div class="type-check" style="width:24px; height:24px; border-radius:50%; border:2px solid var(--border); color:transparent; display:flex; align-items:center; justify-content:center;">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
@@ -123,16 +123,16 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							<div
 								class="type-card hover-lift"
 								data-account-type="customer"
-								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--primary-600); border-radius:var(--radius-xl); background:var(--primary-50); cursor:pointer; transition:all 0.15s ease;"
+								style="display:flex; gap:1rem; align-items:center; padding:1.1rem 1.25rem; border:2px solid var(--accent); border-radius:var(--radius-xl); background:var(--accent-subtle); cursor:pointer; transition:all 0.15s ease;"
 							>
-								<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+								<div class="type-icon" style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 									@components.IconPill("icon-sm")
 								</div>
 								<div style="flex:1;">
-									<div style="font-weight:900; color:var(--neutral-900); font-size:1rem;">صيدلية / منشأة طبية مرخصة</div>
-									<div style="font-size:0.825rem; color:var(--neutral-600); margin-top:0.15rem;">شراء وتوريد الأدوية والمستلزمات الصيدلانية مباشرة للصيدليات الفردية والسلاسل والمراكز الطبية</div>
+									<div style="font-weight:800; color:var(--text); font-size:1rem;">صيدلية / منشأة طبية مرخصة</div>
+									<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">شراء وتوريد الأدوية والمستلزمات الصيدلانية مباشرة للصيدليات الفردية والسلاسل والمراكز الطبية</div>
 								</div>
-								<div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--primary-600); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center;">
+								<div class="type-check" style="width:24px; height:24px; border-radius:50%; border:2px solid var(--accent); background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center;">
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
@@ -142,7 +142,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 					<!-- STEP 2: Registration Details -->
 					<section id="reg-step-2" class="form-step" style="display:flex; flex-direction:column; gap:1.15rem;">
-						<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--neutral-100);">
+						<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
 							<div style="display:flex; align-items:center; gap:0.5rem;">
 								<span id="reg-selected-badge" class="badge badge-sky" style="font-size:0.8rem;">نوع الحساب: صيدلية / منشأة طبية مرخصة</span>
 							</div>
@@ -151,6 +151,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								<span>تغيير النوع</span>
 							</button>
 						</div>
+
 
 						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" for="reg-name">اسم المسؤول / الصيدلي المسؤول *</label>

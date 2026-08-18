@@ -5,13 +5,19 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // ComparePlansPage renders the pricing page for the discount-comparison plans.
 func (h *UIHandler) ComparePlansPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if !features.Enabled(ctx, "compare.enabled") {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
+
 
 	var plans []*billing.Plan
 	if h.billSvc != nil {

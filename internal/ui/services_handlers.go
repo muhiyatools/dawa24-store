@@ -10,6 +10,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -17,7 +18,12 @@ import (
 // ServicesPage renders the institutional services catalogue.
 func (h *UIHandler) ServicesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if !features.Enabled(ctx, "services.enabled") {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
+
 
 	var services []*workflow.InstitutionalService
 	if h.wfSvc != nil {

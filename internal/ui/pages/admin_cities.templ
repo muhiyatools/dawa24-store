@@ -155,25 +155,19 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<input type="text" name="region_ar" placeholder="محافظة الدقهلية - الدلتا" class="form-input" style="width:100%;"/>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									خط العرض (Latitude)
-								</label>
-								<input type="text" name="latitude" placeholder="31.4250" class="form-input tabular-nums" style="width:100%;"/>
-							</div>
-							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									خط الطول (Longitude)
-								</label>
-								<input type="text" name="longitude" placeholder="31.6800" class="form-input tabular-nums" style="width:100%;"/>
-							</div>
+						<div>
+							@components.MapPicker(components.MapPickerProps{
+								NamePrefix: "city",
+								Label:      "تحديد الموقع الجغرافي للمدينة / المركز (GPS)",
+								Height:     "240px",
+							})
 						</div>
 
 						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
 							@components.IconCheck("icon-xs")
 							<span>حفظ وإضافة المدينة</span>
 						</button>
+
 					</form>
 				</div>
 			</div>
