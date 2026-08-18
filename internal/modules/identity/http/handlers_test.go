@@ -132,7 +132,7 @@ func (happyRepo) GetUserByID(ctx context.Context, id int64) (*identity.User, err
 		Email:    "user@example.com",
 		Name:     i18n.Text{"en": "User"},
 		Status:   identity.StatusActive,
-		Role:     "customer",
+		Role:     "user",
 		Language: "en",
 	}, nil
 }
@@ -142,7 +142,7 @@ func (happyRepo) GetUserByEmail(ctx context.Context, email string) (*identity.Us
 		Email:        email,
 		Name:         i18n.Text{"en": "User"},
 		Status:       identity.StatusActive,
-		Role:         "customer",
+		Role:         "user",
 		Language:     "en",
 		PasswordHash: "$2a$10$abcdefghijklmnopqrstuu",
 	}, nil

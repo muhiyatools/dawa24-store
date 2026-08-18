@@ -138,7 +138,7 @@ func TestIdentityRepository(t *testing.T) {
 			PasswordHash: "hash123",
 			Status:       identity.StatusActive,
 			Language:     "en",
-			Role:         "customer",
+			Role:         "user",
 			Timezone:     "Africa/Cairo",
 			Phone:        "+201000000001",
 		}
@@ -330,7 +330,7 @@ func TestRegisterOrganizationLive(t *testing.T) {
 		Email:        fmt.Sprintf("test-identity-reg-%d@example.com", time.Now().UnixNano()),
 		PasswordHash: "$2a$10$abcdefghijklmnopqrstuvwxyz123456",
 		Name:         i18n.New("د. أحمد", "Dr. Ahmed"),
-		Role:         "customer",
+		Role:         "user",
 		Status:       identity.StatusActive,
 		Language:     i18n.Lang("ar"),
 		Timezone:     "Africa/Cairo",

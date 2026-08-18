@@ -58,7 +58,7 @@ func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrgani
 		Email:        cleanEmail,
 		PasswordHash: hash,
 		Name:         i18n.New(input.NameAr, input.NameEn),
-		Role:         "customer",
+		Role:         "user",
 		Status:       StatusActive,
 		Language:     lang,
 		Timezone:     tz,

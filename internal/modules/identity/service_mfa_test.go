@@ -24,7 +24,7 @@ func TestServiceProfileAndPermissions(t *testing.T) {
 		Password: "InitialPassword123!",
 		NameAr:   "مستخدم تجريبي",
 		NameEn:   "Test User",
-		Role:     "customer",
+		Role:     "user",
 		Language: i18n.AR,
 	})
 	if err != nil {

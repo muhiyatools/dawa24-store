@@ -201,7 +201,7 @@ func TestServiceRegisterAndLogin(t *testing.T) {
 		Password: "SecurePassword123!",
 		NameAr:   "صيدلية الشفاء",
 		NameEn:   "El-Shefaa Pharmacy",
-		Role:     "customer",
+		Role:     "user",
 		Language: i18n.AR,
 		Phone:    "+201012345678",
 	}

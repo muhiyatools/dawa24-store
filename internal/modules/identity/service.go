@@ -67,8 +67,8 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*User, *Se
 	}
 
 	role := input.Role
-	if role == "" {
-		role = "customer"
+	if role == "" || role == "customer" || role == "vendor" || role == "supplier" || role == "pharmacy" || role == "individual" {
+		role = "user"
 	}
 
 	lang := input.Language
