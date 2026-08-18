@@ -88,52 +88,59 @@ func NewUIHandler(
 // in, wrapped only in OptionalAuth for the visitor analytics middleware.
 // Rebuild V2 §1.3: these are the only routes without a forced audience.
 func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
-	r.Use(h.visitorMiddleware)
-	RegisterStaticRoutes(r)
-	RegisterUploadRoutes(r)
+	// Public routes take the visitor-analytics middleware and nothing else.
+	// They are mounted through Group rather than r.Use: by the time this runs
+	// the root mux already carries routes, and chi panics on a Use() after the
+	// first route is defined. Group gives these routes their own middleware
+	// stack without touching the parent, and without wrapping them in a gate.
+	r.Group(func(pub chi.Router) {
+		pub.Use(h.visitorMiddleware)
+		RegisterStaticRoutes(pub)
+		RegisterUploadRoutes(pub)
 
-	// Public & Auth (marketing, catalogue browsing, sign-in)
-	r.Get("/", h.HomePage)
-	r.Get("/privacy", h.PrivacyPage)
-	r.Get("/terms", h.TermsPage)
-	r.Get("/about", h.AboutPage)
-	r.Get("/how-it-works", h.HowItWorksPage)
-	r.Get("/faq", h.FaqPage)
-	r.Get("/help", h.HelpPage)
-	r.Get("/contact", h.ContactPage)
-	r.Get("/auth/login", h.LoginPage)
-	r.Get("/auth/register", h.RegisterPage)
-	r.Get("/auth/forgot", h.ForgotPasswordPage)
-	r.Get("/auth/reset", h.ResetPasswordPage)
-	r.Get("/onboarding", h.OnboardingPage)
-	r.Get("/lang/{code}", h.SetLanguage)
+		// Public & Auth (marketing, catalogue browsing, sign-in)
+		pub.Get("/", h.HomePage)
+		pub.Get("/privacy", h.PrivacyPage)
+		pub.Get("/terms", h.TermsPage)
+		pub.Get("/about", h.AboutPage)
+		pub.Get("/how-it-works", h.HowItWorksPage)
+		pub.Get("/faq", h.FaqPage)
+		pub.Get("/help", h.HelpPage)
+		pub.Get("/contact", h.ContactPage)
+		pub.Get("/auth/login", h.LoginPage)
+		pub.Get("/auth/register", h.RegisterPage)
+		pub.Get("/auth/forgot", h.ForgotPasswordPage)
+		pub.Get("/auth/reset", h.ResetPasswordPage)
+		pub.Get("/onboarding", h.OnboardingPage)
+		pub.Get("/lang/{code}", h.SetLanguage)
 
-	// Public catalogue and directory
-	r.Get("/catalog", h.CustomerCatalogPage)
-	r.Get("/catalog/{id}", h.CustomerProductDetailPage)
-	r.Get("/suppliers", h.SuppliersPage)
-	r.Get("/suppliers/{id}", h.SupplierProfilePage)
-	r.Get("/offers", h.OffersPage)
-	r.Get("/offers/{id}", h.OfferDetailPage)
-	r.Get("/jobs", h.JobsPage)
-	r.Get("/jobs/{id}", h.JobDetailPage)
-	r.Get("/services", h.ServicesPage)
-	r.Get("/services/{id}", h.ServiceDetailPage)
-	r.Get("/finder", h.FinderPage)
-	r.Get("/finder/{id}", h.FinderQuestionByIDPage)
-	r.Get("/finder/result/{id}", h.FinderResultByIDPage)
-	r.Get("/compare", h.ComparePlansPage)
-	r.Get("/compare/tool", h.CompareToolPage)
+		// Public catalogue and directory
+		pub.Get("/catalog", h.CustomerCatalogPage)
+		pub.Get("/catalog/{id}", h.CustomerProductDetailPage)
+		pub.Get("/suppliers", h.SuppliersPage)
+		pub.Get("/suppliers/{id}", h.SupplierProfilePage)
+		pub.Get("/offers", h.OffersPage)
+		pub.Get("/offers/{id}", h.OfferDetailPage)
+		pub.Get("/jobs", h.JobsPage)
+		pub.Get("/jobs/{id}", h.JobDetailPage)
+		pub.Get("/services", h.ServicesPage)
+		pub.Get("/services/{id}", h.ServiceDetailPage)
+		pub.Get("/finder", h.FinderPage)
+		pub.Get("/finder/{id}", h.FinderQuestionByIDPage)
+		pub.Get("/finder/result/{id}", h.FinderResultByIDPage)
+		pub.Get("/compare", h.ComparePlansPage)
+		pub.Get("/compare/tool", h.CompareToolPage)
 
-	// Form actions that work signed-out (sign-up must be reachable pre-login)
-	r.Post("/auth/login", h.LoginSubmit)
-	r.Post("/auth/logout", h.LogoutSubmit)
-	r.Get("/auth/logout", h.LogoutSubmit)
-	r.Post("/auth/register", h.RegisterSubmit)
-	r.Post("/contact", h.ContactSubmit)
-	r.Post("/upload", h.UploadAPISubmit)
-	r.Post("/offers/{id}/click", h.OfferClickSubmit)
-	r.Post("/services/{id}/request", h.ServiceRequestSubmit)
+		// Form actions that work signed-out (sign-up must be reachable pre-login)
+		pub.Post("/auth/login", h.LoginSubmit)
+		pub.Post("/auth/logout", h.LogoutSubmit)
+		pub.Get("/auth/logout", h.LogoutSubmit)
+		pub.Post("/auth/register", h.RegisterSubmit)
+		pub.Post("/contact", h.ContactSubmit)
+		pub.Post("/upload", h.UploadAPISubmit)
+		pub.Post("/offers/{id}/click", h.OfferClickSubmit)
+		pub.Post("/services/{id}/request", h.ServiceRequestSubmit)
+	})
 }
 
 // RegisterCustomerRoutes mounts the customer (صيدلية) surface. The plan's
@@ -185,8 +192,6 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/compare/subscribe", h.CompareSubscribeSubmit)
 }
 
-
-
 // RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
 // RequireVendor.
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
@@ -227,7 +232,6 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
 	r.Post("/requests/{id}/respond", h.RequestRespondSubmit)
 }
-
 
 // RegisterAdminRoutes mounts the platform staff surface, gated by RequireStaff
 // (super_admin, admin, support, developer). Every handler behind it runs
@@ -341,7 +345,6 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
 	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
 }
-
 
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {
 	ctx := r.Context()
