@@ -260,7 +260,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 									<!-- 1. Timestamp (Start Aligned) -->
 									<td style="text-align:start;">
 										<div class="tabular-nums" style="font-weight:700; color:var(--text); font-size:0.85rem;">
-											{ v.VisitedAt }
+											{ v.VisitedAt.Format("2006-01-02") }
 										</div>
 										<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">
 											{ v.CreatedAt.Format("15:04:05") }
