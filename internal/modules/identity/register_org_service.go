@@ -105,18 +105,11 @@ func validateOrgInput(in RegisterOrgInput) error {
 		return apperr.Validation("org.legal_name_required", "الاسم القانوني للمنشأة مطلوب.", nil)
 	}
 	switch in.Type {
-	case OrgTypeVendor:
-		if in.CommercialRegister == "" && in.TaxNumber == "" {
-			return apperr.Validation("org.cr_required", "يرجى إدخال رقم السجل التجاري أو الرقم الضريبي للمنشأة.", nil)
-		}
-	case OrgTypeCustomer:
-		// Pharmacy / customer account
-		if in.CommercialRegister == "" && in.PharmacistLicense == "" {
-			return apperr.Validation("org.license_required", "يرجى إدخال رقم السجل التجاري أو ترخيص المؤسسة الصيدلية.", nil)
-		}
+	case OrgTypeVendor, OrgTypeCustomer:
+		return nil
 	default:
 		return apperr.Validation("org.type_invalid", "يرجى تحديد نوع الحساب: صيدلية أو مورد.", nil)
 	}
-	return nil
 }
+
 

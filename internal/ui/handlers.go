@@ -418,16 +418,19 @@ func (h *UIHandler) safeMessage(err error, lang string) string {
 		return appErr.LocalizedMsg(lang)
 	}
 	errStr := err.Error()
-	if strings.Contains(errStr, "email") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505")) {
+	if strings.Contains(errStr, "email") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505") || strings.Contains(errStr, "users_email_key")) {
 		return "البريد الإلكتروني مسجل مسبقاً في النظام. يرجى تسجيل الدخول أو استخدام بريد آخر."
 	}
 	if strings.Contains(errStr, "commercial_register") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505")) {
 		return "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى."
 	}
-	if lang == "ar" {
-		return "تعذر إتمام العملية. يرجى مراجعة البيانات المدخلة والمحاولة مرة أخرى."
+	if strings.Contains(errStr, "foreign key") || strings.Contains(errStr, "23503") {
+		return "بيانات الموقع أو المدينة غير صالحة. يرجى إعادة اختيار المدينة من الخريطة."
 	}
-	return "Operation could not be completed. Please review your input and try again."
+	if lang == "ar" {
+		return "حدث خطأ أثناء المعالجة: " + errStr
+	}
+	return "Operation could not be completed: " + errStr
 }
 
 

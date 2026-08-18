@@ -323,6 +323,12 @@ function initRegistrationStepper() {
     }
   }
 
+  // If returning with an error alert, auto-advance to step 3 so the user stays on their filled form
+  const errorAlert = document.querySelector('.alert-danger');
+  if (errorAlert && errorAlert.textContent.trim()) {
+    showStep(3);
+  }
+
   // Account Type Selection Cards
   typeCards.forEach((card) => {
     card.addEventListener('click', () => {

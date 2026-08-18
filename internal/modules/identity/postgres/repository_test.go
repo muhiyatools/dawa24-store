@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 func getTestDB(t *testing.T) *database.DB {
@@ -314,3 +315,48 @@ func TestIdentityRepository(t *testing.T) {
 		}
 	})
 }
+
+func TestRegisterOrganizationLive(t *testing.T) {
+	db := getTestDB(t)
+	repo := postgres.NewRepository(db)
+	ctx := context.Background()
+
+	lat := 30.0444
+	lon := 31.2357
+	branchCount := 1
+	var cityID int64 = 1
+
+	u := &identity.User{
+		Email:        fmt.Sprintf("test-identity-reg-%d@example.com", time.Now().UnixNano()),
+		PasswordHash: "$2a$10$abcdefghijklmnopqrstuvwxyz123456",
+		Name:         i18n.New("د. أحمد", "Dr. Ahmed"),
+		Role:         "customer",
+		Status:       identity.StatusActive,
+		Language:     i18n.Lang("ar"),
+		Timezone:     "Africa/Cairo",
+		Phone:        "01012345678",
+	}
+
+	orgIn := identity.RegisterOrgInput{
+		Type:               "customer",
+		LegalName:          "صيدلية الشفاء التجريبية",
+		TradeNameAr:        "صيدلية الشفاء",
+		TradeNameEn:        "Al Shefa Pharmacy",
+		CommercialRegister: fmt.Sprintf("CR-%d", time.Now().UnixNano()),
+		TaxNumber:          "123-456-789",
+		PharmacistLicense:  "LIC-12345",
+		CityID:             &cityID,
+		BranchCount:        &branchCount,
+		Address:            "شارع التحرير، الدقي، الجيزة",
+		Latitude:           &lat,
+		Longitude:          &lon,
+		GoogleMapsURL:      "https://google.com/maps",
+	}
+
+	res, err := repo.RegisterOrganization(ctx, u, orgIn)
+	if err != nil {
+		t.Fatalf("RegisterOrganization failed: %+v", err)
+	}
+	t.Logf("Registered Org successfully: OrgID=%d, UserID=%d, Type=%s, Status=%s", res.OrganizationID, u.ID, res.OrganizationType, res.OrganizationStatus)
+}
+
