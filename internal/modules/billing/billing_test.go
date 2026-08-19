@@ -212,6 +212,26 @@ func (m *mockBillingRepo) DeletePaymentMethod(_ context.Context, _, id int64) er
 	return nil
 }
 
+func (m *mockBillingRepo) ListPlatformPaymentMethods(_ context.Context, onlyActive bool) ([]*PlatformPaymentMethod, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) GetPlatformPaymentMethod(_ context.Context, id string) (*PlatformPaymentMethod, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) SavePlatformPaymentMethod(_ context.Context, pm *PlatformPaymentMethod) error {
+	return nil
+}
+
+func (m *mockBillingRepo) TogglePlatformPaymentMethod(_ context.Context, id string, active bool) error {
+	return nil
+}
+
+func (m *mockBillingRepo) DeletePlatformPaymentMethod(_ context.Context, id string) error {
+	return nil
+}
+
 func (m *mockBillingRepo) AdminAdjustWallet(_ context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
 	return nil
 }

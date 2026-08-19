@@ -36,6 +36,8 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	var wallet *billing.Wallet
 	var txs []*billing.WalletTransaction
 
+	var platformPaymentMethods []*billing.PlatformPaymentMethod
+
 	if h.idSvc != nil {
 		if me, err := h.idSvc.GetMe(ctx, actor.UserID, nil); err == nil && me != nil {
 			user = me.User
@@ -48,6 +50,9 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	if h.billSvc != nil {
 		if pms, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err == nil {
 			paymentMethods = pms
+		}
+		if ppms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err == nil {
+			platformPaymentMethods = ppms
 		}
 		if w, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && w != nil {
 			wallet = w
@@ -67,12 +72,13 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.UnifiedSettingsData{
-		User:           user,
-		Wallet:         wallet,
-		Transactions:   txs,
-		PaymentMethods: paymentMethods,
-		Sessions:       sessions,
-		ActiveTab:      "profile",
+		User:                   user,
+		Wallet:                 wallet,
+		Transactions:           txs,
+		PaymentMethods:         paymentMethods,
+		PlatformPaymentMethods: platformPaymentMethods,
+		Sessions:               sessions,
+		ActiveTab:              "profile",
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

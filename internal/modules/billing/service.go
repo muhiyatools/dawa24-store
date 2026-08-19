@@ -219,3 +219,37 @@ func (s *Service) DeletePaymentMethod(ctx context.Context, userID, id int64) err
 	}
 	return s.repo.DeletePaymentMethod(ctx, userID, id)
 }
+
+// ListPlatformPaymentMethods returns all platform configured payment channels.
+func (s *Service) ListPlatformPaymentMethods(ctx context.Context, onlyActive bool) ([]*PlatformPaymentMethod, error) {
+	return s.repo.ListPlatformPaymentMethods(ctx, onlyActive)
+}
+
+// GetPlatformPaymentMethod returns a single platform payment method.
+func (s *Service) GetPlatformPaymentMethod(ctx context.Context, id string) (*PlatformPaymentMethod, error) {
+	return s.repo.GetPlatformPaymentMethod(ctx, id)
+}
+
+// SavePlatformPaymentMethod adds or updates a platform payment channel configuration.
+func (s *Service) SavePlatformPaymentMethod(ctx context.Context, pm *PlatformPaymentMethod) error {
+	if pm.ID == "" || pm.Name.IsEmpty() {
+		return apperr.Validation("payment_method.invalid", "ID and Name are required for platform payment method.", nil)
+	}
+	return s.repo.SavePlatformPaymentMethod(ctx, pm)
+}
+
+// TogglePlatformPaymentMethod activates or deactivates a payment method.
+func (s *Service) TogglePlatformPaymentMethod(ctx context.Context, id string, active bool) error {
+	if id == "" {
+		return apperr.Validation("payment_method.invalid_id", "ID is required.", nil)
+	}
+	return s.repo.TogglePlatformPaymentMethod(ctx, id, active)
+}
+
+// DeletePlatformPaymentMethod deletes a platform payment channel.
+func (s *Service) DeletePlatformPaymentMethod(ctx context.Context, id string) error {
+	if id == "" {
+		return apperr.Validation("payment_method.invalid_id", "ID is required.", nil)
+	}
+	return s.repo.DeletePlatformPaymentMethod(ctx, id)
+}

@@ -110,6 +110,26 @@ func (r stubRepo) DeletePaymentMethod(ctx context.Context, _, id int64) error {
 	r.fail("DeletePaymentMethod")
 	return nil
 }
+func (r stubRepo) ListPlatformPaymentMethods(ctx context.Context, onlyActive bool) ([]*billing.PlatformPaymentMethod, error) {
+	r.fail("ListPlatformPaymentMethods")
+	return nil, nil
+}
+func (r stubRepo) GetPlatformPaymentMethod(ctx context.Context, id string) (*billing.PlatformPaymentMethod, error) {
+	r.fail("GetPlatformPaymentMethod")
+	return nil, nil
+}
+func (r stubRepo) SavePlatformPaymentMethod(ctx context.Context, pm *billing.PlatformPaymentMethod) error {
+	r.fail("SavePlatformPaymentMethod")
+	return nil
+}
+func (r stubRepo) TogglePlatformPaymentMethod(ctx context.Context, id string, active bool) error {
+	r.fail("TogglePlatformPaymentMethod")
+	return nil
+}
+func (r stubRepo) DeletePlatformPaymentMethod(ctx context.Context, id string) error {
+	r.fail("DeletePlatformPaymentMethod")
+	return nil
+}
 
 func (r stubRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
 	r.fail("AdminListSubscriptions")
@@ -187,6 +207,21 @@ func (happyRepo) ListPaymentMethods(ctx context.Context, userID int64) ([]*billi
 	return []*billing.UserPaymentMethod{{ID: 1, UserID: userID, Provider: "fawry"}}, nil
 }
 func (happyRepo) DeletePaymentMethod(ctx context.Context, _, id int64) error {
+	return nil
+}
+func (happyRepo) ListPlatformPaymentMethods(ctx context.Context, onlyActive bool) ([]*billing.PlatformPaymentMethod, error) {
+	return []*billing.PlatformPaymentMethod{{ID: "instapay", ProviderType: "instapay"}}, nil
+}
+func (happyRepo) GetPlatformPaymentMethod(ctx context.Context, id string) (*billing.PlatformPaymentMethod, error) {
+	return &billing.PlatformPaymentMethod{ID: id, ProviderType: "instapay"}, nil
+}
+func (happyRepo) SavePlatformPaymentMethod(ctx context.Context, pm *billing.PlatformPaymentMethod) error {
+	return nil
+}
+func (happyRepo) TogglePlatformPaymentMethod(ctx context.Context, id string, active bool) error {
+	return nil
+}
+func (happyRepo) DeletePlatformPaymentMethod(ctx context.Context, id string) error {
 	return nil
 }
 func (happyRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
