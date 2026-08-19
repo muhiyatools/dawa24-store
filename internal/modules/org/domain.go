@@ -270,22 +270,24 @@ const (
 
 // InstitutionalWork represents an organizational structural node/type (الهيكل المؤسسي).
 type InstitutionalWork struct {
-	ID                 int64                `json:"id"`
-	PublicID           string               `json:"public_id"`
-	Title              i18n.Text            `json:"title"`
-	Description        i18n.Text            `json:"description"`
-	Icon               string               `json:"icon"`
-	PricingType        PricingType          `json:"pricing_type"`
-	IsActive           bool                 `json:"is_active"`
-	ViewType           int                  `json:"view_type"`
-	Slug               string               `json:"slug"`
-	ParentID           *int64               `json:"parent_id,omitempty"`
-	ParentTitle        string               `json:"parent_title,omitempty"`
-	Children           []*InstitutionalWork `json:"children,omitempty"`
-	AllowedConnections []int64              `json:"allowed_connections,omitempty"`
-	BranchCount        int                  `json:"branch_count,omitempty"`
-	CreatedAt          time.Time            `json:"created_at"`
-	UpdatedAt          time.Time            `json:"updated_at"`
+	ID                     int64                `json:"id"`
+	PublicID               string               `json:"public_id"`
+	Title                  i18n.Text            `json:"title"`
+	Description            i18n.Text            `json:"description"`
+	Icon                   string               `json:"icon"`
+	PricingType            PricingType          `json:"pricing_type"`
+	IsActive               bool                 `json:"is_active"`
+	ViewType               int                  `json:"view_type"`
+	Slug                   string               `json:"slug"`
+	ParentID               *int64               `json:"parent_id,omitempty"`
+	ParentTitle            string               `json:"parent_title,omitempty"`
+	Children               []*InstitutionalWork `json:"children,omitempty"`
+	AllowedConnections     []int64              `json:"allowed_connections,omitempty"`
+	AllowedConnectionNames []string             `json:"allowed_connection_names,omitempty"`
+	BranchCount            int                  `json:"branch_count,omitempty"`
+	Level                  int                  `json:"level,omitempty"`
+	CreatedAt              time.Time            `json:"created_at"`
+	UpdatedAt              time.Time            `json:"updated_at"`
 }
 
 // ParentIDVal returns the parent ID or 0 if nil.
@@ -294,6 +296,19 @@ func (iw *InstitutionalWork) ParentIDVal() int64 {
 		return 0
 	}
 	return *iw.ParentID
+}
+
+// CanConnectTo reports whether this entity is permitted to connect to the target entity ID.
+func (iw *InstitutionalWork) CanConnectTo(targetID int64) bool {
+	if iw == nil || len(iw.AllowedConnections) == 0 {
+		return false
+	}
+	for _, id := range iw.AllowedConnections {
+		if id == targetID {
+			return true
+		}
+	}
+	return false
 }
 
 // BranchInstitutionalWork joins branches to institutional work types.

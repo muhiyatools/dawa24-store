@@ -2,400 +2,550 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
-	@layouts.AdminShell("الهيكل المؤسسي وأنواعه | Institutional Structure", "institutional", lang, dir) {
+templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWorks []*org.InstitutionalWork) {
+	@layouts.AdminShell("الهيكل المؤسسي والأنشطة | Institutional Structure", "institutional", lang, dir) {
 		<div
-			class="card"
-			style="margin-bottom:0;"
+			style="max-width:1200px; margin:0 auto;"
 			x-data="{
-				isCreateModalOpen: false,
-				isEditModalOpen: false,
-				editData: {
+				searchQuery: '',
+				statusFilter: 'all',
+				isModalOpen: false,
+				isEdit: false,
+				form: {
 					id: 0,
 					title_ar: '',
 					title_en: '',
 					description_ar: '',
+					description_en: '',
 					icon: 'building',
 					pricing_type: 'free',
 					view_type: 1,
-					parent_id: 0
+					parent_id: 0,
+					is_active: true,
+					connections: []
 				},
-				openCreateModal() {
-					this.isCreateModalOpen = true;
-				},
-				openEdit(id, titleAr, titleEn, descAr, icon, pricingType, viewType, parentId) {
-					this.editData = {
-						id: id,
-						title_ar: titleAr || '',
-						title_en: titleEn || '',
-						description_ar: descAr || '',
-						icon: icon || 'building',
-						pricing_type: pricingType || 'free',
-						view_type: viewType || 1,
-						parent_id: parentId || 0
+				availableIcons: [
+					{ id: 'building', label: 'مبنى / مؤسسة' },
+					{ id: 'pill', label: 'صيدلية / دواء' },
+					{ id: 'truck', label: 'مستودع / توزيع' },
+					{ id: 'package', label: 'مصنع / إنتاج' },
+					{ id: 'shield', label: 'خدمات / أمان' },
+					{ id: 'briefcase', label: 'شركة مساهمة' },
+					{ id: 'cart', label: 'تجزئة / منفذ بيع' },
+					{ id: 'tag', label: 'شركة ناشئة' },
+					{ id: 'users', label: 'تعاونيات' },
+					{ id: 'file', label: 'مكتب علمي' },
+					{ id: 'plus', label: 'رعاية صحية' },
+					{ id: 'bell', label: 'إشعارات وخدمات' }
+				],
+				openNewModal() {
+					this.isEdit = false;
+					this.form = {
+						id: 0,
+						title_ar: '',
+						title_en: '',
+						description_ar: '',
+						description_en: '',
+						icon: 'building',
+						pricing_type: 'free',
+						view_type: 1,
+						parent_id: 0,
+						is_active: true,
+						connections: []
 					};
-					this.isEditModalOpen = true;
+					this.isModalOpen = true;
+				},
+				openEditModal(item) {
+					this.isEdit = true;
+					this.form = {
+						id: item.id,
+						title_ar: item.title_ar || '',
+						title_en: item.title_en || '',
+						description_ar: item.description_ar || '',
+						description_en: item.description_en || '',
+						icon: item.icon || 'building',
+						pricing_type: item.pricing_type || 'free',
+						view_type: item.view_type || 1,
+						parent_id: item.parent_id || 0,
+						is_active: item.is_active,
+						connections: item.connections ? JSON.parse(JSON.stringify(item.connections)) : []
+					};
+					this.isModalOpen = true;
+				},
+				toggleConnection(targetId) {
+					const idx = this.form.connections.indexOf(targetId);
+					if (idx > -1) {
+						this.form.connections.splice(idx, 1);
+					} else {
+						this.form.connections.push(targetId);
+					}
+				},
+				isConnectionSelected(targetId) {
+					return this.form.connections.includes(targetId);
 				}
 			}"
 		>
 			
-			<!-- Header Action Bar -->
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;">
-				<div style="display:flex; align-items:center; gap:0.6rem;">
-					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconBuilding("icon-sm")
+			<!-- Top Header & Metrics Bar -->
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						@components.IconBuilding("icon-md")
 					</div>
 					<div>
-						<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
-							الهيكل المؤسسي وأنواعه ({ fmt.Sprintf("%d", len(items)) })
+						<h2 class="card-title" style="margin:0; font-size:1.55rem; font-weight:800;">
+							الهيكل المؤسسي والأنشطة التجارية
 						</h2>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-							إدارة التصنيفات الهيكلية للمنشآت والمستودعات والصيدليات ونمط التغطية (تغطية عامة / تغطية صيدلية)
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
+							إدارة الشجرة الهيكلية للكيانات (جملة، مصنع، صيدلية، خدمات) وتحديد شبكة الاتصالات والتبادل التجاري المسموح بها
 						</p>
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<button type="button" @click="openCreateModal()" class="btn btn-primary" style="font-weight:800;">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<button type="button" @click="openNewModal()" class="btn btn-primary" style="font-weight:800; padding:0.65rem 1.25rem; gap:0.4rem;">
 						@components.IconPlus("icon-xs")
-						<span>إضافة تصنيف هيكلي جديد</span>
+						<span>إضافة كيان مؤسسي جديد</span>
 					</button>
 				</div>
 			</div>
 
-			if len(items) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد تصنيفات هيكلية مضافة",
-					Message: "يمكنك إضافة تصنيفات الهيكل المؤسسي لربط فروع الموردين والصيدليات بها وتحديد نمط التغطية ونوع التسعير.",
-				})
-			} else {
-				<div style="display:flex; flex-direction:column; gap:1.25rem;">
-					for _, root := range items {
-						<div class="card" style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; margin-bottom:0;">
-							
-							<!-- Main Parent Header -->
-							<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-wrap:wrap; gap:1rem;">
-								<div style="display:flex; align-items:center; gap:0.85rem;">
-									<div style="width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:900;">
-										@components.IconLayers("icon-sm")
-									</div>
-									<div>
-										<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-											<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
-												{ root.Title.Get("ar") }
-											</h3>
-											
-											<!-- View Type Badge -->
-											if root.ViewType == 2 {
-												<span class="badge badge-sky" style="font-weight:700;">
-													تغطية صيدلية (Pharmacy) - 2
-												</span>
-											} else {
-												<span class="badge badge-slate" style="font-weight:700;">
-													تغطية عامة (Normal) - 1
-												</span>
-											}
-
-											<span class={ "badge", pricingBadgeClass(string(root.PricingType)) } style="font-weight:700;">
-												{ pricingTypeAr(string(root.PricingType)) }
-											</span>
-
-											if root.IsActive {
-												<span class="badge badge-emerald" style="font-weight:700;">نشط</span>
-											} else {
-												<span class="badge badge-danger" style="font-weight:700;">موقوف</span>
-											}
-										</div>
-										if root.Title.Get("en") != "" {
-											<div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">{ root.Title.Get("en") }</div>
-										}
-										if root.Description.Get("ar") != "" {
-											<p style="font-size:0.825rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.4;">
-												{ root.Description.Get("ar") }
-											</p>
-										}
-									</div>
-								</div>
-
-								<!-- Parent Actions -->
-								<div style="display:flex; align-items:center; gap:0.4rem;">
-									<button
-										type="button"
-										class="btn btn-secondary btn-icon"
-										style="width:34px; height:34px; color:var(--accent);"
-										title="تعديل التصنيف"
-										@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d)", root.ID, root.Title.Get("ar"), root.Title.Get("en"), root.Description.Get("ar"), root.Icon, string(root.PricingType), root.ViewType, root.ParentIDVal()) }
-									>
-										@components.IconEdit("icon-xs")
-									</button>
-
-									<!-- Status Toggle -->
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", root.ID)) } style="margin:0;">
-										<button
-											type="submit"
-											class="btn btn-secondary btn-icon"
-											style="width:34px; height:34px;"
-											title={ ternary(root.IsActive, "إيقاف التصنيف", "تفعيل التصنيف") }
-										>
-											if root.IsActive {
-												@components.IconMinus("icon-xs")
-											} else {
-												@components.IconCheck("icon-xs")
-											}
-										</button>
-									</form>
-
-									<!-- Delete -->
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", root.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا التصنيف المؤسسي؟');">
-										<button type="submit" class="btn btn-secondary btn-icon" style="width:34px; height:34px; color:var(--danger);" title="حذف">
-											@components.IconTrash("icon-xs")
-										</button>
-									</form>
-								</div>
-							</div>
-
-							<!-- Children Sub-categories if any -->
-							if len(root.Children) > 0 {
-								<div style="margin-top:0.75rem; padding-inline-start:1.5rem; border-inline-start:3px solid var(--accent); display:flex; flex-direction:column; gap:0.6rem;">
-									<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">
-										التفريعات والفئات المرتبطة:
-									</div>
-									<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:0.6rem;">
-										for _, child := range root.Children {
-											<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center;">
-												<div>
-													<div style="font-weight:700; font-size:0.9rem; color:var(--text);">{ child.Title.Get("ar") }</div>
-													<div style="display:flex; align-items:center; gap:0.4rem; margin-top:3px;">
-														if child.ViewType == 2 {
-															<span class="badge badge-sky" style="font-size:0.675rem;">تغطية صيدلية - 2</span>
-														} else {
-															<span class="badge badge-slate" style="font-size:0.675rem;">تغطية عامة - 1</span>
-														}
-														<span class={ "badge", pricingBadgeClass(string(child.PricingType)) } style="font-size:0.675rem;">
-															{ pricingTypeAr(string(child.PricingType)) }
-														</span>
-													</div>
-												</div>
-												<div style="display:flex; align-items:center; gap:0.25rem;">
-													<button
-														type="button"
-														class="btn btn-secondary btn-icon"
-														style="width:28px; height:28px; color:var(--accent);"
-														title="تعديل"
-														@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d)", child.ID, child.Title.Get("ar"), child.Title.Get("en"), child.Description.Get("ar"), child.Icon, string(child.PricingType), child.ViewType, child.ParentIDVal()) }
-													>
-														@components.IconEdit("icon-xs")
-													</button>
-												</div>
-											</div>
-										}
-									</div>
-								</div>
-							}
-
+			<!-- Summary Stats Strip -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
+					<div style="display:flex; align-items:center; justify-content:space-between;">
+						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">إجمالي الكيانات المؤسسية</span>
+						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconBuilding("icon-xs")
 						</div>
-					}
-				</div>
-			}
-
-			<!-- Create Institutional Work Modal -->
-			<div
-				x-show="isCreateModalOpen"
-				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
-				@keydown.escape.window="isCreateModalOpen = false"
-			>
-				<div
-					@click.outside="isCreateModalOpen = false"
-					class="card"
-					style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
-				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div style="display:flex; align-items:center; gap:0.6rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-								@components.IconPlus("icon-xs")
-							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-								إضافة تصنيف هيكل مؤسسي جديد
-							</h3>
-						</div>
-						<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
-							@components.IconClose("icon-xs")
-						</button>
 					</div>
+					<div style="font-size:1.6rem; font-weight:900; color:var(--text); margin-top:0.5rem;">
+						{ fmt.Sprintf("%d", len(allWorks)) }
+					</div>
+				</div>
 
-					<form method="POST" action="/admin/institutional/new" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">اسم التصنيف المؤسسي (عربي) *</label>
-								<input type="text" name="title_ar" required class="form-input" placeholder="مستودع مركزي رئيسي" />
-							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">الاسم بالإنجليزية (English)</label>
-								<input type="text" name="title_en" class="form-input" dir="ltr" placeholder="Central Main Warehouse" />
-							</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
+					<div style="display:flex; align-items:center; justify-content:space-between;">
+						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الكيانات النشطة والمفعلة</span>
+						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:rgba(46,204,113,0.12); color:#2ecc71; display:flex; align-items:center; justify-content:center;">
+							@components.IconCheck("icon-xs")
 						</div>
+					</div>
+					<div style="font-size:1.6rem; font-weight:900; color:#2ecc71; margin-top:0.5rem;">
+						{ fmt.Sprintf("%d", countActiveWorks(allWorks)) }
+					</div>
+				</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">التصنيف الأب الرئيسي (Parent Group)</label>
-								<select name="parent_id" class="form-select">
-									<option value="0">تصنيف رئيسي مستقل (Root Category)</option>
-									for _, p := range items {
-										<option value={ fmt.Sprintf("%d", p.ID) }>{ p.Title.Get("ar") }</option>
-									}
-								</select>
-							</div>
-
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">طريقة ونمط العرض (View Type) *</label>
-								<select name="view_type" required class="form-select">
-									<option value="1">1 - تغطية عامة / عادية (Normal Coverage)</option>
-									<option value="2">2 - تغطية صيدلية (Pharmacy Coverage)</option>
-								</select>
-							</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
+					<div style="display:flex; align-items:center; justify-content:space-between;">
+						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الفئات والقطاعات الرئيسية</span>
+						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:rgba(0,180,216,0.12); color:#00b4d8; display:flex; align-items:center; justify-content:center;">
+							@components.IconLayers("icon-xs")
 						</div>
+					</div>
+					<div style="font-size:1.6rem; font-weight:900; color:#00b4d8; margin-top:0.5rem;">
+						{ fmt.Sprintf("%d", len(items)) }
+					</div>
+				</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">نوع التسعير والاشتراك *</label>
-								<select name="pricing_type" required class="form-select">
-									<option value="free">مجاني (Free)</option>
-									<option value="subscription">اشتراك دوري (Subscription)</option>
-									<option value="paid">مدفوع ثابت (Paid)</option>
-									<option value="monthly">شهري (Monthly)</option>
-									<option value="per_project">لكل مشروع / توريد (Per Project)</option>
-								</select>
-							</div>
-
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">الأيقونة الرمزية</label>
-								<select name="icon" class="form-select">
-									<option value="building">مبنى / منشأة (Building)</option>
-									<option value="truck">شاحنة / نقل وتوزيع (Truck)</option>
-									<option value="pill">دواء / صيدلية (Pill)</option>
-									<option value="shield">أمان / مستشفى (Shield)</option>
-									<option value="layers">طبقات / فروع (Layers)</option>
-									<option value="package">صندوق / مصنع (Package)</option>
-								</select>
-							</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
+					<div style="display:flex; align-items:center; justify-content:space-between;">
+						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">مسارات الاتصال التجاري</span>
+						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:rgba(155,93,229,0.12); color:#9b5de5; display:flex; align-items:center; justify-content:center;">
+							@components.IconTruck("icon-xs")
 						</div>
-
-						<div class="form-group" style="margin:0;">
-							<label class="form-label">الوصف والبيان التفصيلي</label>
-							<textarea name="description_ar" rows="2" class="form-input" placeholder="شرح لطبيعة المنشأة والتصنيف ونطاق التوريد..."></textarea>
-						</div>
-
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800;">
-								@components.IconCheck("icon-xs")
-								<span>حفظ وإضافة التصنيف</span>
-							</button>
-						</div>
-					</form>
+					</div>
+					<div style="font-size:1.6rem; font-weight:900; color:#9b5de5; margin-top:0.5rem;">
+						{ fmt.Sprintf("%d", countTotalConnections(allWorks)) }
+					</div>
 				</div>
 			</div>
 
-			<!-- Edit Modal -->
+			<!-- Search & Filter Controls -->
+			<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:0.75rem; flex:1; max-width:480px;">
+					<input
+						type="text"
+						x-model="searchQuery"
+						placeholder="بحث باسم الكيان أو النشاط (عربي / إنجليزي)..."
+						class="form-input"
+						style="padding:0.55rem 1rem;"
+					/>
+				</div>
+
+				<div style="display:flex; align-items:center; gap:0.5rem;">
+					<button
+						type="button"
+						class="btn btn-sm"
+						:class="statusFilter === 'all' ? 'btn-primary' : 'btn-secondary'"
+						@click="statusFilter = 'all'"
+					>
+						الكل ({ fmt.Sprintf("%d", len(allWorks)) })
+					</button>
+					<button
+						type="button"
+						class="btn btn-sm"
+						:class="statusFilter === 'active' ? 'btn-primary' : 'btn-secondary'"
+						@click="statusFilter = 'active'"
+					>
+						النشطة فقط ({ fmt.Sprintf("%d", countActiveWorks(allWorks)) })
+					</button>
+				</div>
+			</div>
+
+			<!-- Main Hierarchy Table Panel (Simplified & De-cluttered) -->
+			<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm); margin-bottom:0;">
+				<div class="table-container">
+					<table class="data-table" style="width:100%; border-collapse:collapse;">
+						<thead>
+							<tr style="background:var(--surface); border-bottom:1px solid var(--border); text-align:start;">
+								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">الكيان والنشاط التجاري</th>
+								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">التصنيف الأب</th>
+								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">الاتصالات المسموح بها (يتصل بـ)</th>
+								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">التغطية والتسعير</th>
+								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-align:center;">الحالة</th>
+								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							if len(allWorks) == 0 {
+								<tr>
+									<td colspan="6" style="padding:3rem; text-align:center; color:var(--text-muted);">
+										<div style="font-size:2.5rem; margin-bottom:0.5rem;">🏛️</div>
+										<div style="font-weight:700; font-size:1rem; color:var(--text);">لا توجد كيانات مؤسسية مسجلة حالياً</div>
+										<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">
+											اضغط على "إضافة كيان مؤسسي جديد" لإنشاء أول تصنيف في الهيكل.
+										</div>
+									</td>
+								</tr>
+							} else {
+								for _, item := range allWorks {
+									<tr
+										style="border-bottom:1px solid var(--border); transition:background 150ms;"
+										x-show={ fmt.Sprintf("(statusFilter === 'all' || (statusFilter === 'active' && %t)) && (searchQuery === '' || %q.toLowerCase().includes(searchQuery.toLowerCase()) || %q.toLowerCase().includes(searchQuery.toLowerCase()))", item.IsActive, item.Title.Get("ar"), item.Title.Get("en")) }
+									>
+										<!-- 1. Title & Hierarchy -->
+										<td style="padding:1rem 1.25rem;">
+											<div style="display:flex; align-items:center; gap:0.75rem;">
+												<!-- Level Indent Spacer -->
+												if item.Level > 0 {
+													<div style={ fmt.Sprintf("width:%dpx; display:flex; justify-content:flex-end; color:var(--accent); font-weight:900;", item.Level*20) }>
+														↳
+													</div>
+												}
+												
+												<!-- Icon Graphic -->
+												<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+													@renderVisualIcon(item.Icon, "icon-xs")
+												</div>
+
+												<div>
+													<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+														<span style="font-weight:800; font-size:0.95rem; color:var(--text);">
+															{ item.Title.Get("ar") }
+														</span>
+														if item.Level == 0 {
+															<span class="badge badge-sky" style="font-size:0.65rem; padding:0.15rem 0.45rem;">فئة رئيسية</span>
+														} else {
+															<span class="badge badge-slate" style="font-size:0.65rem; padding:0.15rem 0.45rem;">
+																{ fmt.Sprintf("مستوى %d", item.Level) }
+															</span>
+														}
+													</div>
+													if item.Title.Get("en") != "" {
+														<div style="font-size:0.775rem; color:var(--text-muted); margin-top:2px;">
+															{ item.Title.Get("en") }
+														</div>
+													}
+													if item.Description.Get("ar") != "" {
+														<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:4px; max-width:320px; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title={ item.Description.Get("ar") }>
+															{ item.Description.Get("ar") }
+														</div>
+													}
+												</div>
+											</div>
+										</td>
+
+										<!-- 2. Parent -->
+										<td style="padding:1rem 1.25rem;">
+											if item.ParentTitle != "" {
+												<span class="badge badge-indigo" style="font-size:0.75rem; font-weight:700;">
+													{ item.ParentTitle }
+												</span>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.8rem;">رئيسي (جذر)</span>
+											}
+										</td>
+
+										<!-- 3. Allowed Connections (يتصل بـ) -->
+										<td style="padding:1rem 1.25rem;">
+											if len(item.AllowedConnectionNames) > 0 {
+												<div style="display:flex; flex-wrap:wrap; gap:0.35rem; max-width:320px;">
+													for _, name := range item.AllowedConnectionNames {
+														<span class="badge badge-slate" style="font-size:0.7rem; font-weight:600; padding:0.2rem 0.5rem;">
+															{ name }
+														</span>
+													}
+												</div>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.775rem;">لا توجد اتصالات محددة</span>
+											}
+										</td>
+
+										<!-- 4. View Type & Pricing -->
+										<td style="padding:1rem 1.25rem;">
+											<div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;">
+												if item.ViewType == 2 {
+													<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700;">
+														صيدلية (Pharmacy) - 2
+													</span>
+												} else {
+													<span class="badge badge-slate" style="font-size:0.7rem; font-weight:700;">
+														تغطية عادية - 1
+													</span>
+												}
+												<span class={ "badge", pricingBadgeClass(string(item.PricingType)) } style="font-size:0.7rem; font-weight:700;">
+													{ pricingTypeAr(string(item.PricingType)) }
+												</span>
+											</div>
+										</td>
+
+										<!-- 5. Active Status Toggle -->
+										<td style="padding:1rem 1.25rem; text-align:center;">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", item.ID)) } style="margin:0; display:inline-block;">
+												<button
+													type="submit"
+													class={ "badge", templ.KV("badge-emerald", item.IsActive), templ.KV("badge-danger", !item.IsActive) }
+													style="cursor:pointer; border:none; padding:0.35rem 0.75rem; font-weight:800; font-size:0.75rem; display:inline-flex; align-items:center; gap:0.35rem;"
+													title={ ternary(item.IsActive, "انقر للتعطيل", "انقر للتفعيل") }
+												>
+													if item.IsActive {
+														@components.IconCheck("icon-xs")
+														<span>نشط</span>
+													} else {
+														<span>معطل</span>
+													}
+												</button>
+											</form>
+										</td>
+
+										<!-- 6. Actions -->
+										<td style="padding:1rem 1.25rem; text-align:end;">
+											<div style="display:flex; align-items:center; justify-content:flex-end; gap:0.4rem;">
+												<button
+													type="button"
+													class="btn btn-secondary btn-icon"
+													style="width:34px; height:34px; color:var(--accent);"
+													title="تعديل الكيان"
+													@click={ fmt.Sprintf("openEditModal(%s)", entityToJSON(item)) }
+												>
+													@components.IconEdit("icon-xs")
+												</button>
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", item.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الكيان المؤسسي؟');">
+													<button type="submit" class="btn btn-secondary btn-icon" style="width:34px; height:34px; color:var(--danger);" title="حذف">
+														@components.IconTrash("icon-xs")
+													</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Unified Modal: Create / Edit Institutional Work (High-Craft) -->
 			<div
-				x-show="isEditModalOpen"
+				x-show="isModalOpen"
 				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
-				@keydown.escape.window="isEditModalOpen = false"
+				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				@keydown.escape.window="isModalOpen = false"
 			>
 				<div
-					@click.outside="isEditModalOpen = false"
+					@click.outside="isModalOpen = false"
 					class="card"
-					style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+					style="max-width:780px; width:100%; max-height:92vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl);"
 				>
+					<!-- Modal Header -->
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div style="display:flex; align-items:center; gap:0.6rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-								@components.IconEdit("icon-xs")
+							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconBuilding("icon-sm")
 							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-								تعديل التصنيف المؤسسي
-							</h3>
+							<div>
+								<h3 style="font-size:1.3rem; font-weight:800; color:var(--text); margin:0;" x-text="isEdit ? 'تعديل بيانات الكيان المؤسسي' : 'إضافة كيان ونشاط مؤسسي جديد'"></h3>
+								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+									تحديد الهيكل، التسعير، الأيقونة، وحالة التفعيل والاتصالات التجارية المسموح بها
+								</p>
+							</div>
 						</div>
-						<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
-							@components.IconClose("icon-xs")
+						<button type="button" @click="isModalOpen = false" class="btn btn-secondary btn-icon" style="width:34px; height:34px;">
+							✕
 						</button>
 					</div>
 
-					<form :action="'/admin/institutional/' + editData.id + '/edit'" method="POST" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">اسم التصنيف (عربي) *</label>
-								<input type="text" name="title_ar" x-model="editData.title_ar" required class="form-input" />
+					<!-- Form -->
+					<form
+						:action="isEdit ? ('/admin/institutional/' + form.id) : '/admin/institutional/new'"
+						method="POST"
+						style="display:flex; flex-direction:column; gap:1.25rem;"
+					>
+						<!-- Active Status Toggle Switch (Header placement matching reference image) -->
+						<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div>
+								<span style="font-weight:800; font-size:0.95rem; color:var(--text);">الحالة:</span>
+								<span style="font-size:0.85rem; margin-inline-start:0.5rem; font-weight:700;" :style="form.is_active ? 'color:#2ecc71;' : 'color:var(--danger);'" x-text="form.is_active ? 'نشطة ومفعلة' : 'معطلة'"></span>
 							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">الاسم بالإنجليزية (English)</label>
-								<input type="text" name="title_en" x-model="editData.title_en" class="form-input" dir="ltr" />
-							</div>
+							<label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer; margin:0;">
+								<span style="font-size:0.85rem; font-weight:700; color:var(--text);">الحالة نشطة</span>
+								<input type="checkbox" name="is_active" value="true" x-model="form.is_active" style="width:20px; height:20px; accent-color:var(--accent); cursor:pointer;"/>
+							</label>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">التصنيف الأب الرئيسي</label>
-								<select name="parent_id" x-model="editData.parent_id" class="form-select">
-									<option value="0">تصنيف رئيسي مستقل (Root Category)</option>
-									for _, p := range items {
-										<option value={ fmt.Sprintf("%d", p.ID) }>{ p.Title.Get("ar") }</option>
-									}
-								</select>
-							</div>
-
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">طريقة ونمط العرض (View Type) *</label>
-								<select name="view_type" x-model="editData.view_type" required class="form-select">
-									<option value="1">1 - تغطية عامة / عادية (Normal Coverage)</option>
-									<option value="2">2 - تغطية صيدلية (Pharmacy Coverage)</option>
-								</select>
-							</div>
-						</div>
-
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">نوع التسعير والاشتراك *</label>
-								<select name="pricing_type" x-model="editData.pricing_type" required class="form-select">
-									<option value="free">مجاني (Free)</option>
-									<option value="subscription">اشتراك دوري (Subscription)</option>
-									<option value="paid">مدفوع ثابت (Paid)</option>
-									<option value="monthly">شهري (Monthly)</option>
-									<option value="per_project">لكل مشروع / توريد (Per Project)</option>
-								</select>
-							</div>
-
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">الأيقونة الرمزية</label>
-								<select name="icon" x-model="editData.icon" class="form-select">
-									<option value="building">مبنى / منشأة (Building)</option>
-									<option value="truck">شاحنة / نقل وتوزيع (Truck)</option>
-									<option value="pill">دواء / صيدلية (Pill)</option>
-									<option value="shield">أمان / مستشفى (Shield)</option>
-									<option value="layers">طبقات / فروع (Layers)</option>
-									<option value="package">صندوق / مصنع (Package)</option>
-								</select>
-							</div>
-						</div>
-
+						<!-- Hierarchy Parent Selector -->
 						<div class="form-group" style="margin:0;">
-							<label class="form-label">الوصف والبيان التفصيلي</label>
-							<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
+							<label class="form-label" style="font-weight:700;">التصنيف الأب (Parent Entity) *</label>
+							<select name="parent_id" x-model="form.parent_id" class="form-input">
+								<option value="0">بند رئيسي (بدون أب - Root Level)</option>
+								for _, parent := range allWorks {
+									<option
+										value={ fmt.Sprintf("%d", parent.ID) }
+										x-show={ fmt.Sprintf("!isEdit || form.id !== %d", parent.ID) }
+									>
+										{ formatOptionIndent(parent.Level) + parent.Title.Get("ar") + " (" + parent.Title.Get("en") + ")" }
+									</option>
+								}
+							</select>
+							<span style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;">
+								يتيح النظام بناء هيكل متعدد المستويات (مثال: جملة جملة ↳ قطاع ↳ مصنع).
+							</span>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800;">
+						<!-- Bilingual Titles -->
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label" style="font-weight:700;">اسم الكيان المؤسسي (باللغة العربية) *</label>
+								<input type="text" name="title_ar" x-model="form.title_ar" required placeholder="مثال: جملة جملة، مصنع، صيدلية" class="form-input"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label" style="font-weight:700;">الاسم باللغة الإنجليزية (English Title)</label>
+								<input type="text" name="title_en" x-model="form.title_en" placeholder="e.g. Wholesale, Factory, Pharmacy" class="form-input" dir="ltr"/>
+							</div>
+						</div>
+
+						<!-- Bilingual Descriptions -->
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label" style="font-weight:700;">الوصف التعريفي (بالعربية)</label>
+								<textarea name="description_ar" x-model="form.description_ar" rows="3" placeholder="وصف الكيان ودوره في السوق..." class="form-input" style="line-height:1.5;"></textarea>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label" style="font-weight:700;">الوصف بالإنجليزية (English Description)</label>
+								<textarea name="description_en" x-model="form.description_en" rows="3" placeholder="Entity description and role..." class="form-input" dir="ltr" style="line-height:1.5;"></textarea>
+							</div>
+						</div>
+
+						<!-- Classification & Pricing -->
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label" style="font-weight:700;">نوع عرض التغطية (View Type) *</label>
+								<select name="view_type" x-model="form.view_type" class="form-input">
+									<option value="1">تغطية عادية (Normal Hub / Supplier) - 1</option>
+									<option value="2">تغطية صيدلية (Pharmacy Dispensing) - 2</option>
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label" style="font-weight:700;">نوع التسعير والاشتراك (Pricing Type) *</label>
+								<select name="pricing_type" x-model="form.pricing_type" class="form-input">
+									<option value="free">مجاني (Free)</option>
+									<option value="paid">مدفوع (Paid)</option>
+									<option value="subscription">اشتراك دوري (Subscription)</option>
+									<option value="monthly">شهري (Monthly)</option>
+									<option value="hourly">بالساعة (Hourly)</option>
+									<option value="per_project">لكل مشروع / طلب (Per Project)</option>
+								</select>
+							</div>
+						</div>
+
+						<!-- Visual Icon Picker Grid -->
+						<div class="form-group" style="margin:0;">
+							<label class="form-label" style="font-weight:700;">اختيار أيقونة الكيان المؤسسي (Visual Icon Picker)</label>
+							<input type="hidden" name="icon" :value="form.icon"/>
+							<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:0.5rem; max-height:160px; overflow-y:auto; padding:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl);">
+								<template x-for="ic in availableIcons" :key="ic.id">
+									<button
+										type="button"
+										class="btn btn-sm"
+										:style="form.icon === ic.id ? 'border:2px solid var(--accent); background:var(--accent-subtle); font-weight:800;' : 'border:1px solid var(--border); background:var(--surface-raised);'"
+										style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0.6rem 0.25rem; gap:0.35rem; height:68px;"
+										@click="form.icon = ic.id"
+									>
+										<span style="font-size:1.25rem;" x-text="getIconEmoji(ic.id)"></span>
+										<span style="font-size:0.675rem; color:var(--text); text-align:center;" x-text="ic.label"></span>
+									</button>
+								</template>
+							</div>
+						</div>
+
+						<!-- Allowed Connections (يتصل بـ) Multi-Select Checkbox Grid Matching Reference Image -->
+						<div style="border-top:1px solid var(--border); padding-top:1.25rem;">
+							<div style="margin-bottom:0.75rem;">
+								<label style="font-size:0.95rem; font-weight:800; color:var(--text); display:block;">
+									الاتصالات المسموح بها (يتصل بـ)
+								</label>
+								<p style="font-size:0.775rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+									حدد الكيانات والأنشطة التي يسمح لهذا الكيان بالاتصال والتعامل التجاري معها (Matching & Trading Channels)
+								</p>
+							</div>
+
+							if len(allWorks) > 0 {
+								<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:0.65rem; max-height:220px; overflow-y:auto; padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl);">
+									for _, target := range allWorks {
+										<label
+											style="display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); cursor:pointer; gap:0.5rem;"
+											x-show={ fmt.Sprintf("!isEdit || form.id !== %d", target.ID) }
+										>
+											<div style="display:flex; align-items:center; gap:0.5rem;">
+												<span style="font-size:0.875rem; font-weight:700; color:var(--text);">
+													{ target.Title.Get("ar") }
+												</span>
+												if target.Title.Get("en") != "" {
+													<span style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">
+														({ target.Title.Get("en") })
+													</span>
+												}
+											</div>
+											<input
+												type="checkbox"
+												name="connections"
+												value={ fmt.Sprintf("%d", target.ID) }
+												:checked={ fmt.Sprintf("isConnectionSelected(%d)", target.ID) }
+												@change={ fmt.Sprintf("toggleConnection(%d)", target.ID) }
+												style="width:18px; height:18px; accent-color:var(--accent); cursor:pointer; margin:0;"
+											/>
+										</label>
+									}
+								</div>
+							}
+						</div>
+
+						<!-- Modal Actions -->
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;">
+							<button type="button" @click="isModalOpen = false" class="btn btn-secondary" style="font-weight:700; padding:0.6rem 1.5rem;">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem; gap:0.4rem;">
 								@components.IconCheck("icon-xs")
-								<span>حفظ التعديلات</span>
+								<span x-text="isEdit ? 'حفظ التعديلات' : 'إضافة الكيان المؤسسي'"></span>
 							</button>
 						</div>
 					</form>
@@ -403,36 +553,144 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
 			</div>
 
 		</div>
+
+		<script>
+			function getIconEmoji(id) {
+				const map = {
+					'building': '🏛️',
+					'pill': '💊',
+					'truck': '🚚',
+					'package': '📦',
+					'shield': '🛡️',
+					'briefcase': '💼',
+					'cart': '🛒',
+					'tag': '🏷️',
+					'users': '👥',
+					'file': '📄',
+					'plus': '➕',
+					'bell': '🔔'
+				};
+				return map[id] || '🏢';
+			}
+		</script>
 	}
 }
 
-func pricingTypeAr(pt string) string {
-	switch pt {
+templ renderVisualIcon(name, class string) {
+	switch name {
+		case "pill":
+			@components.IconPill(class)
+		case "truck":
+			@components.IconTruck(class)
+		case "package":
+			@components.IconPackage(class)
+		case "shield":
+			@components.IconShield(class)
+		case "cart":
+			@components.IconCart(class)
+		case "briefcase":
+			@components.IconBriefcase(class)
+		case "users":
+			@components.IconUsers(class)
+		case "tag":
+			@components.IconTag(class)
+		case "file":
+			@components.IconFileText(class)
+		case "plus":
+			@components.IconPlus(class)
+		case "bell":
+			@components.IconBell(class)
+		default:
+			@components.IconBuilding(class)
+	}
+}
+
+func countActiveWorks(items []*org.InstitutionalWork) int {
+	cnt := 0
+	for _, it := range items {
+		if it.IsActive {
+			cnt++
+		}
+	}
+	return cnt
+}
+
+func countTotalConnections(items []*org.InstitutionalWork) int {
+	cnt := 0
+	for _, it := range items {
+		cnt += len(it.AllowedConnections)
+	}
+	return cnt
+}
+
+func formatOptionIndent(level int) string {
+	if level <= 0 {
+		return ""
+	}
+	return strings.Repeat("— ", level) + "↳ "
+}
+
+func entityToJSON(it *org.InstitutionalWork) string {
+	if it == nil {
+		return "{}"
+	}
+	var conns []string
+	for _, c := range it.AllowedConnections {
+		conns = append(conns, fmt.Sprintf("%d", c))
+	}
+	connsJSON := "[" + strings.Join(conns, ",") + "]"
+
+	return fmt.Sprintf(
+		`{"id":%d,"title_ar":%q,"title_en":%q,"description_ar":%q,"description_en":%q,"icon":%q,"pricing_type":%q,"view_type":%d,"parent_id":%d,"is_active":%t,"connections":%s}`,
+		it.ID,
+		it.Title.Get("ar"),
+		it.Title.Get("en"),
+		it.Description.Get("ar"),
+		it.Description.Get("en"),
+		it.Icon,
+		string(it.PricingType),
+		it.ViewType,
+		it.ParentIDVal(),
+		it.IsActive,
+		connsJSON,
+	)
+}
+
+func pricingBadgeClass(pricing string) string {
+	switch pricing {
+	case "free":
+		return "badge-emerald"
+	case "paid":
+		return "badge-amber"
+	case "subscription":
+		return "badge-sky"
+	case "monthly":
+		return "badge-indigo"
+	case "hourly":
+		return "badge-rose"
+	case "per_project":
+		return "badge-purple"
+	default:
+		return "badge-slate"
+	}
+}
+
+func pricingTypeAr(pricing string) string {
+	switch pricing {
 	case "free":
 		return "مجاني"
+	case "paid":
+		return "مدفوع"
 	case "subscription":
 		return "اشتراك دوري"
-	case "paid":
-		return "مدفوع ثابت"
 	case "monthly":
 		return "شهري"
+	case "hourly":
+		return "بالساعة"
 	case "per_project":
 		return "لكل مشروع"
 	default:
-		return "عام"
-	}
-}
-
-func pricingBadgeClass(pt string) string {
-	switch pt {
-	case "free":
-		return "badge-emerald"
-	case "subscription":
-		return "badge-sky"
-	case "paid", "monthly":
-		return "badge-amber"
-	default:
-		return "badge-slate"
+		return "غير محدد"
 	}
 }
 
@@ -442,3 +700,4 @@ func ternary(cond bool, a, b string) string {
 	}
 	return b
 }
+

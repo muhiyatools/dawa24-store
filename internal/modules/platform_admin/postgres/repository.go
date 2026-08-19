@@ -294,7 +294,7 @@ func (r *Repository) ListPolicyVersions(ctx context.Context, policyKey string) (
 			SELECT id, policy_key, version, title, content, summary, is_published, published_at, created_by, created_at, updated_at
 			FROM platform_admin.policies
 			WHERE ($1 = '' OR policy_key = $1)
-			ORDER BY policy_key ASC, version DESC, created_at DESC;
+			ORDER BY policy_key ASC, is_published DESC, published_at DESC NULLS LAST, updated_at DESC, created_at DESC;
 		`
 		rows, err := tx.Query(txCtx, query, policyKey)
 		if err != nil {
@@ -348,7 +348,7 @@ func (r *Repository) GetActivePolicy(ctx context.Context, policyKey string) (*pl
 			SELECT id, policy_key, version, title, content, summary, is_published, published_at, created_by, created_at, updated_at
 			FROM platform_admin.policies
 			WHERE policy_key = $1 AND is_published = true
-			ORDER BY published_at DESC NULLS LAST, created_at DESC
+			ORDER BY published_at DESC NULLS LAST, updated_at DESC, created_at DESC
 			LIMIT 1;
 		`
 		return tx.QueryRow(txCtx, query, policyKey).Scan(
@@ -378,8 +378,8 @@ func (r *Repository) CreatePolicyVersion(ctx context.Context, p *platformadmin.P
 		}
 		query := `
 			INSERT INTO platform_admin.policies (
-				policy_key, version, title, content, summary, is_published, published_at, created_by
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+				policy_key, version, title, content, summary, is_published, published_at, created_by, updated_at
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
 			RETURNING id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,

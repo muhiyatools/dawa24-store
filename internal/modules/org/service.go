@@ -408,6 +408,16 @@ func (s *Service) ListInstitutionalWorks(ctx context.Context, onlyActive bool) (
 	return s.repo.ListInstitutionalWorks(ctx, onlyActive)
 }
 
+// ListAllFlatInstitutionalWorks returns all institutional categories in a flat list with hierarchy level.
+func (s *Service) ListAllFlatInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*InstitutionalWork, error) {
+	return s.repo.ListAllFlatInstitutionalWorks(ctx, onlyActive)
+}
+
+// CanConnectInstitutionalWorks checks if entity fromID is permitted to connect to entity toID.
+func (s *Service) CanConnectInstitutionalWorks(ctx context.Context, fromID, toID int64) (bool, error) {
+	return s.repo.CanConnectInstitutionalWorks(ctx, fromID, toID)
+}
+
 // AssignBranchInstitutionalWorks assigns institutional categories to a branch.
 func (s *Service) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
 	return s.repo.AssignBranchInstitutionalWorks(ctx, branchID, workIDs)

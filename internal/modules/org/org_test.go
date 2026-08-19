@@ -282,6 +282,14 @@ func (m *mockOrgRepo) ListInstitutionalWorks(_ context.Context, _ bool) ([]*Inst
 	return nil, nil
 }
 
+func (m *mockOrgRepo) ListAllFlatInstitutionalWorks(_ context.Context, _ bool) ([]*InstitutionalWork, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) CanConnectInstitutionalWorks(_ context.Context, _, _ int64) (bool, error) {
+	return true, nil
+}
+
 func (m *mockOrgRepo) AssignBranchInstitutionalWorks(_ context.Context, _ int64, _ []int64) error {
 	return nil
 }

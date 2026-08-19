@@ -188,6 +188,14 @@ func (r stubRepo) ListInstitutionalWorks(ctx context.Context, onlyActive bool) (
 	r.fail("ListInstitutionalWorks")
 	return nil, nil
 }
+func (r stubRepo) ListAllFlatInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*org.InstitutionalWork, error) {
+	r.fail("ListAllFlatInstitutionalWorks")
+	return nil, nil
+}
+func (r stubRepo) CanConnectInstitutionalWorks(ctx context.Context, fromID, toID int64) (bool, error) {
+	r.fail("CanConnectInstitutionalWorks")
+	return true, nil
+}
 func (r stubRepo) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
 	r.fail("AssignBranchInstitutionalWorks")
 	return nil
@@ -223,6 +231,12 @@ func (happyRepo) ToggleInstitutionalWorkStatus(ctx context.Context, id int64) er
 }
 func (happyRepo) ListInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*org.InstitutionalWork, error) {
 	return nil, nil
+}
+func (happyRepo) ListAllFlatInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*org.InstitutionalWork, error) {
+	return nil, nil
+}
+func (happyRepo) CanConnectInstitutionalWorks(ctx context.Context, fromID, toID int64) (bool, error) {
+	return true, nil
 }
 func (happyRepo) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
 	return nil

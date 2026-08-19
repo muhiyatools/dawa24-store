@@ -63,10 +63,22 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 	lang, dir := h.localeAndDir(r)
 
 	title, body := fallbackTitle, ""
+	var version string
+	var publishedAt string
 	if h.adminSvc != nil {
 		if p, err := h.adminSvc.GetActivePolicy(ctx, slug); err == nil && p != nil {
-			title = p.Title.Get(i18n.Lang(lang))
-			body = p.Content.Get(i18n.Lang(lang))
+			if t := p.Title.Get(i18n.Lang(lang)); t != "" {
+				title = t
+			}
+			if c := p.Content.Get(i18n.Lang(lang)); c != "" {
+				body = c
+			}
+			version = p.Version
+			if p.PublishedAt != nil {
+				publishedAt = p.PublishedAt.Format("2006-01-02")
+			} else if !p.UpdatedAt.IsZero() {
+				publishedAt = p.UpdatedAt.Format("2006-01-02")
+			}
 		}
 	}
 
@@ -88,7 +100,7 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CmsPage(lang, dir, title, body).Render(ctx, w); err != nil {
+	if err := pages.PolicyPage(lang, dir, title, body, slug, version, publishedAt).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render policy page", "slug", slug, "error", err)
 	}
 }

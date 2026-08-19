@@ -574,7 +574,7 @@ func (h *UIHandler) AdminPolicyEditSubmit(w http.ResponseWriter, r *http.Request
 		now := time.Now()
 		policy := &platformadmin.Policy{
 			PolicyKey:   policyKey,
-			Version:     fmt.Sprintf("1.%d", now.Unix()%10000),
+			Version:     fmt.Sprintf("v%s", now.Format("2006.01.02.150405")),
 			Title:       i18n.New(titleAr, titleEn),
 			Content:     i18n.New(contentAr, contentEn),
 			Summary:     i18n.New(changelog, changelog),
@@ -1892,18 +1892,20 @@ func (h *UIHandler) AdminPolicyPublishSubmit(w http.ResponseWriter, r *http.Requ
 	h.redirectWithNotice(w, r, "/admin/policies", "success", "تم نشر الإصدار وتفعيله للجمهور.")
 }
 
-// AdminInstitutionalPage renders the institutional hierarchy and types dashboard.
+// AdminInstitutionalPage renders the institutional hierarchy and classification screen.
 func (h *UIHandler) AdminInstitutionalPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	var items []*org.InstitutionalWork
+	var allWorks []*org.InstitutionalWork
 	if h.orgSvc != nil {
 		items, _ = h.orgSvc.ListInstitutionalWorks(ctx, false)
+		allWorks, _ = h.orgSvc.ListAllFlatInstitutionalWorks(ctx, false)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminInstitutional(lang, dir, items).Render(ctx, w); err != nil {
+	if err := pages.AdminInstitutional(lang, dir, items, allWorks).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin institutional", "error", err)
 	}
 }
@@ -1950,20 +1952,30 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 		pricingType = "free"
 	}
 
+	isActive := r.PostFormValue("is_active") == "1" || r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on"
+
+	var allowedConnections []int64
+	for _, val := range r.PostForm["connections"] {
+		if toID, err := strconv.ParseInt(val, 10, 64); err == nil && toID > 0 {
+			allowedConnections = append(allowedConnections, toID)
+		}
+	}
+
 	slug := strings.ToLower(strings.ReplaceAll(titleEn, " ", "-"))
 	if slug == "" {
 		slug = fmt.Sprintf("work-%d", time.Now().UnixNano()%1000000)
 	}
 
 	iw := &org.InstitutionalWork{
-		Title:       i18n.New(titleAr, titleEn),
-		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
-		Icon:        icon,
-		PricingType: org.PricingType(pricingType),
-		IsActive:    true,
-		ViewType:    viewType,
-		Slug:        slug,
-		ParentID:    parentID,
+		Title:              i18n.New(titleAr, titleEn),
+		Description:        i18n.New(strings.TrimSpace(r.PostFormValue("description_ar")), strings.TrimSpace(r.PostFormValue("description_en"))),
+		Icon:               icon,
+		PricingType:        org.PricingType(pricingType),
+		IsActive:           isActive,
+		ViewType:           viewType,
+		Slug:               slug,
+		ParentID:           parentID,
+		AllowedConnections: allowedConnections,
 	}
 
 	if err := h.orgSvc.CreateInstitutionalWork(ctx, iw); err != nil {
@@ -1972,7 +1984,7 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تمت إضافة تصنيف الهيكل المؤسسي بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تمت إضافة تصنيف الهيكل المؤسسي والاتصالات المسموح بها بنجاح.")
 }
 
 // AdminInstitutionalEditSubmit updates an existing institutional category.
@@ -1999,7 +2011,7 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 	}
 
 	var parentID *int64
-	if pid, err := strconv.ParseInt(r.PostFormValue("parent_id"), 10, 64); err == nil && pid > 0 {
+	if pid, err := strconv.ParseInt(r.PostFormValue("parent_id"), 10, 64); err == nil && pid > 0 && pid != id {
 		parentID = &pid
 	}
 
@@ -2018,15 +2030,25 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 		pricingType = "free"
 	}
 
+	isActive := r.PostFormValue("is_active") == "1" || r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on"
+
+	var allowedConnections []int64
+	for _, val := range r.PostForm["connections"] {
+		if toID, err := strconv.ParseInt(val, 10, 64); err == nil && toID > 0 && toID != id {
+			allowedConnections = append(allowedConnections, toID)
+		}
+	}
+
 	iw := &org.InstitutionalWork{
-		ID:          id,
-		Title:       i18n.New(titleAr, titleEn),
-		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
-		Icon:        icon,
-		PricingType: org.PricingType(pricingType),
-		IsActive:    true,
-		ViewType:    viewType,
-		ParentID:    parentID,
+		ID:                 id,
+		Title:              i18n.New(titleAr, titleEn),
+		Description:        i18n.New(strings.TrimSpace(r.PostFormValue("description_ar")), strings.TrimSpace(r.PostFormValue("description_en"))),
+		Icon:               icon,
+		PricingType:        org.PricingType(pricingType),
+		IsActive:           isActive,
+		ViewType:           viewType,
+		ParentID:           parentID,
+		AllowedConnections: allowedConnections,
 	}
 
 	if err := h.orgSvc.UpdateInstitutionalWork(ctx, iw); err != nil {
@@ -2035,7 +2057,7 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم تحديث بيانات التصنيف المؤسسي بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم تحديث بيانات التصنيف المؤسسي والاتصالات بنجاح.")
 }
 
 // AdminInstitutionalDeleteSubmit soft deletes an institutional category.

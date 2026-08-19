@@ -59,6 +59,8 @@ type Repository interface {
 	DeleteInstitutionalWork(ctx context.Context, id int64) error
 	ToggleInstitutionalWorkStatus(ctx context.Context, id int64) error
 	ListInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*InstitutionalWork, error)
+	ListAllFlatInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*InstitutionalWork, error)
+	CanConnectInstitutionalWorks(ctx context.Context, fromID, toID int64) (bool, error)
 	AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error
 	GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*InstitutionalWork, error)
 }
