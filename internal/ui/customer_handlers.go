@@ -9,7 +9,6 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
-	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -182,36 +181,15 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var addrs []*identity.UserAddress
-	if h.idSvc != nil {
-		addrs, _ = h.idSvc.ListAddresses(ctx, userID)
-	}
-
-	if len(addrs) == 0 && h.orgSvc != nil && actor.OrganizationID > 0 {
-		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
-			for _, b := range branches {
-				title := b.Name["ar"]
-				if title == "" {
-					title = b.Name["en"]
-				}
-				if title == "" {
-					title = "فرع الصيدلية"
-				}
-				addrs = append(addrs, &identity.UserAddress{
-					ID:        b.ID,
-					UserID:    userID,
-					Title:     title,
-					Recipient: actor.DisplayName(),
-					Phone:     b.Phone,
-					Address:   b.Address,
-					IsDefault: b.IsMain,
-				})
-			}
+	var branches []*org.Branch
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		if bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
+			branches = bList
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerCheckout(cart, addrs, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.CustomerCheckout(cart, branches, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render checkout page", "error", err)
 	}
 }
@@ -334,6 +312,15 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		vendorOrgID = 1
 	}
 
+	// Limit requested quantity based on supplier's available stock
+	if h.catSvc != nil && variantID > 0 {
+		if variant, err := h.catSvc.GetVariant(ctx, variantID); err == nil && variant != nil {
+			if variant.StockQty > 0 && qty > variant.StockQty {
+				qty = variant.StockQty
+			}
+		}
+	}
+
 	item := &commerce.CartItem{
 		ProductID:        productID,
 		ProductVariantID: variantID,
@@ -411,6 +398,15 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 		qty = 0
 	}
 
+	// Limit quantity based on supplier's available stock
+	if qty > 0 && h.catSvc != nil && variantID > 0 {
+		if variant, err := h.catSvc.GetVariant(ctx, variantID); err == nil && variant != nil {
+			if variant.StockQty > 0 && qty > variant.StockQty {
+				qty = variant.StockQty
+			}
+		}
+	}
+
 	_, _ = h.commSvc.SetCartQuantity(ctx, userID, variantID, qty)
 
 	if h.isHTMX(r) {
@@ -485,8 +481,14 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		paymentMethod = "cod"
 	}
 
+	var branchID *int64
+	if bID, err := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64); err == nil && bID > 0 {
+		branchID = &bID
+	}
+
 	input := commerce.CheckoutInput{
 		CustomerID:    userID,
+		BranchID:      branchID,
 		PaymentMethod: paymentMethod,
 		Notes:         r.PostFormValue("notes"),
 		Items:         items,
@@ -507,8 +509,10 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
-			input.BranchID = buying.Active
+		if input.BranchID == nil {
+			if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
+				input.BranchID = buying.Active
+			}
 		}
 	}
 

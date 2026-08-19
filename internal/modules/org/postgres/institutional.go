@@ -19,7 +19,7 @@ func ensureInstitutionalTables(ctx context.Context, tx pgx.Tx) error {
 			public_id UUID NOT NULL DEFAULT gen_random_uuid(),
 			title JSONB NOT NULL DEFAULT '{"ar":"","en":""}'::jsonb,
 			description JSONB NOT NULL DEFAULT '{"ar":"","en":""}'::jsonb,
-			icon TEXT NOT NULL DEFAULT '',
+			icon TEXT NOT NULL DEFAULT 'building',
 			pricing_type TEXT NOT NULL DEFAULT 'free',
 			is_active BOOLEAN NOT NULL DEFAULT true,
 			view_type INT NOT NULL DEFAULT 1,
@@ -31,13 +31,15 @@ func ensureInstitutionalTables(ctx context.Context, tx pgx.Tx) error {
 			deleted_at TIMESTAMPTZ
 		);
 
-		CREATE TABLE IF NOT EXISTS org.branch_institutional_works (
-			id BIGSERIAL PRIMARY KEY,
-			branch_id BIGINT NOT NULL,
-			institutional_work_id BIGINT NOT NULL REFERENCES org.institutional_works(id) ON DELETE CASCADE,
-			created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-			UNIQUE (branch_id, institutional_work_id)
-		);
+		DO $$
+		BEGIN
+			IF NOT EXISTS (
+				SELECT 1 FROM information_schema.columns 
+				WHERE table_schema = 'org' AND table_name = 'branch_institutional_works' AND column_name = 'institutional_work_id'
+			) THEN
+				ALTER TABLE org.branch_institutional_works ADD COLUMN institutional_work_id BIGINT REFERENCES org.institutional_works(id) ON DELETE CASCADE;
+			END IF;
+		END $$;
 	`
 	_, err := tx.Exec(ctx, schema)
 	return err
@@ -152,13 +154,17 @@ func (r *Repository) CreateInstitutionalWork(ctx context.Context, iw *org.Instit
 		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
 			return err
 		}
+		var parentID *int64
+		if iw.ParentID != nil && *iw.ParentID > 0 {
+			parentID = iw.ParentID
+		}
 		const query = `
 			INSERT INTO org.institutional_works (title, description, icon, pricing_type, is_active, view_type, slug, parent_id)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
-			iw.Title, iw.Description, iw.Icon, string(iw.PricingType), iw.IsActive, iw.ViewType, iw.Slug, iw.ParentID,
+			iw.Title, iw.Description, iw.Icon, string(iw.PricingType), iw.IsActive, iw.ViewType, iw.Slug, parentID,
 		).Scan(&iw.ID, &iw.PublicID, &iw.CreatedAt, &iw.UpdatedAt)
 	})
 }
@@ -200,6 +206,10 @@ func (r *Repository) UpdateInstitutionalWork(ctx context.Context, iw *org.Instit
 		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
 			return err
 		}
+		var parentID *int64
+		if iw.ParentID != nil && *iw.ParentID > 0 {
+			parentID = iw.ParentID
+		}
 		const query = `
 			UPDATE org.institutional_works
 			SET title = $2, description = $3, icon = $4, pricing_type = $5,
@@ -207,7 +217,7 @@ func (r *Repository) UpdateInstitutionalWork(ctx context.Context, iw *org.Instit
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		tag, err := tx.Exec(txCtx, query,
-			iw.ID, iw.Title, iw.Description, iw.Icon, string(iw.PricingType), iw.IsActive, iw.ViewType, iw.Slug, iw.ParentID,
+			iw.ID, iw.Title, iw.Description, iw.Icon, string(iw.PricingType), iw.IsActive, iw.ViewType, iw.Slug, parentID,
 		)
 		if err != nil {
 			return fmt.Errorf("update institutional work: %w", err)
@@ -270,7 +280,7 @@ func (r *Repository) ListInstitutionalWorks(ctx context.Context, onlyActive bool
 			SELECT iw.id, iw.public_id, iw.title, iw.description, iw.icon, iw.pricing_type,
 			       iw.is_active, iw.view_type, iw.slug, iw.parent_id,
 			       COALESCE(p.title->>'ar', p.title->>'en', '') AS parent_title,
-			       (SELECT COUNT(*) FROM org.branch_institutional_works biw WHERE biw.institutional_work_id = iw.id) AS branch_count,
+			       COALESCE((SELECT COUNT(*) FROM org.branch_institutional_works biw WHERE biw.institutional_work_id = iw.id), 0) AS branch_count,
 			       iw.created_at, iw.updated_at
 			FROM org.institutional_works iw
 			LEFT JOIN org.institutional_works p ON iw.parent_id = p.id
@@ -311,7 +321,7 @@ func (r *Repository) ListInstitutionalWorks(ctx context.Context, onlyActive bool
 	var rootList []*org.InstitutionalWork
 
 	for _, item := range all {
-		if item.ParentID == nil || *item.ParentID == 0 {
+		if item.ParentID == nil || *item.ParentID <= 0 {
 			parentMap[item.ID] = item
 			rootList = append(rootList, item)
 		}

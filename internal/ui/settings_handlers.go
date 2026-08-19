@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -29,18 +31,21 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user *identity.User
-	var addresses []*identity.UserAddress
 	var sessions []*identity.Session
+	var paymentMethods []*billing.UserPaymentMethod
 
 	if h.idSvc != nil {
 		if me, err := h.idSvc.GetMe(ctx, actor.UserID, nil); err == nil && me != nil {
 			user = me.User
 		}
-		if addrs, err := h.idSvc.ListAddresses(ctx, actor.UserID); err == nil {
-			addresses = addrs
-		}
 		if sess, err := h.idSvc.ListSessions(ctx, actor.UserID); err == nil {
 			sessions = sess
+		}
+	}
+
+	if h.billSvc != nil {
+		if pms, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err == nil {
+			paymentMethods = pms
 		}
 	}
 
@@ -54,10 +59,10 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.UnifiedSettingsData{
-		User:      user,
-		Addresses: addresses,
-		Sessions:  sessions,
-		ActiveTab: "profile",
+		User:           user,
+		PaymentMethods: paymentMethods,
+		Sessions:       sessions,
+		ActiveTab:      "profile",
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -537,12 +542,116 @@ func (h *UIHandler) SettingsPaymentMethodsPage(w http.ResponseWriter, r *http.Re
 // SettingsPaymentMethodsSubmit saves a new payment method.
 func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if _, ok := authctx.From(ctx); !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/payment-methods", http.StatusSeeOther)
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/settings/payment-methods", "success", "تم حفظ وتفعيل وسيلة الدفع بنجاح.")
+	if h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "خدمة المدفوعات غير متاحة حالياً.")
+		return
+	}
+
+	_ = r.ParseForm()
+	payType := strings.TrimSpace(r.PostFormValue("type"))
+	isDefault := r.PostFormValue("is_default") == "1"
+
+	var provider string
+	var identifier string
+
+	switch payType {
+	case "bank":
+		provider = "bank"
+		bankName := strings.TrimSpace(r.PostFormValue("bank_name"))
+		holder := strings.TrimSpace(r.PostFormValue("account_holder"))
+		iban := strings.TrimSpace(r.PostFormValue("iban"))
+		if iban == "" {
+			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "رقم الآيبان (IBAN) مطلوب.")
+			return
+		}
+		if bankName == "" {
+			bankName = "حساب بنكي"
+		}
+		if holder != "" {
+			identifier = fmt.Sprintf("%s • %s • IBAN: %s", bankName, holder, iban)
+		} else {
+			identifier = fmt.Sprintf("%s • IBAN: %s", bankName, iban)
+		}
+
+	case "instapay":
+		provider = "instapay"
+		handle := strings.TrimSpace(r.PostFormValue("instapay_handle"))
+		if handle == "" {
+			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "معرف إنستاباي أو رقم الهاتف مطلوب.")
+			return
+		}
+		identifier = "InstaPay: " + handle
+
+	case "card":
+		provider = "card"
+		cardNum := strings.TrimSpace(r.PostFormValue("card_number"))
+		cardName := strings.TrimSpace(r.PostFormValue("card_name"))
+		if cardNum == "" {
+			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "رقم البطاقة مطلوب.")
+			return
+		}
+		cleanNum := strings.ReplaceAll(cardNum, " ", "")
+		last4 := cleanNum
+		if len(cleanNum) > 4 {
+			last4 = cleanNum[len(cleanNum)-4:]
+		}
+		if cardName != "" {
+			identifier = fmt.Sprintf("Card (•••• %s) - %s", last4, cardName)
+		} else {
+			identifier = fmt.Sprintf("Card (•••• %s)", last4)
+		}
+
+	default:
+		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "نوع وسيلة الدفع غير صالح.")
+		return
+	}
+
+	pm := &billing.UserPaymentMethod{
+		UserID:            actor.UserID,
+		Provider:          provider,
+		AccountIdentifier: identifier,
+		IsDefault:         isDefault,
+	}
+
+	if err := h.billSvc.AddPaymentMethod(ctx, pm); err != nil {
+		h.log.ErrorContext(ctx, "failed to add payment method", "error", err)
+		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "فشل حفظ وسيلة الدفع: "+err.Error())
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/settings?tab=payments", "success", "تمت إضافة وحفظ وسيلة الدفع بنجاح.")
+}
+
+// SettingsPaymentMethodDeleteSubmit deletes a saved payment method.
+func (h *UIHandler) SettingsPaymentMethodDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "معرف وسيلة الدفع غير صالح.")
+		return
+	}
+
+	if h.billSvc != nil {
+		if err := h.billSvc.DeletePaymentMethod(ctx, actor.UserID, id); err != nil {
+			h.log.ErrorContext(ctx, "failed to delete payment method", "error", err)
+			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "فشل حذف وسيلة الدفع: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/settings?tab=payments", "success", "تم حذف وسيلة الدفع بنجاح.")
 }
 
 // SettingsEmployeesPage renders the employee roster and branch manager assignments.

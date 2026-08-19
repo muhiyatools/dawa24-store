@@ -1800,8 +1800,9 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	titleAr := strings.TrimSpace(r.FormValue("title_ar"))
-	titleEn := strings.TrimSpace(r.FormValue("title_en"))
+	_ = r.ParseForm()
+	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
+	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" && titleEn == "" {
 		h.redirectWithNotice(w, r, "/admin/institutional", "error", "يرجى كتابة اسم التصنيف المؤسسي.")
 		return
@@ -1814,18 +1815,23 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	var parentID *int64
-	if pid, err := strconv.ParseInt(r.FormValue("parent_id"), 10, 64); err == nil && pid > 0 {
+	if pid, err := strconv.ParseInt(r.PostFormValue("parent_id"), 10, 64); err == nil && pid > 0 {
 		parentID = &pid
 	}
 
-	viewType, _ := strconv.Atoi(r.FormValue("view_type"))
+	viewType, _ := strconv.Atoi(r.PostFormValue("view_type"))
 	if viewType <= 0 {
 		viewType = 1
 	}
 
-	icon := strings.TrimSpace(r.FormValue("icon"))
+	icon := strings.TrimSpace(r.PostFormValue("icon"))
 	if icon == "" {
 		icon = "building"
+	}
+
+	pricingType := strings.TrimSpace(r.PostFormValue("pricing_type"))
+	if pricingType == "" {
+		pricingType = "free"
 	}
 
 	slug := strings.ToLower(strings.ReplaceAll(titleEn, " ", "-"))
@@ -1835,9 +1841,9 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 
 	iw := &org.InstitutionalWork{
 		Title:       i18n.New(titleAr, titleEn),
-		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
+		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
 		Icon:        icon,
-		PricingType: org.PricingType(r.FormValue("pricing_type")),
+		PricingType: org.PricingType(pricingType),
 		IsActive:    true,
 		ViewType:    viewType,
 		Slug:        slug,
@@ -1845,7 +1851,8 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if err := h.orgSvc.CreateInstitutionalWork(ctx, iw); err != nil {
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
+		h.log.ErrorContext(ctx, "failed to create institutional work", "error", err)
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", "فشل إضافة التصنيف: "+err.Error())
 		return
 	}
 
@@ -1861,8 +1868,9 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	titleAr := strings.TrimSpace(r.FormValue("title_ar"))
-	titleEn := strings.TrimSpace(r.FormValue("title_en"))
+	_ = r.ParseForm()
+	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
+	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" && titleEn == "" {
 		h.redirectWithNotice(w, r, "/admin/institutional", "error", "يرجى كتابة اسم التصنيف المؤسسي.")
 		return
@@ -1875,33 +1883,39 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 	}
 
 	var parentID *int64
-	if pid, err := strconv.ParseInt(r.FormValue("parent_id"), 10, 64); err == nil && pid > 0 {
+	if pid, err := strconv.ParseInt(r.PostFormValue("parent_id"), 10, 64); err == nil && pid > 0 {
 		parentID = &pid
 	}
 
-	viewType, _ := strconv.Atoi(r.FormValue("view_type"))
+	viewType, _ := strconv.Atoi(r.PostFormValue("view_type"))
 	if viewType <= 0 {
 		viewType = 1
 	}
 
-	icon := strings.TrimSpace(r.FormValue("icon"))
+	icon := strings.TrimSpace(r.PostFormValue("icon"))
 	if icon == "" {
 		icon = "building"
+	}
+
+	pricingType := strings.TrimSpace(r.PostFormValue("pricing_type"))
+	if pricingType == "" {
+		pricingType = "free"
 	}
 
 	iw := &org.InstitutionalWork{
 		ID:          id,
 		Title:       i18n.New(titleAr, titleEn),
-		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
+		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
 		Icon:        icon,
-		PricingType: org.PricingType(r.FormValue("pricing_type")),
+		PricingType: org.PricingType(pricingType),
 		IsActive:    true,
 		ViewType:    viewType,
 		ParentID:    parentID,
 	}
 
 	if err := h.orgSvc.UpdateInstitutionalWork(ctx, iw); err != nil {
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
+		h.log.ErrorContext(ctx, "failed to update institutional work", "error", err)
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", "فشل تحديث التصنيف: "+err.Error())
 		return
 	}
 

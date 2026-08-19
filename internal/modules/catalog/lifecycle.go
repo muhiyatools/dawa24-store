@@ -19,9 +19,6 @@ func (s *Service) ListProducts(ctx context.Context, status string, limit, offset
 
 // GetVariant returns one product variant.
 func (s *Service) GetVariant(ctx context.Context, id int64) (*ProductVariant, error) {
-	if _, ok := database.TenantFrom(ctx); !ok {
-		return nil, database.ErrNoTenant
-	}
 	return s.repo.GetVariantByID(ctx, id)
 }
 
