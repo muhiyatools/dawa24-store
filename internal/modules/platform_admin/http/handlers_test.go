@@ -124,6 +124,35 @@ func (r stubRepo) PublishPolicyVersion(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (r stubRepo) ExecuteSQL(context.Context, *int64, string, string) (*platformadmin.SQLQueryResult, error) {
+	r.fail("ExecuteSQL")
+	return nil, nil
+}
+func (r stubRepo) ListSQLLogs(context.Context, int, int) ([]*platformadmin.SQLLog, error) {
+	r.fail("ListSQLLogs")
+	return nil, nil
+}
+func (r stubRepo) LogError(context.Context, *platformadmin.ErrorLog) error {
+	r.fail("LogError")
+	return nil
+}
+func (r stubRepo) ListErrorLogs(context.Context, platformadmin.ErrorLogFilter) ([]*platformadmin.ErrorLog, int, error) {
+	r.fail("ListErrorLogs")
+	return nil, 0, nil
+}
+func (r stubRepo) GetErrorLogByID(context.Context, int64) (*platformadmin.ErrorLog, error) {
+	r.fail("GetErrorLogByID")
+	return nil, nil
+}
+func (r stubRepo) UpdateErrorLogStatus(context.Context, int64, string) error {
+	r.fail("UpdateErrorLogStatus")
+	return nil
+}
+func (r stubRepo) GetErrorDiagnosticsMetrics(context.Context) (int, int, int, int, error) {
+	r.fail("GetErrorDiagnosticsMetrics")
+	return 0, 0, 0, 0, nil
+}
+
 func (r stubRepo) QueueStats(context.Context) (map[string]int, error) {
 	r.fail("QueueStats")
 	return nil, nil
@@ -176,6 +205,28 @@ func (happyRepo) CreatePolicyVersion(ctx context.Context, p *platformadmin.Polic
 }
 func (happyRepo) PublishPolicyVersion(ctx context.Context, id int64) error {
 	return nil
+}
+
+func (happyRepo) ExecuteSQL(ctx context.Context, actorID *int64, actorName, query string) (*platformadmin.SQLQueryResult, error) {
+	return &platformadmin.SQLQueryResult{Columns: []string{"col1"}, Rows: [][]any{{"val1"}}}, nil
+}
+func (happyRepo) ListSQLLogs(ctx context.Context, limit, offset int) ([]*platformadmin.SQLLog, error) {
+	return nil, nil
+}
+func (happyRepo) LogError(ctx context.Context, entry *platformadmin.ErrorLog) error {
+	return nil
+}
+func (happyRepo) ListErrorLogs(ctx context.Context, filter platformadmin.ErrorLogFilter) ([]*platformadmin.ErrorLog, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) GetErrorLogByID(ctx context.Context, id int64) (*platformadmin.ErrorLog, error) {
+	return nil, nil
+}
+func (happyRepo) UpdateErrorLogStatus(ctx context.Context, id int64, status string) error {
+	return nil
+}
+func (happyRepo) GetErrorDiagnosticsMetrics(ctx context.Context) (int, int, int, int, error) {
+	return 0, 0, 0, 0, nil
 }
 
 func (happyRepo) ListContentBlocks(ctx context.Context) ([]*platformadmin.ContentBlock, error) {

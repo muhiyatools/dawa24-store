@@ -203,7 +203,7 @@ func (r *Repository) UpdateInstitutionalWork(ctx context.Context, iw *org.Instit
 		const query = `
 			UPDATE org.institutional_works
 			SET title = $2, description = $3, icon = $4, pricing_type = $5,
-			    is_active = $6, view_type = $7, slug = $8, parent_id = $9, updated_at = now()
+			    is_active = $6, view_type = $7, slug = COALESCE(NULLIF($8, ''), slug), parent_id = $9, updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		tag, err := tx.Exec(txCtx, query,

@@ -70,23 +70,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'ai' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
-					@click="setTab('ai')"
-				>
-					@components.IconLayers("icon-xs")
-					<span>3. بوابة الذكاء الاصطناعي</span>
-				</button>
-
-				<button
-					type="button"
-					class="btn"
 					:class="activeTab === 'policies' ? 'btn-primary' : 'btn-secondary'"
 					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
 					@click="setTab('policies')"
 				>
 					@components.IconFile("icon-xs")
-					<span>4. السياسات والشروط القانونية</span>
+					<span>3. السياسات والشروط القانونية</span>
 				</button>
 			</div>
 
@@ -427,153 +416,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			</div>
 
 			<!-- ========================================== -->
-			<!-- TAB 3: AI Gateway Management (api.muhiya)  -->
-			<!-- ========================================== -->
-			<div x-show="activeTab === 'ai'" style="display:flex; flex-direction:column; gap:1.5rem;">
-				
-				<div class="card" style="margin-bottom:0;" x-data="{ showKey: false, isFetchingModels: false, fetchSuccess: false, fetchedModels: [] }">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div style="display:flex; align-items:center; gap:0.75rem;">
-							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-								🌐
-							</div>
-							<div>
-								<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
-									بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)
-								</h3>
-								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-									الربط المركزي مع بوابة المعالجة الذكية لجلب النماذج وتشغيل المساعد كبسولة
-								</p>
-							</div>
-						</div>
-						if values.GatewaySettings.IsActive {
-							<span class="badge badge-emerald">البوابة متصلة ونشطة</span>
-						} else {
-							<span class="badge badge-slate">معطلة</span>
-						}
-					</div>
-
-					<form action="/admin/settings/gateway" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
-						
-						<!-- Gateway Base Endpoint -->
-						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">رابط بوابة الذكاء الاصطناعي (AI Gateway Endpoint URL) *</label>
-								<input
-									type="url"
-									name="endpoint_url"
-									value={ values.GatewaySettings.EndpointURL }
-									required
-									class="form-input"
-									dir="ltr"
-									placeholder="https://api.muhiya.com"
-								/>
-							</div>
-
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">حالة البوابة</label>
-								<select name="is_active" class="form-select">
-									<option value="true" selected={ values.GatewaySettings.IsActive }>مفعلة (Active)</option>
-									<option value="false" selected={ !values.GatewaySettings.IsActive }>معطلة (Disabled)</option>
-								</select>
-							</div>
-						</div>
-
-						<!-- API Secret Key -->
-						<div class="form-group" style="margin:0;">
-							<label class="form-label">مفتاح الربط والمصادقة السري (Gateway API Secret Key) *</label>
-							<div style="position:relative; display:flex; align-items:center;">
-								<input
-									:type="showKey ? 'text' : 'password'"
-									name="api_key"
-									value={ values.GatewaySettings.APIKey }
-									class="form-input"
-									dir="ltr"
-									placeholder="muhiya-ai-key-..."
-									style="padding-inline-end:3rem;"
-								/>
-								<button
-									type="button"
-									@click="showKey = !showKey"
-									style="position:absolute; inset-inline-end:0.75rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; font-weight:700;"
-									x-text="showKey ? 'إخفاء' : 'إظهار'"
-								></button>
-							</div>
-							<p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
-								🔒 يتم حفظ المفتاح في خادم قاعدة البيانات بشكل آمن ولا يتم تسريبه أو تمريره للمتصفح.
-							</p>
-						</div>
-
-						<!-- Model Name & Fetch Models Action -->
-						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem; align-items:end;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">النموذج المعتمد للعمليات الصيدلانية (Model Name) *</label>
-								<input
-									type="text"
-									name="model"
-									id="selected-ai-model-input"
-									value={ values.GatewaySettings.Environment }
-									required
-									class="form-input"
-									dir="ltr"
-									placeholder="gemini-1.5-flash / gpt-4o-mini"
-								/>
-							</div>
-
-							<div>
-								<button
-									type="button"
-									class="btn btn-secondary"
-									style="width:100%; font-weight:700; height:42px; justify-content:center;"
-									@click="
-										isFetchingModels = true;
-										setTimeout(() => {
-											isFetchingModels = false;
-											fetchSuccess = true;
-											fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];
-										}, 600);
-									"
-								>
-									<span x-show="!isFetchingModels">🔄 جلب النماذج المتاحة من البوابة</span>
-									<span x-show="isFetchingModels">جاري الاتصال بالبوابة...</span>
-								</button>
-							</div>
-						</div>
-
-						<!-- Fetched Models Chips -->
-						<div x-show="fetchSuccess && fetchedModels.length > 0" style="display:flex; flex-direction:column; gap:0.4rem; background:var(--surface-sunken); padding:0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-							<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">النماذج المتاحة للاختيار السريع:</div>
-							<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-								<template x-for="m in fetchedModels" :key="m">
-									<button
-										type="button"
-										class="badge badge-sky"
-										style="cursor:pointer; font-size:0.8rem; font-weight:700; padding:0.35rem 0.65rem;"
-										@click="document.getElementById('selected-ai-model-input').value = m"
-										x-text="m"
-									></button>
-								</template>
-							</div>
-						</div>
-
-						<div class="form-group" style="margin:0;">
-							<label class="form-label">التعليمات التوجيهية للذكاء الاصطناعي (System Prompt)</label>
-							<textarea name="system_prompt" rows="3" class="form-input" placeholder="أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.">أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.</textarea>
-						</div>
-
-						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
-								@components.IconCheck("icon-xs")
-								<span>حفظ إعدادات بوابة الذكاء الاصطناعي</span>
-							</button>
-						</div>
-					</form>
-				</div>
-
-			</div>
-
-			<!-- ========================================== -->
-			<!-- TAB 4: Policies & Terms Inline Editor      -->
+			<!-- TAB 3: Policies & Terms Inline Editor      -->
 			<!-- ========================================== -->
 			<div x-show="activeTab === 'policies'" style="display:flex; flex-direction:column; gap:1.5rem;">
 				
@@ -581,54 +424,36 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap; gap:1rem;">
 						<div>
 							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
-								إدارة السياسات والشروط القانونية (شاشة موحدة)
+								إدارة السياسات والشروط القانونية
 							</h3>
 							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-								تعديل ونشر الإصدارات المعتمدة لسياسة الخصوصية، شروط الاستخدام، واتفاقيات التوريد وعكسها فورياً على صفحات الموقع
+								تعديل ونشر الإصدارات المعتمدة لشروط الاستخدام وسياسة الخصوصية وعكسها فورياً على الموقع
 							</p>
 						</div>
 					</div>
 
-					<!-- Policy Selector Buttons -->
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">
+					<!-- Policy Selector: Exactly 2 Policies, No Emojis -->
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.5rem;">
 						<button
 							type="button"
 							class="btn"
 							:class="selectedPolicyKey === 'terms' ? 'btn-primary' : 'btn-secondary'"
-							style="justify-content:center; font-weight:800; padding:0.75rem;"
+							style="justify-content:center; font-weight:800; padding:0.85rem; gap:0.5rem;"
 							@click="selectPolicy('terms')"
 						>
-							📜 شروط وأحكام الاستخدام
+							@components.IconFile("icon-xs")
+							<span>شروط وأحكام الاستخدام (Terms of Service)</span>
 						</button>
 
 						<button
 							type="button"
 							class="btn"
 							:class="selectedPolicyKey === 'privacy' ? 'btn-primary' : 'btn-secondary'"
-							style="justify-content:center; font-weight:800; padding:0.75rem;"
+							style="justify-content:center; font-weight:800; padding:0.85rem; gap:0.5rem;"
 							@click="selectPolicy('privacy')"
 						>
-							🔒 سياسة الخصوصية وسرية البيانات
-						</button>
-
-						<button
-							type="button"
-							class="btn"
-							:class="selectedPolicyKey === 'refund' ? 'btn-primary' : 'btn-secondary'"
-							style="justify-content:center; font-weight:800; padding:0.75rem;"
-							@click="selectPolicy('refund')"
-						>
-							🔄 سياسة الاسترجاع والإلغاء
-						</button>
-
-						<button
-							type="button"
-							class="btn"
-							:class="selectedPolicyKey === 'vendor_agreement' ? 'btn-primary' : 'btn-secondary'"
-							style="justify-content:center; font-weight:800; padding:0.75rem;"
-							@click="selectPolicy('vendor_agreement')"
-						>
-							🤝 اتفاقية التوريد والاعتماد
+							@components.IconShield("icon-xs")
+							<span>سياسة الخصوصية وسرية البيانات (Privacy Policy)</span>
 						</button>
 					</div>
 
@@ -648,7 +473,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						</div>
 
 						<div class="form-group" style="margin:0;">
-							<label class="form-label">نص ومحتوى السياسة الرسمي (يدعم التنسيق وقوائم النقاط) *</label>
+							<label class="form-label">نص ومحتوى السياسة الرسمي *</label>
 							<textarea
 								name="content_ar"
 								x-model="currentPolicyContentAr"
@@ -662,12 +487,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 						<div class="form-group" style="margin:0;">
 							<label class="form-label">ملاحظات الإصدار / ملخص التعديل (Changelog)</label>
-							<input type="text" name="changelog" class="form-input" placeholder="مثال: تحديث اشتراطات سلاسل التبريد والتراخيص لعام 2026"/>
+							<input type="text" name="changelog" class="form-input" placeholder="مثال: تحديث شروط الاستخدام لعام 2026"/>
 						</div>
 
 						<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1rem;">
 							<div style="font-size:0.8rem; color:var(--text-muted);">
-								💡 بمجرد النقر على زر النشر، سيتم تطبيق البنود فورياً على الرابط العام المباشر.
+								يتم تطبيق البنود المنشورة فورياً على الرابط العام المباشر.
 							</div>
 							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2.25rem;">
 								@components.IconCheck("icon-xs")
@@ -695,27 +520,29 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 									</thead>
 									<tbody>
 										for _, p := range values.Policies {
-											<tr>
-												<td style="text-align:start;">
-													<span class="badge badge-slate" style="font-weight:700;">{ policyKeyAr(p.PolicyKey) }</span>
-												</td>
-												<td style="text-align:center;" class="tabular-nums">
-													<strong style="color:var(--accent);">v{ p.Version }</strong>
-												</td>
-												<td style="text-align:start;">
-													<strong>{ p.Title["ar"] }</strong>
-												</td>
-												<td style="text-align:center;">
-													if p.IsPublished {
-														<span class="badge badge-emerald">منشور ونشط</span>
-													} else {
-														<span class="badge badge-amber">مسودة</span>
-													}
-												</td>
-												<td style="text-align:start;" class="tabular-nums">
-													<span style="color:var(--text-muted);">{ p.UpdatedAt.Format("2006-01-02 15:04") }</span>
-												</td>
-											</tr>
+											if p.PolicyKey == "terms" || p.PolicyKey == "privacy" {
+												<tr>
+													<td style="text-align:start;">
+														<span class="badge badge-slate" style="font-weight:700;">{ policyKeyAr(p.PolicyKey) }</span>
+													</td>
+													<td style="text-align:center;" class="tabular-nums">
+														<strong style="color:var(--accent);">v{ p.Version }</strong>
+													</td>
+													<td style="text-align:start;">
+														<strong>{ p.Title["ar"] }</strong>
+													</td>
+													<td style="text-align:center;">
+														if p.IsPublished {
+															<span class="badge badge-emerald">منشور ونشط</span>
+														} else {
+															<span class="badge badge-amber">مسودة</span>
+														}
+													</td>
+													<td style="text-align:start;" class="tabular-nums">
+														<span style="color:var(--text-muted);">{ p.UpdatedAt.Format("2006-01-02 15:04") }</span>
+													</td>
+												</tr>
+											}
 										}
 									</tbody>
 								</table>
@@ -740,25 +567,18 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						titleAr: 'سياسة الخصوصية وسرية البيانات',
 						titleEn: 'Privacy Policy',
 						contentAr: 'تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة.'
-					},
-					'refund': {
-						titleAr: 'سياسة الاسترجاع والإلغاء',
-						titleEn: 'Refund and Return Policy',
-						contentAr: 'تخضع عمليات استرجاع أو استبدال الأدوية والمستلزمات الطبية للاشتراطات الصحية المعتمدة.\n\n1. يحق للصيدلية رفض استلام أي شحنة دوائية في حال وجود تلف في العبوة أو عدم مطابقة درجات حرارة التبريد.\n2. يتم إرجاع المبالغ لحساب الصيدلية أو إصدار إشعار دائن فوري عند اعتماد طلب الإرجاع.'
-					},
-					'vendor_agreement': {
-						titleAr: 'اتفاقية التوريد والاعتماد للموردين',
-						titleEn: 'Vendor & Supplier Agreement',
-						contentAr: 'تحدد هذه الاتفاقية حقوق والتزامات الموردين والمستودعات الطبية المعتمدة على منصة دواء 24.\n\n1. يلتزم المورد بتحديث أسعار الكتالوج والمخزون المتوفر لحظياً.\n2. يتم تسليم أوامر التوريد للصيدليات خلال المواعيد المحددة مع وثائق التسليم الرسمية.'
 					}
 				};
 
 				const urlParams = new URLSearchParams(window.location.search);
 				const storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-admin-tab') || initialTab || 'features';
-				const storedKey = urlParams.get('key') || initialKey || 'terms';
+				let storedKey = urlParams.get('key') || initialKey || 'terms';
+				if (storedKey !== 'terms' && storedKey !== 'privacy') {
+					storedKey = 'terms';
+				}
 
 				return {
-					activeTab: storedTab,
+					activeTab: storedTab === 'ai' ? 'features' : storedTab,
 					selectedPolicyKey: storedKey,
 					currentPolicyTitleAr: policyData[storedKey]?.titleAr || '',
 					currentPolicyTitleEn: policyData[storedKey]?.titleEn || '',

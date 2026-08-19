@@ -163,6 +163,9 @@ func mountModuleRoutes(
 		attachSvc,
 		log,
 	)
+	if storageClient != nil {
+		uiHandler.SetStorage(storageClient)
+	}
 
 	// Audience-gated UI groups (Rebuild V2 §1.3). Every route is registered
 	// under exactly one group; a route living outside these groups means it is
@@ -173,6 +176,7 @@ func mountModuleRoutes(
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiRouter.Use(authctx.RequireCustomer(log))
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiRouter.Use(uiHandler.BuyingBranchSelector)
@@ -181,6 +185,7 @@ func mountModuleRoutes(
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiRouter.Use(authctx.RequireVendor(log))
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiHandler.RegisterVendorRoutes(uiRouter)
@@ -188,12 +193,14 @@ func mountModuleRoutes(
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiRouter.Use(authctx.RequireStaff(log))
 		uiHandler.RegisterAdminRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiHandler.RegisterSharedRoutes(uiRouter)
 	})
 

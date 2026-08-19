@@ -1,0 +1,963 @@
+package pages
+
+import (
+	"fmt"
+
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type AdminDevelopersValues struct {
+	ActiveTab       string // "sql", "ai", "errors", "audit"
+	GatewaySettings *platformadmin.GatewaySettings
+	SQLLogs         []*platformadmin.SQLLog
+	ErrorLogs       []*platformadmin.ErrorLog
+	ErrorMetrics    struct {
+		Total         int
+		Critical24h   int
+		Unresolved    int
+		AffectedUsers int
+	}
+	ErrorLevelFilter  string
+	ErrorStatusFilter string
+	ErrorSearch       string
+	AuditEntries      []*platformadmin.AuditEntry
+}
+
+templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
+	@layouts.AdminShell("أدوات المطورين وتشخيص النظام | Developer Tools & Diagnostics", "developers", lang, dir) {
+		<div style="max-width:1180px; margin:0 auto;" x-data={ fmt.Sprintf("adminDevelopersManager(%q)", values.ActiveTab) }>
+			
+			<!-- Header -->
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						@components.IconTerminal("icon-md")
+					</div>
+					<div>
+						<h2 class="card-title" style="margin:0; font-size:1.55rem; font-weight:800;">
+							أدوات المطورين وتشخيص النظام
+						</h2>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+							وحدة استعلامات SQL، بوابة الذكاء الاصطناعي، نظام مراقبة الأخطاء المتقدم، وسجلات التدقيق
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main Persistent Tabs Bar -->
+			<div style="display:flex; gap:0.5rem; border-bottom:2px solid var(--border); margin-bottom:1.75rem; flex-wrap:wrap;">
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'sql' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('sql')"
+				>
+					@components.IconDatabase("icon-xs")
+					<span>1. وحدة استعلامات SQL</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'ai' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('ai')"
+				>
+					@components.IconSparkles("icon-xs")
+					<span>2. بوابة الذكاء الاصطناعي</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'errors' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('errors')"
+				>
+					@components.IconBug("icon-xs")
+					<span>3. سجلات وتشخيص الأخطاء</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'audit' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('audit')"
+				>
+					@components.IconClock("icon-xs")
+					<span>4. سجلات الأنشطة والتدقيق</span>
+				</button>
+			</div>
+
+			<!-- ========================================== -->
+			<!-- TAB 1: SQL Console & Query Log             -->
+			<!-- ========================================== -->
+			<div x-show="activeTab === 'sql'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminSQLManager()">
+				
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+						<div>
+							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+								وحدة استعلامات SQL التفاعلية
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+								تنفيذ استعلامات قواعد البيانات المباشرة وعرض النتائج ومعدل زمن الاستجابة
+							</p>
+						</div>
+
+						<!-- Quick Query Presets -->
+						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+							<button type="button" @click="setQuery('SELECT id, name, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 10;')" class="btn btn-secondary btn-xs">منظمات</button>
+							<button type="button" @click="setQuery('SELECT id, name, generic_name, dosage_form, status FROM catalog.products LIMIT 10;')" class="btn btn-secondary btn-xs">أصناف</button>
+							<button type="button" @click="setQuery('SELECT id, status, total_amount, currency, created_at FROM commerce.orders ORDER BY id DESC LIMIT 10;')" class="btn btn-secondary btn-xs">طلبيات</button>
+							<button type="button" @click="setQuery('SELECT count(*) AS total_users FROM identity.users;')" class="btn btn-secondary btn-xs">المستخدمين</button>
+						</div>
+					</div>
+
+					<form @submit.prevent="runQuery()" style="display:flex; flex-direction:column; gap:1rem;">
+						<div class="form-group" style="margin:0;">
+							<textarea
+								x-model="sqlQuery"
+								rows="5"
+								required
+								class="form-input"
+								dir="ltr"
+								style="font-family:monospace; font-size:0.9rem; line-height:1.5; background:#0f172a; color:#38bdf8; border-color:#334155;"
+								placeholder="SELECT * FROM catalog.products LIMIT 10;"
+							></textarea>
+						</div>
+
+						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+							<div style="font-size:0.775rem; color:var(--text-muted);">
+								🔒 الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.
+							</div>
+							<div style="display:flex; gap:0.5rem;">
+								<button type="button" @click="sqlQuery = ''" class="btn btn-secondary btn-sm">مسح</button>
+								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.5rem 1.75rem;" :disabled="isRunning">
+									<span x-show="!isRunning">▶ تنفيذ الاستعلام (Execute)</span>
+									<span x-show="isRunning">جاري التنفيذ...</span>
+								</button>
+							</div>
+						</div>
+					</form>
+
+					<!-- Query Output Area -->
+					<div x-show="queryExecuted" style="margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+						
+						<!-- Execution Summary Pill -->
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+							<div style="display:flex; align-items:center; gap:0.5rem;">
+								<template x-if="!queryResult.error">
+									<span class="badge badge-emerald">نجاح التنفيذ</span>
+								</template>
+								<template x-if="queryResult.error">
+									<span class="badge badge-danger">خطأ في الاستعلام</span>
+								</template>
+								<span style="font-size:0.8rem; color:var(--text-muted);" class="tabular-nums" x-text="'المدة: ' + queryResult.duration_ms + ' ms'"></span>
+								<span style="font-size:0.8rem; color:var(--text-muted);" class="tabular-nums" x-text="'الصفوف: ' + queryResult.rows_affected"></span>
+							</div>
+						</div>
+
+						<!-- Error Display if any -->
+						<template x-if="queryResult.error">
+							<div style="background:rgba(239, 68, 68, 0.1); border:1px solid var(--danger); border-radius:var(--radius-lg); padding:1rem; color:var(--danger-text); font-family:monospace; font-size:0.85rem; direction:ltr; text-align:left; overflow-x:auto;" x-text="queryResult.error"></div>
+						</template>
+
+						<!-- Results Table -->
+						<template x-if="!queryResult.error && queryResult.columns && queryResult.columns.length > 0">
+							<div class="table-container" style="max-height:400px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-lg);">
+								<table class="data-table" style="width:100%; border-collapse:collapse; font-family:monospace; font-size:0.8rem;">
+									<thead>
+										<tr style="background:var(--surface-sunken); position:sticky; top:0; z-index:1;">
+											<template x-for="col in queryResult.columns" :key="col">
+												<th style="padding:0.6rem 0.85rem; text-align:start;" x-text="col"></th>
+											</template>
+										</tr>
+									</thead>
+									<tbody>
+										<template x-for="(row, rIdx) in queryResult.rows" :key="rIdx">
+											<tr style="border-bottom:1px solid var(--border);">
+												<template x-for="(cell, cIdx) in row" :key="cIdx">
+													<td style="padding:0.5rem 0.85rem; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" x-text="cell"></td>
+												</template>
+											</tr>
+										</template>
+									</tbody>
+								</table>
+							</div>
+						</template>
+
+					</div>
+				</div>
+
+				<!-- SQL Execution History Table -->
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<h4 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0;">
+							سجل الاستعلامات السابقة (Query Execution History)
+						</h4>
+						<span class="badge badge-slate">{ fmt.Sprintf("%d استعلام مسجل", len(values.SQLLogs)) }</span>
+					</div>
+
+					if len(values.SQLLogs) == 0 {
+						<div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">
+							لم يتم تنفيذ أي استعلامات بعد.
+						</div>
+					} else {
+						<div class="table-container" style="overflow-x:auto;">
+							<table class="data-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+								<thead>
+									<tr>
+										<th style="width:18%; text-align:start;">التوقيت والمستخدم</th>
+										<th style="width:52%; text-align:start;">نص الاستعلام (SQL Query)</th>
+										<th style="width:10%; text-align:center;">المدة (ms)</th>
+										<th style="width:10%; text-align:center;">الصفوف</th>
+										<th style="width:10%; text-align:center;">الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, log := range values.SQLLogs {
+										<tr>
+											<td style="text-align:start;">
+												<div class="tabular-nums" style="font-weight:700; color:var(--text);">{ log.CreatedAt.Format("2006-01-02 15:04:05") }</div>
+												<div style="font-size:0.725rem; color:var(--text-muted);">{ log.ActorName }</div>
+											</td>
+											<td style="text-align:start;">
+												<code style="background:var(--surface-sunken); padding:0.2rem 0.5rem; border-radius:var(--radius-sm); font-family:monospace; display:block; max-width:500px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" dir="ltr">{ log.Query }</code>
+											</td>
+											<td style="text-align:center;" class="tabular-nums">
+												<span>{ fmt.Sprintf("%d", log.DurationMS) } ms</span>
+											</td>
+											<td style="text-align:center;" class="tabular-nums">
+												<span>{ fmt.Sprintf("%d", log.RowsAffected) }</span>
+											</td>
+											<td style="text-align:center;">
+												if log.ErrorMessage == "" {
+													<span class="badge badge-emerald">نجاح</span>
+												} else {
+													<span class="badge badge-danger" title={ log.ErrorMessage }>خطأ</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+
+			</div>
+
+			<!-- ========================================== -->
+			<!-- TAB 2: AI Gateway & Live Model Fetcher     -->
+			<!-- ========================================== -->
+			<div x-show="activeTab === 'ai'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminAIManager()">
+				
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconSparkles("icon-sm")
+							</div>
+							<div>
+								<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+									بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)
+								</h3>
+								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+									إدارة الربط وجلب النماذج الحية وضبط موجهات المساعد كبسولة
+								</p>
+							</div>
+						</div>
+						if values.GatewaySettings.IsActive {
+							<span class="badge badge-emerald">البوابة نشطة ومتصلة</span>
+						} else {
+							<span class="badge badge-slate">معطلة</span>
+						}
+					</div>
+
+					<form action="/admin/developers/ai" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						
+						<!-- Gateway Endpoint -->
+						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">رابط بوابة الذكاء الاصطناعي (Gateway Endpoint URL) *</label>
+								<input
+									type="url"
+									name="endpoint_url"
+									x-model="gatewayURL"
+									required
+									class="form-input"
+									dir="ltr"
+									placeholder="https://api.muhiya.com"
+								/>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">حالة البوابة</label>
+								<select name="is_active" class="form-select">
+									<option value="true" selected={ values.GatewaySettings.IsActive }>مفعلة (Active)</option>
+									<option value="false" selected={ !values.GatewaySettings.IsActive }>معطلة (Disabled)</option>
+								</select>
+							</div>
+						</div>
+
+						<!-- Secret API Key with Toggle -->
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">مفتاح الربط والمصادقة السري (Gateway Secret API Key) *</label>
+							<div style="position:relative; display:flex; align-items:center;">
+								<input
+									:type="showKey ? 'text' : 'password'"
+									name="api_key"
+									x-model="gatewayKey"
+									class="form-input"
+									dir="ltr"
+									placeholder="muhiya-ai-key-..."
+									style="padding-inline-end:3rem;"
+								/>
+								<button
+									type="button"
+									@click="showKey = !showKey"
+									style="position:absolute; inset-inline-end:0.75rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; font-weight:700;"
+									x-text="showKey ? 'إخفاء' : 'إظهار'"
+								></button>
+							</div>
+							<p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
+								🔒 يتم حفظ المفتاح في خادم قاعدة البيانات بشكل مشفر ولا يتم كشفه للواجهات العامة.
+							</p>
+						</div>
+
+						<!-- Model Name & Live Fetch Action -->
+						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem; align-items:end;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">النموذج المعتمد (Active Model Name) *</label>
+								<input
+									type="text"
+									name="model"
+									x-model="selectedModel"
+									required
+									class="form-input"
+									dir="ltr"
+									placeholder="gemini-1.5-flash / gpt-4o-mini"
+								/>
+							</div>
+
+							<div>
+								<button
+									type="button"
+									class="btn btn-secondary"
+									style="width:100%; font-weight:700; height:42px; justify-content:center; gap:0.4rem;"
+									@click="fetchModels()"
+									:disabled="isFetchingModels"
+								>
+									@components.IconRefresh("icon-xs")
+									<span x-show="!isFetchingModels">جلب النماذج المتاحة من البوابة</span>
+									<span x-show="isFetchingModels">جاري الاتصال بالبوابة...</span>
+								</button>
+							</div>
+						</div>
+
+						<!-- Fetched Models Live Chips -->
+						<div x-show="fetchedModels.length > 0" style="display:flex; flex-direction:column; gap:0.4rem; background:var(--surface-sunken); padding:0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+							<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+								النماذج المسترجعة من البوابة (انقر للاختيار):
+							</div>
+							<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+								<template x-for="m in fetchedModels" :key="m">
+									<button
+										type="button"
+										class="badge badge-sky"
+										style="cursor:pointer; font-size:0.8rem; font-weight:700; padding:0.35rem 0.65rem;"
+										@click="selectedModel = m"
+										x-text="m"
+									></button>
+								</template>
+							</div>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">التعليمات التوجيهية للذكاء الاصطناعي (System Prompt)</label>
+							<textarea name="system_prompt" rows="3" class="form-input">أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.</textarea>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ إعدادات بوابة الذكاء الاصطناعي</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+			</div>
+
+			<!-- ========================================== -->
+			<!-- TAB 3: Advanced Error Diagnostics          -->
+			<!-- ========================================== -->
+			<div x-show="activeTab === 'errors'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminErrorsManager()">
+				
+				<!-- Diagnostics Header Strip & Metrics -->
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--accent);">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">إجمالي الاستثناءات المسجلة</div>
+						<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.Total) }
+						</div>
+						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">سجل تشخيصي شامل</div>
+					</div>
+
+					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--danger);">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">أخطاء حرجة (24 ساعة)</div>
+						<div style="font-size:1.75rem; font-weight:800; color:var(--danger); margin-top:0.25rem;" class="tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.Critical24h) }
+						</div>
+						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">تتطلب تدخلاً فورياً</div>
+					</div>
+
+					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--warning);">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">أخطاء قيد المتابعة</div>
+						<div style="font-size:1.75rem; font-weight:800; color:var(--warning); margin-top:0.25rem;" class="tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.Unresolved) }
+						</div>
+						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">حالة New أو Investigating</div>
+					</div>
+
+					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--success);">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">المستخدمين المتأثرين</div>
+						<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.AffectedUsers) }
+						</div>
+						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">حسابات صادفت أخطاء</div>
+					</div>
+				</div>
+
+				<!-- Filter Strip -->
+				<div class="card" style="margin-bottom:0; padding:0.85rem 1.25rem;">
+					<form method="GET" action="/admin/developers" style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin:0;">
+						<input type="hidden" name="tab" value="errors"/>
+
+						<div style="flex:1; min-width:240px;">
+							<input
+								type="text"
+								name="err_q"
+								value={ values.ErrorSearch }
+								placeholder="بحث برسالة الخطأ، الكلاس، أو اسم المستخدم..."
+								class="form-input"
+								style="padding:0.45rem 0.75rem; font-size:0.85rem;"
+							/>
+						</div>
+
+						<div style="min-width:150px;">
+							<select name="err_level" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+								<option value="">كافة المستويات</option>
+								<option value="CRITICAL" selected={ values.ErrorLevelFilter == "CRITICAL" }>حرج (CRITICAL)</option>
+								<option value="ERROR" selected={ values.ErrorLevelFilter == "ERROR" }>خطأ (ERROR)</option>
+								<option value="WARNING" selected={ values.ErrorLevelFilter == "WARNING" }>تحذير (WARNING)</option>
+								<option value="EXCEPTION" selected={ values.ErrorLevelFilter == "EXCEPTION" }>استثناء (EXCEPTION)</option>
+							</select>
+						</div>
+
+						<div style="min-width:150px;">
+							<select name="err_status" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+								<option value="">كافة الحالات</option>
+								<option value="NEW" selected={ values.ErrorStatusFilter == "NEW" }>جديد (NEW)</option>
+								<option value="INVESTIGATING" selected={ values.ErrorStatusFilter == "INVESTIGATING" }>قيد التحقيق</option>
+								<option value="RESOLVED" selected={ values.ErrorStatusFilter == "RESOLVED" }>تم الحل (RESOLVED)</option>
+							</select>
+						</div>
+
+						<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+							@components.IconSearch("icon-xs")
+							<span>تصفية</span>
+						</button>
+					</form>
+				</div>
+
+				<!-- Error Diagnostics Table -->
+				if len(values.ErrorLogs) == 0 {
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد أخطاء مسجلة",
+						Message: "النظام يعمل بكفاءة واستقرار تام. لم يتم تسجيل أي أخطاء أو استثناءات تطابق التصفية الحالية.",
+					})
+				} else {
+					<div class="table-container" style="overflow-x:auto; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+						<table class="data-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
+							<thead>
+								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
+									<th style="width:7%; text-align:center;">المعرف</th>
+									<th style="width:13%; text-align:start;">التوقيت</th>
+									<th style="width:10%; text-align:center;">المستوى</th>
+									<th style="width:15%; text-align:start;">المستخدم / المنظمة</th>
+									<th style="width:30%; text-align:start;">رسالة الخطأ والاستثناء</th>
+									<th style="width:13%; text-align:start;">المسار / IP</th>
+									<th style="width:12%; text-align:center;">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, err := range values.ErrorLogs {
+									<tr style="border-bottom:1px solid var(--border);">
+										<td style="text-align:center;" class="tabular-nums">
+											<strong style="color:var(--text-muted);">#{ fmt.Sprintf("%d", err.ID) }</strong>
+										</td>
+										<td style="text-align:start;">
+											<div class="tabular-nums" style="font-weight:700; color:var(--text);">{ err.CreatedAt.Format("2006-01-02") }</div>
+											<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">{ err.CreatedAt.Format("15:04:05") }</div>
+										</td>
+										<td style="text-align:center;">
+											if err.ErrorLevel == "CRITICAL" || err.ErrorLevel == "FATAL" {
+												<span class="badge badge-danger" style="font-weight:800;">{ err.ErrorLevel }</span>
+											} else if err.ErrorLevel == "WARNING" {
+												<span class="badge badge-amber" style="font-weight:700;">{ err.ErrorLevel }</span>
+											} else {
+												<span class="badge badge-sky" style="font-weight:700;">{ err.ErrorLevel }</span>
+											}
+										</td>
+										<td style="text-align:start;">
+											if err.UserName != "" {
+												<div style="font-weight:700; color:var(--text);">{ err.UserName }</div>
+											} else {
+												<div style="color:var(--text-muted);">مستخدم غير مسجل (Guest)</div>
+											}
+											if err.OrganizationName != "" {
+												<div style="font-size:0.725rem; color:var(--text-secondary);">{ err.OrganizationName }</div>
+											}
+										</td>
+										<td style="text-align:start;">
+											<div style="font-weight:700; color:var(--text); font-family:monospace; font-size:0.8rem; direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:320px; white-space:nowrap;">
+												{ err.ErrorMessage }
+											</div>
+											if err.ExceptionClass != "" {
+												<div style="font-size:0.725rem; color:var(--accent); font-family:monospace; direction:ltr; text-align:start; margin-top:2px;">
+													{ err.ExceptionClass }
+												</div>
+											}
+										</td>
+										<td style="text-align:start;">
+											<div style="font-family:monospace; font-size:0.775rem; direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:130px; white-space:nowrap;">
+												<strong style="color:var(--accent);">{ err.HTTPMethod }</strong> { err.URLPath }
+											</div>
+											<div style="font-size:0.7rem; color:var(--text-muted); font-family:monospace; direction:ltr; text-align:start;">
+												{ err.IPAddress }
+											</div>
+										</td>
+										<td style="text-align:center;">
+											<button
+												type="button"
+												class="btn btn-secondary btn-sm"
+												style="padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);"
+												@click={ fmt.Sprintf("openErrorDetails(%d)", err.ID) }
+											>
+												@components.IconEye("icon-xs")
+												<span>تشخيص</span>
+											</button>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+
+				<!-- Error Details Diagnostic Modal -->
+				<div
+					x-show="isErrorModalOpen"
+					style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+					:style="isErrorModalOpen ? 'display:flex;' : 'display:none;'"
+					@keydown.escape.window="isErrorModalOpen = false"
+				>
+					<div
+						@click.outside="isErrorModalOpen = false"
+						class="card"
+						style="max-width:850px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+					>
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+							<div style="display:flex; align-items:center; gap:0.6rem;">
+								<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+									@components.IconBug("icon-sm")
+								</div>
+								<div>
+									<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;" x-text="'سجل تشخيص الخطأ #' + (selectedError ? selectedError.id : '')"></h3>
+									<div style="font-size:0.8rem; color:var(--text-muted);" x-text="selectedError ? selectedError.exception_class : ''"></div>
+								</div>
+							</div>
+							<button type="button" @click="isErrorModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+								@components.IconClose("icon-xs")
+							</button>
+						</div>
+
+						<template x-if="selectedError">
+							<div style="display:flex; flex-direction:column; gap:1.25rem;">
+								
+								<!-- Diagnostic Info Grid -->
+								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+									<div>
+										<div style="font-size:0.75rem; color:var(--text-muted);">المستخدم المتأثر:</div>
+										<div style="font-weight:700; color:var(--text); font-size:0.875rem;" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
+										<div style="font-size:0.75rem; color:var(--text-secondary);" x-text="selectedError.user_email"></div>
+									</div>
+									<div>
+										<div style="font-size:0.75rem; color:var(--text-muted);">المنظمة:</div>
+										<div style="font-weight:700; color:var(--text);" x-text="selectedError.organization_name || 'عام'"></div>
+									</div>
+									<div>
+										<div style="font-size:0.75rem; color:var(--text-muted);">المسار وعنوان IP:</div>
+										<div style="font-family:monospace; font-size:0.8rem; color:var(--text); direction:ltr; text-align:start;" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
+										<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; direction:ltr; text-align:start;" x-text="selectedError.ip_address"></div>
+									</div>
+									<div>
+										<div style="font-size:0.75rem; color:var(--text-muted);">التوقيت والمستوى:</div>
+										<div style="font-size:0.85rem; font-weight:700; color:var(--text);" x-text="selectedError.created_at"></div>
+										<span class="badge badge-danger" x-text="selectedError.error_level"></span>
+									</div>
+								</div>
+
+								<!-- Error Message Box -->
+								<div style="background:#0f172a; color:#f87171; padding:1rem; border-radius:var(--radius-lg); font-family:monospace; font-size:0.875rem; direction:ltr; text-align:start; line-height:1.5;">
+									<div style="color:#94a3b8; font-size:0.75rem; margin-bottom:0.35rem;">ERROR MESSAGE:</div>
+									<div x-text="selectedError.error_message"></div>
+								</div>
+
+								<!-- Stack Trace Viewer -->
+								<div>
+									<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+										تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
+									</div>
+									<pre
+										style="background:#0f172a; color:#e2e8f0; padding:1rem; border-radius:var(--radius-lg); font-family:monospace; font-size:0.75rem; max-height:260px; overflow:auto; direction:ltr; text-align:left; margin:0; line-height:1.5;"
+										x-text="selectedError.stack_trace || 'لا يتوفر تتبع مكدس مسجل لهذا الخطأ.'"
+									></pre>
+								</div>
+
+							</div>
+						</template>
+
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<div>
+								<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" style="display:flex; gap:0.5rem; margin:0;">
+									<input type="hidden" name="status" value="RESOLVED"/>
+									<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+										@components.IconCheck("icon-xs")
+										<span>وضع علامة تم الحل (Mark Resolved)</span>
+									</button>
+								</form>
+							</div>
+							<button type="button" @click="isErrorModalOpen = false" class="btn btn-secondary">إغلاق</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Embedded Error Log Data Scripts -->
+				for _, err := range values.ErrorLogs {
+					<script type="application/json" id={ fmt.Sprintf("err-data-%d", err.ID) }>
+						{
+							"id": { fmt.Sprintf("%d", err.ID) },
+							"user_name": { fmt.Sprintf("%q", err.UserName) },
+							"user_email": { fmt.Sprintf("%q", err.UserEmail) },
+							"organization_name": { fmt.Sprintf("%q", err.OrganizationName) },
+							"error_level": { fmt.Sprintf("%q", err.ErrorLevel) },
+							"error_message": { fmt.Sprintf("%q", err.ErrorMessage) },
+							"exception_class": { fmt.Sprintf("%q", err.ExceptionClass) },
+							"stack_trace": { fmt.Sprintf("%q", err.StackTrace) },
+							"http_method": { fmt.Sprintf("%q", err.HTTPMethod) },
+							"url_path": { fmt.Sprintf("%q", err.URLPath) },
+							"ip_address": { fmt.Sprintf("%q", err.IPAddress) },
+							"status": { fmt.Sprintf("%q", err.Status) },
+							"created_at": { fmt.Sprintf("%q", err.CreatedAt.Format("2006-01-02 15:04:05")) }
+						}
+					</script>
+				}
+
+			</div>
+
+			<!-- ========================================== -->
+			<!-- TAB 4: Audit Logs & Diffs (Moved here)     -->
+			<!-- ========================================== -->
+			<div x-show="activeTab === 'audit'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminAuditManager()">
+				
+				<div class="card" style="margin-bottom:0;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div>
+							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", len(values.AuditEntries)) })
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+								سجل متزامن للعمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات
+							</p>
+						</div>
+					</div>
+
+					if len(values.AuditEntries) == 0 {
+						@components.EmptyState(components.EmptyStateProps{
+							Title:   "لا توجد عمليات مسجلة",
+							Message: "لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.",
+						})
+					} else {
+						<div class="table-container" style="overflow-x:auto;">
+							<table class="data-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
+								<thead>
+									<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
+										<th style="width:6%; text-align:center;">المعرف</th>
+										<th style="width:12%; text-align:start;">التوقيت</th>
+										<th style="width:16%; text-align:start;">المستخدم</th>
+										<th style="width:14%; text-align:start;">المنظمة</th>
+										<th style="width:16%; text-align:start;">القسم والإجراء</th>
+										<th style="width:24%; text-align:start;">العنوان والوصف</th>
+										<th style="width:6%; text-align:center;">الأهمية</th>
+										<th style="width:6%; text-align:center;">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, e := range values.AuditEntries {
+										<tr style="border-bottom:1px solid var(--border);">
+											<td style="text-align:center;" class="tabular-nums">
+												<strong style="color:var(--text-muted);">#{ fmt.Sprintf("%d", e.ID) }</strong>
+											</td>
+											<td style="text-align:start;">
+												<div class="tabular-nums" style="font-weight:700; color:var(--text);">{ e.CreatedAt.Format("2006-01-02") }</div>
+												<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">{ e.CreatedAt.Format("15:04:05") }</div>
+											</td>
+											<td style="text-align:start;">
+												<div style="font-weight:700; color:var(--text);">{ e.ActorName }</div>
+												if e.ActorEmail != "" {
+													<div style="font-size:0.725rem; color:var(--text-muted); direction:ltr; text-align:start;">{ e.ActorEmail }</div>
+												}
+											</td>
+											<td style="text-align:start;">
+												<div style="font-weight:600; color:var(--text);">{ e.OrganizationName }</div>
+											</td>
+											<td style="text-align:start;">
+												<div style="display:flex; flex-direction:column; gap:0.2rem;">
+													<span class={ "badge", auditBadgeClass(e.Action) } style="font-weight:700; font-size:0.725rem; align-self:flex-start;">
+														{ e.ActionLabelAr }
+													</span>
+													<span style="font-size:0.7rem; color:var(--text-muted);">القسم: { e.Module }</span>
+												</div>
+											</td>
+											<td style="text-align:start;">
+												<div style="font-weight:700; color:var(--text);">{ e.Title }</div>
+												<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px; line-height:1.4;">{ e.Description }</div>
+											</td>
+											<td style="text-align:center;">
+												<span class={ "badge", severityBadgeClass(e.Severity) } style="font-size:0.725rem; font-weight:700;">
+													{ e.Severity }
+												</span>
+											</td>
+											<td style="text-align:center;">
+												<button
+													type="button"
+													class="btn btn-secondary btn-sm"
+													style="padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);"
+													@click={ fmt.Sprintf("openDetails(%d)", e.ID) }
+												>
+													@components.IconEye("icon-xs")
+													<span>تفاصيل</span>
+												</button>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+
+				<!-- Audit Inspection Modal -->
+				<div
+					x-show="isDetailsOpen"
+					style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+					:style="isDetailsOpen ? 'display:flex;' : 'display:none;'"
+					@keydown.escape.window="isDetailsOpen = false"
+				>
+					<div
+						@click.outside="isDetailsOpen = false"
+						class="card"
+						style="max-width:850px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+					>
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+							<div style="display:flex; align-items:center; gap:0.6rem;">
+								<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+									@components.IconClock("icon-sm")
+								</div>
+								<div>
+									<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
+									<div style="font-size:0.8rem; color:var(--text-muted);" x-text="selected ? selected.title : ''"></div>
+								</div>
+							</div>
+							<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+								@components.IconClose("icon-xs")
+							</button>
+						</div>
+
+						<template x-if="selected">
+							<div style="display:flex; flex-direction:column; gap:1.25rem;">
+								<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+									<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;">بيان العملية:</div>
+									<div style="font-size:0.9rem; color:var(--text); line-height:1.5;" x-text="selected.description"></div>
+								</div>
+
+								<!-- Side-by-Side Diff -->
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+									<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;">
+										<div style="font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;">الحالة السابقة (Before)</div>
+										<pre style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;" x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'"></pre>
+									</div>
+
+									<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;">
+										<div style="font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;">الحالة الجديدة (After)</div>
+										<pre style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;" x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"></pre>
+									</div>
+								</div>
+							</div>
+						</template>
+
+						<div style="display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary">إلغاء</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Embedded Audit JSON Data -->
+				for _, e := range values.AuditEntries {
+					<script type="application/json" id={ fmt.Sprintf("audit-data-%d", e.ID) }>
+						{
+							"id": { fmt.Sprintf("%d", e.ID) },
+							"actor_name": { fmt.Sprintf("%q", e.ActorName) },
+							"actor_email": { fmt.Sprintf("%q", e.ActorEmail) },
+							"organization_name": { fmt.Sprintf("%q", e.OrganizationName) },
+							"action": { fmt.Sprintf("%q", e.Action) },
+							"action_label_ar": { fmt.Sprintf("%q", e.ActionLabelAr) },
+							"module": { fmt.Sprintf("%q", e.Module) },
+							"title": { fmt.Sprintf("%q", e.Title) },
+							"description": { fmt.Sprintf("%q", e.Description) },
+							"severity": { fmt.Sprintf("%q", e.Severity) },
+							"before": { templ.JSONString(e.Before) },
+							"after": { templ.JSONString(e.After) }
+						}
+					</script>
+				}
+
+			</div>
+
+		</div>
+
+		<script>
+			function adminDevelopersManager(initialTab) {
+				const urlParams = new URLSearchParams(window.location.search);
+				const storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';
+
+				return {
+					activeTab: storedTab,
+
+					setTab(tab) {
+						this.activeTab = tab;
+						localStorage.setItem('dawa24-dev-tab', tab);
+						const u = new URL(window.location);
+						u.searchParams.set('tab', tab);
+						window.history.replaceState({}, '', u);
+					}
+				};
+			}
+
+			function adminSQLManager() {
+				return {
+					sqlQuery: 'SELECT id, name, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 10;',
+					isRunning: false,
+					queryExecuted: false,
+					queryResult: {
+						columns: [],
+						rows: [],
+						duration_ms: 0,
+						rows_affected: 0,
+						error: ''
+					},
+
+					setQuery(q) {
+						this.sqlQuery = q;
+					},
+
+					async runQuery() {
+						if (!this.sqlQuery.trim()) return;
+						this.isRunning = true;
+						try {
+							const form = new FormData();
+							form.append('query', this.sqlQuery);
+							const resp = await fetch('/admin/developers/sql', {
+								method: 'POST',
+								body: form
+							});
+							const data = await resp.json();
+							this.queryResult = data;
+							this.queryExecuted = true;
+						} catch (e) {
+							this.queryResult = {
+								columns: [],
+								rows: [],
+								duration_ms: 0,
+								rows_affected: 0,
+								error: 'Network / server error: ' + e.message
+							};
+							this.queryExecuted = true;
+						} finally {
+							this.isRunning = false;
+						}
+					}
+				};
+			}
+
+			function adminAIManager() {
+				return {
+					showKey: false,
+					gatewayURL: 'https://api.muhiya.com',
+					gatewayKey: '',
+					selectedModel: 'gemini-1.5-flash',
+					isFetchingModels: false,
+					fetchedModels: [],
+
+					async fetchModels() {
+						this.isFetchingModels = true;
+						try {
+							const form = new FormData();
+							form.append('endpoint_url', this.gatewayURL);
+							form.append('api_key', this.gatewayKey);
+							const resp = await fetch('/admin/developers/ai/fetch-models', {
+								method: 'POST',
+								body: form
+							});
+							const data = await resp.json();
+							if (data.models && data.models.length > 0) {
+								this.fetchedModels = data.models;
+							} else {
+								this.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];
+							}
+						} catch (e) {
+							this.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];
+						} finally {
+							this.isFetchingModels = false;
+						}
+					}
+				};
+			}
+
+			function adminErrorsManager() {
+				return {
+					isErrorModalOpen: false,
+					selectedError: null,
+
+					openErrorDetails(id) {
+						const script = document.getElementById('err-data-' + id);
+						if (!script) return;
+						try {
+							this.selectedError = JSON.parse(script.textContent);
+							this.isErrorModalOpen = true;
+						} catch (e) {
+							console.error('Failed to parse error json:', e);
+						}
+					}
+				};
+			}
+		</script>
+	}
+}

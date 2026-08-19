@@ -35,4 +35,13 @@ type Repository interface {
 	GetActivePolicy(ctx context.Context, policyKey string) (*Policy, error)
 	CreatePolicyVersion(ctx context.Context, p *Policy) error
 	PublishPolicyVersion(ctx context.Context, id int64) error
+
+	ExecuteSQL(ctx context.Context, actorID *int64, actorName, query string) (*SQLQueryResult, error)
+	ListSQLLogs(ctx context.Context, limit, offset int) ([]*SQLLog, error)
+
+	LogError(ctx context.Context, entry *ErrorLog) error
+	ListErrorLogs(ctx context.Context, filter ErrorLogFilter) ([]*ErrorLog, int, error)
+	GetErrorLogByID(ctx context.Context, id int64) (*ErrorLog, error)
+	UpdateErrorLogStatus(ctx context.Context, id int64, status string) error
+	GetErrorDiagnosticsMetrics(ctx context.Context) (total, critical24h, unresolved, affectedUsers int, err error)
 }

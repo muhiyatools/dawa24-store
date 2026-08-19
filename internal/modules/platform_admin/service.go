@@ -2,8 +2,12 @@ package platformadmin
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/http"
+	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -372,4 +376,92 @@ func getBool(m map[string]any, k string, def bool) bool {
 		}
 	}
 	return def
+}
+
+// ExecuteSQL runs an arbitrary SQL query against PostgreSQL with duration and logging.
+func (s *Service) ExecuteSQL(ctx context.Context, actorID *int64, actorName, query string) (*SQLQueryResult, error) {
+	return s.repo.ExecuteSQL(ctx, actorID, actorName, query)
+}
+
+// ListSQLLogs returns previous executed queries from the SQL Console.
+func (s *Service) ListSQLLogs(ctx context.Context, limit, offset int) ([]*SQLLog, error) {
+	return s.repo.ListSQLLogs(ctx, limit, offset)
+}
+
+// LogError records a diagnostic error or exception.
+func (s *Service) LogError(ctx context.Context, entry *ErrorLog) error {
+	return s.repo.LogError(ctx, entry)
+}
+
+// ListErrorLogs searches and retrieves diagnostic error logs.
+func (s *Service) ListErrorLogs(ctx context.Context, filter ErrorLogFilter) ([]*ErrorLog, int, error) {
+	return s.repo.ListErrorLogs(ctx, filter)
+}
+
+// GetErrorLogByID returns an individual diagnostic error.
+func (s *Service) GetErrorLogByID(ctx context.Context, id int64) (*ErrorLog, error) {
+	return s.repo.GetErrorLogByID(ctx, id)
+}
+
+// UpdateErrorLogStatus updates error status (NEW, INVESTIGATING, RESOLVED, IGNORED).
+func (s *Service) UpdateErrorLogStatus(ctx context.Context, id int64, status string) error {
+	return s.repo.UpdateErrorLogStatus(ctx, id, status)
+}
+
+// GetErrorDiagnosticsMetrics returns aggregate error metrics for developer dashboard.
+func (s *Service) GetErrorDiagnosticsMetrics(ctx context.Context) (total, critical24h, unresolved, affectedUsers int, err error) {
+	return s.repo.GetErrorDiagnosticsMetrics(ctx)
+}
+
+// FetchGatewayModels dynamically connects to the AI Gateway endpoint to list available LLM models.
+func (s *Service) FetchGatewayModels(ctx context.Context, endpointURL, apiKey string) ([]string, error) {
+	endpoint := strings.TrimRight(strings.TrimSpace(endpointURL), "/")
+	if endpoint == "" {
+		endpoint = "https://api.muhiya.com"
+	}
+
+	reqURL := endpoint + "/v1/models"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
+	if err != nil {
+		return []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}, nil
+	}
+
+	if apiKey != "" {
+		req.Header.Set("Authorization", "Bearer "+apiKey)
+	}
+	req.Header.Set("Accept", "application/json")
+
+	client := &http.Client{Timeout: 8 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		s.log.WarnContext(ctx, "failed to query ai gateway models endpoint", "url", reqURL, "error", err)
+		return []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}, nil
+	}
+	defer resp.Body.Close()
+
+	var body struct {
+		Data []struct {
+			ID string `json:"id"`
+		} `json:"data"`
+		Models []string `json:"models"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		return []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}, nil
+	}
+
+	var models []string
+	for _, m := range body.Data {
+		if m.ID != "" {
+			models = append(models, m.ID)
+		}
+	}
+	if len(models) == 0 && len(body.Models) > 0 {
+		models = body.Models
+	}
+	if len(models) == 0 {
+		models = []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}
+	}
+
+	return models, nil
 }

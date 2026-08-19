@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -365,19 +366,68 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 		curr = &platformadmin.SiteSettings{}
 	}
 
+	_ = r.ParseMultipartForm(10 << 20)
+
 	logoURL := strings.TrimSpace(r.FormValue("logo_url"))
 	faviconURL := strings.TrimSpace(r.FormValue("favicon_url"))
 
 	// Check if a new logo file was uploaded
-	if err := r.ParseMultipartForm(10 << 20); err == nil {
-		file, _, err := r.FormFile("logo_file")
-		if err == nil && file != nil {
-			defer file.Close()
+	if file, header, err := r.FormFile("logo_file"); err == nil && file != nil {
+		defer file.Close()
+		ext := filepath.Ext(header.Filename)
+		if ext == "" {
+			ext = ".png"
+		}
+		key := fmt.Sprintf("branding/logo_%d%s", time.Now().Unix(), ext)
+		contentType := header.Header.Get("Content-Type")
+		if contentType == "" {
+			contentType = "image/png"
+		}
+
+		uploadedToStorage := false
+		if h.storage != nil {
+			if err := h.storage.Put(ctx, key, file, header.Size, contentType); err == nil {
+				pubURL := h.storage.PublicURL(key)
+				if pubURL == "" {
+					pubURL = "/uploads/" + key
+				}
+				logoURL = pubURL
+				uploadedToStorage = true
+			}
+		}
+
+		// Also save locally as static fallback
+		if !uploadedToStorage {
 			savePath := "internal/ui/static/img/logo.png"
 			if out, err := os.Create(savePath); err == nil {
 				defer out.Close()
+				_, _ = file.Seek(0, 0)
 				_, _ = io.Copy(out, file)
 				logoURL = "/static/img/logo.png"
+			}
+		}
+	}
+
+	// Check if a new favicon file was uploaded
+	if file, header, err := r.FormFile("favicon_file"); err == nil && file != nil {
+		defer file.Close()
+		ext := filepath.Ext(header.Filename)
+		if ext == "" {
+			ext = ".png"
+		}
+		key := fmt.Sprintf("branding/favicon_%d%s", time.Now().Unix(), ext)
+		contentType := header.Header.Get("Content-Type")
+		if contentType == "" {
+			contentType = "image/png"
+		}
+
+		if h.storage != nil {
+			if err := h.storage.Put(ctx, key, file, header.Size, contentType); err == nil {
+				pubURL := h.storage.PublicURL(key)
+				if pubURL == "" {
+					pubURL = "/uploads/" + key
+				}
+				faviconURL = pubURL
 			}
 		}
 	}
@@ -1723,14 +1773,24 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 		viewType = 1
 	}
 
+	icon := strings.TrimSpace(r.FormValue("icon"))
+	if icon == "" {
+		icon = "building"
+	}
+
+	slug := strings.ToLower(strings.ReplaceAll(titleEn, " ", "-"))
+	if slug == "" {
+		slug = fmt.Sprintf("work-%d", time.Now().UnixNano()%1000000)
+	}
+
 	iw := &org.InstitutionalWork{
 		Title:       i18n.New(titleAr, titleEn),
 		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
-		Icon:        r.FormValue("icon"),
+		Icon:        icon,
 		PricingType: org.PricingType(r.FormValue("pricing_type")),
 		IsActive:    true,
 		ViewType:    viewType,
-		Slug:        titleEn,
+		Slug:        slug,
 		ParentID:    parentID,
 	}
 
@@ -1769,12 +1829,24 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 		parentID = &pid
 	}
 
+	viewType, _ := strconv.Atoi(r.FormValue("view_type"))
+	if viewType <= 0 {
+		viewType = 1
+	}
+
+	icon := strings.TrimSpace(r.FormValue("icon"))
+	if icon == "" {
+		icon = "building"
+	}
+
 	iw := &org.InstitutionalWork{
 		ID:          id,
 		Title:       i18n.New(titleAr, titleEn),
 		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
+		Icon:        icon,
 		PricingType: org.PricingType(r.FormValue("pricing_type")),
 		IsActive:    true,
+		ViewType:    viewType,
 		ParentID:    parentID,
 	}
 
@@ -1875,6 +1947,204 @@ func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request
 // AdminCityToggleSubmit toggles the active status of a city.
 func (h *UIHandler) AdminCityToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم تحديث حالة تفعيل المدينة.")
+}
+
+// AdminDevelopersPage renders the unified developer portal with 4 tabs:
+// 1. SQL Console, 2. AI Gateway, 3. Error Diagnostics, 4. Audit Trail.
+func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		tab = "sql"
+	}
+
+	var gateway *platformadmin.GatewaySettings
+	var sqlLogs []*platformadmin.SQLLog
+	var errorLogs []*platformadmin.ErrorLog
+	var auditEntries []*platformadmin.AuditEntry
+
+	values := pages.AdminDevelopersValues{
+		ActiveTab:         tab,
+		ErrorLevelFilter:  r.URL.Query().Get("err_level"),
+		ErrorStatusFilter: r.URL.Query().Get("err_status"),
+		ErrorSearch:       r.URL.Query().Get("err_q"),
+	}
+
+	if h.adminSvc != nil {
+		gw, _ := h.adminSvc.GetGatewaySettings(ctx)
+		gateway = gw
+		if gateway == nil {
+			gateway = &platformadmin.GatewaySettings{
+				EndpointURL: "https://api.muhiya.com",
+				IsActive:    true,
+			}
+		}
+
+		sl, _ := h.adminSvc.ListSQLLogs(ctx, 30, 0)
+		sqlLogs = sl
+
+		filter := platformadmin.ErrorLogFilter{
+			Level:  values.ErrorLevelFilter,
+			Status: values.ErrorStatusFilter,
+			Search: values.ErrorSearch,
+			Limit:  50,
+			Offset: 0,
+		}
+		el, _, _ := h.adminSvc.ListErrorLogs(ctx, filter)
+		errorLogs = el
+
+		tot, crit, unres, affUsers, _ := h.adminSvc.GetErrorDiagnosticsMetrics(ctx)
+		values.ErrorMetrics.Total = tot
+		values.ErrorMetrics.Critical24h = crit
+		values.ErrorMetrics.Unresolved = unres
+		values.ErrorMetrics.AffectedUsers = affUsers
+
+		ae, _ := h.adminSvc.ListAuditLog(ctx, 50, 0)
+		auditEntries = ae
+	}
+
+	if gateway == nil {
+		gateway = &platformadmin.GatewaySettings{
+			EndpointURL: "https://api.muhiya.com",
+			IsActive:    true,
+		}
+	}
+
+	values.GatewaySettings = gateway
+	values.SQLLogs = sqlLogs
+	values.ErrorLogs = errorLogs
+	values.AuditEntries = auditEntries
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminDevelopersPage(values, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin developers page", "error", err)
+	}
+}
+
+// AdminSQLExecuteSubmit executes a SQL query from the Developer SQL Console and returns JSON.
+func (h *UIHandler) AdminSQLExecuteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	w.Header().Set("Content-Type", "application/json")
+
+	if h.adminSvc == nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"error": "خدمة إدارة المنظومة غير متاحة."})
+		return
+	}
+
+	query := strings.TrimSpace(r.FormValue("query"))
+	if query == "" {
+		_ = json.NewEncoder(w).Encode(map[string]any{"error": "استعلام SQL فارغ."})
+		return
+	}
+
+	actor, ok := authctx.From(ctx)
+	var actorID *int64
+	actorName := "System Admin"
+	if ok && actor.UserID > 0 {
+		actorID = &actor.UserID
+		if actor.Name != "" {
+			actorName = actor.Name
+		}
+	}
+
+	res, err := h.adminSvc.ExecuteSQL(ctx, actorID, actorName, query)
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(res)
+}
+
+// AdminDeveloperAISettingsSubmit updates AI Gateway settings from the Developer section.
+func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "error", "خدمة إدارة المنظومة غير متاحة.")
+		return
+	}
+
+	endpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
+	apiKey := strings.TrimSpace(r.FormValue("api_key"))
+	model := strings.TrimSpace(r.FormValue("model"))
+	isActive := r.FormValue("is_active") == "true"
+	systemPrompt := strings.TrimSpace(r.FormValue("system_prompt"))
+
+	gw := &platformadmin.GatewaySettings{
+		EndpointURL: endpoint,
+		APIKey:      apiKey,
+		Environment: model,
+		IsActive:    isActive,
+	}
+	if err := h.adminSvc.SaveGatewaySettings(ctx, gw); err != nil {
+		h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	// Also sync to AISettings
+	ai, _ := h.adminSvc.GetAISettings(ctx)
+	if ai == nil {
+		ai = &platformadmin.AISettings{}
+	}
+	ai.EndpointURL = endpoint
+	if apiKey != "" {
+		ai.APIKey = apiKey
+	}
+	if model != "" {
+		ai.Model = model
+	}
+	ai.IsActive = isActive
+	if systemPrompt != "" {
+		ai.SystemPrompt = systemPrompt
+	}
+	_ = h.adminSvc.SaveAISettings(ctx, ai)
+
+	h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "success", "تم حفظ إعدادات بوابة الذكاء الاصطناعي بنجاح.")
+}
+
+// AdminAIFetchModelsAPI contacts the AI gateway to list available models live.
+func (h *UIHandler) AdminAIFetchModelsAPI(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	w.Header().Set("Content-Type", "application/json")
+
+	endpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
+	apiKey := strings.TrimSpace(r.FormValue("api_key"))
+
+	if h.adminSvc == nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"models": []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}})
+		return
+	}
+
+	models, err := h.adminSvc.FetchGatewayModels(ctx, endpoint, apiKey)
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"models": []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]any{"models": models})
+}
+
+// AdminErrorLogStatusSubmit updates the status of an error record.
+func (h *UIHandler) AdminErrorLogStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", "معرف السجل غير صالح.")
+		return
+	}
+
+	status := strings.TrimSpace(r.FormValue("status"))
+	if status == "" {
+		status = "RESOLVED"
+	}
+
+	if h.adminSvc != nil {
+		_ = h.adminSvc.UpdateErrorLogStatus(ctx, id, status)
+	}
+
+	h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "success", "تم تحديث حالة الخطأ بنجاح.")
 }
 
 

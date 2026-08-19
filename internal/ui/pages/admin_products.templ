@@ -12,6 +12,8 @@ import (
 templ AdminProducts(lang, dir string, products []*catalog.Product) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
 		<div class="card" style="margin-bottom:0; overflow:visible;" x-data="adminProductsManager()">
+			
+			<!-- Header Action Bar -->
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">
 					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
@@ -28,14 +30,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 				</div>
 
 				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					@components.ModalTrigger("import-products-modal", "btn btn-secondary") {
+					<button type="button" @click="isImportModalOpen = true" class="btn btn-secondary" style="font-weight:700;">
 						@components.IconUpload("icon-xs")
 						<span>استيراد أصناف (Excel / CSV)</span>
-					}
-					@components.ModalTrigger("create-master-product-modal", "btn btn-primary") {
+					</button>
+					<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary" style="font-weight:800;">
 						@components.IconPlus("icon-xs")
 						<span>إضافة صنف دوائي أساسي</span>
-					}
+					</button>
 				</div>
 			</div>
 
@@ -148,26 +150,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 									</td>
 									<td style="text-align:end;">
 										<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
+											
 											<!-- Edit Button -->
 											<button
 												type="button"
 												class="btn btn-secondary btn-icon"
 												style="width:32px; height:32px; color:var(--accent);"
 												title="تعديل بيانات الدواء"
-												@click={ fmt.Sprintf("openEditModal({ id: %d, name_ar: '%s', name_en: '%s', generic_name: '%s', active_ingredient: '%s', dosage_form: '%s', manufacturer: '%s', eda_reg_number: '%s', price: '%s', image: '%s', description_ar: '%s', description_en: '%s', status: '%s' })",
-													p.ID,
-													escapeJS(p.Name.Get("ar")),
-													escapeJS(p.Name.Get("en")),
-													escapeJS(p.ScientificName),
-													escapeJS(p.Active),
-													escapeJS(p.DosageForm),
-													escapeJS(p.ManufacturingCompanies),
-													escapeJS(p.Barcode),
-													p.Price.String(),
-													escapeJS(p.Image),
-													escapeJS(p.Description.Get("ar")),
-													escapeJS(p.Description.Get("en")),
-													p.Status) }
+												@click={ fmt.Sprintf("openEdit(%d)", p.ID) }
 											>
 												@components.IconEdit("icon-xs")
 											</button>
@@ -206,89 +196,110 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 			}
 
 			<!-- Master Product Creation Modal -->
-			@components.Modal(components.ModalProps{
-				ID:    "create-master-product-modal",
-				Title: "إضافة صنف دوائي أساسي جديد (Master Product)",
-				Size:  "lg",
-			}) {
-				<form method="POST" action="/admin/products/new" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-name-ar">اسم الدواء / المستحضر (عربي) *</label>
-							<input type="text" id="prod-name-ar" name="name_ar" required class="form-input" placeholder="كونجستال أقراص" />
+			<div
+				x-show="isCreateModalOpen"
+				style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isCreateModalOpen ? 'display:flex;' : 'display:none;'"
+				@keydown.escape.window="isCreateModalOpen = false"
+			>
+				<div
+					@click.outside="isCreateModalOpen = false"
+					class="card"
+					style="max-width:760px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconPlus("icon-xs")
+							</div>
+							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+								إضافة صنف دوائي أساسي جديد (Master Product)
+							</h3>
 						</div>
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-name-en">اسم الدواء (إنجليزي) *</label>
-							<input type="text" id="prod-name-en" name="name_en" required class="form-input" dir="ltr" placeholder="Congestal Tablets" />
-						</div>
-					</div>
-
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-generic">الاسم العلمي (Scientific Name) *</label>
-							<input type="text" id="prod-generic" name="generic_name" required class="form-input" placeholder="Paracetamol + Pseudoephedrine" />
-						</div>
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-active">المادة الفعالة والتركيز *</label>
-							<input type="text" id="prod-active" name="active_ingredient" required class="form-input" placeholder="Paracetamol 500mg" />
-						</div>
-					</div>
-
-					<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-dosage">الشكل الصيدلي (Dosage Form) *</label>
-							<select id="prod-dosage" name="dosage_form" required class="form-select">
-								<option value="أقراص">أقراص (Tablets)</option>
-								<option value="كبسولات">كبسولات (Capsules)</option>
-								<option value="شراب">شراب (Syrup / Suspension)</option>
-								<option value="حقن">أمبولات وحقن (Injections)</option>
-								<option value="مرهم / كريم">مرهم / كريم (Ointment / Cream)</option>
-								<option value="نقط">نقط (Drops)</option>
-								<option value="فوار">أكياس فوار (Sachets)</option>
-								<option value="مستلزمات طبية">مستلزمات طبية (Medical Supplies)</option>
-							</select>
-						</div>
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-manufacturer">الشركة المصنعة / المنتجة *</label>
-							<input type="text" id="prod-manufacturer" name="manufacturer" required class="form-input" placeholder="إيفا فارما / Eva Pharma" />
-						</div>
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-eda">رقم التسجيل بهيئة الدواء (EDA)</label>
-							<input type="text" id="prod-eda" name="eda_reg_number" class="form-input tabular-nums" placeholder="EDA-REG-93821" />
-						</div>
-					</div>
-
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-image">رفع صورة جديدة</label>
-							<input type="file" id="prod-image" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
-						</div>
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-image-url">أو رابط الصورة (URL)</label>
-							<input type="text" id="prod-image-url" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
-						</div>
-					</div>
-
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-desc-ar">الوصف ودواعي الاستعمال (عربي)</label>
-							<textarea id="prod-desc-ar" name="description_ar" rows="2" class="form-input" placeholder="لعلاج أعراض نزلات البرد والإنفلونزا..."></textarea>
-						</div>
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" for="prod-desc-en">الوصف (إنجليزي)</label>
-							<textarea id="prod-desc-en" name="description_en" rows="2" class="form-input" dir="ltr" placeholder="For common cold and flu symptoms..."></textarea>
-						</div>
-					</div>
-
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
-						<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
-						<button type="submit" class="btn btn-primary" style="font-weight:800;">
-							@components.IconCheck("icon-xs")
-							<span>إضافة واعتماد الصنف بالكتالوج</span>
+						<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							@components.IconClose("icon-xs")
 						</button>
 					</div>
-				</form>
-			}
+
+					<form method="POST" action="/admin/products/new" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم الدواء / المستحضر (عربي) *</label>
+								<input type="text" name="name_ar" required class="form-input" placeholder="كونجستال أقراص" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم الدواء (إنجليزي) *</label>
+								<input type="text" name="name_en" required class="form-input" dir="ltr" placeholder="Congestal Tablets" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الاسم العلمي (Scientific Name) *</label>
+								<input type="text" name="generic_name" required class="form-input" placeholder="Paracetamol + Pseudoephedrine" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">المادة الفعالة والتركيز *</label>
+								<input type="text" name="active_ingredient" required class="form-input" placeholder="Paracetamol 500mg" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الشكل الصيدلي (Dosage Form) *</label>
+								<select name="dosage_form" required class="form-select">
+									<option value="أقراص">أقراص (Tablets)</option>
+									<option value="كبسولات">كبسولات (Capsules)</option>
+									<option value="شراب">شراب (Syrup / Suspension)</option>
+									<option value="حقن">أمبولات وحقن (Injections)</option>
+									<option value="مرهم / كريم">مرهم / كريم (Ointment / Cream)</option>
+									<option value="نقط">نقط (Drops)</option>
+									<option value="فوار">أكياس فوار (Sachets)</option>
+									<option value="مستلزمات طبية">مستلزمات طبية (Medical Supplies)</option>
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الشركة المصنعة / المنتجة *</label>
+								<input type="text" name="manufacturer" required class="form-input" placeholder="إيفا فارما / Eva Pharma" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">رقم التسجيل بهيئة الدواء (EDA)</label>
+								<input type="text" name="eda_reg_number" class="form-input tabular-nums" placeholder="EDA-REG-93821" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">رفع صورة جديدة</label>
+								<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">أو رابط الصورة (URL)</label>
+								<input type="text" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الوصف ودواعي الاستعمال (عربي)</label>
+								<textarea name="description_ar" rows="2" class="form-input" placeholder="لعلاج أعراض نزلات البرد والإنفلونزا..."></textarea>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الوصف (إنجليزي)</label>
+								<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="For common cold and flu symptoms..."></textarea>
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>إضافة واعتماد الصنف بالكتالوج</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
 
 			<!-- Master Product Edit Modal -->
 			<div
@@ -363,43 +374,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 							</div>
 						</div>
 
-						<!-- Image Section with Preview -->
-						<div style="background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:grid; grid-template-columns:80px 1fr; gap:1.25rem; align-items:center;">
-							<div style="width:80px; height:80px; border-radius:var(--radius-lg); background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden;">
-								<template x-if="editData.image">
-									<img :src="editData.image" alt="Preview" style="width:100%; height:100%; object-fit:contain; padding:4px;" />
-								</template>
-								<template x-if="!editData.image">
-									<div style="color:var(--text-muted);">
-										@components.IconPill("icon-md")
-									</div>
-								</template>
-							</div>
-
-							<div style="display:flex; flex-direction:column; gap:0.5rem;">
-								<div class="form-group" style="margin:0;">
-									<label class="form-label" style="font-size:0.8rem;">رابط صورة الدواء (Image URL)</label>
-									<input type="text" name="image_url" x-model="editData.image" class="form-input" dir="ltr" placeholder="https://..." />
-								</div>
-								<div class="form-group" style="margin:0;">
-									<label class="form-label" style="font-size:0.8rem;">أو رفع صورة من الجهاز</label>
-									<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.35rem;" />
-								</div>
-							</div>
-						</div>
-
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">حالة الصنف بالكتالوج</label>
-								<select name="status" x-model="editData.status" class="form-select">
-									<option value="active">نشط ومعتمد (Active)</option>
-									<option value="pending">قيد التدقيق (Pending)</option>
-									<option value="inactive">موقوف (Inactive)</option>
-								</select>
+								<label class="form-label">تغيير الصورة</label>
+								<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
 							</div>
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">السعر الأساسي المعتمد (ج.م)</label>
-								<input type="number" step="0.01" name="price" x-model="editData.price" class="form-input tabular-nums" />
+								<label class="form-label">أو رابط الصورة (URL)</label>
+								<input type="text" name="image_url" x-model="editData.image" class="form-input" dir="ltr" />
 							</div>
 						</div>
 
@@ -414,58 +396,100 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 							</div>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
 							<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="font-weight:800;">
 								@components.IconCheck("icon-xs")
-								<span>حفظ التعديلات في الكتالوج</span>
+								<span>حفظ التعديلات على الصنف</span>
 							</button>
 						</div>
 					</form>
 				</div>
 			</div>
 
-			<!-- Bulk Import Excel / CSV Modal -->
-			@components.Modal(components.ModalProps{
-				ID:    "import-products-modal",
-				Title: "استيراد أصناف دوائية جماعية (Bulk Import Excel / CSV)",
-				Size:  "md",
-			}) {
-				<form method="POST" action="/admin/products/import" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-					<div style="background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;">
-						<div style="font-weight:700; color:var(--text); margin-bottom:0.35rem;">تحميل نموذج ملف الاستيراد الجاهز:</div>
-						<p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.75rem; line-height:1.5;">
-							قم بتحميل النموذج المعتمد بصيغة Excel أو CSV وتعبئة أسماء الأدوية، المواد الفعالة، والشركات المصنعة.
-						</p>
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-							<a href="/admin/products/sample.xlsx" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;">
-								@components.IconDownload("icon-xs")
-								<span>نموذج ملف Excel (.xlsx)</span>
-							</a>
-							<a href="/admin/products/sample.csv" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;">
-								@components.IconDownload("icon-xs")
-								<span>نموذج ملف CSV (.csv)</span>
-							</a>
+			<!-- Bulk Import Modal -->
+			<div
+				x-show="isImportModalOpen"
+				style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isImportModalOpen ? 'display:flex;' : 'display:none;'"
+				@keydown.escape.window="isImportModalOpen = false"
+			>
+				<div
+					@click.outside="isImportModalOpen = false"
+					class="card"
+					style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconUpload("icon-xs")
+							</div>
+							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+								استيراد أصناف دوائية بالجملة (Bulk Import)
+							</h3>
 						</div>
-					</div>
-
-					<div class="form-group" style="margin:0;">
-						<label class="form-label" for="import-file">اختر ملف Excel / CSV المكتمل *</label>
-						<input type="file" id="import-file" name="import_file" required accept=".csv,.xlsx,.xls,.txt" class="form-input" style="padding:0.5rem;" />
-						<p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-							الصيغ المدعومة: CSV (مفصول بفواصل أو فواصل منقوطة) وترميز UTF-8 المتوافق مع Excel.
-						</p>
-					</div>
-
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
-						<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
-						<button type="submit" class="btn btn-primary" style="font-weight:800; gap:0.4rem;">
-							@components.IconUpload("icon-xs")
-							<span>بدء استيراد وإضافة الأصناف</span>
+						<button type="button" @click="isImportModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							@components.IconClose("icon-xs")
 						</button>
 					</div>
-				</form>
+
+					<form method="POST" action="/admin/products/import" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; flex-direction:column; gap:0.6rem;">
+							<div style="font-size:0.85rem; font-weight:700; color:var(--text);">
+								📄 قوالب ملف الاستيراد الجاهزة للتحميل:
+							</div>
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+								<a href="/admin/products/sample.xlsx" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;">
+									@components.IconDownload("icon-xs")
+									<span>نموذج ملف Excel (.xlsx)</span>
+								</a>
+								<a href="/admin/products/sample.csv" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;">
+									@components.IconDownload("icon-xs")
+									<span>نموذج ملف CSV (.csv)</span>
+								</a>
+							</div>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">اختر ملف Excel / CSV المكتمل *</label>
+							<input type="file" name="import_file" required accept=".csv,.xlsx,.xls,.txt" class="form-input" style="padding:0.5rem;" />
+							<p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+								الصيغ المدعومة: CSV و Excel (.xlsx). يتم استيراد الأسماء، المواد الفعالة، والشركات تلقائياً.
+							</p>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="isImportModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800; gap:0.4rem;">
+								@components.IconUpload("icon-xs")
+								<span>بدء استيراد وإضافة الأصناف</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Embedded JSON Data Stores for Products -->
+			for _, p := range products {
+				<script type="application/json" id={ fmt.Sprintf("product-data-%d", p.ID) }>
+					{
+						"id": { fmt.Sprintf("%d", p.ID) },
+						"name_ar": { fmt.Sprintf("%q", p.Name.Get("ar")) },
+						"name_en": { fmt.Sprintf("%q", p.Name.Get("en")) },
+						"generic_name": { fmt.Sprintf("%q", p.ScientificName) },
+						"active_ingredient": { fmt.Sprintf("%q", p.Active) },
+						"dosage_form": { fmt.Sprintf("%q", p.DosageForm) },
+						"manufacturer": { fmt.Sprintf("%q", p.ManufacturingCompanies) },
+						"eda_reg_number": { fmt.Sprintf("%q", p.Barcode) },
+						"price": { fmt.Sprintf("%q", p.Price.String()) },
+						"image": { fmt.Sprintf("%q", p.Image) },
+						"description_ar": { fmt.Sprintf("%q", p.Description.Get("ar")) },
+						"description_en": { fmt.Sprintf("%q", p.Description.Get("en")) },
+						"status": { fmt.Sprintf("%q", p.Status) }
+					}
+				</script>
 			}
+
 		</div>
 
 		<script>
@@ -474,7 +498,9 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					searchQuery: '',
 					dosageFilter: 'all',
 					statusFilter: 'all',
+					isCreateModalOpen: false,
 					isEditModalOpen: false,
+					isImportModalOpen: false,
 					editData: {
 						id: 0,
 						name_ar: '',
@@ -491,9 +517,18 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 						status: 'active'
 					},
 
-					openEditModal(data) {
-						this.editData = { ...data };
-						this.isEditModalOpen = true;
+					openEdit(id) {
+						const script = document.getElementById('product-data-' + id);
+						if (!script) {
+							console.error('Product data not found for ID:', id);
+							return;
+						}
+						try {
+							this.editData = JSON.parse(script.textContent);
+							this.isEditModalOpen = true;
+						} catch (e) {
+							console.error('Failed to parse product JSON:', e);
+						}
 					}
 				};
 			}

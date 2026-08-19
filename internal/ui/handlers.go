@@ -24,6 +24,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -46,6 +47,7 @@ type UIHandler struct {
 	wfSvc    *workflow.Service
 	hrSvc    *hr.Service
 	attSvc   *attachments.Service
+	storage  *storage.Client
 	log      *slog.Logger
 }
 
@@ -84,6 +86,16 @@ func NewUIHandler(
 		attSvc:   attSvc,
 		log:      log,
 	}
+}
+
+// SetStorage configures object storage (MinIO/S3) for UI handlers.
+func (h *UIHandler) SetStorage(s *storage.Client) {
+	h.storage = s
+}
+
+// SiteSettingsMiddleware injects live SiteSettings from database into every request context.
+func (h *UIHandler) SiteSettingsMiddleware(next http.Handler) http.Handler {
+	return h.siteSettingsMiddleware(next)
 }
 
 // RegisterPublicRoutes mounts everything a visitor may reach without signing
@@ -281,6 +293,13 @@ func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	r.Post("/admin/institutional/{id}/edit", h.AdminInstitutionalEditSubmit)
 	r.Post("/admin/institutional/{id}/delete", h.AdminInstitutionalDeleteSubmit)
 	r.Post("/admin/institutional/{id}/status", h.AdminInstitutionalStatusSubmit)
+
+	// Developers Section (SQL Console, AI Gateway, Error Diagnostics, Audit)
+	r.Get("/admin/developers", h.AdminDevelopersPage)
+	r.Post("/admin/developers/sql", h.AdminSQLExecuteSubmit)
+	r.Post("/admin/developers/ai", h.AdminDeveloperAISettingsSubmit)
+	r.Post("/admin/developers/ai/fetch-models", h.AdminAIFetchModelsAPI)
+	r.Post("/admin/developers/errors/{id}/status", h.AdminErrorLogStatusSubmit)
 
 	r.Post("/admin/settings", h.AdminSettingsSubmit)
 	r.Post("/admin/settings/site", h.AdminSiteSettingsSubmit)

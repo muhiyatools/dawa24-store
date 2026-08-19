@@ -130,6 +130,34 @@ func (m *mockPlatformAdminRepo) PublishPolicyVersion(_ context.Context, _ int64)
 	return nil
 }
 
+func (m *mockPlatformAdminRepo) ExecuteSQL(_ context.Context, _ *int64, _, _ string) (*SQLQueryResult, error) {
+	return &SQLQueryResult{Columns: []string{"test"}, Rows: [][]any{{"ok"}}}, nil
+}
+
+func (m *mockPlatformAdminRepo) ListSQLLogs(_ context.Context, _, _ int) ([]*SQLLog, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) LogError(_ context.Context, _ *ErrorLog) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) ListErrorLogs(_ context.Context, _ ErrorLogFilter) ([]*ErrorLog, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockPlatformAdminRepo) GetErrorLogByID(_ context.Context, _ int64) (*ErrorLog, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) UpdateErrorLogStatus(_ context.Context, _ int64, _ string) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) GetErrorDiagnosticsMetrics(_ context.Context) (total, critical24h, unresolved, affectedUsers int, err error) {
+	return 0, 0, 0, 0, nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

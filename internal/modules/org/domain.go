@@ -288,6 +288,14 @@ type InstitutionalWork struct {
 	UpdatedAt          time.Time            `json:"updated_at"`
 }
 
+// ParentIDVal returns the parent ID or 0 if nil.
+func (iw *InstitutionalWork) ParentIDVal() int64 {
+	if iw == nil || iw.ParentID == nil {
+		return 0
+	}
+	return *iw.ParentID
+}
+
 // BranchInstitutionalWork joins branches to institutional work types.
 type BranchInstitutionalWork struct {
 	ID                  int64     `json:"id"`

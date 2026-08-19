@@ -68,9 +68,9 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 						@components.IconChart("icon-sm")
 						<span>التحليلات والمؤشرات</span>
 					</a>
-					<a href="/admin/audit" class={ "sidebar-link", templ.KV("active", activeNav == "audit") }>
-						@components.IconClock("icon-sm")
-						<span>سجل العمليات والتدقيق</span>
+					<a href="/admin/developers" class={ "sidebar-link", templ.KV("active", activeNav == "developers") }>
+						@components.IconTerminal("icon-sm")
+						<span>أدوات المطورين والتشخيص</span>
 					</a>
 					<a href="/admin/settings" class={ "sidebar-link", templ.KV("active", activeNav == "settings") }>
 						@components.IconSettings("icon-sm")
