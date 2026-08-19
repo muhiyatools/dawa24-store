@@ -274,14 +274,14 @@ SELECT
     bs.user_id,
     'monthly',
     bs.starts_at,
-    bs.ends_at,
+    bs.expires_at,
     bs.status,
     1,
     bs.created_at,
     bs.updated_at
 FROM billing.subscriptions bs
 JOIN billing.plans bp ON bs.plan_id = bp.id
-WHERE bp.slug = 'compare' OR bp.features ? 'compare'
+WHERE bp.slug = 'compare' OR bp.slug LIKE '%compare%'
 ON CONFLICT DO NOTHING;
 
 COMMIT;
