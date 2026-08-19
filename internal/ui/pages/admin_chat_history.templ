@@ -1,0 +1,90 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/chat"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminChatHistoryPage renders conversation threads list.
+templ AdminChatHistoryPage(convs []*chat.Conversation, lang, dir string) {
+	@layouts.AdminShell("سجلات محادثات المنصة والرقابة", "audit", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سجل المحادثات والمراسلات ({ fmt.Sprintf("%d", len(convs)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">مراقبة وتدقيق محادثات الصيدليات والموردين لحل النزاعات ومتابعة جودة الخدمة.</p>
+				</div>
+				<a href="/admin/chat/tree" class="btn btn-secondary btn-sm">شجرة قرارات المساعد الذكي</a>
+			</div>
+
+			if len(convs) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محادثات", Message: "لم يتم بدء أي محادثات بين المستخدمين بعد."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>الموضوع</th>
+								<th>المنشأة المبادرة</th>
+								<th>الطرف الآخر</th>
+								<th>النوع</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, c := range convs {
+								<tr>
+									<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
+									<td><strong>{ c.Subject.Get("ar") }</strong></td>
+									<td>منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</td>
+									<td>منشأة #{ fmt.Sprintf("%d", c.CounterpartyOrgID) }</td>
+									<td><code>{ string(c.ContextType) }</code></td>
+									<td><span class="badge badge-sky">{ string(c.Status) }</span></td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/history/%d", c.ID)) } class="btn btn-secondary btn-sm">عرض الرسائل</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminChatHistoryDetailPage renders conversation transcript.
+templ AdminChatHistoryDetailPage(convID int64, msgs []*chat.Message, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("محادثة #%d", convID), "audit", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">محادثة #{ fmt.Sprintf("%d", convID) }</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">عرض الرسائل المتبادلة للأغراض الإدارية والرقابية.</p>
+				</div>
+				<a href="/admin/chat/history" class="btn btn-secondary btn-sm">العودة للسجلات</a>
+			</div>
+
+			if len(msgs) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد رسائل", Message: "المحادثة فارغة."})
+			} else {
+				<div style="display:flex; flex-direction:column; gap:1rem;">
+					for _, m := range msgs {
+						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-md);">
+							<div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">
+								<span>مستخدم #{ fmt.Sprintf("%d", m.SenderUserID) }</span>
+								<span>{ m.CreatedAt.Format("2006-01-02 15:04:05") }</span>
+							</div>
+							<div style="font-size:0.95rem; line-height:1.5;">{ m.Body }</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+	}
+}

@@ -42,17 +42,23 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		} else {
 			data.PendingShipments = n
 		}
-		if shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 10, 0); err == nil {
+		if shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 10, 0); err != nil {
+			h.log.WarnContext(ctx, "vendor dashboard: list shipments", "error", err)
+		} else {
 			for _, sh := range shipments {
 				if sh.Status == commerce.StatusPending || sh.Status == commerce.StatusConfirmed {
 					data.Shipments = append(data.Shipments, sh)
 				}
 			}
 		}
-		if total, err := h.commSvc.MonthSalesByVendor(ctx, actor.OrganizationID); err == nil {
+		if total, err := h.commSvc.MonthSalesByVendor(ctx, actor.OrganizationID); err != nil {
+			h.log.WarnContext(ctx, "vendor dashboard: month sales", "error", err)
+		} else {
 			data.MonthSales = total
 		}
-		if quotes, err := h.commSvc.ListQuoteRequests(ctx, actor.OrganizationID, true, 100, 0); err == nil {
+		if quotes, err := h.commSvc.ListQuoteRequests(ctx, actor.OrganizationID, true, 100, 0); err != nil {
+			h.log.WarnContext(ctx, "vendor dashboard: list quote requests", "error", err)
+		} else {
 			for _, q := range quotes {
 				if q.Status == commerce.QuotePending {
 					data.UnreadQuotes++
@@ -62,20 +68,27 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if h.invSvc != nil {
-		if low, err := h.invSvc.ListLowStock(ctx, 10, 0); err == nil {
+		if low, err := h.invSvc.ListLowStock(ctx, 10, 0); err != nil {
+			h.log.WarnContext(ctx, "vendor dashboard: list low stock", "error", err)
+		} else {
 			data.LowStockCount = len(low)
 			data.LowStock = low
 		}
 	}
 
 	if h.promoSvc != nil {
-		if offers, err := h.promoSvc.ListActiveOffers(ctx, 10, 0); err == nil {
+		if offers, err := h.promoSvc.ListActiveOffers(ctx, 10, 0); err != nil {
+			h.log.WarnContext(ctx, "vendor dashboard: list active offers", "error", err)
+		} else {
 			data.Offers = offers
 		}
 	}
 
 	if h.billSvc != nil {
-		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && wallet != nil {
+		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
+			// Wallet lookup error (e.g. no wallet created yet) is logged as debug
+			h.log.DebugContext(ctx, "vendor dashboard: get wallet optional", "error", err)
+		} else if wallet != nil {
 			data.WalletBalance = wallet.Balance
 			data.HasWallet = true
 		}
@@ -101,7 +114,9 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 	data := pages.PharmacyDashboardData{}
 
 	if h.commSvc != nil {
-		if orders, err := h.commSvc.ListCustomerOrders(ctx, actor.UserID, 100, 0); err == nil {
+		if orders, err := h.commSvc.ListCustomerOrders(ctx, actor.UserID, 100, 0); err != nil {
+			h.log.WarnContext(ctx, "pharmacy dashboard: list orders", "error", err)
+		} else {
 			for _, o := range orders {
 				if o.Status != commerce.StatusDelivered && o.Status != commerce.StatusCancelled && o.Status != commerce.StatusRefunded {
 					data.OpenOrders++
@@ -111,13 +126,17 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 				}
 			}
 		}
-		if total, err := h.commSvc.MonthSpendByCustomer(ctx, actor.UserID); err == nil {
+		if total, err := h.commSvc.MonthSpendByCustomer(ctx, actor.UserID); err != nil {
+			h.log.WarnContext(ctx, "pharmacy dashboard: month spend", "error", err)
+		} else {
 			data.MonthSpend = total
 		}
 	}
 
 	if h.idSvc != nil {
-		if favs, err := h.idSvc.ListFavorites(ctx, actor.UserID); err == nil {
+		if favs, err := h.idSvc.ListFavorites(ctx, actor.UserID); err != nil {
+			h.log.WarnContext(ctx, "pharmacy dashboard: list favorites", "error", err)
+		} else {
 			data.Favorites = len(favs)
 		}
 	}
@@ -135,7 +154,9 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.billSvc != nil {
-		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && wallet != nil {
+		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
+			h.log.DebugContext(ctx, "pharmacy dashboard: get wallet optional", "error", err)
+		} else if wallet != nil {
 			data.WalletBalance = wallet.Balance
 			data.HasWallet = true
 		}

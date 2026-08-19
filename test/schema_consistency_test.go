@@ -92,7 +92,7 @@ func loadSchema(t *testing.T, dir string) map[string]map[string]bool {
 func isNonColumn(line string) bool {
 	upper := strings.ToUpper(line)
 	for _, p := range nonColumnPrefixes {
-		if strings.HasPrefix(upper, p) {
+		if strings.HasPrefix(upper, p+" ") || strings.HasPrefix(upper, p+"(") || upper == p {
 			return true
 		}
 	}

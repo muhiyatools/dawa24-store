@@ -17,6 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
+	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 )
 
@@ -50,6 +51,7 @@ func run() error {
 	river.AddWorker(workers, &orderNotificationWorker{db: db, log: log})
 	river.AddWorker(workers, &ingestBatchWorker{db: db, log: log})
 	river.AddWorker(workers, &expirePromotionsWorker{db: db, log: log})
+	river.AddWorker(workers, catalogJobs.NewProductReindexWorker(db, log))
 
 	queueClient, err := queue.New(db, workers, cfg.Worker, log)
 	if err != nil {

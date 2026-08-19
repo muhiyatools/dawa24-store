@@ -33,7 +33,9 @@ func (h *UIHandler) ContactSubmit(w http.ResponseWriter, r *http.Request) {
 			Message: r.PostFormValue("message"),
 			Status:  "unread",
 		})
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "contact submit: failed to record inquiry", "error", err)
+		} else {
 			submitted = true
 		}
 	}

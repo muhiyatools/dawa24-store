@@ -279,7 +279,7 @@ func TestPromoRepository(t *testing.T) {
 	})
 
 	t.Run("Visibility_Query_ListOffersVisibleTo", func(t *testing.T) {
-		offers, err := repo.ListOffersVisibleTo(ctx, 30.0444, 31.2357, 1, 10, 0)
+		offers, err := repo.ListOffersVisibleTo(ctx, 30.0444, 31.2357, 1, 10, 0, nil)
 		if err != nil {
 			t.Fatalf("ListOffersVisibleTo query failed: %v", err)
 		}

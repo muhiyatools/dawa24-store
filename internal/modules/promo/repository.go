@@ -11,7 +11,7 @@ type Repository interface {
 	ListActiveOffers(ctx context.Context, limit, offset int) ([]*Offer, error)
 	ListOffersForProduct(ctx context.Context, productID int64) ([]*OfferProductWithOffer, error)
 	ListOffers(ctx context.Context, limit, offset int) ([]*Offer, error)
-	ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int) ([]*VisibleOffer, error)
+	ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*VisibleOffer, error)
 	SetOfferActive(ctx context.Context, id int64, active bool) error
 	IncrementOfferEngagement(ctx context.Context, offerID int64, isClick bool) error
 

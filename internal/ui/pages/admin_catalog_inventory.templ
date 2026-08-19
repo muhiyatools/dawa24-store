@@ -1,0 +1,277 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminProductDetailPage renders master product view.
+templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل المنتج: %s", p.Name.Get("ar")), "catalog", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">{ p.Name.Get("ar") }</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">SKU: { p.SKU } | باركود: { p.Barcode }</p>
+				</div>
+				<a href="/admin/products" class="btn btn-secondary btn-sm">العودة للمنتجات</a>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">الاسم العلمي</div>
+					<div style="font-weight:700; margin-top:0.25rem;">{ p.ScientificName }</div>
+				</div>
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">سعر الجمهور القياسي</div>
+					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ fmt.Sprintf("%s ج.م", p.Price.String()) }</div>
+				</div>
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">الحالة</div>
+					<div style="margin-top:0.25rem;">
+						if p.Status == catalog.StatusActive {
+							<span class="badge badge-success">نشط ومتاح</span>
+						} else {
+							<span class="badge badge-danger">معطل</span>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+// AdminProductChildrenPage renders vendor variant listings.
+templ AdminProductChildrenPage(products []*catalog.Product, lang, dir string) {
+	@layouts.AdminShell("إدارة عروض وفروع المنتجات (Product Children)", "catalog", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">عروض المنتجات بالمنشآت والمستودعات ({ fmt.Sprintf("%d", len(products)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة عروض التوريد، الخصومات، والكميات المسجلة لدى الموردين.</p>
+				</div>
+			</div>
+
+			if len(products) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عروض", Message: "لم يتم تسجيل عروض لمنتجات الموردين بعد."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>المنتج</th>
+								<th>الاسم العلمي</th>
+								<th>سعر الجمهور</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, p := range products {
+								<tr>
+									<td><strong>{ p.Name.Get("ar") }</strong></td>
+									<td>{ p.ScientificName }</td>
+									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", p.Price.String()) }</td>
+									<td>
+										if p.Status == catalog.StatusActive {
+											<span class="badge badge-success">نشط</span>
+										} else {
+											<span class="badge badge-danger">معطل</span>
+										}
+									</td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", p.ID)) } class="btn btn-secondary btn-sm">عرض التفاصيل</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminAdvProductsPage renders advanced ingest.
+templ AdminAdvProductsPage(lang, dir string) {
+	@layouts.AdminShell("استيراد متقدم وربط أعمدة المنتجات", "catalog", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<h2 class="card-title" style="margin-bottom:0.5rem;">استيراد ملفات المخزون والأسعار المتقدمة</h2>
+			<p style="font-size:0.875rem; color:var(--text-secondary); margin-bottom:1.5rem;">يتيح هذا القسم مطابقة حقول جداول Excel وCSV مع بنية كتالوج الأدوية تلقائياً.</p>
+			<a href="/admin/import" class="btn btn-primary">الانتقال لمعالج الاستيراد الشامل</a>
+		</div>
+	}
+}
+
+// AdminApisProductsPage renders external API connector.
+templ AdminApisProductsPage(lang, dir string) {
+	@layouts.AdminShell("ربط وتزامن واجهات API للمنتجات", "catalog", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<h2 class="card-title" style="margin-bottom:0.5rem;">مزامنة المنتجات عبر واجهات API الخارجية</h2>
+			<p style="font-size:0.875rem; color:var(--text-secondary); margin-bottom:1.5rem;">إعداد وتوصيل روابط Webhook وEndpoints لمزامنة الأسعار والمخزون الحي للموردين.</p>
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد روابط API متصلة", Message: "قم بإضافة موفر API لمزامنة المخزون تلقائياً."})
+		</div>
+	}
+}
+
+// AdminStocksPage renders inventory stocks across warehouses.
+templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
+	@layouts.AdminShell("إدارة الأرصدة والمخزون الحي", "inventory", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">أرصدة المخزون بالمنشآت والمستودعات ({ fmt.Sprintf("%d", len(stocks)) })</h2>
+			if len(stocks) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "المخزون فارغ", Message: "لم يتم تسجيل أرصدة مخزون في المستودعات بعد."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>المنشأة</th>
+								<th>المستودع</th>
+								<th>الكمية الحالية</th>
+								<th>حد الأمان</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, s := range stocks {
+								<tr>
+									<td class="tabular-nums">#{ fmt.Sprintf("%d", s.ID) }</td>
+									<td>منشأة #{ fmt.Sprintf("%d", s.OrganizationID) }</td>
+									<td>مستودع #{ fmt.Sprintf("%d", s.WarehouseID) }</td>
+									<td class="tabular-nums"><strong>{ fmt.Sprintf("%d", s.Quantity) }</strong></td>
+									<td class="tabular-nums">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminWarehousesPage renders permanent warehouses.
+templ AdminWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) {
+	@layouts.AdminShell("إدارة المستودعات ومراكز التوزيع", "inventory", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">دليل المستودعات المسجلة ({ fmt.Sprintf("%d", len(warehouses)) })</h2>
+			if len(warehouses) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مستودعات", Message: "لم يتم تسجيل مستودعات بالمنصة بعد."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>اسم المستودع</th>
+								<th>المنشأة التابع لها</th>
+								<th>العنوان</th>
+								<th>الهاتف</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, w := range warehouses {
+								<tr>
+									<td><strong>{ w.Name }</strong></td>
+									<td>منشأة #{ fmt.Sprintf("%d", w.OrganizationID) }</td>
+									<td>{ w.Address }</td>
+									<td class="tabular-nums">{ w.Phone }</td>
+									<td>
+										if w.IsActive {
+											<span class="badge badge-success">نشط</span>
+										} else {
+											<span class="badge badge-danger">معطل</span>
+										}
+									</td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm">عرض المخزون</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminWarehouseDetailPage renders warehouse detail.
+templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("مستودع: %s", wh.Name), "inventory", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto 1.5rem auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center;">
+				<div>
+					<h2 class="card-title" style="margin:0;">{ wh.Name }</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">منشأة #{ fmt.Sprintf("%d", wh.OrganizationID) } | { wh.Address }</p>
+				</div>
+				<a href="/admin/warehouses" class="btn btn-secondary btn-sm">العودة للمستودعات</a>
+			</div>
+		</div>
+
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">أرصدة هذا المستودع ({ fmt.Sprintf("%d", len(stocks)) })</h3>
+			if len(stocks) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أرصدة", Message: "المستودع لا يحتوي على منتجات مسجلة حالياً."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>الكمية</th>
+								<th>حد الأمان</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, s := range stocks {
+								<tr>
+									<td class="tabular-nums">#{ fmt.Sprintf("%d", s.ID) }</td>
+									<td class="tabular-nums"><strong>{ fmt.Sprintf("%d", s.Quantity) }</strong></td>
+									<td class="tabular-nums">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminTempWarehousesPage renders temp warehouses list.
+templ AdminTempWarehousesPage(items []any, lang, dir string) {
+	@layouts.AdminShell("إدارة المستودعات المؤقتة وملفات التوريد", "inventory", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">المستودعات المؤقتة وملفات الأسعار المرفوعة</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">مستودعات مؤقتة يتم رفعها لمطابقة الأسعار والخصومات دون دمجها الدائم في الكتالوج.</p>
+				</div>
+				<a href="/admin/import" class="btn btn-primary btn-sm">رفع مستودع مؤقت جديد</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مستودعات مؤقتة", Message: "يتم إنشاء المستودعات المؤقتة تلقائياً عند رفع ملفات جداول الأسعار."})
+		</div>
+	}
+}
+
+// AdminSavingProductsPage renders saving products.
+templ AdminSavingProductsPage(items []any, lang, dir string) {
+	@layouts.AdminShell("إدارة منتجات التوفير (Saving Products)", "catalog", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">منتجات التوفير المتاحة بالمنصة</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">قوائم المنتجات ذات الخصومات المرتفعة والتوفير المباشر للصيدليات.</p>
+				</div>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد منتجات توفير", Message: "يتم احتساب منتجات التوفير تلقائياً عبر محرك الخصومات والمقارنة."})
+		</div>
+	}
+}

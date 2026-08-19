@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
@@ -33,22 +34,23 @@ import (
 
 // UIHandler serves server-rendered HTML pages via Templ.
 type UIHandler struct {
-	catSvc   *catalog.Service
-	orgSvc   *org.Service
-	ingSvc   *ingest.Service
-	commSvc  *commerce.Service
-	invSvc   *inventory.Service
-	idSvc    *identity.Service
-	notifSvc *notifications.Service
-	promoSvc *promo.Service
-	adminSvc *platformadmin.Service
-	billSvc  *billing.Service
-	chatSvc  *chat.Service
-	wfSvc    *workflow.Service
-	hrSvc    *hr.Service
-	attSvc   *attachments.Service
-	storage  *storage.Client
-	log      *slog.Logger
+	catSvc     *catalog.Service
+	orgSvc     *org.Service
+	ingSvc     *ingest.Service
+	commSvc    *commerce.Service
+	invSvc     *inventory.Service
+	idSvc      *identity.Service
+	notifSvc   *notifications.Service
+	promoSvc   *promo.Service
+	adminSvc   *platformadmin.Service
+	billSvc    *billing.Service
+	compareSvc *compare.Service
+	chatSvc    *chat.Service
+	wfSvc      *workflow.Service
+	hrSvc      *hr.Service
+	attSvc     *attachments.Service
+	storage    *storage.Client
+	log        *slog.Logger
 }
 
 // NewUIHandler creates a new UI page handler with all platform domain services wired.
@@ -91,6 +93,11 @@ func NewUIHandler(
 // SetStorage configures object storage (MinIO/S3) for UI handlers.
 func (h *UIHandler) SetStorage(s *storage.Client) {
 	h.storage = s
+}
+
+// SetCompareService configures the compare module service for UI handlers.
+func (h *UIHandler) SetCompareService(s *compare.Service) {
+	h.compareSvc = s
 }
 
 // SiteSettingsMiddleware injects live SiteSettings from database into every request context.
@@ -148,7 +155,25 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/finder/{id}", h.FinderQuestionByIDPage)
 		pub.Get("/finder/result/{id}", h.FinderResultByIDPage)
 		pub.Get("/compare", h.ComparePlansPage)
+		pub.Post("/compare/subscribe", h.CompareSubscribeSubmit)
 		pub.Get("/compare/tool", h.CompareToolPage)
+		pub.Post("/compare/upload", h.CompareUploadSubmit)
+		pub.Post("/compare/files/{id}/rename", h.CompareFileRenameSubmit)
+		pub.Post("/compare/files/{id}/archive", h.CompareFileArchiveSubmit)
+		pub.Post("/compare/files/{id}/unarchive", h.CompareFileUnarchiveSubmit)
+		pub.Post("/compare/files/{id}/delete", h.CompareFileDeleteSubmit)
+		pub.Post("/compare/files/{id}/mapping", h.CompareFileMappingSubmit)
+		pub.Post("/compare/rows/{id}/match", h.CompareRowManualMatchSubmit)
+		pub.Post("/compare/run", h.CompareRunSubmit)
+		pub.Get("/compare/results", h.CompareResultsPage)
+		pub.Get("/compare/head-to-head", h.CompareHeadToHeadPage)
+		pub.Get("/market-discounts", h.MarketDiscountsPage)
+		pub.Get("/tracking", h.GuestOrderTrackingPage)
+		pub.Get("/promotions/track-click/{offer}", h.PublicPromotionTrackClick)
+		pub.Get("/promotions/track-click/{offer}/{promotion}", h.PublicPromotionTrackClick)
+		pub.Get("/ads/click/{ad}", h.PublicAdClick)
+		pub.Get("/auth/2fa-challenge", h.Auth2FAChallengePage)
+		pub.Post("/auth/2fa-challenge", h.Auth2FAChallengeSubmit)
 
 		// Form actions that work signed-out (sign-up must be reachable pre-login)
 		pub.Post("/auth/login", h.LoginSubmit)
@@ -159,6 +184,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Post("/upload", h.UploadAPISubmit)
 		pub.Post("/offers/{id}/click", h.OfferClickSubmit)
 		pub.Post("/services/{id}/request", h.ServiceRequestSubmit)
+		pub.Post("/jobs/{id}/apply", h.JobApplySubmit)
 	})
 }
 
@@ -174,11 +200,22 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 		http.Redirect(w, r, "/customer/dashboard", http.StatusFound)
 	})
 
+	r.Get("/customer/cpanel", h.CustomerCPanelPage)
+	r.Get("/customer/saving-products", h.CustomerSavingProductsPage)
+	r.Get("/customer/saving-products/import", h.CustomerSavingProductsImportPage)
+	r.Get("/customer/saving-products/{id}", h.CustomerSavingProductDetailPage)
+	r.Get("/customer/saveing-products", h.CustomerSavingProductsAlias)
+	r.Get("/customer/add-order", h.CustomerAddOrderPage)
+	r.Get("/customer/products/main/{id}", h.CustomerProductsMainAlias)
+
 	r.Post("/customer/set-branch", h.SetBuyingBranchSubmit)
 
 	r.Get("/cart", h.CustomerCartPage)
 	r.Get("/checkout", h.CustomerCheckoutPage)
+	r.Get("/offers/{id}/checkout", h.CustomerOfferCheckoutPage)
 	r.Get("/orders", h.CustomerOrdersPage)
+	r.Get("/orders/offers", h.CustomerOfferOrdersPage)
+	r.Get("/orders/offers/{id}", h.CustomerOfferOrderDetailPage)
 	r.Get("/orders/{id}", h.CustomerOrderDetailPage)
 	r.Get("/favorites", h.FavoritesPage)
 	r.Get("/suppliers/followed", h.FollowedSuppliersPage)
@@ -210,6 +247,27 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/finder/answer", h.FinderAnswerSubmit)
 	r.Post("/compare/subscribe", h.CompareSubscribeSubmit)
 	r.Post("/reviews/submit", h.ReviewSubmit)
+
+	// Customer Purchase Requests (Plan V5 Phase 3 Task 3.1)
+	r.Get("/customer/purchase-request", h.CustomerPurchaseRequestWizardPage)
+	r.Get("/customer/purchase-request/supplier", h.CustomerPurchaseRequestSupplierPage)
+	r.Get("/customer/purchase-request/supplier/{id}", h.CustomerShowPurchaseRequestSupplierPage)
+	r.Get("/customer/suppliers/{id}", h.CustomerShowPurchaseRequestSupplierPage)
+	r.Get("/customer/purchase-request/products", h.CustomerPurchaseRequestProductsPage)
+	r.Get("/customer/purchase-request/previous", h.CustomerPurchaseRequestPreviousPage)
+	r.Post("/customer/purchase-request/submit", h.CustomerPurchaseRequestSubmit)
+	r.Post("/customer/purchase-request/lines/{id}/edit", h.CustomerPurchaseRequestEditLineSubmit)
+
+	// Customer Purchase Priority Engine (Plan V5 Phase 3 Task 3.2)
+	r.Get("/customer/purchase-priority", h.CustomerPurchasePriorityPage)
+	r.Post("/customer/purchase-priority/run", h.CustomerPurchasePriorityRunSubmit)
+	r.Get("/customer/purchase-priority/{id}", h.CustomerPurchasePriorityDetailPage)
+
+	// Automatic Purchase Requests & Optimization (Plan V5 Phase 3 Task 3.3)
+	r.Get("/customer/automation", h.CustomerAutomationPage)
+	r.Post("/customer/automation/upload", h.CustomerAutomationUploadSubmit)
+	r.Get("/customer/automation/previous", h.CustomerAutomationPreviousPage)
+	r.Get("/customer/automation/{id}", h.CustomerAutomationDetailPage)
 }
 
 
@@ -222,26 +280,51 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/variants/new", h.VendorVariantNewPage)
 	r.Post("/vendor/variants/new", h.VendorVariantNewSubmit)
 	r.Post("/vendor/variants/{id}/delete", h.VendorVariantDeleteSubmit)
+	r.Get("/vendor/catalog/select", h.VendorCatalogSelectPage)
+	r.Post("/vendor/catalog/select", h.VendorCatalogSelectSubmit)
 	r.Get("/vendor/branches", h.VendorBranchesPage)
 	r.Post("/vendor/branches/new", h.VendorBranchNewSubmit)
 	r.Post("/vendor/branches/{id}/delete", h.VendorBranchDeleteSubmit)
 	r.Post("/vendor/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
 	r.Get("/vendor/team", h.VendorTeamPage)
+	r.Get("/vendor/team/import", h.VendorTeamImportPage)
+	r.Get("/vendor/team/fast-add", h.VendorTeamFastAddPage)
+	r.Get("/vendor/team/{id}", h.VendorTeamUserDetailPage)
+	r.Get("/vendor/team/{id}/info", h.VendorTeamUserInfoPage)
 	r.Get("/vendor/roles", h.VendorRolesPage)
 	r.Post("/vendor/team/new", h.VendorTeamNewSubmit)
 	r.Post("/vendor/team/{id}/toggle", h.VendorTeamToggleSubmit)
 	r.Get("/vendor/inventory", h.VendorInventoryPage)
 	r.Post("/vendor/inventory/{id}/adjust", h.VendorStockAdjustSubmit)
+	r.Get("/vendor/warehouses", h.VendorWarehousesPage)
+	r.Get("/vendor/warehouses/{id}", h.VendorWarehouseDetailPage)
+	r.Get("/vendor/saving-products", h.VendorSavingProductsPage)
+	r.Get("/vendor/saving-products/import", h.VendorSavingProductsImportPage)
+	r.Get("/vendor/saving-products/{id}", h.VendorSavingProductDetailPage)
+	r.Get("/vendor/saveing-products", h.VendorSavingProductsAlias)
 	r.Get("/vendor/coverage", h.VendorCoveragePage)
+	r.Post("/vendor/coverage", h.VendorCoverageCreateSubmit)
+	r.Post("/vendor/coverage/{id}", h.VendorCoverageUpdateSubmit)
+	r.Post("/vendor/coverage/{id}/delete", h.VendorCoverageDeleteSubmit)
+	r.Post("/vendor/coverage/{id}/toggle", h.VendorCoverageToggleSubmit)
+	r.Get("/vendor/coverage/branch/{branchID}", h.VendorBranchCoveragePage)
+	r.Get("/vendor/pharmacy-coverage", h.VendorPharmacyCoveragePage)
+	r.Get("/vendor/pharmacy-coverage/{id}", h.VendorPharmacyCoverageDetailPage)
 	r.Get("/vendor/transfers", h.VendorTransfersPage)
 	r.Get("/vendor/ingest", h.VendorIngestPage)
+	r.Get("/vendor/ingest/{sessionID}", h.VendorIngestSessionPage)
 	r.Get("/vendor/ingest/sample.xlsx", h.VendorIngestSampleXLSX)
 	r.Get("/vendor/ingest/sample.csv", h.VendorIngestSampleCSV)
 	r.Get("/vendor/ingest/export", h.VendorIngestExport)
 	r.Post("/vendor/ingest/upload", h.VendorIngestUploadSubmit)
+	r.Post("/vendor/ingest/{id}/mapping", h.VendorIngestMappingSubmit)
+	r.Get("/vendor/ingest/{id}/rows", h.VendorIngestRowsPartial)
+	r.Post("/vendor/ingest/{id}/rows/{rid}", h.VendorIngestRowUpdateSubmit)
 	r.Post("/vendor/ingest/{id}/commit", h.VendorIngestCommitSubmit)
+	r.Post("/vendor/ingest/{id}/cancel", h.VendorIngestCancelSubmit)
 	r.Get("/vendor/orders", h.VendorOrdersPage)
-
+	r.Get("/vendor/orders/offers", h.VendorOfferOrdersPage)
+	r.Get("/vendor/orders/offers/{id}", h.VendorOfferOrderDetailPage)
 	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
 	r.Get("/vendor/offers", h.VendorOffersPage)
 	r.Get("/vendor/offers/new", h.VendorOfferNewPage)
@@ -249,9 +332,26 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/offers/{id}/locations", h.VendorOfferLocationsPage)
 	r.Post("/vendor/offers/{id}/locations/new", h.VendorOfferLocationNewSubmit)
 	r.Post("/vendor/offers/{id}/delete", h.VendorOfferDeleteSubmit)
+	r.Get("/vendor/offers/locations", h.VendorOffersLocationsPage)
+	r.Get("/vendor/offers-packages", h.VendorOffersPackagesPage)
+	r.Get("/vendor/offers-packages/{id}", h.VendorOffersPackagesPage)
+	r.Get("/vendor/offers-packages/sponsorships", h.VendorOffersPackagesSponsorshipsPage)
+	r.Get("/vendor/offers-packages/sponsorships/{id}", h.VendorOffersPackagesSponsorshipsPage)
+	r.Get("/vendor/offers-packages/promotions", h.VendorOffersPackagesPromotionsPage)
+	r.Get("/vendor/ads", h.VendorAdsPage)
+	r.Get("/vendor/ads/add", h.VendorAdsPage)
+	r.Get("/vendor/ads/{id}", h.VendorAdsPage)
+	r.Get("/vendor/ads/{id}/edit", h.VendorAdsPage)
+	r.Get("/vendor/payments", h.VendorPaymentsPage)
+	r.Get("/vendor/earnings/order", h.VendorEarningsOrderPage)
+	r.Get("/vendor/earnings/offers", h.VendorEarningsOffersPage)
+	r.Get("/vendor/policies", h.VendorPoliciesPage)
+	r.Get("/vendor/social-media", h.VendorSocialMediaPage)
 	r.Get("/vendor/storefront", h.VendorStorefrontPage)
 	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
 	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)
+	r.Get("/vendor/activities", h.VendorActivitiesPage)
+	r.Get("/vendor/institutional-work", h.VendorInstitutionalWorkPage)
 	r.Get("/vendor/jobs", h.VendorJobsPage)
 	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
 
@@ -259,91 +359,26 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
 	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
 	r.Post("/requests/{id}/respond", h.RequestRespondSubmit)
+
+	// Vendor Purchase Requests (Plan V5 Phase 3 §3.1.5)
+	r.Get("/vendor/purchase-requests", h.VendorPurchaseRequestsPage)
+	r.Get("/vendor/purchase-requests/{id}", h.VendorPurchaseRequestDetailPage)
+	r.Post("/vendor/purchase-requests/{id}/respond", h.VendorPurchaseRequestRespondSubmit)
+	r.Post("/vendor/purchase-requests/lines/{id}/respond", h.VendorPurchaseRequestLineRespondSubmit)
 }
 
 // RegisterAdminRoutes mounts the platform staff surface, gated by RequireStaff
-// (super_admin, admin, support, developer). Every handler behind it runs
-// platform-wide work (database.AsSystem) — this gate is what keeps a pharmacy
-// account away from /admin/users and the rest.
+// and per-page granular permission gates (RequirePagePermission).
 func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
+	// Dashboard is reachable by any authenticated platform staff member.
 	r.Get("/admin/dashboard", h.AdminDashboardPage)
-	r.Get("/admin/approvals", h.AdminApprovalsPage)
-	r.Get("/admin/documents", h.AdminDocumentsPage)
-	r.Get("/admin/users", h.AdminUsersPage)
-	r.Get("/admin/settings", h.AdminSettingsPage)
-	r.Get("/admin/messages", h.AdminMessagesPage)
-	r.Get("/admin/content", h.AdminContentPage)
-	r.Get("/admin/analytics", h.AdminAnalyticsPage)
-	r.Get("/admin/translations", h.AdminTranslationsPage)
-	r.Get("/admin/audit", h.AdminAuditPage)
-	r.Get("/admin/organizations", h.AdminOrganizationsPage)
-	r.Get("/admin/vendors", h.AdminOrganizationsPage)
-	r.Get("/admin/suppliers", h.AdminOrganizationsPage)
-	r.Get("/admin/orders", h.AdminOrdersPage)
-	r.Get("/admin/products", h.AdminProductsPage)
-	r.Get("/admin/offers", h.AdminOffersPage)
-	r.Get("/admin/jobs", h.AdminJobsPage)
-	r.Get("/admin/policies", h.AdminPoliciesPage)
-	r.Get("/admin/finder", h.AdminFinderPage)
-	r.Get("/admin/services", h.AdminServicesPage)
-	r.Get("/admin/plans", h.AdminPlansPage)
-	r.Get("/admin/cities", h.AdminCitiesPage)
-	r.Get("/admin/institutional", h.AdminInstitutionalPage)
-	r.Post("/admin/institutional", h.AdminInstitutionalNewSubmit)
-	r.Post("/admin/institutional/new", h.AdminInstitutionalNewSubmit)
-	r.Post("/admin/institutional/{id}", h.AdminInstitutionalEditSubmit)
-	r.Post("/admin/institutional/{id}/edit", h.AdminInstitutionalEditSubmit)
-	r.Post("/admin/institutional/{id}/delete", h.AdminInstitutionalDeleteSubmit)
-	r.Post("/admin/institutional/{id}/status", h.AdminInstitutionalStatusSubmit)
 
-	// Developers Section (SQL Console, AI Gateway, Error Diagnostics, Audit)
-	r.Get("/admin/developers", h.AdminDevelopersPage)
-	r.Post("/admin/developers/sql", h.AdminSQLExecuteSubmit)
-	r.Post("/admin/developers/ai", h.AdminDeveloperAISettingsSubmit)
-	r.Post("/admin/developers/ai/fetch-models", h.AdminAIFetchModelsAPI)
-	r.Post("/admin/developers/errors/{id}/status", h.AdminErrorLogStatusSubmit)
-
-	r.Post("/admin/settings", h.AdminSettingsSubmit)
-	r.Post("/admin/settings/site", h.AdminSiteSettingsSubmit)
-	r.Post("/admin/settings/branding", h.AdminBrandingSubmit)
-	r.Post("/admin/settings/ai", h.AdminAISettingsSubmit)
-	r.Post("/admin/settings/gateway", h.AdminGatewaySettingsSubmit)
-	r.Post("/admin/settings/policy", h.AdminPolicyEditSubmit)
-	r.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
-	r.Post("/admin/settings/payment-methods", h.AdminPlatformPaymentMethodSubmit)
-	r.Post("/admin/settings/payment-methods/toggle", h.AdminPlatformPaymentMethodToggleSubmit)
-	r.Post("/admin/settings/payment-methods/{id}/delete", h.AdminPlatformPaymentMethodDeleteSubmit)
-	r.Post("/admin/content", h.AdminContentSubmit)
-	r.Post("/admin/translations", h.AdminTranslationsSubmit)
-	r.Post("/admin/organizations/{id}/approve", h.AdminOrgApproveSubmit)
-	r.Post("/admin/organizations/{id}/reject", h.AdminOrgRejectSubmit)
-	r.Post("/admin/organizations/{id}/suspend", h.AdminOrgSuspendSubmit)
-	r.Post("/admin/products/{id}/status", h.AdminProductStatusSubmit)
-	r.Post("/admin/products/{id}/edit", h.AdminProductEditSubmit)
-	r.Post("/admin/products/{id}/delete", h.AdminProductDeleteSubmit)
-	r.Post("/admin/offers/{id}/status", h.AdminOfferStatusSubmit)
-	r.Post("/admin/cities/new", h.AdminCityCreateSubmit)
-	r.Post("/admin/cities/{id}/toggle", h.AdminCityToggleSubmit)
-
-	r.Post("/admin/finder/question", h.AdminFinderQuestionSubmit)
-	r.Post("/admin/finder/result", h.AdminFinderResultSubmit)
-	r.Post("/admin/finder/option", h.AdminFinderOptionSubmit)
-	r.Post("/admin/services", h.AdminServiceSubmit)
-	r.Post("/admin/plans", h.AdminPlanSubmit)
-	r.Post("/admin/users/{id}/suspend", h.AdminUserSuspendSubmit)
-	r.Post("/admin/users/{id}/reactivate", h.AdminUserReactivateSubmit)
-	r.Post("/admin/users/{id}/reset-mfa", h.AdminUserResetMFASubmit)
-	r.Post("/admin/users/deletion/{id}/approve", h.AdminUserDeletionApproveSubmit)
-	r.Post("/admin/users/deletion/{id}/reject", h.AdminUserDeletionRejectSubmit)
-	r.Post("/admin/approvals/{id}/approve", h.AdminApproveOrgSubmit)
-	r.Post("/admin/approvals/{id}/reject", h.AdminRejectOrgSubmit)
-	r.Post("/admin/approvals/{id}/review", h.AdminOrgReviewSubmit)
-	r.Post("/admin/products/new", h.AdminProductCreateSubmit)
-	r.Get("/admin/products/sample.csv", h.AdminProductsSampleCSV)
-	r.Get("/admin/products/sample.xlsx", h.AdminProductsSampleXLSX)
-	r.Post("/admin/products/import", h.AdminProductsImportSubmit)
-	r.Post("/admin/policies", h.AdminPolicyCreateSubmit)
-	r.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
+	// Modular Area Routes with granular permission gates
+	h.registerAdminCatalogRoutes(r)
+	h.registerAdminOrgRoutes(r)
+	h.registerAdminIdentityRoutes(r)
+	h.registerAdminCommerceRoutes(r)
+	h.registerAdminPlatformRoutes(r)
 }
 
 // RegisterSharedRoutes mounts the account surface that both customers and
@@ -399,9 +434,18 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	// Wallet, invoices, messages, requests
 	r.Get("/wallet", h.WalletPage)
 	r.Get("/invoices", h.InvoicesPage)
+	r.Get("/invoices/{id}/pdf", h.InvoicePDFDownload)
+	r.Get("/orders/{id}/pdf", h.OrderPDFDownload)
 	r.Get("/messages", h.MessagesPage)
 	r.Get("/messages/{id}", h.MessagesConversationPage)
 	r.Get("/requests", h.RequestsPage)
+	r.Get("/report-issue", h.CustomerReportIssuePage)
+	r.Post("/report-issue", h.CustomerReportIssueSubmit)
+
+	r.Get("/settings/security/2fa", h.Security2FAEnrollmentPage)
+	r.Post("/settings/security/2fa/enable", h.Security2FAEnableSubmit)
+	r.Post("/settings/security/2fa/disable", h.Security2FADisableSubmit)
+	r.Post("/settings/security/2fa/recovery", h.Security2FARecoverySubmit)
 
 	r.Post("/wallet/deposit", h.WalletDepositSubmit)
 	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)

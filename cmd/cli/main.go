@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
+	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
@@ -34,6 +35,7 @@ Usage:
   cli seed              Seed default platform reference data
   cli seed-users        Create development sign-in accounts (non-prod only)
   cli reset-db          Wipe all rows and reset DB to clean zero state (admin only)
+  cli reindex           Rebuild catalog.product_index read model from master tables
   cli health            Verify database and cache connectivity
 `
 
@@ -125,6 +127,15 @@ func run() error {
 		fmt.Print(resetDBHelp())
 		return nil
 
+	case "reindex":
+		catRepo := catalogPostgres.NewRepository(db)
+		count, err := catRepo.RebuildProductIndex(ctx)
+		if err != nil {
+			return fmt.Errorf("reindex failed: %w", err)
+		}
+		log.Info("product index rebuilt successfully", "indexed_count", count)
+		fmt.Printf("product_index rebuilt successfully: %d items indexed\n", count)
+		return nil
 
 	case "health":
 		if err := db.Health(ctx); err != nil {

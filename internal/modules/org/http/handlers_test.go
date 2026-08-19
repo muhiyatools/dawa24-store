@@ -132,6 +132,18 @@ func (r stubRepo) CreateRole(ctx context.Context, role *org.Role) error {
 	r.fail("CreateRole")
 	return nil
 }
+func (r stubRepo) GetRoleByID(ctx context.Context, id int64) (*org.Role, error) {
+	r.fail("GetRoleByID")
+	return nil, nil
+}
+func (r stubRepo) UpdateRole(ctx context.Context, role *org.Role) error {
+	r.fail("UpdateRole")
+	return nil
+}
+func (r stubRepo) DeleteRole(ctx context.Context, id int64) error {
+	r.fail("DeleteRole")
+	return nil
+}
 func (r stubRepo) ListRolesByOrg(ctx context.Context, orgID int64) ([]*org.Role, error) {
 	r.fail("ListRolesByOrg")
 	return nil, nil
@@ -204,6 +216,30 @@ func (r stubRepo) GetBranchInstitutionalWorks(ctx context.Context, branchID int6
 	r.fail("GetBranchInstitutionalWorks")
 	return nil, nil
 }
+func (r stubRepo) AssignEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
+	r.fail("AssignEmployeeInstitutionalWork")
+	return nil
+}
+func (r stubRepo) RemoveEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
+	r.fail("RemoveEmployeeInstitutionalWork")
+	return nil
+}
+func (r stubRepo) ListEmployeeInstitutionalWorks(ctx context.Context, userID int64) ([]*org.EmployeeInstitutionalWork, error) {
+	r.fail("ListEmployeeInstitutionalWorks")
+	return nil, nil
+}
+func (r stubRepo) ListOrgEmployeeInstitutionalWorks(ctx context.Context, orgID int64) ([]*org.EmployeeInstitutionalWork, error) {
+	r.fail("ListOrgEmployeeInstitutionalWorks")
+	return nil, nil
+}
+func (r stubRepo) GetUserInstitutionalWorkIDs(ctx context.Context, userID int64) ([]int64, error) {
+	r.fail("GetUserInstitutionalWorkIDs")
+	return nil, nil
+}
+func (r stubRepo) GetConnectedInstitutionalWorkIDs(ctx context.Context, fromWorkIDs []int64) ([]int64, error) {
+	r.fail("GetConnectedInstitutionalWorkIDs")
+	return nil, nil
+}
 
 type happyRepo struct{}
 
@@ -242,6 +278,24 @@ func (happyRepo) AssignBranchInstitutionalWorks(ctx context.Context, branchID in
 	return nil
 }
 func (happyRepo) GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
+	return nil, nil
+}
+func (happyRepo) AssignEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
+	return nil
+}
+func (happyRepo) RemoveEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
+	return nil
+}
+func (happyRepo) ListEmployeeInstitutionalWorks(ctx context.Context, userID int64) ([]*org.EmployeeInstitutionalWork, error) {
+	return nil, nil
+}
+func (happyRepo) ListOrgEmployeeInstitutionalWorks(ctx context.Context, orgID int64) ([]*org.EmployeeInstitutionalWork, error) {
+	return nil, nil
+}
+func (happyRepo) GetUserInstitutionalWorkIDs(ctx context.Context, userID int64) ([]int64, error) {
+	return nil, nil
+}
+func (happyRepo) GetConnectedInstitutionalWorkIDs(ctx context.Context, fromWorkIDs []int64) ([]int64, error) {
 	return nil, nil
 }
 
@@ -326,6 +380,15 @@ func (happyRepo) ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*org.Pol
 
 func (happyRepo) CreateRole(ctx context.Context, role *org.Role) error {
 	role.ID = 1
+	return nil
+}
+func (happyRepo) GetRoleByID(ctx context.Context, id int64) (*org.Role, error) {
+	return &org.Role{ID: id, Key: "custom_role", Permissions: []string{"org.organization.view"}}, nil
+}
+func (happyRepo) UpdateRole(ctx context.Context, role *org.Role) error {
+	return nil
+}
+func (happyRepo) DeleteRole(ctx context.Context, id int64) error {
 	return nil
 }
 func (happyRepo) ListRolesByOrg(ctx context.Context, orgID int64) ([]*org.Role, error) {

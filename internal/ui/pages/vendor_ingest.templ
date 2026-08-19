@@ -2,13 +2,15 @@ package pages
 
 import (
 	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
-	@layouts.VendorShell("استيراد وتصدير كتالوج الأدوية والأرصدة", "ingest", lang, dir) {
+// VendorIngestPage renders the server-driven vendor catalog ingestion wizard (Plan V5 Phase 4 §4.2).
+templ VendorIngestPage(sessions []*ingest.ImportSession, currentSession *ingest.ImportSession, rows []*ingest.ImportRow, lang, dir string) {
+	@layouts.VendorShell("استيراد وتحديث كتالوج الأدوية والأرصدة", "ingest", lang, dir) {
 		<div style="max-width:1160px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:2rem;">
 			
 			<!-- Header & Actions Bar -->
@@ -23,183 +25,142 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 						</h1>
 					</div>
 					<p style="color:var(--text-secondary); font-size:0.925rem; margin:0;">
-						معالج الاستيراد الذكي الفعلي لمطابقة آلاف الأصناف بالباركود وتحديث الأسعار والأرصدة دفعة واحدة
+						معالج الاستيراد الذكي لمطابقة آلاف الأصناف بالباركود وتحديث الأسعار والأرصدة بالـ Chunk بدون استهلاك ذاكرة.
 					</p>
 				</div>
 
 				<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-					<a href="/vendor/ingest/sample.xlsx" class="btn btn-secondary" style="font-weight:700; font-size:0.875rem;">
-						@components.IconFolder("icon-xs")
-						<span>تحميل نموذج Excel (.xlsx)</span>
-					</a>
-
-					<a href="/vendor/ingest/sample.csv" class="btn btn-secondary" style="font-weight:700; font-size:0.875rem;">
-						@components.IconFile("icon-xs")
-						<span>تحميل نموذج CSV (.csv)</span>
-					</a>
-
-					<a href="/vendor/ingest/export" class="btn btn-secondary" style="font-weight:700; font-size:0.875rem; color:var(--accent);">
-						@components.IconDownload("icon-xs")
-						<span>تصدير الأرصدة الحالية (CSV)</span>
+					<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:700; font-size:0.875rem;">
+						@components.IconPlus("icon-xs")
+						<span>استيراد ملف جديد</span>
 					</a>
 				</div>
 			</div>
 
-			<!-- 3-Step Ingestion Wizard Container -->
-			<div class="card" style="margin-bottom:0; padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);" x-data="ingestWizard()">
-				
-				<!-- Wizard Stepper Indicators -->
+			<!-- Stepper Indicator -->
+			<div class="card" style="margin-bottom:0; padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
 				<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:2.5rem; border-bottom:1px solid var(--border); padding-bottom:1.5rem;">
-					<div :style="step === 1 ? 'border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;' : 'opacity:0.6; padding-inline-start:0.75rem;'">
+					<div style={ templ.KV("border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;", currentSession == nil), templ.KV("opacity:0.6; padding-inline-start:0.75rem;", currentSession != nil) }>
 						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 1</div>
 						<div style="font-weight:700; font-size:1rem; color:var(--text);">اختيار ورفع ملف الأرصدة</div>
 					</div>
 
-					<div :style="step === 2 ? 'border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;' : 'opacity:0.6; padding-inline-start:0.75rem;'">
+					<div style={ templ.KV("border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;", currentSession != nil && currentSession.Status == ingest.StatusPending), templ.KV("opacity:0.6; padding-inline-start:0.75rem;", currentSession == nil || currentSession.Status != ingest.StatusPending) }>
 						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 2</div>
-						<div style="font-weight:700; font-size:1rem; color:var(--text);">المطابقة الذكية ونسبة الدقة</div>
+						<div style="font-weight:700; font-size:1rem; color:var(--text);">مطابقة الأعمدة والبيانات</div>
 					</div>
 
-					<div :style="step === 3 ? 'border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;' : 'opacity:0.6; padding-inline-start:0.75rem;'">
+					<div style={ templ.KV("border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;", currentSession != nil && currentSession.Status == ingest.StatusCompleted), templ.KV("opacity:0.6; padding-inline-start:0.75rem;", currentSession == nil || currentSession.Status != ingest.StatusCompleted) }>
 						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 3</div>
 						<div style="font-weight:700; font-size:1rem; color:var(--text);">تأكيد وتفعيل الأسعار للمتجر</div>
 					</div>
 				</div>
 
-				<!-- Step 1: Upload Dropzone -->
-				<div x-show="step === 1">
-					<div
-						style="border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3.5rem 2rem; text-align:center; background:var(--surface-sunken); cursor:pointer; transition:all 0.15s ease;"
-						@click="$refs.fileInput.click()"
-					>
-						<input
-							type="file"
-							x-ref="fileInput"
-							accept=".csv,.xlsx,.xls"
-							style="display:none;"
-							@change="handleFileSelect($event)"
-						/>
-						<div style="width:54px; height:54px; border-radius:var(--radius-xl); background:var(--surface-raised); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; box-shadow:var(--shadow-sm); border:1px solid var(--border);">
-							@components.IconUpload("icon-lg")
-						</div>
-						<div style="font-weight:800; color:var(--text); font-size:1.2rem;" x-text="fileName ? fileName : 'انقر لاختيار ملف Excel أو CSV أو اسحبه هنا'"></div>
-						<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.4rem;" x-text="fileSize ? fileSize : 'الصيغ المدعومة: .xlsx, .csv (الحد الأقصى للملف 50 ميجابايت / حتى 50,000 صنف)'"></div>
+				<!-- Step 1: Upload Dropzone (when no active session) -->
+				if currentSession == nil {
+					<div>
+						<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data">
+							<div style="border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3.5rem 2rem; text-align:center; background:var(--surface-sunken); margin-bottom:1.5rem;">
+								@components.IconUpload("icon-lg")
+								<h3 style="font-weight:800; color:var(--text); font-size:1.2rem; margin:1rem 0 0.5rem 0;">اختر ملف Excel أو CSV أو اسحبه هنا</h3>
+								<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;">الصيغ المدعومة: .xlsx, .xls, .csv (حتى 50,000 صنف معالجة متدفقة بدون استهلاك ذاكرة).</p>
+								<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-control" style="max-width:380px; margin:0 auto;" />
+							</div>
+
+							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+								<div style="font-size:0.85rem; color:var(--text-secondary);">
+									الأعمدة المقترحة: <strong>اسم الصنف (Name)</strong>، <strong>الباركود (Barcode)</strong>، <strong>السعر (Price)</strong>، <strong>الرصيد (Quantity)</strong>.
+								</div>
+								<button type="submit" class="btn btn-primary" style="padding:0.75rem 2.25rem; font-weight:800;">
+									<span>رفع الملف وبدء الاستيراد التدريجي</span>
+									@components.IconArrowLeft("icon-xs")
+								</button>
+							</div>
+						</form>
 					</div>
+				}
 
-					<div x-show="uploading" style="display:none; margin-top:1.5rem;">
-						<div style="display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.4rem; font-weight:700; color:var(--text);">
-							<span x-text="uploadStatus"></span>
-							<span class="tabular-nums" x-text="uploadProgress + '%'"></span>
-						</div>
-						<div style="width:100%; height:8px; background:var(--surface-sunken); border-radius:4px; overflow:hidden; border:1px solid var(--border);">
-							<div :style="'width: ' + uploadProgress + '%; height:100%; background:var(--accent); transition: width 0.2s;'"></div>
-						</div>
-					</div>
-
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-top:2rem; flex-wrap:wrap; gap:1rem;">
-						<div style="font-size:0.85rem; color:var(--text-secondary);">
-							الأعمدة الإلزامية في الملف: <strong>الباركود (Barcode)</strong>، <strong>اسم الصنف (Name)</strong>، <strong>سعر التوريد (Price)</strong>، <strong>الرصيد (Quantity)</strong>.
-						</div>
-
-						<button
-							type="button"
-							class="btn btn-primary"
-							:disabled="!selectedFile || uploading"
-							@click="startProcessing()"
-							style="padding:0.75rem 2.25rem; font-weight:800;"
-						>
-							<span>معالجة ومطابقة الأصناف</span>
-							@components.IconArrowLeft("icon-xs")
-						</button>
-					</div>
-
-					<div x-show="errorMessage" style="display:none; background:var(--danger-bg); border:1px solid var(--danger-border); color:var(--danger); padding:0.75rem 1rem; border-radius:var(--radius-lg); margin-top:1.25rem; font-weight:600;" x-text="errorMessage"></div>
-				</div>
-
-				<!-- Step 2: Matching Review & Accuracy Table -->
-				<div x-show="step === 2" style="display:none;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-						<div>
-							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
-								نتائج المطابقة الذكية للكتالوج
-							</h3>
-							<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">
-								تم فحص وتفعيل الأصناف ومطابقتها بالباركود والاسم العلمي مع كتالوج الأدوية الموحد
+				<!-- Step 2: Mapping / Review (when session is pending/processing) -->
+				if currentSession != nil && currentSession.Status != ingest.StatusCompleted {
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+							<div>
+								<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0;">
+									جلسة استيراد #{ fmt.Sprintf("%d", currentSession.ID) } — مراجعة وتأكيد الأصناف
+								</h3>
+								<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">
+									تمت قراءة البيانات بنجاح وتجهيز { fmt.Sprintf("%d", len(rows)) } صنف للمطابقة.
+								</p>
+							</div>
+							<div style="display:flex; gap:0.5rem;">
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/cancel", currentSession.ID)) }>
+									<button type="submit" class="btn btn-secondary btn-sm">إلغاء الجلسة</button>
+								</form>
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/commit", currentSession.ID)) }>
+									<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+										@components.IconCheck("icon-xs")
+										<span>تأكيد وتفعيل الأصناف في المتجر</span>
+									</button>
+								</form>
 							</div>
 						</div>
 
-						<div style="display:flex; gap:0.75rem;">
-							<span class="badge badge-emerald" style="font-size:0.825rem; padding:0.35rem 0.75rem;" x-text="accuracy + ' نسبة دقة المطابقة'"></span>
-							<span class="badge badge-sky" style="font-size:0.825rem; padding:0.35rem 0.75rem;" x-text="matchedCount + ' صنف مطابق وجاهز'"></span>
+						<!-- Staged Rows Table -->
+						<div class="table-container" style="margin-bottom:1.75rem;">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>اسم الصنف في الملف</th>
+										<th>الاسم المعياري المقترح</th>
+										<th>الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									if len(rows) > 0 {
+										for _, r := range rows {
+											<tr>
+												<td>{ fmt.Sprintf("%d", r.RowNumber) }</td>
+												<td><strong>{ fmt.Sprintf("%v", r.RawData["product_name"]) }</strong></td>
+												<td style="color:var(--accent); font-weight:600;">{ r.NormalizedName }</td>
+												<td><span class="badge badge-success">{ r.Status }</span></td>
+											</tr>
+										}
+									} else {
+										<tr>
+											<td colspan="4" style="text-align:center; padding:1.5rem; color:var(--text-secondary);">جاري تجهيز وبث السجلات...</td>
+										</tr>
+									}
+								</tbody>
+							</table>
 						</div>
 					</div>
+				}
 
-					<!-- Real Matching Preview Table -->
-					<div class="table-container" style="margin-bottom:1.75rem;">
-						<table class="data-table">
-							<thead>
-								<tr>
-									<th>الصنف في ملفك</th>
-									<th>الباركود / SKU</th>
-									<th>الصنف المعتمد في المنصة</th>
-									<th>نسبة التطابق</th>
-									<th>سعر التوريد</th>
-									<th>الرصيد المستورد</th>
-									<th>التشغيلة والصلاحية</th>
-								</tr>
-							</thead>
-							<tbody>
-								<template x-for="item in matchedItems" :key="item.barcode + item.raw_name">
-									<tr>
-										<td style="font-weight:700;" x-text="item.raw_name"></td>
-										<td class="tabular-nums" x-text="item.barcode || '-'"></td>
-										<td style="color:var(--accent); font-weight:700;" x-text="item.matched_name"></td>
-										<td><span class="badge badge-emerald" x-text="item.match_percent + '% تطابق معتمد'"></span></td>
-										<td class="tabular-nums" style="font-weight:800; color:var(--accent);" x-text="item.price + ' ج.م'"></td>
-										<td class="tabular-nums" style="font-weight:800;" x-text="item.quantity + ' عبوة'"></td>
-										<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-secondary);" x-text="(item.batch || '-') + ' / ' + (item.expiry || '-')"></td>
-									</tr>
-								</template>
-							</tbody>
-						</table>
+				<!-- Step 3: Success Confirmation (when session is completed) -->
+				if currentSession != nil && currentSession.Status == ingest.StatusCompleted {
+					<div style="text-align:center; padding:2rem 1rem;">
+						<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto; border:1px solid var(--border);">
+							@components.IconCheckCircle("icon-lg")
+						</div>
+						<h3 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
+							تم استيراد وتفعيل الأرصدة بنجاح!
+						</h3>
+						<p style="font-size:0.95rem; color:var(--text-secondary); max-width:560px; margin:0 auto 2rem auto; line-height:1.6;">
+							تمت مطابقة وحفظ كافة الأصناف وعروض الأسعار والكميات في متجر شركتك، وأصبحت متاحة للطلب الفوري.
+						</p>
+
+						<div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+							<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:700;">
+								استيراد ملف جديد
+							</a>
+							<a href="/vendor/products" class="btn btn-primary" style="font-weight:800;">
+								<span>الانتقال لكتالوج منتجات المورد</span>
+								@components.IconArrowLeft("icon-xs")
+							</a>
+						</div>
 					</div>
-
-					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<button type="button" class="btn btn-secondary" @click="step = 1">
-							رجوع لاختيار ملف آخر
-						</button>
-
-						<button type="button" class="btn btn-primary" :disabled="committing" @click="commitImport()" style="padding:0.75rem 2.25rem; font-weight:800;">
-							<span x-text="committing ? 'جاري تفعيل الأرصدة...' : 'الموافقة وتفعيل الأرصدة في المتجر'"></span>
-							@components.IconCheck("icon-xs")
-						</button>
-					</div>
-
-					<div x-show="errorMessage" style="display:none; background:var(--danger-bg); border:1px solid var(--danger-border); color:var(--danger); padding:0.75rem 1rem; border-radius:var(--radius-lg); margin-top:1.25rem; font-weight:600;" x-text="errorMessage"></div>
-				</div>
-
-				<!-- Step 3: Success Confirmation -->
-				<div x-show="step === 3" style="display:none; text-align:center; padding:2rem 1rem;">
-					<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto; border:1px solid var(--border);">
-						@components.IconCheckCircle("icon-lg")
-					</div>
-					<h3 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
-						تم استيراد وتفعيل الأرصدة بنجاح!
-					</h3>
-					<p style="font-size:0.95rem; color:var(--text-secondary); max-width:560px; margin:0 auto 2rem auto; line-height:1.6;">
-						تمت مطابقة وحفظ كافة الأصناف وعروض الأسعار والكميات في متجر شركتك، وأصبحت متاحة للطلب الفوري من قِبل الصيدليات المعتمدة.
-					</p>
-
-					<div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
-						<button type="button" class="btn btn-secondary" @click="resetWizard()" style="font-weight:700;">
-							استيراد ملف جديد
-						</button>
-						<a href="/vendor/products" class="btn btn-primary" style="font-weight:800;">
-							<span>الانتقال لكتالوج منتجات المورد</span>
-							@components.IconArrowLeft("icon-xs")
-						</a>
-					</div>
-				</div>
+				}
 			</div>
 
 			<!-- Previous Import Sessions Log -->
@@ -223,29 +184,31 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 						<table class="data-table">
 							<thead>
 								<tr>
-									<th>معرف العملية</th>
+									<th>رقم الجلسة</th>
 									<th>الحالة</th>
-									<th>إجمالي الأصناف</th>
-									<th>تمت المعالجة</th>
-									<th>المطابقة الناجحة</th>
-									<th>التاريخ والوقت</th>
+									<th>تاريخ البدء</th>
+									<th>الإجراء</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, s := range sessions {
 									<tr>
-										<td style="font-weight:800; color:var(--accent);" class="tabular-nums">
-											{ s.PublicID }
-										</td>
+										<td><strong>#{ fmt.Sprintf("%d", s.ID) }</strong></td>
 										<td>
-											<span class="badge badge-emerald">
-												{ string(s.Status) }
-											</span>
+											if s.Status == ingest.StatusCompleted {
+												<span class="badge badge-success">مكتمل ومفعل</span>
+											} else if s.Status == ingest.StatusProcessing {
+												<span class="badge badge-primary">قيد المعالجة</span>
+											} else {
+												<span class="badge badge-secondary">{ string(s.Status) }</span>
+											}
 										</td>
-										<td class="tabular-nums" style="font-weight:700;">{ fmt.Sprintf("%d", s.TotalRows) }</td>
-										<td class="tabular-nums">{ fmt.Sprintf("%d", s.ProcessedRows) }</td>
-										<td style="font-weight:800; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", s.MatchedRows) }</td>
-										<td style="color:var(--text-muted);" class="tabular-nums">{ s.CreatedAt.Format("2006-01-02 15:04") }</td>
+										<td>{ s.CreatedAt.Format("2006-01-02 15:04") }</td>
+										<td>
+											<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", s.ID)) } class="btn btn-secondary btn-sm">
+												<span>فتح الجلسة</span>
+											</a>
+										</td>
 									</tr>
 								}
 							</tbody>
@@ -254,107 +217,5 @@ templ VendorIngest(sessions []*ingest.ImportSession, lang, dir string) {
 				}
 			</div>
 		</div>
-
-		<script>
-			function ingestWizard() {
-				return {
-					step: 1,
-					selectedFile: null,
-					fileName: '',
-					fileSize: '',
-					uploading: false,
-					committing: false,
-					uploadProgress: 0,
-					uploadStatus: '',
-					sessionId: null,
-					matchedCount: 0,
-					accuracy: '99.4%',
-					matchedItems: [],
-					errorMessage: '',
-
-					handleFileSelect(event) {
-						const file = event.target.files[0];
-						if (!file) return;
-						this.selectedFile = file;
-						this.fileName = file.name;
-						this.fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت';
-						this.errorMessage = '';
-					},
-
-					async startProcessing() {
-						if (!this.selectedFile) return;
-						this.uploading = true;
-						this.errorMessage = '';
-						this.uploadProgress = 20;
-						this.uploadStatus = 'جاري رفع الملف وقراءة الجداول...';
-
-						const formData = new FormData();
-						formData.append('file', this.selectedFile);
-
-						try {
-							this.uploadProgress = 50;
-							this.uploadStatus = 'مطابقة الأصناف مع الكتالوج الوطني وحفظ عروض الأسعار...';
-
-							const res = await fetch('/vendor/ingest/upload', {
-								method: 'POST',
-								body: formData
-							});
-							this.uploadProgress = 85;
-
-							if (!res.ok) {
-								const data = await res.json().catch(() => ({}));
-								throw new Error(data.error || 'فشل رفع ومعالجة الملف');
-							}
-							const data = await res.json();
-							this.sessionId = data.session_id;
-							this.matchedCount = data.matched_count || (data.items ? data.items.length : 0);
-							this.accuracy = data.accuracy || '99.4%';
-							this.matchedItems = data.items || [];
-							this.uploadProgress = 100;
-							this.uploading = false;
-							this.step = 2;
-						} catch (err) {
-							this.uploading = false;
-							this.errorMessage = err.message || 'حدث خطأ أثناء معالجة الملف';
-						}
-					},
-
-					async commitImport() {
-						if (!this.sessionId) {
-							this.step = 3;
-							return;
-						}
-						this.committing = true;
-						this.errorMessage = '';
-						try {
-							const res = await fetch('/vendor/ingest/' + this.sessionId + '/commit', {
-								method: 'POST'
-							});
-							if (!res.ok) {
-								const data = await res.json().catch(() => ({}));
-								throw new Error(data.error || 'فشل تأكيد وتفعيل الأرصدة');
-							}
-							this.committing = false;
-							this.step = 3;
-						} catch (err) {
-							this.committing = false;
-							this.errorMessage = err.message || 'حدث خطأ أثناء تأكيد الاستيراد';
-						}
-					},
-
-					resetWizard() {
-						this.step = 1;
-						this.selectedFile = null;
-						this.fileName = '';
-						this.fileSize = '';
-						this.uploading = false;
-						this.committing = false;
-						this.uploadProgress = 0;
-						this.matchedItems = [];
-						this.errorMessage = '';
-					}
-				};
-			}
-		</script>
 	}
 }

@@ -1,0 +1,57 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// VendorSavingProductsPage renders the list of saving products.
+templ VendorSavingProductsPage(lang, dir string) {
+	@layouts.VendorShell("منتجات التوفير والخصومات الخاصة", "saving_products", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">منتجات التوفير (Saving Products)</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تسجيل العروض والخصومات الخاصة على الأدوية بطيئة الحركة أو قريبة انتهاء الصلاحية.</p>
+				</div>
+				<div style="display:flex; gap:0.5rem;">
+					<a href="/vendor/saving-products/import" class="btn btn-secondary btn-sm">استيراد جماعي</a>
+				</div>
+			</div>
+
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد منتجات توفير مسجلة", Message: "يمكنك إضافة عروض توفير لجذب طلبيات إضافية من الصيدليات."})
+		</div>
+	}
+}
+
+// VendorSavingProductDetailPage renders single saving product detail.
+templ VendorSavingProductDetailPage(id int64, lang, dir string) {
+	@layouts.VendorShell(fmt.Sprintf("منتج توفير #%d", id), "saving_products", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">منتج توفير #{ fmt.Sprintf("%d", id) }</h2>
+				</div>
+				<a href="/vendor/saving-products" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+		</div>
+	}
+}
+
+// VendorSavingProductsImportPage renders import uploader.
+templ VendorSavingProductsImportPage(lang, dir string) {
+	@layouts.VendorShell("استيراد منتجات التوفير", "saving_products", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">استيراد ملف منتجات التوفير</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">رفع شيت Excel / CSV يحتوي على الأصناف، الخصومات، والكميات المتاحة.</p>
+				</div>
+				<a href="/vendor/saving-products" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "معالج الاستيراد الذكي", Message: "قم برفع ملف المنتجات لمعالجته تلقائياً عبر الأنابيب المجمعة."})
+		</div>
+	}
+}

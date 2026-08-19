@@ -49,9 +49,9 @@ func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) erro
 				organization_id, category_id, brand_id, branch_id, name, description,
 				sku, barcode, price, discount, old_price, image, image_link, status,
 				is_featured, dosage_form, scientific_name, pharmacology, active,
-				concentration, unit, manufacturing_companies
+				concentration, unit, manufacturing_companies, institutional_work_ids
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
 			) RETURNING id, public_id, created_at, updated_at;
 		`
 		err := tx.QueryRow(txCtx, query,
@@ -59,6 +59,7 @@ func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) erro
 			p.SKU, p.Barcode, p.Price, p.Discount, p.OldPrice, p.Image, p.ImageLink,
 			string(p.Status), p.IsFeatured, p.DosageForm, p.ScientificName,
 			p.Pharmacology, p.Active, p.Concentration, p.Unit, p.ManufacturingCompanies,
+			p.InstitutionalWorkIDs,
 		).Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
 
 		if err != nil {
@@ -77,7 +78,8 @@ func (r *Repository) GetProductByID(ctx context.Context, id int64) (*catalog.Pro
 			       name, description, sku, barcode, price, discount, old_price, image,
 			       image_link, status, sold_times, is_featured, dosage_form,
 			       scientific_name, pharmacology, active, concentration, unit,
-			       manufacturing_companies, created_at, updated_at, deleted_at
+			       manufacturing_companies, COALESCE(institutional_work_ids, '{}'::bigint[]),
+			       created_at, updated_at, deleted_at
 			FROM catalog.products
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
@@ -87,7 +89,7 @@ func (r *Repository) GetProductByID(ctx context.Context, id int64) (*catalog.Pro
 			&p.Name, &p.Description, &p.SKU, &p.Barcode, &p.Price, &p.Discount,
 			&p.OldPrice, &p.Image, &p.ImageLink, &statusStr, &p.SoldTimes, &p.IsFeatured,
 			&p.DosageForm, &p.ScientificName, &p.Pharmacology, &p.Active,
-			&p.Concentration, &p.Unit, &p.ManufacturingCompanies,
+			&p.Concentration, &p.Unit, &p.ManufacturingCompanies, &p.InstitutionalWorkIDs,
 			&p.CreatedAt, &p.UpdatedAt, &p.DeletedAt,
 		)
 		if err != nil {
@@ -115,7 +117,7 @@ func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) erro
 			    old_price = $11, image = $12, image_link = $13, status = $14,
 			    is_featured = $15, dosage_form = $16, scientific_name = $17,
 			    pharmacology = $18, active = $19, concentration = $20, unit = $21,
-			    manufacturing_companies = $22, updated_at = now()
+			    manufacturing_companies = $22, institutional_work_ids = $23, updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		res, err := tx.Exec(txCtx, query,
@@ -123,6 +125,7 @@ func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) erro
 			p.SKU, p.Barcode, p.Price, p.Discount, p.OldPrice, p.Image, p.ImageLink,
 			string(p.Status), p.IsFeatured, p.DosageForm, p.ScientificName,
 			p.Pharmacology, p.Active, p.Concentration, p.Unit, p.ManufacturingCompanies,
+			p.InstitutionalWorkIDs,
 		)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: update product: %w", err)
@@ -149,7 +152,7 @@ func (r *Repository) DeleteProduct(ctx context.Context, id int64) error {
 	})
 }
 
-// SearchProducts performs fuzzy Arabic search and filters.
+// SearchProducts performs fuzzy Arabic search and filters including institutional works.
 func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchParams) ([]*catalog.Product, error) {
 	var products []*catalog.Product
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -158,7 +161,8 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			       name, description, sku, barcode, price, discount, old_price, image,
 			       image_link, status, sold_times, is_featured, dosage_form,
 			       scientific_name, pharmacology, active, concentration, unit,
-			       manufacturing_companies, created_at, updated_at, deleted_at
+			       manufacturing_companies, COALESCE(institutional_work_ids, '{}'::bigint[]),
+			       created_at, updated_at, deleted_at
 			FROM catalog.products
 			WHERE deleted_at IS NULL
 			  AND ($1 = '' OR platform.normalize_arabic(name->>'ar') % platform.normalize_arabic($1)
@@ -167,6 +171,11 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			  AND ($3::bigint IS NULL OR brand_id = $3)
 			  AND ($6::numeric IS NULL OR price >= $6)
 			  AND ($7::numeric IS NULL OR price <= $7)
+			  AND (
+			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
+			      OR
+			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
+			  )
 			ORDER BY ` + catalogOrderBy(params.Sort) + `
 			LIMIT $4 OFFSET $5;
 		`
@@ -177,7 +186,10 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			limit = 1000
 		}
 
-		rows, err := tx.Query(txCtx, query, params.Query, params.CategoryID, params.BrandID, limit, params.Offset, params.MinPrice, params.MaxPrice)
+		rows, err := tx.Query(txCtx, query,
+			params.Query, params.CategoryID, params.BrandID, limit, params.Offset,
+			params.MinPrice, params.MaxPrice, params.FilterMode, params.AllowedWorkIDs,
+		)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: search products: %w", err)
 		}
@@ -191,7 +203,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 				&p.Name, &p.Description, &p.SKU, &p.Barcode, &p.Price, &p.Discount,
 				&p.OldPrice, &p.Image, &p.ImageLink, &statusStr, &p.SoldTimes, &p.IsFeatured,
 				&p.DosageForm, &p.ScientificName, &p.Pharmacology, &p.Active,
-				&p.Concentration, &p.Unit, &p.ManufacturingCompanies,
+				&p.Concentration, &p.Unit, &p.ManufacturingCompanies, &p.InstitutionalWorkIDs,
 				&p.CreatedAt, &p.UpdatedAt, &p.DeletedAt,
 			); err != nil {
 				return err

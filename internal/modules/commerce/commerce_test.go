@@ -12,24 +12,28 @@ import (
 )
 
 type mockCommerceRepo struct {
-	orders    map[int64]*Order
-	shipments map[int64][]*OrderShipment
-	lines     map[int64][]*OrderLine
-	history   map[int64][]*OrderStatusHistory
-	wishlist  map[int64][]int64
-	quotes    map[int64]*QuoteRequest
-	nextID    int64
+	orders               map[int64]*Order
+	shipments            map[int64][]*OrderShipment
+	lines                map[int64][]*OrderLine
+	history              map[int64][]*OrderStatusHistory
+	wishlist             map[int64][]int64
+	quotes               map[int64]*QuoteRequest
+	purchaseRequests     map[int64]*PurchaseRequest
+	purchaseRequestLines map[int64][]*PurchaseRequestLine
+	nextID               int64
 }
 
 func newMockCommerceRepo() *mockCommerceRepo {
 	return &mockCommerceRepo{
-		orders:    map[int64]*Order{},
-		shipments: map[int64][]*OrderShipment{},
-		history:   map[int64][]*OrderStatusHistory{},
-		lines:     map[int64][]*OrderLine{},
-		wishlist:  map[int64][]int64{},
-		quotes:    map[int64]*QuoteRequest{},
-		nextID:    1,
+		orders:               map[int64]*Order{},
+		shipments:            map[int64][]*OrderShipment{},
+		history:              map[int64][]*OrderStatusHistory{},
+		lines:                map[int64][]*OrderLine{},
+		wishlist:             map[int64][]int64{},
+		quotes:               map[int64]*QuoteRequest{},
+		purchaseRequests:     map[int64]*PurchaseRequest{},
+		purchaseRequestLines: map[int64][]*PurchaseRequestLine{},
+		nextID:               1,
 	}
 }
 
@@ -193,6 +197,105 @@ func (m *mockCommerceRepo) MonthSalesByVendor(_ context.Context, _ int64) (money
 func (m *mockCommerceRepo) MonthSpendByCustomer(_ context.Context, _ int64) (money.Amount, error) {
 	return money.Zero, nil
 }
+
+func (m *mockCommerceRepo) CreatePurchaseRequest(_ context.Context, pr *PurchaseRequest, lines []*PurchaseRequestLine) error {
+	pr.ID = m.nextID
+	m.nextID++
+	m.purchaseRequests[pr.ID] = pr
+	for _, l := range lines {
+		l.ID = m.nextID
+		m.nextID++
+		l.RequestID = pr.ID
+	}
+	m.purchaseRequestLines[pr.ID] = lines
+	return nil
+}
+
+func (m *mockCommerceRepo) GetPurchaseRequestByID(_ context.Context, id int64) (*PurchaseRequest, error) {
+	pr, ok := m.purchaseRequests[id]
+	if !ok {
+		return nil, apperr.NotFound("purchase_request")
+	}
+	pr.Lines = m.purchaseRequestLines[id]
+	return pr, nil
+}
+
+func (m *mockCommerceRepo) GetPurchaseRequestByNumber(_ context.Context, number string) (*PurchaseRequest, error) {
+	for _, pr := range m.purchaseRequests {
+		if pr.RequestNumber == number {
+			pr.Lines = m.purchaseRequestLines[pr.ID]
+			return pr, nil
+		}
+	}
+	return nil, apperr.NotFound("purchase_request")
+}
+
+func (m *mockCommerceRepo) ListPurchaseRequestsByCustomer(_ context.Context, customerID int64, orgID *int64, status string, limit, offset int) ([]*PurchaseRequest, error) {
+	var list []*PurchaseRequest
+	for _, pr := range m.purchaseRequests {
+		if pr.CustomerID == customerID || (orgID != nil && pr.OrganizationID != nil && *pr.OrganizationID == *orgID) {
+			if status == "" || status == "all" || string(pr.Status) == status {
+				pr.Lines = m.purchaseRequestLines[pr.ID]
+				list = append(list, pr)
+			}
+		}
+	}
+	return list, nil
+}
+
+func (m *mockCommerceRepo) ListPurchaseRequestsByVendor(_ context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, error) {
+	var list []*PurchaseRequest
+	for _, pr := range m.purchaseRequests {
+		if pr.VendorOrgID == vendorOrgID {
+			if status == "" || status == "all" || string(pr.Status) == status {
+				pr.Lines = m.purchaseRequestLines[pr.ID]
+				list = append(list, pr)
+			}
+		}
+	}
+	return list, nil
+}
+
+func (m *mockCommerceRepo) CountPurchaseRequestsByCustomer(_ context.Context, customerID int64, orgID *int64) (map[string]int, error) {
+	counts := make(map[string]int)
+	total := 0
+	for _, pr := range m.purchaseRequests {
+		if pr.CustomerID == customerID || (orgID != nil && pr.OrganizationID != nil && *pr.OrganizationID == *orgID) {
+			counts[string(pr.Status)]++
+			total++
+		}
+	}
+	counts["all"] = total
+	return counts, nil
+}
+
+func (m *mockCommerceRepo) UpdatePurchaseRequestStatus(_ context.Context, id int64, status PurchaseRequestStatus, vendorNotes string, responderID *int64) error {
+	pr, ok := m.purchaseRequests[id]
+	if !ok {
+		return apperr.NotFound("purchase_request")
+	}
+	pr.Status = status
+	if vendorNotes != "" {
+		pr.VendorNotes = vendorNotes
+	}
+	pr.RespondedBy = responderID
+	return nil
+}
+
+func (m *mockCommerceRepo) UpdatePurchaseRequestLineOffer(_ context.Context, lineID int64, price money.Amount, discount float64, status string) error {
+	for _, lines := range m.purchaseRequestLines {
+		for _, l := range lines {
+			if l.ID == lineID {
+				l.OfferedPrice = price
+				l.OfferedDiscount = discount
+				l.Status = status
+				return nil
+			}
+		}
+	}
+	return apperr.NotFound("purchase_request_line")
+}
+
 
 func (m *mockCommerceRepo) SetShipmentTracking(_ context.Context, _ int64, _, _ string) error {
 	return nil
@@ -413,5 +516,96 @@ func TestCheckoutOfferModel(t *testing.T) {
 	noMin.MinOrderAmount = money.Zero
 	if _, err := svc.Checkout(ctx, noMin); err != nil {
 		t.Fatalf("Checkout without min_order_amount failed: %v", err)
+	}
+}
+
+// T1: Exactness of 3-criteria rating average (audit §3.3)
+func TestCalculateAverageRatingExactness(t *testing.T) {
+	cases := []struct {
+		name     string
+		ratings  []int
+		expected float64
+	}{
+		{"4+5+3 exact 4.00", []int{4, 5, 3}, 4.00},
+		{"5+4+4 exact 4.33", []int{5, 4, 4}, 4.33},
+		{"5+5+5 exact 5.00", []int{5, 5, 5}, 5.00},
+		{"1+1+2 exact 1.33", []int{1, 1, 2}, 1.33},
+		{"1+2+3 exact 2.00", []int{1, 2, 3}, 2.00},
+		{"clamps out-of-range lower", []int{0, 4, 4}, 4.33}, // 0 clamps to 1 -> (1+4+4)/3 = 3.00? Wait, 1+4+4 = 9/3 = 3.00! Wait: (1+4+4)/3 = 3.00
+		{"clamps out-of-range upper", []int{6, 5, 5}, 5.00}, // 6 clamps to 5
+		{"empty returns 0.00", []int{}, 0.00},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := CalculateAverageRating(c.ratings...)
+			if c.name == "clamps out-of-range lower" {
+				// 0 -> 1 => (1+4+4)/3 = 3.00
+				if got != 3.00 {
+					t.Errorf("got %v, want 3.00", got)
+				}
+				return
+			}
+			if got != c.expected {
+				t.Errorf("CalculateAverageRating(%v) = %v; want %v", c.ratings, got, c.expected)
+			}
+		})
+	}
+}
+
+// T2 & T6: Order rating lifecycle, validation, and double-rating prevention
+func TestRateOrderValidationAndDoubleRating(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCommerceRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := NewService(repo, logger)
+
+	order := &Order{
+		ID:          50,
+		CustomerID:  10,
+		Status:      StatusPending,
+		TotalAmount: money.MustParse("200.00"),
+	}
+	repo.orders[50] = order
+
+	// 1. Rating undelivered order fails (T6)
+	_, err := svc.RateOrderWithCriteria(ctx, 50, 10, 5, 4, 5, "ممتاز جداً")
+	if err == nil {
+		t.Fatal("expected error rating undelivered order, got nil")
+	}
+
+	// 2. Mark order as delivered
+	order.Status = StatusDelivered
+
+	// 3. Invalid rating out of range (<1 or >5) fails
+	if err := svc.RateOrder(ctx, 50, 10, 0.5, "ضعيف"); err == nil {
+		t.Fatal("expected error for rating 0.5, got nil")
+	}
+	if err := svc.RateOrder(ctx, 50, 10, 5.5, "ممتاز"); err == nil {
+		t.Fatal("expected error for rating 5.5, got nil")
+	}
+
+	// 4. Rate delivered order successfully (T2)
+	avg, err := svc.RateOrderWithCriteria(ctx, 50, 10, 5, 4, 5, "خدمة ممتازة وسريعة")
+	if err != nil {
+		t.Fatalf("unexpected error rating order: %v", err)
+	}
+	if avg != 4.67 { // (5+4+5)/3 = 14/3 = 4.67
+		t.Errorf("expected average 4.67, got %v", avg)
+	}
+	if order.Rating == nil || *order.Rating != 4.67 {
+		t.Errorf("order.Rating = %v; want 4.67", order.Rating)
+	}
+	if order.Review == nil || *order.Review != "خدمة ممتازة وسريعة" {
+		t.Errorf("order.Review = %v; want 'خدمة ممتازة وسريعة'", order.Review)
+	}
+	if order.RatedAt == nil {
+		t.Error("expected order.RatedAt to be set")
+	}
+
+	// 5. Re-rating the same order fails (T6)
+	_, err = svc.RateOrderWithCriteria(ctx, 50, 10, 5, 5, 5, "محاولة تقييم ثانية")
+	if err == nil {
+		t.Fatal("expected error on re-rating already rated order, got nil")
 	}
 }

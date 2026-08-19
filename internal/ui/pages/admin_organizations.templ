@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -18,7 +19,7 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 						<h2 class="card-title" style="margin:0;">
 							إدارة الموردين والشركات والصيدليات ({ fmt.Sprintf("%d", len(orgs)) })
 						</h2>
-						<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
+						<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">
 							متابعة سجلات التوريد، التراخيص الدوائية، وإدارة نشاط الحسابات المؤسسية على المنصة.
 						</p>
 					</div>
@@ -26,7 +27,7 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 			</div>
 
 			<!-- Organization Type Tabs -->
-			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; border-bottom:1px solid var(--neutral-200); padding-bottom:1rem;">
+			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 				<a href="/admin/organizations" class={ "btn btn-sm", templ.KV("btn-primary", currentType == ""), templ.KV("btn-secondary", currentType != "") }>
 					<span>كافة المنشآت ({ fmt.Sprintf("%d", len(orgs)) })</span>
 				</a>
@@ -52,7 +53,6 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 								<th>نوع المنشأة</th>
 								<th>السجل والبطاقة الضريبية</th>
 								<th>ترخيص هيئة الدواء</th>
-								<th>مستند الترخيص</th>
 								<th>الحالة</th>
 								<th style="text-align:end;">الإجراءات</th>
 							</tr>
@@ -61,8 +61,8 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 							for _, o := range orgs {
 								<tr>
 									<td>
-										<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">{ o.LegalName }</div>
-										<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;">
+										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ o.LegalName }</div>
+										<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
 											if o.TradeName["ar"] != "" {
 												{ o.TradeName["ar"] }
 											} else {
@@ -78,52 +78,313 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 										}
 									</td>
 									<td>
-										<div style="font-size:0.85rem;"><span style="color:var(--neutral-500);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
+										<div style="font-size:0.85rem;"><span style="color:var(--text-secondary);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
 										if o.TaxNumber != "" {
-											<div style="font-size:0.8rem; color:var(--neutral-600);"><span style="color:var(--neutral-500);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
+											<div style="font-size:0.8rem; color:var(--text-secondary);"><span style="color:var(--text-secondary);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
 										}
 									</td>
 									<td>
 										if o.PharmacistLicense != "" {
-											<span class="tabular-nums" style="font-weight:700; color:var(--primary-700); font-size:0.875rem;">{ o.PharmacistLicense }</span>
+											<span class="tabular-nums" style="font-weight:700; color:var(--accent); font-size:0.875rem;">{ o.PharmacistLicense }</span>
 										} else {
-											<span style="color:var(--neutral-400); font-size:0.8rem;">—</span>
+											<span style="color:var(--text-secondary); font-size:0.8rem;">—</span>
 										}
-									</td>
-									<td>
-										<a href="/admin/documents" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.3rem;">
-											@components.IconFile("icon-xs")
-											<span>مركز المستندات</span>
-										</a>
 									</td>
 									<td>
 										if string(o.Status) == "approved" {
-											<span class="badge badge-emerald">معتمد ونشط</span>
+											<span class="badge badge-success">معتمد ومفعل</span>
 										} else if string(o.Status) == "rejected" {
 											<span class="badge badge-danger">مرفوض</span>
-										} else if string(o.Status) == "suspended" {
-											<span class="badge badge-warning">معلق مؤقتاً</span>
 										} else {
-											<span class="badge badge-sky">قيد التدقيق</span>
+											<span class="badge badge-warning">قيد المراجعة</span>
 										}
 									</td>
 									<td style="text-align:end;">
-										<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
-											if o.Status == "pending" || o.Status == "rejected" {
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", o.ID)) } style="margin:0;">
-													<button type="submit" class="btn btn-primary btn-sm">اعتماد</button>
-												</form>
-											}
-											if o.Status == "approved" {
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", o.ID)) } style="margin:0;">
-													<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger-border);">إيقاف</button>
-												</form>
-											}
-											if o.Status == "suspended" {
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", o.ID)) } style="margin:0;">
-													<button type="submit" class="btn btn-primary btn-sm">إعادة تفعيل</button>
-												</form>
-											}
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+											<span>عرض الملف</span>
+										</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminOrganizationDetail renders tabbed organization detail views.
+templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employees []*org.EmployeeView, activeTab string, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("ملف المنشأة: %s", o.LegalName), "organizations", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.5rem;">
+			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+						<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">{ o.LegalName }</h1>
+						if string(o.Type) == "vendor" {
+							<span class="badge badge-sky">مورد</span>
+						} else {
+							<span class="badge badge-emerald">صيدلية</span>
+						}
+					</div>
+					<p style="color:var(--text-secondary); font-size:0.875rem; margin:0;">
+						سجل تجاري: <strong class="tabular-nums">{ o.CommercialRegister }</strong> | بطاقة ضريبية: <span class="tabular-nums">{ o.TaxNumber }</span>
+					</p>
+				</div>
+				<div>
+					<a href="/admin/organizations" class="btn btn-secondary btn-sm">
+						@components.IconArrowRight("icon-xs")
+						<span>العودة لدليل المنشآت</span>
+					</a>
+				</div>
+			</div>
+
+			<!-- Tabs -->
+			<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "overview"), templ.KV("btn-secondary", activeTab != "overview") }>نظرة عامة</a>
+				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/info", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "info"), templ.KV("btn-secondary", activeTab != "info") }>البيانات والتراخيص</a>
+				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/users", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "users"), templ.KV("btn-secondary", activeTab != "users") }>فريق العمل ({ fmt.Sprintf("%d", len(employees)) })</a>
+				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/branches", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "branches"), templ.KV("btn-secondary", activeTab != "branches") }>الفروع والمستودعات ({ fmt.Sprintf("%d", len(branches)) })</a>
+			</div>
+
+			<!-- Tab Contents -->
+			<div class="card" style="margin-bottom:0;">
+				if activeTab == "users" {
+					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">أعضاء وفريق العمل بالمنشأة</h3>
+					if len(employees) == 0 {
+						@components.EmptyState(components.EmptyStateProps{Title: "لا يوجد أعضاء مسجلين", Message: "لم يتم إضافة موظفين لهذه المنشأة بعد."})
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>الاسم</th>
+										<th>البريد الإلكتروني</th>
+										<th>الدور الوظيفي</th>
+										<th>الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, e := range employees {
+										<tr>
+											<td><strong>{ e.UserName }</strong></td>
+											<td class="tabular-nums">{ e.UserEmail }</td>
+											<td><span class="badge badge-secondary">{ e.RoleName }</span></td>
+											<td>
+												if e.Member != nil && e.Member.IsActive {
+													<span class="badge badge-success">نشط</span>
+												} else {
+													<span class="badge badge-danger">معطل</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				} else if activeTab == "branches" {
+					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">فروع ومستودعات المنشأة</h3>
+					if len(branches) == 0 {
+						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مستودعات لهذه المنشأة بعد."})
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>اسم الفرع</th>
+										<th>الكود</th>
+										<th>العنوان</th>
+										<th>الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, b := range branches {
+										<tr>
+											<td><strong>{ b.Name.Get("ar") }</strong></td>
+											<td class="tabular-nums">{ b.Code }</td>
+											<td>{ b.Address }</td>
+											<td>
+												if b.Status == "active" {
+													<span class="badge badge-success">مفعل</span>
+												} else {
+													<span class="badge badge-danger">غير مفعل</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				} else {
+					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">تفاصيل المنشأة وبيانات التسجيل</h3>
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
+						<div>
+							<div style="font-size:0.8rem; color:var(--text-secondary);">الاسم القانوني</div>
+							<div style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.LegalName }</div>
+						</div>
+						<div>
+							<div style="font-size:0.8rem; color:var(--text-secondary);">رقم السجل التجاري</div>
+							<div class="tabular-nums" style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.CommercialRegister }</div>
+						</div>
+						<div>
+							<div style="font-size:0.8rem; color:var(--text-secondary);">الرقم الضريبي</div>
+							<div class="tabular-nums" style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.TaxNumber }</div>
+						</div>
+						<div>
+							<div style="font-size:0.8rem; color:var(--text-secondary);">رقم ترخيص الصيدلي / المنشأة</div>
+							<div class="tabular-nums" style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.PharmacistLicense }</div>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+// AdminBranchesPage renders cross-organization branch directory.
+templ AdminBranchesPage(branches []*org.Branch, lang, dir string) {
+	@layouts.AdminShell("دليل الفروع والمستودعات الشامل", "branches", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">كافة الفروع والمستودعات ({ fmt.Sprintf("%d", len(branches)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إدارة ومراقبة كافة الفروع ومستودعات التوريد لكافة المنشآت على المنصة.</p>
+				</div>
+			</div>
+
+			if len(branches) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>اسم الفرع</th>
+								<th>الكود</th>
+								<th>المنشأة التابع لها</th>
+								<th>العنوان</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, b := range branches {
+								<tr>
+									<td><strong>{ b.Name.Get("ar") }</strong></td>
+									<td class="tabular-nums">{ b.Code }</td>
+									<td>#{ fmt.Sprintf("%d", b.OrganizationID) }</td>
+									<td>{ b.Address }</td>
+									<td>
+										if b.Status == "active" {
+											<span class="badge badge-success">نشط</span>
+										} else {
+											<span class="badge badge-danger">معطل</span>
+										}
+									</td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-sm">عرض التفاصيل</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminBranchDetailPage renders detail for a single branch.
+templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل الفرع: %s", b.Name.Get("ar")), "branches", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">{ b.Name.Get("ar") }</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">كود الفرع: { b.Code } | منشأة #{ fmt.Sprintf("%d", b.OrganizationID) }</p>
+				</div>
+				<a href="/admin/branches" class="btn btn-secondary btn-sm">العودة لدليل الفروع</a>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">العنوان</div>
+					<div style="font-weight:700; margin-top:0.25rem;">{ b.Address }</div>
+				</div>
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">هاتف التواصل</div>
+					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ b.Phone }</div>
+				</div>
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">ساعات العمل</div>
+					<div style="font-weight:700; margin-top:0.25rem;">{ b.OperatingHours }</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+// AdminWeeklyCoveragesPage renders weekly coverage rules across all vendors.
+templ AdminWeeklyCoveragesPage(coverages []*workflow.CoverageView, lang, dir string) {
+	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "coverage", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">نطاقات التغطية الأسبوعية لكافة الموردين ({ fmt.Sprintf("%d", len(coverages)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">مراقبة وضبط جدول أيام التوصيل ونطاق المسافات بالكيلومتر للموردين.</p>
+				</div>
+				<a href="/admin/weekly-coverages/add" class="btn btn-primary btn-sm">
+					@components.IconPlus("icon-xs")
+					<span>إضافة نطاق تغطية جديد</span>
+				</a>
+			</div>
+
+			if len(coverages) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد نطاقات تغطية", Message: "لم يتم تسجيل جداول تغطية أسبوعية بعد."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>المورد والمنشأة</th>
+								<th>الفرع / المستودع</th>
+								<th>يوم التوصيل</th>
+								<th>أقصى نطاق توصيل</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, c := range coverages {
+								<tr>
+									<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
+									<td>مورد #{ fmt.Sprintf("%d", c.OrganizationID) }</td>
+									<td>
+										if c.BranchName != "" {
+											<strong>{ c.BranchName }</strong>
+										} else {
+											<span>فرع #{ fmt.Sprintf("%d", c.BranchID) }</span>
+										}
+									</td>
+									<td><strong>يوم { fmt.Sprintf("%d", c.DayOfWeek) }</strong></td>
+									<td class="tabular-nums">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</td>
+									<td>
+										if c.IsActive {
+											<span class="badge badge-success">مفعل</span>
+										} else {
+											<span class="badge badge-danger">معطل</span>
+										}
+									</td>
+									<td style="text-align:end;">
+										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/edit/%d", c.ID)) } class="btn btn-secondary btn-sm">تعديل</a>
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) }>
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">حذف</button>
+											</form>
 										</div>
 									</td>
 								</tr>
@@ -132,6 +393,62 @@ templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organ
 					</table>
 				</div>
 			}
+		</div>
+	}
+}
+
+// AdminWeeklyCoverageForm renders create or edit form for a weekly coverage rule.
+templ AdminWeeklyCoverageForm(cov *workflow.WeeklyCoverage, branches []*org.Branch, lang, dir string) {
+	@layouts.AdminShell("نموذج نطاق التغطية والتوصيل الأسبوعي", "coverage", lang, dir) {
+		<div class="card" style="max-width:640px; margin:0 auto;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">
+				if cov == nil {
+					إضافة نطاق تغطية أسبوعي جديد
+				} else {
+					تعديل نطاق التغطية #{ fmt.Sprintf("%d", cov.ID) }
+				}
+			</h2>
+
+			<form method="POST" action={ templ.SafeURL(func() string {
+				if cov == nil {
+					return "/admin/weekly-coverages"
+				}
+				return fmt.Sprintf("/admin/weekly-coverages/%d", cov.ID)
+			}()) }>
+				<div class="form-group" style="margin-bottom:1.25rem;">
+					<label class="form-label">الفرع أو المستودع المورد</label>
+					<select name="branch_id" class="form-control" required>
+						for _, b := range branches {
+							<option value={ fmt.Sprintf("%d", b.ID) } selected?={ cov != nil && cov.BranchID == b.ID }>{ b.Name.Get("ar") } (#{ fmt.Sprintf("%d", b.OrganizationID) })</option>
+						}
+					</select>
+				</div>
+
+				<div class="form-group" style="margin-bottom:1.25rem;">
+					<label class="form-label">يوم التوصيل الأسبوعي (1 = الأحد، 7 = السبت)</label>
+					<input type="number" name="day_of_week" min="1" max="7" required class="form-control" value={ func() string {
+						if cov != nil {
+							return fmt.Sprintf("%d", cov.DayOfWeek)
+						}
+						return "1"
+					}() } />
+				</div>
+
+				<div class="form-group" style="margin-bottom:1.5rem;">
+					<label class="form-label">أقصى مسافة تغطية (بالمتر، مثلاً 50000 = 50 كم)</label>
+					<input type="number" name="distance_meters" min="1000" step="1000" required class="form-control" value={ func() string {
+						if cov != nil {
+							return fmt.Sprintf("%d", cov.DistanceMeters)
+						}
+						return "50000"
+					}() } />
+				</div>
+
+				<div style="display:flex; justify-content:space-between;">
+					<a href="/admin/weekly-coverages" class="btn btn-secondary">إلغاء</a>
+					<button type="submit" class="btn btn-primary">حفظ وتفعيل التغطية</button>
+				</div>
+			</form>
 		</div>
 	}
 }

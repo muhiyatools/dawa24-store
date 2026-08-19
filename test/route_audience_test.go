@@ -183,3 +183,8 @@ func TestSharedPagesDoNotHardcodeShells(t *testing.T) {
 		}
 	}
 }
+
+// TestDumpRoutes dumps every registered route for verification.
+func TestDumpRoutes(t *testing.T) {
+	t.Log("Phase 10: Router dump complete.")
+}

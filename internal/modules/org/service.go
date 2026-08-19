@@ -331,6 +331,30 @@ func (s *Service) CreateRole(ctx context.Context, role *Role) error {
 	return s.repo.CreateRole(ctx, role)
 }
 
+// GetRole retrieves a role by ID.
+func (s *Service) GetRole(ctx context.Context, id int64) (*Role, error) {
+	if id <= 0 {
+		return nil, apperr.Validation("role.invalid", "Valid role ID is required.", nil)
+	}
+	return s.repo.GetRoleByID(ctx, id)
+}
+
+// UpdateRole updates an existing role's permissions.
+func (s *Service) UpdateRole(ctx context.Context, role *Role) error {
+	if role.ID <= 0 {
+		return apperr.Validation("role.invalid", "Valid role ID is required.", nil)
+	}
+	return s.repo.UpdateRole(ctx, role)
+}
+
+// DeleteRole removes a custom role.
+func (s *Service) DeleteRole(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("role.invalid", "Valid role ID is required.", nil)
+	}
+	return s.repo.DeleteRole(ctx, id)
+}
+
 // ListRoles retrieves all roles for an organization.
 func (s *Service) ListRoles(ctx context.Context, orgID int64) ([]*Role, error) {
 	return s.repo.ListRolesByOrg(ctx, orgID)
@@ -427,6 +451,65 @@ func (s *Service) AssignBranchInstitutionalWorks(ctx context.Context, branchID i
 func (s *Service) GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*InstitutionalWork, error) {
 	return s.repo.GetBranchInstitutionalWorks(ctx, branchID)
 }
+
+// AllowedWorkIDs returns the institutional work ids a user may see products for.
+// Implements the two Laravel institutional filter modes documented in institutional_work_filter.md.
+func (s *Service) AllowedWorkIDs(ctx context.Context, userID int64, mode InstitutionalFilterMode) ([]int64, error) {
+	if userID <= 0 {
+		return []int64{}, nil
+	}
+	userWorks, err := s.repo.GetUserInstitutionalWorkIDs(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if len(userWorks) == 0 {
+		return []int64{}, nil
+	}
+
+	switch mode {
+	case FilterSimple:
+		return userWorks, nil
+	case FilterWithConnections:
+		return s.repo.GetConnectedInstitutionalWorkIDs(ctx, userWorks)
+	default:
+		return userWorks, nil
+	}
+}
+
+// AssignEmployeeInstitutionalWork assigns an institutional work group to a user.
+func (s *Service) AssignEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
+	if userID <= 0 || workID <= 0 {
+		return apperr.Validation("institutional.invalid_params", "User ID and Work ID are required.", nil)
+	}
+	if err := s.repo.AssignEmployeeInstitutionalWork(ctx, orgID, userID, workID); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "assigned employee institutional work", "org_id", orgID, "user_id", userID, "work_id", workID)
+	return nil
+}
+
+// RemoveEmployeeInstitutionalWork removes an institutional work assignment from a user.
+func (s *Service) RemoveEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error {
+	if userID <= 0 || workID <= 0 {
+		return apperr.Validation("institutional.invalid_params", "User ID and Work ID are required.", nil)
+	}
+	if err := s.repo.RemoveEmployeeInstitutionalWork(ctx, orgID, userID, workID); err != nil {
+		return err
+	}
+	s.log.InfoContext(ctx, "removed employee institutional work", "org_id", orgID, "user_id", userID, "work_id", workID)
+	return nil
+}
+
+// ListEmployeeInstitutionalWorks lists all institutional work assignments for a user.
+func (s *Service) ListEmployeeInstitutionalWorks(ctx context.Context, userID int64) ([]*EmployeeInstitutionalWork, error) {
+	return s.repo.ListEmployeeInstitutionalWorks(ctx, userID)
+}
+
+// ListOrgEmployeeInstitutionalWorks lists all employee institutional work assignments for an organization.
+func (s *Service) ListOrgEmployeeInstitutionalWorks(ctx context.Context, orgID int64) ([]*EmployeeInstitutionalWork, error) {
+	return s.repo.ListOrgEmployeeInstitutionalWorks(ctx, orgID)
+}
+
 
 
 

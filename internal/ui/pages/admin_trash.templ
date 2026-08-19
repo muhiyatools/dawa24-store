@@ -1,0 +1,142 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// ModelMetaEntry carries model info for rendering.
+type ModelMetaEntry struct {
+	Key          string
+	NameAr       string
+	NameEn       string
+	SchemaTable  string
+	TotalCount   int
+	TrashedCount int
+}
+
+// AdminDeletesListsPage renders overview of models.
+templ AdminDeletesListsPage(models []ModelMetaEntry, lang, dir string) {
+	@layouts.AdminShell("سجلات الحذف والبيانات (Deletes Lists)", "audit", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سجلات النماذج والبيانات القابلة للحذف ({ fmt.Sprintf("%d", len(models)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة إحصائيات الجداول، السجلات المحذوفة، والتحكم بالحذف الشامل.</p>
+				</div>
+			</div>
+
+			<div class="table-container">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>الجدول / النموذج</th>
+							<th>الاسم</th>
+							<th>إجمالي السجلات</th>
+							<th>المحذوف مؤقتاً</th>
+							<th style="text-align:end;">الإجراءات</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, m := range models {
+							<tr>
+								<td><code>{ m.SchemaTable }</code></td>
+								<td><strong>{ m.NameAr }</strong> ({ m.NameEn })</td>
+								<td class="tabular-nums">{ fmt.Sprintf("%d", m.TotalCount) }</td>
+								<td class="tabular-nums">
+									if m.TrashedCount > 0 {
+										<span class="badge badge-warning">{ fmt.Sprintf("%d", m.TrashedCount) }</span>
+									} else {
+										<span class="badge badge-secondary">0</span>
+									}
+								</td>
+								<td style="text-align:end;">
+									<a href={ templ.SafeURL(fmt.Sprintf("/admin/deletes-lists/%s", m.Key)) } class="btn btn-secondary btn-sm">عرض السجلات</a>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}
+
+// AdminDeletesListModelPage renders model rows.
+templ AdminDeletesListModelPage(modelKey string, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("سجلات %s", modelKey), "audit", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سجلات { modelKey }</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">استعراض بيانات الجدول وسجلات الحذف.</p>
+				</div>
+				<a href="/admin/deletes-lists" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "سجلات النموذج", Message: "جميع السجلات بحالة نشطة وسليمة."})
+		</div>
+	}
+}
+
+// AdminTrashListPage renders trash overview across models.
+templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
+	@layouts.AdminShell("سلة المحذوفات المركزية (Trash List)", "audit", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سلة المحذوفات واسترجاع البيانات ({ fmt.Sprintf("%d", len(models)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">استرجاع البيانات المحذوفة مؤقتاً أو الحذف النهائي مع الحفاظ على سلامة العلاقات.</p>
+				</div>
+			</div>
+
+			<div class="table-container">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>الجدول / النموذج</th>
+							<th>الاسم</th>
+							<th>السجلات في السلة</th>
+							<th style="text-align:end;">الإجراءات</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, m := range models {
+							<tr>
+								<td><code>{ m.SchemaTable }</code></td>
+								<td><strong>{ m.NameAr }</strong></td>
+								<td class="tabular-nums">
+									if m.TrashedCount > 0 {
+										<span class="badge badge-danger">{ fmt.Sprintf("%d محذوف", m.TrashedCount) }</span>
+									} else {
+										<span class="badge badge-success">فارغ</span>
+									}
+								</td>
+								<td style="text-align:end;">
+									<a href={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s", m.Key)) } class="btn btn-secondary btn-sm">فتح السلة</a>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}
+
+// AdminTrashListModelPage renders items in trash for a model.
+templ AdminTrashListModelPage(modelKey string, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("سلة محذوفات %s", modelKey), "audit", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سلة محذوفات { modelKey }</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إمكانية استرجاع السجلات أو حذفها نهائياً.</p>
+				</div>
+				<a href="/admin/trash-list" class="btn btn-secondary btn-sm">العودة للسلة</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "السلة فارغة", Message: "لا توجد سجلات محذوفة مؤقتاً لهذا النموذج."})
+		</div>
+	}
+}

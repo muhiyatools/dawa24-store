@@ -129,16 +129,29 @@ func (h *Handler) RateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		Rating int    `json:"rating"`
-		Review string `json:"review"`
+		Rating        *float64 `json:"rating,omitempty"`
+		RepRating     int      `json:"rep_rating,omitempty"`
+		SpeedRating   int      `json:"speed_rating,omitempty"`
+		QualityRating int      `json:"quality_rating,omitempty"`
+		Review        string   `json:"review"`
 	}
 	if err := httpx.DecodeJSON(w, r, &body); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
 
-	if err := h.service.RateOrder(r.Context(), id, userID, body.Rating, body.Review); err != nil {
-		httpx.Error(w, r, h.log, err)
+	var errRate error
+	if body.RepRating > 0 && body.SpeedRating > 0 && body.QualityRating > 0 {
+		_, errRate = h.service.RateOrderWithCriteria(r.Context(), id, userID, body.RepRating, body.SpeedRating, body.QualityRating, body.Review)
+	} else if body.Rating != nil {
+		errRate = h.service.RateOrder(r.Context(), id, userID, *body.Rating, body.Review)
+	} else {
+		httpx.Error(w, r, h.log, apperr.Validation("rating.required", "Either rating or 3 review criteria ratings must be provided", nil))
+		return
+	}
+
+	if errRate != nil {
+		httpx.Error(w, r, h.log, errRate)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

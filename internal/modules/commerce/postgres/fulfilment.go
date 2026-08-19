@@ -3,10 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -137,16 +139,30 @@ func (r *Repository) ListOrderHistory(ctx context.Context, orderID int64) ([]*co
 	return list, nil
 }
 
-// RateOrder records a customer rating on their own order.
+// RateOrder records a customer rating on their own order (audit §3.3).
 //
-// The customer_id predicate is what stops one buyer rating another's order:
-// orders belong to a customer, not to the acting organization, so row-level
-// security does not cover this case.
-func (r *Repository) RateOrder(ctx context.Context, orderID, customerID int64, rating int, review string) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+// Validates that the order is delivered and hasn't already been rated.
+// The customer_id predicate stops one buyer rating another's order.
+func (r *Repository) RateOrder(ctx context.Context, orderID, customerID int64, rating float64, review string) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var status string
+		var ratedAt *time.Time
+		err := tx.QueryRow(txCtx, `SELECT status, rated_at FROM commerce.orders WHERE id = $1 AND customer_id = $2;`, orderID, customerID).Scan(&status, &ratedAt)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return apperr.NotFound("order")
+			}
+			return fmt.Errorf("commerce postgres: check order: %w", err)
+		}
+		if status != string(commerce.StatusDelivered) {
+			return apperr.Validation("order.not_delivered", "Only delivered orders can be rated.", nil)
+		}
+		if ratedAt != nil {
+			return apperr.Validation("order.already_rated", "This order has already been rated.", nil)
+		}
 		query := `
 			UPDATE commerce.orders
-			SET rating = $3, review = $4, rated_at = now()
+			SET rating = $3, review = $4, rated_at = now(), updated_at = now()
 			WHERE id = $1 AND customer_id = $2;
 		`
 		res, err := tx.Exec(txCtx, query, orderID, customerID, rating, review)

@@ -8,21 +8,24 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 type mockWorkflowRepo struct {
-	requests map[int64]*PurchasePriorityRequest
-	coverage map[int64][]*WeeklyCoverage
-	issues   map[int64]*ReportIssue
-	nextID   int64
+	requests    map[int64]*PurchasePriorityRequest
+	automations map[int64]*AutomationRequest
+	coverage    map[int64][]*WeeklyCoverage
+	issues      map[int64]*ReportIssue
+	nextID      int64
 }
 
 func newMockWorkflowRepo() *mockWorkflowRepo {
 	return &mockWorkflowRepo{
-		requests: map[int64]*PurchasePriorityRequest{},
-		coverage: map[int64][]*WeeklyCoverage{},
-		issues:   map[int64]*ReportIssue{},
-		nextID:   1,
+		requests:    map[int64]*PurchasePriorityRequest{},
+		automations: map[int64]*AutomationRequest{},
+		coverage:    map[int64][]*WeeklyCoverage{},
+		issues:      map[int64]*ReportIssue{},
+		nextID:      1,
 	}
 }
 
@@ -46,6 +49,67 @@ func (m *mockWorkflowRepo) SaveWeeklyCoverage(_ context.Context, c *WeeklyCovera
 	m.nextID++
 	m.coverage[c.BranchID] = append(m.coverage[c.BranchID], c)
 	return nil
+}
+
+func (m *mockWorkflowRepo) UpdateWeeklyCoverage(_ context.Context, c *WeeklyCoverage) error {
+	for i, existing := range m.coverage[c.BranchID] {
+		if existing.ID == c.ID {
+			m.coverage[c.BranchID][i] = c
+			return nil
+		}
+	}
+	return apperr.NotFound("weekly_coverage")
+}
+
+func (m *mockWorkflowRepo) DeleteWeeklyCoverage(_ context.Context, id int64) error {
+	for bID, list := range m.coverage {
+		for i, c := range list {
+			if c.ID == id {
+				m.coverage[bID] = append(list[:i], list[i+1:]...)
+				return nil
+			}
+		}
+	}
+	return apperr.NotFound("weekly_coverage")
+}
+
+func (m *mockWorkflowRepo) ToggleWeeklyCoverage(_ context.Context, id int64, isActive bool) error {
+	for _, list := range m.coverage {
+		for _, c := range list {
+			if c.ID == id {
+				c.IsActive = isActive
+				return nil
+			}
+		}
+	}
+	return apperr.NotFound("weekly_coverage")
+}
+
+func (m *mockWorkflowRepo) GetWeeklyCoverageByID(_ context.Context, id int64) (*WeeklyCoverage, error) {
+	for _, list := range m.coverage {
+		for _, c := range list {
+			if c.ID == id {
+				return c, nil
+			}
+		}
+	}
+	return nil, apperr.NotFound("weekly_coverage")
+}
+
+func (m *mockWorkflowRepo) ListCoverageForOrganization(_ context.Context, orgID int64) ([]*CoverageView, error) {
+	var list []*CoverageView
+	for _, covList := range m.coverage {
+		for _, c := range covList {
+			if c.OrganizationID == orgID {
+				list = append(list, &CoverageView{
+					WeeklyCoverage: *c,
+					BranchName:     "Main Branch",
+					CityName:       "Cairo",
+				})
+			}
+		}
+	}
+	return list, nil
 }
 
 func (m *mockWorkflowRepo) ListWeeklyCoverage(_ context.Context, branchID int64) ([]*WeeklyCoverage, error) {
@@ -103,6 +167,90 @@ func (m *mockWorkflowRepo) GetServiceByID(_ context.Context, _ int64) (*Institut
 
 func (m *mockWorkflowRepo) ListServices(_ context.Context, _ *int64) ([]*InstitutionalService, error) {
 	return nil, nil
+}
+
+func (m *mockWorkflowRepo) ListPriorityRequestsByUser(_ context.Context, userID int64, limit, offset int) ([]*PurchasePriorityRequest, error) {
+	var list []*PurchasePriorityRequest
+	for _, req := range m.requests {
+		if req.UserID == userID {
+			list = append(list, req)
+		}
+	}
+	return list, nil
+}
+
+func (m *mockWorkflowRepo) UpdatePriorityRequestStatus(_ context.Context, id int64, status string, notes string, processedBy *int64, results map[string]any) error {
+	req, ok := m.requests[id]
+	if !ok {
+		return apperr.NotFound("priority_request")
+	}
+	req.Status = status
+	if recs, ok := results["recommendations"]; ok {
+		if recsMap, ok := recs.(map[string]any); ok {
+			req.Recommendations = recsMap
+		}
+	}
+	return nil
+}
+
+func (m *mockWorkflowRepo) GetCandidateProducts(_ context.Context, userID int64, authorizedWorkIDs []int64, preferredSupplierIDs []int64, budget *money.Amount, limit int) ([]CandidateProduct, error) {
+	return []CandidateProduct{
+		{
+			ProductID:            1,
+			ProductName:          "Panadol Extra",
+			ProductPrice:         money.MustParse("100.00"),
+			ProductPriceDiscount: money.MustParse("80.00"),
+			OrganizationID:       1,
+			EstimatedDelivery:    1,
+		},
+	}, nil
+}
+
+func (m *mockWorkflowRepo) CreateAutomationRequest(_ context.Context, req *AutomationRequest) error {
+	req.ID = m.nextID
+	m.nextID++
+	if m.automations == nil {
+		m.automations = make(map[int64]*AutomationRequest)
+	}
+	m.automations[req.ID] = req
+	return nil
+}
+
+func (m *mockWorkflowRepo) GetAutomationRequestByID(_ context.Context, id int64) (*AutomationRequest, error) {
+	if m.automations != nil {
+		if req, ok := m.automations[id]; ok {
+			return req, nil
+		}
+	}
+	return nil, apperr.NotFound("automation_request")
+}
+
+func (m *mockWorkflowRepo) ListAutomationRequestsByUser(_ context.Context, userID int64, limit, offset int) ([]*AutomationRequest, error) {
+	var list []*AutomationRequest
+	if m.automations != nil {
+		for _, req := range m.automations {
+			if req.UserID == userID {
+				list = append(list, req)
+			}
+		}
+	}
+	return list, nil
+}
+
+func (m *mockWorkflowRepo) UpdateAutomationRequestStatus(_ context.Context, id int64, status AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error {
+	if m.automations != nil {
+		if req, ok := m.automations[id]; ok {
+			req.Status = status
+			req.ComparisonResults = results
+			if totalVal != nil {
+				req.TotalValue = *totalVal
+			}
+			req.MatchedProducts = matchedCount
+			req.ApprovedProducts = approvedCount
+			return nil
+		}
+	}
+	return apperr.NotFound("automation_request")
 }
 
 func TestWorkflowPurchasePriorityAndCoverage(t *testing.T) {

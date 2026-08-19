@@ -28,13 +28,20 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.catSvc != nil {
-		if prods, err := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 12}); err == nil {
+		prods, err := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 12})
+		if err != nil {
+			h.log.WarnContext(ctx, "home page: search featured products", "error", err)
+		} else {
 			featured = prods
 			if len(prods) > 0 {
 				stats.TotalProducts = len(prods)
 			}
 		}
-		if cats, err := h.catSvc.ListCategories(ctx); err == nil {
+
+		cats, err := h.catSvc.ListCategories(ctx)
+		if err != nil {
+			h.log.WarnContext(ctx, "home page: list categories", "error", err)
+		} else {
 			categories = cats
 		}
 	}

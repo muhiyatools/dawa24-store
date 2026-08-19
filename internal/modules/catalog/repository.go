@@ -17,6 +17,8 @@ type SearchParams struct {
 	Sort           string // empty, price_asc, price_desc, newest, name
 	Limit          int
 	Offset         int
+	AllowedWorkIDs []int64
+	FilterMode     int // 0 = Simple (dashboard/catalog), 1 = WithConnections (purchase requests)
 }
 
 // Repository defines the persistence interface for the catalog bounded context.
@@ -71,4 +73,11 @@ type Repository interface {
 	CreateFinderOption(ctx context.Context, o *FinderOption) error
 	CreateFinderResult(ctx context.Context, r *FinderResult) error
 	ListFinderResults(ctx context.Context) ([]*FinderResult, error)
+
+	// Denormalized read model (catalog.product_index)
+	UpsertProductIndex(ctx context.Context, item *ProductIndexItem) error
+	DeleteProductIndex(ctx context.Context, uniqueRowID string) error
+	DeleteProductIndexByProduct(ctx context.Context, productID int64) error
+	SearchProductIndex(ctx context.Context, params SearchParams) ([]*ProductIndexItem, error)
+	RebuildProductIndex(ctx context.Context) (int64, error)
 }

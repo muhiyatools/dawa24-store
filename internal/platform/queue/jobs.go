@@ -41,3 +41,15 @@ func (ExpirePromotionsArgs) Kind() string { return "promo.expire_promotions" }
 func (ExpirePromotionsArgs) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{Queue: "maintenance"}
 }
+
+// ProductReindexArgs defines parameters for async catalog index synchronization.
+type ProductReindexArgs struct {
+	ProductID      int64 `json:"product_id,omitempty"` // 0 means full catalogue sweep
+	OrganizationID int64 `json:"organization_id,omitempty"`
+}
+
+func (ProductReindexArgs) Kind() string { return "catalog.reindex" }
+func (ProductReindexArgs) InsertOpts() river.InsertOpts {
+	return river.InsertOpts{Queue: "maintenance"}
+}
+

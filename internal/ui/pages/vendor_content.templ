@@ -1,0 +1,71 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// VendorPoliciesPage renders policies editor.
+templ VendorPoliciesPage(lang, dir string) {
+	@layouts.VendorShell("سياسات التوريد والاسترجاع", "policies", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سياسات التوريد والدفع والاسترجاع للمنشأة</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p>
+				</div>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
+					<h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">سياسة الشحن والتسليم</h3>
+					<textarea class="form-input" rows="4" placeholder="اكتب شروط التوصيل والحد الأدنى للطلبات..."></textarea>
+				</div>
+				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
+					<h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">سياسة المرتجعات والتوالف</h3>
+					<textarea class="form-input" rows="4" placeholder="اكتب شروط وفترة قبول المرتجعات..."></textarea>
+				</div>
+				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
+					<h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">شروط السداد والدفع الآجل</h3>
+					<textarea class="form-input" rows="4" placeholder="اكتب شروط السداد وشيكات الضمان..."></textarea>
+				</div>
+			</div>
+
+			<div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+				<button type="button" class="btn btn-primary">حفظ السياسات</button>
+			</div>
+		</div>
+	}
+}
+
+// VendorSocialMediaPage renders social accounts editor.
+templ VendorSocialMediaPage(lang, dir string) {
+	@layouts.VendorShell("وسائل التواصل الاجتماعي للمورد", "social_media", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">قنوات التواصل الاجتماعي للمنشأة</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p>
+				</div>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+				<div>
+					<label class="form-label">رقم الواتساب الرسمي (WhatsApp)</label>
+					<input type="text" class="form-input" placeholder="+2010..." />
+				</div>
+				<div>
+					<label class="form-label">رابط صفحة الفيسبوك (Facebook)</label>
+					<input type="url" class="form-input" placeholder="https://facebook.com/..." />
+				</div>
+				<div>
+					<label class="form-label">حساب لينكد إن (LinkedIn)</label>
+					<input type="url" class="form-input" placeholder="https://linkedin.com/company/..." />
+				</div>
+			</div>
+
+			<div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+				<button type="button" class="btn btn-primary">حفظ الروابط</button>
+			</div>
+		</div>
+	}
+}

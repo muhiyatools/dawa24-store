@@ -1,0 +1,67 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// VendorTeamImportPage renders bulk employee spreadsheet upload interface.
+templ VendorTeamImportPage(lang, dir string) {
+	@layouts.VendorShell("رفع الموظفين دفعة واحدة", "team_import", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">رفع بيانات الموظفين دفعة واحدة (Excel / CSV)</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إنشاء حسابات موظفي الفروع والمستودعات بشكل آمن مع توليد دعوات انضمام تلقائية.</p>
+				</div>
+				<a href="/settings/employees" class="btn btn-secondary btn-sm">العودة لفريق العمل</a>
+			</div>
+
+			@components.EmptyState(components.EmptyStateProps{Title: "معالج الاستيراد المجمع", Message: "قم بتحميل قالب الإكسيل وتعبئة بيانات الموظفين ثم رفع الملف هنا."})
+		</div>
+	}
+}
+
+// VendorTeamFastAddPage renders fast add form.
+templ VendorTeamFastAddPage(lang, dir string) {
+	@layouts.VendorShell("إضافة موظف سريع", "team", lang, dir) {
+		<div class="card" style="max-width:600px; margin:0 auto;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">إضافة موظف جديد للمنشأة</h2>
+			<form method="POST" action="/settings/employees" style="display:flex; flex-direction:column; gap:1rem;">
+				<div>
+					<label class="form-label">الاسم الكامل</label>
+					<input type="text" name="name" class="form-input" required />
+				</div>
+				<div>
+					<label class="form-label">البريد الإلكتروني</label>
+					<input type="email" name="email" class="form-input" required />
+				</div>
+				<div>
+					<label class="form-label">رقم الهاتف</label>
+					<input type="text" name="phone" class="form-input" required />
+				</div>
+				<div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+					<a href="/settings/employees" class="btn btn-secondary">إلغاء</a>
+					<button type="submit" class="btn btn-primary">إرسال دعوة الانضمام</button>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+// VendorTeamUserDetailPage renders single employee profile.
+templ VendorTeamUserDetailPage(empID int64, lang, dir string) {
+	@layouts.VendorShell(fmt.Sprintf("ملف الموظف #%d", empID), "team", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">ملف الموظف #{ fmt.Sprintf("%d", empID) }</h2>
+				</div>
+				<a href="/settings/employees" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "بيانات الموظف", Message: "عرض الصلاحيات المعينة، الفرع التابع له، وسجل العمليات."})
+		</div>
+	}
+}

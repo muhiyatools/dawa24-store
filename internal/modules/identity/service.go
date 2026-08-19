@@ -180,7 +180,9 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 	var orgType, orgStatus string
 	if input.OrgID > 0 {
 		belongs, err := s.repo.UserBelongsToOrg(ctx, user.ID, input.OrgID)
-		if err == nil && belongs {
+		if err != nil {
+			s.log.WarnContext(ctx, "verify user belongs to org", "user_id", user.ID, "org_id", input.OrgID, "error", err)
+		} else if belongs {
 			orgID = input.OrgID
 		}
 	}

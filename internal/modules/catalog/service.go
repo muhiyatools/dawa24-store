@@ -4,14 +4,21 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // Service coordinates product catalog business logic.
 type Service struct {
-	repo Repository
-	log  *slog.Logger
+	repo     Repository
+	log      *slog.Logger
+	instGate InstitutionalGate
+}
+
+// SetInstitutionalGate installs the institutional work filter gate.
+func (s *Service) SetInstitutionalGate(gate InstitutionalGate) {
+	s.instGate = gate
 }
 
 // NewService creates a new catalog service.
@@ -77,7 +84,84 @@ func (s *Service) DeleteProduct(ctx context.Context, id int64) error {
 
 // Search runs full Arabic/English search across the product catalogue.
 func (s *Service) Search(ctx context.Context, params SearchParams) ([]*Product, error) {
+	if s.instGate != nil && len(params.AllowedWorkIDs) == 0 {
+		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
+			works, err := s.instGate.AllowedWorkIDs(ctx, uid, params.FilterMode)
+			if err == nil {
+				params.AllowedWorkIDs = works
+			}
+		}
+	}
 	return s.repo.SearchProducts(ctx, params)
+}
+
+// FastSearch searches the denormalized read model (catalog.product_index) with deterministic fallback (Rule R3).
+// If the indexed table returns 0 results or errors, it falls back to direct catalog.products table search.
+func (s *Service) FastSearch(ctx context.Context, params SearchParams) ([]*ProductIndexItem, error) {
+	if s.instGate != nil && len(params.AllowedWorkIDs) == 0 {
+		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
+			works, err := s.instGate.AllowedWorkIDs(ctx, uid, params.FilterMode)
+			if err == nil {
+				params.AllowedWorkIDs = works
+			}
+		}
+	}
+
+	items, err := s.repo.SearchProductIndex(ctx, params)
+	if err == nil && len(items) > 0 {
+		return items, nil
+	}
+
+	// Deterministic fallback (Rule R3): Fallback to catalog.products
+	products, fbErr := s.repo.SearchProducts(ctx, params)
+	if fbErr != nil {
+		if err != nil {
+			return nil, err
+		}
+		return nil, fbErr
+	}
+
+	fallbackItems := make([]*ProductIndexItem, 0, len(products))
+	for _, p := range products {
+		nameAr := p.Name.Get("ar")
+		nameEn := p.Name.Get("en")
+		hasDisc := p.Discount.IsPositive()
+		finalPrice := p.EffectivePrice()
+		var discPct float64
+		if p.Price.IsPositive() && hasDisc {
+			discPct = float64(p.Discount.Minor()) / float64(p.Price.Minor()) * 100.0
+		}
+
+		fallbackItems = append(fallbackItems, &ProductIndexItem{
+			UniqueRowID:          ComposeUniqueRowID(p.ID, nil, p.BranchID),
+			ProductID:            p.ID,
+			SKU:                  p.SKU,
+			NameAR:               nameAr,
+			NameEN:               nameEn,
+			ScientificName:       p.ScientificName,
+			Price:                p.Price,
+			Discount:             p.Discount,
+			StockQuantity:        0,
+			CategoryID:           p.CategoryID,
+			BrandID:              p.BrandID,
+			HasDiscount:          hasDisc,
+			DiscountPercentage:   discPct,
+			PriceAfterDiscount:   finalPrice,
+			OrganizationID:       p.OrganizationID,
+			BranchID:             p.BranchID,
+			Status:               string(p.Status),
+			ProductType:          "parent",
+			InstitutionalWorkIDs: p.InstitutionalWorkIDs,
+			CreatedAt:            p.CreatedAt,
+			UpdatedAt:            p.UpdatedAt,
+		})
+	}
+	return fallbackItems, nil
+}
+
+// RebuildProductIndex runs a full sweep rebuild of the denormalized read model.
+func (s *Service) RebuildProductIndex(ctx context.Context) (int64, error) {
+	return s.repo.RebuildProductIndex(ctx)
 }
 
 // CreateVariant creates a product variant.

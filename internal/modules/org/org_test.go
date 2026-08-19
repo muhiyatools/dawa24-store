@@ -228,6 +228,18 @@ func (m *mockOrgRepo) CreateRole(_ context.Context, role *Role) error {
 	return nil
 }
 
+func (m *mockOrgRepo) GetRoleByID(_ context.Context, id int64) (*Role, error) {
+	return &Role{ID: id, Key: "custom_role", Permissions: []string{"org.organization.view"}}, nil
+}
+
+func (m *mockOrgRepo) UpdateRole(_ context.Context, _ *Role) error {
+	return nil
+}
+
+func (m *mockOrgRepo) DeleteRole(_ context.Context, _ int64) error {
+	return nil
+}
+
 func (m *mockOrgRepo) ListRolesByOrg(_ context.Context, _ int64) ([]*Role, error) {
 	return nil, nil
 }
@@ -295,6 +307,30 @@ func (m *mockOrgRepo) AssignBranchInstitutionalWorks(_ context.Context, _ int64,
 }
 
 func (m *mockOrgRepo) GetBranchInstitutionalWorks(_ context.Context, _ int64) ([]*InstitutionalWork, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) AssignEmployeeInstitutionalWork(_ context.Context, _, _, _ int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) RemoveEmployeeInstitutionalWork(_ context.Context, _, _, _ int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) ListEmployeeInstitutionalWorks(_ context.Context, _ int64) ([]*EmployeeInstitutionalWork, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) ListOrgEmployeeInstitutionalWorks(_ context.Context, _ int64) ([]*EmployeeInstitutionalWork, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) GetUserInstitutionalWorkIDs(_ context.Context, _ int64) ([]int64, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) GetConnectedInstitutionalWorkIDs(_ context.Context, _ []int64) ([]int64, error) {
 	return nil, nil
 }
 

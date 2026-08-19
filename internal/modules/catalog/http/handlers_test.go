@@ -179,6 +179,26 @@ func (r stubRepo) CountProductsInBrand(ctx context.Context, brandID int64) (int,
 	r.fail("CountProductsInBrand")
 	return 0, nil
 }
+func (r stubRepo) UpsertProductIndex(ctx context.Context, item *catalog.ProductIndexItem) error {
+	r.fail("UpsertProductIndex")
+	return nil
+}
+func (r stubRepo) DeleteProductIndex(ctx context.Context, uniqueRowID string) error {
+	r.fail("DeleteProductIndex")
+	return nil
+}
+func (r stubRepo) DeleteProductIndexByProduct(ctx context.Context, productID int64) error {
+	r.fail("DeleteProductIndexByProduct")
+	return nil
+}
+func (r stubRepo) SearchProductIndex(ctx context.Context, params catalog.SearchParams) ([]*catalog.ProductIndexItem, error) {
+	r.fail("SearchProductIndex")
+	return nil, nil
+}
+func (r stubRepo) RebuildProductIndex(ctx context.Context) (int64, error) {
+	r.fail("RebuildProductIndex")
+	return 0, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

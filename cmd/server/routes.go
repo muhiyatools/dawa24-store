@@ -11,6 +11,7 @@ import (
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	chatPostgres "github.com/muhiya/dawa24-store/internal/modules/chat/postgres"
 	commercePostgres "github.com/muhiya/dawa24-store/internal/modules/commerce/postgres"
+	comparePostgres "github.com/muhiya/dawa24-store/internal/modules/compare/postgres"
 	hrPostgres "github.com/muhiya/dawa24-store/internal/modules/hr/postgres"
 	identityPostgres "github.com/muhiya/dawa24-store/internal/modules/identity/postgres"
 	ingestPostgres "github.com/muhiya/dawa24-store/internal/modules/ingest/postgres"
@@ -31,6 +32,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	commerceHttp "github.com/muhiya/dawa24-store/internal/modules/commerce/http"
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	hrHttp "github.com/muhiya/dawa24-store/internal/modules/hr/http"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
@@ -141,14 +143,32 @@ func mountModuleRoutes(
 	wfRepoUI := workflowPostgres.NewRepository(db)
 	hrRepoUI := hrPostgres.NewRepository(db)
 
+	orgSvcUI := org.NewService(orgRepoUI, log)
+
+	instGate := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
+		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
+	})
+
+	catSvcUI := catalog.NewService(catRepoUI, log)
+	catSvcUI.SetInstitutionalGate(instGate)
+
 	commSvcUI := commerce.NewService(commRepoUI, log)
 	commSvcUI.SetRequiredDocsChecker(docsGate)
+
 	promoSvcUI := promo.NewService(promoRepoUI, log)
 	promoSvcUI.SetRequiredDocsChecker(docsGate)
+	promoSvcUI.SetInstitutionalGate(promo.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
+		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
+	}))
+
+	wfSvcUI := workflow.NewService(wfRepoUI, log)
+	wfSvcUI.SetInstitutionalGate(workflow.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
+		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
+	}))
 
 	uiHandler := ui.NewUIHandler(
-		catalog.NewService(catRepoUI, log),
-		org.NewService(orgRepoUI, log),
+		catSvcUI,
+		orgSvcUI,
 		ingest.NewService(ingRepoUI, log),
 		commSvcUI,
 		inventory.NewService(invRepoUI, log),
@@ -158,11 +178,19 @@ func mountModuleRoutes(
 		platformadmin.NewService(adminRepoUI, log),
 		billing.NewService(billRepoUI, log),
 		chat.NewService(chatRepoUI, log),
-		workflow.NewService(wfRepoUI, log),
+		wfSvcUI,
 		hr.NewService(hrRepoUI, log),
 		attachSvc,
 		log,
 	)
+	compareRepoUI := comparePostgres.NewRepository(db)
+	compareSvcUI := compare.NewService(compareRepoUI, log)
+	if ai != nil && ai.Enabled() {
+		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
+		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
+	}
+	uiHandler.SetCompareService(compareSvcUI)
+
 	if storageClient != nil {
 		uiHandler.SetStorage(storageClient)
 	}
@@ -280,4 +308,15 @@ func mountAuthenticatedModules(
 	orgRepo := orgPostgres.NewRepository(db)
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
+
+	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
+		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
+	})
+	catSvc.SetInstitutionalGate(instGateAPI)
+	promoSvc.SetInstitutionalGate(promo.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
+		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
+	}))
+	wfSvc.SetInstitutionalGate(workflow.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
+		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
+	}))
 }

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -27,6 +28,8 @@ func NewHandler(service *ingest.Service, log *slog.Logger) *Handler {
 // RegisterRoutes registers ingest routes on a Chi router.
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/ingest/uploads/presign", h.PresignUpload)
+	r.Post("/api/v1/ingest/uploads/chunk", h.UploadChunk)
+	r.Get("/api/v1/ingest/uploads/chunk/status", h.GetChunkStatus)
 	r.Post("/api/v1/ingest/uploads", h.RegisterUpload)
 	r.Post("/api/v1/ingest/sessions", h.StartSession)
 	r.Get("/api/v1/ingest/sessions", h.ListSessions)
@@ -68,6 +71,77 @@ func (h *Handler) PresignUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSON(w, http.StatusOK, res)
+}
+
+// UploadChunk receives one part of a multipart chunked upload.
+func (h *Handler) UploadChunk(w http.ResponseWriter, r *http.Request) {
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	// Limit each chunk to 10MB
+	r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("chunk.size", "Chunk size too large", nil))
+		return
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("file.required", "Chunk file part is required", nil))
+		return
+	}
+	defer file.Close()
+
+	chunkBytes, err := io.ReadAll(file)
+	if err != nil {
+		httpx.Error(w, r, h.log, apperr.Validation("file.read", "Failed to read chunk", nil))
+		return
+	}
+
+	fileUUID := r.FormValue("file_uuid")
+	filename := r.FormValue("filename")
+	if filename == "" {
+		filename = header.Filename
+	}
+
+	chunkIdx, _ := strconv.Atoi(r.FormValue("chunk_index"))
+	totalChunks, _ := strconv.Atoi(r.FormValue("total_chunks"))
+
+	res, err := h.service.UploadChunk(r.Context(), userID, fileUUID, filename, chunkIdx, totalChunks, chunkBytes)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	status := http.StatusOK
+	if res.Completed {
+		status = http.StatusCreated
+	}
+	httpx.JSON(w, status, res)
+}
+
+// GetChunkStatus returns list of uploaded chunk indices for resumption.
+func (h *Handler) GetChunkStatus(w http.ResponseWriter, r *http.Request) {
+	fileUUID := r.URL.Query().Get("file_uuid")
+	if fileUUID == "" {
+		httpx.Error(w, r, h.log, apperr.Validation("file_uuid.required", "File UUID is required", nil))
+		return
+	}
+
+	present, err := h.service.GetChunkStatus(r.Context(), fileUUID)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, map[string]any{
+		"file_uuid":        fileUUID,
+		"uploaded_chunks":  present,
+		"count":            len(present),
+	})
 }
 
 // RegisterUpload registers a file uploaded to S3/MinIO.

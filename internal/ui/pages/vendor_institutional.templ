@@ -1,0 +1,38 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// VendorInstitutionalWorkPage renders vendor institutional memberships.
+templ VendorInstitutionalWorkPage(lang, dir string) {
+	@layouts.VendorShell("الأعمال المؤسسية للشركات والجهات", "institutional_work", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">الأعمال والاتفاقيات المؤسسية للمنشأة</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إدارة عضويات الجهات الطبية، المجموعات الصيدلانية، وسلاسل التوريد الخاصة.</p>
+				</div>
+			</div>
+
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أعمال مؤسسية معتمدة", Message: "تتيح الأعمال المؤسسية تقديم عروض حصرية لفئات محددة من الصيدليات والجهات الطبية."})
+		</div>
+	}
+}
+
+// VendorPharmacyCoveragePage renders pharmacies covered by vendor schedules.
+templ VendorPharmacyCoveragePage(lang, dir string) {
+	@layouts.VendorShell("تغطية الصيدليات وشبكة التوزيع", "pharmacy_coverage", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">الصيدليات المشمولة في نطاق التغطية الأسبوعية</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">استعراض الصيدليات التي يغطيها أسطول التوزيع الخاص بفروعك حسب المحافظة والمدينة ومواعيد التسليم.</p>
+				</div>
+			</div>
+
+			@components.EmptyState(components.EmptyStateProps{Title: "شبكة تغطية الصيدليات", Message: "يتم تحديد الصيدليات تلقائياً بناءً على جداول التغطية الأسبوعية لفروعك ومستودعاتك."})
+		</div>
+	}
+}

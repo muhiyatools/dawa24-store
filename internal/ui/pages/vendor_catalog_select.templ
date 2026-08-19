@@ -1,0 +1,66 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// VendorCatalogSelectPage renders the master catalog selector.
+templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, dir string) {
+	@layouts.VendorShell("اختيار المنتجات المتاحة بالمستودع", "catalog_select", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">تحديد المستحضرات المتاحة بالمستودع ({ fmt.Sprintf("%d", len(products)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">اختر من الكتالوج المركزي الأدوية والمستحضرات المتوفرة لديك لإضافتها إلى قائمة عروضك.</p>
+				</div>
+			</div>
+
+			<form method="GET" action="/vendor/catalog/select" style="margin-bottom:1.5rem;">
+				<div style="display:flex; gap:0.5rem; max-width:500px;">
+					<input type="text" name="q" value={ search } placeholder="ابحث بالاسم التجاري أو العلمي أو الكود..." class="form-input" style="flex:1;" />
+					<button type="submit" class="btn btn-secondary">بحث</button>
+				</div>
+			</form>
+
+			if len(products) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد نتائج", Message: "لم يتم العثور على منتجات مطابقة للبحث."})
+			} else {
+				<form method="POST" action="/vendor/catalog/select">
+					<div class="table-container" style="margin-bottom:1.5rem;">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th style="width:40px;">اختيار</th>
+									<th>المنتج</th>
+									<th>الاسم العلمي</th>
+									<th>سعر الجمهور</th>
+									<th>الحالة</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, p := range products {
+									<tr>
+										<td>
+											<input type="checkbox" name="product_ids" value={ fmt.Sprintf("%d", p.ID) } />
+										</td>
+										<td><strong>{ p.Name.Get("ar") }</strong></td>
+										<td>{ p.ScientificName }</td>
+										<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", p.Price.String()) }</td>
+										<td><span class="badge badge-success">متاح بالكتالوج</span></td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+					<div style="display:flex; justify-content:flex-end;">
+						<button type="submit" class="btn btn-primary">إضافة المنتجات المحددة لكتالوج المنشأة</button>
+					</div>
+				</form>
+			}
+		</div>
+	}
+}

@@ -53,6 +53,34 @@ func RequireStaff(log *slog.Logger) func(http.Handler) http.Handler {
 	}
 }
 
+// RequirePagePermission gates an HTML admin page on a single permission key.
+// It mirrors RequirePermission's rules (super_admin and developer bypass, or wildcard)
+// but answers with the audience policy's 404 rather than a JSON 403: a support
+// agent must not learn that /admin/developers or other restricted admin subtrees exist.
+func RequirePagePermission(permissionKey string, log *slog.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			actor, ok := From(r.Context())
+			if !ok {
+				redirectToLogin(w, r)
+				return
+			}
+			if !actor.IsStaff {
+				notFound(w, r)
+				return
+			}
+			if actor.Role == "super_admin" || actor.Role == "developer" || actor.Can("*") || actor.Can(permissionKey) {
+				next.ServeHTTP(w, r)
+				return
+			}
+			log.WarnContext(r.Context(), "admin page permission denied",
+				"path", r.URL.Path, "user_id", actor.UserID,
+				"role", actor.Role, "required_permission", permissionKey)
+			notFound(w, r)
+		})
+	}
+}
+
 // RequireApproved blocks members whose organization has not been approved.
 // Pending organizations are told to wait; rejected and suspended ones are
 // sent to the same screen with a state explaining what happened.

@@ -33,7 +33,7 @@ func (s *stubPromoRepo) ListOffersForProduct(context.Context, int64) ([]*OfferPr
 	return nil, nil
 }
 func (s *stubPromoRepo) ListOffers(context.Context, int, int) ([]*Offer, error) { return nil, nil }
-func (s *stubPromoRepo) ListOffersVisibleTo(context.Context, float64, float64, int, int, int) ([]*VisibleOffer, error) {
+func (s *stubPromoRepo) ListOffersVisibleTo(context.Context, float64, float64, int, int, int, []int64) ([]*VisibleOffer, error) {
 	return nil, nil
 }
 func (s *stubPromoRepo) SetOfferActive(context.Context, int64, bool) error             { return nil }

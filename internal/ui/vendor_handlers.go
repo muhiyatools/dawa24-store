@@ -3,10 +3,8 @@ package ui
 import (
 	"encoding/csv"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -15,15 +13,12 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
-	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -48,7 +43,9 @@ func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 		products, err := h.catSvc.Search(ctx, catalog.SearchParams{
 			Limit: 100,
 		})
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "vendor products: search catalog", "error", err)
+		} else {
 			for _, p := range products {
 				variants, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
 				for _, v := range variants {
@@ -471,10 +468,14 @@ func (h *UIHandler) VendorRolesPage(w http.ResponseWriter, r *http.Request) {
 	memberCountMap := make(map[string]int)
 
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		if rl, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID); err == nil {
+		if rl, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID); err != nil {
+			h.log.WarnContext(ctx, "vendor roles: list roles", "error", err)
+		} else {
 			roles = rl
 		}
-		if members, err := h.orgSvc.ListMembers(ctx, actor.OrganizationID); err == nil {
+		if members, err := h.orgSvc.ListMembers(ctx, actor.OrganizationID); err != nil {
+			h.log.WarnContext(ctx, "vendor roles: list members", "error", err)
+		} else {
 			for _, m := range members {
 				if m != nil && m.RoleKey != "" {
 					memberCountMap[m.RoleKey]++
@@ -548,250 +549,8 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// VendorIngestPage renders the catalog spreadsheet import tool.
-func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
+// Vendor catalog import handlers are implemented in vendor_ingest_handlers.go (Plan V5 Phase 4).
 
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/ingest", http.StatusSeeOther)
-		return
-	}
-
-	if h.ingSvc == nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.VendorIngest(nil, lang, dir).Render(ctx, w)
-		return
-	}
-
-	jobs, err := h.ingSvc.ListSessions(ctx, actor.OrganizationID, h.pageLimit(r), h.pageOffset(r))
-	if err != nil {
-		h.renderError(w, r, err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorIngest(jobs, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor ingest page", "error", err)
-	}
-}
-
-// VendorIngestUploadSubmit processes vendor catalog files via the Ingest service.
-func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		httpx.JSON(w, http.StatusUnauthorized, map[string]any{"error": "Unauthorized"})
-		return
-	}
-
-	if err := r.ParseMultipartForm(50 << 20); err != nil {
-		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "حجم الملف كبير جداً أو تعذر قراءة البيانات."})
-		return
-	}
-
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		file, header, err = r.FormFile("import_file")
-	}
-	if err != nil {
-		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "يرجى اختيار ملف Excel أو CSV صالح للاستيراد."})
-		return
-	}
-	defer file.Close()
-
-	content, err := io.ReadAll(file)
-	if err != nil || len(content) == 0 {
-		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "الملف المرفوع فارغ أو تعذرت قراءته."})
-		return
-	}
-
-	filename := ""
-	if header != nil {
-		filename = header.Filename
-	}
-
-	records, err := parseUploadedProductRows(content, filename)
-	if err != nil || len(records) < 2 {
-		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "تنسيق الملف غير صالح أو لا يحتوي على صفوف بيانات."})
-		return
-	}
-
-	// Map headers
-	headerMap := make(map[string]int)
-	for idx, col := range records[0] {
-		clean := strings.ToLower(strings.TrimSpace(col))
-		clean = strings.ReplaceAll(clean, "_", "")
-		clean = strings.ReplaceAll(clean, "-", "")
-		clean = strings.ReplaceAll(clean, " ", "")
-		headerMap[clean] = idx
-	}
-
-	findCol := func(row []string, aliases ...string) string {
-		for _, alias := range aliases {
-			clean := strings.ToLower(strings.TrimSpace(alias))
-			clean = strings.ReplaceAll(clean, "_", "")
-			clean = strings.ReplaceAll(clean, "-", "")
-			clean = strings.ReplaceAll(clean, " ", "")
-			if idx, ok := headerMap[clean]; ok && idx < len(row) {
-				return strings.TrimSpace(row[idx])
-			}
-		}
-		return ""
-	}
-
-	type MatchedItemDTO struct {
-		RawName      string `json:"raw_name"`
-		Barcode      string `json:"barcode"`
-		MatchedName  string `json:"matched_name"`
-		MatchPercent int    `json:"match_percent"`
-		Price        string `json:"price"`
-		Quantity     int    `json:"quantity"`
-		Batch        string `json:"batch"`
-		Expiry       string `json:"expiry"`
-	}
-
-	var matchedItems []MatchedItemDTO
-	matchedCount := 0
-
-	for rowIdx := 1; rowIdx < len(records); rowIdx++ {
-		row := records[rowIdx]
-		if len(row) == 0 {
-			continue
-		}
-
-		barcode := findCol(row, "الباركود", "barcode", "sku", "كود الصنف", "رقم التسجيل")
-		nameAr := findCol(row, "اسم الصنف بالعربي", "اسم الصنف", "الاسم بالعربي", "اسم الدواء", "name_ar", "name", "product_name")
-		nameEn := findCol(row, "اسم الصنف بالإنجليزي", "الاسم بالانجليزي", "name_en", "trade_name", "english_name")
-		if nameAr == "" && nameEn == "" {
-			if len(row) > 0 && strings.TrimSpace(row[0]) != "" {
-				nameAr = strings.TrimSpace(row[0])
-			} else {
-				continue
-			}
-		}
-		if nameAr == "" {
-			nameAr = nameEn
-		}
-		if nameEn == "" {
-			nameEn = nameAr
-		}
-
-		generic := findCol(row, "الاسم العلمي", "generic_name", "scientific_name", "scientific")
-		active := findCol(row, "المادة الفعالة", "المادة الفعالة والتركيز", "active_ingredient", "active")
-		dosage := findCol(row, "الشكل الصيدلي", "dosage_form", "dosage")
-		if dosage == "" {
-			dosage = "أقراص"
-		}
-		mfg := findCol(row, "الشركة المصنعة", "المصنع", "manufacturer", "company")
-		priceVal, _ := money.Parse(findCol(row, "سعر التوريد", "السعر", "price", "unit_price", "سعر الوحدة"))
-		qtyVal, _ := strconv.Atoi(findCol(row, "الرصيد", "الكمية", "quantity", "stock", "stock_qty"))
-		if qtyVal <= 0 {
-			qtyVal = 100 // Default stock for import
-		}
-		batch := findCol(row, "رقم التشغيلة", "batch_number", "batch", "التشغيلة")
-		if batch == "" {
-			batch = fmt.Sprintf("BN-%d", time.Now().Unix()%100000)
-		}
-		expiryStr := findCol(row, "تاريخ الصلاحية", "expiry_date", "expiry", "الصلاحية")
-		var expiryDate *time.Time
-		if expiryStr != "" {
-			if t, err := time.Parse("2006-01-02", expiryStr); err == nil {
-				expiryDate = &t
-			}
-		}
-
-		// 1. Find or create master product in catalog.products
-		var masterProd *catalog.Product
-		if h.catSvc != nil {
-			// Try finding existing master product
-			prods, _ := h.catSvc.Search(database.AsSystem(ctx), catalog.SearchParams{Query: nameAr, Limit: 5})
-			for _, p := range prods {
-				if p != nil && (p.Name.Get(i18n.AR) == nameAr || p.SKU == barcode) {
-					masterProd = p
-					break
-				}
-			}
-
-			if masterProd == nil {
-				// Create master product
-				newProd := &catalog.Product{
-					OrganizationID:         actor.OrganizationID,
-					Name:                   i18n.New(nameAr, nameEn),
-					ScientificName:         generic,
-					Active:                 active,
-					DosageForm:             dosage,
-					ManufacturingCompanies: mfg,
-					SKU:                    barcode,
-					Barcode:                barcode,
-					Price:                  priceVal,
-					Status:                 catalog.StatusActive,
-				}
-				created, err := h.catSvc.CreateProduct(database.AsSystem(ctx), newProd)
-				if err == nil && created != nil {
-					masterProd = created
-				}
-			}
-
-			// 2. Create or update vendor product variant
-			if masterProd != nil {
-				variant := &catalog.ProductVariant{
-					OrganizationID: actor.OrganizationID,
-					ProductID:      masterProd.ID,
-					Name:           i18n.New(nameAr, nameEn),
-					BatchNumber:    batch,
-					ExpiryDate:     expiryDate,
-					Price:          priceVal,
-					StockQty:       qtyVal,
-					MinOrderQty:    1,
-					SKU:            barcode,
-					Status:         catalog.StatusActive,
-				}
-				_, _ = h.catSvc.CreateVariant(database.AsSystem(ctx), variant)
-				matchedCount++
-
-				matchedItems = append(matchedItems, MatchedItemDTO{
-					RawName:      nameAr,
-					Barcode:      barcode,
-					MatchedName:  masterProd.Name.Get(i18n.AR),
-					MatchPercent: 100,
-					Price:        priceVal.String(),
-					Quantity:     qtyVal,
-					Batch:        batch,
-					Expiry:       expiryStr,
-				})
-			}
-		}
-	}
-
-	var sessionID int64 = time.Now().Unix()
-	if h.ingSvc != nil {
-		upload := &ingest.FileUpload{
-			OrganizationID: actor.OrganizationID,
-			UserID:         actor.UserID,
-			Filename:       filename,
-			StorageKey:     fmt.Sprintf("orgs/%d/uploads/%d_%s", actor.OrganizationID, time.Now().UnixNano(), filename),
-			FileSizeBytes:  int64(len(content)),
-			MimeType:       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-			CreatedAt:      time.Now().UTC(),
-		}
-		if regUpload, err := h.ingSvc.RegisterUpload(ctx, upload); err == nil {
-			if sess, err := h.ingSvc.StartSession(ctx, regUpload.ID, []string{"Barcode", "Name", "Price", "Quantity"}, 0.98); err == nil {
-				sessionID = sess.ID
-			}
-		}
-	}
-
-	httpx.JSON(w, http.StatusOK, map[string]any{
-		"session_id":    sessionID,
-		"filename":      filename,
-		"total_rows":    len(records) - 1,
-		"matched_count": matchedCount,
-		"accuracy":      "99.4%",
-		"items":         matchedItems,
-	})
-}
 
 // VendorIngestSampleXLSX streams a styled Excel template for vendor catalog and inventory upload.
 func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Request) {
@@ -930,33 +689,6 @@ func (h *UIHandler) VendorIngestExport(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// VendorIngestCommitSubmit confirms and commits the matched items to inventory.
-func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		httpx.JSON(w, http.StatusUnauthorized, map[string]any{"error": "Unauthorized"})
-		return
-	}
-
-	sessionID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		httpx.JSON(w, http.StatusBadRequest, map[string]any{"error": "Invalid session ID"})
-		return
-	}
-
-	if h.ingSvc != nil {
-		if err := h.ingSvc.CommitSession(ctx, sessionID); err != nil {
-			h.log.ErrorContext(ctx, "failed to commit ingest session", "error", err, "session_id", sessionID)
-			httpx.JSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
-			return
-		}
-	}
-
-	httpx.JSON(w, http.StatusOK, map[string]any{"success": true})
-}
-
-
 // VendorOrdersPage renders supplier order fulfillments.
 func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1026,13 +758,20 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 
 	var branches []*org.Branch
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+		bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+		if err != nil {
+			h.log.WarnContext(ctx, "vendor offer new: list branches", "error", err)
+		} else {
+			branches = bList
+		}
 	}
 
 	var variants []*catalog.ProductVariant
 	if h.catSvc != nil {
 		products, err := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 100})
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "vendor offer new: search catalog", "error", err)
+		} else {
 			for _, p := range products {
 				pVars, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
 				for _, v := range pVars {
@@ -1300,32 +1039,5 @@ func (h *UIHandler) VendorStockAdjustSubmit(w http.ResponseWriter, r *http.Reque
 		})
 	}
 	http.Redirect(w, r, "/vendor/inventory", http.StatusSeeOther)
-}
-
-// VendorCoveragePage renders the weekly geographic coverage grid and distance delivery tiers.
-func (h *UIHandler) VendorCoveragePage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
-		return
-	}
-
-	var coverages []*workflow.WeeklyCoverage
-	var bands []*org.DeliveryBand
-
-
-	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		if b, err := h.orgSvc.GetDeliveryBands(ctx, actor.OrganizationID); err == nil {
-			bands = b
-		}
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorCoverage(coverages, bands, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor coverage", "error", err)
-	}
 }
 

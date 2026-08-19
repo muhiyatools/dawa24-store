@@ -29,7 +29,7 @@ import (
 //
 // The offer columns use the canonical scanOffer order; the two trailing
 // columns (vendor branch id, distance in metres) are read afterwards.
-func (r *Repository) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int) ([]*promo.VisibleOffer, error) {
+func (r *Repository) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*promo.VisibleOffer, error) {
 	if limit <= 0 || limit > 100 {
 		limit = 20
 	}
@@ -60,11 +60,18 @@ func (r *Repository) ListOffersVisibleTo(ctx context.Context, latitude, longitud
 			  AND o.starts_at <= now() AND o.expires_at >= now()
 			  AND wc.latitude IS NOT NULL AND wc.longitude IS NOT NULL
 			  AND platform.distance_meters(wc.latitude, wc.longitude, $1::NUMERIC, $2::NUMERIC) <= wc.distance_meters
+			  AND (
+			      $6::BIGINT[] IS NULL OR cardinality($6::BIGINT[]) = 0
+			      OR NOT EXISTS (
+			          SELECT 1 FROM promo.offer_products op
+			          JOIN catalog.products cp ON op.product_id = cp.id
+			          WHERE op.offer_id = o.id AND cardinality(cp.institutional_work_ids) > 0 AND NOT (cp.institutional_work_ids && $6)
+			      )
+			  )
 			ORDER BY vo.is_sponsored DESC, metres ASC, o.created_at DESC
 			LIMIT $4 OFFSET $5;
-
 		`
-		rows, err := tx.Query(txCtx, query, latitude, longitude, dayOfWeek, limit, offset)
+		rows, err := tx.Query(txCtx, query, latitude, longitude, dayOfWeek, limit, offset, allowedWorkIDs)
 		if err != nil {
 			return err
 		}

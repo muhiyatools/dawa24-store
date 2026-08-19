@@ -2,6 +2,7 @@ package commerce
 
 import (
 	"context"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -54,11 +55,21 @@ func (m *mockCommerceRepo) ListOrderHistory(_ context.Context, orderID int64) ([
 	return m.history[orderID], nil
 }
 
-func (m *mockCommerceRepo) RateOrder(_ context.Context, orderID, customerID int64, rating int, review string) error {
+func (m *mockCommerceRepo) RateOrder(_ context.Context, orderID, customerID int64, rating float64, review string) error {
 	o, ok := m.orders[orderID]
 	if !ok || o.CustomerID != customerID {
 		return apperr.NotFound("order")
 	}
+	if o.Status != StatusDelivered {
+		return apperr.Validation("order.not_delivered", "Only delivered orders can be rated.", nil)
+	}
+	if o.RatedAt != nil {
+		return apperr.Validation("order.already_rated", "This order has already been rated.", nil)
+	}
+	now := time.Now().UTC()
+	o.Rating = &rating
+	o.Review = &review
+	o.RatedAt = &now
 	return nil
 }
 

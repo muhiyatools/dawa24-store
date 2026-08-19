@@ -10,9 +10,17 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
+type empWorkEntry struct {
+	orgID   int64
+	userID  int64
+	workID  int64
+	deleted bool
+}
+
 type institutionalMockRepo struct {
 	items       map[int64]*org.InstitutionalWork
 	connections map[int64]map[int64]bool
+	empWorks    []*empWorkEntry
 	nextID      int64
 }
 
@@ -20,6 +28,7 @@ func newInstMockRepo() *institutionalMockRepo {
 	return &institutionalMockRepo{
 		items:       make(map[int64]*org.InstitutionalWork),
 		connections: make(map[int64]map[int64]bool),
+		empWorks:    make([]*empWorkEntry, 0),
 		nextID:      1,
 	}
 }
@@ -117,6 +126,11 @@ func (m *institutionalMockRepo) ListMembersByOrg(_ context.Context, _ int64) ([]
 func (m *institutionalMockRepo) ListEmployees(_ context.Context, _ int64) ([]*org.EmployeeView, error) { return nil, nil }
 func (m *institutionalMockRepo) RemoveMember(_ context.Context, _, _ int64) error { return nil }
 func (m *institutionalMockRepo) CreateRole(_ context.Context, _ *org.Role) error { return nil }
+func (m *institutionalMockRepo) GetRoleByID(_ context.Context, id int64) (*org.Role, error) {
+	return &org.Role{ID: id, Key: "custom_role", Permissions: []string{"org.organization.view"}}, nil
+}
+func (m *institutionalMockRepo) UpdateRole(_ context.Context, _ *org.Role) error { return nil }
+func (m *institutionalMockRepo) DeleteRole(_ context.Context, _ int64) error { return nil }
 func (m *institutionalMockRepo) ListRolesByOrg(_ context.Context, _ int64) ([]*org.Role, error) { return nil, nil }
 func (m *institutionalMockRepo) GetDeliveryBands(_ context.Context, _ int64) ([]*org.DeliveryBand, error) { return nil, nil }
 func (m *institutionalMockRepo) SaveDeliveryBands(_ context.Context, _ int64, _ []*org.DeliveryBand) error { return nil }
@@ -130,6 +144,75 @@ func (m *institutionalMockRepo) IsFollowing(_ context.Context, _, _ int64) (bool
 func (m *institutionalMockRepo) ListFollowedOrgs(_ context.Context, _ int64) ([]*org.Organization, error) { return nil, nil }
 func (m *institutionalMockRepo) CreatePolicy(_ context.Context, _ *org.Policy) error { return nil }
 func (m *institutionalMockRepo) ListPoliciesByOrg(_ context.Context, _ int64) ([]*org.Policy, error) { return nil, nil }
+
+// Employee Institutional Works mock
+func (m *institutionalMockRepo) AssignEmployeeInstitutionalWork(_ context.Context, orgID, userID, workID int64) error {
+	m.empWorks = append(m.empWorks, &empWorkEntry{orgID: orgID, userID: userID, workID: workID, deleted: false})
+	return nil
+}
+
+func (m *institutionalMockRepo) RemoveEmployeeInstitutionalWork(_ context.Context, orgID, userID, workID int64) error {
+	for _, e := range m.empWorks {
+		if e.userID == userID && e.workID == workID && (orgID == 0 || e.orgID == orgID) {
+			e.deleted = true
+		}
+	}
+	return nil
+}
+
+func (m *institutionalMockRepo) ListEmployeeInstitutionalWorks(_ context.Context, userID int64) ([]*org.EmployeeInstitutionalWork, error) {
+	var list []*org.EmployeeInstitutionalWork
+	for _, e := range m.empWorks {
+		if e.userID == userID && !e.deleted {
+			list = append(list, &org.EmployeeInstitutionalWork{
+				OrganizationID:      e.orgID,
+				UserID:              e.userID,
+				InstitutionalWorkID: e.workID,
+			})
+		}
+	}
+	return list, nil
+}
+
+func (m *institutionalMockRepo) ListOrgEmployeeInstitutionalWorks(_ context.Context, orgID int64) ([]*org.EmployeeInstitutionalWork, error) {
+	var list []*org.EmployeeInstitutionalWork
+	for _, e := range m.empWorks {
+		if e.orgID == orgID && !e.deleted {
+			list = append(list, &org.EmployeeInstitutionalWork{
+				OrganizationID:      e.orgID,
+				UserID:              e.userID,
+				InstitutionalWorkID: e.workID,
+			})
+		}
+	}
+	return list, nil
+}
+
+func (m *institutionalMockRepo) GetUserInstitutionalWorkIDs(_ context.Context, userID int64) ([]int64, error) {
+	var ids []int64
+	for _, e := range m.empWorks {
+		if e.userID == userID && !e.deleted {
+			ids = append(ids, e.workID)
+		}
+	}
+	return ids, nil
+}
+
+func (m *institutionalMockRepo) GetConnectedInstitutionalWorkIDs(_ context.Context, fromWorkIDs []int64) ([]int64, error) {
+	var res []int64
+	seen := make(map[int64]bool)
+	for _, fromID := range fromWorkIDs {
+		if targets, ok := m.connections[fromID]; ok {
+			for toID := range targets {
+				if !seen[toID] {
+					seen[toID] = true
+					res = append(res, toID)
+				}
+			}
+		}
+	}
+	return res, nil
+}
 
 func TestInstitutionalWorkHierarchyAndConnections(t *testing.T) {
 	ctx := context.Background()
@@ -210,3 +293,65 @@ func TestInstitutionalWorkHierarchyAndConnections(t *testing.T) {
 		t.Errorf("expected factory to be inactive after toggle")
 	}
 }
+
+// T1: AllowedWorkIDs — Simple vs WithConnections, using the exact example from the Laravel doc:
+// user works [5,7,3,8], connections 5->7, 5->9, 7->10 => allowed in WithConnections is [7,9,10]
+func TestInstitutionalWorksFilterModes(t *testing.T) {
+	ctx := context.Background()
+	repo := newInstMockRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := org.NewService(repo, logger)
+
+	const userID int64 = 42
+	const orgID int64 = 101
+
+	// Assign user works [5, 7, 3, 8]
+	for _, wID := range []int64{5, 7, 3, 8} {
+		_ = svc.AssignEmployeeInstitutionalWork(ctx, orgID, userID, wID)
+	}
+
+	// Setup connections: 5 -> 7, 5 -> 9, 7 -> 10
+	repo.connections[5] = map[int64]bool{7: true, 9: true}
+	repo.connections[7] = map[int64]bool{10: true}
+
+	// Mode Simple: returns user's direct works [5, 7, 3, 8]
+	simpleWorks, err := svc.AllowedWorkIDs(ctx, userID, org.FilterSimple)
+	if err != nil {
+		t.Fatalf("AllowedWorkIDs Simple failed: %v", err)
+	}
+	if len(simpleWorks) != 4 {
+		t.Errorf("Simple mode: got %v, want 4 works", simpleWorks)
+	}
+
+	// Mode WithConnections: returns connected targets [7, 9, 10]
+	connWorks, err := svc.AllowedWorkIDs(ctx, userID, org.FilterWithConnections)
+	if err != nil {
+		t.Fatalf("AllowedWorkIDs WithConnections failed: %v", err)
+	}
+
+	has := func(slice []int64, target int64) bool {
+		for _, v := range slice {
+			if v == target {
+				return true
+			}
+		}
+		return false
+	}
+
+	if len(connWorks) != 3 || !has(connWorks, 7) || !has(connWorks, 9) || !has(connWorks, 10) {
+		t.Errorf("WithConnections mode: got %v, want [7, 9, 10]", connWorks)
+	}
+
+	// T2: Assign, remove, list
+	if err := svc.RemoveEmployeeInstitutionalWork(ctx, orgID, userID, 3); err != nil {
+		t.Fatalf("Remove work failed: %v", err)
+	}
+	remainingWorks, err := svc.AllowedWorkIDs(ctx, userID, org.FilterSimple)
+	if err != nil {
+		t.Fatalf("AllowedWorkIDs after remove failed: %v", err)
+	}
+	if has(remainingWorks, 3) || len(remainingWorks) != 3 {
+		t.Errorf("after removing work 3: got %v, want 3 works excluding 3", remainingWorks)
+	}
+}
+

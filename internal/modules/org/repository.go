@@ -32,6 +32,9 @@ type Repository interface {
 
 	// Custom Roles
 	CreateRole(ctx context.Context, role *Role) error
+	GetRoleByID(ctx context.Context, id int64) (*Role, error)
+	UpdateRole(ctx context.Context, role *Role) error
+	DeleteRole(ctx context.Context, id int64) error
 	ListRolesByOrg(ctx context.Context, orgID int64) ([]*Role, error)
 
 	// Delivery Bands
@@ -63,4 +66,13 @@ type Repository interface {
 	CanConnectInstitutionalWorks(ctx context.Context, fromID, toID int64) (bool, error)
 	AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error
 	GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*InstitutionalWork, error)
+
+	// Employee Institutional Works (مجموعات العمل للمستخدمين والموظفين)
+	AssignEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error
+	RemoveEmployeeInstitutionalWork(ctx context.Context, orgID, userID, workID int64) error
+	ListEmployeeInstitutionalWorks(ctx context.Context, userID int64) ([]*EmployeeInstitutionalWork, error)
+	ListOrgEmployeeInstitutionalWorks(ctx context.Context, orgID int64) ([]*EmployeeInstitutionalWork, error)
+	GetUserInstitutionalWorkIDs(ctx context.Context, userID int64) ([]int64, error)
+	GetConnectedInstitutionalWorkIDs(ctx context.Context, fromWorkIDs []int64) ([]int64, error)
 }
+

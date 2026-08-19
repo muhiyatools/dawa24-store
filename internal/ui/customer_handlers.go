@@ -183,7 +183,9 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 
 	var branches []*org.Branch
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		if bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
+		if bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err != nil {
+			h.log.WarnContext(ctx, "checkout: list customer branches", "error", err)
+		} else {
 			branches = bList
 		}
 	}

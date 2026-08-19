@@ -74,7 +74,10 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 
 	// 2. Check for promotional discounts from promo module
 	if h.promoSvc != nil {
-		if rows, err := h.promoSvc.ListOffersForProduct(ctx, product.ID); err == nil {
+		rows, err := h.promoSvc.ListOffersForProduct(ctx, product.ID)
+		if err != nil {
+			h.log.WarnContext(ctx, "offers storefront: list offers for product", "product_id", product.ID, "error", err)
+		} else {
 			listPrice := product.EffectivePrice()
 			for _, row := range rows {
 				if row == nil || row.Offer == nil || row.Product == nil {
@@ -153,12 +156,16 @@ func (h *UIHandler) pharmacyBranchCoords(ctx context.Context, actor *authctx.Act
 
 	var branch *org.Branch
 	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
-		if b, err := h.orgSvc.GetBranch(ctx, *selection.Active); err == nil && b != nil {
+		if b, err := h.orgSvc.GetBranch(ctx, *selection.Active); err != nil {
+			h.log.DebugContext(ctx, "pharmacy branch coords: get branch selection optional", "branch_id", *selection.Active, "error", err)
+		} else if b != nil {
 			branch = b
 		}
 	}
 	if branch == nil && actor.BranchID != nil && *actor.BranchID > 0 {
-		if b, err := h.orgSvc.GetBranch(ctx, *actor.BranchID); err == nil {
+		if b, err := h.orgSvc.GetBranch(ctx, *actor.BranchID); err != nil {
+			h.log.DebugContext(ctx, "pharmacy branch coords: get actor branch optional", "branch_id", *actor.BranchID, "error", err)
+		} else if b != nil {
 			branch = b
 		}
 	}

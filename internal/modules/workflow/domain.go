@@ -36,14 +36,44 @@ type WeeklyCoverage struct {
 	PublicID       string    `json:"public_id"`
 	OrganizationID int64     `json:"organization_id"`
 	BranchID       int64     `json:"branch_id"`
-	DayOfWeek      int       `json:"day_of_week"` // 0 = Sunday
+	CityID         *int64    `json:"city_id,omitempty"`
+	DayOfWeek      int       `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
 	CoverageFrom   string    `json:"coverage_from,omitempty"`
 	CoverageTo     string    `json:"coverage_to,omitempty"`
 	Address        string    `json:"address,omitempty"`
+	Latitude       *float64  `json:"latitude,omitempty"`
+	Longitude      *float64  `json:"longitude,omitempty"`
 	DistanceMeters int       `json:"distance_meters"`
 	IsActive       bool      `json:"is_active"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+// CoverageView extends WeeklyCoverage with denormalized branch and city names for display.
+type CoverageView struct {
+	WeeklyCoverage
+	BranchName string `json:"branch_name"`
+	CityName   string `json:"city_name,omitempty"`
+}
+
+// Validate ensures weekly coverage fields are valid.
+func (c *WeeklyCoverage) Validate() error {
+	if c.BranchID <= 0 {
+		return apperr.Validation("coverage.branch_required", "Branch ID is required.", map[string]string{"branch_id": "الفرع مطلوب"})
+	}
+	if c.DayOfWeek < 0 || c.DayOfWeek > 6 {
+		return apperr.Validation("coverage.day_invalid", "Day of week must be between 0 (Sunday) and 6 (Saturday).", map[string]string{"day_of_week": "يوم الأسبوع غير صالح"})
+	}
+	if c.DistanceMeters <= 0 || c.DistanceMeters > 500000 {
+		return apperr.Validation("coverage.distance_invalid", "Distance must be between 1 and 500,000 meters.", map[string]string{"distance_meters": "نطاق التغطية يجب أن يكون بين 1 و 500,000 متر"})
+	}
+	if c.Latitude != nil && (*c.Latitude < -90 || *c.Latitude > 90) {
+		return apperr.Validation("coverage.latitude_invalid", "Latitude must be between -90 and 90.", map[string]string{"latitude": "خط العرض غير صالح"})
+	}
+	if c.Longitude != nil && (*c.Longitude < -180 || *c.Longitude > 180) {
+		return apperr.Validation("coverage.longitude_invalid", "Longitude must be between -180 and 180.", map[string]string{"longitude": "خط الطول غير صالح"})
+	}
+	return nil
 }
 
 // ReportIssue tracks customer support and quality tickets.

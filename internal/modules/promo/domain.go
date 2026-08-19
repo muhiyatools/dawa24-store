@@ -3,6 +3,7 @@
 package promo
 
 import (
+	"context"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -242,3 +243,17 @@ type HighlightSectionItem struct {
 	OfferID      *int64 `json:"offer_id,omitempty"`
 	DisplayOrder int    `json:"display_order"`
 }
+
+// InstitutionalGate resolves which institutional work ids a user may see products for.
+// Implemented by the org module and injected at composition time in cmd/server/routes.go — modules must not import each other (ADR 0002).
+type InstitutionalGate interface {
+	AllowedWorkIDs(ctx context.Context, userID int64, mode int) ([]int64, error)
+}
+
+// InstitutionalGateFunc adapts a standard function to InstitutionalGate.
+type InstitutionalGateFunc func(ctx context.Context, userID int64, mode int) ([]int64, error)
+
+func (f InstitutionalGateFunc) AllowedWorkIDs(ctx context.Context, userID int64, mode int) ([]int64, error) {
+	return f(ctx, userID, mode)
+}
+

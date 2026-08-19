@@ -39,24 +39,36 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	var platformPaymentMethods []*billing.PlatformPaymentMethod
 
 	if h.idSvc != nil {
-		if me, err := h.idSvc.GetMe(ctx, actor.UserID, nil); err == nil && me != nil {
+		if me, err := h.idSvc.GetMe(ctx, actor.UserID, nil); err != nil {
+			h.log.DebugContext(ctx, "settings: get me optional", "error", err)
+		} else if me != nil {
 			user = me.User
 		}
-		if sess, err := h.idSvc.ListSessions(ctx, actor.UserID); err == nil {
+		if sess, err := h.idSvc.ListSessions(ctx, actor.UserID); err != nil {
+			h.log.WarnContext(ctx, "settings: list sessions", "error", err)
+		} else {
 			sessions = sess
 		}
 	}
 
 	if h.billSvc != nil {
-		if pms, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err == nil {
+		if pms, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err != nil {
+			h.log.WarnContext(ctx, "settings: list payment methods", "error", err)
+		} else {
 			paymentMethods = pms
 		}
-		if ppms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err == nil {
+		if ppms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err != nil {
+			h.log.WarnContext(ctx, "settings: list platform payment methods", "error", err)
+		} else {
 			platformPaymentMethods = ppms
 		}
-		if w, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && w != nil {
+		if w, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
+			h.log.DebugContext(ctx, "settings: get wallet optional", "error", err)
+		} else if w != nil {
 			wallet = w
-			if list, err := h.billSvc.ListWalletTransactions(ctx, w.ID, 50, 0); err == nil {
+			if list, err := h.billSvc.ListWalletTransactions(ctx, w.ID, 50, 0); err != nil {
+				h.log.WarnContext(ctx, "settings: list wallet transactions", "error", err)
+			} else {
 				txs = list
 			}
 		}

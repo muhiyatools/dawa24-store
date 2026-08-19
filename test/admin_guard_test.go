@@ -142,3 +142,50 @@ func TestTenantScopedMutationsAreGuarded(t *testing.T) {
 		t.Errorf("%s takes an organization id from the URL without authctx.SameOrgOrForbidden", m)
 	}
 }
+
+// TestAdminUIRoutesRequirePagePermission asserts that every admin HTML route
+// (except the dashboard allowlist) is registered inside a group that calls RequirePagePermission.
+func TestAdminUIRoutesRequirePagePermission(t *testing.T) {
+	const root = ".."
+
+	reAdminPath := regexp.MustCompile(`"(/(admin)/[^"]*)"`)
+	dir := filepath.Join(root, "internal", "ui")
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("reading internal/ui: %v", err)
+	}
+
+	var unguarded []string
+
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasPrefix(e.Name(), "admin_routes_") || !strings.HasSuffix(e.Name(), ".go") {
+			continue
+		}
+		src, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err != nil {
+			t.Fatalf("reading %s: %v", e.Name(), err)
+		}
+		content := string(src)
+
+		// Split by r.Group to inspect each group
+		groups := strings.Split(content, "r.Group(")
+		for _, g := range groups[1:] {
+			if !strings.Contains(g, "RequirePagePermission") {
+				for _, p := range reAdminPath.FindAllStringSubmatch(g, -1) {
+					if p[1] != "/admin/dashboard" {
+						unguarded = append(unguarded, e.Name()+": "+p[1])
+					}
+				}
+			}
+		}
+	}
+
+	if len(unguarded) > 0 {
+		t.Errorf("%d admin HTML route(s) registered without RequirePagePermission:", len(unguarded))
+		for _, u := range unguarded {
+			t.Errorf("  %s", u)
+		}
+	}
+}
+

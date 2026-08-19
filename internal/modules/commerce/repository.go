@@ -38,7 +38,7 @@ type Repository interface {
 	UpdateShipmentStatus(ctx context.Context, id int64, from, to OrderStatus, history OrderStatusHistory) error
 	SetShipmentTracking(ctx context.Context, id int64, carrier, tracking string) error
 	ListOrderHistory(ctx context.Context, orderID int64) ([]*OrderStatusHistory, error)
-	RateOrder(ctx context.Context, orderID int64, customerID int64, rating int, review string) error
+	RateOrder(ctx context.Context, orderID int64, customerID int64, rating float64, review string) error
 
 	AddToWishlist(ctx context.Context, userID int64, productID int64) error
 	RemoveFromWishlist(ctx context.Context, userID int64, productID int64) error
@@ -48,6 +48,15 @@ type Repository interface {
 	GetQuoteRequestByID(ctx context.Context, id int64) (*QuoteRequest, error)
 	UpdateQuoteStatus(ctx context.Context, id int64, status QuoteStatus, quotePrice money.Amount, supplierNotes string) error
 	ListQuoteRequestsByOrg(ctx context.Context, orgID int64, isVendor bool, limit, offset int) ([]*QuoteRequest, error)
+
+	CreatePurchaseRequest(ctx context.Context, pr *PurchaseRequest, lines []*PurchaseRequestLine) error
+	GetPurchaseRequestByID(ctx context.Context, id int64) (*PurchaseRequest, error)
+	GetPurchaseRequestByNumber(ctx context.Context, number string) (*PurchaseRequest, error)
+	ListPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64, status string, limit, offset int) ([]*PurchaseRequest, error)
+	ListPurchaseRequestsByVendor(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, error)
+	CountPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error)
+	UpdatePurchaseRequestStatus(ctx context.Context, id int64, status PurchaseRequestStatus, vendorNotes string, responderID *int64) error
+	UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error
 
 	AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*Order, error)
 }

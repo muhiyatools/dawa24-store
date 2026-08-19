@@ -79,7 +79,7 @@ func (m *mockPromoRepo) ListOffersForProduct(_ context.Context, productID int64)
 	return list, nil
 }
 
-func (m *mockPromoRepo) ListOffersVisibleTo(_ context.Context, latitude, longitude float64, dayOfWeek, limit, offset int) ([]*VisibleOffer, error) {
+func (m *mockPromoRepo) ListOffersVisibleTo(_ context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*VisibleOffer, error) {
 	var list []*VisibleOffer
 	for _, o := range m.offers {
 		if o.IsActive {

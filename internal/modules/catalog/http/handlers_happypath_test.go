@@ -127,6 +127,21 @@ func (happyRepo) CreateFinderResult(ctx context.Context, r *catalog.FinderResult
 func (happyRepo) ListFinderResults(ctx context.Context) ([]*catalog.FinderResult, error) {
 	return []*catalog.FinderResult{{ID: 1, Title: i18n.Text{"ar": "نتيجة"}}}, nil
 }
+func (happyRepo) UpsertProductIndex(ctx context.Context, item *catalog.ProductIndexItem) error {
+	return nil
+}
+func (happyRepo) DeleteProductIndex(ctx context.Context, uniqueRowID string) error {
+	return nil
+}
+func (happyRepo) DeleteProductIndexByProduct(ctx context.Context, productID int64) error {
+	return nil
+}
+func (happyRepo) SearchProductIndex(ctx context.Context, params catalog.SearchParams) ([]*catalog.ProductIndexItem, error) {
+	return nil, nil
+}
+func (happyRepo) RebuildProductIndex(ctx context.Context) (int64, error) {
+	return 0, nil
+}
 
 func newAuthedRouter(repo catalog.Repository) http.Handler {
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))

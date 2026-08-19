@@ -112,7 +112,10 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 
 		lineTotal := lineSubtotal
 		if item.DiscountAmount.IsPositive() && item.DiscountAmount.Minor() < lineSubtotal.Minor() {
-			if sub, err := lineSubtotal.Sub(item.DiscountAmount); err == nil {
+			sub, err := lineSubtotal.Sub(item.DiscountAmount)
+			if err != nil {
+				s.log.WarnContext(ctx, "failed to subtract discount from line subtotal", "error", err)
+			} else {
 				lineTotal = sub
 			}
 		}
@@ -226,6 +229,11 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 // GetOrder retrieves an order by primary key.
 func (s *Service) GetOrder(ctx context.Context, id int64) (*Order, error) {
 	return s.repo.GetOrderByID(ctx, id)
+}
+
+// GetOrderByNumber retrieves an order by public order number.
+func (s *Service) GetOrderByNumber(ctx context.Context, number string) (*Order, error) {
+	return s.repo.GetOrderByNumber(ctx, number)
 }
 
 // TransitionOrderStatus validates and applies an order state change.
@@ -368,3 +376,77 @@ func (s *Service) SetShipmentTracking(ctx context.Context, id int64, carrier, tr
 func (s *Service) CountVendorShipmentsByStatus(ctx context.Context, orgID int64, statuses []string) (int, error) {
 	return s.repo.CountVendorShipmentsByStatus(ctx, orgID, statuses)
 }
+
+// CreatePurchaseRequest creates a multi-line purchase request for a customer (Plan V5 Phase 3 §3.1).
+func (s *Service) CreatePurchaseRequest(ctx context.Context, pr *PurchaseRequest, lines []*PurchaseRequestLine) (*PurchaseRequest, error) {
+	if pr.CustomerID <= 0 || pr.VendorOrgID <= 0 {
+		return nil, apperr.Validation("purchase_request.invalid_parties", "Customer and target supplier are required.", nil)
+	}
+	if len(lines) == 0 {
+		return nil, apperr.Validation("purchase_request.empty_lines", "At least one product item is required.", nil)
+	}
+
+	for _, l := range lines {
+		if l.ProductName == "" {
+			return nil, apperr.Validation("purchase_request.invalid_line", "Product name is required for all line items.", nil)
+		}
+		if l.Quantity <= 0 {
+			return nil, apperr.Validation("purchase_request.invalid_quantity", "Quantity must be greater than zero.", nil)
+		}
+	}
+
+	if pr.Status == "" {
+		pr.Status = PurchaseRequestPending
+	}
+	pr.TotalItems = len(lines)
+	if pr.RequestNumber == "" {
+		pr.RequestNumber = GeneratePurchaseRequestNumber(time.Now().UTC(), time.Now().UnixNano())
+	}
+	if err := s.repo.CreatePurchaseRequest(ctx, pr, lines); err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "purchase request created", "request_id", pr.ID, "request_number", pr.RequestNumber, "vendor_org", pr.VendorOrgID)
+	return pr, nil
+}
+
+// GetPurchaseRequest retrieves a purchase request with its lines.
+func (s *Service) GetPurchaseRequest(ctx context.Context, id int64) (*PurchaseRequest, error) {
+	return s.repo.GetPurchaseRequestByID(ctx, id)
+}
+
+// GetPurchaseRequestByNumber retrieves a purchase request by request number.
+func (s *Service) GetPurchaseRequestByNumber(ctx context.Context, number string) (*PurchaseRequest, error) {
+	return s.repo.GetPurchaseRequestByNumber(ctx, number)
+}
+
+// ListCustomerPurchaseRequests lists purchase requests placed by a customer.
+func (s *Service) ListCustomerPurchaseRequests(ctx context.Context, customerID int64, orgID *int64, status string, limit, offset int) ([]*PurchaseRequest, error) {
+	if limit <= 0 {
+		limit = 25
+	}
+	return s.repo.ListPurchaseRequestsByCustomer(ctx, customerID, orgID, status, limit, offset)
+}
+
+// ListVendorPurchaseRequests lists incoming purchase requests for a supplier.
+func (s *Service) ListVendorPurchaseRequests(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, error) {
+	if limit <= 0 {
+		limit = 25
+	}
+	return s.repo.ListPurchaseRequestsByVendor(ctx, vendorOrgID, status, limit, offset)
+}
+
+// CountCustomerPurchaseRequests returns count statistics by status.
+func (s *Service) CountCustomerPurchaseRequests(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error) {
+	return s.repo.CountPurchaseRequestsByCustomer(ctx, customerID, orgID)
+}
+
+// RespondPurchaseRequest allows a vendor to accept, modify, or reject a purchase request.
+func (s *Service) RespondPurchaseRequest(ctx context.Context, id int64, status PurchaseRequestStatus, vendorNotes string, responderID *int64) error {
+	return s.repo.UpdatePurchaseRequestStatus(ctx, id, status, vendorNotes, responderID)
+}
+
+// UpdatePurchaseRequestLineOffer allows vendor to set offered price/discount on a line item.
+func (s *Service) UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error {
+	return s.repo.UpdatePurchaseRequestLineOffer(ctx, lineID, price, discount, status)
+}
+

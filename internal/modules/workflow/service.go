@@ -13,8 +13,9 @@ import (
 
 // Service coordinates purchasing optimization, weekly coverage, and issue resolution.
 type Service struct {
-	repo Repository
-	log  *slog.Logger
+	repo     Repository
+	log      *slog.Logger
+	instGate InstitutionalGate
 }
 
 // NewService creates a new workflow service.
@@ -51,12 +52,60 @@ func (s *Service) SetWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) erro
 	}
 	c.OrganizationID = orgID
 	c.IsActive = true
+	if err := c.Validate(); err != nil {
+		return err
+	}
 	return s.repo.SaveWeeklyCoverage(ctx, c)
+}
+
+// CreateWeeklyCoverage creates a new branch weekly coverage entry.
+func (s *Service) CreateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error {
+	if err := c.Validate(); err != nil {
+		return err
+	}
+	return s.repo.SaveWeeklyCoverage(ctx, c)
+}
+
+// UpdateWeeklyCoverage updates an existing branch weekly coverage entry.
+func (s *Service) UpdateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error {
+	if err := c.Validate(); err != nil {
+		return err
+	}
+	return s.repo.UpdateWeeklyCoverage(ctx, c)
+}
+
+// DeleteWeeklyCoverage deletes a weekly coverage entry.
+func (s *Service) DeleteWeeklyCoverage(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("coverage.id_invalid", "Invalid coverage ID.", nil)
+	}
+	return s.repo.DeleteWeeklyCoverage(ctx, id)
+}
+
+// ToggleWeeklyCoverage toggles the active state of a coverage entry.
+func (s *Service) ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error {
+	if id <= 0 {
+		return apperr.Validation("coverage.id_invalid", "Invalid coverage ID.", nil)
+	}
+	return s.repo.ToggleWeeklyCoverage(ctx, id, isActive)
+}
+
+// GetWeeklyCoverage retrieves a weekly coverage record by ID.
+func (s *Service) GetWeeklyCoverage(ctx context.Context, id int64) (*WeeklyCoverage, error) {
+	if id <= 0 {
+		return nil, apperr.Validation("coverage.id_invalid", "Invalid coverage ID.", nil)
+	}
+	return s.repo.GetWeeklyCoverageByID(ctx, id)
 }
 
 // GetBranchCoverage lists coverage windows for a branch.
 func (s *Service) GetBranchCoverage(ctx context.Context, branchID int64) ([]*WeeklyCoverage, error) {
 	return s.repo.ListWeeklyCoverage(ctx, branchID)
+}
+
+// ListCoverageForOrganization lists all weekly coverage records for an organization with joined branch names.
+func (s *Service) ListCoverageForOrganization(ctx context.Context, orgID int64) ([]*CoverageView, error) {
+	return s.repo.ListCoverageForOrganization(ctx, orgID)
 }
 
 // ReportIssue logs a support inquiry or product defect.

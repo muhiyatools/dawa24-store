@@ -413,44 +413,6 @@ func (r *Repository) PublishPolicyVersion(ctx context.Context, id int64) error {
 	})
 }
 
-func ensureDeveloperTables(ctx context.Context, tx pgx.Tx) error {
-	const ddl = `
-		CREATE TABLE IF NOT EXISTS platform_admin.sql_logs (
-			id BIGSERIAL PRIMARY KEY,
-			query TEXT NOT NULL,
-			executed_by BIGINT,
-			actor_name TEXT NOT NULL DEFAULT '',
-			duration_ms BIGINT NOT NULL DEFAULT 0,
-			rows_affected BIGINT NOT NULL DEFAULT 0,
-			error_message TEXT NOT NULL DEFAULT '',
-			created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-		);
-
-		CREATE TABLE IF NOT EXISTS platform_admin.error_logs (
-			id BIGSERIAL PRIMARY KEY,
-			user_id BIGINT,
-			user_name TEXT NOT NULL DEFAULT '',
-			user_email TEXT NOT NULL DEFAULT '',
-			organization_name TEXT NOT NULL DEFAULT '',
-			error_level TEXT NOT NULL DEFAULT 'ERROR',
-			error_message TEXT NOT NULL,
-			exception_class TEXT NOT NULL DEFAULT '',
-			stack_trace TEXT NOT NULL DEFAULT '',
-			file_path TEXT NOT NULL DEFAULT '',
-			line_number INT NOT NULL DEFAULT 0,
-			http_method TEXT NOT NULL DEFAULT 'GET',
-			url_path TEXT NOT NULL DEFAULT '',
-			ip_address TEXT NOT NULL DEFAULT '',
-			user_agent TEXT NOT NULL DEFAULT '',
-			request_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
-			status TEXT NOT NULL DEFAULT 'NEW',
-			created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-		);
-	`
-	_, err := tx.Exec(ctx, ddl)
-	return err
-}
-
 // ExecuteSQL executes an arbitrary SQL query against PostgreSQL with safety and logs the execution.
 func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, query string) (*platformadmin.SQLQueryResult, error) {
 	result := &platformadmin.SQLQueryResult{
@@ -464,82 +426,84 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 		return result, nil
 	}
 
+	upper := strings.ToUpper(trimmed)
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") && !strings.HasPrefix(upper, "EXPLAIN") {
+		result.Error = "عمليات التعديل أو الحذف أو الإدراج غير مسموحة في لوحة الاستعلامات. يُسمح فقط باستعلامات القراءة (SELECT / EXPLAIN)."
+		return result, nil
+	}
+
 	start := time.Now()
 
-	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureDeveloperTables(txCtx, tx); err != nil {
-			return err
+	// Execute inside a read-only, timed-out, rolling-back transaction
+	_ = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// Set transaction read-only and statement timeout
+		if _, err := tx.Exec(txCtx, "SET LOCAL transaction_read_only = on; SET LOCAL statement_timeout = '10s';"); err != nil {
+			result.Error = "تعذر تهيئة جلسة الاستعلام الآمنة: " + err.Error()
+			return nil
 		}
 
-		isSelect := strings.HasPrefix(strings.ToUpper(trimmed), "SELECT") || strings.HasPrefix(strings.ToUpper(trimmed), "WITH") || strings.HasPrefix(strings.ToUpper(trimmed), "EXPLAIN")
+		rows, err := tx.Query(txCtx, trimmed)
+		if err != nil {
+			result.Error = err.Error()
+			return nil
+		}
+		defer rows.Close()
 
-		if isSelect {
-			rows, err := tx.Query(txCtx, trimmed)
+		fieldDescs := rows.FieldDescriptions()
+		for _, fd := range fieldDescs {
+			result.Columns = append(result.Columns, fd.Name)
+		}
+
+		count := 0
+		for rows.Next() {
+			count++
+			if count > 1000 {
+				result.Truncated = true
+				result.Message = "تم اقتطاع النتائج عند 1000 صف للحفاظ على أداء المتصفح."
+				break
+			}
+
+			vals, err := rows.Values()
 			if err != nil {
 				result.Error = err.Error()
 				return nil
 			}
-			defer rows.Close()
-
-			fieldDescs := rows.FieldDescriptions()
-			for _, fd := range fieldDescs {
-				result.Columns = append(result.Columns, fd.Name)
-			}
-
-			for rows.Next() {
-				vals, err := rows.Values()
-				if err != nil {
-					result.Error = err.Error()
-					return nil
-				}
-				rowVals := make([]any, len(vals))
-				for i, v := range vals {
-					if v == nil {
-						rowVals[i] = "NULL"
-					} else {
-						switch val := v.(type) {
-						case []byte:
-							rowVals[i] = string(val)
-						case time.Time:
-							rowVals[i] = val.Format("2006-01-02 15:04:05")
-						default:
-							rowVals[i] = fmt.Sprintf("%v", val)
-						}
+			rowVals := make([]any, len(vals))
+			for i, v := range vals {
+				if v == nil {
+					rowVals[i] = "NULL"
+				} else {
+					switch val := v.(type) {
+					case []byte:
+						rowVals[i] = string(val)
+					case time.Time:
+						rowVals[i] = val.Format("2006-01-02 15:04:05")
+					default:
+						rowVals[i] = fmt.Sprintf("%v", val)
 					}
 				}
-				result.Rows = append(result.Rows, rowVals)
-				if len(result.Rows) >= 500 { // Safety cap for UI rendering
-					break
-				}
 			}
-			result.RowsAffected = int64(len(result.Rows))
-		} else {
-			tag, err := tx.Exec(txCtx, trimmed)
-			if err != nil {
-				result.Error = err.Error()
-				return nil
-			}
-			result.RowsAffected = tag.RowsAffected()
-			result.Columns = []string{"Result"}
-			result.Rows = [][]any{{fmt.Sprintf("تم تنفيذ العملية بنجاح. الصفوف المتأثرة: %d", tag.RowsAffected())}}
+			result.Rows = append(result.Rows, rowVals)
 		}
-
+		if rows.Err() != nil && result.Error == "" {
+			result.Error = rows.Err().Error()
+		}
+		result.RowsAffected = int64(len(result.Rows))
 		return nil
 	})
 
 	result.DurationMS = time.Since(start).Milliseconds()
 
-	// Log query execution into sql_logs table
+	// Log query execution into platform_admin.sql_logs table in separate transaction
 	_ = r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		_ = ensureDeveloperTables(txCtx, tx)
-		_, _ = tx.Exec(txCtx, `
+		_, err := tx.Exec(txCtx, `
 			INSERT INTO platform_admin.sql_logs (query, executed_by, actor_name, duration_ms, rows_affected, error_message, created_at)
 			VALUES ($1, $2, $3, $4, $5, $6, now());
 		`, trimmed, actorID, actorName, result.DurationMS, result.RowsAffected, result.Error)
-		return nil
+		return err
 	})
 
-	return result, err
+	return result, nil
 }
 
 // ListSQLLogs returns previous executed queries from the SQL Console.
@@ -550,10 +514,6 @@ func (r *Repository) ListSQLLogs(ctx context.Context, limit, offset int) ([]*pla
 	var logs []*platformadmin.SQLLog
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureDeveloperTables(txCtx, tx); err != nil {
-			return err
-		}
-
 		query := `
 			SELECT id, query, executed_by, COALESCE(actor_name, ''), duration_ms, rows_affected, COALESCE(error_message, ''), created_at
 			FROM platform_admin.sql_logs
@@ -582,10 +542,6 @@ func (r *Repository) ListSQLLogs(ctx context.Context, limit, offset int) ([]*pla
 // LogError records a system diagnostic error or exception.
 func (r *Repository) LogError(ctx context.Context, entry *platformadmin.ErrorLog) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureDeveloperTables(txCtx, tx); err != nil {
-			return err
-		}
-
 		payloadJSON, _ := json.Marshal(entry.RequestPayload)
 
 		query := `
@@ -614,10 +570,6 @@ func (r *Repository) ListErrorLogs(ctx context.Context, filter platformadmin.Err
 	var total int
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureDeveloperTables(txCtx, tx); err != nil {
-			return err
-		}
-
 		countQuery := `
 			SELECT COUNT(*) FROM platform_admin.error_logs
 			WHERE ($1 = '' OR error_level = $1)
@@ -676,10 +628,6 @@ func (r *Repository) ListErrorLogs(ctx context.Context, filter platformadmin.Err
 func (r *Repository) GetErrorLogByID(ctx context.Context, id int64) (*platformadmin.ErrorLog, error) {
 	var e platformadmin.ErrorLog
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureDeveloperTables(txCtx, tx); err != nil {
-			return err
-		}
-
 		query := `
 			SELECT id, user_id, COALESCE(user_name, ''), COALESCE(user_email, ''), COALESCE(organization_name, ''),
 			       COALESCE(error_level, 'ERROR'), error_message, COALESCE(exception_class, ''),
@@ -717,9 +665,6 @@ func (r *Repository) GetErrorLogByID(ctx context.Context, id int64) (*platformad
 // UpdateErrorLogStatus updates the investigation/resolution status of an error.
 func (r *Repository) UpdateErrorLogStatus(ctx context.Context, id int64, status string) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureDeveloperTables(txCtx, tx); err != nil {
-			return err
-		}
 		query := `UPDATE platform_admin.error_logs SET status = $2 WHERE id = $1;`
 		_, err := tx.Exec(txCtx, query, id, status)
 		return err
@@ -729,10 +674,6 @@ func (r *Repository) UpdateErrorLogStatus(ctx context.Context, id int64, status 
 // GetErrorDiagnosticsMetrics computes high-level error metrics for the dashboard.
 func (r *Repository) GetErrorDiagnosticsMetrics(ctx context.Context) (total, critical24h, unresolved, affectedUsers int, err error) {
 	err = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureDeveloperTables(txCtx, tx); err != nil {
-			return err
-		}
-
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.error_logs;`).Scan(&total)
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.error_logs WHERE error_level IN ('CRITICAL', 'FATAL') AND created_at >= NOW() - INTERVAL '24 HOURS';`).Scan(&critical24h)
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.error_logs WHERE status IN ('NEW', 'INVESTIGATING');`).Scan(&unresolved)

@@ -318,3 +318,30 @@ type BranchInstitutionalWork struct {
 	InstitutionalWorkID int64     `json:"institutional_work_id"`
 	CreatedAt           time.Time `json:"created_at"`
 }
+
+// EmployeeInstitutionalWork links a user to an institutional work group.
+type EmployeeInstitutionalWork struct {
+	ID                  int64     `json:"id"`
+	OrganizationID      int64     `json:"organization_id"`
+	UserID              int64     `json:"user_id"`
+	InstitutionalWorkID int64     `json:"institutional_work_id"`
+	WorkTitle           string    `json:"work_title,omitempty"`
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
+}
+
+// InstitutionalFilterMode selects Laravel's two documented filter semantics.
+type InstitutionalFilterMode int
+
+const (
+	// FilterSimple: intersect the user's works directly with the product's,
+	// and additionally allow products with no institutional restriction (empty array).
+	// Laravel: applyInstitutionalWorksFilter_Simple — customer dashboard.
+	FilterSimple InstitutionalFilterMode = iota
+
+	// FilterWithConnections: resolve connections first, then intersect.
+	// Products with no restriction are NOT visible.
+	// Laravel: applyInstitutionalWorksFilter_WithConnections — purchase-request pages.
+	FilterWithConnections
+)
+

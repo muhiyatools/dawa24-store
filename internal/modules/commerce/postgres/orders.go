@@ -19,6 +19,7 @@ const orderColumns = `id, public_id, order_number, customer_id, organization_id,
 	offer_id, branch_id, vendor_branch_id, user_address_id, status,
 	subtotal, discount_amount, total_discount, shipping_fee, tax_amount,
 	total_amount, final_price, payment_method, payment_status, notes,
+	rating, review, rated_at, delivered_at,
 	created_at, updated_at, deleted_at`
 
 // scanOrder scans one order row (pgx.Row covers both QueryRow and Rows).
@@ -31,6 +32,7 @@ func scanOrder(row pgx.Row) (*commerce.Order, error) {
 		&statusStr, &o.Subtotal, &o.DiscountAmount, &o.TotalDiscount, &o.ShippingFee,
 		&o.TaxAmount, &o.TotalAmount, &o.FinalPrice,
 		&o.PaymentMethod, &payStatusStr, &o.Notes,
+		&o.Rating, &o.Review, &o.RatedAt, &o.DeliveredAt,
 		&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
 	); err != nil {
 		return nil, err

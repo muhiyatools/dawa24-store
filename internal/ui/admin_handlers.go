@@ -67,7 +67,10 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 		} else {
 			stats.PendingApprovals = n
 		}
-		if list, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 5, 0); err == nil {
+		list, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 5, 0)
+		if err != nil {
+			h.log.WarnContext(ctx, "dashboard: list pending organizations", "error", err)
+		} else {
 			pendingOrgs = list
 		}
 	}
@@ -125,7 +128,9 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 			filterStatus = &st
 		}
 		list, err := h.orgSvc.ListOrganizations(ctx, nil, filterStatus, 100, 0)
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "admin approvals: list organizations", "error", err)
+		} else {
 			orgs = list
 		}
 	}
@@ -393,7 +398,9 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 
 		uploadedToStorage := false
 		if h.storage != nil {
-			if err := h.storage.Put(ctx, key, file, header.Size, contentType); err == nil {
+			if err := h.storage.Put(ctx, key, file, header.Size, contentType); err != nil {
+				h.log.WarnContext(ctx, "branding: upload logo to storage", "error", err)
+			} else {
 				pubURL := h.storage.PublicURL(key)
 				if pubURL == "" {
 					pubURL = "/uploads/" + key
@@ -406,7 +413,9 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 		// Also save locally as static fallback
 		if !uploadedToStorage {
 			savePath := "internal/ui/static/img/logo.png"
-			if out, err := os.Create(savePath); err == nil {
+			if out, err := os.Create(savePath); err != nil {
+				h.log.WarnContext(ctx, "branding: fallback logo create", "error", err)
+			} else {
 				defer out.Close()
 				_, _ = file.Seek(0, 0)
 				_, _ = io.Copy(out, file)
@@ -429,7 +438,9 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 		}
 
 		if h.storage != nil {
-			if err := h.storage.Put(ctx, key, file, header.Size, contentType); err == nil {
+			if err := h.storage.Put(ctx, key, file, header.Size, contentType); err != nil {
+				h.log.WarnContext(ctx, "branding: upload favicon to storage", "error", err)
+			} else {
 				pubURL := h.storage.PublicURL(key)
 				if pubURL == "" {
 					pubURL = "/uploads/" + key
@@ -956,7 +967,10 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 
 	var entries []*platformadmin.AuditEntry
 	if h.adminSvc != nil {
-		if list, err := h.adminSvc.ListAuditLog(ctx, 100, 0); err == nil {
+		list, err := h.adminSvc.ListAuditLog(ctx, 100, 0)
+		if err != nil {
+			h.log.WarnContext(ctx, "admin audit: list audit log", "error", err)
+		} else {
 			for _, e := range list {
 				localizeAuditEntry(e)
 			}
@@ -1575,10 +1589,11 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 			Status:                 catalog.StatusActive,
 		}
 
-		if _, err := h.catSvc.CreateProduct(database.AsSystem(ctx), prod); err == nil {
-			importedCount++
-		} else {
+		if _, err := h.catSvc.CreateProduct(database.AsSystem(ctx), prod); err != nil {
 			lastErr = err
+			h.log.DebugContext(ctx, "admin products import: row failed", "error", err)
+		} else {
+			importedCount++
 		}
 	}
 
@@ -1628,12 +1643,16 @@ func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
 	var jobViews []*pages.AdminJobView
 	if h.hrSvc != nil {
 		offers, err := h.hrSvc.ListPublishedJobs(ctx, 100, 0)
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "admin jobs: list published jobs", "error", err)
+		} else {
 			for _, j := range offers {
 				companyName := "منشأة معتمدة"
 				companyType := "vendor"
 				if h.orgSvc != nil {
-					if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err == nil && o != nil {
+					if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err != nil {
+						h.log.DebugContext(ctx, "admin jobs: get org optional", "id", j.OrganizationID, "error", err)
+					} else if o != nil {
 						if o.TradeName["ar"] != "" {
 							companyName = o.TradeName["ar"]
 						} else {
@@ -1831,7 +1850,9 @@ func (h *UIHandler) AdminPoliciesPage(w http.ResponseWriter, r *http.Request) {
 	var policies []*platformadmin.Policy
 	if h.adminSvc != nil {
 		list, err := h.adminSvc.ListPolicyVersions(ctx, currentKey)
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "admin policies: list versions", "key", currentKey, "error", err)
+		} else {
 			policies = list
 		}
 	}

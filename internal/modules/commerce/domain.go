@@ -94,6 +94,10 @@ type Order struct {
 	PaymentMethod  string           `json:"payment_method"`
 	PaymentStatus  PaymentStatus    `json:"payment_status"`
 	Notes          string           `json:"notes,omitempty"`
+	Rating         *float64         `json:"rating,omitempty"`
+	Review         *string          `json:"review,omitempty"`
+	RatedAt        *time.Time       `json:"rated_at,omitempty"`
+	DeliveredAt    *time.Time       `json:"delivered_at,omitempty"`
 	Shipments      []*OrderShipment `json:"shipments,omitempty"`
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
@@ -140,7 +144,26 @@ type OrderLine struct {
 	ListPrice        money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
 	OriginalPrice    money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
 	OriginalDiscount money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
+	Rating           *float64     `json:"rating,omitempty"`            // per-line rating (Laravel adv_orders.rating parity)
 	CreatedAt        time.Time    `json:"created_at"`
+}
+
+// CalculateAverageRating computes the exact 2-decimal scalar average of review criteria (audit §3.3).
+func CalculateAverageRating(ratings ...int) float64 {
+	if len(ratings) == 0 {
+		return 0
+	}
+	sum := 0
+	for _, r := range ratings {
+		if r < 1 {
+			r = 1
+		} else if r > 5 {
+			r = 5
+		}
+		sum += r
+	}
+	cents := (sum*100 + len(ratings)/2) / len(ratings)
+	return float64(cents) / 100.0
 }
 
 // OrderStatusHistory logs every transition of order/shipment status.
@@ -248,3 +271,62 @@ type QuoteRequest struct {
 	CreatedAt         time.Time    `json:"created_at"`
 	UpdatedAt         time.Time    `json:"updated_at"`
 }
+
+// PurchaseRequestStatus defines the state of a multi-line procurement purchase request (Plan V5 Phase 3 Task 3.1).
+type PurchaseRequestStatus string
+
+const (
+	PurchaseRequestPending    PurchaseRequestStatus = "pending"
+	PurchaseRequestApproved   PurchaseRequestStatus = "approved"
+	PurchaseRequestProcessing PurchaseRequestStatus = "processing"
+	PurchaseRequestCompleted  PurchaseRequestStatus = "completed"
+	PurchaseRequestCancelled  PurchaseRequestStatus = "cancelled"
+)
+
+// PurchaseRequest represents a customer-initiated formal multi-line procurement purchase request.
+type PurchaseRequest struct {
+	ID             int64                  `json:"id"`
+	PublicID       string                 `json:"public_id"`
+	RequestNumber  string                 `json:"request_number"`
+	CustomerID     int64                  `json:"customer_id"`
+	OrganizationID *int64                 `json:"organization_id,omitempty"`
+	BranchID       *int64                 `json:"branch_id,omitempty"`
+	VendorOrgID    int64                  `json:"vendor_org_id"`
+	VendorBranchID *int64                 `json:"vendor_branch_id,omitempty"`
+	Status         PurchaseRequestStatus  `json:"status"`
+	TotalItems     int                    `json:"total_items"`
+	EstimatedTotal money.Amount           `json:"estimated_total"`
+	BuyerNotes     string                 `json:"buyer_notes,omitempty"`
+	VendorNotes    string                 `json:"vendor_notes,omitempty"`
+	CreatedAt      time.Time              `json:"created_at"`
+	UpdatedAt      time.Time              `json:"updated_at"`
+	RespondedAt    *time.Time             `json:"responded_at,omitempty"`
+	RespondedBy    *int64                 `json:"responded_by,omitempty"`
+	Lines          []*PurchaseRequestLine `json:"lines,omitempty"`
+	VendorName     string                 `json:"vendor_name,omitempty"`
+	CustomerName   string                 `json:"customer_name,omitempty"`
+}
+
+// PurchaseRequestLine represents a specific item within a purchase request.
+type PurchaseRequestLine struct {
+	ID              int64        `json:"id"`
+	RequestID       int64        `json:"request_id"`
+	ProductID       *int64       `json:"product_id,omitempty"`
+	ProductName     string       `json:"product_name"`
+	ProductSKU      string       `json:"product_sku,omitempty"`
+	Quantity        int          `json:"quantity"`
+	TargetPrice     money.Amount `json:"target_price"`
+	TargetDiscount  float64      `json:"target_discount"`
+	OfferedPrice    money.Amount `json:"offered_price"`
+	OfferedDiscount float64      `json:"offered_discount"`
+	Status          string       `json:"status"` // pending, approved, rejected, modified
+	Notes           string       `json:"notes,omitempty"`
+	CreatedAt       time.Time    `json:"created_at"`
+	UpdatedAt       time.Time    `json:"updated_at"`
+}
+
+// GeneratePurchaseRequestNumber formats a unique purchase request identifier (Rule R7 / Plan V5 §3.1).
+func GeneratePurchaseRequestNumber(t time.Time, id int64) string {
+	return fmt.Sprintf("PR-%s-%06d", t.Format("20060102"), id%1000000)
+}
+

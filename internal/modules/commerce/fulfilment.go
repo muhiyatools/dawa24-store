@@ -120,9 +120,9 @@ func (s *Service) GetOrderHistory(ctx context.Context, orderID int64) ([]*OrderS
 	return s.repo.ListOrderHistory(ctx, orderID)
 }
 
-// RateOrder records a customer's rating and review of a completed order.
-func (s *Service) RateOrder(ctx context.Context, orderID, customerID int64, rating int, review string) error {
-	if rating < 1 || rating > 5 {
+// RateOrder records a customer's rating and review of a completed order (audit §3.3).
+func (s *Service) RateOrder(ctx context.Context, orderID, customerID int64, rating float64, review string) error {
+	if rating < 1.0 || rating > 5.0 {
 		return apperr.Validation("order.rating_range",
 			"Rating must be between 1 and 5.", map[string]string{"rating": "1-5"})
 	}
@@ -139,5 +139,19 @@ func (s *Service) RateOrder(ctx context.Context, orderID, customerID int64, rati
 			"An order can only be rated once it has been delivered.")
 	}
 
+	if order.RatedAt != nil {
+		return apperr.Conflict("order.already_rated",
+			"This order has already been rated.")
+	}
+
 	return s.repo.RateOrder(ctx, orderID, customerID, rating, review)
+}
+
+// RateOrderWithCriteria computes the exact 3-criteria average and rates the order (audit §3.3).
+func (s *Service) RateOrderWithCriteria(ctx context.Context, orderID, customerID int64, repRating, speedRating, qualityRating int, review string) (float64, error) {
+	avg := CalculateAverageRating(repRating, speedRating, qualityRating)
+	if err := s.RateOrder(ctx, orderID, customerID, avg, review); err != nil {
+		return 0, err
+	}
+	return avg, nil
 }

@@ -1,0 +1,105 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// VendorPaymentsPage renders payments history for the vendor.
+templ VendorPaymentsPage(lang, dir string) {
+	@layouts.VendorShell("المدفوعات والمستحقات المالية", "payments", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل المدفوعات والتحويلات المالية للمورد</h2>
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد دفعات مسجلة", Message: "تتم تسوية المستحقات المالية وتحويلها إلى حساب المنشأة البنكي دورياً."})
+		</div>
+	}
+}
+
+// VendorEarningsOrderPage renders orders revenue report.
+templ VendorEarningsOrderPage(revenue money.Amount, lang, dir string) {
+	@layouts.VendorShell("أرباح ومبيعات الطلبات المباشرة", "earnings_order", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">أرباح ومبيعات الطلبات للشهر الحالي</h2>
+			<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;">
+				<div style="font-size:0.85rem; color:var(--text-secondary);">إجمالي مبيعات الشهر</div>
+				<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
+			</div>
+		</div>
+	}
+}
+
+// VendorEarningsOffersPage renders offers revenue report.
+templ VendorEarningsOffersPage(revenue money.Amount, lang, dir string) {
+	@layouts.VendorShell("أرباح ومبيعات عروض التوفير", "earnings_offers", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">أرباح ومبيعات عروض التوفير والصفقات</h2>
+			<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;">
+				<div style="font-size:0.85rem; color:var(--text-secondary);">إجمالي مبيعات العروض</div>
+				<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
+			</div>
+		</div>
+	}
+}
+
+// VendorOfferOrdersPage renders vendor offer orders list.
+templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir string) {
+	@layouts.VendorShell("طلبات عروض الأسعار والتوريد", "offer_orders", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", len(shipments)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة الشحنات والطلبيات المرتبطة بعروض أسعار خاصة أو خصومات إضافية.</p>
+				</div>
+			</div>
+
+			if len(shipments) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض واردة", Message: "ستظهر هنا الشحنات الخاصة بالطلبيات المقدمة من الصيدليات."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>رقم الشحنة</th>
+								<th>المبلغ</th>
+								<th>الحالة</th>
+								<th>التاريخ</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, s := range shipments {
+								<tr>
+									<td class="tabular-nums"><strong>{ s.ShipmentNumber }</strong></td>
+									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", s.TotalAmount.String()) }</td>
+									<td><span class="badge badge-sky">{ string(s.Status) }</span></td>
+									<td class="tabular-nums">{ s.CreatedAt.Format("2006-01-02") }</td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/vendor/orders/offers/%d", s.ID)) } class="btn btn-secondary btn-sm">عرض الشحنة</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// VendorOfferOrderDetailPage renders single offer order details.
+templ VendorOfferOrderDetailPage(id int64, lang, dir string) {
+	@layouts.VendorShell(fmt.Sprintf("طلب عروض #%d", id), "offer_orders", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">طلب عروض #{ fmt.Sprintf("%d", id) }</h2>
+				</div>
+				<a href="/vendor/orders/offers" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+		</div>
+	}
+}

@@ -3,6 +3,8 @@
 package catalog
 
 import (
+	"context"
+	"strconv"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -76,6 +78,7 @@ type Product struct {
 	Concentration          string        `json:"concentration,omitempty"`
 	Unit                   string        `json:"unit,omitempty"`
 	ManufacturingCompanies string        `json:"manufacturing_companies,omitempty"`
+	InstitutionalWorkIDs   []int64       `json:"institutional_work_ids,omitempty"`
 	CreatedAt              time.Time     `json:"created_at"`
 	UpdatedAt              time.Time     `json:"updated_at"`
 	DeletedAt              *time.Time    `json:"deleted_at,omitempty"`
@@ -102,6 +105,7 @@ type ProductVariant struct {
 	StockQty       int           `json:"stock_qty"`
 	Status         ProductStatus `json:"status"`
 	IsFeatured     bool          `json:"is_featured"`
+	InstitutionalWorkIDs []int64 `json:"institutional_work_ids,omitempty"`
 	CreatedAt      time.Time     `json:"created_at"`
 	UpdatedAt      time.Time     `json:"updated_at"`
 	DeletedAt      *time.Time    `json:"deleted_at,omitempty"`
@@ -228,3 +232,64 @@ type FinderResult struct {
 	Title       i18n.Text `json:"title"`
 	Description i18n.Text `json:"description"`
 }
+
+// InstitutionalGate resolves which institutional work ids a user may see products for.
+// Implemented by the org module and injected at composition time in cmd/server/routes.go — modules must not import each other (ADR 0002).
+type InstitutionalGate interface {
+	AllowedWorkIDs(ctx context.Context, userID int64, mode int) ([]int64, error)
+}
+
+// InstitutionalGateFunc adapts a standard function to InstitutionalGate.
+type InstitutionalGateFunc func(ctx context.Context, userID int64, mode int) ([]int64, error)
+
+func (f InstitutionalGateFunc) AllowedWorkIDs(ctx context.Context, userID int64, mode int) ([]int64, error) {
+	return f(ctx, userID, mode)
+}
+
+// ProductIndexItem represents a denormalized read-model record in catalog.product_index.
+// Matches Laravel product_infos / product_search_index 25-column specification.
+type ProductIndexItem struct {
+	UniqueRowID          string       `json:"unique_row_id"`
+	ProductID            int64        `json:"product_id"`
+	VariantID            *int64       `json:"variant_id,omitempty"`
+	SKU                  string       `json:"sku,omitempty"`
+	NameAR               string       `json:"name_ar,omitempty"`
+	NameEN               string       `json:"name_en,omitempty"`
+	SearchText           string       `json:"search_text,omitempty"`
+	SearchAR             string       `json:"search_ar,omitempty"`
+	SearchEN             string       `json:"search_en,omitempty"`
+	SearchSimple         string       `json:"search_simple,omitempty"`
+	OrganizationName     string       `json:"organization_name,omitempty"`
+	BranchCity           string       `json:"branch_city,omitempty"`
+	ScientificName       string       `json:"scientific_name,omitempty"`
+	Price                money.Amount `json:"price"`
+	Discount             money.Amount `json:"discount"`
+	StockQuantity        int          `json:"stock_quantity"`
+	CategoryID           *int64       `json:"category_id,omitempty"`
+	BrandID              *int64       `json:"brand_id,omitempty"`
+	HasDiscount          bool         `json:"has_discount"`
+	DiscountPercentage   float64      `json:"discount_percentage"`
+	PriceAfterDiscount   money.Amount `json:"price_after_discount"`
+	OrganizationID       int64        `json:"organization_id"`
+	BranchID             *int64       `json:"branch_id,omitempty"`
+	Status               string       `json:"status"`
+	ProductType          string       `json:"product_type"` // parent, child
+	InstitutionalWorkIDs []int64      `json:"institutional_work_ids"`
+	CreatedAt            time.Time    `json:"created_at"`
+	UpdatedAt            time.Time    `json:"updated_at"`
+}
+
+// ComposeUniqueRowID builds the canonical deterministic key for a read-model item.
+func ComposeUniqueRowID(productID int64, variantID, branchID *int64) string {
+	if variantID != nil && *variantID > 0 {
+		if branchID != nil && *branchID > 0 {
+			return "p_" + strconv.FormatInt(productID, 10) + "_v_" + strconv.FormatInt(*variantID, 10) + "_b_" + strconv.FormatInt(*branchID, 10)
+		}
+		return "p_" + strconv.FormatInt(productID, 10) + "_v_" + strconv.FormatInt(*variantID, 10)
+	}
+	if branchID != nil && *branchID > 0 {
+		return "p_" + strconv.FormatInt(productID, 10) + "_b_" + strconv.FormatInt(*branchID, 10)
+	}
+	return "p_" + strconv.FormatInt(productID, 10)
+}
+

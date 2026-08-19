@@ -1,0 +1,262 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminFullUserPage renders the categorized user list.
+templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir string) {
+	@layouts.AdminShell("إدارة ودليل المستخدمين الشامل", "users", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة.</p>
+				</div>
+			</div>
+
+			<!-- Filter Tabs -->
+			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+				<a href="/admin/full-user" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "all"), templ.KV("btn-secondary", activeFilter != "all") }>كافة المستخدمين</a>
+				<a href="/admin/customer-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "customers"), templ.KV("btn-secondary", activeFilter != "customers") }>الصيدليات والعملاء</a>
+				<a href="/admin/vendor-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "vendors"), templ.KV("btn-secondary", activeFilter != "vendors") }>الموردون والشركات</a>
+				<a href="/admin/admin-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "staff"), templ.KV("btn-secondary", activeFilter != "staff") }>المشرفون والإداريون</a>
+				<a href="/admin/want-delete" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">طلبات الحذف</a>
+			</div>
+
+			if len(users) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا يوجد مستخدمون", Message: "لم يتم العثور على مستخدمين مسجلين في هذا القسم."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>الاسم</th>
+								<th>البريد الإلكتروني</th>
+								<th>الهاتف</th>
+								<th>الدور</th>
+								<th>الحالة</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, u := range users {
+								<tr>
+									<td><strong>{ u.Name.Get("ar") }</strong></td>
+									<td class="tabular-nums">{ u.Email }</td>
+									<td class="tabular-nums">{ u.Phone }</td>
+									<td><span class="badge badge-secondary">{ u.Role }</span></td>
+									<td>
+										if u.Status == identity.StatusActive {
+											<span class="badge badge-success">نشط</span>
+										} else {
+											<span class="badge badge-danger">معطل</span>
+										}
+									</td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%d", u.ID)) } class="btn btn-secondary btn-sm">عرض الملف</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminUserDetailPage renders a detailed view of a user.
+templ AdminUserDetailPage(u *identity.User, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("ملف المستخدم: %s", u.Name.Get("ar")), "users", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">{ u.Name.Get("ar") }</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
+				</div>
+				<a href="/admin/users" class="btn btn-secondary btn-sm">العودة لدليل المستخدمين</a>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">البريد الإلكتروني</div>
+					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ u.Email }</div>
+				</div>
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">رقم الهاتف</div>
+					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ u.Phone }</div>
+				</div>
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">الحالة</div>
+					<div style="margin-top:0.25rem;">
+						if u.Status == identity.StatusActive {
+							<span class="badge badge-success">نشط</span>
+						} else {
+							<span class="badge badge-danger">معطل</span>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+// AdminDeletionRequestsPage renders deletion requests.
+templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lang, dir string) {
+	@layouts.AdminShell("طلبات حذف الحسابات", "users", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h2>
+			if len(requests) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات حذف معلقة", Message: "لا توجد أي طلبات لحذف الحسابات حالياً."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>معرف المستخدم</th>
+								<th>السبب</th>
+								<th>الحالة</th>
+								<th>تاريخ الطلب</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, r := range requests {
+								<tr>
+									<td class="tabular-nums">#{ fmt.Sprintf("%d", r.ID) }</td>
+									<td>مستخدم #{ fmt.Sprintf("%d", r.UserID) }</td>
+									<td>{ r.Reason }</td>
+									<td><span class="badge badge-warning">{ r.Status }</span></td>
+									<td>{ r.CreatedAt.Format("2006-01-02 15:04") }</td>
+									<td style="text-align:end;">
+										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
+												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">موافقة وحذف</button>
+											</form>
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", r.ID)) }>
+												<button type="submit" class="btn btn-secondary btn-sm">رفض الطلب</button>
+											</form>
+										</div>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminEmployeeActivitiesPage renders employee activity logs.
+templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
+	@layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "audit", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل نشاطات الموظفين بالمنشآت</h2>
+			@components.EmptyState(components.EmptyStateProps{Title: "سجل العمليات فارغ", Message: "يتم تسجيل عمليات الموظفين والموردين تلقائياً عند إجراء التعديلات على المنتجات والأسعار."})
+		</div>
+	}
+}
+
+// AdminRolesPage renders RBAC roles management.
+templ AdminRolesPage(roles []*org.Role, lang, dir string) {
+	@layouts.AdminShell("إدارة الأدوار والصلاحيات (RBAC)", "roles", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">الأدوار والصلاحيات ({ fmt.Sprintf("%d", len(roles)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تحديد صلاحيات الوصول والتعديل لمجموعات المستخدمين والموظفين.</p>
+				</div>
+			</div>
+
+			if len(roles) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أدوار مخصصة", Message: "يتم استخدام الأدوار القياسية للنظام."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>اسم الدور</th>
+								<th>الكود التعريفي</th>
+								<th>الوصف</th>
+								<th>عدد الصلاحيات</th>
+								<th style="text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, r := range roles {
+								<tr>
+									<td><strong>{ r.Name.Get("ar") }</strong></td>
+									<td><code>{ r.Key }</code></td>
+									<td>{ r.Description }</td>
+									<td><span class="badge badge-sky">{ fmt.Sprintf("%d صلاحية", len(r.Permissions)) }</span></td>
+									<td style="text-align:end;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/admin-roles/%d", r.ID)) } class="btn btn-secondary btn-sm">تعديل الصلاحيات</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// AdminRoleEditPage renders role permissions editor.
+templ AdminRoleEditPage(r *org.Role, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("تعديل صلاحيات الدور: %s", r.Name.Get("ar")), "roles", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">تعديل صلاحيات الدور ({ r.Key })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">حدد الصلاحيات الممنوحة للمستخدمين المسند إليهم هذا الدور.</p>
+				</div>
+				<a href="/admin/roles" class="btn btn-secondary btn-sm">العودة للأدوار</a>
+			</div>
+
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/admin-roles/%d", r.ID)) }>
+				<div class="form-group" style="margin-bottom:1.25rem;">
+					<label class="form-label">اسم الدور بالعربي</label>
+					<input type="text" name="name_ar" class="form-control" value={ r.Name.Get("ar") } required />
+				</div>
+
+				<div class="form-group" style="margin-bottom:1.5rem;">
+					<label class="form-label">الوصف</label>
+					<textarea name="description" class="form-control" rows="2">{ r.Description }</textarea>
+				</div>
+
+				<h3 style="font-size:1.05rem; font-weight:700; margin-bottom:1rem;">مصفوفة الصلاحيات المتاحة</h3>
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin-bottom:2rem; background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-lg);">
+					for _, perm := range []string{"org.organization.view", "org.organization.update", "catalog.product.view", "catalog.product.manage", "commerce.order.view", "commerce.order.manage", "workflow.coverage.manage", "identity.user.view", "identity.user.update", "platform.setting.view", "platform.setting.update"} {
+						<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.875rem;">
+							<input type="checkbox" name="permissions" value={ perm } checked?={ containsPerm(r.Permissions, perm) } />
+							<code>{ perm }</code>
+						</label>
+					}
+				</div>
+
+				<div style="display:flex; justify-content:space-between;">
+					<a href="/admin/roles" class="btn btn-secondary">إلغاء</a>
+					<button type="submit" class="btn btn-primary">حفظ الصلاحيات</button>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+func containsPerm(perms []string, target string) bool {
+	for _, p := range perms {
+		if p == target {
+			return true
+		}
+	}
+	return false
+}

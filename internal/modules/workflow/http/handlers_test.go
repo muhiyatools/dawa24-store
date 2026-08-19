@@ -19,6 +19,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 type stubRepo struct{ t *testing.T }
@@ -40,8 +41,28 @@ func (r stubRepo) SaveWeeklyCoverage(context.Context, *workflow.WeeklyCoverage) 
 	r.fail("SaveWeeklyCoverage")
 	return nil
 }
+func (r stubRepo) UpdateWeeklyCoverage(context.Context, *workflow.WeeklyCoverage) error {
+	r.fail("UpdateWeeklyCoverage")
+	return nil
+}
+func (r stubRepo) DeleteWeeklyCoverage(context.Context, int64) error {
+	r.fail("DeleteWeeklyCoverage")
+	return nil
+}
+func (r stubRepo) ToggleWeeklyCoverage(context.Context, int64, bool) error {
+	r.fail("ToggleWeeklyCoverage")
+	return nil
+}
+func (r stubRepo) GetWeeklyCoverageByID(context.Context, int64) (*workflow.WeeklyCoverage, error) {
+	r.fail("GetWeeklyCoverageByID")
+	return nil, nil
+}
 func (r stubRepo) ListWeeklyCoverage(context.Context, int64) ([]*workflow.WeeklyCoverage, error) {
 	r.fail("ListWeeklyCoverage")
+	return nil, nil
+}
+func (r stubRepo) ListCoverageForOrganization(context.Context, int64) ([]*workflow.CoverageView, error) {
+	r.fail("ListCoverageForOrganization")
 	return nil, nil
 }
 func (r stubRepo) CreateIssue(context.Context, *workflow.ReportIssue) error {
@@ -89,6 +110,34 @@ func (r stubRepo) ListServices(context.Context, *int64) ([]*workflow.Institution
 	r.fail("ListServices")
 	return nil, nil
 }
+func (r stubRepo) ListPriorityRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.PurchasePriorityRequest, error) {
+	r.fail("ListPriorityRequestsByUser")
+	return nil, nil
+}
+func (r stubRepo) UpdatePriorityRequestStatus(ctx context.Context, id int64, status string, notes string, processedBy *int64, results map[string]any) error {
+	r.fail("UpdatePriorityRequestStatus")
+	return nil
+}
+func (r stubRepo) GetCandidateProducts(ctx context.Context, userID int64, authorizedWorkIDs []int64, preferredSupplierIDs []int64, budget *money.Amount, limit int) ([]workflow.CandidateProduct, error) {
+	r.fail("GetCandidateProducts")
+	return nil, nil
+}
+func (r stubRepo) CreateAutomationRequest(ctx context.Context, req *workflow.AutomationRequest) error {
+	r.fail("CreateAutomationRequest")
+	return nil
+}
+func (r stubRepo) GetAutomationRequestByID(ctx context.Context, id int64) (*workflow.AutomationRequest, error) {
+	r.fail("GetAutomationRequestByID")
+	return nil, nil
+}
+func (r stubRepo) ListAutomationRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.AutomationRequest, error) {
+	r.fail("ListAutomationRequestsByUser")
+	return nil, nil
+}
+func (r stubRepo) UpdateAutomationRequestStatus(ctx context.Context, id int64, status workflow.AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error {
+	r.fail("UpdateAutomationRequestStatus")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -104,8 +153,27 @@ func (happyRepo) SaveWeeklyCoverage(ctx context.Context, c *workflow.WeeklyCover
 	c.ID = 1
 	return nil
 }
+func (happyRepo) UpdateWeeklyCoverage(ctx context.Context, c *workflow.WeeklyCoverage) error {
+	return nil
+}
+func (happyRepo) DeleteWeeklyCoverage(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error {
+	return nil
+}
+func (happyRepo) GetWeeklyCoverageByID(ctx context.Context, id int64) (*workflow.WeeklyCoverage, error) {
+	return &workflow.WeeklyCoverage{ID: id, BranchID: 1, DayOfWeek: 1, DistanceMeters: 5000, IsActive: true}, nil
+}
 func (happyRepo) ListWeeklyCoverage(ctx context.Context, branchID int64) ([]*workflow.WeeklyCoverage, error) {
 	return []*workflow.WeeklyCoverage{{ID: 1, BranchID: branchID, DayOfWeek: 1, DistanceMeters: 5000, IsActive: true}}, nil
+}
+func (happyRepo) ListCoverageForOrganization(ctx context.Context, orgID int64) ([]*workflow.CoverageView, error) {
+	return []*workflow.CoverageView{{
+		WeeklyCoverage: workflow.WeeklyCoverage{ID: 1, OrganizationID: orgID, BranchID: 1, DayOfWeek: 1, DistanceMeters: 5000, IsActive: true},
+		BranchName:     "Branch 1",
+		CityName:       "Cairo",
+	}}, nil
 }
 func (happyRepo) CreateIssue(ctx context.Context, i *workflow.ReportIssue) error {
 	i.ID = 1
@@ -144,6 +212,29 @@ func (happyRepo) GetServiceByID(ctx context.Context, id int64) (*workflow.Instit
 }
 func (happyRepo) ListServices(ctx context.Context, parentID *int64) ([]*workflow.InstitutionalService, error) {
 	return []*workflow.InstitutionalService{{ID: 1, Title: i18n.Text{"ar": "خدمة"}, PricingType: workflow.PricingFree, IsActive: true}}, nil
+}
+func (happyRepo) ListPriorityRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.PurchasePriorityRequest, error) {
+	return []*workflow.PurchasePriorityRequest{{ID: 1, UserID: userID, Status: "completed"}}, nil
+}
+func (happyRepo) UpdatePriorityRequestStatus(ctx context.Context, id int64, status string, notes string, processedBy *int64, results map[string]any) error {
+	return nil
+}
+func (happyRepo) GetCandidateProducts(ctx context.Context, userID int64, authorizedWorkIDs []int64, preferredSupplierIDs []int64, budget *money.Amount, limit int) ([]workflow.CandidateProduct, error) {
+	return []workflow.CandidateProduct{}, nil
+}
+func (happyRepo) CreateAutomationRequest(ctx context.Context, req *workflow.AutomationRequest) error {
+	req.ID = 1
+	req.Status = workflow.AutomationStatusPending
+	return nil
+}
+func (happyRepo) GetAutomationRequestByID(ctx context.Context, id int64) (*workflow.AutomationRequest, error) {
+	return &workflow.AutomationRequest{ID: id, UserID: 1, Status: workflow.AutomationStatusCompleted}, nil
+}
+func (happyRepo) ListAutomationRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.AutomationRequest, error) {
+	return []*workflow.AutomationRequest{{ID: 1, UserID: userID, Status: workflow.AutomationStatusCompleted}}, nil
+}
+func (happyRepo) UpdateAutomationRequestStatus(ctx context.Context, id int64, status workflow.AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error {
+	return nil
 }
 
 const testCookieName = "dawa24_session"

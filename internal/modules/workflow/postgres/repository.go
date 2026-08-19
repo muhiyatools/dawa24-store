@@ -83,15 +83,101 @@ func (r *Repository) SaveWeeklyCoverage(ctx context.Context, c *workflow.WeeklyC
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO workflow.weekly_coverages (
-				organization_id, branch_id, day_of_week, coverage_from, coverage_to, address, distance_meters, is_active
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+				organization_id, branch_id, city_id, day_of_week, coverage_from, coverage_to,
+				address, latitude, longitude, distance_meters, is_active
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
-			c.OrganizationID, c.BranchID, c.DayOfWeek, c.CoverageFrom, c.CoverageTo,
-			c.Address, c.DistanceMeters, c.IsActive,
+			c.OrganizationID, c.BranchID, c.CityID, c.DayOfWeek, c.CoverageFrom, c.CoverageTo,
+			c.Address, c.Latitude, c.Longitude, c.DistanceMeters, c.IsActive,
 		).Scan(&c.ID, &c.PublicID, &c.CreatedAt, &c.UpdatedAt)
 	})
+}
+
+// UpdateWeeklyCoverage updates an existing weekly coverage record.
+func (r *Repository) UpdateWeeklyCoverage(ctx context.Context, c *workflow.WeeklyCoverage) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE workflow.weekly_coverages
+			SET branch_id = $1, city_id = $2, day_of_week = $3, coverage_from = $4, coverage_to = $5,
+			    address = $6, latitude = $7, longitude = $8, distance_meters = $9, is_active = $10,
+			    updated_at = now()
+			WHERE id = $11 AND organization_id = $12
+			RETURNING updated_at;
+		`
+		err := tx.QueryRow(txCtx, query,
+			c.BranchID, c.CityID, c.DayOfWeek, c.CoverageFrom, c.CoverageTo,
+			c.Address, c.Latitude, c.Longitude, c.DistanceMeters, c.IsActive,
+			c.ID, c.OrganizationID,
+		).Scan(&c.UpdatedAt)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("weekly_coverage")
+			}
+			return err
+		}
+		return nil
+	})
+}
+
+// DeleteWeeklyCoverage removes a weekly coverage entry.
+func (r *Repository) DeleteWeeklyCoverage(ctx context.Context, id int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `DELETE FROM workflow.weekly_coverages WHERE id = $1;`
+		ct, err := tx.Exec(txCtx, query, id)
+		if err != nil {
+			return err
+		}
+		if ct.RowsAffected() == 0 {
+			return apperr.NotFound("weekly_coverage")
+		}
+		return nil
+	})
+}
+
+// ToggleWeeklyCoverage toggles the active state of a coverage record.
+func (r *Repository) ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE workflow.weekly_coverages SET is_active = $1, updated_at = now() WHERE id = $2;`
+		ct, err := tx.Exec(txCtx, query, isActive, id)
+		if err != nil {
+			return err
+		}
+		if ct.RowsAffected() == 0 {
+			return apperr.NotFound("weekly_coverage")
+		}
+		return nil
+	})
+}
+
+// GetWeeklyCoverageByID retrieves a single weekly coverage record.
+func (r *Repository) GetWeeklyCoverageByID(ctx context.Context, id int64) (*workflow.WeeklyCoverage, error) {
+	var c workflow.WeeklyCoverage
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, branch_id, city_id, day_of_week, coverage_from, coverage_to,
+			       address, latitude, longitude, distance_meters, is_active, created_at, updated_at
+			FROM workflow.weekly_coverages
+			WHERE id = $1;
+		`
+		err := tx.QueryRow(txCtx, query, id).Scan(
+			&c.ID, &c.PublicID, &c.OrganizationID, &c.BranchID, &c.CityID, &c.DayOfWeek,
+			&c.CoverageFrom, &c.CoverageTo, &c.Address, &c.Latitude, &c.Longitude,
+			&c.DistanceMeters, &c.IsActive, &c.CreatedAt, &c.UpdatedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("weekly_coverage")
+			}
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &c, nil
 }
 
 // ListWeeklyCoverage retrieves route schedules for a branch.
@@ -99,8 +185,8 @@ func (r *Repository) ListWeeklyCoverage(ctx context.Context, branchID int64) ([]
 	var list []*workflow.WeeklyCoverage
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, branch_id, day_of_week, coverage_from, coverage_to,
-			       address, distance_meters, is_active, created_at, updated_at
+			SELECT id, public_id, organization_id, branch_id, city_id, day_of_week, coverage_from, coverage_to,
+			       address, latitude, longitude, distance_meters, is_active, created_at, updated_at
 			FROM workflow.weekly_coverages
 			WHERE branch_id = $1
 			ORDER BY day_of_week ASC;
@@ -114,13 +200,54 @@ func (r *Repository) ListWeeklyCoverage(ctx context.Context, branchID int64) ([]
 		for rows.Next() {
 			var c workflow.WeeklyCoverage
 			if err := rows.Scan(
-				&c.ID, &c.PublicID, &c.OrganizationID, &c.BranchID, &c.DayOfWeek,
-				&c.CoverageFrom, &c.CoverageTo, &c.Address, &c.DistanceMeters,
-				&c.IsActive, &c.CreatedAt, &c.UpdatedAt,
+				&c.ID, &c.PublicID, &c.OrganizationID, &c.BranchID, &c.CityID, &c.DayOfWeek,
+				&c.CoverageFrom, &c.CoverageTo, &c.Address, &c.Latitude, &c.Longitude,
+				&c.DistanceMeters, &c.IsActive, &c.CreatedAt, &c.UpdatedAt,
 			); err != nil {
 				return err
 			}
 			list = append(list, &c)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// ListCoverageForOrganization retrieves all weekly coverage records for an organization with joined branch names.
+func (r *Repository) ListCoverageForOrganization(ctx context.Context, orgID int64) ([]*workflow.CoverageView, error) {
+	var list []*workflow.CoverageView
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT wc.id, wc.public_id, wc.organization_id, wc.branch_id, wc.city_id,
+			       wc.day_of_week, wc.coverage_from, wc.coverage_to, wc.address,
+			       wc.latitude, wc.longitude, wc.distance_meters, wc.is_active,
+			       wc.created_at, wc.updated_at,
+			       COALESCE(b.name, '') AS branch_name,
+			       COALESCE(c.name->>'ar', c.name->>'en', '') AS city_name
+			FROM workflow.weekly_coverages wc
+			JOIN org.branches b ON b.id = wc.branch_id AND b.deleted_at IS NULL
+			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
+			WHERE wc.organization_id = $1
+			ORDER BY wc.day_of_week ASC, b.name ASC;
+		`
+		rows, err := tx.Query(txCtx, query, orgID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var v workflow.CoverageView
+			if err := rows.Scan(
+				&v.ID, &v.PublicID, &v.OrganizationID, &v.BranchID, &v.CityID,
+				&v.DayOfWeek, &v.CoverageFrom, &v.CoverageTo, &v.Address,
+				&v.Latitude, &v.Longitude, &v.DistanceMeters, &v.IsActive,
+				&v.CreatedAt, &v.UpdatedAt,
+				&v.BranchName, &v.CityName,
+			); err != nil {
+				return err
+			}
+			list = append(list, &v)
 		}
 		return rows.Err()
 	})

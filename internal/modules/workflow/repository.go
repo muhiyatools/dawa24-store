@@ -2,15 +2,30 @@ package workflow
 
 import (
 	"context"
+
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // Repository defines storage operations for workflow tasks and schedules.
 type Repository interface {
 	CreatePriorityRequest(ctx context.Context, r *PurchasePriorityRequest) error
 	GetPriorityRequestByID(ctx context.Context, id int64) (*PurchasePriorityRequest, error)
+	ListPriorityRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*PurchasePriorityRequest, error)
+	UpdatePriorityRequestStatus(ctx context.Context, id int64, status string, notes string, processedBy *int64, results map[string]any) error
+	GetCandidateProducts(ctx context.Context, userID int64, authorizedWorkIDs []int64, preferredSupplierIDs []int64, budget *money.Amount, limit int) ([]CandidateProduct, error)
+
+	CreateAutomationRequest(ctx context.Context, req *AutomationRequest) error
+	GetAutomationRequestByID(ctx context.Context, id int64) (*AutomationRequest, error)
+	ListAutomationRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*AutomationRequest, error)
+	UpdateAutomationRequestStatus(ctx context.Context, id int64, status AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error
 
 	SaveWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error
+	UpdateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error
+	DeleteWeeklyCoverage(ctx context.Context, id int64) error
+	ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error
+	GetWeeklyCoverageByID(ctx context.Context, id int64) (*WeeklyCoverage, error)
 	ListWeeklyCoverage(ctx context.Context, branchID int64) ([]*WeeklyCoverage, error)
+	ListCoverageForOrganization(ctx context.Context, orgID int64) ([]*CoverageView, error)
 
 	CreateIssue(ctx context.Context, i *ReportIssue) error
 	GetIssueByID(ctx context.Context, id int64) (*ReportIssue, error)

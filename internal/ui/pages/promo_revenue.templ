@@ -1,0 +1,235 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminOffersPackagesHubPage renders monetization hub.
+templ AdminOffersPackagesHubPage(lang, dir string) {
+	@layouts.AdminShell("باقات العروض والرعايات الترويجية (Offers Packages)", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">منظومة باقات العروض والرعايات والإعلانات</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إدارة خطط الاشتراكات المميزة للموردين، باقات الظهور، والرعايات الرسمية.</p>
+				</div>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
+				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
+					<h3 style="font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;">باقات العروض (Packages)</h3>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">تحديد الباقات المتاحة للموردين لنشر عدد أكبر من العروض المميزة.</p>
+					<a href="/admin/offers-packages/packages" class="btn btn-secondary btn-sm">إدارة الباقات</a>
+				</div>
+				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
+					<h3 style="font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;">الرعايات الرسمية (Sponsorships)</h3>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">عروض الرعاية المدفوعة لتثبيت ظهور عروض المورد في الصدارة.</p>
+					<a href="/admin/offer-sponsorships" class="btn btn-secondary btn-sm">إدارة الرعايات</a>
+				</div>
+				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
+					<h3 style="font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;">الحملات الترويجية (Promotions)</h3>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">حملات الخصومات المؤقتة والموجهة جغرافياً للصيدليات.</p>
+					<a href="/admin/offers-packages/promotions" class="btn btn-secondary btn-sm">إدارة الحملات</a>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+// AdminOfferPackagesListPage renders packages list.
+templ AdminOfferPackagesListPage(lang, dir string) {
+	@layouts.AdminShell("باقات العروض", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">باقات العروض للموردين</h2>
+				</div>
+				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm">العودة للمركز</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "باقات العروض", Message: "تتيح باقات العروض للموردين نشر عروض متعددة مع ميزات تثبيت إضافية."})
+		</div>
+	}
+}
+
+// AdminOfferPackageDetailPage renders package detail.
+templ AdminOfferPackageDetailPage(pkgID int64, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل الباقة #%d", pkgID), "monetization", lang, dir) {
+		<div class="card" style="max-width:800px; margin:0 auto;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">باقة العروض #{ fmt.Sprintf("%d", pkgID) }</h2>
+				</div>
+				<a href="/admin/offers-packages/packages" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+		</div>
+	}
+}
+
+// AdminOfferSponsorshipsPage renders sponsorships.
+templ AdminOfferSponsorshipsPage(lang, dir string) {
+	@layouts.AdminShell("الرعايات الرسمية للعروض", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">الرعايات الرسمية للعروض</h2>
+				</div>
+				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "سجل الرعايات", Message: "تظهر هنا طلبات واشتراكات الرعاية النشطة للموردين."})
+		</div>
+	}
+}
+
+// AdminOfferPromotionsPage renders promotional campaigns.
+templ AdminOfferPromotionsPage(lang, dir string) {
+	@layouts.AdminShell("الحملات الترويجية", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">الحملات الترويجية المخصصة</h2>
+				</div>
+				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "الحملات الترويجية", Message: "إدارة الحملات الترويجية الموجهة حسب المحافظات."})
+		</div>
+	}
+}
+
+// AdminAdsListPage renders advertisements table.
+templ AdminAdsListPage(lang, dir string) {
+	@layouts.AdminShell("إدارة الإعلانات والبنرات (Ads)", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">الإعلانات والبنرات الترويجية في المنصة</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">مراجعة واعتماد بنرات الموردين والشركات على الصفحة الرئيسية وصفحات الأقسام.</p>
+				</div>
+				<a href="/admin/ad-plan" class="btn btn-secondary btn-sm">خطط الإعلانات</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "سجل الإعلانات", Message: "يتم فحص واعتماد وتفعيل الإعلانات المعروضة هنا."})
+		</div>
+	}
+}
+
+// AdminAdPlansPage renders ad plans.
+templ AdminAdPlansPage(lang, dir string) {
+	@layouts.AdminShell("خطط وباقات الإعلانات (Ad Plans)", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">خطط ومواضع الإعلانات</h2>
+				</div>
+				<a href="/admin/ads" class="btn btn-secondary btn-sm">العودة للإعلانات</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "خطط الإعلانات", Message: "تحديد تسعير ومواضع الإعلانات ومدة عرض كل بنر."})
+		</div>
+	}
+}
+
+// AdminOfferAnalyticsViewsPage renders views analytics.
+templ AdminOfferAnalyticsViewsPage(lang, dir string) {
+	@layouts.AdminShell("إحصائيات مشاهدات العروض (Views Analytics)", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير مشاهدات وزيارات العروض الترويجية</h2>
+			@components.EmptyState(components.EmptyStateProps{Title: "إحصائيات المشاهدات", Message: "تتبع معدل المشاهدات اليومية والأسبوعية لكل عرض ترويجي."})
+		</div>
+	}
+}
+
+// AdminOfferAnalyticsClicksPage renders clicks analytics.
+templ AdminOfferAnalyticsClicksPage(lang, dir string) {
+	@layouts.AdminShell("إحصائيات النقرات والتحويل (Clicks & CTR)", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h2>
+			@components.EmptyState(components.EmptyStateProps{Title: "إحصائيات النقرات", Message: "تحليل كفاءة العروض والبنرات ونسبة النقر للشراء."})
+		</div>
+	}
+}
+
+// AdminOfferLocationsPage renders geographic distribution.
+templ AdminOfferLocationsPage(lang, dir string) {
+	@layouts.AdminShell("التوزيع الجغرافي للعروض (Offer Locations)", "monetization", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<h2 class="card-title" style="margin-bottom:1.5rem;">نطاق التغطية الجغرافية للعروض والصفقات</h2>
+			@components.EmptyState(components.EmptyStateProps{Title: "التغطية الجغرافية", Message: "استعراض المحافظات والمناطق المشمولة في العروض الحالية."})
+		</div>
+	}
+}
+
+// VendorOffersPackagesPage renders vendor's available packages.
+templ VendorOffersPackagesPage(lang, dir string) {
+	@layouts.VendorShell("باقات العروض والاشتراكات", "offers_packages", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">باقات العروض الترويجية المتاحة لمنشأتك</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث.</p>
+				</div>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "باقات الموردين", Message: "يمكنك ترقية باقتك للاستفادة من مميزات الرعاية وظهور عروضك في الصفحة الأولى."})
+		</div>
+	}
+}
+
+// VendorOffersPackagesSponsorshipsPage renders vendor sponsorships.
+templ VendorOffersPackagesSponsorshipsPage(lang, dir string) {
+	@layouts.VendorShell("الرعايات الرسمية للعروض", "offers_packages", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">رعايات العروض الترويجية لمنشأتك</h2>
+				</div>
+				<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm">العودة للباقات</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد رعايات مفعلة", Message: "تتيح الرعاية تثبيت عروضك المميزة بأعلى نتائج البحث لجذب مزيد من الصيدليات."})
+		</div>
+	}
+}
+
+// VendorOffersPackagesPromotionsPage renders vendor campaigns.
+templ VendorOffersPackagesPromotionsPage(lang, dir string) {
+	@layouts.VendorShell("الحملات الترويجية الخاصة", "offers_packages", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">الحملات الترويجية الموجهة</h2>
+				</div>
+				<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm">العودة للباقات</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد حملات جارية", Message: "قم بإنشاء حملة ترويجية موجهة لمدن محددة لتعزيز المبيعات."})
+		</div>
+	}
+}
+
+// VendorAdsPage renders vendor ads.
+templ VendorAdsPage(lang, dir string) {
+	@layouts.VendorShell("الإعلانات والبنرات الترويجية", "ads", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">إعلانات وبنرات المنشأة</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إدارة البنرات الإعلانية المنشورة في واجهة المنصة وتتبع عدد النقرات والمشاهدات.</p>
+				</div>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد إعلانات نشطة", Message: "تواصل مع الإدارة أو اختر خطة إعلانية لنشر بنر ترويجي لمنشأتك."})
+		</div>
+	}
+}
+
+// VendorOffersLocationsPage renders vendor geographic coverage for offers.
+templ VendorOffersLocationsPage(lang, dir string) {
+	@layouts.VendorShell("نطاق التغطية الجغرافية للعروض", "offers", lang, dir) {
+		<div class="card" style="margin-bottom:0;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">التغطية الجغرافية لعروض المنشأة</h2>
+				</div>
+				<a href="/vendor/offers" class="btn btn-secondary btn-sm">العودة للعروض</a>
+			</div>
+			@components.EmptyState(components.EmptyStateProps{Title: "التغطية الجغرافية", Message: "حدد المحافظات والمدن التي تتاح فيها عروضك الترويجية."})
+		</div>
+	}
+}

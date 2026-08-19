@@ -234,11 +234,13 @@ type SQLLog struct {
 
 // SQLQueryResult represents the tabular output of a SQL query execution.
 type SQLQueryResult struct {
-	Columns      []string         `json:"columns"`
-	Rows         [][]any          `json:"rows"`
-	DurationMS   int64            `json:"duration_ms"`
-	RowsAffected int64            `json:"rows_affected"`
-	Error        string           `json:"error,omitempty"`
+	Columns      []string `json:"columns"`
+	Rows         [][]any  `json:"rows"`
+	DurationMS   int64    `json:"duration_ms"`
+	RowsAffected int64    `json:"rows_affected"`
+	Error        string   `json:"error,omitempty"`
+	Truncated    bool     `json:"truncated,omitempty"`
+	Message      string   `json:"message,omitempty"`
 }
 
 // ErrorLog represents a comprehensive diagnostic error / exception record.

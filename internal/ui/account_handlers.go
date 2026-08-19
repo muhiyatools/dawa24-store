@@ -105,7 +105,9 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 
 	data := pages.InvoicesData{}
 	if h.billSvc != nil {
-		if invoices, err := h.billSvc.ListInvoices(ctx, actor.OrganizationID, 20, 0); err == nil {
+		if invoices, err := h.billSvc.ListInvoices(ctx, actor.OrganizationID, 20, 0); err != nil {
+			h.log.WarnContext(ctx, "account: list invoices", "error", err)
+		} else {
 			data.Invoices = invoices
 		}
 	}
@@ -130,9 +132,13 @@ func (h *UIHandler) FavoritesPage(w http.ResponseWriter, r *http.Request) {
 	var products []*catalog.Product
 	if h.idSvc != nil && h.catSvc != nil {
 		ids, err := h.idSvc.ListFavorites(ctx, actor.UserID)
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "favorites: list favorites", "error", err)
+		} else {
 			for _, id := range ids {
-				if p, _, err := h.catSvc.GetProduct(ctx, id); err == nil && p != nil {
+				if p, _, err := h.catSvc.GetProduct(ctx, id); err != nil {
+					h.log.DebugContext(ctx, "favorites: get product optional", "id", id, "error", err)
+				} else if p != nil {
 					products = append(products, p)
 				}
 			}
@@ -156,8 +162,13 @@ func (h *UIHandler) FavoriteRemoveSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.idSvc != nil {
-		if id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64); err == nil {
-			_ = h.idSvc.RemoveFavorite(ctx, actor.UserID, id)
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			h.log.DebugContext(ctx, "favorite remove: invalid id", "error", err)
+		} else {
+			if err := h.idSvc.RemoveFavorite(ctx, actor.UserID, id); err != nil {
+				h.log.WarnContext(ctx, "favorite remove: failed", "id", id, "error", err)
+			}
 		}
 	}
 
@@ -184,7 +195,9 @@ func (h *UIHandler) FavoriteAddSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.idSvc != nil && productID > 0 {
-		_ = h.idSvc.AddFavorite(ctx, actor.UserID, productID)
+		if err := h.idSvc.AddFavorite(ctx, actor.UserID, productID); err != nil {
+			h.log.WarnContext(ctx, "favorite add: failed", "product_id", productID, "error", err)
+		}
 	}
 
 	redirect := r.Header.Get("Referer")
@@ -212,7 +225,9 @@ func (h *UIHandler) FavoriteToggleSubmit(w http.ResponseWriter, r *http.Request)
 	if h.idSvc != nil && productID > 0 {
 		favs, err := h.idSvc.ListFavorites(ctx, actor.UserID)
 		isFav := false
-		if err == nil {
+		if err != nil {
+			h.log.WarnContext(ctx, "favorite toggle: list favorites", "error", err)
+		} else {
 			for _, id := range favs {
 				if id == productID {
 					isFav = true
