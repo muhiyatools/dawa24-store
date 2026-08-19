@@ -41,16 +41,6 @@ func ensureInstitutionalTables(ctx context.Context, tx pgx.Tx) error {
 
 		CREATE INDEX IF NOT EXISTS idx_inst_work_conn_from ON org.institutional_work_connections (from_institutional_work_id);
 		CREATE INDEX IF NOT EXISTS idx_inst_work_conn_to ON org.institutional_work_connections (to_institutional_work_id);
-
-		DO $$
-		BEGIN
-			IF NOT EXISTS (
-				SELECT 1 FROM information_schema.columns 
-				WHERE table_schema = 'org' AND table_name = 'branch_institutional_works' AND column_name = 'institutional_work_id'
-			) THEN
-				ALTER TABLE org.branch_institutional_works ADD COLUMN institutional_work_id BIGINT REFERENCES org.institutional_works(id) ON DELETE CASCADE;
-			END IF;
-		END $$;
 	`
 	_, err := tx.Exec(ctx, schema)
 	return err
