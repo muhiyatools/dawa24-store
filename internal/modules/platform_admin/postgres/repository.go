@@ -145,6 +145,51 @@ func (r *Repository) ListCities(ctx context.Context, countryID int64) ([]*platfo
 	return list, err
 }
 
+// ListAllCities returns all cities for admin management.
+func (r *Repository) ListAllCities(ctx context.Context, countryID int64) ([]*platformadmin.City, error) {
+	var list []*platformadmin.City
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT id, country_id, name, COALESCE(latitude, 0.0), COALESCE(longitude, 0.0), is_active FROM platform_admin.cities WHERE (country_id = $1 OR $1 = 0) ORDER BY id ASC;`
+		rows, err := tx.Query(txCtx, query, countryID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var c platformadmin.City
+			if err := rows.Scan(&c.ID, &c.CountryID, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive); err != nil {
+				return err
+			}
+			list = append(list, &c)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// ToggleCityStatus toggles the active state of a city in the database.
+func (r *Repository) ToggleCityStatus(ctx context.Context, id int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `UPDATE platform_admin.cities SET is_active = NOT is_active WHERE id = $1;`, id)
+		return err
+	})
+}
+
+// CreateCity adds a new city / district into the database.
+func (r *Repository) CreateCity(ctx context.Context, c *platformadmin.City) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if c.CountryID == 0 {
+			c.CountryID = 1
+		}
+		query := `
+			INSERT INTO platform_admin.cities (country_id, name, latitude, longitude, is_active)
+			VALUES ($1, $2, $3, $4, $5)
+			RETURNING id;
+		`
+		return tx.QueryRow(txCtx, query, c.CountryID, c.Name, c.Latitude, c.Longitude, true).Scan(&c.ID)
+	})
+}
 
 // ListCurrencies returns supported currencies.
 func (r *Repository) ListCurrencies(ctx context.Context) ([]*platformadmin.Currency, error) {
@@ -320,9 +365,17 @@ func (r *Repository) GetActivePolicy(ctx context.Context, policyKey string) (*pl
 	return &p, nil
 }
 
-// CreatePolicyVersion inserts a new draft policy version.
+// CreatePolicyVersion inserts a new draft or published policy version.
 func (r *Repository) CreatePolicyVersion(ctx context.Context, p *platformadmin.Policy) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if p.IsPublished {
+			// Unpublish previous versions for this key
+			_, _ = tx.Exec(txCtx, `UPDATE platform_admin.policies SET is_published = false WHERE policy_key = $1;`, p.PolicyKey)
+			if p.PublishedAt == nil {
+				now := time.Now()
+				p.PublishedAt = &now
+			}
+		}
 		query := `
 			INSERT INTO platform_admin.policies (
 				policy_key, version, title, content, summary, is_published, published_at, created_by

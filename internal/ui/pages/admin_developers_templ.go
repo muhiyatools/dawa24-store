@@ -914,7 +914,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></td><td style=\"text-align:start;\"><div style=\"display:flex; flex-direction:column; gap:0.2rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></td><td style=\"text-align:start;\"><div style=\"display:flex; flex-direction:column; gap:0.25rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -940,103 +940,170 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var49 string
-					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActionLabelAr)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 734, Col: 31}
+					if e.ActionLabelAr != "" {
+						var templ_7745c5c3_Var49 string
+						templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActionLabelAr)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 735, Col: 32}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						var templ_7745c5c3_Var50 string
+						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(e.Action)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 737, Col: 25}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</span> <span style=\"font-size:0.7rem; color:var(--text-muted);\">القسم: ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var50 string
-					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(e.Module)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 736, Col: 92}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</span></div></td><td style=\"text-align:start;\"><div style=\"font-weight:700; color:var(--text);\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var51 string
-					templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(e.Title)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 740, Col: 70}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</div><div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:2px; line-height:1.4;\">")
+					if e.Module != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<span style=\"font-size:0.7rem; color:var(--text-muted);\">القسم: ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var51 string
+						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(e.Module)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 741, Col: 93}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<span style=\"font-size:0.7rem; color:var(--text-muted);\">القسم: المنظومة العامة</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "</div></td><td style=\"text-align:start;\"><div style=\"font-weight:700; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var52 string
-					templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(e.Description)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 741, Col: 121}
+					if e.Title != "" {
+						var templ_7745c5c3_Var52 string
+						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(e.Title)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 750, Col: 23}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else if e.ActionLabelAr != "" {
+						var templ_7745c5c3_Var53 string
+						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(e.ActionLabelAr)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 752, Col: 31}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						var templ_7745c5c3_Var54 string
+						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(e.Action)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 754, Col: 24}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</div></td><td style=\"text-align:center;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var53 = []any{"badge", severityBadgeClass(e.Severity)}
-					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var53...)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<span class=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var54 string
-					templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var53).String())
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 1, Col: 0}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var54)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" style=\"font-size:0.725rem; font-weight:700;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var55 string
-					templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(e.Severity)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 745, Col: 25}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</div><div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:2px; line-height:1.4;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</span></td><td style=\"text-align:center;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);\" @click=\"")
+					if e.Description != "" {
+						var templ_7745c5c3_Var55 string
+						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(e.Description)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 759, Col: 29}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<span>عملية إدارية مسجلة بالنظام</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div></td><td style=\"text-align:center;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var56 string
-					templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openDetails(%d)", e.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 753, Col: 58}
+					if e.Severity != "" && e.Severity != "-" {
+						var templ_7745c5c3_Var56 = []any{"badge", severityBadgeClass(e.Severity)}
+						templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var56...)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<span class=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var57 string
+						templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var56).String())
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 1, Col: 0}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "\" style=\"font-size:0.725rem; font-weight:700;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var58 string
+						templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(e.Severity)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 768, Col: 26}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span class=\"badge badge-slate\" style=\"font-size:0.725rem; font-weight:700;\">عادي (Info)</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var56)
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</td><td style=\"text-align:center;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\">")
+					var templ_7745c5c3_Var59 string
+					templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openDetails(%d)", e.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 781, Col: 58}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var59)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1044,17 +1111,17 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<span>تفاصيل</span></button></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "<span>تفاصيل</span></button></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</div><!-- Audit Inspection Modal --><div x-show=\"isDetailsOpen\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;\" :style=\"isDetailsOpen ? 'display:flex;' : 'display:none;'\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"card\" style=\"max-width:850px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</div><!-- Audit Inspection Modal --><div x-show=\"isDetailsOpen\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;\" :style=\"isDetailsOpen ? 'display:flex;' : 'display:none;'\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"card\" style=\"max-width:850px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1062,7 +1129,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\" x-text=\"'تفاصيل العملية #' + (selected ? selected.id : '')\"></h3><div style=\"font-size:0.8rem; color:var(--text-muted);\" x-text=\"selected ? selected.title : ''\"></div></div></div><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\" x-text=\"'تفاصيل العملية #' + (selected ? selected.id : '')\"></h3><div style=\"font-size:0.8rem; color:var(--text-muted);\" x-text=\"selected ? selected.title : ''\"></div></div></div><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1070,30 +1137,30 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</button></div><template x-if=\"selected\"><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;\">بيان العملية:</div><div style=\"font-size:0.9rem; color:var(--text); line-height:1.5;\" x-text=\"selected.description\"></div></div><!-- Side-by-Side Diff --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;\">الحالة السابقة (Before)</div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;\" x-text=\"selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'\"></pre></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;\">الحالة الجديدة (After)</div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;\" x-text=\"selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'\"></pre></div></div></div></template><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary\">إلغاء</button></div></div></div><!-- Embedded Audit JSON Data -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "</button></div><template x-if=\"selected\"><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;\">بيان العملية:</div><div style=\"font-size:0.9rem; color:var(--text); line-height:1.5;\" x-text=\"selected.description\"></div></div><!-- Side-by-Side Diff --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;\">الحالة السابقة (Before)</div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;\" x-text=\"selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'\"></pre></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;\">الحالة الجديدة (After)</div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;\" x-text=\"selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'\"></pre></div></div></div></template><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary\">إلغاء</button></div></div></div><!-- Embedded Audit JSON Data -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, e := range values.AuditEntries {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "<script type=\"application/json\" id=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "<script type=\"application/json\" id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var57 string
-				templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("audit-data-%d", e.ID))
+				var templ_7745c5c3_Var60 string
+				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("audit-data-%d", e.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 824, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 852, Col: 76}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "\">\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", e.ID) },\n\t\t\t\t\t\t\t\"actor_name\": { fmt.Sprintf(\"%q\", e.ActorName) },\n\t\t\t\t\t\t\t\"actor_email\": { fmt.Sprintf(\"%q\", e.ActorEmail) },\n\t\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", e.OrganizationName) },\n\t\t\t\t\t\t\t\"action\": { fmt.Sprintf(\"%q\", e.Action) },\n\t\t\t\t\t\t\t\"action_label_ar\": { fmt.Sprintf(\"%q\", e.ActionLabelAr) },\n\t\t\t\t\t\t\t\"module\": { fmt.Sprintf(\"%q\", e.Module) },\n\t\t\t\t\t\t\t\"title\": { fmt.Sprintf(\"%q\", e.Title) },\n\t\t\t\t\t\t\t\"description\": { fmt.Sprintf(\"%q\", e.Description) },\n\t\t\t\t\t\t\t\"severity\": { fmt.Sprintf(\"%q\", e.Severity) },\n\t\t\t\t\t\t\t\"before\": { templ.JSONString(e.Before) },\n\t\t\t\t\t\t\t\"after\": { templ.JSONString(e.After) }\n\t\t\t\t\t\t}\n\t\t\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "\">\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", e.ID) },\n\t\t\t\t\t\t\t\"actor_name\": { fmt.Sprintf(\"%q\", e.ActorName) },\n\t\t\t\t\t\t\t\"actor_email\": { fmt.Sprintf(\"%q\", e.ActorEmail) },\n\t\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", e.OrganizationName) },\n\t\t\t\t\t\t\t\"action\": { fmt.Sprintf(\"%q\", e.Action) },\n\t\t\t\t\t\t\t\"action_label_ar\": { fmt.Sprintf(\"%q\", e.ActionLabelAr) },\n\t\t\t\t\t\t\t\"module\": { fmt.Sprintf(\"%q\", e.Module) },\n\t\t\t\t\t\t\t\"title\": { fmt.Sprintf(\"%q\", e.Title) },\n\t\t\t\t\t\t\t\"description\": { fmt.Sprintf(\"%q\", e.Description) },\n\t\t\t\t\t\t\t\"severity\": { fmt.Sprintf(\"%q\", e.Severity) },\n\t\t\t\t\t\t\t\"before\": { templ.JSONString(e.Before) },\n\t\t\t\t\t\t\t\"after\": { templ.JSONString(e.After) }\n\t\t\t\t\t\t}\n\t\t\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</div></div><script>\n\t\t\tfunction adminDevelopersManager(initialTab) {\n\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\tconst storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';\n\n\t\t\t\treturn {\n\t\t\t\t\tactiveTab: storedTab,\n\n\t\t\t\t\tsetTab(tab) {\n\t\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\t\tlocalStorage.setItem('dawa24-dev-tab', tab);\n\t\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminSQLManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsqlQuery: 'SELECT id, name, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 10;',\n\t\t\t\t\tisRunning: false,\n\t\t\t\t\tqueryExecuted: false,\n\t\t\t\t\tqueryResult: {\n\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\trows: [],\n\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\terror: ''\n\t\t\t\t\t},\n\n\t\t\t\t\tsetQuery(q) {\n\t\t\t\t\t\tthis.sqlQuery = q;\n\t\t\t\t\t},\n\n\t\t\t\t\tasync runQuery() {\n\t\t\t\t\t\tif (!this.sqlQuery.trim()) return;\n\t\t\t\t\t\tthis.isRunning = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('query', this.sqlQuery);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/sql', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.queryResult = data;\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.queryResult = {\n\t\t\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\t\t\trows: [],\n\t\t\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\t\t\terror: 'Network / server error: ' + e.message\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isRunning = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAIManager() {\n\t\t\t\treturn {\n\t\t\t\t\tshowKey: false,\n\t\t\t\t\tgatewayURL: 'https://api.muhiya.com',\n\t\t\t\t\tgatewayKey: '',\n\t\t\t\t\tselectedModel: 'gemini-1.5-flash',\n\t\t\t\t\tisFetchingModels: false,\n\t\t\t\t\tfetchedModels: [],\n\n\t\t\t\t\tasync fetchModels() {\n\t\t\t\t\t\tthis.isFetchingModels = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('endpoint_url', this.gatewayURL);\n\t\t\t\t\t\t\tform.append('api_key', this.gatewayKey);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/fetch-models', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tif (data.models && data.models.length > 0) {\n\t\t\t\t\t\t\t\tthis.fetchedModels = data.models;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tthis.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isFetchingModels = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminErrorsManager() {\n\t\t\t\treturn {\n\t\t\t\t\tisErrorModalOpen: false,\n\t\t\t\t\tselectedError: null,\n\n\t\t\t\t\topenErrorDetails(id) {\n\t\t\t\t\t\tconst script = document.getElementById('err-data-' + id);\n\t\t\t\t\t\tif (!script) return;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tthis.selectedError = JSON.parse(script.textContent);\n\t\t\t\t\t\t\tthis.isErrorModalOpen = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse error json:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "</div></div><script>\n\t\t\tfunction adminDevelopersManager(initialTab) {\n\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\tconst storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';\n\n\t\t\t\treturn {\n\t\t\t\t\tactiveTab: storedTab,\n\n\t\t\t\t\tsetTab(tab) {\n\t\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\t\tlocalStorage.setItem('dawa24-dev-tab', tab);\n\t\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminSQLManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsqlQuery: 'SELECT id, name, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 10;',\n\t\t\t\t\tisRunning: false,\n\t\t\t\t\tqueryExecuted: false,\n\t\t\t\t\tqueryResult: {\n\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\trows: [],\n\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\terror: ''\n\t\t\t\t\t},\n\n\t\t\t\t\tsetQuery(q) {\n\t\t\t\t\t\tthis.sqlQuery = q;\n\t\t\t\t\t},\n\n\t\t\t\t\tasync runQuery() {\n\t\t\t\t\t\tif (!this.sqlQuery.trim()) return;\n\t\t\t\t\t\tthis.isRunning = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('query', this.sqlQuery);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/sql', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.queryResult = data;\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.queryResult = {\n\t\t\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\t\t\trows: [],\n\t\t\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\t\t\terror: 'Network / server error: ' + e.message\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isRunning = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAIManager() {\n\t\t\t\treturn {\n\t\t\t\t\tshowKey: false,\n\t\t\t\t\tgatewayURL: 'https://api.muhiya.com',\n\t\t\t\t\tgatewayKey: '',\n\t\t\t\t\tselectedModel: 'gemini-1.5-flash',\n\t\t\t\t\tisFetchingModels: false,\n\t\t\t\t\tfetchedModels: [],\n\n\t\t\t\t\tasync fetchModels() {\n\t\t\t\t\t\tthis.isFetchingModels = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('endpoint_url', this.gatewayURL);\n\t\t\t\t\t\t\tform.append('api_key', this.gatewayKey);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/fetch-models', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tif (data.models && data.models.length > 0) {\n\t\t\t\t\t\t\t\tthis.fetchedModels = data.models;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tthis.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isFetchingModels = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminErrorsManager() {\n\t\t\t\treturn {\n\t\t\t\t\tisErrorModalOpen: false,\n\t\t\t\t\tselectedError: null,\n\n\t\t\t\t\topenErrorDetails(id) {\n\t\t\t\t\t\tconst script = document.getElementById('err-data-' + id);\n\t\t\t\t\t\tif (!script) return;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tthis.selectedError = JSON.parse(script.textContent);\n\t\t\t\t\t\t\tthis.isErrorModalOpen = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse error json:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAuditManager() {\n\t\t\t\treturn {\n\t\t\t\t\tisDetailsOpen: false,\n\t\t\t\t\tselected: null,\n\n\t\t\t\t\topenDetails(id) {\n\t\t\t\t\t\tconst script = document.getElementById('audit-data-' + id);\n\t\t\t\t\t\tif (!script) return;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tthis.selected = JSON.parse(script.textContent);\n\t\t\t\t\t\t\tthis.isDetailsOpen = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse audit json:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

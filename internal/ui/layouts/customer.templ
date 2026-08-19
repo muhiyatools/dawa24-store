@@ -37,6 +37,8 @@ templ PublicShell(title string, lang string, dir string) {
 				</div>
 
 				<div style="display:flex; align-items:center; gap:0.875rem;">
+					@components.LanguageToggle(lang)
+					@components.ThemeToggle()
 					if actor, ok := authctx.From(ctx); ok {
 						<!-- Cart Button: customer-only surface -->
 						if actor.IsCustomer() {

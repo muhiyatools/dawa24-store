@@ -96,6 +96,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 					</div>
 
 					<div style="display:flex; align-items:center; gap:var(--space-4);">
+						@components.LanguageToggle(lang)
 						@components.ThemeToggle()
 
 						<div style="display:flex; align-items:center; gap:0.65rem; border-inline-start:1px solid var(--border); padding-inline-start:1rem;">

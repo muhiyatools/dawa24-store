@@ -111,6 +111,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 					</div>
 
 					<div style="display:flex; align-items:center; gap:var(--space-3);">
+						@components.LanguageToggle(lang)
 						@components.ThemeToggle()
 						@buyingBranchSelector(ctx)
 						<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">

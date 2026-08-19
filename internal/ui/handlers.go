@@ -497,13 +497,17 @@ func statusForError(err error) int {
 // Form posts here redirect after handling, which is correct — it stops a
 // refresh from resubmitting. But it also throws away everything the handler
 // learned, which is why a failed save was indistinguishable from a successful
-// one. The outcome travels in the query string and the layout renders it as a
-// toast on arrival.
 func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, path, kind, message string) {
-	q := url.Values{}
+	u, err := url.Parse(path)
+	if err != nil {
+		http.Redirect(w, r, path, http.StatusSeeOther)
+		return
+	}
+	q := u.Query()
 	q.Set("notice", kind)
 	q.Set("msg", message)
-	http.Redirect(w, r, path+"?"+q.Encode(), http.StatusSeeOther)
+	u.RawQuery = q.Encode()
+	http.Redirect(w, r, u.String(), http.StatusSeeOther)
 }
 
 // SetLanguage persists the chosen UI language in the dawa24_lang cookie and

@@ -548,6 +548,10 @@ func (h *UIHandler) AdminPolicyEditSubmit(w http.ResponseWriter, r *http.Request
 		titleEn = titleAr
 	}
 	contentAr := strings.TrimSpace(r.FormValue("content_ar"))
+	contentEn := strings.TrimSpace(r.FormValue("content_en"))
+	if contentEn == "" {
+		contentEn = contentAr
+	}
 	changelog := strings.TrimSpace(r.FormValue("changelog"))
 
 	if titleAr == "" || contentAr == "" {
@@ -560,13 +564,15 @@ func (h *UIHandler) AdminPolicyEditSubmit(w http.ResponseWriter, r *http.Request
 		if actor.UserID > 0 {
 			actorID = &actor.UserID
 		}
+		now := time.Now()
 		policy := &platformadmin.Policy{
 			PolicyKey:   policyKey,
-			Version:     fmt.Sprintf("1.%d", time.Now().Unix()%10000),
+			Version:     fmt.Sprintf("1.%d", now.Unix()%10000),
 			Title:       i18n.New(titleAr, titleEn),
-			Content:     i18n.New(contentAr, contentAr),
+			Content:     i18n.New(contentAr, contentEn),
 			Summary:     i18n.New(changelog, changelog),
 			IsPublished: true,
+			PublishedAt: &now,
 			CreatedBy:   actorID,
 		}
 		if err := h.adminSvc.CreatePolicyVersion(ctx, policy); err != nil {
@@ -1919,7 +1925,13 @@ func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	cities := h.listCities(ctx)
+	var cities []*platformadmin.City
+	if h.adminSvc != nil {
+		cities, _ = h.adminSvc.ListAllCities(ctx, 1)
+	}
+	if len(cities) == 0 {
+		cities = h.listCities(ctx)
+	}
 	data := pages.AdminCitiesData{
 		Cities:     cities,
 		TotalCount: len(cities),
@@ -1934,19 +1946,56 @@ func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
 
 // AdminCityCreateSubmit adds a new city / district with coordinates.
 func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	_ = r.ParseForm()
-	nameAr := r.PostFormValue("name_ar")
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAr == "" {
 		h.redirectWithNotice(w, r, "/admin/cities", "error", "اسم المدينة بالعربية مطلوب.")
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم حفظ وتحديث بيانات وإحداثيات المدينة بنجاح.")
-}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
 
+	lat, _ := strconv.ParseFloat(r.PostFormValue("city_lat"), 64)
+	lon, _ := strconv.ParseFloat(r.PostFormValue("city_lon"), 64)
+
+	city := &platformadmin.City{
+		CountryID: 1,
+		Name:      i18n.New(nameAr, nameEn),
+		Latitude:  lat,
+		Longitude: lon,
+		IsActive:  true,
+	}
+
+	if h.adminSvc != nil {
+		if err := h.adminSvc.CreateCity(ctx, city); err != nil {
+			h.redirectWithNotice(w, r, "/admin/cities", "error", "فشل إضافة المدينة: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم حفظ وإضافة المدينة بنجاح في قاعدة البيانات.")
+}
 
 // AdminCityToggleSubmit toggles the active status of a city.
 func (h *UIHandler) AdminCityToggleSubmit(w http.ResponseWriter, r *http.Request) {
-	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم تحديث حالة تفعيل المدينة.")
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/cities", "error", "معرف المدينة غير صالح.")
+		return
+	}
+
+	if h.adminSvc != nil {
+		if err := h.adminSvc.ToggleCityStatus(ctx, id); err != nil {
+			h.redirectWithNotice(w, r, "/admin/cities", "error", "فشل تحديث حالة المدينة: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم تحديث حالة تفعيل المدينة بنجاح.")
 }
 
 // AdminDevelopersPage renders the unified developer portal with 4 tabs:
@@ -2000,8 +2049,10 @@ func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) 
 		values.ErrorMetrics.Critical24h = crit
 		values.ErrorMetrics.Unresolved = unres
 		values.ErrorMetrics.AffectedUsers = affUsers
-
 		ae, _ := h.adminSvc.ListAuditLog(ctx, 50, 0)
+		for _, e := range ae {
+			localizeAuditEntry(e)
+		}
 		auditEntries = ae
 	}
 

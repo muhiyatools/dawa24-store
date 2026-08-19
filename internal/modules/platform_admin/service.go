@@ -53,9 +53,24 @@ func (s *Service) ListCountries(ctx context.Context) ([]*Country, error) {
 	return s.repo.ListCountries(ctx)
 }
 
-// ListCities returns cities for a country.
+// ListCities returns active cities for a country.
 func (s *Service) ListCities(ctx context.Context, countryID int64) ([]*City, error) {
 	return s.repo.ListCities(ctx, countryID)
+}
+
+// ListAllCities returns all cities (both active and inactive) for admin management.
+func (s *Service) ListAllCities(ctx context.Context, countryID int64) ([]*City, error) {
+	return s.repo.ListAllCities(ctx, countryID)
+}
+
+// ToggleCityStatus toggles the active state of a city.
+func (s *Service) ToggleCityStatus(ctx context.Context, id int64) error {
+	return s.repo.ToggleCityStatus(ctx, id)
+}
+
+// CreateCity adds a new city with spatial coordinates.
+func (s *Service) CreateCity(ctx context.Context, c *City) error {
+	return s.repo.CreateCity(ctx, c)
 }
 
 // ListCurrencies returns supported currencies.

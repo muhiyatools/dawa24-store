@@ -97,6 +97,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					</div>
 
 					<div style="display:flex; align-items:center; gap:var(--space-3);">
+						@components.LanguageToggle(lang)
 						@components.ThemeToggle()
 						<span class="badge badge-emerald" style="padding:0.3rem 0.65rem; font-weight:600; font-size:var(--text-xs);">
 							@components.IconCheckCircle("icon-xs")

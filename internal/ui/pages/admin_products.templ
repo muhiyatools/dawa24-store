@@ -198,8 +198,8 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 			<!-- Master Product Creation Modal -->
 			<div
 				x-show="isCreateModalOpen"
-				style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
-				:style="isCreateModalOpen ? 'display:flex;' : 'display:none;'"
+				x-cloak
+				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
 				@keydown.escape.window="isCreateModalOpen = false"
 			>
 				<div
@@ -260,17 +260,17 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 							</div>
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">الشركة المصنعة / المنتجة *</label>
-								<input type="text" name="manufacturer" required class="form-input" placeholder="إيفا فارما / Eva Pharma" />
+								<input type="text" name="manufacturer" required class="form-input" placeholder="Eva Pharma" />
 							</div>
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">رقم التسجيل بهيئة الدواء (EDA)</label>
-								<input type="text" name="eda_reg_number" class="form-input tabular-nums" placeholder="EDA-REG-93821" />
+								<input type="text" name="eda_reg_number" class="form-input tabular-nums" placeholder="EDA-10293" />
 							</div>
 						</div>
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">رفع صورة جديدة</label>
+								<label class="form-label">صورة الصنف (رفع ملف)</label>
 								<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
 							</div>
 							<div class="form-group" style="margin:0;">
@@ -282,11 +282,11 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">الوصف ودواعي الاستعمال (عربي)</label>
-								<textarea name="description_ar" rows="2" class="form-input" placeholder="لعلاج أعراض نزلات البرد والإنفلونزا..."></textarea>
+								<textarea name="description_ar" rows="2" class="form-input" placeholder="دواعي الاستعمال والجرعات المقترحة..."></textarea>
 							</div>
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">الوصف (إنجليزي)</label>
-								<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="For common cold and flu symptoms..."></textarea>
+								<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="Indications, dosage and usage..."></textarea>
 							</div>
 						</div>
 
@@ -294,7 +294,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 							<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="font-weight:800;">
 								@components.IconCheck("icon-xs")
-								<span>إضافة واعتماد الصنف بالكتالوج</span>
+								<span>حفظ وإدراج الصنف في الكتالوج</span>
 							</button>
 						</div>
 					</form>
@@ -304,8 +304,8 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 			<!-- Master Product Edit Modal -->
 			<div
 				x-show="isEditModalOpen"
-				style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
-				:style="isEditModalOpen ? 'display:flex;' : 'display:none;'"
+				x-cloak
+				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
 				@keydown.escape.window="isEditModalOpen = false"
 			>
 				<div
@@ -410,14 +410,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 			<!-- Bulk Import Modal -->
 			<div
 				x-show="isImportModalOpen"
-				style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
-				:style="isImportModalOpen ? 'display:flex;' : 'display:none;'"
+				x-cloak
+				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
 				@keydown.escape.window="isImportModalOpen = false"
 			>
 				<div
 					@click.outside="isImportModalOpen = false"
 					class="card"
-					style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+					style="max-width:580px; width:100%; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div style="display:flex; align-items:center; gap:0.6rem;">
@@ -425,7 +425,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 								@components.IconUpload("icon-xs")
 							</div>
 							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-								استيراد أصناف دوائية بالجملة (Bulk Import)
+								استيراد أصناف جماعية (Bulk Import)
 							</h3>
 						</div>
 						<button type="button" @click="isImportModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
@@ -434,28 +434,20 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					</div>
 
 					<form method="POST" action="/admin/products/import" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; flex-direction:column; gap:0.6rem;">
-							<div style="font-size:0.85rem; font-weight:700; color:var(--text);">
-								📄 قوالب ملف الاستيراد الجاهزة للتحميل:
-							</div>
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-								<a href="/admin/products/sample.xlsx" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;">
-									@components.IconDownload("icon-xs")
-									<span>نموذج ملف Excel (.xlsx)</span>
-								</a>
-								<a href="/admin/products/sample.csv" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent); justify-content:center; gap:0.4rem;">
-									@components.IconDownload("icon-xs")
-									<span>نموذج ملف CSV (.csv)</span>
-								</a>
-							</div>
+						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;">
+							<div style="font-weight:700; color:var(--text); margin-bottom:0.35rem;">تعليمات الملف:</div>
+							<p style="color:var(--text-secondary); margin:0 0 0.75rem 0; font-size:0.8rem; line-height:1.5;">
+								قم برفع ملف Excel (.xlsx) أو CSV يحتوي على أعمدة الأصناف. يمكنك تحميل النموذج القياسي المعتمد:
+							</p>
+							<a href="/admin/products/sample.xlsx" download class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent);">
+								@components.IconDownload("icon-xs")
+								<span>تحميل نموذج Excel الاسترشادي (.xlsx)</span>
+							</a>
 						</div>
 
 						<div class="form-group" style="margin:0;">
-							<label class="form-label">اختر ملف Excel / CSV المكتمل *</label>
-							<input type="file" name="import_file" required accept=".csv,.xlsx,.xls,.txt" class="form-input" style="padding:0.5rem;" />
-							<p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-								الصيغ المدعومة: CSV و Excel (.xlsx). يتم استيراد الأسماء، المواد الفعالة، والشركات تلقائياً.
-							</p>
+							<label class="form-label">اختيار ملف الأصناف (.xlsx, .csv) *</label>
+							<input type="file" name="file" accept=".xlsx,.csv" required class="form-input" style="padding:0.5rem;" />
 						</div>
 
 						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
@@ -469,31 +461,30 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 				</div>
 			</div>
 
-			<!-- Embedded JSON Data Stores for Products -->
-			for _, p := range products {
-				<script type="application/json" id={ fmt.Sprintf("product-data-%d", p.ID) }>
-					{
-						"id": { fmt.Sprintf("%d", p.ID) },
-						"name_ar": { fmt.Sprintf("%q", p.Name.Get("ar")) },
-						"name_en": { fmt.Sprintf("%q", p.Name.Get("en")) },
-						"generic_name": { fmt.Sprintf("%q", p.ScientificName) },
-						"active_ingredient": { fmt.Sprintf("%q", p.Active) },
-						"dosage_form": { fmt.Sprintf("%q", p.DosageForm) },
-						"manufacturer": { fmt.Sprintf("%q", p.ManufacturingCompanies) },
-						"eda_reg_number": { fmt.Sprintf("%q", p.Barcode) },
-						"price": { fmt.Sprintf("%q", p.Price.String()) },
-						"image": { fmt.Sprintf("%q", p.Image) },
-						"description_ar": { fmt.Sprintf("%q", p.Description.Get("ar")) },
-						"description_en": { fmt.Sprintf("%q", p.Description.Get("en")) },
-						"status": { fmt.Sprintf("%q", p.Status) }
-					}
-				</script>
-			}
-
 		</div>
 
 		<script>
 			function adminProductsManager() {
+				const productsData = {
+					for _, p := range products {
+						{ fmt.Sprintf("%d", p.ID) }: {
+							id: { fmt.Sprintf("%d", p.ID) },
+							name_ar: { fmt.Sprintf("%q", p.Name.Get("ar")) },
+							name_en: { fmt.Sprintf("%q", p.Name.Get("en")) },
+							generic_name: { fmt.Sprintf("%q", p.ScientificName) },
+							active_ingredient: { fmt.Sprintf("%q", p.Active) },
+							dosage_form: { fmt.Sprintf("%q", p.DosageForm) },
+							manufacturer: { fmt.Sprintf("%q", p.ManufacturingCompanies) },
+							eda_reg_number: { fmt.Sprintf("%q", p.Barcode) },
+							price: { fmt.Sprintf("%q", p.Price.String()) },
+							image: { fmt.Sprintf("%q", p.Image) },
+							description_ar: { fmt.Sprintf("%q", p.Description.Get("ar")) },
+							description_en: { fmt.Sprintf("%q", p.Description.Get("en")) },
+							status: { fmt.Sprintf("%q", string(p.Status)) }
+						},
+					}
+				};
+
 				return {
 					searchQuery: '',
 					dosageFilter: 'all',
@@ -518,17 +509,13 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					},
 
 					openEdit(id) {
-						const script = document.getElementById('product-data-' + id);
-						if (!script) {
+						const item = productsData[id];
+						if (!item) {
 							console.error('Product data not found for ID:', id);
 							return;
 						}
-						try {
-							this.editData = JSON.parse(script.textContent);
-							this.isEditModalOpen = true;
-						} catch (e) {
-							console.error('Failed to parse product JSON:', e);
-						}
+						this.editData = Object.assign({}, item);
+						this.isEditModalOpen = true;
 					}
 				};
 			}

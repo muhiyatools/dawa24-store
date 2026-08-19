@@ -413,7 +413,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- Create Institutional Work Modal --><div x-show=\"isCreateModalOpen\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;\" :style=\"isCreateModalOpen ? 'display:flex;' : 'display:none;'\" @keydown.escape.window=\"isCreateModalOpen = false\"><div @click.outside=\"isCreateModalOpen = false\" class=\"card\" style=\"max-width:720px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- Create Institutional Work Modal --><div x-show=\"isCreateModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;\" @keydown.escape.window=\"isCreateModalOpen = false\"><div @click.outside=\"isCreateModalOpen = false\" class=\"card\" style=\"max-width:720px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -473,7 +473,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span>حفظ وإضافة التصنيف</span></button></div></form></div></div><!-- Edit Modal --><div x-show=\"isEditModalOpen\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;\" :style=\"isEditModalOpen ? 'display:flex;' : 'display:none;'\" @keydown.escape.window=\"isEditModalOpen = false\"><div @click.outside=\"isEditModalOpen = false\" class=\"card\" style=\"max-width:720px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span>حفظ وإضافة التصنيف</span></button></div></form></div></div><!-- Edit Modal --><div x-show=\"isEditModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;\" @keydown.escape.window=\"isEditModalOpen = false\"><div @click.outside=\"isEditModalOpen = false\" class=\"card\" style=\"max-width:720px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -533,49 +533,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>حفظ التعديلات</span></button></div></form></div></div><!-- Embedded JSON Data Stores for Institutional Items -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, item := range items {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<script type=\"application/json\" id=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var23 string
-				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("inst-data-%d", item.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 374, Col: 77}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\">\n\t\t\t\t\t{\n\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", item.ID) },\n\t\t\t\t\t\t\"title_ar\": { fmt.Sprintf(\"%q\", item.Title.Get(\"ar\")) },\n\t\t\t\t\t\t\"title_en\": { fmt.Sprintf(\"%q\", item.Title.Get(\"en\")) },\n\t\t\t\t\t\t\"description_ar\": { fmt.Sprintf(\"%q\", item.Description.Get(\"ar\")) },\n\t\t\t\t\t\t\"icon\": { fmt.Sprintf(\"%q\", item.Icon) },\n\t\t\t\t\t\t\"pricing_type\": { fmt.Sprintf(\"%q\", string(item.PricingType)) },\n\t\t\t\t\t\t\"view_type\": { fmt.Sprintf(\"%d\", item.ViewType) },\n\t\t\t\t\t\t\"parent_id\": { fmt.Sprintf(\"%d\", item.ParentIDVal()) }\n\t\t\t\t\t}\n\t\t\t\t</script>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, child := range item.Children {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<script type=\"application/json\" id=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("inst-data-%d", child.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 387, Col: 79}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\">\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", child.ID) },\n\t\t\t\t\t\t\t\"title_ar\": { fmt.Sprintf(\"%q\", child.Title.Get(\"ar\")) },\n\t\t\t\t\t\t\t\"title_en\": { fmt.Sprintf(\"%q\", child.Title.Get(\"en\")) },\n\t\t\t\t\t\t\t\"description_ar\": { fmt.Sprintf(\"%q\", child.Description.Get(\"ar\")) },\n\t\t\t\t\t\t\t\"icon\": { fmt.Sprintf(\"%q\", child.Icon) },\n\t\t\t\t\t\t\t\"pricing_type\": { fmt.Sprintf(\"%q\", string(child.PricingType)) },\n\t\t\t\t\t\t\t\"view_type\": { fmt.Sprintf(\"%d\", child.ViewType) },\n\t\t\t\t\t\t\t\"parent_id\": { fmt.Sprintf(\"%d\", child.ParentIDVal()) }\n\t\t\t\t\t\t}\n\t\t\t\t\t</script>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><script>\n\t\t\tfunction adminInstitutionalManager() {\n\t\t\t\treturn {\n\t\t\t\t\tisCreateModalOpen: false,\n\t\t\t\t\tisEditModalOpen: false,\n\t\t\t\t\teditData: {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\t\ttitle_en: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\ticon: 'building',\n\t\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\t\tview_type: 1,\n\t\t\t\t\t\tparent_id: 0\n\t\t\t\t\t},\n\n\t\t\t\t\topenCreateModal() {\n\t\t\t\t\t\tthis.isCreateModalOpen = true;\n\t\t\t\t\t},\n\n\t\t\t\t\topenEdit(id) {\n\t\t\t\t\t\tconst script = document.getElementById('inst-data-' + id);\n\t\t\t\t\t\tif (!script) {\n\t\t\t\t\t\t\tconsole.error('Institutional data not found for ID:', id);\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tthis.editData = JSON.parse(script.textContent);\n\t\t\t\t\t\t\tthis.isEditModalOpen = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.error('Failed to parse institutional JSON:', e);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>حفظ التعديلات</span></button></div></form></div></div></div><script>\n\t\t\tfunction adminInstitutionalManager() {\n\t\t\t\tconst instData = {\n\t\t\t\t\tfor _, item := range items {\n\t\t\t\t\t\t{ fmt.Sprintf(\"%d\", item.ID) }: {\n\t\t\t\t\t\t\tid: { fmt.Sprintf(\"%d\", item.ID) },\n\t\t\t\t\t\t\ttitle_ar: { fmt.Sprintf(\"%q\", item.Title.Get(\"ar\")) },\n\t\t\t\t\t\t\ttitle_en: { fmt.Sprintf(\"%q\", item.Title.Get(\"en\")) },\n\t\t\t\t\t\t\tdescription_ar: { fmt.Sprintf(\"%q\", item.Description.Get(\"ar\")) },\n\t\t\t\t\t\t\ticon: { fmt.Sprintf(\"%q\", item.Icon) },\n\t\t\t\t\t\t\tpricing_type: { fmt.Sprintf(\"%q\", string(item.PricingType)) },\n\t\t\t\t\t\t\tview_type: { fmt.Sprintf(\"%d\", item.ViewType) },\n\t\t\t\t\t\t\tparent_id: { fmt.Sprintf(\"%d\", item.ParentIDVal()) }\n\t\t\t\t\t\t},\n\t\t\t\t\t\tfor _, child := range item.Children {\n\t\t\t\t\t\t\t{ fmt.Sprintf(\"%d\", child.ID) }: {\n\t\t\t\t\t\t\t\tid: { fmt.Sprintf(\"%d\", child.ID) },\n\t\t\t\t\t\t\t\ttitle_ar: { fmt.Sprintf(\"%q\", child.Title.Get(\"ar\")) },\n\t\t\t\t\t\t\t\ttitle_en: { fmt.Sprintf(\"%q\", child.Title.Get(\"en\")) },\n\t\t\t\t\t\t\t\tdescription_ar: { fmt.Sprintf(\"%q\", child.Description.Get(\"ar\")) },\n\t\t\t\t\t\t\t\ticon: { fmt.Sprintf(\"%q\", child.Icon) },\n\t\t\t\t\t\t\t\tpricing_type: { fmt.Sprintf(\"%q\", string(child.PricingType)) },\n\t\t\t\t\t\t\t\tview_type: { fmt.Sprintf(\"%d\", child.ViewType) },\n\t\t\t\t\t\t\t\tparent_id: { fmt.Sprintf(\"%d\", child.ParentIDVal()) }\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\n\t\t\t\treturn {\n\t\t\t\t\tisCreateModalOpen: false,\n\t\t\t\t\tisEditModalOpen: false,\n\t\t\t\t\teditData: {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\t\ttitle_en: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\ticon: 'building',\n\t\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\t\tview_type: 1,\n\t\t\t\t\t\tparent_id: 0\n\t\t\t\t\t},\n\n\t\t\t\t\topenCreateModal() {\n\t\t\t\t\t\tthis.isCreateModalOpen = true;\n\t\t\t\t\t},\n\n\t\t\t\t\topenEdit(id) {\n\t\t\t\t\t\tconst item = instData[id];\n\t\t\t\t\t\tif (!item) {\n\t\t\t\t\t\t\tconsole.error('Institutional data not found for ID:', id);\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tthis.editData = Object.assign({}, item);\n\t\t\t\t\t\tthis.isEditModalOpen = true;\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

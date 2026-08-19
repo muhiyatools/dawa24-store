@@ -3,69 +3,78 @@ package components
 templ CapsuleAssistant() {
 	<div
 		x-data="capsuleAssistantManager()"
+		x-cloak
 		style="position:fixed; bottom:24px; left:24px; right:auto; z-index:9990; font-family:var(--font-sans); direction:rtl;"
 	>
 		
-		<!-- Floating Trigger Capsule Button (Hidden when Drawer is Open) -->
+		<!-- Floating Trigger: Polished Circular Button (Hidden when Drawer is Open) -->
 		<button
 			type="button"
 			x-show="!isOpen"
 			x-transition:enter="transition ease-out duration-200"
-			x-transition:enter-start="opacity-0 transform scale-90"
+			x-transition:enter-start="opacity-0 transform scale-75"
 			x-transition:enter-end="opacity-100 transform scale-100"
 			x-transition:leave="transition ease-in duration-150"
 			x-transition:leave-start="opacity-100 transform scale-100"
-			x-transition:leave-end="opacity-0 transform scale-90"
+			x-transition:leave-end="opacity-0 transform scale-75"
 			@click="openAssistant()"
-			class="hover-lift"
-			style="display:flex; align-items:center; gap:0.6rem; background:linear-gradient(135deg, #0284c7, #4f46e5); color:#ffffff; border:none; padding:0.65rem 1.15rem; border-radius:var(--radius-full); box-shadow:0 12px 28px -6px rgba(79, 70, 229, 0.45), 0 6px 12px -4px rgba(2, 132, 199, 0.3); cursor:pointer; font-weight:800; font-size:0.875rem; transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border:1px solid rgba(255, 255, 255, 0.25);"
+			class="capsule-circle-btn"
+			style="position:relative; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; border:1px solid rgba(255, 255, 255, 0.35); box-shadow:0 12px 28px -4px rgba(37, 99, 235, 0.45), 0 6px 14px -2px rgba(2, 132, 199, 0.3); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); outline:none;"
+			title="المساعد الذكي كبسولة"
 		>
-			<div style="position:relative; display:flex; align-items:center; justify-content:center; width:24px; height:24px; background:rgba(255,255,255,0.2); border-radius:var(--radius-full);">
-				@IconSparkles("icon-xs")
-				<span style="position:absolute; top:-2px; right:-2px; width:7px; height:7px; background:#10b981; border-radius:50%; border:1.5px solid #ffffff;"></span>
+			<div style="display:flex; align-items:center; justify-content:center; transition:transform 0.2s ease;">
+				@IconSparkles("icon-md")
 			</div>
-			<span>المساعد كبسولة</span>
-			<span style="background:rgba(255,255,255,0.2); font-size:0.65rem; padding:0.15rem 0.45rem; border-radius:var(--radius-full); font-weight:700; letter-spacing:0.02em;">AI</span>
+			<!-- Online Pulse Indicator -->
+			<span style="position:absolute; top:2px; right:2px; width:12px; height:12px; background:#10b981; border-radius:50%; border:2px solid #ffffff; box-shadow:0 0 8px rgba(16, 185, 129, 0.8);"></span>
 		</button>
 
-		<!-- Slide-Out Chat Window -->
+		<!-- Slide-Out Chat Window (Increased Height 640px, Refined Design) -->
 		<div
 			x-show="isOpen"
 			x-transition:enter="transition ease-out duration-250"
-			x-transition:enter-start="opacity-0 transform translate-y-4 scale-95"
+			x-transition:enter-start="opacity-0 transform translate-y-6 scale-95"
 			x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
 			x-transition:leave="transition ease-in duration-200"
 			x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
-			x-transition:leave-end="opacity-0 transform translate-y-4 scale-95"
-			@dragover.prevent="isDragging = true"
-			@dragleave.prevent="isDragging = false"
-			@drop.prevent="handleDrop($event)"
-			style="display:none; position:fixed; bottom:24px; left:24px; right:auto; width:400px; max-width:calc(100vw - 32px); height:580px; max-height:calc(100vh - 48px); background:var(--surface-raised); border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow-2xl); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(16px);"
-			:style="isOpen ? 'display:flex;' : 'display:none;'"
+			x-transition:leave-end="opacity-0 transform translate-y-6 scale-95"
+			@dragenter.prevent="onDragEnter($event)"
+			@dragover.prevent=""
+			@dragleave.prevent="onDragLeave($event)"
+			@drop.prevent="onDrop($event)"
+			style="position:fixed; bottom:24px; left:24px; right:auto; width:420px; max-width:calc(100vw - 32px); height:640px; max-height:calc(100vh - 48px); background:var(--surface-raised); border:1px solid var(--border); border-radius:28px; box-shadow:0 24px 48px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(20px);"
 		>
 			
-			<!-- Drag & Drop Overlay Zone -->
+			<!-- Drag & Drop Overlay Zone (Strict Counter Protected with pointer-events:none) -->
 			<div
 				x-show="isDragging"
-				style="position:absolute; inset:0; z-index:50; background:rgba(14, 165, 233, 0.9); backdrop-filter:blur(4px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.75rem; color:#ffffff;"
+				x-transition:enter="transition ease-out duration-150"
+				x-transition:enter-start="opacity-0 scale-95"
+				x-transition:enter-end="opacity-100 scale-100"
+				x-transition:leave="transition ease-in duration-100"
+				x-transition:leave-start="opacity-100 scale-100"
+				x-transition:leave-end="opacity-0 scale-95"
+				style="position:absolute; inset:0; z-index:60; background:rgba(2, 132, 199, 0.92); backdrop-filter:blur(6px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.85rem; color:#ffffff; pointer-events:none;"
 			>
-				@IconUpload("icon-lg")
-				<div style="font-weight:800; font-size:1.1rem;">أفلت الملفات هنا للإرفاق</div>
-				<div style="font-size:0.8rem; opacity:0.9;">يدعم الصور، الروشتات، وملفات PDF الطبية</div>
+				<div style="width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; border:2px dashed rgba(255,255,255,0.6);">
+					@IconUpload("icon-md")
+				</div>
+				<div style="font-weight:800; font-size:1.15rem;">أفلت الملفات هنا للإرفاق</div>
+				<div style="font-size:0.825rem; opacity:0.9;">يدعم الصور، الروشتات، وملفات PDF الدوائية</div>
 			</div>
 
 			<!-- Window Header -->
-			<div style="padding:0.9rem 1.25rem; background:linear-gradient(135deg, #0284c7, #4f46e5); color:#ffffff; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12);">
+			<div style="padding:1rem 1.35rem; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); flex-shrink:0;">
 				<div style="display:flex; align-items:center; gap:0.75rem;">
-					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center;">
+					<div style="width:38px; height:38px; border-radius:var(--radius-xl); background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
 						@IconSparkles("icon-sm")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:0.95rem; margin:0; display:flex; align-items:center; gap:0.4rem;">
+						<div style="font-weight:800; font-size:1rem; margin:0; display:flex; align-items:center; gap:0.45rem;">
 							<span>المساعد كبسولة</span>
-							<span style="width:6px; height:6px; background:#10b981; border-radius:50%; display:inline-block;"></span>
+							<span style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
 						</div>
-						<div style="font-size:0.725rem; opacity:0.85; margin-top:1px;">المعالج الصيدلي الذكي للأصناف والتوريد</div>
+						<div style="font-size:0.75rem; opacity:0.9; margin-top:2px;">المعالج الصيدلي الذكي للأصناف والتوريد</div>
 					</div>
 				</div>
 
@@ -73,10 +82,10 @@ templ CapsuleAssistant() {
 					<button
 						type="button"
 						@click="closeAssistant()"
-						style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; width:30px; height:30px; border-radius:var(--radius-full); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 150ms;"
-						onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+						style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; width:32px; height:32px; border-radius:var(--radius-full); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 150ms;"
+						onmouseover="this.style.background='rgba(255,255,255,0.28)'"
 						onmouseout="this.style.background='rgba(255,255,255,0.15)'"
-						title="إغلاق"
+						title="إغلاق النافذة"
 					>
 						@IconClose("icon-xs")
 					</button>
@@ -86,26 +95,25 @@ templ CapsuleAssistant() {
 			<!-- Messages Scroll Area -->
 			<div
 				id="capsule-messages-container"
-				style="flex:1; padding:1.15rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.85rem; background:var(--surface-sunken);"
+				style="flex:1; padding:1.25rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.95rem; background:var(--surface-sunken);"
 			>
 				
-				<!-- Welcome Greeting -->
+				<!-- Welcome Greeting Bubble -->
 				<div style="display:flex; flex-direction:column; gap:0.4rem;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.85rem 1rem; color:var(--text); font-size:0.875rem; line-height:1.6; max-width:90%; box-shadow:var(--shadow-xs);">
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.95rem 1.15rem; color:var(--text); font-size:0.875rem; line-height:1.65; max-width:92%; box-shadow:var(--shadow-xs);">
 						مرحباً بك في منصة دواء 24. أنا <strong>كبسولة</strong>، مساعدك الصيدلي الرقمي. كيف يمكنني مساعدتك اليوم في فحص الأصناف أو مقارنة عروض التوريد؟
 					</div>
 				</div>
 
-				<!-- Quick Chips -->
-				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; gap:0.35rem; margin-top:0.25rem;">
-					<div style="font-size:0.725rem; font-weight:700; color:var(--text-muted); margin-bottom:0.15rem;">استفسارات شائعة:</div>
+				<!-- Quick Suggestion Chips -->
+				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; gap:0.45rem; margin-top:0.4rem;">
+					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.1rem;">استفسارات شائعة مقترحة:</div>
 					
 					<button
 						type="button"
 						@click="askChip('أفضل عروض المضادات الحيوية المتوفرة اليوم')"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.45rem 0.75rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.45rem; transition:border-color 150ms;"
-						onmouseover="this.style.borderColor='var(--accent)'"
-						onmouseout="this.style.borderColor='var(--border)'"
+						class="chip-btn"
+						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.55rem 0.85rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
 					>
 						@IconPackage("icon-xs")
 						<span>أفضل عروض المضادات الحيوية المتوفرة اليوم</span>
@@ -114,9 +122,8 @@ templ CapsuleAssistant() {
 					<button
 						type="button"
 						@click="askChip('كيف أقوم بمقارنة عروض الموردين والخصومات؟')"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.45rem 0.75rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.45rem; transition:border-color 150ms;"
-						onmouseover="this.style.borderColor='var(--accent)'"
-						onmouseout="this.style.borderColor='var(--border)'"
+						class="chip-btn"
+						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.55rem 0.85rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
 					>
 						@IconLayers("icon-xs")
 						<span>كيف أقوم بمقارنة عروض الموردين والخصومات؟</span>
@@ -125,9 +132,8 @@ templ CapsuleAssistant() {
 					<button
 						type="button"
 						@click="askChip('اشتراطات سلاسل التبريد المعتمدة للأدوية المبردة')"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.45rem 0.75rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.45rem; transition:border-color 150ms;"
-						onmouseover="this.style.borderColor='var(--accent)'"
-						onmouseout="this.style.borderColor='var(--border)'"
+						class="chip-btn"
+						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.55rem 0.85rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
 					>
 						@IconShield("icon-xs")
 						<span>اشتراطات سلاسل التبريد المعتمدة للأدوية المبردة</span>
@@ -141,25 +147,25 @@ templ CapsuleAssistant() {
 					>
 						<div style="max-width:88%; display:flex; flex-direction:column; gap:0.35rem;" :style="msg.isUser ? 'align-items:flex-end;' : 'align-items:flex-start;'">
 							
-							<!-- Attached files in message if any -->
+							<!-- Attached files badge if any -->
 							<template x-if="msg.attachments && msg.attachments.length > 0">
 								<div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
 									<template x-for="file in msg.attachments" :key="file.name">
-										<div style="display:flex; align-items:center; gap:0.3rem; background:rgba(0,0,0,0.1); padding:0.25rem 0.5rem; border-radius:var(--radius-md); font-size:0.75rem;">
-											<span>📎</span>
+										<div style="display:flex; align-items:center; gap:0.3rem; background:rgba(0,0,0,0.12); padding:0.25rem 0.5rem; border-radius:var(--radius-md); font-size:0.75rem;">
+											@IconPaperclip("icon-xxs")
 											<span x-text="file.name" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
 										</div>
 									</template>
 								</div>
 							</template>
 
-							<!-- Message Text Bubble -->
+							<!-- Speech Bubble -->
 							<div
 								:style="msg.isUser ?
-									'background:var(--accent); color:#ffffff; border-radius:18px 18px 4px 18px; padding:0.75rem 1rem; font-size:0.875rem; line-height:1.5; box-shadow:var(--shadow-xs);' :
-									'background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.85rem 1rem; color:var(--text); font-size:0.875rem; line-height:1.6; box-shadow:var(--shadow-xs);'"
+									'background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; border-radius:20px 20px 4px 20px; padding:0.85rem 1.15rem; font-size:0.875rem; line-height:1.55; box-shadow:var(--shadow-xs);' :
+									'background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.95rem 1.15rem; color:var(--text); font-size:0.875rem; line-height:1.65; box-shadow:var(--shadow-xs);'"
 							>
-								<span x-text="msg.text"></span>
+								<span x-text="msg.text" style="white-space:pre-wrap;"></span>
 							</div>
 
 						</div>
@@ -168,28 +174,28 @@ templ CapsuleAssistant() {
 
 				<!-- Processing / Breathing Animation State -->
 				<div x-show="isProcessing" style="display:flex; justify-content:flex-start; animation:fadeIn 200ms ease;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.75rem 1rem; display:flex; align-items:center; gap:0.5rem; box-shadow:var(--shadow-xs);">
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.85rem 1.15rem; display:flex; align-items:center; gap:0.6rem; box-shadow:var(--shadow-xs);">
 						<div class="capsule-breathing-pill" style="width:8px; height:8px; background:var(--accent); border-radius:50%;"></div>
-						<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">كبسولة يكتب الآن...</span>
+						<span style="font-size:0.825rem; color:var(--text-secondary); font-weight:600;">كبسولة يفحص البيانات الآن...</span>
 					</div>
 				</div>
 
 			</div>
 
 			<!-- Attached Files Preview Strip -->
-			<div x-show="attachedFiles.length > 0" style="padding:0.45rem 0.85rem; background:var(--surface-raised); border-top:1px solid var(--border); display:flex; gap:0.4rem; overflow-x:auto; align-items:center;">
+			<div x-show="attachedFiles.length > 0" style="padding:0.5rem 1rem; background:var(--surface-raised); border-top:1px solid var(--border); display:flex; gap:0.4rem; overflow-x:auto; align-items:center; flex-shrink:0;">
 				<template x-for="(f, i) in attachedFiles" :key="i">
-					<div style="display:flex; align-items:center; gap:0.4rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.25rem 0.5rem; font-size:0.75rem; flex-shrink:0;">
+					<div style="display:flex; align-items:center; gap:0.4rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.3rem 0.6rem; font-size:0.75rem; flex-shrink:0;">
 						@IconPaperclip("icon-xs")
-						<span x-text="f.name" style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
+						<span x-text="f.name" style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
 						<span x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.7rem;"></span>
-						<button type="button" @click="removeAttachment(i)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:800; padding:0 2px;">✕</button>
+						<button type="button" @click="removeAttachment(i)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:800; padding:0 2px; line-height:1;" title="حذف">✕</button>
 					</div>
 				</template>
 			</div>
 
-			<!-- Voice Recording Bar Active State -->
-			<div x-show="isRecordingVoice" style="padding:0.75rem 1rem; background:var(--surface-raised); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+			<!-- Voice Recording Active Bar -->
+			<div x-show="isRecordingVoice" style="padding:0.85rem 1.15rem; background:var(--surface-raised); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-shrink:0;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">
 					<span style="width:10px; height:10px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span>
 					<span style="font-size:0.825rem; font-weight:700; color:var(--text);" x-text="'جاري التسجيل الصوتي... ' + formatDuration(recordingSeconds)"></span>
@@ -201,16 +207,16 @@ templ CapsuleAssistant() {
 			</div>
 
 			<!-- Normal Chat Input Bar -->
-			<div x-show="!isRecordingVoice" style="padding:0.75rem 1rem; background:var(--surface-raised); border-top:1px solid var(--border);">
+			<div x-show="!isRecordingVoice" style="padding:0.85rem 1.15rem; background:var(--surface-raised); border-top:1px solid var(--border); flex-shrink:0;">
 				<input type="file" multiple x-ref="fileInput" @change="handleFileSelect($event)" style="display:none;" />
-				<form @submit.prevent="sendMessage()" style="display:flex; gap:0.45rem; align-items:center; margin:0;">
+				<form @submit.prevent="sendMessage()" style="display:flex; gap:0.5rem; align-items:center; margin:0;">
 					
 					<!-- Attach Button -->
 					<button
 						type="button"
 						@click="$refs.fileInput.click()"
 						class="btn btn-secondary btn-icon"
-						style="width:36px; height:36px; flex-shrink:0; color:var(--text-secondary);"
+						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); color:var(--text-secondary);"
 						title="إرفاق ملفات أو روشتات"
 					>
 						@IconPaperclip("icon-xs")
@@ -221,7 +227,7 @@ templ CapsuleAssistant() {
 						type="button"
 						@click="startVoiceRecord()"
 						class="btn btn-secondary btn-icon"
-						style="width:36px; height:36px; flex-shrink:0; color:var(--text-secondary);"
+						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); color:var(--text-secondary);"
 						title="تسجيل صوتي"
 					>
 						@IconMicrophone("icon-xs")
@@ -231,16 +237,16 @@ templ CapsuleAssistant() {
 					<input
 						type="text"
 						x-model="inputQuery"
-						placeholder="اكتب استفسارك الصيدلي هنا..."
+						placeholder="اكتب استفسارك الصيدلي أو الدوائي..."
 						class="form-input"
-						style="flex:1; padding:0.5rem 0.85rem; font-size:0.85rem; border-radius:var(--radius-lg);"
+						style="flex:1; padding:0.55rem 0.95rem; font-size:0.875rem; border-radius:var(--radius-full);"
 					/>
 
 					<!-- Send Button -->
 					<button
 						type="submit"
 						class="btn btn-primary btn-icon"
-						style="width:36px; height:36px; flex-shrink:0;"
+						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full);"
 						:disabled="!inputQuery.trim() && attachedFiles.length === 0"
 						title="إرسال"
 					>
@@ -252,6 +258,15 @@ templ CapsuleAssistant() {
 		</div>
 
 		<style>
+			.capsule-circle-btn:hover {
+				transform: translateY(-3px) scale(1.05);
+				box-shadow: 0 16px 32px -4px rgba(37, 99, 235, 0.55), 0 8px 18px -2px rgba(2, 132, 199, 0.4) !important;
+			}
+			.chip-btn:hover {
+				border-color: var(--accent) !important;
+				background: var(--accent-subtle) !important;
+				color: var(--accent) !important;
+			}
 			@keyframes capsulePulse {
 				0%, 100% { transform: scale(1); opacity: 0.8; }
 				50% { transform: scale(1.4); opacity: 1; }
@@ -268,6 +283,7 @@ templ CapsuleAssistant() {
 					inputQuery: '',
 					isProcessing: false,
 					isDragging: false,
+					dragCounter: 0,
 					isRecordingVoice: false,
 					recordingSeconds: 0,
 					recordingTimer: null,
@@ -281,6 +297,8 @@ templ CapsuleAssistant() {
 
 					closeAssistant() {
 						this.isOpen = false;
+						this.isDragging = false;
+						this.dragCounter = 0;
 					},
 
 					askChip(text) {
@@ -288,18 +306,37 @@ templ CapsuleAssistant() {
 						this.sendMessage();
 					},
 
-					handleFileSelect(e) {
-						const files = Array.from(e.target.files || []);
-						this.attachedFiles.push(...files);
-						e.target.value = '';
+					onDragEnter(e) {
+						if (!this.isOpen) return;
+						if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.includes('Files')) {
+							this.dragCounter++;
+							this.isDragging = true;
+						}
 					},
 
-					handleDrop(e) {
+					onDragLeave(e) {
+						if (!this.isOpen) return;
+						this.dragCounter--;
+						if (this.dragCounter <= 0) {
+							this.dragCounter = 0;
+							this.isDragging = false;
+						}
+					},
+
+					onDrop(e) {
+						if (!this.isOpen) return;
+						this.dragCounter = 0;
 						this.isDragging = false;
 						const files = Array.from(e.dataTransfer?.files || []);
 						if (files.length > 0) {
 							this.attachedFiles.push(...files);
 						}
+					},
+
+					handleFileSelect(e) {
+						const files = Array.from(e.target.files || []);
+						this.attachedFiles.push(...files);
+						e.target.value = '';
 					},
 
 					removeAttachment(idx) {
@@ -331,7 +368,7 @@ templ CapsuleAssistant() {
 					finishVoiceRecord() {
 						this.isRecordingVoice = false;
 						clearInterval(this.recordingTimer);
-						this.inputQuery = '🎤 تسجيل صوتي (' + this.formatDuration(this.recordingSeconds) + ')';
+						this.inputQuery = 'تسجيل صوتي (' + this.formatDuration(this.recordingSeconds) + ')';
 						this.sendMessage();
 						this.recordingSeconds = 0;
 					},
@@ -370,7 +407,7 @@ templ CapsuleAssistant() {
 						const msgObj = { text: '', isUser: false };
 						this.messages.push(msgObj);
 						let charIdx = 0;
-						const speed = 12; // Fast & crisp typing
+						const speed = 12;
 
 						const timer = setInterval(() => {
 							if (charIdx < fullText.length) {
@@ -394,7 +431,7 @@ templ CapsuleAssistant() {
 						if (lower.includes('تبريد') || lower.includes('تخزين')) {
 							return 'تشترط لائحة التوريد حفظ الأدوية الحيوية والمصلية في نطاق درجات حرارة بين 2° إلى 8° مئوية مع تسجيل بيانات جهاز التتبع الحراري (Data Logger) عند كل تسليم.';
 						}
-						if (lower.includes('صوتي') || lower.includes('🎤')) {
+						if (lower.includes('صوتي') || lower.includes('تسجيل')) {
 							return 'تم استلام التسجيل الصوتي بنجاح وجاري ربطه مع خوارزمية التحويل الصوتي إلى نصوص (Speech-to-Text) عبر بوابة المعالجة الذكية.';
 						}
 						return 'تم استلام طلبك ومطابقته مع قواعد بيانات الأدوية والتوريد في دواء 24. يمكنك إتمام أمر الشراء أو فحص تفاصيل التوريد عبر لوحة التحكم.';

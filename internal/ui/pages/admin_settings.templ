@@ -5,6 +5,7 @@ import (
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -472,22 +473,36 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							</div>
 						</div>
 
-						<div class="form-group" style="margin:0;">
-							<label class="form-label">نص ومحتوى السياسة الرسمي *</label>
-							<textarea
-								name="content_ar"
-								x-model="currentPolicyContentAr"
-								rows="12"
-								required
-								class="form-input"
-								style="line-height:1.7; font-size:0.9rem;"
-								placeholder="اكتب بنود وفقرات الوثيقة القانونية هنا..."
-							></textarea>
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نص ومحتوى السياسة (باللغة العربية) *</label>
+								<textarea
+									name="content_ar"
+									x-model="currentPolicyContentAr"
+									rows="12"
+									required
+									class="form-input"
+									style="line-height:1.7; font-size:0.9rem;"
+									placeholder="اكتب بنود وفقرات الوثيقة القانونية بالعربية هنا..."
+								></textarea>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نص ومحتوى السياسة (English Content)</label>
+								<textarea
+									name="content_en"
+									x-model="currentPolicyContentEn"
+									rows="12"
+									class="form-input"
+									dir="ltr"
+									style="line-height:1.7; font-size:0.9rem;"
+									placeholder="Write policy terms and conditions in English here..."
+								></textarea>
+							</div>
 						</div>
 
 						<div class="form-group" style="margin:0;">
 							<label class="form-label">ملاحظات الإصدار / ملخص التعديل (Changelog)</label>
-							<input type="text" name="changelog" class="form-input" placeholder="مثال: تحديث شروط الاستخدام لعام 2026"/>
+							<input type="text" name="changelog" class="form-input" placeholder="مثال: تحديث شروط الاستخدام والخصوصية لعام 2026"/>
 						</div>
 
 						<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1rem;">
@@ -559,30 +574,37 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			function adminSettingsManager(initialTab, initialKey) {
 				const policyData = {
 					'terms': {
-						titleAr: 'الشروط والأحكام العامة',
-						titleEn: 'Terms and Conditions',
-						contentAr: 'أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية.'
+						titleAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "title", "ar", "الشروط والأحكام العامة")) },
+						titleEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "title", "en", "Terms and Conditions")) },
+						contentAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "content", "ar", "أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية.")) },
+						contentEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "content", "en", "Welcome to Dawa 24. Platform usage is governed by Egyptian Drug Authority regulations.\n\n1. All pharmacies and warehouses must submit valid licenses.\n2. Supply orders and transactions are legally protected.\n3. Cold chain verification is mandatory.")) }
 					},
 					'privacy': {
-						titleAr: 'سياسة الخصوصية وسرية البيانات',
-						titleEn: 'Privacy Policy',
-						contentAr: 'تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة.'
+						titleAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "title", "ar", "سياسة الخصوصية وسرية البيانات")) },
+						titleEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "title", "en", "Privacy Policy")) },
+						contentAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "content", "ar", "تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة.")) },
+						contentEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "content", "en", "Dawa 24 is strictly committed to protecting user and supplier privacy.\n\n1. Pricing and order history are kept strictly confidential.\n2. Passwords and credentials are encrypted with modern security standards.\n3. Users may request complete activity audit logs.")) }
 					}
 				};
 
 				const urlParams = new URLSearchParams(window.location.search);
-				const storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-admin-tab') || initialTab || 'features';
+				let rawTab = urlParams.get('tab') || initialTab || localStorage.getItem('dawa24-admin-tab') || 'features';
+				if (rawTab !== 'features' && rawTab !== 'site' && rawTab !== 'policies') {
+					rawTab = 'features';
+				}
+
 				let storedKey = urlParams.get('key') || initialKey || 'terms';
 				if (storedKey !== 'terms' && storedKey !== 'privacy') {
 					storedKey = 'terms';
 				}
 
 				return {
-					activeTab: storedTab === 'ai' ? 'features' : storedTab,
+					activeTab: rawTab,
 					selectedPolicyKey: storedKey,
 					currentPolicyTitleAr: policyData[storedKey]?.titleAr || '',
 					currentPolicyTitleEn: policyData[storedKey]?.titleEn || '',
 					currentPolicyContentAr: policyData[storedKey]?.contentAr || '',
+					currentPolicyContentEn: policyData[storedKey]?.contentEn || '',
 
 					setTab(tab) {
 						this.activeTab = tab;
@@ -598,6 +620,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							this.currentPolicyTitleAr = policyData[key].titleAr;
 							this.currentPolicyTitleEn = policyData[key].titleEn;
 							this.currentPolicyContentAr = policyData[key].contentAr;
+							this.currentPolicyContentEn = policyData[key].contentEn;
 						}
 						const u = new URL(window.location);
 						u.searchParams.set('tab', 'policies');
@@ -608,4 +631,22 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			}
 		</script>
 	}
+}
+
+func getPolicyField(policies []*platformadmin.Policy, key, field, lang, fallback string) string {
+	l := i18n.Lang(lang)
+	for _, p := range policies {
+		if p.PolicyKey == key && p.IsPublished {
+			if field == "title" {
+				if v := p.Title.Get(l); v != "" {
+					return v
+				}
+			} else if field == "content" {
+				if v := p.Content.Get(l); v != "" {
+					return v
+				}
+			}
+		}
+	}
+	return fallback
 }

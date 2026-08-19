@@ -12,6 +12,9 @@ type Repository interface {
 
 	ListCountries(ctx context.Context) ([]*Country, error)
 	ListCities(ctx context.Context, countryID int64) ([]*City, error)
+	ListAllCities(ctx context.Context, countryID int64) ([]*City, error)
+	ToggleCityStatus(ctx context.Context, id int64) error
+	CreateCity(ctx context.Context, c *City) error
 
 	ListCurrencies(ctx context.Context) ([]*Currency, error)
 	ListLanguages(ctx context.Context) ([]*Language, error)

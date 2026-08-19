@@ -48,6 +48,18 @@ func (r stubRepo) ListCities(context.Context, int64) ([]*platformadmin.City, err
 	r.fail("ListCities")
 	return nil, nil
 }
+func (r stubRepo) ListAllCities(context.Context, int64) ([]*platformadmin.City, error) {
+	r.fail("ListAllCities")
+	return nil, nil
+}
+func (r stubRepo) ToggleCityStatus(context.Context, int64) error {
+	r.fail("ToggleCityStatus")
+	return nil
+}
+func (r stubRepo) CreateCity(context.Context, *platformadmin.City) error {
+	r.fail("CreateCity")
+	return nil
+}
 func (r stubRepo) ListCurrencies(context.Context) ([]*platformadmin.Currency, error) {
 	r.fail("ListCurrencies")
 	return nil, nil
@@ -173,7 +185,16 @@ func (happyRepo) ListCountries(ctx context.Context) ([]*platformadmin.Country, e
 	return []*platformadmin.Country{{ID: 1, Name: i18n.Text{"en": "Egypt"}, Code: "EG"}}, nil
 }
 func (happyRepo) ListCities(ctx context.Context, countryID int64) ([]*platformadmin.City, error) {
-	return []*platformadmin.City{{ID: 1, CountryID: countryID, Name: i18n.Text{"en": "Cairo"}}}, nil
+	return []*platformadmin.City{{ID: 1, CountryID: countryID, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
+}
+func (happyRepo) ListAllCities(ctx context.Context, countryID int64) ([]*platformadmin.City, error) {
+	return []*platformadmin.City{{ID: 1, CountryID: countryID, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
+}
+func (happyRepo) ToggleCityStatus(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) CreateCity(ctx context.Context, c *platformadmin.City) error {
+	return nil
 }
 func (happyRepo) ListCurrencies(ctx context.Context) ([]*platformadmin.Currency, error) {
 	return []*platformadmin.Currency{{ID: 1, Code: "EGP", Name: i18n.Text{"en": "Egyptian Pound"}}}, nil

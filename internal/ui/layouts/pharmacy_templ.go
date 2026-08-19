@@ -576,6 +576,10 @@ func CustomerShell(title string, activeNav string, lang string, dir string, perm
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				templ_7745c5c3_Err = components.LanguageToggle(lang).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				templ_7745c5c3_Err = components.ThemeToggle().Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -672,7 +676,7 @@ func buyingBranchSelector(ctx context.Context) templ.Component {
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(selection.Branches[0].Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 149, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 150, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 				if templ_7745c5c3_Err != nil {
@@ -696,7 +700,7 @@ func buyingBranchSelector(ctx context.Context) templ.Component {
 						var templ_7745c5c3_Var39 string
 						templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 157, Col: 55}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 158, Col: 55}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 						if templ_7745c5c3_Err != nil {
@@ -709,7 +713,7 @@ func buyingBranchSelector(ctx context.Context) templ.Component {
 						var templ_7745c5c3_Var40 string
 						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 157, Col: 66}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 158, Col: 66}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 						if templ_7745c5c3_Err != nil {
@@ -727,7 +731,7 @@ func buyingBranchSelector(ctx context.Context) templ.Component {
 						var templ_7745c5c3_Var41 string
 						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 159, Col: 46}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 160, Col: 46}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
 						if templ_7745c5c3_Err != nil {
@@ -740,7 +744,7 @@ func buyingBranchSelector(ctx context.Context) templ.Component {
 						var templ_7745c5c3_Var42 string
 						templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 159, Col: 57}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 160, Col: 57}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 						if templ_7745c5c3_Err != nil {
