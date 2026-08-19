@@ -6,12 +6,15 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 type UnifiedSettingsData struct {
 	User           *identity.User
+	Wallet         *billing.Wallet
+	Transactions   []*billing.WalletTransaction
 	PaymentMethods []*billing.UserPaymentMethod
 	Sessions       []*identity.Session
 	ActiveTab      string
@@ -23,9 +26,13 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 		<div
 			style="max-width:100%; margin:0 0 4rem 0;"
 			x-data="{
+				activeTab: (new URLSearchParams(window.location.search).get('tab') || window.location.hash.replace('#', '') || 'profile'),
 				isAddPaymentModalOpen: false,
 				paymentType: 'bank',
-				isDeleteAccountModalOpen: false
+				isDeleteAccountModalOpen: false,
+				isDepositModalOpen: false,
+				isWithdrawModalOpen: false,
+				depositMethod: 'instapay'
 			}"
 		>
 			<!-- Page Header -->
@@ -40,51 +47,100 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</h2>
 					</div>
 					<p style="color:var(--text-muted); font-size:0.925rem; margin:0;">
-						إدارة البيانات الشخصية، المحفظة، طرق الدفع والحسابات البنكية، التراخيص، والأمان
+						إدارة البيانات الشخصية، المحفظة المالية، طرق الدفع، التراخيص الرسمية، والأمان
 					</p>
 				</div>
 
-				<a href="/wallet" class="btn btn-primary" style="padding:0.6rem 1.25rem; font-weight:800;">
-					@components.IconWallet("icon-xs")
-					<span>فتح المحفظة المالية</span>
-				</a>
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<button
+						type="button"
+						class="btn btn-primary"
+						@click="activeTab = 'wallet'; isDepositModalOpen = true; history.replaceState(null, null, '#wallet')"
+						style="padding:0.6rem 1.25rem; font-weight:800;"
+					>
+						@components.IconPlus("icon-xs")
+						<span>شحن المحفظة</span>
+					</button>
+				</div>
 			</div>
 
 			<!-- Unified Tabs Navigation Bar -->
 			<div class="tab-list">
-				<button type="button" class="tab-btn active" data-tab-target="profile">
+				<button
+					type="button"
+					class="tab-btn"
+					:class="{ 'active': activeTab === 'profile' }"
+					@click="activeTab = 'profile'; history.replaceState(null, null, '#profile')"
+					data-tab-target="profile"
+				>
 					@components.IconUser("icon-xs")
 					<span>الملف الشخصي</span>
 				</button>
 
-				<button type="button" class="tab-btn" data-tab-target="wallet">
+				<button
+					type="button"
+					class="tab-btn"
+					:class="{ 'active': activeTab === 'wallet' }"
+					@click="activeTab = 'wallet'; history.replaceState(null, null, '#wallet')"
+					data-tab-target="wallet"
+				>
 					@components.IconWallet("icon-xs")
 					<span>المحفظة والرصيد</span>
 				</button>
 
-				<button type="button" class="tab-btn" data-tab-target="payments">
+				<button
+					type="button"
+					class="tab-btn"
+					:class="{ 'active': activeTab === 'payments' }"
+					@click="activeTab = 'payments'; history.replaceState(null, null, '#payments')"
+					data-tab-target="payments"
+				>
 					@components.IconShield("icon-xs")
 					<span>طرق الدفع ({ fmt.Sprintf("%d", len(data.PaymentMethods)) })</span>
 				</button>
 
-				<button type="button" class="tab-btn" data-tab-target="organization">
+				<button
+					type="button"
+					class="tab-btn"
+					:class="{ 'active': activeTab === 'organization' }"
+					@click="activeTab = 'organization'; history.replaceState(null, null, '#organization')"
+					data-tab-target="organization"
+				>
 					@components.IconBuilding("icon-xs")
 					<span>المنشأة والتراخيص</span>
 				</button>
 
-				<button type="button" class="tab-btn" data-tab-target="security">
+				<button
+					type="button"
+					class="tab-btn"
+					:class="{ 'active': activeTab === 'security' }"
+					@click="activeTab = 'security'; history.replaceState(null, null, '#security')"
+					data-tab-target="security"
+				>
 					@components.IconSettings("icon-xs")
 					<span>الأمان والجلسات</span>
 				</button>
 
-				<button type="button" class="tab-btn" data-tab-target="preferences">
+				<button
+					type="button"
+					class="tab-btn"
+					:class="{ 'active': activeTab === 'preferences' }"
+					@click="activeTab = 'preferences'; history.replaceState(null, null, '#preferences')"
+					data-tab-target="preferences"
+				>
 					@components.IconBell("icon-xs")
 					<span>الإشعارات والتفضيلات</span>
 				</button>
 			</div>
 
 			<!-- Tab 1: Profile -->
-			<div id="tab-profile" class="tab-pane active card" style="padding:2.25rem;">
+			<div
+				id="tab-profile"
+				class="tab-pane card"
+				:class="{ 'active': activeTab === 'profile' }"
+				x-show="activeTab === 'profile'"
+				style="padding:2.25rem;"
+			>
 				<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:1.5rem;">
 					البيانات الشخصية والصورة الرمزية
 				</h3>
@@ -136,55 +192,221 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</form>
 			</div>
 
-			<!-- Tab 2: Wallet Snapshot -->
-			<div id="tab-wallet" class="tab-pane card" style="padding:2.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+			<!-- Tab 2: Live United Wallet Section -->
+			<div
+				id="tab-wallet"
+				class="tab-pane card"
+				:class="{ 'active': activeTab === 'wallet' }"
+				x-show="activeTab === 'wallet'"
+				style="padding:2.25rem;"
+			>
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; flex-wrap:wrap; gap:1rem;">
 					<div>
 						<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-							المحفظة الإلكترونية والرصيد
+							المحفظة الإلكترونية والمعاملات المالية
 						</h3>
-						<p style="color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem;">الرصيد المتاح للطلبيات وسجل المعاملات المعتمد</p>
+						<p style="color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem;">
+							الرصيد المتاح للطلبيات، عمليات الإيداع والسحب، وسجل دفتر الأستاذ الرقمي المعتمد
+						</p>
 					</div>
 
-					<div style="display:flex; gap:0.75rem;">
-						<a href="/wallet" class="btn btn-primary btn-sm" style="font-weight:800;">
-							@components.IconPlus("icon-xs")
-							<span>إيداع رصيد جديد</span>
-						</a>
-						<a href="/wallet" class="btn btn-secondary btn-sm" style="font-weight:800;">
+					<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+						<button
+							type="button"
+							class="btn btn-secondary btn-sm"
+							@click="isWithdrawModalOpen = true"
+							style="font-weight:800;"
+						>
 							@components.IconArrowLeft("icon-xs")
-							<span>طلب سحب</span>
+							<span>طلب سحب رصيد</span>
+						</button>
+
+						<button
+							type="button"
+							class="btn btn-primary btn-sm"
+							@click="isDepositModalOpen = true"
+							style="font-weight:800;"
+						>
+							@components.IconPlus("icon-xs")
+							<span>شحن رصيد المحفظة</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Live Balance Stat Cards from Database -->
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2.25rem;">
+					<!-- Card 1: Available Balance -->
+					<div style="padding:1.5rem; background:var(--accent-subtle); border:1.5px solid var(--accent); border-radius:var(--radius-xl);">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<span style="font-size:0.85rem; color:var(--accent); font-weight:800;">الرصيد الفعلي المتاح</span>
+							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--surface-raised); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconWallet("icon-xs")
+							</div>
+						</div>
+						<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.5rem;" class="tabular-nums">
+							{ walletBalance(data.Wallet) }
+						</div>
+						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+							متاح للسحب والتمويل الفوري للطلبيات
+						</div>
+					</div>
+
+					<!-- Card 2: Total Inflows -->
+					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<span style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">إجمالي الإيداعات</span>
+							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--success-surface); color:var(--success-text); display:flex; align-items:center; justify-content:center;">
+								@components.IconPlus("icon-xs")
+							</div>
+						</div>
+						<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.5rem;" class="tabular-nums">
+							{ computeTotalInflows(data.Transactions) }
+						</div>
+						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+							مجموع المبالغ المودعة بحساب المنشأة
+						</div>
+					</div>
+
+					<!-- Card 3: Total Outflows -->
+					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<span style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">إجمالي المدفوعات والمسحوبات</span>
+							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--danger-surface); color:var(--danger-text); display:flex; align-items:center; justify-content:center;">
+								@components.IconTruck("icon-xs")
+							</div>
+						</div>
+						<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.5rem;" class="tabular-nums">
+							{ computeTotalOutflows(data.Transactions) }
+						</div>
+						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+							سداد أوامر التوريد ومسحوبات الرصيد
+						</div>
+					</div>
+
+					<!-- Card 4: Operations Count -->
+					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<span style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">إجمالي العمليات المسجلة</span>
+							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconFile("icon-xs")
+							</div>
+						</div>
+						<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.5rem;" class="tabular-nums">
+							{ fmt.Sprintf("%d", len(data.Transactions)) } <span style="font-size:1rem; font-weight:700;">عملية</span>
+						</div>
+						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+							سجل حركات دفتر الأستاذ غير القابل للتعديل
+						</div>
+					</div>
+				</div>
+
+				<!-- Live Transactions Table -->
+				<div style="border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; background:var(--surface-raised);">
+					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+						<div>
+							<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+								سجل المعاملات والتحويلات المالية
+							</h4>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
+								البيانات الحية الموثقة من دفتر الأستاذ الرقمي الخاص بحسابك
+							</p>
+						</div>
+
+						<a href="/invoices" class="btn btn-secondary btn-sm" style="font-weight:700;">
+							@components.IconFile("icon-xs")
+							<span>عرض الفواتير الإلكترونية</span>
 						</a>
 					</div>
-				</div>
 
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
-					<div style="padding:1.5rem; background:var(--accent-subtle); border:1px solid var(--accent); border-radius:var(--radius-xl);">
-						<div style="font-size:0.85rem; color:var(--accent); font-weight:700;">الرصيد المتاح</div>
-						<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.5rem;" class="tabular-nums">5,420.00 <span style="font-size:1rem; font-weight:700;">ج.م</span></div>
-					</div>
-
-					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">الرصيد المعلق (أوامر جارية)</div>
-						<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.5rem;" class="tabular-nums">1,250.00 <span style="font-size:1rem; font-weight:700;">ج.م</span></div>
-					</div>
-
-					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">إجمالي الإيداعات</div>
-						<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.5rem;" class="tabular-nums">48,900.00 <span style="font-size:1rem; font-weight:700;">ج.م</span></div>
-					</div>
-				</div>
-
-				<div style="text-align:start;">
-					<a href="/wallet" class="btn btn-secondary" style="font-weight:700;">
-						<span>عرض كشف الحساب الكامل والمعاملات</span>
-						@components.IconArrowLeft("icon-xs")
-					</a>
+					if len(data.Transactions) == 0 {
+						<div style="padding:3.5rem 1.5rem; text-align:center; background:var(--surface-sunken);">
+							<div style="width:50px; height:50px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
+								@components.IconWallet("icon-sm")
+							</div>
+							<h5 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">
+								لا توجد معاملات مسجلة في المحفظة بعد
+							</h5>
+							<p style="color:var(--text-muted); font-size:0.85rem; max-width:440px; margin:0 auto 1.5rem auto; line-height:1.5;">
+								يمكنك شحن رصيد محفظتك الآن لبدء سداد وتمويل أوامر شراء الأدوية والمستلزمات فورياً.
+							</p>
+							<button
+								type="button"
+								class="btn btn-primary btn-sm"
+								@click="isDepositModalOpen = true"
+								style="font-weight:800;"
+							>
+								@components.IconPlus("icon-xs")
+								<span>شحن رصيد المحفظة الآن</span>
+							</button>
+						</div>
+					} else {
+						<div class="table-container" style="margin:0; border:none;">
+							<table class="data-table" style="margin:0;">
+								<thead>
+									<tr>
+										<th>رقم المعاملة</th>
+										<th>نوع العملية</th>
+										<th>البيان والتفاصيل</th>
+										<th>المبلغ</th>
+										<th>الرصيد بعدها</th>
+										<th>التاريخ والوقت</th>
+										<th>الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, tx := range data.Transactions {
+										<tr>
+											<td class="tabular-nums" style="font-weight:700; color:var(--accent);">
+												#{ fmt.Sprintf("TX-%d", tx.ID) }
+											</td>
+											<td>
+												<span class={ "badge", txTypeBadgeClass(tx.Type) } style="font-size:0.75rem;">
+													{ txTypeLabel(tx.Type) }
+												</span>
+											</td>
+											<td style="color:var(--text-secondary); font-size:0.875rem;">
+												if tx.Description != "" {
+													{ tx.Description }
+												} else {
+													<span style="color:var(--text-muted);">-</span>
+												}
+											</td>
+											<td class="tabular-nums" style="font-weight:800;">
+												if tx.Amount.IsPositive() {
+													<span style="color:var(--success-text);">+ { tx.Amount.String() } ج.م</span>
+												} else {
+													<span style="color:var(--text);">{ tx.Amount.String() } ج.م</span>
+												}
+											</td>
+											<td class="tabular-nums" style="font-weight:700; color:var(--text-secondary);">
+												{ tx.BalanceAfter.String() } ج.م
+											</td>
+											<td class="tabular-nums" style="color:var(--text-muted); font-size:0.8rem;">
+												{ tx.CreatedAt.Format("2006-01-02 15:04") }
+											</td>
+											<td>
+												<span class="badge badge-emerald" style="font-size:0.725rem;">
+													@components.IconCheckCircle("icon-xs")
+													<span>مكتملة ومؤكدة</span>
+												</span>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
 				</div>
 			</div>
 
 			<!-- Tab 3: Payment Methods -->
-			<div id="tab-payments" class="tab-pane card" style="padding:2.25rem;">
+			<div
+				id="tab-payments"
+				class="tab-pane card"
+				:class="{ 'active': activeTab === 'payments' }"
+				x-show="activeTab === 'payments'"
+				style="padding:2.25rem;"
+			>
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 					<div>
 						<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
@@ -275,7 +497,13 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Tab 4: Organization & Licenses -->
-			<div id="tab-organization" class="tab-pane card" style="padding:2.25rem;">
+			<div
+				id="tab-organization"
+				class="tab-pane card"
+				:class="{ 'active': activeTab === 'organization' }"
+				x-show="activeTab === 'organization'"
+				style="padding:2.25rem;"
+			>
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 					<div>
 						<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
@@ -323,7 +551,13 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Tab 5: Security & Sessions -->
-			<div id="tab-security" class="tab-pane card" style="padding:2.25rem;">
+			<div
+				id="tab-security"
+				class="tab-pane card"
+				:class="{ 'active': activeTab === 'security' }"
+				x-show="activeTab === 'security'"
+				style="padding:2.25rem;"
+			>
 				<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:1.5rem;">
 					الأمان وكلمة المرور والجلسات النشطة
 				</h3>
@@ -409,7 +643,13 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Tab 6: Preferences -->
-			<div id="tab-preferences" class="tab-pane card" style="padding:2.25rem;">
+			<div
+				id="tab-preferences"
+				class="tab-pane card"
+				:class="{ 'active': activeTab === 'preferences' }"
+				x-show="activeTab === 'preferences'"
+				style="padding:2.25rem;"
+			>
 				<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:1.5rem;">
 					تفضيلات الإشعارات والتنبيهات
 				</h3>
@@ -448,7 +688,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</form>
 			</div>
 
-			<!-- Dynamic Modal: Add Payment Method Modal (Centered Popup) -->
+			<!-- Dynamic Modal 1: Add Payment Method Modal (Centered Popup) -->
 			<div
 				x-show="isAddPaymentModalOpen"
 				x-cloak
@@ -540,7 +780,162 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- Dynamic Modal: Request Account Deletion Modal (Centered Popup) -->
+			<!-- Dynamic Modal 2: Deposit Funds Modal (Centered Popup) -->
+			<div
+				x-show="isDepositModalOpen"
+				x-cloak
+				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				@keydown.escape.window="isDepositModalOpen = false"
+			>
+				<div
+					@click.outside="isDepositModalOpen = false"
+					class="card"
+					style="max-width:540px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconWallet("icon-xs")
+							</div>
+							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+								شحن رصيد المحفظة المالية
+							</h3>
+						</div>
+						<button type="button" @click="isDepositModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form action="/wallet/deposit" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="dep-amount-unified">المبلغ المراد إيداعه (ج.م) *</label>
+							<input id="dep-amount-unified" name="amount" type="number" step="0.01" min="50" class="form-input tabular-nums" placeholder="مثال: 5000" required />
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="dep-method-unified">طريقة الإيداع والتحويل *</label>
+							<select id="dep-method-unified" name="payment_method" x-model="depositMethod" class="form-select">
+								<option value="instapay">انستاباي InstaPay (التحويل اللحظي الفوري)</option>
+								<option value="bank_transfer">تحويل بنكي رسمي (CIB / الأهلي NBE)</option>
+								<option value="card">بطاقة دفع إلكترونية (Visa / Mastercard)</option>
+							</select>
+						</div>
+
+						<!-- Dynamic Payment Instructions -->
+						<div x-show="depositMethod === 'instapay'" style="background:var(--accent-subtle); border:1px solid var(--accent); border-radius:var(--radius-lg); padding:1rem; font-size:0.825rem; color:var(--text);">
+							<strong style="color:var(--accent); font-weight:800;">بيانات التحويل عبر إنستاباي:</strong>
+							<div style="margin-top:0.4rem; line-height:1.6;">
+								عنوان الدفع اللحظي (IPA): <code class="tabular-nums" style="font-weight:800; background:var(--surface-raised); padding:0.15rem 0.4rem; border-radius:4px; border:1px solid var(--border);" dir="ltr">dawa24@instapay</code><br/>
+								رقم الهاتف المعتمد: <code class="tabular-nums" style="font-weight:800;" dir="ltr">01065397000</code>
+							</div>
+						</div>
+
+						<div x-show="depositMethod === 'bank_transfer'" x-cloak style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; font-size:0.825rem; color:var(--text);">
+							<strong style="font-weight:800;">بيانات الحساب البنكي الرسمي:</strong>
+							<div style="margin-top:0.4rem; line-height:1.6;">
+								اسم الحساب: شركة دواء 24 للتجارة والتوزيع<br/>
+								البنك التجاري الدولي (CIB): <code class="tabular-nums" style="font-weight:800;" dir="ltr">100048291048</code><br/>
+								IBAN: <code class="tabular-nums" style="font-weight:800;" dir="ltr">EG3800100004829104800000000000</code>
+							</div>
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="dep-ref-unified">رقم الإشعار أو مرجع التحويل البنكي *</label>
+							<input id="dep-ref-unified" name="reference_number" type="text" class="form-input" placeholder="مثال: Ref #928374628" required />
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="dep-notes-unified">ملاحظات إضافية (اختياري)</label>
+							<textarea id="dep-notes-unified" name="notes" rows="2" class="form-input" placeholder="أي ملاحظات تخص عملية الإيداع..."></textarea>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="isDepositModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>تأكيد تسجيل الإيداع</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Dynamic Modal 3: Withdraw Funds Modal (Centered Popup) -->
+			<div
+				x-show="isWithdrawModalOpen"
+				x-cloak
+				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				@keydown.escape.window="isWithdrawModalOpen = false"
+			>
+				<div
+					@click.outside="isWithdrawModalOpen = false"
+					class="card"
+					style="max-width:540px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconArrowLeft("icon-xs")
+							</div>
+							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+								طلب سحب رصيد من المحفظة
+							</h3>
+						</div>
+						<button type="button" @click="isWithdrawModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form action="/wallet/withdraw" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="with-amount-unified">المبلغ المراد سحبه (ج.م) *</label>
+							<input
+								id="with-amount-unified"
+								name="amount"
+								type="number"
+								step="0.01"
+								min="100"
+								class="form-input tabular-nums"
+								placeholder="الحد الأدنى 100 ج.م"
+								required
+							/>
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="with-dest-unified">الحساب المحول إليه *</label>
+							<select id="with-dest-unified" name="destination_id" class="form-select">
+								if len(data.PaymentMethods) > 0 {
+									for _, pm := range data.PaymentMethods {
+										<option value={ pm.AccountIdentifier }>{ paymentProviderTitle(pm.Provider) } - { pm.AccountIdentifier }</option>
+									}
+								} else {
+									<option value="bank_default">حساب بنكي مسجل</option>
+									<option value="instapay_default">حساب إنستاباي مسجل</option>
+								}
+							</select>
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label" for="with-reason-unified">سبب السحب (اختياري)</label>
+							<textarea id="with-reason-unified" name="reason" rows="2" class="form-input" placeholder="استرداد رصيد فائض / تسوية أرباح..."></textarea>
+						</div>
+
+						<div style="background:var(--warning-surface); border:1px solid var(--warning-border); border-radius:var(--radius-lg); padding:0.875rem; font-size:0.8rem; color:var(--warning-text); line-height:1.5;">
+							<strong>تنبيه مالي:</strong> تتم مراجعة وتحويل مبالغ السحب المعتمدة خلال 24 ساعة عمل إلى حسابكم البنكي أو معرف إنستاباي المسجل.
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="isWithdrawModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>تأكيد طلب السحب</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Dynamic Modal 4: Request Account Deletion Modal (Centered Popup) -->
 			<div
 				x-show="isDeleteAccountModalOpen"
 				x-cloak
@@ -586,6 +981,75 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 		</div>
+	}
+}
+
+func walletBalance(w *billing.Wallet) string {
+	if w == nil {
+		return "0.00 ج.م"
+	}
+	return w.Balance.String() + " ج.م"
+}
+
+func computeTotalInflows(txs []*billing.WalletTransaction) string {
+	var total money.Amount
+	for _, tx := range txs {
+		if tx.Type == billing.TxDeposit || tx.Type == billing.TxBonus || tx.Type == billing.TxRefund || tx.Amount.IsPositive() {
+			amt := tx.Amount
+			if amt.IsNegative() {
+				amt = money.FromMinor(-amt.Minor())
+			}
+			total, _ = total.Add(amt)
+		}
+	}
+	return total.String() + " ج.م"
+}
+
+func computeTotalOutflows(txs []*billing.WalletTransaction) string {
+	var total money.Amount
+	for _, tx := range txs {
+		if tx.Type == billing.TxWithdrawal || tx.Type == billing.TxPurchase || tx.Type == billing.TxPenalty || tx.Amount.IsNegative() {
+			amt := tx.Amount
+			if amt.IsNegative() {
+				amt = money.FromMinor(-amt.Minor())
+			}
+			total, _ = total.Add(amt)
+		}
+	}
+	return total.String() + " ج.م"
+}
+
+func txTypeBadgeClass(t billing.TransactionType) string {
+	switch t {
+	case billing.TxDeposit, billing.TxBonus, billing.TxRefund:
+		return "badge-emerald"
+	case billing.TxWithdrawal:
+		return "badge-amber"
+	case billing.TxPurchase:
+		return "badge-sky"
+	default:
+		return "badge-slate"
+	}
+}
+
+func txTypeLabel(t billing.TransactionType) string {
+	switch t {
+	case billing.TxDeposit:
+		return "إيداع رصيد"
+	case billing.TxWithdrawal:
+		return "سحب رصيد"
+	case billing.TxPurchase:
+		return "سداد طلب توريد"
+	case billing.TxRefund:
+		return "استرداد مالي"
+	case billing.TxBonus:
+		return "مكافأة / بونص"
+	case billing.TxPenalty:
+		return "خصم / غرامة"
+	case billing.TxAdjustment:
+		return "تسوية إدارية"
+	default:
+		return string(t)
 	}
 }
 

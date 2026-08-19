@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -8,73 +9,87 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// WalletPage renders the user's wallet balance, transaction ledger and saved
-// payment methods.
+// WalletPage redirects to the unified settings wallet tab.
 func (h *UIHandler) WalletPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/wallet", http.StatusSeeOther)
-		return
-	}
-
-	data := pages.WalletViewData{
-		CurrentBalance: "5,420.00 ج.م",
-		PendingBalance: "0.00 ج.م",
-		TotalInflows:   "18,500.00 ج.م",
-		TotalOutflows:  "13,080.00 ج.م",
-	}
-
-	if h.billSvc != nil {
-		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && wallet != nil {
-			data.Wallet = wallet
-			if txs, err := h.billSvc.ListWalletTransactions(ctx, wallet.ID, 50, 0); err == nil && len(txs) > 0 {
-				data.Transactions = txs
-			}
-		}
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.WalletPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render wallet page", "error", err)
-	}
+	http.Redirect(w, r, "/settings?tab=wallet", http.StatusMovedPermanently)
 }
 
-// WalletDepositSubmit handles submitting a funds deposit request.
+// WalletDepositSubmit handles submitting a funds deposit request and crediting the wallet.
 func (h *UIHandler) WalletDepositSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/wallet", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/settings?tab=wallet", http.StatusSeeOther)
 		return
 	}
 
+	_ = r.ParseForm()
 	amountStr := r.PostFormValue("amount")
-	ref := r.PostFormValue("reference")
-	h.log.InfoContext(ctx, "wallet deposit request", "user_id", actor.UserID, "amount", amountStr, "ref", ref)
+	amt, err := money.Parse(amountStr)
+	if err != nil || amt.IsZero() || amt.IsNegative() {
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "يرجى إدخال مبلغ إيداع صالح.")
+		return
+	}
 
-	h.redirectWithNotice(w, r, "/wallet", "success", "تم استلام طلب إيداع الرصيد بنجاح وجاري مراجعة التحويل البنكي.")
+	method := r.PostFormValue("payment_method")
+	ref := r.PostFormValue("reference_number")
+	notes := r.PostFormValue("notes")
+
+	desc := fmt.Sprintf("إيداع رصيد عبر %s (مرجع: %s)", method, ref)
+	if notes != "" {
+		desc += " - " + notes
+	}
+
+	if h.billSvc != nil {
+		_, err := h.billSvc.Deposit(ctx, actor.UserID, "EGP", amt, "user_deposit", nil, desc)
+		if err != nil {
+			h.log.ErrorContext(ctx, "failed wallet deposit", "error", err)
+			h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية الإيداع: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/settings?tab=wallet", "success", "تم إيداع الرصيد وتحديث المحفظة بنجاح.")
 }
 
-// WalletWithdrawSubmit handles submitting a funds withdrawal request.
+// WalletWithdrawSubmit handles submitting a funds withdrawal request and debiting the wallet.
 func (h *UIHandler) WalletWithdrawSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/wallet", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/settings?tab=wallet", http.StatusSeeOther)
 		return
 	}
 
+	_ = r.ParseForm()
 	amountStr := r.PostFormValue("amount")
-	method := r.PostFormValue("payout_method")
-	h.log.InfoContext(ctx, "wallet withdrawal request", "user_id", actor.UserID, "amount", amountStr, "method", method)
+	amt, err := money.Parse(amountStr)
+	if err != nil || amt.IsZero() || amt.IsNegative() {
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "يرجى إدخال مبلغ سحب صالح.")
+		return
+	}
 
-	h.redirectWithNotice(w, r, "/wallet", "success", "تم إرسال طلب السحب بنجاح وسيتم التحويل خلال 24 ساعة.")
+	dest := r.PostFormValue("destination_id")
+	reason := r.PostFormValue("reason")
+	desc := fmt.Sprintf("طلب سحب رصيد إلى: %s", dest)
+	if reason != "" {
+		desc += fmt.Sprintf(" (السبب: %s)", reason)
+	}
+
+	if h.billSvc != nil {
+		_, err := h.billSvc.Withdraw(ctx, actor.UserID, "EGP", amt, "user_withdrawal", nil, desc)
+		if err != nil {
+			h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
+			h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية السحب: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/settings?tab=wallet", "success", "تم خصم وتسجيل طلب السحب بنجاح.")
 }
 
 // InvoicesPage renders the organization's invoice list with status badges.

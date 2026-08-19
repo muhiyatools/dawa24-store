@@ -512,10 +512,49 @@ a:hover {
   font-weight: 600;
 }
 
+/* Sidebar Group & Section Headers */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-group:last-child {
+  margin-bottom: 0;
+}
+
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.85rem 0.3rem 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.42);
+  user-select: none;
+}
+
+.sidebar-group:first-child .sidebar-section-header {
+  padding-top: 0.2rem;
+}
+
 /* Sidebar Collapse (Icon-only mode) */
 .sidebar.collapsed {
   width: 68px !important;
   min-width: 68px !important;
+}
+
+.sidebar.collapsed .sidebar-section-header span {
+  display: none !important;
+}
+
+.sidebar.collapsed .sidebar-section-header {
+  padding: 0 !important;
+  margin: 0.4rem 0.5rem !important;
+  height: 1px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .sidebar.collapsed .sidebar-header div,

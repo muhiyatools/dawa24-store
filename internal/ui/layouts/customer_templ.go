@@ -233,7 +233,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if !actor.IsStaff {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/wallet\" class=\"dropdown-item\" style=\"background:var(--accent-subtle); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800); font-weight:600; justify-content:space-between; padding:0.65rem 0.85rem;\"><div style=\"display:flex; align-items:center; gap:0.45rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/settings?tab=wallet\" class=\"dropdown-item\" style=\"background:var(--accent-subtle); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800); font-weight:600; justify-content:space-between; padding:0.65rem 0.85rem;\"><div style=\"display:flex; align-items:center; gap:0.45rem;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

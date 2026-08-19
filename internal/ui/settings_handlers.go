@@ -33,6 +33,8 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	var user *identity.User
 	var sessions []*identity.Session
 	var paymentMethods []*billing.UserPaymentMethod
+	var wallet *billing.Wallet
+	var txs []*billing.WalletTransaction
 
 	if h.idSvc != nil {
 		if me, err := h.idSvc.GetMe(ctx, actor.UserID, nil); err == nil && me != nil {
@@ -47,6 +49,12 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		if pms, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err == nil {
 			paymentMethods = pms
 		}
+		if w, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && w != nil {
+			wallet = w
+			if list, err := h.billSvc.ListWalletTransactions(ctx, w.ID, 50, 0); err == nil {
+				txs = list
+			}
+		}
 	}
 
 	if user == nil {
@@ -60,6 +68,8 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 
 	data := pages.UnifiedSettingsData{
 		User:           user,
+		Wallet:         wallet,
+		Transactions:   txs,
 		PaymentMethods: paymentMethods,
 		Sessions:       sessions,
 		ActiveTab:      "profile",

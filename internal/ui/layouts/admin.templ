@@ -23,59 +23,86 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 					</button>
 				</div>
 
-				<nav class="sidebar-nav" style="padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem;">
-					<a href="/admin/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
-						@components.IconChart("icon-sm")
-						<span>لوحة المعلومات الرئيسية</span>
-					</a>
-					<a href="/admin/approvals" class={ "sidebar-link", templ.KV("active", activeNav == "approvals") }>
-						@components.IconShield("icon-sm")
-						<span>طلبات الاعتماد والتراخيص</span>
-					</a>
-					<a href="/admin/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
-						@components.IconFile("icon-sm")
-						<span>سجل المستندات المرفقة</span>
-					</a>
-					<a href="/admin/organizations" class={ "sidebar-link", templ.KV("active", activeNav == "organizations") }>
-						@components.IconBuilding("icon-sm")
-						<span>المنشآت والصيدليات</span>
-					</a>
-					<a href="/admin/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
-						@components.IconTag("icon-sm")
-						<span>مراجعة عروض الموردين</span>
-					</a>
-					<a href="/admin/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
-						@components.IconTruck("icon-sm")
-						<span>أوامر التوريد والعمليات</span>
-					</a>
-					<a href="/admin/products" class={ "sidebar-link", templ.KV("active", activeNav == "products") }>
-						@components.IconPackage("icon-sm")
-						<span>كتالوج الأدوية المعتمدة</span>
-					</a>
-					<a href="/admin/institutional" class={ "sidebar-link", templ.KV("active", activeNav == "institutional") }>
-						@components.IconLayers("icon-sm")
-						<span>الهيكل المؤسسي وأنواعه</span>
-					</a>
-					<a href="/admin/cities" class={ "sidebar-link", templ.KV("active", activeNav == "cities") }>
-						@components.IconLocation("icon-sm")
-						<span>المحافظات والمدن (125)</span>
-					</a>
-					<a href="/admin/users" class={ "sidebar-link", templ.KV("active", activeNav == "users") }>
-						@components.IconUsers("icon-sm")
-						<span>المستخدمين والصلاحيات</span>
-					</a>
-					<a href="/admin/analytics" class={ "sidebar-link", templ.KV("active", activeNav == "analytics") }>
-						@components.IconChart("icon-sm")
-						<span>التحليلات والمؤشرات</span>
-					</a>
-					<a href="/admin/developers" class={ "sidebar-link", templ.KV("active", activeNav == "developers") }>
-						@components.IconTerminal("icon-sm")
-						<span>أدوات المطورين والتشخيص</span>
-					</a>
-					<a href="/admin/settings" class={ "sidebar-link", templ.KV("active", activeNav == "settings") }>
-						@components.IconSettings("icon-sm")
-						<span>إعدادات النظام والمنصة</span>
-					</a>
+				<nav class="sidebar-nav" style="padding:0.75rem 0.65rem; display:flex; flex-direction:column; gap:0.25rem;">
+					<!-- Group 1: Monitoring & Approvals -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>الرقابة والاعتمادات</span>
+						</div>
+						<a href="/admin/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
+							@components.IconChart("icon-sm")
+							<span>لوحة المعلومات الرئيسية</span>
+						</a>
+						<a href="/admin/approvals" class={ "sidebar-link", templ.KV("active", activeNav == "approvals") }>
+							@components.IconShield("icon-sm")
+							<span>طلبات الاعتماد والتراخيص</span>
+						</a>
+						<a href="/admin/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
+							@components.IconFile("icon-sm")
+							<span>سجل المستندات المرفقة</span>
+						</a>
+						<a href="/admin/analytics" class={ "sidebar-link", templ.KV("active", activeNav == "analytics") }>
+							@components.IconChart("icon-sm")
+							<span>التحليلات والمؤشرات</span>
+						</a>
+					</div>
+
+					<!-- Group 2: Marketplace & Operations -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>السوق والعمليات</span>
+						</div>
+						<a href="/admin/organizations" class={ "sidebar-link", templ.KV("active", activeNav == "organizations") }>
+							@components.IconBuilding("icon-sm")
+							<span>المنشآت والصيدليات</span>
+						</a>
+						<a href="/admin/products" class={ "sidebar-link", templ.KV("active", activeNav == "products") }>
+							@components.IconPackage("icon-sm")
+							<span>كتالوج الأدوية المعتمدة</span>
+						</a>
+						<a href="/admin/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
+							@components.IconTag("icon-sm")
+							<span>مراجعة عروض الموردين</span>
+						</a>
+						<a href="/admin/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
+							@components.IconTruck("icon-sm")
+							<span>أوامر التوريد والعمليات</span>
+						</a>
+					</div>
+
+					<!-- Group 3: Governance & Data -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>الهيكل والبيانات الأساسية</span>
+						</div>
+						<a href="/admin/institutional" class={ "sidebar-link", templ.KV("active", activeNav == "institutional") }>
+							@components.IconLayers("icon-sm")
+							<span>الهيكل المؤسسي والأنشطة</span>
+						</a>
+						<a href="/admin/cities" class={ "sidebar-link", templ.KV("active", activeNav == "cities") }>
+							@components.IconLocation("icon-sm")
+							<span>المحافظات والمدن (125)</span>
+						</a>
+						<a href="/admin/users" class={ "sidebar-link", templ.KV("active", activeNav == "users") }>
+							@components.IconUsers("icon-sm")
+							<span>المستخدمون والصلاحيات</span>
+						</a>
+					</div>
+
+					<!-- Group 4: System & Dev -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>النظام والمطورين</span>
+						</div>
+						<a href="/admin/developers" class={ "sidebar-link", templ.KV("active", activeNav == "developers") }>
+							@components.IconTerminal("icon-sm")
+							<span>أدوات المطورين والتشخيص</span>
+						</a>
+						<a href="/admin/settings" class={ "sidebar-link", templ.KV("active", activeNav == "settings") }>
+							@components.IconSettings("icon-sm")
+							<span>إعدادات النظام والمنصة</span>
+						</a>
+					</div>
 				</nav>
 
 

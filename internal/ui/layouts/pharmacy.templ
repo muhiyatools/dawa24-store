@@ -31,68 +31,94 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 					</button>
 				</div>
 
-				<nav class="sidebar-nav" style="padding:1rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem;">
-					<a href="/customer/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
-						@components.IconHome("icon-sm")
-						<span>لوحة التحكم الرئيسية</span>
-					</a>
-					<a href="/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
-						@components.IconTag("icon-sm")
-						<span>العروض المتاحة والتخفيضات</span>
-					</a>
-					<a href="/cart" class={ "sidebar-link", templ.KV("active", activeNav == "cart") }>
-						@components.IconCart("icon-sm")
-						<span>سلة المشتريات</span>
-					</a>
-					<a href="/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
-						@components.IconTruck("icon-sm")
-						<span>طلبياتي وأوامر التوريد</span>
-					</a>
-					<a href="/favorites" class={ "sidebar-link", templ.KV("active", activeNav == "favorites") }>
-						@components.IconStar("icon-sm")
-						<span>الأدوية المفضلة</span>
-					</a>
-					<a href="/suppliers/followed" class={ "sidebar-link", templ.KV("active", activeNav == "followed") }>
-						@components.IconHeart("icon-sm")
-						<span>الموردون المتابعون</span>
-					</a>
-					<a href="/catalog" class={ "sidebar-link", templ.KV("active", activeNav == "catalog") }>
-						@components.IconPackage("icon-sm")
-						<span>كتالوج الأدوية والمستلزمات</span>
-					</a>
-					<a href="/customer/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
-						@components.IconBuilding("icon-sm")
-						<span>فروع الصيدلية ومواقع الاستلام</span>
-					</a>
-					<a href="/settings/employees" class={ "sidebar-link", templ.KV("active", activeNav == "employees") }>
-						@components.IconUsers("icon-sm")
-						<span>فريق العمل والموظفون</span>
-					</a>
-					<a href="/customer/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
-						@components.IconFile("icon-sm")
-						<span>المستندات والتراخيص الرسمية</span>
-					</a>
-					<a href="/wallet" class={ "sidebar-link", templ.KV("active", activeNav == "wallet") }>
-						@components.IconWallet("icon-sm")
-						<span>المحفظة والمعاملات</span>
-					</a>
-					<a href="/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
-						@components.IconFile("icon-sm")
-						<span>الفواتير الإلكترونية</span>
-					</a>
-					<a href="/messages" class={ "sidebar-link", templ.KV("active", activeNav == "messages") }>
-						@components.IconMail("icon-sm")
-						<span>الرسائل</span>
-					</a>
-					<a href="/notifications" class={ "sidebar-link", templ.KV("active", activeNav == "notifications") }>
-						@components.IconBell("icon-sm")
-						<span>الإشعارات</span>
-					</a>
-					<a href="/settings" class={ "sidebar-link", templ.KV("active", activeNav == "settings") }>
-						@components.IconSettings("icon-sm")
-						<span>الملف الشخصي والإعدادات</span>
-					</a>
+				<nav class="sidebar-nav" style="padding:0.75rem 0.65rem; display:flex; flex-direction:column; gap:0.25rem;">
+					<!-- Group 1: Commerce & Catalog -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>التسوق والكتالوج</span>
+						</div>
+						<a href="/customer/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
+							@components.IconHome("icon-sm")
+							<span>لوحة التحكم الرئيسية</span>
+						</a>
+						<a href="/catalog" class={ "sidebar-link", templ.KV("active", activeNav == "catalog") }>
+							@components.IconPackage("icon-sm")
+							<span>كتالوج الأدوية والمستلزمات</span>
+						</a>
+						<a href="/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
+							@components.IconTag("icon-sm")
+							<span>العروض والتخفيضات المتاحة</span>
+						</a>
+						<a href="/cart" class={ "sidebar-link", templ.KV("active", activeNav == "cart") }>
+							@components.IconCart("icon-sm")
+							<span>سلة المشتريات والتوريد</span>
+						</a>
+					</div>
 
+					<!-- Group 2: Orders & Suppliers -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>أوامر التوريد والموردين</span>
+						</div>
+						<a href="/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
+							@components.IconTruck("icon-sm")
+							<span>طلبياتي وأوامر التوريد</span>
+						</a>
+						<a href="/favorites" class={ "sidebar-link", templ.KV("active", activeNav == "favorites") }>
+							@components.IconStar("icon-sm")
+							<span>الأدوية المفضلة</span>
+						</a>
+						<a href="/suppliers/followed" class={ "sidebar-link", templ.KV("active", activeNav == "followed") }>
+							@components.IconHeart("icon-sm")
+							<span>الموردون المتابعون</span>
+						</a>
+					</div>
+
+					<!-- Group 3: Pharmacy Management -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>إدارة الصيدلية والفروع</span>
+						</div>
+						<a href="/customer/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
+							@components.IconBuilding("icon-sm")
+							<span>فروع الصيدلية ومواقع الاستلام</span>
+						</a>
+						<a href="/settings/employees" class={ "sidebar-link", templ.KV("active", activeNav == "employees") }>
+							@components.IconUsers("icon-sm")
+							<span>فريق العمل والموظفون</span>
+						</a>
+						<a href="/customer/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
+							@components.IconFile("icon-sm")
+							<span>المستندات والتراخيص الرسمية</span>
+						</a>
+					</div>
+
+					<!-- Group 4: Finance & Account -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>المالية والحساب</span>
+						</div>
+						<a href="/settings?tab=wallet" class={ "sidebar-link", templ.KV("active", activeNav == "wallet") }>
+							@components.IconWallet("icon-sm")
+							<span>المحفظة والرصيد</span>
+						</a>
+						<a href="/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
+							@components.IconFile("icon-sm")
+							<span>الفواتير الضريبية</span>
+						</a>
+						<a href="/messages" class={ "sidebar-link", templ.KV("active", activeNav == "messages") }>
+							@components.IconMail("icon-sm")
+							<span>الرسائل والمحادثات</span>
+						</a>
+						<a href="/notifications" class={ "sidebar-link", templ.KV("active", activeNav == "notifications") }>
+							@components.IconBell("icon-sm")
+							<span>الإشعارات والتنبيهات</span>
+						</a>
+						<a href="/settings" class={ "sidebar-link", templ.KV("active", activeNav == "settings") }>
+							@components.IconSettings("icon-sm")
+							<span>الملف الشخصي والإعدادات</span>
+						</a>
+					</div>
 				</nav>
 
 				<div style="border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem; margin-top:auto;">
@@ -117,7 +143,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 						<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
 							@components.IconCart("icon-sm")
 						</a>
-						<a href="/wallet" class="btn btn-secondary" style="font-weight:600; background:var(--accent-subtle); color:var(--accent-text); border-color:var(--border);">
+						<a href="/settings?tab=wallet" class="btn btn-secondary" style="font-weight:600; background:var(--accent-subtle); color:var(--accent-text); border-color:var(--border);">
 							@components.IconWallet("icon-xs")
 							<span>المحفظة</span>
 						</a>

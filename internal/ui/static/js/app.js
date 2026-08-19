@@ -217,8 +217,11 @@ function initTabSystem() {
     });
   });
 
-  // Auto-activate tab from URL hash if present
-  if (window.location.hash) {
+  // Auto-activate tab from URL query param or hash if present
+  const urlTab = new URLSearchParams(window.location.search).get('tab');
+  if (urlTab) {
+    switchTab(urlTab);
+  } else if (window.location.hash) {
     const hash = window.location.hash.substring(1);
     switchTab(hash);
   }
