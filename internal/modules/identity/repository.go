@@ -48,4 +48,8 @@ type Repository interface {
 	ListSessionPlans(ctx context.Context) ([]*SessionPlan, error)
 	GetSessionPlanByID(ctx context.Context, id int64) (*SessionPlan, error)
 	SetMaxLoginSessions(ctx context.Context, userID int64, max int) error
+
+	CreateAccountDeletionRequest(ctx context.Context, req *AccountDeletionRequest) error
+	ListAccountDeletionRequests(ctx context.Context, status string) ([]*AccountDeletionRequest, error)
+	ReviewAccountDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error
 }

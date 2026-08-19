@@ -369,6 +369,30 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						}
 					</div>
 				</div>
+
+				<!-- Danger Zone: Account Deletion Request -->
+				<div style="border-top:1px solid var(--danger-border); margin-top:2.5rem; padding-top:1.75rem;">
+					<div style="background:var(--danger-bg); border:1px solid var(--danger-border); border-radius:var(--radius-xl); padding:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+						<div>
+							<div style="display:flex; align-items:center; gap:0.5rem; color:var(--danger); font-weight:800; font-size:1.05rem;">
+								@components.IconTrash("icon-xs")
+								<span>طلب حذف الحساب وإنهاء النشاط</span>
+							</div>
+							<p style="font-size:0.85rem; color:var(--neutral-600); margin:0.35rem 0 0 0; line-height:1.5; max-width:620px;">
+								يمكنك تقديم طلب رسمي لإلغاء الحساب وحذف البيانات. ستتم مراجعة الطلب من إدارة المنصة والتحقق من تسوية المستحقات المالية وأوامر التوريد قبل إتمام الحذف.
+							</p>
+						</div>
+						<button
+							type="button"
+							class="btn btn-danger"
+							style="font-weight:800; padding:0.65rem 1.5rem;"
+							onclick="document.getElementById('delete-account-modal').classList.remove('hidden')"
+						>
+							@components.IconTrash("icon-xs")
+							<span>تقديم طلب حذف الحساب</span>
+						</button>
+					</div>
+				</div>
 			</div>
 
 			<!-- Tab 7: Preferences -->
@@ -526,6 +550,43 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</form>
 				</div>
 			</div>
+
+			<!-- Modal 3: Request Account Deletion Modal -->
+			<div id="delete-account-modal" class="modal-overlay hidden">
+				<div class="modal-card" style="max-width:540px; width:100%; padding:2rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem; color:var(--danger);">
+							@components.IconTrash("icon-sm")
+							<h3 style="font-size:1.25rem; font-weight:800; margin:0;">
+								طلب حذف الحساب
+							</h3>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon" style="width:32px; height:32px;" data-modal-close>
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form action="/settings/delete-request" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div style="background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1rem; font-size:0.875rem; color:var(--neutral-700); line-height:1.6;">
+							تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات معلقة. يمكنك كتابة سبب الحذف اختيارياً:
+						</div>
+
+						<div class="form-group" style="margin-bottom:0;">
+							<label class="form-label">سبب طلب حذف الحساب (اختياري)</label>
+							<textarea name="reason" rows="3" class="form-input" placeholder="مثال: تغيير النشاط، إغلاق الفرع، أو أي ملاحظات أخرى..."></textarea>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+							<button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+							<button type="submit" class="btn btn-danger" style="padding-inline:1.75rem; font-weight:800;">
+								@components.IconTrash("icon-xs")
+								<span>تأكيد إرسال طلب الحذف</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
 		</div>
 	}
 }

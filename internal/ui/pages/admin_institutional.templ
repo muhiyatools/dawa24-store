@@ -10,7 +10,40 @@ import (
 
 templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
 	@layouts.AdminShell("الهيكل المؤسسي وأنواعه | Institutional Structure", "institutional", lang, dir) {
-		<div class="card" style="margin-bottom:0;" x-data="adminInstitutionalManager()">
+		<div
+			class="card"
+			style="margin-bottom:0;"
+			x-data="{
+				isCreateModalOpen: false,
+				isEditModalOpen: false,
+				editData: {
+					id: 0,
+					title_ar: '',
+					title_en: '',
+					description_ar: '',
+					icon: 'building',
+					pricing_type: 'free',
+					view_type: 1,
+					parent_id: 0
+				},
+				openCreateModal() {
+					this.isCreateModalOpen = true;
+				},
+				openEdit(id, titleAr, titleEn, descAr, icon, pricingType, viewType, parentId) {
+					this.editData = {
+						id: id,
+						title_ar: titleAr || '',
+						title_en: titleEn || '',
+						description_ar: descAr || '',
+						icon: icon || 'building',
+						pricing_type: pricingType || 'free',
+						view_type: viewType || 1,
+						parent_id: parentId || 0
+					};
+					this.isEditModalOpen = true;
+				}
+			}"
+		>
 			
 			<!-- Header Action Bar -->
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;">
@@ -83,7 +116,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
 											<div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">{ root.Title.Get("en") }</div>
 										}
 										if root.Description.Get("ar") != "" {
-											<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.4;">
+											<p style="font-size:0.825rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.4;">
 												{ root.Description.Get("ar") }
 											</p>
 										}
@@ -97,7 +130,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
 										class="btn btn-secondary btn-icon"
 										style="width:34px; height:34px; color:var(--accent);"
 										title="تعديل التصنيف"
-										@click={ fmt.Sprintf("openEdit(%d)", root.ID) }
+										@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d)", root.ID, root.Title.Get("ar"), root.Title.Get("en"), root.Description.Get("ar"), root.Icon, string(root.PricingType), root.ViewType, root.ParentIDVal()) }
 									>
 										@components.IconEdit("icon-xs")
 									</button>
@@ -155,7 +188,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
 														class="btn btn-secondary btn-icon"
 														style="width:28px; height:28px; color:var(--accent);"
 														title="تعديل"
-														@click={ fmt.Sprintf("openEdit(%d)", child.ID) }
+														@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d)", child.ID, child.Title.Get("ar"), child.Title.Get("en"), child.Description.Get("ar"), child.Icon, string(child.PricingType), child.ViewType, child.ParentIDVal()) }
 													>
 														@components.IconEdit("icon-xs")
 													</button>
@@ -370,66 +403,6 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) {
 			</div>
 
 		</div>
-
-		<script>
-			function adminInstitutionalManager() {
-				const instData = {
-					for _, item := range items {
-						{ fmt.Sprintf("%d", item.ID) }: {
-							id: { fmt.Sprintf("%d", item.ID) },
-							title_ar: { fmt.Sprintf("%q", item.Title.Get("ar")) },
-							title_en: { fmt.Sprintf("%q", item.Title.Get("en")) },
-							description_ar: { fmt.Sprintf("%q", item.Description.Get("ar")) },
-							icon: { fmt.Sprintf("%q", item.Icon) },
-							pricing_type: { fmt.Sprintf("%q", string(item.PricingType)) },
-							view_type: { fmt.Sprintf("%d", item.ViewType) },
-							parent_id: { fmt.Sprintf("%d", item.ParentIDVal()) }
-						},
-						for _, child := range item.Children {
-							{ fmt.Sprintf("%d", child.ID) }: {
-								id: { fmt.Sprintf("%d", child.ID) },
-								title_ar: { fmt.Sprintf("%q", child.Title.Get("ar")) },
-								title_en: { fmt.Sprintf("%q", child.Title.Get("en")) },
-								description_ar: { fmt.Sprintf("%q", child.Description.Get("ar")) },
-								icon: { fmt.Sprintf("%q", child.Icon) },
-								pricing_type: { fmt.Sprintf("%q", string(child.PricingType)) },
-								view_type: { fmt.Sprintf("%d", child.ViewType) },
-								parent_id: { fmt.Sprintf("%d", child.ParentIDVal()) }
-							},
-						}
-					}
-				};
-
-				return {
-					isCreateModalOpen: false,
-					isEditModalOpen: false,
-					editData: {
-						id: 0,
-						title_ar: '',
-						title_en: '',
-						description_ar: '',
-						icon: 'building',
-						pricing_type: 'free',
-						view_type: 1,
-						parent_id: 0
-					},
-
-					openCreateModal() {
-						this.isCreateModalOpen = true;
-					},
-
-					openEdit(id) {
-						const item = instData[id];
-						if (!item) {
-							console.error('Institutional data not found for ID:', id);
-							return;
-						}
-						this.editData = Object.assign({}, item);
-						this.isEditModalOpen = true;
-					}
-				};
-			}
-		</script>
 	}
 }
 

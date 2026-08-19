@@ -49,7 +49,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\" x-data=\"adminInstitutionalManager()\"><!-- Header Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\" x-data=\"{\n\t\t\t\tisCreateModalOpen: false,\n\t\t\t\tisEditModalOpen: false,\n\t\t\t\teditData: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\ttitle_en: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\ticon: 'building',\n\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\tview_type: 1,\n\t\t\t\t\tparent_id: 0\n\t\t\t\t},\n\t\t\t\topenCreateModal() {\n\t\t\t\t\tthis.isCreateModalOpen = true;\n\t\t\t\t},\n\t\t\t\topenEdit(id, titleAr, titleEn, descAr, icon, pricingType, viewType, parentId) {\n\t\t\t\t\tthis.editData = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\ttitle_ar: titleAr || '',\n\t\t\t\t\t\ttitle_en: titleEn || '',\n\t\t\t\t\t\tdescription_ar: descAr || '',\n\t\t\t\t\t\ticon: icon || 'building',\n\t\t\t\t\t\tpricing_type: pricingType || 'free',\n\t\t\t\t\t\tview_type: viewType || 1,\n\t\t\t\t\t\tparent_id: parentId || 0\n\t\t\t\t\t};\n\t\t\t\t\tthis.isEditModalOpen = true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -64,7 +64,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(items)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 23, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 56, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(root.Title.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 58, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 91, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -157,7 +157,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(pricingTypeAr(string(root.PricingType)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 73, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 106, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -190,7 +190,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(root.Title.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 83, Col: 105}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 116, Col: 105}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -202,14 +202,14 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 						}
 					}
 					if root.Description.Get("ar") != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.4;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<p style=\"font-size:0.825rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.4;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(root.Description.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 87, Col: 40}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 120, Col: 40}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -225,9 +225,9 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEdit(%d)", root.ID))
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d)", root.ID, root.Title.Get("ar"), root.Title.Get("en"), root.Description.Get("ar"), root.Icon, string(root.PricingType), root.ViewType, root.ParentIDVal()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 100, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 133, Col: 227}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 					if templ_7745c5c3_Err != nil {
@@ -248,7 +248,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 					var templ_7745c5c3_Var11 templ.SafeURL
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", root.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 106, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 139, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -261,7 +261,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(ternary(root.IsActive, "إيقاف التصنيف", "تفعيل التصنيف"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 111, Col: 99}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 144, Col: 99}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 					if templ_7745c5c3_Err != nil {
@@ -289,7 +289,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 					var templ_7745c5c3_Var13 templ.SafeURL
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", root.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 122, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 155, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -320,7 +320,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 							var templ_7745c5c3_Var14 string
 							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(child.Title.Get("ar"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 140, Col: 103}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 173, Col: 103}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 							if templ_7745c5c3_Err != nil {
@@ -366,7 +366,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 							var templ_7745c5c3_Var17 string
 							templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(pricingTypeAr(string(child.PricingType)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 148, Col: 57}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 181, Col: 57}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 							if templ_7745c5c3_Err != nil {
@@ -377,9 +377,9 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var18 string
-							templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEdit(%d)", child.ID))
+							templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d)", child.ID, child.Title.Get("ar"), child.Title.Get("en"), child.Description.Get("ar"), child.Icon, string(child.PricingType), child.ViewType, child.ParentIDVal()))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 158, Col: 60}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 191, Col: 239}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 							if templ_7745c5c3_Err != nil {
@@ -441,7 +441,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", p.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 218, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 251, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 				if templ_7745c5c3_Err != nil {
@@ -454,7 +454,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 218, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 251, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -501,7 +501,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", p.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 317, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 350, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -514,7 +514,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 317, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 350, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -533,7 +533,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>حفظ التعديلات</span></button></div></form></div></div></div><script>\n\t\t\tfunction adminInstitutionalManager() {\n\t\t\t\tconst instData = {\n\t\t\t\t\tfor _, item := range items {\n\t\t\t\t\t\t{ fmt.Sprintf(\"%d\", item.ID) }: {\n\t\t\t\t\t\t\tid: { fmt.Sprintf(\"%d\", item.ID) },\n\t\t\t\t\t\t\ttitle_ar: { fmt.Sprintf(\"%q\", item.Title.Get(\"ar\")) },\n\t\t\t\t\t\t\ttitle_en: { fmt.Sprintf(\"%q\", item.Title.Get(\"en\")) },\n\t\t\t\t\t\t\tdescription_ar: { fmt.Sprintf(\"%q\", item.Description.Get(\"ar\")) },\n\t\t\t\t\t\t\ticon: { fmt.Sprintf(\"%q\", item.Icon) },\n\t\t\t\t\t\t\tpricing_type: { fmt.Sprintf(\"%q\", string(item.PricingType)) },\n\t\t\t\t\t\t\tview_type: { fmt.Sprintf(\"%d\", item.ViewType) },\n\t\t\t\t\t\t\tparent_id: { fmt.Sprintf(\"%d\", item.ParentIDVal()) }\n\t\t\t\t\t\t},\n\t\t\t\t\t\tfor _, child := range item.Children {\n\t\t\t\t\t\t\t{ fmt.Sprintf(\"%d\", child.ID) }: {\n\t\t\t\t\t\t\t\tid: { fmt.Sprintf(\"%d\", child.ID) },\n\t\t\t\t\t\t\t\ttitle_ar: { fmt.Sprintf(\"%q\", child.Title.Get(\"ar\")) },\n\t\t\t\t\t\t\t\ttitle_en: { fmt.Sprintf(\"%q\", child.Title.Get(\"en\")) },\n\t\t\t\t\t\t\t\tdescription_ar: { fmt.Sprintf(\"%q\", child.Description.Get(\"ar\")) },\n\t\t\t\t\t\t\t\ticon: { fmt.Sprintf(\"%q\", child.Icon) },\n\t\t\t\t\t\t\t\tpricing_type: { fmt.Sprintf(\"%q\", string(child.PricingType)) },\n\t\t\t\t\t\t\t\tview_type: { fmt.Sprintf(\"%d\", child.ViewType) },\n\t\t\t\t\t\t\t\tparent_id: { fmt.Sprintf(\"%d\", child.ParentIDVal()) }\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\n\t\t\t\treturn {\n\t\t\t\t\tisCreateModalOpen: false,\n\t\t\t\t\tisEditModalOpen: false,\n\t\t\t\t\teditData: {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\t\ttitle_en: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\ticon: 'building',\n\t\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\t\tview_type: 1,\n\t\t\t\t\t\tparent_id: 0\n\t\t\t\t\t},\n\n\t\t\t\t\topenCreateModal() {\n\t\t\t\t\t\tthis.isCreateModalOpen = true;\n\t\t\t\t\t},\n\n\t\t\t\t\topenEdit(id) {\n\t\t\t\t\t\tconst item = instData[id];\n\t\t\t\t\t\tif (!item) {\n\t\t\t\t\t\t\tconsole.error('Institutional data not found for ID:', id);\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tthis.editData = Object.assign({}, item);\n\t\t\t\t\t\tthis.isEditModalOpen = true;\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>حفظ التعديلات</span></button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

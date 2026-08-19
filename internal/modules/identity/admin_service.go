@@ -83,3 +83,24 @@ func (s *Service) AdminAssignRole(ctx context.Context, id int64, role string, ac
 	}
 	return nil
 }
+
+// RequestAccountDeletion allows a user to submit a formal request to delete their account.
+func (s *Service) RequestAccountDeletion(ctx context.Context, userID int64, orgID *int64, reason string) error {
+	req := &AccountDeletionRequest{
+		UserID:         userID,
+		OrganizationID: orgID,
+		Reason:         reason,
+		Status:         "pending",
+	}
+	return s.repo.CreateAccountDeletionRequest(ctx, req)
+}
+
+// AdminListDeletionRequests lists all pending or past account deletion requests.
+func (s *Service) AdminListDeletionRequests(ctx context.Context, status string) ([]*AccountDeletionRequest, error) {
+	return s.repo.ListAccountDeletionRequests(ctx, status)
+}
+
+// AdminReviewDeletionRequest approves or rejects an account deletion request.
+func (s *Service) AdminReviewDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error {
+	return s.repo.ReviewAccountDeletionRequest(ctx, requestID, reviewerID, approve, adminNotes)
+}

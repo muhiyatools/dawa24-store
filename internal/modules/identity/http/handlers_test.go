@@ -119,6 +119,18 @@ func (r stubRepo) ListUserOrganizations(context.Context, int64) ([]*identity.Use
 	r.fail("ListUserOrganizations")
 	return nil, nil
 }
+func (r stubRepo) CreateAccountDeletionRequest(context.Context, *identity.AccountDeletionRequest) error {
+	r.fail("CreateAccountDeletionRequest")
+	return nil
+}
+func (r stubRepo) ListAccountDeletionRequests(context.Context, string) ([]*identity.AccountDeletionRequest, error) {
+	r.fail("ListAccountDeletionRequests")
+	return nil, nil
+}
+func (r stubRepo) ReviewAccountDeletionRequest(context.Context, int64, int64, bool, string) error {
+	r.fail("ReviewAccountDeletionRequest")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -244,6 +256,15 @@ func (happyRepo) GetSessionPlanByID(ctx context.Context, id int64) (*identity.Se
 	return nil, nil
 }
 func (happyRepo) SetMaxLoginSessions(ctx context.Context, userID int64, max int) error {
+	return nil
+}
+func (happyRepo) CreateAccountDeletionRequest(ctx context.Context, req *identity.AccountDeletionRequest) error {
+	return nil
+}
+func (happyRepo) ListAccountDeletionRequests(ctx context.Context, status string) ([]*identity.AccountDeletionRequest, error) {
+	return nil, nil
+}
+func (happyRepo) ReviewAccountDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error {
 	return nil
 }
 

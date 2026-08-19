@@ -188,6 +188,15 @@ func (m *mockRepo) AdminAssignRole(ctx context.Context, id int64, role string, a
 	}
 	return nil
 }
+func (m *mockRepo) CreateAccountDeletionRequest(_ context.Context, _ *AccountDeletionRequest) error {
+	return nil
+}
+func (m *mockRepo) ListAccountDeletionRequests(_ context.Context, _ string) ([]*AccountDeletionRequest, error) {
+	return nil, nil
+}
+func (m *mockRepo) ReviewAccountDeletionRequest(_ context.Context, _, _ int64, _ bool, _ string) error {
+	return nil
+}
 
 func TestServiceRegisterAndLogin(t *testing.T) {
 	ctx := context.Background()

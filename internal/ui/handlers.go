@@ -328,6 +328,8 @@ func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	r.Post("/admin/users/{id}/suspend", h.AdminUserSuspendSubmit)
 	r.Post("/admin/users/{id}/reactivate", h.AdminUserReactivateSubmit)
 	r.Post("/admin/users/{id}/reset-mfa", h.AdminUserResetMFASubmit)
+	r.Post("/admin/users/deletion/{id}/approve", h.AdminUserDeletionApproveSubmit)
+	r.Post("/admin/users/deletion/{id}/reject", h.AdminUserDeletionRejectSubmit)
 	r.Post("/admin/approvals/{id}/approve", h.AdminApproveOrgSubmit)
 	r.Post("/admin/approvals/{id}/reject", h.AdminRejectOrgSubmit)
 	r.Post("/admin/approvals/{id}/review", h.AdminOrgReviewSubmit)
@@ -373,6 +375,7 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
 	r.Post("/settings/sessions/revoke", h.SettingsSessionRevokeSubmit)
 	r.Post("/settings/security/plan/{id}", h.SettingsSessionPlanPurchaseSubmit)
+	r.Post("/settings/delete-request", h.SettingsDeleteRequestSubmit)
 
 	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
 	r.Post("/settings/organization/branch", h.SettingsBranchCreateSubmit)

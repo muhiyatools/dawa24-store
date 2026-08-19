@@ -50,7 +50,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0; overflow:visible;\" x-data=\"adminProductsManager()\"><!-- Header Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0; overflow:visible;\" x-data=\"{\n\t\t\t\tsearchQuery: '',\n\t\t\t\tdosageFilter: 'all',\n\t\t\t\tstatusFilter: 'all',\n\t\t\t\tisCreateModalOpen: false,\n\t\t\t\tisEditModalOpen: false,\n\t\t\t\tisImportModalOpen: false,\n\t\t\t\teditData: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tgeneric_name: '',\n\t\t\t\t\tactive_ingredient: '',\n\t\t\t\t\tdosage_form: 'أقراص',\n\t\t\t\t\tmanufacturer: '',\n\t\t\t\t\teda_reg_number: '',\n\t\t\t\t\tprice: '0.00',\n\t\t\t\t\timage: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\tstatus: 'active'\n\t\t\t\t},\n\t\t\t\topenEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, manufacturer, edaReg, price, image, descAr, descEn, status) {\n\t\t\t\t\tthis.editData = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\tname_ar: nameAr || '',\n\t\t\t\t\t\tname_en: nameEn || '',\n\t\t\t\t\t\tgeneric_name: genericName || '',\n\t\t\t\t\t\tactive_ingredient: activeIng || '',\n\t\t\t\t\t\tdosage_form: dosageForm || 'أقراص',\n\t\t\t\t\t\tmanufacturer: manufacturer || '',\n\t\t\t\t\t\teda_reg_number: edaReg || '',\n\t\t\t\t\t\tprice: price || '0.00',\n\t\t\t\t\t\timage: image || '',\n\t\t\t\t\t\tdescription_ar: descAr || '',\n\t\t\t\t\t\tdescription_en: descEn || '',\n\t\t\t\t\t\tstatus: status || 'active'\n\t\t\t\t\t};\n\t\t\t\t\tthis.isEditModalOpen = true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -65,7 +65,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(products)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 24, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 68, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -133,7 +133,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						escapeJS(p.DosageForm),
 						p.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 110, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 154, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 					if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Image)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 114, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 158, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 						if templ_7745c5c3_Err != nil {
@@ -164,7 +164,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Name.Get(i18n.Lang(lang)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 114, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 158, Col: 65}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 						if templ_7745c5c3_Err != nil {
@@ -195,7 +195,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 122, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 166, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -213,7 +213,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 124, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 168, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -232,7 +232,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Barcode)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 127, Col: 126}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 171, Col: 126}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -250,7 +250,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.ScientificName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 131, Col: 99}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 175, Col: 99}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -268,7 +268,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(p.Active)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 133, Col: 82}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 177, Col: 82}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -286,7 +286,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(p.DosageForm)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 137, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 181, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -299,7 +299,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.ManufacturingCompanies)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 140, Col: 99}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 184, Col: 99}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -330,9 +330,9 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
-					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEdit(%d)", p.ID))
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q)", p.ID, p.Name.Get("ar"), p.Name.Get("en"), p.ScientificName, p.Active, p.DosageForm, p.ManufacturingCompanies, p.Barcode, p.Price.String(), p.Image, p.Description.Get("ar"), p.Description.Get("en"), string(p.Status)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 160, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 204, Col: 312}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 					if templ_7745c5c3_Err != nil {
@@ -358,7 +358,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var15 templ.SafeURL
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 167, Col: 102}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 211, Col: 102}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -385,7 +385,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var16 templ.SafeURL
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 175, Col: 102}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 219, Col: 102}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -411,7 +411,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var17 templ.SafeURL
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/%d/delete", p.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 184, Col: 101}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_products.templ`, Line: 228, Col: 101}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -515,7 +515,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span>بدء استيراد وإضافة الأصناف</span></button></div></form></div></div></div><script>\n\t\t\tfunction adminProductsManager() {\n\t\t\t\tconst productsData = {\n\t\t\t\t\tfor _, p := range products {\n\t\t\t\t\t\t{ fmt.Sprintf(\"%d\", p.ID) }: {\n\t\t\t\t\t\t\tid: { fmt.Sprintf(\"%d\", p.ID) },\n\t\t\t\t\t\t\tname_ar: { fmt.Sprintf(\"%q\", p.Name.Get(\"ar\")) },\n\t\t\t\t\t\t\tname_en: { fmt.Sprintf(\"%q\", p.Name.Get(\"en\")) },\n\t\t\t\t\t\t\tgeneric_name: { fmt.Sprintf(\"%q\", p.ScientificName) },\n\t\t\t\t\t\t\tactive_ingredient: { fmt.Sprintf(\"%q\", p.Active) },\n\t\t\t\t\t\t\tdosage_form: { fmt.Sprintf(\"%q\", p.DosageForm) },\n\t\t\t\t\t\t\tmanufacturer: { fmt.Sprintf(\"%q\", p.ManufacturingCompanies) },\n\t\t\t\t\t\t\teda_reg_number: { fmt.Sprintf(\"%q\", p.Barcode) },\n\t\t\t\t\t\t\tprice: { fmt.Sprintf(\"%q\", p.Price.String()) },\n\t\t\t\t\t\t\timage: { fmt.Sprintf(\"%q\", p.Image) },\n\t\t\t\t\t\t\tdescription_ar: { fmt.Sprintf(\"%q\", p.Description.Get(\"ar\")) },\n\t\t\t\t\t\t\tdescription_en: { fmt.Sprintf(\"%q\", p.Description.Get(\"en\")) },\n\t\t\t\t\t\t\tstatus: { fmt.Sprintf(\"%q\", string(p.Status)) }\n\t\t\t\t\t\t},\n\t\t\t\t\t}\n\t\t\t\t};\n\n\t\t\t\treturn {\n\t\t\t\t\tsearchQuery: '',\n\t\t\t\t\tdosageFilter: 'all',\n\t\t\t\t\tstatusFilter: 'all',\n\t\t\t\t\tisCreateModalOpen: false,\n\t\t\t\t\tisEditModalOpen: false,\n\t\t\t\t\tisImportModalOpen: false,\n\t\t\t\t\teditData: {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tgeneric_name: '',\n\t\t\t\t\t\tactive_ingredient: '',\n\t\t\t\t\t\tdosage_form: 'أقراص',\n\t\t\t\t\t\tmanufacturer: '',\n\t\t\t\t\t\teda_reg_number: '',\n\t\t\t\t\t\tprice: '0.00',\n\t\t\t\t\t\timage: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\tdescription_en: '',\n\t\t\t\t\t\tstatus: 'active'\n\t\t\t\t\t},\n\n\t\t\t\t\topenEdit(id) {\n\t\t\t\t\t\tconst item = productsData[id];\n\t\t\t\t\t\tif (!item) {\n\t\t\t\t\t\t\tconsole.error('Product data not found for ID:', id);\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tthis.editData = Object.assign({}, item);\n\t\t\t\t\t\tthis.isEditModalOpen = true;\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span>بدء استيراد وإضافة الأصناف</span></button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

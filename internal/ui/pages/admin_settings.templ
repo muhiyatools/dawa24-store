@@ -25,7 +25,63 @@ type AdminSettingsValues struct {
 
 templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 	@layouts.AdminShell("إعدادات المنصة والمنظومة | Platform Settings", "settings", lang, dir) {
-		<div style="max-width:1100px; margin:0 auto;" x-data={ fmt.Sprintf("adminSettingsManager(%q, %q)", values.ActiveTab, values.PolicyKey) }>
+		<div
+			style="max-width:1100px; margin:0 auto;"
+			x-data="{
+				activeTab: 'features',
+				selectedPolicyKey: 'terms',
+				currentPolicyTitleAr: '',
+				currentPolicyTitleEn: '',
+				currentPolicyContentAr: '',
+				currentPolicyContentEn: '',
+				init() {
+					const urlParams = new URLSearchParams(window.location.search);
+					let tab = urlParams.get('tab') || localStorage.getItem('dawa24-admin-tab') || 'features';
+					if (tab !== 'features' && tab !== 'site' && tab !== 'policies') {
+						tab = 'features';
+					}
+					this.activeTab = tab;
+					let key = urlParams.get('key') || 'terms';
+					if (key !== 'terms' && key !== 'privacy') {
+						key = 'terms';
+					}
+					this.selectPolicy(key);
+				},
+				setTab(tab) {
+					this.activeTab = tab;
+					localStorage.setItem('dawa24-admin-tab', tab);
+					const u = new URL(window.location);
+					u.searchParams.set('tab', tab);
+					window.history.replaceState({}, '', u);
+				},
+				selectPolicy(key) {
+					this.selectedPolicyKey = key;
+					if (key === 'terms') {
+						this.currentPolicyTitleAr = this.$el.dataset.termsTitleAr || 'الشروط والأحكام العامة';
+						this.currentPolicyTitleEn = this.$el.dataset.termsTitleEn || 'Terms and Conditions';
+						this.currentPolicyContentAr = this.$el.dataset.termsContentAr || '';
+						this.currentPolicyContentEn = this.$el.dataset.termsContentEn || '';
+					} else {
+						this.currentPolicyTitleAr = this.$el.dataset.privacyTitleAr || 'سياسة الخصوصية وسرية البيانات';
+						this.currentPolicyTitleEn = this.$el.dataset.privacyTitleEn || 'Privacy Policy';
+						this.currentPolicyContentAr = this.$el.dataset.privacyContentAr || '';
+						this.currentPolicyContentEn = this.$el.dataset.privacyContentEn || '';
+					}
+					const u = new URL(window.location);
+					u.searchParams.set('tab', 'policies');
+					u.searchParams.set('key', key);
+					window.history.replaceState({}, '', u);
+				}
+			}"
+			data-terms-title-ar={ getPolicyField(values.Policies, "terms", "title", "ar", "الشروط والأحكام العامة") }
+			data-terms-title-en={ getPolicyField(values.Policies, "terms", "title", "en", "Terms and Conditions") }
+			data-terms-content-ar={ getPolicyField(values.Policies, "terms", "content", "ar", "أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية.") }
+			data-terms-content-en={ getPolicyField(values.Policies, "terms", "content", "en", "Welcome to Dawa 24. Platform usage is governed by Egyptian Drug Authority regulations.\n\n1. All pharmacies and warehouses must submit valid licenses.\n2. Supply orders and transactions are legally protected.\n3. Cold chain verification is mandatory.") }
+			data-privacy-title-ar={ getPolicyField(values.Policies, "privacy", "title", "ar", "سياسة الخصوصية وسرية البيانات") }
+			data-privacy-title-en={ getPolicyField(values.Policies, "privacy", "title", "en", "Privacy Policy") }
+			data-privacy-content-ar={ getPolicyField(values.Policies, "privacy", "content", "ar", "تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة.") }
+			data-privacy-content-en={ getPolicyField(values.Policies, "privacy", "content", "en", "Dawa 24 is strictly committed to protecting user and supplier privacy.\n\n1. Pricing and order history are kept strictly confidential.\n2. Passwords and credentials are encrypted with modern security standards.\n3. Users may request complete activity audit logs.") }
+		>
 			
 			<!-- Header -->
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
@@ -569,67 +625,6 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			</div>
 
 		</div>
-
-		<script>
-			function adminSettingsManager(initialTab, initialKey) {
-				const policyData = {
-					'terms': {
-						titleAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "title", "ar", "الشروط والأحكام العامة")) },
-						titleEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "title", "en", "Terms and Conditions")) },
-						contentAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "content", "ar", "أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية.")) },
-						contentEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "terms", "content", "en", "Welcome to Dawa 24. Platform usage is governed by Egyptian Drug Authority regulations.\n\n1. All pharmacies and warehouses must submit valid licenses.\n2. Supply orders and transactions are legally protected.\n3. Cold chain verification is mandatory.")) }
-					},
-					'privacy': {
-						titleAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "title", "ar", "سياسة الخصوصية وسرية البيانات")) },
-						titleEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "title", "en", "Privacy Policy")) },
-						contentAr: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "content", "ar", "تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة.")) },
-						contentEn: { fmt.Sprintf("%q", getPolicyField(values.Policies, "privacy", "content", "en", "Dawa 24 is strictly committed to protecting user and supplier privacy.\n\n1. Pricing and order history are kept strictly confidential.\n2. Passwords and credentials are encrypted with modern security standards.\n3. Users may request complete activity audit logs.")) }
-					}
-				};
-
-				const urlParams = new URLSearchParams(window.location.search);
-				let rawTab = urlParams.get('tab') || initialTab || localStorage.getItem('dawa24-admin-tab') || 'features';
-				if (rawTab !== 'features' && rawTab !== 'site' && rawTab !== 'policies') {
-					rawTab = 'features';
-				}
-
-				let storedKey = urlParams.get('key') || initialKey || 'terms';
-				if (storedKey !== 'terms' && storedKey !== 'privacy') {
-					storedKey = 'terms';
-				}
-
-				return {
-					activeTab: rawTab,
-					selectedPolicyKey: storedKey,
-					currentPolicyTitleAr: policyData[storedKey]?.titleAr || '',
-					currentPolicyTitleEn: policyData[storedKey]?.titleEn || '',
-					currentPolicyContentAr: policyData[storedKey]?.contentAr || '',
-					currentPolicyContentEn: policyData[storedKey]?.contentEn || '',
-
-					setTab(tab) {
-						this.activeTab = tab;
-						localStorage.setItem('dawa24-admin-tab', tab);
-						const u = new URL(window.location);
-						u.searchParams.set('tab', tab);
-						window.history.replaceState({}, '', u);
-					},
-
-					selectPolicy(key) {
-						this.selectedPolicyKey = key;
-						if (policyData[key]) {
-							this.currentPolicyTitleAr = policyData[key].titleAr;
-							this.currentPolicyTitleEn = policyData[key].titleEn;
-							this.currentPolicyContentAr = policyData[key].contentAr;
-							this.currentPolicyContentEn = policyData[key].contentEn;
-						}
-						const u = new URL(window.location);
-						u.searchParams.set('tab', 'policies');
-						u.searchParams.set('key', key);
-						window.history.replaceState({}, '', u);
-					}
-				};
-			}
-		</script>
 	}
 }
 

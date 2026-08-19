@@ -3,6 +3,7 @@ package ui
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -725,6 +726,33 @@ func (h *UIHandler) SettingsEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 	}
 
 	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم حذف الموظف من المنشأة بنجاح.")
+}
+
+// SettingsDeleteRequestSubmit receives an account deletion request from a user.
+func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		return
+	}
+
+	_ = r.ParseForm()
+	reason := strings.TrimSpace(r.PostFormValue("reason"))
+
+	var orgID *int64
+	if actor.OrganizationID > 0 {
+		orgID = &actor.OrganizationID
+	}
+
+	if h.idSvc != nil {
+		if err := h.idSvc.RequestAccountDeletion(ctx, actor.UserID, orgID, reason); err != nil {
+			h.redirectWithNotice(w, r, "/settings?tab=security", "error", "فشل إرسال طلب الحذف: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/settings?tab=security", "success", "تم استلام طلب حذف الحساب بنجاح، وسيتم مراجعته من قبل إدارة المنصة.")
 }
 
 

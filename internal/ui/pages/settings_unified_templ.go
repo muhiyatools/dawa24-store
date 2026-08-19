@@ -450,7 +450,23 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div></div></div><!-- Tab 7: Preferences --><div id=\"tab-preferences\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">تفضيلات الإشعارات والتنبيهات</h3><form action=\"/settings/preferences\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">إشعارات الواتساب (WhatsApp Alerts)</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div></div><input type=\"checkbox\" name=\"notif_whatsapp\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">رسائل البريد الإلكتروني للفواتير الضريبية</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div></div><input type=\"checkbox\" name=\"notif_invoices\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">تنبيهات انخفاض المخزون والخصومات الحصرية</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div></div><input type=\"checkbox\" name=\"notif_promos\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem 2rem; font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div></div><!-- Danger Zone: Account Deletion Request --><div style=\"border-top:1px solid var(--danger-border); margin-top:2.5rem; padding-top:1.75rem;\"><div style=\"background:var(--danger-bg); border:1px solid var(--danger-border); border-radius:var(--radius-xl); padding:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--danger); font-weight:800; font-size:1.05rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>طلب حذف الحساب وإنهاء النشاط</span></div><p style=\"font-size:0.85rem; color:var(--neutral-600); margin:0.35rem 0 0 0; line-height:1.5; max-width:620px;\">يمكنك تقديم طلب رسمي لإلغاء الحساب وحذف البيانات. ستتم مراجعة الطلب من إدارة المنصة والتحقق من تسوية المستحقات المالية وأوامر التوريد قبل إتمام الحذف.</p></div><button type=\"button\" class=\"btn btn-danger\" style=\"font-weight:800; padding:0.65rem 1.5rem;\" onclick=\"document.getElementById('delete-account-modal').classList.remove('hidden')\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>تقديم طلب حذف الحساب</span></button></div></div></div><!-- Tab 7: Preferences --><div id=\"tab-preferences\" class=\"tab-pane card\" style=\"padding:2.25rem;\"><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:1.5rem;\">تفضيلات الإشعارات والتنبيهات</h3><form action=\"/settings/preferences\" method=\"POST\" style=\"max-width:680px; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">إشعارات الواتساب (WhatsApp Alerts)</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div></div><input type=\"checkbox\" name=\"notif_whatsapp\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">رسائل البريد الإلكتروني للفواتير الضريبية</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div></div><input type=\"checkbox\" name=\"notif_invoices\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--neutral-200); border-radius:var(--radius-lg);\"><div><div style=\"font-weight:800; color:var(--neutral-900);\">تنبيهات انخفاض المخزون والخصومات الحصرية</div><div style=\"font-size:0.85rem; color:var(--neutral-500);\">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div></div><input type=\"checkbox\" name=\"notif_promos\" checked style=\"width:20px; height:20px; accent-color:var(--primary-600);\"></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem 2rem; font-weight:800;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -458,7 +474,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>حفظ التفضيلات</span></button></div></form></div><!-- Modal 1: Add Payment Method Modal --><div id=\"add-payment-method-modal\" class=\"modal-overlay hidden\"><div class=\"modal-card\" style=\"max-width:540px; width:100%; padding:2rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>حفظ التفضيلات</span></button></div></form></div><!-- Modal 1: Add Payment Method Modal --><div id=\"add-payment-method-modal\" class=\"modal-overlay hidden\"><div class=\"modal-card\" style=\"max-width:540px; width:100%; padding:2rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -466,7 +482,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;\">إضافة وسيلة دفع جديدة</h3></div><button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\" data-modal-close>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;\">إضافة وسيلة دفع جديدة</h3></div><button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\" data-modal-close>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -474,7 +490,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</button></div><form action=\"/settings/payment-methods\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">نوع وسيلة الدفع</label> <select name=\"type\" class=\"form-select\" onchange=\"document.querySelectorAll('.pay-extra').forEach(el => el.style.display = 'none'); document.getElementById('pay-fields-' + this.value).style.display = 'block';\"><option value=\"bank\">حساب بنكي (Bank Account)</option> <option value=\"instapay\">إنستاباي / محفظة هاتف (InstaPay / E-Wallet)</option> <option value=\"card\">بطاقة دفع إلكتروني (Debit / Credit Card)</option></select></div><div id=\"pay-fields-bank\" class=\"pay-extra\" style=\"display:block;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم البنك</label> <input type=\"text\" name=\"bank_name\" class=\"form-input\" placeholder=\"البنك التجاري الدولي CIB\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم صاحب الحساب</label> <input type=\"text\" name=\"account_holder\" class=\"form-input\" placeholder=\"مطابق للسجل التجاري\"></div></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم الآيبان (IBAN)</label> <input type=\"text\" name=\"iban\" class=\"form-input tabular-nums\" placeholder=\"EG000000000000000000000000000\"></div></div><div id=\"pay-fields-instapay\" class=\"pay-extra\" style=\"display:none;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">عنوان الدفع اللحظي IPA أو رقم الهاتف</label> <input type=\"text\" name=\"instapay_handle\" class=\"form-input tabular-nums\" placeholder=\"username@instapay\"></div></div><div id=\"pay-fields-card\" class=\"pay-extra\" style=\"display:none;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم البطاقة</label> <input type=\"text\" name=\"card_number\" class=\"form-input tabular-nums\" placeholder=\"•••• •••• •••• ••••\"></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"padding-inline:1.75rem; font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</button></div><form action=\"/settings/payment-methods\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">نوع وسيلة الدفع</label> <select name=\"type\" class=\"form-select\" onchange=\"document.querySelectorAll('.pay-extra').forEach(el => el.style.display = 'none'); document.getElementById('pay-fields-' + this.value).style.display = 'block';\"><option value=\"bank\">حساب بنكي (Bank Account)</option> <option value=\"instapay\">إنستاباي / محفظة هاتف (InstaPay / E-Wallet)</option> <option value=\"card\">بطاقة دفع إلكتروني (Debit / Credit Card)</option></select></div><div id=\"pay-fields-bank\" class=\"pay-extra\" style=\"display:block;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم البنك</label> <input type=\"text\" name=\"bank_name\" class=\"form-input\" placeholder=\"البنك التجاري الدولي CIB\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم صاحب الحساب</label> <input type=\"text\" name=\"account_holder\" class=\"form-input\" placeholder=\"مطابق للسجل التجاري\"></div></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم الآيبان (IBAN)</label> <input type=\"text\" name=\"iban\" class=\"form-input tabular-nums\" placeholder=\"EG000000000000000000000000000\"></div></div><div id=\"pay-fields-instapay\" class=\"pay-extra\" style=\"display:none;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">عنوان الدفع اللحظي IPA أو رقم الهاتف</label> <input type=\"text\" name=\"instapay_handle\" class=\"form-input tabular-nums\" placeholder=\"username@instapay\"></div></div><div id=\"pay-fields-card\" class=\"pay-extra\" style=\"display:none;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم البطاقة</label> <input type=\"text\" name=\"card_number\" class=\"form-input tabular-nums\" placeholder=\"•••• •••• •••• ••••\"></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"padding-inline:1.75rem; font-weight:800;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -482,7 +498,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span>حفظ وسيلة الدفع</span></button></div></form></div></div><!-- Modal 2: Add Address Modal --><div id=\"add-address-modal\" class=\"modal-overlay hidden\"><div class=\"modal-card\" style=\"max-width:560px; width:100%; padding:2rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span>حفظ وسيلة الدفع</span></button></div></form></div></div><!-- Modal 2: Add Address Modal --><div id=\"add-address-modal\" class=\"modal-overlay hidden\"><div class=\"modal-card\" style=\"max-width:560px; width:100%; padding:2rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -490,7 +506,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;\">إضافة فرع أو عنوان تسليم جديد</h3></div><button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\" data-modal-close>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<h3 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;\">إضافة فرع أو عنوان تسليم جديد</h3></div><button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\" data-modal-close>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -498,7 +514,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</button></div><form action=\"/settings/addresses\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم الفرع / العنوان *</label> <input type=\"text\" name=\"title\" class=\"form-input\" placeholder=\"فرع مدينة نصر\" required></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم المستلم المسؤول *</label> <input type=\"text\" name=\"recipient\" class=\"form-input\" placeholder=\"د. أحمد محمود\" required></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم هاتف الفرع *</label> <input type=\"tel\" name=\"phone\" class=\"form-input tabular-nums\" placeholder=\"01012345678\" required></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">العنوان بالتفصيل *</label> <input type=\"text\" name=\"address\" class=\"form-input\" placeholder=\"شارع عباس العقاد، عمارة 15\" required></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"padding-inline:1.75rem; font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</button></div><form action=\"/settings/addresses\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم الفرع / العنوان *</label> <input type=\"text\" name=\"title\" class=\"form-input\" placeholder=\"فرع مدينة نصر\" required></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">اسم المستلم المسؤول *</label> <input type=\"text\" name=\"recipient\" class=\"form-input\" placeholder=\"د. أحمد محمود\" required></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">رقم هاتف الفرع *</label> <input type=\"tel\" name=\"phone\" class=\"form-input tabular-nums\" placeholder=\"01012345678\" required></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">العنوان بالتفصيل *</label> <input type=\"text\" name=\"address\" class=\"form-input\" placeholder=\"شارع عباس العقاد، عمارة 15\" required></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"padding-inline:1.75rem; font-weight:800;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -506,7 +522,31 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span>إضافة العنوان</span></button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>إضافة العنوان</span></button></div></form></div></div><!-- Modal 3: Request Account Deletion Modal --><div id=\"delete-account-modal\" class=\"modal-overlay hidden\"><div class=\"modal-card\" style=\"max-width:540px; width:100%; padding:2rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--danger);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconTrash("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<h3 style=\"font-size:1.25rem; font-weight:800; margin:0;\">طلب حذف الحساب</h3></div><button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\" data-modal-close>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</button></div><form action=\"/settings/delete-request\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:var(--radius-lg); padding:1rem; font-size:0.875rem; color:var(--neutral-700); line-height:1.6;\">تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات معلقة. يمكنك كتابة سبب الحذف اختيارياً:</div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\">سبب طلب حذف الحساب (اختياري)</label> <textarea name=\"reason\" rows=\"3\" class=\"form-input\" placeholder=\"مثال: تغيير النشاط، إغلاق الفرع، أو أي ملاحظات أخرى...\"></textarea></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-danger\" style=\"padding-inline:1.75rem; font-weight:800;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>تأكيد إرسال طلب الحذف</span></button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

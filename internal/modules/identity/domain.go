@@ -61,6 +61,24 @@ type User struct {
 	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
 }
 
+// AccountDeletionRequest represents a formal user request to delete their account.
+type AccountDeletionRequest struct {
+	ID               int64      `json:"id"`
+	UserID           int64      `json:"user_id"`
+	UserName         string     `json:"user_name"`
+	UserEmail        string     `json:"user_email"`
+	UserRole         string     `json:"user_role"`
+	OrganizationID   *int64     `json:"organization_id,omitempty"`
+	OrganizationName string     `json:"organization_name,omitempty"`
+	Reason           string     `json:"reason"`
+	Status           string     `json:"status"` // "pending", "approved", "rejected"
+	AdminNotes       string     `json:"admin_notes"`
+	ReviewedBy       *int64     `json:"reviewed_by,omitempty"`
+	ReviewedAt       *time.Time `json:"reviewed_at,omitempty"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
+}
+
 // UserOrgMembership represents an organization context the user belongs to.
 type UserOrgMembership struct {
 	OrganizationID int64     `json:"organization_id"`

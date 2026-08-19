@@ -22,6 +22,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -88,20 +89,22 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	if h.idSvc == nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.AdminUsers(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
-		return
+	var users []*identity.User
+	var deletionRequests []*identity.AccountDeletionRequest
+
+	if h.idSvc != nil {
+		users, _ = h.idSvc.AdminListUsers(ctx, "", "")
+		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(ctx, "")
 	}
 
-	users, err := h.idSvc.AdminListUsers(ctx, "", "")
-	if err != nil {
-		h.renderError(w, r, err)
-		return
+	data := pages.AdminUsersData{
+		Users:            users,
+		DeletionRequests: deletionRequests,
+		ActiveTab:        r.URL.Query().Get("tab"),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminUsers(users, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.AdminUsers(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin users page", "error", err)
 	}
 }
@@ -630,20 +633,11 @@ func (h *UIHandler) adminUserAction(
 	}
 
 	if err := action(ctx, id, actor.UserID); err != nil {
-		h.renderError(w, r, err)
+		h.redirectWithNotice(w, r, "/admin/users", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	users, err := h.idSvc.AdminListUsers(ctx, "", "")
-	if err != nil {
-		h.renderError(w, r, err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminUsersTable(users).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin users table after action", "error", err)
-	}
+	h.redirectWithNotice(w, r, "/admin/users", "success", "تم تنفيذ الإجراء بنجاح.")
 }
 
 // AdminUserSuspendSubmit blocks an account and ends its sessions.
@@ -665,6 +659,56 @@ func (h *UIHandler) AdminUserResetMFASubmit(w http.ResponseWriter, r *http.Reque
 	h.adminUserAction(w, r, func(ctx context.Context, userID, actorID int64) error {
 		return h.idSvc.AdminResetMFA(ctx, userID, actorID)
 	})
+}
+
+// AdminUserDeletionApproveSubmit approves an account deletion request and deletes/suspends the account.
+func (h *UIHandler) AdminUserDeletionApproveSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/users?tab=deletion_requests", http.StatusSeeOther)
+		return
+	}
+
+	reqID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || reqID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "معرف الطلب غير صالح.")
+		return
+	}
+
+	if h.idSvc != nil {
+		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, true, "تمت الموافقة من إدارة المنصة"); err != nil {
+			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "فشل قبول طلب الحذف: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "success", "تمت الموافقة على حذف الحساب وتعطيله بنجاح.")
+}
+
+// AdminUserDeletionRejectSubmit rejects an account deletion request.
+func (h *UIHandler) AdminUserDeletionRejectSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/users?tab=deletion_requests", http.StatusSeeOther)
+		return
+	}
+
+	reqID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || reqID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "معرف الطلب غير صالح.")
+		return
+	}
+
+	if h.idSvc != nil {
+		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, false, "تم رفض طلب الحذف من الإدارة"); err != nil {
+			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "فشل رفض طلب الحذف: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "success", "تم رفض طلب حذف الحساب بنجاح.")
 }
 
 // Organization approval actions.

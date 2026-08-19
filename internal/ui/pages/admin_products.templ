@@ -11,7 +11,51 @@ import (
 
 templ AdminProducts(lang, dir string, products []*catalog.Product) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
-		<div class="card" style="margin-bottom:0; overflow:visible;" x-data="adminProductsManager()">
+		<div
+			class="card"
+			style="margin-bottom:0; overflow:visible;"
+			x-data="{
+				searchQuery: '',
+				dosageFilter: 'all',
+				statusFilter: 'all',
+				isCreateModalOpen: false,
+				isEditModalOpen: false,
+				isImportModalOpen: false,
+				editData: {
+					id: 0,
+					name_ar: '',
+					name_en: '',
+					generic_name: '',
+					active_ingredient: '',
+					dosage_form: 'أقراص',
+					manufacturer: '',
+					eda_reg_number: '',
+					price: '0.00',
+					image: '',
+					description_ar: '',
+					description_en: '',
+					status: 'active'
+				},
+				openEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, manufacturer, edaReg, price, image, descAr, descEn, status) {
+					this.editData = {
+						id: id,
+						name_ar: nameAr || '',
+						name_en: nameEn || '',
+						generic_name: genericName || '',
+						active_ingredient: activeIng || '',
+						dosage_form: dosageForm || 'أقراص',
+						manufacturer: manufacturer || '',
+						eda_reg_number: edaReg || '',
+						price: price || '0.00',
+						image: image || '',
+						description_ar: descAr || '',
+						description_en: descEn || '',
+						status: status || 'active'
+					};
+					this.isEditModalOpen = true;
+				}
+			}"
+		>
 			
 			<!-- Header Action Bar -->
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
@@ -157,7 +201,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 												class="btn btn-secondary btn-icon"
 												style="width:32px; height:32px; color:var(--accent);"
 												title="تعديل بيانات الدواء"
-												@click={ fmt.Sprintf("openEdit(%d)", p.ID) }
+												@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q)", p.ID, p.Name.Get("ar"), p.Name.Get("en"), p.ScientificName, p.Active, p.DosageForm, p.ManufacturingCompanies, p.Barcode, p.Price.String(), p.Image, p.Description.Get("ar"), p.Description.Get("en"), string(p.Status)) }
 											>
 												@components.IconEdit("icon-xs")
 											</button>
@@ -462,63 +506,5 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 			</div>
 
 		</div>
-
-		<script>
-			function adminProductsManager() {
-				const productsData = {
-					for _, p := range products {
-						{ fmt.Sprintf("%d", p.ID) }: {
-							id: { fmt.Sprintf("%d", p.ID) },
-							name_ar: { fmt.Sprintf("%q", p.Name.Get("ar")) },
-							name_en: { fmt.Sprintf("%q", p.Name.Get("en")) },
-							generic_name: { fmt.Sprintf("%q", p.ScientificName) },
-							active_ingredient: { fmt.Sprintf("%q", p.Active) },
-							dosage_form: { fmt.Sprintf("%q", p.DosageForm) },
-							manufacturer: { fmt.Sprintf("%q", p.ManufacturingCompanies) },
-							eda_reg_number: { fmt.Sprintf("%q", p.Barcode) },
-							price: { fmt.Sprintf("%q", p.Price.String()) },
-							image: { fmt.Sprintf("%q", p.Image) },
-							description_ar: { fmt.Sprintf("%q", p.Description.Get("ar")) },
-							description_en: { fmt.Sprintf("%q", p.Description.Get("en")) },
-							status: { fmt.Sprintf("%q", string(p.Status)) }
-						},
-					}
-				};
-
-				return {
-					searchQuery: '',
-					dosageFilter: 'all',
-					statusFilter: 'all',
-					isCreateModalOpen: false,
-					isEditModalOpen: false,
-					isImportModalOpen: false,
-					editData: {
-						id: 0,
-						name_ar: '',
-						name_en: '',
-						generic_name: '',
-						active_ingredient: '',
-						dosage_form: 'أقراص',
-						manufacturer: '',
-						eda_reg_number: '',
-						price: '0.00',
-						image: '',
-						description_ar: '',
-						description_en: '',
-						status: 'active'
-					},
-
-					openEdit(id) {
-						const item = productsData[id];
-						if (!item) {
-							console.error('Product data not found for ID:', id);
-							return;
-						}
-						this.editData = Object.assign({}, item);
-						this.isEditModalOpen = true;
-					}
-				};
-			}
-		</script>
 	}
 }
