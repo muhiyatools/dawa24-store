@@ -66,14 +66,14 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1100px; margin:0 auto;\" x-data=\"{\n\t\t\t\tactiveTab: 'features',\n\t\t\t\tselectedPolicyKey: 'terms',\n\t\t\t\tcurrentPolicyTitleAr: '',\n\t\t\t\tcurrentPolicyTitleEn: '',\n\t\t\t\tcurrentPolicyContentAr: '',\n\t\t\t\tcurrentPolicyContentEn: '',\n\t\t\t\tisMethodModalOpen: false,\n\t\t\t\tisEditingMethod: false,\n\t\t\t\tmethodForm: {\n\t\t\t\t\tid: '',\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tprovider_type: 'bank',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\taccount_name: '',\n\t\t\t\t\tbank_name: '',\n\t\t\t\t\taccount_number: '',\n\t\t\t\t\tiban: '',\n\t\t\t\t\tswift_code: '',\n\t\t\t\t\tbranch_name: '',\n\t\t\t\t\tinstapay_handle: '',\n\t\t\t\t\tphone_number: '',\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tis_deposit_enabled: true,\n\t\t\t\t\tis_checkout_enabled: true,\n\t\t\t\t\tdisplay_order: 1\n\t\t\t\t},\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tlet tab = urlParams.get('tab') || localStorage.getItem('dawa24-admin-tab') || 'features';\n\t\t\t\t\tif (tab !== 'features' && tab !== 'site' && tab !== 'policies' && tab !== 'payment_methods') {\n\t\t\t\t\t\ttab = 'features';\n\t\t\t\t\t}\n\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\tlet key = urlParams.get('key') || 'terms';\n\t\t\t\t\tif (key !== 'terms' && key !== 'privacy') {\n\t\t\t\t\t\tkey = 'terms';\n\t\t\t\t\t}\n\t\t\t\t\tthis.selectPolicy(key);\n\t\t\t\t},\n\t\t\t\tsetTab(tab) {\n\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\tlocalStorage.setItem('dawa24-admin-tab', tab);\n\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t},\n\t\t\t\topenNewMethodModal() {\n\t\t\t\t\tthis.isEditingMethod = false;\n\t\t\t\t\tthis.methodForm = {\n\t\t\t\t\t\tid: '',\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tprovider_type: 'bank',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\tdescription_en: '',\n\t\t\t\t\t\taccount_name: '',\n\t\t\t\t\t\tbank_name: '',\n\t\t\t\t\t\taccount_number: '',\n\t\t\t\t\t\tiban: '',\n\t\t\t\t\t\tswift_code: '',\n\t\t\t\t\t\tbranch_name: '',\n\t\t\t\t\t\tinstapay_handle: '',\n\t\t\t\t\t\tphone_number: '',\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tis_deposit_enabled: true,\n\t\t\t\t\t\tis_checkout_enabled: true,\n\t\t\t\t\t\tdisplay_order: 1\n\t\t\t\t\t};\n\t\t\t\t\tthis.isMethodModalOpen = true;\n\t\t\t\t},\n\t\t\t\topenEditMethodModal(pm) {\n\t\t\t\t\tthis.isEditingMethod = true;\n\t\t\t\t\tthis.methodForm = {\n\t\t\t\t\t\tid: pm.id || '',\n\t\t\t\t\t\tname_ar: pm.name_ar || '',\n\t\t\t\t\t\tname_en: pm.name_en || '',\n\t\t\t\t\t\tprovider_type: pm.provider_type || 'bank',\n\t\t\t\t\t\tdescription_ar: pm.description_ar || '',\n\t\t\t\t\t\tdescription_en: pm.description_en || '',\n\t\t\t\t\t\taccount_name: pm.account_name || '',\n\t\t\t\t\t\tbank_name: pm.bank_name || '',\n\t\t\t\t\t\taccount_number: pm.account_number || '',\n\t\t\t\t\t\tiban: pm.iban || '',\n\t\t\t\t\t\tswift_code: pm.swift_code || '',\n\t\t\t\t\t\tbranch_name: pm.branch_name || '',\n\t\t\t\t\t\tinstapay_handle: pm.instapay_handle || '',\n\t\t\t\t\t\tphone_number: pm.phone_number || '',\n\t\t\t\t\t\tis_active: pm.is_active,\n\t\t\t\t\t\tis_deposit_enabled: pm.is_deposit_enabled,\n\t\t\t\t\t\tis_checkout_enabled: pm.is_checkout_enabled,\n\t\t\t\t\t\tdisplay_order: pm.display_order || 1\n\t\t\t\t\t};\n\t\t\t\t\tthis.isMethodModalOpen = true;\n\t\t\t\t},\n\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\tlocalStorage.setItem('dawa24-admin-tab', tab);\n\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t},\n\t\t\t\tselectPolicy(key) {\n\t\t\t\t\tthis.selectedPolicyKey = key;\n\t\t\t\t\tif (key === 'terms') {\n\t\t\t\t\t\tthis.currentPolicyTitleAr = this.$el.dataset.termsTitleAr || 'الشروط والأحكام العامة';\n\t\t\t\t\t\tthis.currentPolicyTitleEn = this.$el.dataset.termsTitleEn || 'Terms and Conditions';\n\t\t\t\t\t\tthis.currentPolicyContentAr = this.$el.dataset.termsContentAr || '';\n\t\t\t\t\t\tthis.currentPolicyContentEn = this.$el.dataset.termsContentEn || '';\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthis.currentPolicyTitleAr = this.$el.dataset.privacyTitleAr || 'سياسة الخصوصية وسرية البيانات';\n\t\t\t\t\t\tthis.currentPolicyTitleEn = this.$el.dataset.privacyTitleEn || 'Privacy Policy';\n\t\t\t\t\t\tthis.currentPolicyContentAr = this.$el.dataset.privacyContentAr || '';\n\t\t\t\t\t\tthis.currentPolicyContentEn = this.$el.dataset.privacyContentEn || '';\n\t\t\t\t\t}\n\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\tu.searchParams.set('tab', 'policies');\n\t\t\t\t\tu.searchParams.set('key', key);\n\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t}\n\t\t\t}\" data-terms-title-ar=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1100px; margin:0 auto;\" x-data=\"{\n\t\t\t\tactiveTab: 'features',\n\t\t\t\tselectedPolicyKey: 'terms',\n\t\t\t\tcurrentPolicyTitleAr: '',\n\t\t\t\tcurrentPolicyTitleEn: '',\n\t\t\t\tcurrentPolicyContentAr: '',\n\t\t\t\tcurrentPolicyContentEn: '',\n\t\t\t\tisMethodModalOpen: false,\n\t\t\t\tisEditingMethod: false,\n\t\t\t\tmethodForm: {\n\t\t\t\t\tid: '',\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tprovider_type: 'bank',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\taccount_name: '',\n\t\t\t\t\tbank_name: '',\n\t\t\t\t\taccount_number: '',\n\t\t\t\t\tiban: '',\n\t\t\t\t\tswift_code: '',\n\t\t\t\t\tbranch_name: '',\n\t\t\t\t\tinstapay_handle: '',\n\t\t\t\t\tphone_number: '',\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tis_deposit_enabled: true,\n\t\t\t\t\tis_checkout_enabled: true,\n\t\t\t\t\tdisplay_order: 1\n\t\t\t\t},\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tlet tab = urlParams.get('tab') || localStorage.getItem('dawa24-admin-tab') || 'features';\n\t\t\t\t\tif (tab !== 'features' && tab !== 'site' && tab !== 'policies' && tab !== 'payment_methods') {\n\t\t\t\t\t\ttab = 'features';\n\t\t\t\t\t}\n\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\tlet key = urlParams.get('key') || 'terms';\n\t\t\t\t\tif (key !== 'terms' && key !== 'privacy') {\n\t\t\t\t\t\tkey = 'terms';\n\t\t\t\t\t}\n\t\t\t\t\tthis.selectPolicy(key);\n\t\t\t\t},\n\t\t\t\tsetTab(tab) {\n\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\tlocalStorage.setItem('dawa24-admin-tab', tab);\n\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t},\n\t\t\t\topenNewMethodModal() {\n\t\t\t\t\tthis.isEditingMethod = false;\n\t\t\t\t\tthis.methodForm = {\n\t\t\t\t\t\tid: '',\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tprovider_type: 'bank',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\tdescription_en: '',\n\t\t\t\t\t\taccount_name: '',\n\t\t\t\t\t\tbank_name: '',\n\t\t\t\t\t\taccount_number: '',\n\t\t\t\t\t\tiban: '',\n\t\t\t\t\t\tswift_code: '',\n\t\t\t\t\t\tbranch_name: '',\n\t\t\t\t\t\tinstapay_handle: '',\n\t\t\t\t\t\tphone_number: '',\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tis_deposit_enabled: true,\n\t\t\t\t\t\tis_checkout_enabled: true,\n\t\t\t\t\t\tdisplay_order: 1\n\t\t\t\t\t};\n\t\t\t\t\tthis.isMethodModalOpen = true;\n\t\t\t\t},\n\t\t\t\topenEditMethodModal(pm) {\n\t\t\t\t\tthis.isEditingMethod = true;\n\t\t\t\t\tthis.methodForm = {\n\t\t\t\t\t\tid: pm.id || '',\n\t\t\t\t\t\tname_ar: pm.name_ar || '',\n\t\t\t\t\t\tname_en: pm.name_en || '',\n\t\t\t\t\t\tprovider_type: pm.provider_type || 'bank',\n\t\t\t\t\t\tdescription_ar: pm.description_ar || '',\n\t\t\t\t\t\tdescription_en: pm.description_en || '',\n\t\t\t\t\t\taccount_name: pm.account_name || '',\n\t\t\t\t\t\tbank_name: pm.bank_name || '',\n\t\t\t\t\t\taccount_number: pm.account_number || '',\n\t\t\t\t\t\tiban: pm.iban || '',\n\t\t\t\t\t\tswift_code: pm.swift_code || '',\n\t\t\t\t\t\tbranch_name: pm.branch_name || '',\n\t\t\t\t\t\tinstapay_handle: pm.instapay_handle || '',\n\t\t\t\t\t\tphone_number: pm.phone_number || '',\n\t\t\t\t\t\tis_active: pm.is_active,\n\t\t\t\t\t\tis_deposit_enabled: pm.is_deposit_enabled,\n\t\t\t\t\t\tis_checkout_enabled: pm.is_checkout_enabled,\n\t\t\t\t\t\tdisplay_order: pm.display_order || 1\n\t\t\t\t\t};\n\t\t\t\t\tthis.isMethodModalOpen = true;\n\t\t\t\t},\n\t\t\t\tselectPolicy(key) {\n\t\t\t\t\tthis.selectedPolicyKey = key;\n\t\t\t\t\tif (key === 'terms') {\n\t\t\t\t\t\tthis.currentPolicyTitleAr = this.$el.dataset.termsTitleAr || 'الشروط والأحكام العامة';\n\t\t\t\t\t\tthis.currentPolicyTitleEn = this.$el.dataset.termsTitleEn || 'Terms and Conditions';\n\t\t\t\t\t\tthis.currentPolicyContentAr = this.$el.dataset.termsContentAr || '';\n\t\t\t\t\t\tthis.currentPolicyContentEn = this.$el.dataset.termsContentEn || '';\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthis.currentPolicyTitleAr = this.$el.dataset.privacyTitleAr || 'سياسة الخصوصية وسرية البيانات';\n\t\t\t\t\t\tthis.currentPolicyTitleEn = this.$el.dataset.privacyTitleEn || 'Privacy Policy';\n\t\t\t\t\t\tthis.currentPolicyContentAr = this.$el.dataset.privacyContentAr || '';\n\t\t\t\t\t\tthis.currentPolicyContentEn = this.$el.dataset.privacyContentEn || '';\n\t\t\t\t\t}\n\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\tu.searchParams.set('tab', 'policies');\n\t\t\t\t\tu.searchParams.set('key', key);\n\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t}\n\t\t\t}\" data-terms-title-ar=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "terms", "title", "ar", "الشروط والأحكام العامة"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 154, Col: 126}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 148, Col: 126}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "terms", "title", "en", "Terms and Conditions"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 155, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 149, Col: 104}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "terms", "content", "ar", "أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 156, Col: 751}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 150, Col: 751}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -112,7 +112,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "terms", "content", "en", "Welcome to Dawa 24. Platform usage is governed by Egyptian Drug Authority regulations.\n\n1. All pharmacies and warehouses must submit valid licenses.\n2. Supply orders and transactions are legally protected.\n3. Cold chain verification is mandatory."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 157, Col: 338}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 151, Col: 338}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -125,7 +125,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "privacy", "title", "ar", "سياسة الخصوصية وسرية البيانات"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 158, Col: 143}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 152, Col: 143}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "privacy", "title", "en", "Privacy Policy"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 159, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 153, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "privacy", "content", "ar", "تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 160, Col: 701}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 154, Col: 701}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -164,7 +164,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(getPolicyField(values.Policies, "privacy", "content", "en", "Dawa 24 is strictly committed to protecting user and supplier privacy.\n\n1. Pricing and order history are kept strictly confidential.\n2. Passwords and credentials are encrypted with modern security standards.\n3. Users may request complete activity audit logs."))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 161, Col: 354}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 155, Col: 354}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -223,7 +223,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 253, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 247, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 255, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 249, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -262,7 +262,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 263, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 257, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -276,7 +276,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Description["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 267, Col: 35}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 261, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -286,7 +286,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 269, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 263, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -300,7 +300,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(flag.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 275, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 269, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 				if templ_7745c5c3_Err != nil {
@@ -313,7 +313,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", !flag.IsEnabled))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 276, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 270, Col: 87}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
@@ -362,7 +362,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SupportEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 327, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 321, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
@@ -375,7 +375,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.CommissionRate)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 331, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 325, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
@@ -420,7 +420,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SiteName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 394, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 388, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
@@ -433,7 +433,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SiteDescription)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 398, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 392, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 			if templ_7745c5c3_Err != nil {
@@ -446,7 +446,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.ContactEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 405, Col: 90}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 399, Col: 90}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 			if templ_7745c5c3_Err != nil {
@@ -459,7 +459,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SupportEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 409, Col: 90}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 403, Col: 90}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 			if templ_7745c5c3_Err != nil {
@@ -472,7 +472,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 416, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 410, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 			if templ_7745c5c3_Err != nil {
@@ -485,7 +485,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.WhatsApp)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 420, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 414, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 			if templ_7745c5c3_Err != nil {
@@ -498,7 +498,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 426, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 420, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 			if templ_7745c5c3_Err != nil {
@@ -519,7 +519,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["facebook"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 450, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 444, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 			if templ_7745c5c3_Err != nil {
@@ -532,7 +532,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["twitter"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 454, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 448, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 			if templ_7745c5c3_Err != nil {
@@ -545,7 +545,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["instagram"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 461, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 455, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 			if templ_7745c5c3_Err != nil {
@@ -558,7 +558,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["linkedin"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 465, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 459, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 			if templ_7745c5c3_Err != nil {
@@ -571,7 +571,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["youtube"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 472, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 466, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 			if templ_7745c5c3_Err != nil {
@@ -584,7 +584,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["tiktok"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 476, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 470, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 			if templ_7745c5c3_Err != nil {
@@ -597,7 +597,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["snapchat"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 483, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 477, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 			if templ_7745c5c3_Err != nil {
@@ -610,7 +610,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.SocialLinks["telegram"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 487, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 481, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 			if templ_7745c5c3_Err != nil {
@@ -631,7 +631,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.LogoURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 538, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 532, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 			if templ_7745c5c3_Err != nil {
@@ -644,7 +644,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SiteSettings.FaviconURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 548, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 542, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 			if templ_7745c5c3_Err != nil {
@@ -700,7 +700,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var37 string
 						templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(policyKeyAr(p.PolicyKey))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 686, Col: 97}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 680, Col: 97}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 						if templ_7745c5c3_Err != nil {
@@ -713,7 +713,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var38 string
 						templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(p.Version)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 689, Col: 63}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 683, Col: 63}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 						if templ_7745c5c3_Err != nil {
@@ -726,7 +726,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var39 string
 						templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title["ar"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 692, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 686, Col: 37}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 						if templ_7745c5c3_Err != nil {
@@ -754,7 +754,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var40 string
 						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(p.UpdatedAt.Format("2006-01-02 15:04"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 702, Col: 93}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 696, Col: 93}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 						if templ_7745c5c3_Err != nil {
@@ -837,7 +837,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var41 string
 					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(pm.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 775, Col: 97}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 769, Col: 97}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
@@ -850,7 +850,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var42 string
 					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(pm.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 776, Col: 174}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 770, Col: 174}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 					if templ_7745c5c3_Err != nil {
@@ -863,7 +863,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var43 string
 					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(pm.Name.Get("en"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 779, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 773, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -908,7 +908,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var44 string
 						templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(pm.BankName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 805, Col: 60}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 799, Col: 60}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 						if templ_7745c5c3_Err != nil {
@@ -921,7 +921,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var45 string
 						templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(pm.AccountName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 809, Col: 63}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 803, Col: 63}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 						if templ_7745c5c3_Err != nil {
@@ -934,7 +934,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var46 string
 						templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(pm.AccountNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 813, Col: 98}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 807, Col: 98}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 						if templ_7745c5c3_Err != nil {
@@ -947,7 +947,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var47 string
 						templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(pm.IBAN)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 817, Col: 87}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 811, Col: 87}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 						if templ_7745c5c3_Err != nil {
@@ -965,7 +965,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var48 string
 						templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(pm.InstaPayHandle)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 822, Col: 99}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 816, Col: 99}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 						if templ_7745c5c3_Err != nil {
@@ -978,7 +978,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var49 string
 						templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(pm.PhoneNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 826, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 820, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 						if templ_7745c5c3_Err != nil {
@@ -991,7 +991,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var50 string
 						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(pm.AccountName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 830, Col: 63}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 824, Col: 63}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 						if templ_7745c5c3_Err != nil {
@@ -1009,7 +1009,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var51 string
 						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(pm.BankName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 835, Col: 60}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 829, Col: 60}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 						if templ_7745c5c3_Err != nil {
@@ -1032,7 +1032,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						var templ_7745c5c3_Var52 string
 						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(pm.Description.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 842, Col: 93}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 836, Col: 93}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 						if templ_7745c5c3_Err != nil {
@@ -1050,7 +1050,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var53 string
 					templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.ResolveAttributeValue(pm.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 849, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 843, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
 					if templ_7745c5c3_Err != nil {
@@ -1063,7 +1063,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var54 string
 					templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.ResolveAttributeValue(ternaryStr(pm.IsActive, "0", "1"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 850, Col: 88}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 844, Col: 88}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var54)
 					if templ_7745c5c3_Err != nil {
@@ -1091,7 +1091,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var55 string
 					templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEditMethodModal(%s)", pmToJSON(pm)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 866, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 860, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var55)
 					if templ_7745c5c3_Err != nil {
@@ -1112,7 +1112,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					var templ_7745c5c3_Var56 templ.SafeURL
 					templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/settings/payment-methods/%s/delete", pm.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 872, Col: 117}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 866, Col: 117}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 					if templ_7745c5c3_Err != nil {

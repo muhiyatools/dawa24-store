@@ -126,12 +126,6 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					};
 					this.isMethodModalOpen = true;
 				},
-					this.activeTab = tab;
-					localStorage.setItem('dawa24-admin-tab', tab);
-					const u = new URL(window.location);
-					u.searchParams.set('tab', tab);
-					window.history.replaceState({}, '', u);
-				},
 				selectPolicy(key) {
 					this.selectedPolicyKey = key;
 					if (key === 'terms') {
