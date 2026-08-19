@@ -5,18 +5,19 @@ import (
 )
 
 templ AdminShell(title string, activeNav string, lang string, dir string) {
-	@Base(title, lang, dir) {
-		<div class="app-shell">
-			<!-- Sidebar -->
-			<aside class="sidebar">
-				<div class="sidebar-header" style="padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.08);">
-					<div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
-						<img src="/static/img/logo.png" alt="DAWA24" style="height:46px; max-height:48px; object-fit:contain;" />
-						<div style="display:flex; flex-direction:column;">
-							<span style="font-weight:700; font-size:1.1rem; color:#ffffff; line-height:1.2;">دواء 24</span>
-							<span style="font-size:0.75rem; color:var(--primary-400); font-weight:700;">لوحة الإدارة والتحكم</span>
+	if site := GetSiteSettings(ctx); site != nil {
+		@Base(title, lang, dir) {
+			<div class="app-shell">
+				<!-- Sidebar -->
+				<aside class="sidebar">
+					<div class="sidebar-header" style="padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.08);">
+						<div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
+							<img src={ site.LogoURL } alt={ site.SiteName } style="height:46px; max-height:48px; object-fit:contain;" />
+							<div style="display:flex; flex-direction:column;">
+								<span style="font-weight:700; font-size:1.1rem; color:#ffffff; line-height:1.2;">{ site.SiteName }</span>
+								<span style="font-size:0.75rem; color:var(--primary-400); font-weight:700;">لوحة الإدارة والتحكم</span>
+							</div>
 						</div>
-					</div>
 					<button type="button" class="btn btn-icon" data-sidebar-toggle style="background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;" title="طي/توسيع القائمة">
 						@components.IconMenu("icon-xs")
 					</button>
@@ -122,5 +123,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 				</div>
 			</main>
 		</div>
+	}
 	}
 }

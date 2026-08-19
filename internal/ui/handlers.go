@@ -99,6 +99,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		if h.idSvc != nil {
 			pub.Use(identityHttp.OptionalAuth(h.idSvc, "dawa24_session"))
 		}
+		pub.Use(h.siteSettingsMiddleware)
 		pub.Use(h.visitorMiddleware)
 		RegisterStaticRoutes(pub)
 		RegisterUploadRoutes(pub)
@@ -286,6 +287,7 @@ func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	r.Post("/admin/settings/branding", h.AdminBrandingSubmit)
 	r.Post("/admin/settings/ai", h.AdminAISettingsSubmit)
 	r.Post("/admin/settings/gateway", h.AdminGatewaySettingsSubmit)
+	r.Post("/admin/settings/policy", h.AdminPolicyEditSubmit)
 	r.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
 	r.Post("/admin/content", h.AdminContentSubmit)
 	r.Post("/admin/translations", h.AdminTranslationsSubmit)

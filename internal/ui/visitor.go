@@ -90,27 +90,7 @@ func truncateIP(remoteAddr string) string {
 
 // detectCountryAndCity determines geographic info from headers and network address.
 func detectCountryAndCity(r *http.Request) (country, city string) {
-	// 1. Check if private or local address
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		host = r.RemoteAddr
-	}
-	host = strings.TrimSpace(host)
-	ip := net.ParseIP(host)
-	if ip != nil && (ip.IsLoopback() || ip.IsPrivate()) {
-		// If explicit geo headers are provided via reverse proxy/CDN, use them
-		if cfCountry := strings.TrimSpace(r.Header.Get("CF-IPCountry")); cfCountry != "" && len(cfCountry) == 2 {
-			country = mapCountryCode(cfCountry)
-			city = strings.TrimSpace(r.Header.Get("CF-IPCity"))
-			if city == "" {
-				city = "غير محدد"
-			}
-			return country, city
-		}
-		return "شبكة داخلية 🖥️", "بيئة التطوير (Local)"
-	}
-
-	// 2. Check CDN / Cloudflare / Proxy headers
+	// 1. Check CDN / Cloudflare / Proxy headers
 	if cfCountry := strings.TrimSpace(r.Header.Get("CF-IPCountry")); cfCountry != "" && len(cfCountry) == 2 {
 		country = mapCountryCode(cfCountry)
 	}
@@ -120,38 +100,147 @@ func detectCountryAndCity(r *http.Request) (country, city string) {
 		}
 	}
 	if city == "" {
-		city = strings.TrimSpace(r.Header.Get("CF-IPCity"))
+		city = cleanCityName(strings.TrimSpace(r.Header.Get("CF-IPCity")))
 		if city == "" {
-			city = strings.TrimSpace(r.Header.Get("X-City-Name"))
+			city = cleanCityName(strings.TrimSpace(r.Header.Get("X-City-Name")))
 		}
+	}
+
+	// 2. Check if private or local address
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = r.RemoteAddr
+	}
+	host = strings.TrimSpace(host)
+	ip := net.ParseIP(host)
+	if ip != nil && (ip.IsLoopback() || ip.IsPrivate()) {
+		if country == "" {
+			country = "مصر 🇪🇬"
+		}
+		if city == "" {
+			city = "القاهرة"
+		}
+		return country, city
 	}
 
 	// 3. Check Accept-Language header if still undetermined
 	if country == "" {
 		al := strings.ToLower(r.Header.Get("Accept-Language"))
 		switch {
-		case strings.Contains(al, "ar-eg"):
+		case strings.Contains(al, "ar-eg"), strings.Contains(al, "eg"):
 			country = "مصر 🇪🇬"
-		case strings.Contains(al, "ar-sa"):
+			if city == "" {
+				city = "القاهرة"
+			}
+		case strings.Contains(al, "ar-sa"), strings.Contains(al, "sa"):
 			country = "السعودية 🇸🇦"
-		case strings.Contains(al, "ar-ae"):
+			if city == "" {
+				city = "الرياض"
+			}
+		case strings.Contains(al, "ar-ae"), strings.Contains(al, "ae"):
 			country = "الإمارات 🇦🇪"
-		case strings.Contains(al, "ar-kw"):
+			if city == "" {
+				city = "دبي"
+			}
+		case strings.Contains(al, "ar-kw"), strings.Contains(al, "kw"):
 			country = "الكويت 🇰🇼"
-		case strings.Contains(al, "ar-jo"):
+			if city == "" {
+				city = "الكويت العاصمة"
+			}
+		case strings.Contains(al, "ar-jo"), strings.Contains(al, "jo"):
 			country = "الأردن 🇯🇴"
+			if city == "" {
+				city = "عمان"
+			}
 		case strings.Contains(al, "en-us"):
 			country = "الولايات المتحدة 🇺🇸"
+			if city == "" {
+				city = "نيويورك"
+			}
 		case strings.Contains(al, "en-gb"):
 			country = "المملكة المتحدة 🇬🇧"
+			if city == "" {
+				city = "لندن"
+			}
 		default:
-			country = "دولي / Global 🌐"
+			country = "مصر 🇪🇬"
+			if city == "" {
+				city = "القاهرة"
+			}
 		}
 	}
+
 	if city == "" {
-		city = "غير محدد"
+		if strings.Contains(country, "مصر") {
+			city = "القاهرة"
+		} else if strings.Contains(country, "السعودية") {
+			city = "الرياض"
+		} else {
+			city = "المركز الرئيسي"
+		}
 	}
 	return country, city
+}
+
+func cleanCityName(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" || raw == "غير محدد" || strings.Contains(raw, "Local") {
+		return ""
+	}
+	switch strings.ToLower(raw) {
+	case "cairo", "al qahirah", "el qahira":
+		return "القاهرة"
+	case "giza", "al jizah":
+		return "الجيزة"
+	case "alexandria", "al iskandariyah":
+		return "الإسكندرية"
+	case "mansoura", "al mansurah":
+		return "المنصورة"
+	case "tanta":
+		return "طنطا"
+	case "asyut", "assiut":
+		return "أسيوط"
+	case "zagazig", "az zaqaziq":
+		return "الزقازيق"
+	case "ismailia", "al ismailiyah":
+		return "الإسماعيلية"
+	case "suez", "as suways":
+		return "السويس"
+	case "port said", "bur said":
+		return "بورسعيد"
+	case "damietta", "dumyat":
+		return "دمياط"
+	case "aswan":
+		return "أسوان"
+	case "luxor", "al uqsur":
+		return "الأقصر"
+	case "hurghada", "al ghardaqah":
+		return "الغردقة"
+	case "sharm el-sheikh", "sharm ash shaykh":
+		return "شرم الشيخ"
+	case "riyadh", "ar riyad":
+		return "الرياض"
+	case "jeddah":
+		return "جدة"
+	case "mecca", "makkah":
+		return "مكة المكرمة"
+	case "medina", "madinah":
+		return "المدينة المنورة"
+	case "dammam", "ad dammam":
+		return "الدمام"
+	case "dubai":
+		return "دبي"
+	case "abu dhabi":
+		return "أبوظبي"
+	case "doha":
+		return "الدوحة"
+	case "kuwait", "kuwait city":
+		return "الكويت العاصمة"
+	case "amman":
+		return "عمان"
+	default:
+		return raw
+	}
 }
 
 func mapCountryCode(code string) string {

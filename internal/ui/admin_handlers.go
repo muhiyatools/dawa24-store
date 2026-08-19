@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xuri/excelize/v2"
@@ -180,9 +181,14 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	if tab == "" {
 		tab = "features"
 	}
+	policyKey := strings.TrimSpace(r.URL.Query().Get("key"))
+	if policyKey == "" {
+		policyKey = "terms"
+	}
 
 	values := pages.AdminSettingsValues{
 		ActiveTab:      tab,
+		PolicyKey:      policyKey,
 		SupportEmail:   "support@dawa24.eg",
 		CommissionRate: "1.5",
 		FeatureFlags:   features.List(),
@@ -200,10 +206,18 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		values.AISettings, _ = h.adminSvc.GetAISettings(ctx)
 		values.GatewaySettings, _ = h.adminSvc.GetGatewaySettings(ctx)
+		if values.GatewaySettings == nil || values.GatewaySettings.EndpointURL == "" {
+			values.GatewaySettings = &platformadmin.GatewaySettings{
+				EndpointURL:    "https://api.muhiya.com",
+				Environment:    "gemini-1.5-flash",
+				TimeoutSeconds: 30,
+				IsActive:       true,
+			}
+		}
 		values.SiteSettings, _ = h.adminSvc.GetSiteSettings(ctx)
 		values.Policies, _ = h.adminSvc.ListPolicyVersions(ctx, "")
+		values.ActivePolicy, _ = h.adminSvc.GetActivePolicy(ctx, policyKey)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -334,6 +348,7 @@ func (h *UIHandler) AdminSiteSettingsSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	InvalidateSiteSettingsCache()
 	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", "تم حفظ وتحديث إعدادات الموقع بنجاح.")
 }
 
@@ -379,6 +394,7 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	InvalidateSiteSettingsCache()
 	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", "تم حفظ وتطبيق الهوية البصرية بنجاح.")
 }
 
@@ -415,7 +431,7 @@ func (h *UIHandler) AdminAISettingsSubmit(w http.ResponseWriter, r *http.Request
 	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ إعدادات الذكاء الاصطناعي بنجاح.")
 }
 
-// AdminGatewaySettingsSubmit updates Gateway endpoints and parameters.
+// AdminGatewaySettingsSubmit updates AI Gateway endpoints and parameters.
 func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if h.adminSvc == nil {
@@ -423,17 +439,24 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	timeout, _ := strconv.Atoi(r.FormValue("timeout_seconds"))
-	if timeout <= 0 {
-		timeout = 30
+	endpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
+	if endpoint == "" {
+		endpoint = "https://api.muhiya.com"
 	}
+	model := strings.TrimSpace(r.FormValue("model"))
+	if model == "" {
+		model = "gemini-1.5-flash"
+	}
+	apiKey := strings.TrimSpace(r.FormValue("api_key"))
+	systemPrompt := strings.TrimSpace(r.FormValue("system_prompt"))
+	isActive := r.FormValue("is_active") == "true"
 
 	gw := &platformadmin.GatewaySettings{
-		EndpointURL:    strings.TrimSpace(r.FormValue("endpoint_url")),
-		Environment:    strings.TrimSpace(r.FormValue("environment")),
-		TimeoutSeconds: timeout,
-		APIKey:         strings.TrimSpace(r.FormValue("api_key")),
-		IsActive:       r.FormValue("is_active") == "true",
+		EndpointURL:    endpoint,
+		Environment:    model,
+		TimeoutSeconds: 30,
+		APIKey:         apiKey,
+		IsActive:       isActive,
 	}
 
 	if err := h.adminSvc.SaveGatewaySettings(ctx, gw); err != nil {
@@ -441,7 +464,69 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ إعدادات بوابة الربط بنجاح.")
+	ai := &platformadmin.AISettings{
+		Provider:     "gateway",
+		Model:        model,
+		APIKey:       apiKey,
+		EndpointURL:  endpoint,
+		Temperature:  0.7,
+		MaxTokens:    2048,
+		SystemPrompt: systemPrompt,
+		IsActive:     isActive,
+	}
+	_ = h.adminSvc.SaveAISettings(ctx, ai)
+
+	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ وتحديث إعدادات بوابة الذكاء الاصطناعي بنجاح.")
+}
+
+// AdminPolicyEditSubmit saves and immediately publishes a policy version from the unified settings tab.
+func (h *UIHandler) AdminPolicyEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/settings?tab=policies", http.StatusSeeOther)
+		return
+	}
+
+	policyKey := strings.TrimSpace(r.FormValue("policy_key"))
+	if policyKey == "" {
+		policyKey = "terms"
+	}
+	titleAr := strings.TrimSpace(r.FormValue("title_ar"))
+	titleEn := strings.TrimSpace(r.FormValue("title_en"))
+	if titleEn == "" {
+		titleEn = titleAr
+	}
+	contentAr := strings.TrimSpace(r.FormValue("content_ar"))
+	changelog := strings.TrimSpace(r.FormValue("changelog"))
+
+	if titleAr == "" || contentAr == "" {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+policyKey, "error", "عنوان ونص السياسة مطلوبان.")
+		return
+	}
+
+	if h.adminSvc != nil {
+		var actorID *int64
+		if actor.UserID > 0 {
+			actorID = &actor.UserID
+		}
+		policy := &platformadmin.Policy{
+			PolicyKey:   policyKey,
+			Version:     fmt.Sprintf("1.%d", time.Now().Unix()%10000),
+			Title:       i18n.New(titleAr, titleEn),
+			Content:     i18n.New(contentAr, contentAr),
+			Summary:     i18n.New(changelog, changelog),
+			IsPublished: true,
+			CreatedBy:   actorID,
+		}
+		if err := h.adminSvc.CreatePolicyVersion(ctx, policy); err != nil {
+			h.log.ErrorContext(ctx, "failed to create policy version", "error", err)
+			h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+policyKey, "error", "فشل حفظ السياسة: "+err.Error())
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+policyKey, "success", "تم حفظ ونشر السياسة بنجاح وعكسها فورياً على الموقع.")
 }
 
 // Administrative actions on user accounts.
@@ -663,8 +748,13 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	values := pages.AdminAuditValues{
+		Entries:    entries,
+		TotalCount: len(entries),
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminAudit(lang, dir, entries).Render(ctx, w); err != nil {
+	if err := pages.AdminAuditPage(values, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin audit", "error", err)
 	}
 }

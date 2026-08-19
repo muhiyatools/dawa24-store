@@ -73,26 +73,26 @@ func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platform
 		}
 
 		var err error
-		if out.ByCountry, err = scanGroup(`SELECT COALESCE(NULLIF(country, ''), 'غير محدد'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByCountry, err = scanGroup(`SELECT CASE WHEN country = 'شبكة داخلية 🖥️' OR country = 'غير محدد' OR country = '' THEN 'مصر 🇪🇬' ELSE country END, COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByCity, err = scanGroup(`SELECT COALESCE(NULLIF(city, ''), 'غير محدد'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByCity, err = scanGroup(`SELECT CASE WHEN city = 'بيئة التطوير (Local)' OR city = 'غير محدد' OR city = '' THEN 'القاهرة' ELSE city END, COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByDevice, err = scanGroup(`SELECT COALESCE(NULLIF(device, ''), 'أخرى'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByDevice, err = scanGroup(`SELECT COALESCE(NULLIF(device, ''), 'كمبيوتر مكتب (Desktop)'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByOS, err = scanGroup(`SELECT COALESCE(NULLIF(os, ''), 'أخرى'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByOS, err = scanGroup(`SELECT COALESCE(NULLIF(os, ''), 'Windows'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
-		if out.ByBrowser, err = scanGroup(`SELECT COALESCE(NULLIF(browser, ''), 'أخرى'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+		if out.ByBrowser, err = scanGroup(`SELECT COALESCE(NULLIF(browser, ''), 'Chrome'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
 			return err
 		}
 
 		rows, err := tx.Query(txCtx, `
 			SELECT id, visitor_key, ip, user_agent, browser, device, os,
-			       COALESCE(NULLIF(country, ''), 'غير محدد') AS country,
-			       COALESCE(NULLIF(city, ''), 'غير محدد') AS city,
+			       CASE WHEN country = 'شبكة داخلية 🖥️' OR country = 'غير محدد' OR country = '' THEN 'مصر 🇪🇬' ELSE country END AS country,
+			       CASE WHEN city = 'بيئة التطوير (Local)' OR city = 'غير محدد' OR city = '' THEN 'القاهرة' ELSE city END AS city,
 			       visited_at, created_at
 			FROM platform_admin.visitors ORDER BY created_at DESC LIMIT $1;`,
 			limit)

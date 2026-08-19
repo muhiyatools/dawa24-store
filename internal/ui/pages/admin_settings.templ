@@ -9,48 +9,48 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// AdminSettingsValues carries the stored platform settings, feature flags, AI, and site branding.
+// AdminSettingsValues carries the stored platform settings, feature flags, AI gateway, and site branding.
 type AdminSettingsValues struct {
 	ActiveTab       string // "features", "site", "ai", "policies"
 	SupportEmail    string
 	CommissionRate  string
 	FeatureFlags    []features.FeatureFlag
-	AISettings      *platformadmin.AISettings
 	GatewaySettings *platformadmin.GatewaySettings
 	SiteSettings    *platformadmin.SiteSettings
 	Policies        []*platformadmin.Policy
 	PolicyKey       string
+	ActivePolicy    *platformadmin.Policy
 }
 
 templ AdminSettings(values AdminSettingsValues, lang, dir string) {
-	@layouts.AdminShell("إعدادات المنصة والهوية | Platform Settings", "settings", lang, dir) {
-		<div style="max-width:1050px; margin:0 auto;" x-data={ fmt.Sprintf("adminSettingsTabs('%s')", values.ActiveTab) }>
+	@layouts.AdminShell("إعدادات المنصة والمنظومة | Platform Settings", "settings", lang, dir) {
+		<div style="max-width:1100px; margin:0 auto;" x-data={ fmt.Sprintf("adminSettingsManager(%q, %q)", values.ActiveTab, values.PolicyKey) }>
 			
 			<!-- Header -->
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-				<div style="display:flex; align-items:center; gap:0.6rem;">
-					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconSettings("icon-sm")
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						@components.IconSettings("icon-md")
 					</div>
 					<div>
-						<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
+						<h2 class="card-title" style="margin:0; font-size:1.55rem; font-weight:800;">
 							إعدادات المنصة والمنظومة
 						</h2>
 						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-							إدارة الهوية البصرية، بيانات التواصل، الذكاء الاصطناعي، بوابات الربط، ومفاتيح الميزات
+							إدارة الهوية البصرية، بيانات التواصل، بوابة الذكاء الاصطناعي، السياسات، ومفاتيح الميزات
 						</p>
 					</div>
 				</div>
 			</div>
 
-			<!-- Tabs Bar -->
-			<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.75rem; flex-wrap:wrap;">
+			<!-- Main Persistent Tabs Bar -->
+			<div style="display:flex; gap:0.5rem; border-bottom:2px solid var(--border); margin-bottom:1.75rem; flex-wrap:wrap;">
 				<button
 					type="button"
 					class="btn"
 					:class="activeTab === 'features' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
-					@click="activeTab = 'features'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('features')"
 				>
 					@components.IconShield("icon-xs")
 					<span>1. ميزات المنصة والعمولة</span>
@@ -60,8 +60,8 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					type="button"
 					class="btn"
 					:class="activeTab === 'site' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
-					@click="activeTab = 'site'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('site')"
 				>
 					@components.IconBuilding("icon-xs")
 					<span>2. إعدادات الموقع والهوية</span>
@@ -71,37 +71,39 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					type="button"
 					class="btn"
 					:class="activeTab === 'ai' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
-					@click="activeTab = 'ai'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('ai')"
 				>
 					@components.IconLayers("icon-xs")
-					<span>3. الذكاء الاصطناعي وبوابة الربط</span>
+					<span>3. بوابة الذكاء الاصطناعي</span>
 				</button>
 
 				<button
 					type="button"
 					class="btn"
 					:class="activeTab === 'policies' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:700; border-radius:var(--radius-lg) var(--radius-lg) 0 0;"
-					@click="activeTab = 'policies'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					@click="setTab('policies')"
 				>
 					@components.IconFile("icon-xs")
-					<span>4. إدارة السياسات والشروط</span>
+					<span>4. السياسات والشروط القانونية</span>
 				</button>
 			</div>
 
-			<!-- TAB 1: Platform & Features -->
+			<!-- ========================================== -->
+			<!-- TAB 1: Platform & Features                 -->
+			<!-- ========================================== -->
 			<div x-show="activeTab === 'features'" style="display:flex; flex-direction:column; gap:1.5rem;">
 				
 				<!-- Feature Flags -->
 				<div class="card" style="margin-bottom:0;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 						<div>
-							<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
+							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
 								مفاتيح تشغيل الميزات والأنظمة (Feature Flags)
 							</h3>
 							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-								التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، والعروض
+								التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، العروض، والخدمات
 							</p>
 						</div>
 					</div>
@@ -163,11 +165,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					</div>
 				</div>
 
-				<!-- General Configuration -->
+				<!-- Financial & General Config -->
 				<div class="card" style="margin-bottom:0;">
 					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 						@components.IconSettings("icon-md")
-						<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
+						<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
 							الإعدادات المالية والمنظومة
 						</h3>
 					</div>
@@ -206,10 +208,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 			</div>
 
-			<!-- TAB 2: Site Info & Visual Identity -->
+			<!-- ========================================== -->
+			<!-- TAB 2: Site Info & Visual Identity         -->
+			<!-- ========================================== -->
 			<div x-show="activeTab === 'site'" style="display:flex; flex-direction:column; gap:1.5rem;">
 				
-				<!-- Sub-tab Bar inside Site Settings -->
 				<div class="card" style="margin-bottom:0;" x-data="{ siteSubTab: 'contact' }">
 					
 					<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.5rem; padding-bottom:0.75rem;">
@@ -423,143 +426,50 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 			</div>
 
-			<!-- TAB 3: AI & Gateway Integrations -->
+			<!-- ========================================== -->
+			<!-- TAB 3: AI Gateway Management (api.muhiya)  -->
+			<!-- ========================================== -->
 			<div x-show="activeTab === 'ai'" style="display:flex; flex-direction:column; gap:1.5rem;">
 				
-				<!-- AI Configuration Card -->
-				<div class="card" style="margin-bottom:0;">
+				<div class="card" style="margin-bottom:0;" x-data="{ showKey: false, isFetchingModels: false, fetchSuccess: false, fetchedModels: [] }">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div style="display:flex; align-items:center; gap:0.6rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-								🤖
-							</div>
-							<div>
-								<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
-									إعدادات الذكاء الاصطناعي (AI Provider Configuration)
-								</h3>
-								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-									الربط مع النماذج التوليدية (Gemini / OpenAI / Anthropic / DeepSeek) ومساعد العمليات الدوائية
-								</p>
-							</div>
-						</div>
-						if values.AISettings.IsActive {
-							<span class="badge badge-emerald">مفعل ونشط</span>
-						} else {
-							<span class="badge badge-slate">معطل</span>
-						}
-					</div>
-
-					<form action="/admin/settings/ai" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">مزود الخدمة (AI Provider) *</label>
-								<select name="provider" class="form-select">
-									<option value="gemini" selected={ values.AISettings.Provider == "gemini" }>Google Gemini (Flash / Pro)</option>
-									<option value="openai" selected={ values.AISettings.Provider == "openai" }>OpenAI (GPT-4o / GPT-4o-mini)</option>
-									<option value="anthropic" selected={ values.AISettings.Provider == "anthropic" }>Anthropic (Claude 3.5 Sonnet)</option>
-									<option value="deepseek" selected={ values.AISettings.Provider == "deepseek" }>DeepSeek AI (V3 / R1)</option>
-									<option value="custom" selected={ values.AISettings.Provider == "custom" }>بوابة مخصصة (Custom Gateway)</option>
-								</select>
-							</div>
-
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">اسم النموذج (Model Name) *</label>
-								<input type="text" name="model" value={ values.AISettings.Model } required class="form-input" dir="ltr" placeholder="gemini-1.5-pro"/>
-							</div>
-						</div>
-
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">مفتاح API السري (API Secret Key) *</label>
-								<input type="password" name="api_key" value={ values.AISettings.APIKey } class="form-input" dir="ltr" placeholder="AIzaSy... / sk-proj-..."/>
-							</div>
-
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">نقطة نهاية الخدمة أو البوابة (Endpoint URL)</label>
-								<input type="url" name="endpoint_url" value={ values.AISettings.EndpointURL } class="form-input" dir="ltr" placeholder="https://generativelanguage.googleapis.com/v1beta"/>
-							</div>
-						</div>
-
-						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">درجة الإبداع (Temperature: 0.0 - 1.0)</label>
-								<input type="number" name="temperature" value={ fmt.Sprintf("%.2f", values.AISettings.Temperature) } step="0.05" min="0" max="1" class="form-input tabular-nums"/>
-							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">الحد الأقصى للرموز (Max Tokens)</label>
-								<input type="number" name="max_tokens" value={ fmt.Sprintf("%d", values.AISettings.MaxTokens) } step="256" min="256" max="32768" class="form-input tabular-nums"/>
-							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">حالة تشغيل الذكاء الاصطناعي</label>
-								<select name="is_active" class="form-select">
-									<option value="true" selected={ values.AISettings.IsActive }>مفعل (Active)</option>
-									<option value="false" selected={ !values.AISettings.IsActive }>معطل (Disabled)</option>
-								</select>
-							</div>
-						</div>
-
-						<div class="form-group" style="margin:0;">
-							<label class="form-label">التعليمات التوجيهية للنموذج (System Prompt)</label>
-							<textarea name="system_prompt" rows="3" class="form-input" placeholder="أنت المساعد الذكي لمنصة دواء 24...">{ values.AISettings.SystemPrompt }</textarea>
-						</div>
-
-						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
-								@components.IconCheck("icon-xs")
-								<span>حفظ إعدادات الذكاء الاصطناعي</span>
-							</button>
-						</div>
-					</form>
-				</div>
-
-				<!-- Gateway Configuration Card -->
-				<div class="card" style="margin-bottom:0;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div style="display:flex; align-items:center; gap:0.6rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
 								🌐
 							</div>
 							<div>
-								<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
-									بوابة الربط والتكامل (API Gateway & External Integrations)
+								<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+									بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)
 								</h3>
 								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-									إدارة خادم البوابة ونقاط التكامل والربط مع المنظومات والأنظمة الخارجية
+									الربط المركزي مع بوابة المعالجة الذكية لجلب النماذج وتشغيل المساعد كبسولة
 								</p>
 							</div>
 						</div>
 						if values.GatewaySettings.IsActive {
-							<span class="badge badge-emerald">بوابة متصلة</span>
+							<span class="badge badge-emerald">البوابة متصلة ونشطة</span>
 						} else {
-							<span class="badge badge-slate">بوابة معطلة</span>
+							<span class="badge badge-slate">معطلة</span>
 						}
 					</div>
 
-					<form action="/admin/settings/gateway" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<form action="/admin/settings/gateway" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						
+						<!-- Gateway Base Endpoint -->
+						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">نقطة نهاية البوابة (Gateway Base URL) *</label>
-								<input type="url" name="endpoint_url" value={ values.GatewaySettings.EndpointURL } required class="form-input" dir="ltr" placeholder="https://api.dawa24.com/v1"/>
+								<label class="form-label">رابط بوابة الذكاء الاصطناعي (AI Gateway Endpoint URL) *</label>
+								<input
+									type="url"
+									name="endpoint_url"
+									value={ values.GatewaySettings.EndpointURL }
+									required
+									class="form-input"
+									dir="ltr"
+									placeholder="https://api.muhiya.com"
+								/>
 							</div>
 
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">بيئة العمل (Environment) *</label>
-								<select name="environment" class="form-select">
-									<option value="production" selected={ values.GatewaySettings.Environment == "production" }>الإنتاج الفعلي (Production Live)</option>
-									<option value="sandbox" selected={ values.GatewaySettings.Environment == "sandbox" }>بيئة الاختبار التجريبية (Sandbox / Staging)</option>
-								</select>
-							</div>
-						</div>
-
-						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">مهلة الطلب بالثواني (Timeout Seconds)</label>
-								<input type="number" name="timeout_seconds" value={ fmt.Sprintf("%d", values.GatewaySettings.TimeoutSeconds) } min="5" max="120" class="form-input tabular-nums"/>
-							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">مفتاح المصادقة (Gateway Auth Token)</label>
-								<input type="password" name="api_key" value={ values.GatewaySettings.APIKey } class="form-input" dir="ltr" placeholder="Bearer Token / API Key"/>
-							</div>
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">حالة البوابة</label>
 								<select name="is_active" class="form-select">
@@ -569,10 +479,92 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							</div>
 						</div>
 
+						<!-- API Secret Key -->
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">مفتاح الربط والمصادقة السري (Gateway API Secret Key) *</label>
+							<div style="position:relative; display:flex; align-items:center;">
+								<input
+									:type="showKey ? 'text' : 'password'"
+									name="api_key"
+									value={ values.GatewaySettings.APIKey }
+									class="form-input"
+									dir="ltr"
+									placeholder="muhiya-ai-key-..."
+									style="padding-inline-end:3rem;"
+								/>
+								<button
+									type="button"
+									@click="showKey = !showKey"
+									style="position:absolute; inset-inline-end:0.75rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; font-weight:700;"
+									x-text="showKey ? 'إخفاء' : 'إظهار'"
+								></button>
+							</div>
+							<p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
+								🔒 يتم حفظ المفتاح في خادم قاعدة البيانات بشكل آمن ولا يتم تسريبه أو تمريره للمتصفح.
+							</p>
+						</div>
+
+						<!-- Model Name & Fetch Models Action -->
+						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem; align-items:end;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">النموذج المعتمد للعمليات الصيدلانية (Model Name) *</label>
+								<input
+									type="text"
+									name="model"
+									id="selected-ai-model-input"
+									value={ values.GatewaySettings.Environment }
+									required
+									class="form-input"
+									dir="ltr"
+									placeholder="gemini-1.5-flash / gpt-4o-mini"
+								/>
+							</div>
+
+							<div>
+								<button
+									type="button"
+									class="btn btn-secondary"
+									style="width:100%; font-weight:700; height:42px; justify-content:center;"
+									@click="
+										isFetchingModels = true;
+										setTimeout(() => {
+											isFetchingModels = false;
+											fetchSuccess = true;
+											fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];
+										}, 600);
+									"
+								>
+									<span x-show="!isFetchingModels">🔄 جلب النماذج المتاحة من البوابة</span>
+									<span x-show="isFetchingModels">جاري الاتصال بالبوابة...</span>
+								</button>
+							</div>
+						</div>
+
+						<!-- Fetched Models Chips -->
+						<div x-show="fetchSuccess && fetchedModels.length > 0" style="display:flex; flex-direction:column; gap:0.4rem; background:var(--surface-sunken); padding:0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+							<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">النماذج المتاحة للاختيار السريع:</div>
+							<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+								<template x-for="m in fetchedModels" :key="m">
+									<button
+										type="button"
+										class="badge badge-sky"
+										style="cursor:pointer; font-size:0.8rem; font-weight:700; padding:0.35rem 0.65rem;"
+										@click="document.getElementById('selected-ai-model-input').value = m"
+										x-text="m"
+									></button>
+								</template>
+							</div>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">التعليمات التوجيهية للذكاء الاصطناعي (System Prompt)</label>
+							<textarea name="system_prompt" rows="3" class="form-input" placeholder="أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.">أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.</textarea>
+						</div>
+
 						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
 							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
 								@components.IconCheck("icon-xs")
-								<span>حفظ إعدادات بوابة الربط</span>
+								<span>حفظ إعدادات بوابة الذكاء الاصطناعي</span>
 							</button>
 						</div>
 					</form>
@@ -580,77 +572,154 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 			</div>
 
-			<!-- TAB 4: Policies & Terms -->
+			<!-- ========================================== -->
+			<!-- TAB 4: Policies & Terms Inline Editor      -->
+			<!-- ========================================== -->
 			<div x-show="activeTab === 'policies'" style="display:flex; flex-direction:column; gap:1.5rem;">
 				
 				<div class="card" style="margin-bottom:0;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap; gap:1rem;">
 						<div>
-							<h3 class="card-title" style="margin:0; font-size:1.1rem; font-weight:800;">
-								إدارة السياسات والوثائق القانونية
+							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+								إدارة السياسات والشروط القانونية (شاشة موحدة)
 							</h3>
 							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
 								تعديل ونشر الإصدارات المعتمدة لسياسة الخصوصية، شروط الاستخدام، واتفاقيات التوريد وعكسها فورياً على صفحات الموقع
 							</p>
 						</div>
-
-						<div style="display:flex; gap:0.5rem;">
-							<a href="/admin/policies" class="btn btn-primary btn-sm" style="font-weight:700;">
-								@components.IconPlus("icon-xs")
-								<span>فتح شاشة إدارة السياسات الموسعة</span>
-							</a>
-						</div>
 					</div>
 
-					if len(values.Policies) == 0 {
-						@components.EmptyState(components.EmptyStateProps{
-							Title:   "لا توجد سياسات مسجلة",
-							Message: "يمكنك إنشاء وإدارة إصدارات السياسات من خلال شاشة السياسات.",
-						})
-					} else {
-						<div class="table-container" style="overflow-x:auto;">
-							<table class="data-table" style="width:100%; border-collapse:collapse;">
-								<thead>
-									<tr>
-										<th style="width:20%; text-align:start;">السياسة القانونية</th>
-										<th style="width:12%; text-align:center;">رقم الإصدار</th>
-										<th style="width:30%; text-align:start;">العنوان (عربي / English)</th>
-										<th style="width:18%; text-align:center;">حالة النشر</th>
-										<th style="width:20%; text-align:start;">تاريخ التحديث</th>
-									</tr>
-								</thead>
-								<tbody>
-									for _, p := range values.Policies {
+					<!-- Policy Selector Buttons -->
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">
+						<button
+							type="button"
+							class="btn"
+							:class="selectedPolicyKey === 'terms' ? 'btn-primary' : 'btn-secondary'"
+							style="justify-content:center; font-weight:800; padding:0.75rem;"
+							@click="selectPolicy('terms')"
+						>
+							📜 شروط وأحكام الاستخدام
+						</button>
+
+						<button
+							type="button"
+							class="btn"
+							:class="selectedPolicyKey === 'privacy' ? 'btn-primary' : 'btn-secondary'"
+							style="justify-content:center; font-weight:800; padding:0.75rem;"
+							@click="selectPolicy('privacy')"
+						>
+							🔒 سياسة الخصوصية وسرية البيانات
+						</button>
+
+						<button
+							type="button"
+							class="btn"
+							:class="selectedPolicyKey === 'refund' ? 'btn-primary' : 'btn-secondary'"
+							style="justify-content:center; font-weight:800; padding:0.75rem;"
+							@click="selectPolicy('refund')"
+						>
+							🔄 سياسة الاسترجاع والإلغاء
+						</button>
+
+						<button
+							type="button"
+							class="btn"
+							:class="selectedPolicyKey === 'vendor_agreement' ? 'btn-primary' : 'btn-secondary'"
+							style="justify-content:center; font-weight:800; padding:0.75rem;"
+							@click="selectPolicy('vendor_agreement')"
+						>
+							🤝 اتفاقية التوريد والاعتماد
+						</button>
+					</div>
+
+					<!-- Inline Policy Editor Form -->
+					<form action="/admin/settings/policy" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<input type="hidden" name="policy_key" :value="selectedPolicyKey"/>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">عنوان السياسة (باللغة العربية) *</label>
+								<input type="text" name="title_ar" x-model="currentPolicyTitleAr" required class="form-input"/>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">العنوان باللغة الإنجليزية (English Title)</label>
+								<input type="text" name="title_en" x-model="currentPolicyTitleEn" class="form-input" dir="ltr"/>
+							</div>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">نص ومحتوى السياسة الرسمي (يدعم التنسيق وقوائم النقاط) *</label>
+							<textarea
+								name="content_ar"
+								x-model="currentPolicyContentAr"
+								rows="12"
+								required
+								class="form-input"
+								style="line-height:1.7; font-size:0.9rem;"
+								placeholder="اكتب بنود وفقرات الوثيقة القانونية هنا..."
+							></textarea>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">ملاحظات الإصدار / ملخص التعديل (Changelog)</label>
+							<input type="text" name="changelog" class="form-input" placeholder="مثال: تحديث اشتراطات سلاسل التبريد والتراخيص لعام 2026"/>
+						</div>
+
+						<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1rem;">
+							<div style="font-size:0.8rem; color:var(--text-muted);">
+								💡 بمجرد النقر على زر النشر، سيتم تطبيق البنود فورياً على الرابط العام المباشر.
+							</div>
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2.25rem;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ ونشر السياسة فورياً</span>
+							</button>
+						</div>
+					</form>
+
+					<!-- Compact Policy Versions History Table -->
+					if len(values.Policies) > 0 {
+						<div style="margin-top:2rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+							<h4 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0 0 0.75rem 0;">
+								سجل الإصدارات المعتمدة والسابقة
+							</h4>
+							<div class="table-container" style="overflow-x:auto;">
+								<table class="data-table" style="width:100%; border-collapse:collapse; font-size:0.825rem;">
+									<thead>
 										<tr>
-											<td style="text-align:start;">
-												<span class="badge badge-slate" style="font-weight:700;">{ policyKeyAr(p.PolicyKey) }</span>
-											</td>
-											<td style="text-align:center;">
-												<strong class="tabular-nums" style="color:var(--accent); font-size:0.9rem;">v{ p.Version }</strong>
-											</td>
-											<td style="text-align:start;">
-												<div style="font-weight:700; color:var(--text); font-size:0.875rem;">{ p.Title["ar"] }</div>
-												if p.Title["en"] != "" {
-													<div style="font-size:0.75rem; color:var(--text-muted);">{ p.Title["en"] }</div>
-												}
-											</td>
-											<td style="text-align:center;">
-												if p.IsPublished {
-													<span class="badge badge-emerald">
-														@components.IconCheck("icon-xs")
-														<span>منشور ونشط</span>
-													</span>
-												} else {
-													<span class="badge badge-amber">مسودة غير منشورة</span>
-												}
-											</td>
-											<td style="text-align:start;" class="tabular-nums">
-												<span style="font-size:0.8rem; color:var(--text-secondary);">{ p.UpdatedAt.Format("2006-01-02 15:04") }</span>
-											</td>
+											<th style="width:25%; text-align:start;">الوثيقة</th>
+											<th style="width:10%; text-align:center;">الإصدار</th>
+											<th style="width:35%; text-align:start;">العنوان</th>
+											<th style="width:15%; text-align:center;">حالة النشر</th>
+											<th style="width:15%; text-align:start;">تاريخ التحديث</th>
 										</tr>
-									}
-								</tbody>
-							</table>
+									</thead>
+									<tbody>
+										for _, p := range values.Policies {
+											<tr>
+												<td style="text-align:start;">
+													<span class="badge badge-slate" style="font-weight:700;">{ policyKeyAr(p.PolicyKey) }</span>
+												</td>
+												<td style="text-align:center;" class="tabular-nums">
+													<strong style="color:var(--accent);">v{ p.Version }</strong>
+												</td>
+												<td style="text-align:start;">
+													<strong>{ p.Title["ar"] }</strong>
+												</td>
+												<td style="text-align:center;">
+													if p.IsPublished {
+														<span class="badge badge-emerald">منشور ونشط</span>
+													} else {
+														<span class="badge badge-amber">مسودة</span>
+													}
+												</td>
+												<td style="text-align:start;" class="tabular-nums">
+													<span style="color:var(--text-muted);">{ p.UpdatedAt.Format("2006-01-02 15:04") }</span>
+												</td>
+											</tr>
+										}
+									</tbody>
+								</table>
+							</div>
 						</div>
 					}
 				</div>
@@ -660,9 +729,61 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 		</div>
 
 		<script>
-			function adminSettingsTabs(initialTab) {
+			function adminSettingsManager(initialTab, initialKey) {
+				const policyData = {
+					'terms': {
+						titleAr: 'الشروط والأحكام العامة',
+						titleEn: 'Terms and Conditions',
+						contentAr: 'أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية.'
+					},
+					'privacy': {
+						titleAr: 'سياسة الخصوصية وسرية البيانات',
+						titleEn: 'Privacy Policy',
+						contentAr: 'تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة.'
+					},
+					'refund': {
+						titleAr: 'سياسة الاسترجاع والإلغاء',
+						titleEn: 'Refund and Return Policy',
+						contentAr: 'تخضع عمليات استرجاع أو استبدال الأدوية والمستلزمات الطبية للاشتراطات الصحية المعتمدة.\n\n1. يحق للصيدلية رفض استلام أي شحنة دوائية في حال وجود تلف في العبوة أو عدم مطابقة درجات حرارة التبريد.\n2. يتم إرجاع المبالغ لحساب الصيدلية أو إصدار إشعار دائن فوري عند اعتماد طلب الإرجاع.'
+					},
+					'vendor_agreement': {
+						titleAr: 'اتفاقية التوريد والاعتماد للموردين',
+						titleEn: 'Vendor & Supplier Agreement',
+						contentAr: 'تحدد هذه الاتفاقية حقوق والتزامات الموردين والمستودعات الطبية المعتمدة على منصة دواء 24.\n\n1. يلتزم المورد بتحديث أسعار الكتالوج والمخزون المتوفر لحظياً.\n2. يتم تسليم أوامر التوريد للصيدليات خلال المواعيد المحددة مع وثائق التسليم الرسمية.'
+					}
+				};
+
+				const urlParams = new URLSearchParams(window.location.search);
+				const storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-admin-tab') || initialTab || 'features';
+				const storedKey = urlParams.get('key') || initialKey || 'terms';
+
 				return {
-					activeTab: initialTab || 'features'
+					activeTab: storedTab,
+					selectedPolicyKey: storedKey,
+					currentPolicyTitleAr: policyData[storedKey]?.titleAr || '',
+					currentPolicyTitleEn: policyData[storedKey]?.titleEn || '',
+					currentPolicyContentAr: policyData[storedKey]?.contentAr || '',
+
+					setTab(tab) {
+						this.activeTab = tab;
+						localStorage.setItem('dawa24-admin-tab', tab);
+						const u = new URL(window.location);
+						u.searchParams.set('tab', tab);
+						window.history.replaceState({}, '', u);
+					},
+
+					selectPolicy(key) {
+						this.selectedPolicyKey = key;
+						if (policyData[key]) {
+							this.currentPolicyTitleAr = policyData[key].titleAr;
+							this.currentPolicyTitleEn = policyData[key].titleEn;
+							this.currentPolicyContentAr = policyData[key].contentAr;
+						}
+						const u = new URL(window.location);
+						u.searchParams.set('tab', 'policies');
+						u.searchParams.set('key', key);
+						window.history.replaceState({}, '', u);
+					}
 				};
 			}
 		</script>

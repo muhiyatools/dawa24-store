@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"encoding/json"
 	"fmt"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
@@ -9,93 +8,119 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
-	@layouts.AdminShell("سجل العمليات والتدقيق | Audit Trail", "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;" x-data="adminAuditManager()">
+type AdminAuditValues struct {
+	Entries       []*platformadmin.AuditEntry
+	TotalCount    int
+	SelectedActor string
+	ActionFilter  string
+	Severity      string
+}
+
+templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
+	@layouts.AdminShell("سجل العمليات والتدقيق الأمني | Audit Logs", "audit", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminAuditManager()">
 			
-			<!-- Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-				<div style="display:flex; align-items:center; gap:0.6rem;">
-					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconClock("icon-sm")
-					</div>
-					<div>
-						<h2 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800;">
-							سجل العمليات والتدقيق الأمني ({ fmt.Sprintf("%d", len(entries)) })
-						</h2>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-							سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات
-						</p>
+			<!-- Header Action Bar -->
+			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconClock("icon-sm")
+						</div>
+						<div>
+							<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
+								سجل العمليات والتدقيق الأمني ({ fmt.Sprintf("%d", len(values.Entries)) })
+							</h2>
+							<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+								سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات
+							</p>
+						</div>
 					</div>
 				</div>
 
-				<!-- Quick Search & Filter Controls -->
-				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<input
-						type="text"
-						x-model="searchQuery"
-						placeholder="بحث بالمستخدم، المنظمة، أو الإجراء..."
-						class="form-input"
-						style="width:280px; padding:0.45rem 0.85rem; font-size:0.85rem;"
-					/>
-					<select x-model="filterSeverity" class="form-select" style="width:140px; padding:0.45rem 0.85rem; font-size:0.85rem;">
-						<option value="">كافة درجات الأهمية</option>
-						<option value="عادي">عادي (Info)</option>
-						<option value="متوسط">متوسط (Warning)</option>
-						<option value="حرج">حرج (Critical)</option>
-					</select>
-					<select x-model="filterModule" class="form-select" style="width:140px; padding:0.45rem 0.85rem; font-size:0.85rem;">
-						<option value="">كافة الأقسام</option>
-						<option value="المنشآت">المنشآت</option>
-						<option value="المستخدمين">المستخدمين</option>
-						<option value="الكتالوج">الكتالوج</option>
-						<option value="أوامر التوريد">أوامر التوريد</option>
-						<option value="الأمان والصلاحيات">الأمان والصلاحيات</option>
-						<option value="الهيكل المؤسسي">الهيكل المؤسسي</option>
-					</select>
+				<div style="display:flex; gap:0.5rem; align-items:center;">
+					<a href="/admin/audit" class="btn btn-secondary btn-sm" style="font-weight:600;">
+						@components.IconRefresh("icon-xs")
+						<span>تحديث السجل</span>
+					</a>
 				</div>
 			</div>
 
-			if len(entries) == 0 {
+			<!-- Filter Strip -->
+			<div class="card" style="margin-bottom:0; padding:0.85rem 1.25rem;">
+				<form method="GET" action="/admin/audit" style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin:0;">
+					<div style="flex:1; min-width:220px;">
+						<input
+							type="text"
+							name="q"
+							value={ values.SelectedActor }
+							placeholder="بحث بالمستخدم، المنظمة، أو الإجراء..."
+							class="form-input"
+							style="padding:0.45rem 0.75rem; font-size:0.85rem;"
+						/>
+					</div>
+
+					<div style="min-width:160px;">
+						<select name="severity" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+							<option value="">كافة درجات الأهمية</option>
+							<option value="info" selected={ values.Severity == "info" }>عادي (Info)</option>
+							<option value="warning" selected={ values.Severity == "warning" }>متوسط (Warning)</option>
+							<option value="critical" selected={ values.Severity == "critical" }>حرج (Critical)</option>
+						</select>
+					</div>
+
+					<div style="min-width:170px;">
+						<select name="action" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+							<option value="">كافة الأقسام والعمليات</option>
+							<option value="user" selected={ values.ActionFilter == "user" }>المستخدمين والصلاحيات</option>
+							<option value="org" selected={ values.ActionFilter == "org" }>المنشآت والتراخيص</option>
+							<option value="catalog" selected={ values.ActionFilter == "catalog" }>الكتالوج والأدوية</option>
+							<option value="order" selected={ values.ActionFilter == "order" }>أوامر التوريد</option>
+						</select>
+					</div>
+
+					<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+						@components.IconSearch("icon-xs")
+						<span>تصفية</span>
+					</button>
+
+					if values.SelectedActor != "" || values.Severity != "" || values.ActionFilter != "" {
+						<a href="/admin/audit" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">
+							إلغاء التصفية
+						</a>
+					}
+				</form>
+			</div>
+
+			<!-- Audit Log Table -->
+			if len(values.Entries) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "سجل التدقيق فارغ",
-					Message: "لم يتم تسجيل أي عمليات إدارية أو أحداث حتى الآن.",
+					Title:   "لا توجد عمليات مسجلة",
+					Message: "لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.",
 				})
 			} else {
-				<div class="table-container" style="overflow-x:auto;">
+				<div class="table-container" style="overflow-x:auto; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-xs);">
 					<table class="data-table" style="min-width:1150px; width:100%; border-collapse:collapse;">
 						<thead>
-							<tr>
-								<th style="width:5%; text-align:center;">المعرف</th>
-								<th style="width:10%; text-align:start;">التوقيت</th>
-								<th style="width:13%; text-align:start;">المستخدم</th>
-								<th style="width:12%; text-align:start;">المنظمة</th>
-								<th style="width:14%; text-align:start;">القسم والإجراء</th>
-								<th style="width:18%; text-align:start;">العنوان والوصف</th>
-								<th style="width:8%; text-align:center;">الأهمية</th>
-								<th style="width:12%; text-align:start;">عنوان IP والمسار</th>
-								<th style="width:8%; text-align:center;">الإجراءات</th>
+							<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
+								<th style="width:6%; text-align:center; padding:0.85rem 0.6rem;">المعرف</th>
+								<th style="width:11%; text-align:start; padding:0.85rem 0.75rem;">التوقيت</th>
+								<th style="width:15%; text-align:start; padding:0.85rem 0.75rem;">المستخدم</th>
+								<th style="width:12%; text-align:start; padding:0.85rem 0.75rem;">المنظمة</th>
+								<th style="width:16%; text-align:start; padding:0.85rem 0.75rem;">القسم والإجراء</th>
+								<th style="width:22%; text-align:start; padding:0.85rem 0.75rem;">العنوان والوصف</th>
+								<th style="width:8%; text-align:center; padding:0.85rem 0.6rem;">الأهمية</th>
+								<th style="width:10%; text-align:start; padding:0.85rem 0.6rem;">عنوان IP</th>
+								<th style="width:6%; text-align:center; padding:0.85rem 0.6rem;">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
-							for _, e := range entries {
-								<!-- Embedded JSON for safe Alpine inspection -->
-								<script type="application/json" id={ fmt.Sprintf("audit-data-%d", e.ID) }>
-									{ templ.Raw(auditEntryJSON(e)) }
-								</script>
-
-								<tr
-									x-show={ fmt.Sprintf("matchesFilter('%s', '%s', '%s', '%s', '%s', '%s')",
-										escapeJS(e.ActorName),
-										escapeJS(e.OrganizationName),
-										escapeJS(e.ActionLabelAr),
-										escapeJS(e.Title),
-										escapeJS(e.Severity),
-										escapeJS(e.Module)) }
-								>
+							for _, e := range values.Entries {
+								<tr style="border-bottom:1px solid var(--border); transition:background 150ms;" onmouseover="this.style.background='var(--surface-sunken)'" onmouseout="this.style.background='transparent'">
+									
 									<!-- 1. المعرف -->
 									<td style="text-align:center;">
-										<span class="tabular-nums badge badge-slate" style="font-weight:700; font-size:0.75rem;">
+										<span class="tabular-nums" style="font-family:monospace; font-weight:800; color:var(--text-muted); font-size:0.8rem;">
 											#{ fmt.Sprintf("%d", e.ID) }
 										</span>
 									</td>
@@ -105,7 +130,7 @@ templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
 										<div class="tabular-nums" style="font-weight:700; font-size:0.825rem; color:var(--text);">
 											{ e.CreatedAt.Format("2006-01-02") }
 										</div>
-										<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">
+										<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
 											{ e.CreatedAt.Format("15:04:05") }
 										</div>
 									</td>
@@ -116,7 +141,7 @@ templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
 											{ e.ActorName }
 										</div>
 										if e.ActorEmail != "" {
-											<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;">
+											<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start; margin-top:2px;">
 												{ e.ActorEmail }
 											</div>
 										}
@@ -124,19 +149,19 @@ templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
 
 									<!-- 4. المنظمة -->
 									<td style="text-align:start;">
-										<div style="font-weight:600; color:var(--text-secondary); font-size:0.825rem;">
+										<div style="font-weight:600; color:var(--text); font-size:0.825rem;">
 											{ e.OrganizationName }
 										</div>
 									</td>
 
 									<!-- 5. القسم والإجراء -->
 									<td style="text-align:start;">
-										<div style="display:flex; flex-direction:column; gap:0.2rem;">
-											<span class={ "badge", auditBadgeClass(e.Action) } style="font-weight:700; font-size:0.75rem; align-self:flex-start;">
+										<div style="display:flex; flex-direction:column; gap:0.25rem;">
+											<span class={ "badge", auditBadgeClass(e.Action) } style="font-weight:700; font-size:0.75rem; align-self:flex-start; white-space:nowrap;">
 												{ e.ActionLabelAr }
 											</span>
-											<span style="font-size:0.7rem; color:var(--text-muted);">
-												القسم: { e.Module }
+											<span style="font-size:0.725rem; color:var(--text-muted);">
+												القسم: <strong style="color:var(--text-secondary);">{ e.Module }</strong>
 											</span>
 										</div>
 									</td>
@@ -146,42 +171,42 @@ templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
 										<div style="font-weight:700; color:var(--text); font-size:0.85rem;">
 											{ e.Title }
 										</div>
-										<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px; line-height:1.3; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+										<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:3px; line-height:1.4;">
 											{ e.Description }
 										</div>
 									</td>
 
 									<!-- 7. الأهمية -->
 									<td style="text-align:center;">
-										<span class={ "badge", severityBadgeClass(e.Severity) } style="font-size:0.75rem; font-weight:700;">
+										<span class={ "badge", severityBadgeClass(e.Severity) } style="font-size:0.725rem; font-weight:700;">
 											{ e.Severity }
 										</span>
 									</td>
 
-									<!-- 8. عنوان IP والمسار -->
+									<!-- 8. عنوان IP -->
 									<td style="text-align:start;">
 										<div class="tabular-nums" style="font-size:0.775rem; font-family:monospace; color:var(--text); direction:ltr; text-align:start;">
 											{ e.IPAddress }
 										</div>
-										<div style="font-size:0.7rem; color:var(--text-muted); direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:140px; white-space:nowrap;">
-											{ e.Route }
-										</div>
+										if e.Route != "" {
+											<div style="font-size:0.7rem; color:var(--text-muted); direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:120px; white-space:nowrap; margin-top:2px;">
+												{ e.Route }
+											</div>
+										}
 									</td>
 
 									<!-- 9. الإجراءات -->
 									<td style="text-align:center;">
-										<div style="display:flex; align-items:center; justify-content:center; gap:0.3rem;">
-											<button
-												type="button"
-												class="btn btn-secondary btn-sm"
-												style="padding:0.3rem 0.6rem; font-size:0.75rem; font-weight:700; color:var(--accent);"
-												@click={ fmt.Sprintf("openDetails(%d)", e.ID) }
-												title="عرض تفاصيل العملية وفروقات البيانات"
-											>
-												@components.IconEye("icon-xs")
-												<span>تفاصيل</span>
-											</button>
-										</div>
+										<button
+											type="button"
+											class="btn btn-secondary btn-sm"
+											style="padding:0.35rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);"
+											@click={ fmt.Sprintf("openDetails(%d)", e.ID) }
+											title="عرض تفاصيل العملية وفروقات البيانات"
+										>
+											@components.IconEye("icon-xs")
+											<span>تفاصيل</span>
+										</button>
 									</td>
 								</tr>
 							}
@@ -220,95 +245,118 @@ templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
 					<template x-if="selected">
 						<div style="display:flex; flex-direction:column; gap:1.25rem;">
 							
-							<!-- Metadata Grid -->
-							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.85rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<!-- Meta Grid -->
+							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
 								<div>
-									<div style="font-size:0.75rem; color:var(--text-muted);">المستخدم المنفّذ:</div>
-									<div style="font-weight:700; color:var(--text); font-size:0.9rem;" x-text="selected.actor_name"></div>
-									<div style="font-size:0.75rem; color:var(--text-muted);" x-text="selected.actor_email"></div>
+									<div style="font-size:0.75rem; color:var(--text-muted);">المستخدم المنفذ:</div>
+									<div style="font-weight:700; color:var(--text); font-size:0.875rem;" x-text="selected.actor_name"></div>
+									<div style="font-size:0.75rem; color:var(--text-secondary); direction:ltr; text-align:start;" x-text="selected.actor_email"></div>
 								</div>
 								<div>
 									<div style="font-size:0.75rem; color:var(--text-muted);">المنظمة / الجهة:</div>
-									<div style="font-weight:700; color:var(--text); font-size:0.9rem;" x-text="selected.organization_name || 'المنصة الرئيسية'"></div>
+									<div style="font-weight:700; color:var(--text); font-size:0.875rem;" x-text="selected.organization_name"></div>
 								</div>
 								<div>
-									<div style="font-size:0.75rem; color:var(--text-muted);">القسم والإجراء:</div>
-									<div style="font-weight:700; color:var(--accent); font-size:0.9rem;" x-text="selected.module + ' — ' + selected.action_label_ar"></div>
-								</div>
-								<div>
-									<div style="font-size:0.75rem; color:var(--text-muted);">عنوان IP والمسار:</div>
-									<div class="tabular-nums" style="font-weight:700; color:var(--text); font-size:0.85rem; direction:ltr; text-align:start;" x-text="selected.ip_address"></div>
+									<div style="font-size:0.75rem; color:var(--text-muted);">عنوان IP / المسار:</div>
+									<div style="font-family:monospace; font-size:0.8rem; color:var(--text); direction:ltr; text-align:start;" x-text="selected.ip_address"></div>
 									<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;" x-text="selected.route"></div>
 								</div>
+								<div>
+									<div style="font-size:0.75rem; color:var(--text-muted);">التوقيت والأهمية:</div>
+									<div style="font-size:0.85rem; font-weight:700; color:var(--text);" x-text="selected.created_at"></div>
+									<div style="margin-top:2px;">
+										<span class="badge" :class="selected.severity === 'حرج (Critical)' ? 'badge-rose' : (selected.severity === 'متوسط (Warning)' ? 'badge-amber' : 'badge-slate')" x-text="selected.severity"></span>
+									</div>
+								</div>
 							</div>
 
-							<!-- Description -->
-							<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-								<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">شرح وبيان العملية:</div>
-								<div style="font-size:0.875rem; color:var(--text); line-height:1.5;" x-text="selected.description"></div>
+							<!-- Action Description -->
+							<div style="background:var(--surface-raised); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+								<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;">شرح وبيان العملية:</div>
+								<div style="font-size:0.9rem; color:var(--text); line-height:1.5;" x-text="selected.description"></div>
 							</div>
 
-							<!-- Before / After JSON Diff -->
+							<!-- Side-by-Side Diff -->
 							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-								<div style="display:flex; flex-direction:column; gap:0.4rem;">
-									<div style="font-size:0.8rem; font-weight:700; color:var(--danger);">الحالة السابقة (Before):</div>
-									<pre style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem; font-size:0.75rem; color:var(--text-secondary); max-height:220px; overflow-y:auto; direction:ltr; text-align:start; white-space:pre-wrap; margin:0;" x-text="formatJSON(selected.before)"></pre>
+								<!-- Before State -->
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;">
+									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
+										<span style="font-weight:700; font-size:0.825rem; color:var(--text);">الحالة السابقة (Before)</span>
+										<span class="badge badge-slate" style="font-size:0.7rem;">Original</span>
+									</div>
+									<pre
+										style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;"
+										x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة مسجلة'"
+									></pre>
 								</div>
-								<div style="display:flex; flex-direction:column; gap:0.4rem;">
-									<div style="font-size:0.8rem; font-weight:700; color:var(--success);">الحالة الجديدة (After):</div>
-									<pre style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem; font-size:0.75rem; color:var(--text-secondary); max-height:220px; overflow-y:auto; direction:ltr; text-align:start; white-space:pre-wrap; margin:0;" x-text="formatJSON(selected.after)"></pre>
-								</div>
-							</div>
 
-							<!-- Close Button -->
-							<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
-								<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary">إغلاق النافذة</button>
+								<!-- After State -->
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;">
+									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
+										<span style="font-weight:700; font-size:0.825rem; color:var(--text);">الحالة الجديدة (After)</span>
+										<span class="badge badge-emerald" style="font-size:0.7rem;">Updated</span>
+									</div>
+									<pre
+										style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;"
+										x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"
+									></pre>
+								</div>
 							</div>
 
 						</div>
 					</template>
+
+					<div style="display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary" style="font-weight:700; padding:0.5rem 1.5rem;">
+							إغلاق
+						</button>
+					</div>
 				</div>
 			</div>
+
+			<!-- Embedded JSON Data Store for Modal -->
+			for _, e := range values.Entries {
+				<script type="application/json" id={ fmt.Sprintf("audit-data-%d", e.ID) }>
+					{
+						"id": { fmt.Sprintf("%d", e.ID) },
+						"actor_name": { fmt.Sprintf("%q", e.ActorName) },
+						"actor_email": { fmt.Sprintf("%q", e.ActorEmail) },
+						"organization_name": { fmt.Sprintf("%q", e.OrganizationName) },
+						"action": { fmt.Sprintf("%q", e.Action) },
+						"action_label_ar": { fmt.Sprintf("%q", e.ActionLabelAr) },
+						"module": { fmt.Sprintf("%q", e.Module) },
+						"title": { fmt.Sprintf("%q", e.Title) },
+						"description": { fmt.Sprintf("%q", e.Description) },
+						"severity": { fmt.Sprintf("%q", e.Severity) },
+						"ip_address": { fmt.Sprintf("%q", e.IPAddress) },
+						"route": { fmt.Sprintf("%q", e.Route) },
+						"created_at": { fmt.Sprintf("%q", e.CreatedAt.Format("2006-01-02 15:04:05")) },
+						"before": { templ.JSONString(e.Before) },
+						"after": { templ.JSONString(e.After) }
+					}
+				</script>
+			}
 
 		</div>
 
 		<script>
 			function adminAuditManager() {
 				return {
-					searchQuery: '',
-					filterSeverity: '',
-					filterModule: '',
 					isDetailsOpen: false,
 					selected: null,
 
 					openDetails(id) {
-						const el = document.getElementById('audit-data-' + id);
-						if (el) {
-							try {
-								this.selected = JSON.parse(el.textContent);
-								this.isDetailsOpen = true;
-							} catch (err) {
-								console.error('Error parsing audit log data:', err);
-							}
+						const script = document.getElementById('audit-data-' + id);
+						if (!script) {
+							console.error('Audit payload not found for ID:', id);
+							return;
 						}
-					},
-
-					formatJSON(obj) {
-						if (!obj || Object.keys(obj).length === 0) return '(لا توجد بيانات مسجلة)';
-						return JSON.stringify(obj, null, 2);
-					},
-
-					matchesFilter(actor, org, action, title, severity, module) {
-						const q = this.searchQuery.toLowerCase().trim();
-						if (this.filterSeverity && !severity.includes(this.filterSeverity)) return false;
-						if (this.filterModule && !module.includes(this.filterModule)) return false;
-						if (!q) return true;
-						return (
-							actor.toLowerCase().includes(q) ||
-							org.toLowerCase().includes(q) ||
-							action.toLowerCase().includes(q) ||
-							title.toLowerCase().includes(q)
-						);
+						try {
+							this.selected = JSON.parse(script.textContent);
+							this.isDetailsOpen = true;
+						} catch (e) {
+							console.error('Failed to parse audit JSON:', e);
+						}
 					}
 				};
 			}
@@ -316,34 +364,28 @@ templ AdminAudit(lang, dir string, entries []*platformadmin.AuditEntry) {
 	}
 }
 
-func auditEntryJSON(e *platformadmin.AuditEntry) string {
-	b, err := json.Marshal(e)
-	if err != nil {
-		return "{}"
-	}
-	return string(b)
-}
-
 func auditBadgeClass(action string) string {
-	switch {
-	case action == "org.approved" || action == "identity.user.registered" || action == "catalog.product.created":
+	if action == "" {
+		return "badge-sky"
+	}
+	switch action {
+	case "organization.approved", "user.reactivated", "catalog.product.created", "catalog.variant.created", "order.created":
 		return "badge-emerald"
-	case action == "org.rejected" || action == "catalog.product.deleted" || action == "identity.user.mfa_reset":
-		return "badge-danger"
-	case action == "org.suspended" || action == "identity.user.status_changed":
+	case "organization.rejected", "organization.suspended", "user.suspended", "catalog.product.deleted":
+		return "badge-rose"
+	case "user.status_updated", "catalog.product.updated", "order.status_updated", "institutional_work.updated":
 		return "badge-amber"
 	default:
 		return "badge-sky"
 	}
 }
 
-func severityBadgeClass(s string) string {
-	switch {
-	case s == "حرج (Critical)" || s == "critical":
-		return "badge-danger"
-	case s == "متوسط (Warning)" || s == "warning":
-		return "badge-amber"
-	default:
-		return "badge-slate"
+func severityBadgeClass(severity string) string {
+	if severity == "حرج (Critical)" || severity == "critical" {
+		return "badge-rose"
 	}
+	if severity == "متوسط (Warning)" || severity == "warning" {
+		return "badge-amber"
+	}
+	return "badge-slate"
 }

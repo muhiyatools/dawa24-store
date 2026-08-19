@@ -1,39 +1,43 @@
 package layouts
 
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
 templ Base(title string, lang string, dir string) {
-	<!DOCTYPE html>
-	<html lang={ lang } dir={ dir }>
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta name="color-scheme" content="light dark"/>
-			<title>{ title }</title>
-			<script>
-				(function() {
-					var t = localStorage.getItem('dawa24-theme') || 'system';
-					var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-					if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
-					else document.documentElement.setAttribute('data-theme', 'light');
-				})();
-			</script>
-			<link rel="icon" type="image/png" href="/static/img/logo.png"/>
-			<link rel="shortcut icon" type="image/png" href="/static/img/logo.png"/>
-			<link rel="apple-touch-icon" href="/static/img/logo.png"/>
-			<link rel="preconnect" href="https://fonts.googleapis.com"/>
-			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"/>
+	if site := GetSiteSettings(ctx); site != nil {
+		<!DOCTYPE html>
+		<html lang={ lang } dir={ dir }>
+			<head>
+				<meta charset="UTF-8"/>
+				<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+				<meta name="color-scheme" content="light dark"/>
+				<title>{ title } | { site.SiteName }</title>
+				<script>
+					(function() {
+						var t = localStorage.getItem('dawa24-theme') || 'system';
+						var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+						if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
+						else document.documentElement.setAttribute('data-theme', 'light');
+					})();
+				</script>
+				<link rel="icon" type="image/png" href={ site.FaviconURL }/>
+				<link rel="shortcut icon" type="image/png" href={ site.FaviconURL }/>
+				<link rel="apple-touch-icon" href={ site.LogoURL }/>
+				<link rel="preconnect" href="https://fonts.googleapis.com"/>
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+				<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"/>
 				<link rel="stylesheet" href="/static/css/app.css?v=2026081711"/>
 				<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 				<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 				<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
 				<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 				<script src="/static/js/app.js?v=2026081711"></script>
-
-
-
-		</head>
-		<body>
-			{ children... }
-		</body>
-	</html>
+			</head>
+			<body>
+				{ children... }
+				@components.CapsuleAssistant()
+			</body>
+		</html>
+	}
 }

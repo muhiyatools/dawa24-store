@@ -10,332 +10,349 @@ import (
 // signing in: navbar + footer around the content. Authenticated screens never
 // render it — they use the sidebar shells (Rebuild V2 §1.5).
 templ PublicShell(title string, lang string, dir string) {
-	@Base(title, lang, dir) {
-		<header class="top-navbar">
-			<div style="display:flex; align-items:center; gap:2rem;">
-				<a href="/" style="display:flex; align-items:center; gap:0.85rem; text-decoration:none;">
-					<img src="/static/img/logo.png" alt="دواء 24" style="height:46px; max-height:48px; object-fit:contain; border-radius:var(--radius-sm);" />
-					<span style="font-size:1.45rem; font-weight:700; color:var(--text); letter-spacing:-0.5px;">
-						دواء <span style="color:var(--accent);">24</span>
-					</span>
-				</a>
-
-				<nav class="nav-links" style="display:flex; align-items:center; gap:1.25rem;">
-					<a href="/catalog" style="font-size:var(--text-sm); font-weight:600; color:var(--text); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">كتالوج الأدوية</a>
-					if features.Enabled(ctx, "offers.enabled") {
-						<a href="/offers" style="font-size:var(--text-sm); font-weight:600; color:var(--accent); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">العروض والتخفيضات</a>
-					}
-					<a href="/suppliers" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">دليل الموردين</a>
-					if features.Enabled(ctx, "jobs.enabled") {
-						<a href="/jobs" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">وظائف وصيادلة</a>
-					}
-					if features.Enabled(ctx, "services.enabled") {
-						<a href="/services" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">الخدمات المؤسسية</a>
-					}
-				</nav>
-			</div>
-
-
-			<div style="display:flex; align-items:center; gap:0.875rem;">
-				if actor, ok := authctx.From(ctx); ok {
-					<!-- Cart Button: customer-only surface -->
-					if actor.IsCustomer() {
-						<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
-							@components.IconCart("icon-md")
-						</a>
-					}
-
-					<!-- Notifications Popover -->
-					<div class="dropdown">
-						<button
-							type="button"
-							class="btn btn-secondary btn-icon"
-							title="الإشعارات"
-							hx-get="/notifications/dropdown"
-							hx-target="#notif-dropdown-content"
-							hx-trigger="click"
-							hx-swap="innerHTML"
-							style="position:relative;"
-						>
-							@components.IconBell("icon-md")
-							<span hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this" style="position:absolute; top:4px; inset-inline-end:4px; pointer-events:none;"></span>
-						</button>
-
-						<div
-							class="dropdown-menu"
-							style="inset-inline-start:auto; inset-inline-end:0; min-width:340px; padding:0; overflow:hidden;"
-							id="notif-dropdown-content"
-						>
-							<div style="min-width:320px; max-width:380px;">
-								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);">
-									<div style="display:flex; align-items:center; gap:0.4rem;">
-										@components.IconBell("icon-xs")
-										<span style="font-weight:600; color:var(--text); font-size:0.9rem;">الإشعارات</span>
-									</div>
-								</div>
-								<div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); font-size:0.875rem;">
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 0.5rem auto;">
-										@components.IconBell("icon-sm")
-									</div>
-									<div>لا توجد إشعارات جديدة</div>
-								</div>
-								<div style="display:flex; border-top:1px solid var(--neutral-100); background:var(--neutral-50);">
-									<a href="/notifications" style="flex:1; display:block; text-align:center; padding:0.65rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary);">عرض كل الإشعارات</a>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- User Avatar Dropdown -->
-					<div class="dropdown">
-						<button
-							type="button"
-							class="btn btn-secondary"
-							style="padding:0.35rem 0.85rem; display:inline-flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md); height:42px;"
-						>
-							<div style="width:30px; height:30px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; border:1px solid var(--primary-200);">
-								@components.IconUser("icon-xs")
-							</div>
-							<span style="font-weight:600; font-size:0.875rem; color:var(--text); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-								{ actor.DisplayName() }
-							</span>
-							@components.IconChevronDown("icon-xs")
-						</button>
-
-						<div
-							class="dropdown-menu"
-							style="inset-inline-start:auto; inset-inline-end:0; min-width:260px; padding:0.5rem 0;"
-						>
-							<!-- User Header Card -->
-							<div style="padding:0.75rem 1rem 0.6rem 1rem; border-bottom:1px solid var(--neutral-100);">
-								<div style="display:flex; align-items:center; gap:0.75rem;">
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-										@components.IconUser("icon-sm")
-									</div>
-									<div style="flex:1; overflow:hidden;">
-										<div style="font-weight:700; font-size:0.95rem; color:var(--text); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
-											{ actor.DisplayName() }
-										</div>
-										<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.1rem;">
-											if actor.IsStaff {
-												<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">فريق المنصة</span>
-											} else if actor.IsVendor() {
-												<span class="badge badge-emerald" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
-											} else {
-												<span class="badge badge-slate" style="font-size:0.675rem; padding:0.1rem 0.4rem;">صيدلية معتمدة</span>
-											}
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<!-- 1. Wallet Balance Snapshot (staff have their own surface) -->
-							if !actor.IsStaff {
-								<a href="/wallet" class="dropdown-item" style="background:var(--accent-subtle); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800); font-weight:600; justify-content:space-between; padding:0.65rem 0.85rem;">
-									<div style="display:flex; align-items:center; gap:0.45rem;">
-										@components.IconWallet("icon-xs")
-										<span style="font-size:0.825rem;">المحفظة</span>
-									</div>
-									<span class="dropdown-item-arrow">←</span>
-								</a>
-							}
-
-							<!-- 2. Dashboard -->
-							if actor.IsStaff {
-								<a href="/admin/dashboard" class="dropdown-item" style="font-weight:600;">
-									@components.IconChart("icon-xs")
-									<span>لوحة التحكم الرئيسية</span>
-								</a>
-							} else if actor.IsVendor() {
-								<a href="/vendor/dashboard" class="dropdown-item" style="font-weight:600;">
-									@components.IconChart("icon-xs")
-									<span>لوحة تحكم المورد</span>
-								</a>
-							} else {
-								<a href="/customer/dashboard" class="dropdown-item" style="font-weight:600;">
-									@components.IconChart("icon-xs")
-									<span>لوحة تحكم الصيدلية</span>
-								</a>
-							}
-
-							<!-- 3. Profile -->
-							if actor.IsStaff {
-								<a href="/admin/dashboard" class="dropdown-item">
-									@components.IconUser("icon-xs")
-									<span>الملف الشخصي والحساب</span>
-								</a>
-							} else if actor.IsVendor() {
-								<a href="/vendor/dashboard" class="dropdown-item">
-									@components.IconUser("icon-xs")
-									<span>الملف الشخصي والحساب</span>
-								</a>
-							} else {
-								<a href="/customer/dashboard" class="dropdown-item">
-									@components.IconUser("icon-xs")
-									<span>الملف الشخصي والحساب</span>
-								</a>
-							}
-
-							<!-- 4. Orders -->
-							if actor.IsCustomer() {
-								<a href="/orders" class="dropdown-item">
-									@components.IconPackage("icon-xs")
-									<span>طلبياتي وأوامر التوريد</span>
-								</a>
-							} else if actor.IsVendor() {
-								<a href="/vendor/orders" class="dropdown-item">
-									@components.IconTruck("icon-xs")
-									<span>أوامر التوريد والشحنات</span>
-								</a>
-							}
-
-							<!-- 5. Favourites -->
-							<a href="/favorites" class="dropdown-item">
-								@components.IconHeart("icon-xs")
-								<span>قائمة المفضلة</span>
-							</a>
-
-							<!-- 6. Followed Suppliers (for customers) -->
-							if actor.IsCustomer() {
-								<a href="/suppliers/followed" class="dropdown-item">
-									@components.IconBuilding("icon-xs")
-									<span>الموردون المتابعون</span>
-								</a>
-							}
-
-							<div class="dropdown-divider"></div>
-
-							<!-- Theme Selector (Light / Dark / System) -->
-							<div style="padding:0.4rem 0.6rem;">
-								<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">مظهر المنصة:</div>
-								@components.ThemeToggle()
-							</div>
-
-							<div class="dropdown-divider"></div>
-
-							<!-- 7. Logout -->
-							<form action="/auth/logout" method="POST" style="margin:0;">
-								<button type="submit" class="dropdown-item" style="color:var(--danger); font-weight:600;">
-									@components.IconLogout("icon-xs")
-									<span>تسجيل الخروج</span>
-								</button>
-							</form>
-						</div>
-					</div>
-				} else {
-					<a href="/auth/login" class="btn btn-secondary" style="padding:0.55rem 1.125rem;">
-						تسجيل الدخول
+	if site := GetSiteSettings(ctx); site != nil {
+		@Base(title, lang, dir) {
+			<header class="top-navbar">
+				<div style="display:flex; align-items:center; gap:2rem;">
+					<a href="/" style="display:flex; align-items:center; gap:0.85rem; text-decoration:none;">
+						<img src={ site.LogoURL } alt={ site.SiteName } style="height:46px; max-height:48px; object-fit:contain; border-radius:var(--radius-sm);" />
+						<span style="font-size:1.45rem; font-weight:700; color:var(--text); letter-spacing:-0.5px;">
+							دواء <span style="color:var(--accent);">24</span>
+						</span>
 					</a>
-					<a href="/auth/register" class="btn btn-primary" style="padding:0.55rem 1.25rem;">
-						إنشاء حساب جديد
-					</a>
-				}
-			</div>
-		</header>
 
-		<main class="page-container" style="flex:1; min-height:calc(100vh - 220px);">
-			{ children... }
-		</main>
-
-		<!-- Redesigned Production Footer with clean links and ample spacing -->
-		<footer class="site-footer">
-			<div class="footer-content">
-				<!-- Company Info & Mission -->
-				<div>
-					<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;">
-						<img src="/static/img/logo.png" alt="DAWA24.com" style="height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:var(--surface-raised); padding:4px;" />
-					</div>
-					<h3 style="font-size:1.15rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;">
-						دواء 24
-					</h3>
-					<p style="color:var(--text-secondary); font-size:0.925rem; line-height:1.8; max-width:540px;">
-						منصة التوريد توفر تجربة شاملة لربط العملاء بالموردين، وتدعم التواصل المباشر والتحليلات المتقدمة مع دعم فني متواصل على مدار الساعة.
-					</p>
-					<div class="footer-social-links">
-						<a href="https://wa.me/201065397000" target="_blank" rel="noopener" class="footer-social-btn" title="تواصل عبر واتساب">
-							@components.IconWhatsApp("icon-xs")
-						</a>
-						<a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-btn" title="فيسبوك">
-							@components.IconFacebook("icon-xs")
-						</a>
-						<a href="https://twitter.com" target="_blank" rel="noopener" class="footer-social-btn" title="منصة إكس (Twitter)">
-							@components.IconTwitter("icon-xs")
-						</a>
-						<a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-btn" title="انستجرام">
-							@components.IconInstagram("icon-xs")
-						</a>
-						<a href="https://linkedin.com" target="_blank" rel="noopener" class="footer-social-btn" title="لينكد إن">
-							@components.IconLinkedIn("icon-xs")
-						</a>
-						<a href="https://youtube.com" target="_blank" rel="noopener" class="footer-social-btn" title="يوتيوب">
-							@components.IconYouTube("icon-xs")
-						</a>
-						<a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-btn" title="تيك توك">
-							@components.IconTikTok("icon-xs")
-						</a>
-						<a href="https://t.me/dawa24" target="_blank" rel="noopener" class="footer-social-btn" title="تيليجرام">
-							@components.IconTelegram("icon-xs")
-						</a>
-					</div>
-				</div>
-
-				<!-- Quick Links -->
-				<div>
-					<h4 style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;">
-						روابط المنصة
-					</h4>
-					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
-						<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
+					<nav class="nav-links" style="display:flex; align-items:center; gap:1.25rem;">
+						<a href="/catalog" style="font-size:var(--text-sm); font-weight:600; color:var(--text); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">كتالوج الأدوية</a>
 						if features.Enabled(ctx, "offers.enabled") {
-							<li><a href="/offers">العروض والتخفيضات</a></li>
+							<a href="/offers" style="font-size:var(--text-sm); font-weight:600; color:var(--accent); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">العروض والتخفيضات</a>
 						}
-						<li><a href="/suppliers">دليل الموردين المعتمدين</a></li>
+						<a href="/suppliers" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">دليل الموردين</a>
 						if features.Enabled(ctx, "jobs.enabled") {
-							<li><a href="/jobs">وظائف التوظيف الصيدلي والمهني</a></li>
+							<a href="/jobs" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">وظائف وصيادلة</a>
 						}
 						if features.Enabled(ctx, "services.enabled") {
-							<li><a href="/services">الخدمات المؤسسية</a></li>
+							<a href="/services" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">الخدمات المؤسسية</a>
 						}
-						<li><a href="/about">من نحن (عن دواء 24)</a></li>
-						<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>
-						<li><a href="/auth/register">انضمام الشركاء والموردين</a></li>
-						<li><a href="/privacy">سياسة الخصوصية</a></li>
-						<li><a href="/terms">الشروط والأحكام</a></li>
-					</ul>
-
+					</nav>
 				</div>
 
-				<!-- Contact & Support -->
-				<div>
-					<h4 style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;">
-						التواصل والدعم الفني
-					</h4>
-					<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);">
-						<li style="display:flex; align-items:center; gap:0.6rem;">
-							@components.IconMail("icon-sm")
-							<a href="mailto:info@dawa24.com" style="direction:ltr; font-weight:700; color:var(--accent-hover);">info@dawa24.com</a>
-						</li>
-						<li style="display:flex; align-items:center; gap:0.6rem;">
-							@components.IconPhone("icon-sm")
-							<a href="tel:01065397000" class="tabular-nums" style="direction:ltr; font-weight:700; color:var(--accent-hover);">01065397000</a>
-						</li>
-						<li style="font-size:0.825rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.6;">
-							الدعم الفني متاح على مدار الساعة للمؤسسات والصيدليات المعتمدة.
-						</li>
-					</ul>
-				</div>
-			</div>
+				<div style="display:flex; align-items:center; gap:0.875rem;">
+					if actor, ok := authctx.From(ctx); ok {
+						<!-- Cart Button: customer-only surface -->
+						if actor.IsCustomer() {
+							<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
+								@components.IconCart("icon-md")
+							</a>
+						}
 
-			<div class="footer-bottom">
-				<div>
-					<p>جميع الحقوق محفوظة © 2026 دواء 24 — ترخيص واعتماد المنشآت الطبية والصيدلانية</p>
+						<!-- Notifications Popover -->
+						<div class="dropdown">
+							<button
+								type="button"
+								class="btn btn-secondary btn-icon"
+								title="الإشعارات"
+								hx-get="/notifications/dropdown"
+								hx-target="#notif-dropdown-content"
+								hx-trigger="click"
+								hx-swap="innerHTML"
+								style="position:relative;"
+							>
+								@components.IconBell("icon-md")
+								<span hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this" style="position:absolute; top:4px; inset-inline-end:4px; pointer-events:none;"></span>
+							</button>
+
+							<div
+								class="dropdown-menu"
+								style="inset-inline-start:auto; inset-inline-end:0; min-width:340px; padding:0; overflow:hidden;"
+								id="notif-dropdown-content"
+							>
+								<div style="min-width:320px; max-width:380px;">
+									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);">
+										<div style="display:flex; align-items:center; gap:0.4rem;">
+											@components.IconBell("icon-xs")
+											<span style="font-weight:600; color:var(--text); font-size:0.9rem;">الإشعارات</span>
+										</div>
+									</div>
+									<div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); font-size:0.875rem;">
+										<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 0.5rem auto;">
+											@components.IconBell("icon-sm")
+										</div>
+										<div>لا توجد إشعارات جديدة</div>
+									</div>
+									<div style="display:flex; border-top:1px solid var(--neutral-100); background:var(--neutral-50);">
+										<a href="/notifications" style="flex:1; display:block; text-align:center; padding:0.65rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary);">عرض كل الإشعارات</a>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- User Avatar Dropdown -->
+						<div class="dropdown">
+							<button
+								type="button"
+								class="btn btn-secondary"
+								style="padding:0.35rem 0.85rem; display:inline-flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md); height:42px;"
+							>
+								<div style="width:30px; height:30px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; border:1px solid var(--primary-200);">
+									@components.IconUser("icon-xs")
+								</div>
+								<span style="font-weight:600; font-size:0.875rem; color:var(--text); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+									{ actor.DisplayName() }
+								</span>
+								@components.IconChevronDown("icon-xs")
+							</button>
+
+							<div
+								class="dropdown-menu"
+								style="inset-inline-start:auto; inset-inline-end:0; min-width:260px; padding:0.5rem 0;"
+							>
+								<!-- User Header Card -->
+								<div style="padding:0.75rem 1rem 0.6rem 1rem; border-bottom:1px solid var(--neutral-100);">
+									<div style="display:flex; align-items:center; gap:0.75rem;">
+										<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+											@components.IconUser("icon-sm")
+										</div>
+										<div style="flex:1; overflow:hidden;">
+											<div style="font-weight:700; font-size:0.95rem; color:var(--text); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+												{ actor.DisplayName() }
+											</div>
+											<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.1rem;">
+												if actor.IsStaff {
+													<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">فريق المنصة</span>
+												} else if actor.IsVendor() {
+													<span class="badge badge-emerald" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
+												} else {
+													<span class="badge badge-slate" style="font-size:0.675rem; padding:0.1rem 0.4rem;">صيدلية معتمدة</span>
+												}
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 1. Wallet Balance Snapshot (staff have their own surface) -->
+								if !actor.IsStaff {
+									<a href="/wallet" class="dropdown-item" style="background:var(--accent-subtle); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800); font-weight:600; justify-content:space-between; padding:0.65rem 0.85rem;">
+										<div style="display:flex; align-items:center; gap:0.45rem;">
+											@components.IconWallet("icon-xs")
+											<span style="font-size:0.825rem;">المحفظة</span>
+										</div>
+										<span class="dropdown-item-arrow">←</span>
+									</a>
+								}
+
+								<!-- 2. Dashboard -->
+								if actor.IsStaff {
+									<a href="/admin/dashboard" class="dropdown-item" style="font-weight:600;">
+										@components.IconChart("icon-xs")
+										<span>لوحة التحكم الرئيسية</span>
+									</a>
+								} else if actor.IsVendor() {
+									<a href="/vendor/dashboard" class="dropdown-item" style="font-weight:600;">
+										@components.IconChart("icon-xs")
+										<span>لوحة تحكم المورد</span>
+									</a>
+								} else {
+									<a href="/customer/dashboard" class="dropdown-item" style="font-weight:600;">
+										@components.IconChart("icon-xs")
+										<span>لوحة تحكم الصيدلية</span>
+									</a>
+								}
+
+								<!-- 3. Profile -->
+								if actor.IsStaff {
+									<a href="/admin/dashboard" class="dropdown-item">
+										@components.IconUser("icon-xs")
+										<span>الملف الشخصي والحساب</span>
+									</a>
+								} else if actor.IsVendor() {
+									<a href="/vendor/dashboard" class="dropdown-item">
+										@components.IconUser("icon-xs")
+										<span>الملف الشخصي والحساب</span>
+									</a>
+								} else {
+									<a href="/customer/dashboard" class="dropdown-item">
+										@components.IconUser("icon-xs")
+										<span>الملف الشخصي والحساب</span>
+									</a>
+								}
+
+								<!-- 4. Orders -->
+								if actor.IsCustomer() {
+									<a href="/orders" class="dropdown-item">
+										@components.IconPackage("icon-xs")
+										<span>طلبياتي وأوامر التوريد</span>
+									</a>
+								} else if actor.IsVendor() {
+									<a href="/vendor/orders" class="dropdown-item">
+										@components.IconTruck("icon-xs")
+										<span>أوامر التوريد والشحنات</span>
+									</a>
+								}
+
+								<!-- 5. Favourites -->
+								<a href="/favorites" class="dropdown-item">
+									@components.IconHeart("icon-xs")
+									<span>قائمة المفضلة</span>
+								</a>
+
+								<!-- 6. Followed Suppliers (for customers) -->
+								if actor.IsCustomer() {
+									<a href="/suppliers/followed" class="dropdown-item">
+										@components.IconBuilding("icon-xs")
+										<span>الموردون المتابعون</span>
+									</a>
+								}
+
+								<div class="dropdown-divider"></div>
+
+								<!-- 7. Logout -->
+								<form action="/auth/logout" method="POST" style="margin:0;">
+									<button type="submit" class="dropdown-item" style="color:var(--danger); font-weight:600; width:100%; border:none; background:none; cursor:pointer; text-align:start; padding:0.5rem 1rem; display:flex; align-items:center; gap:0.5rem;">
+										@components.IconLogout("icon-xs")
+										<span>تسجيل الخروج</span>
+									</button>
+								</form>
+							</div>
+						</div>
+					} else {
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<a href="/auth/login" class="btn btn-secondary" style="font-weight:600;">
+								<span>تسجيل الدخول</span>
+							</a>
+							<a href="/auth/register" class="btn btn-primary" style="font-weight:600;">
+								@components.IconPlus("icon-xs")
+								<span>تسجيل صيدلية / مورد</span>
+							</a>
+						</div>
+					}
 				</div>
-				<div style="display:flex; gap:1.75rem;">
-					<a href="/faq">الأسئلة الشائعة</a>
-					<a href="/privacy">الخصوصية</a>
-					<a href="/terms">الشروط</a>
+			</header>
+
+			<main class="page-body">
+				{ children... }
+			</main>
+
+			<!-- Redesigned Production Footer with clean dynamic links and ample spacing -->
+			<footer class="site-footer">
+				<div class="footer-content">
+					<!-- Company Info & Mission -->
+					<div>
+						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;">
+							<img src={ site.LogoURL } alt={ site.SiteName } style="height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:var(--surface-raised); padding:4px;" />
+						</div>
+						<h3 style="font-size:1.15rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;">
+							{ site.SiteName }
+						</h3>
+						<p style="color:var(--text-secondary); font-size:0.925rem; line-height:1.8; max-width:540px;">
+							{ site.SiteDescription }
+						</p>
+						<div class="footer-social-links">
+							if site.SocialLinks["whatsapp"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["whatsapp"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تواصل عبر واتساب">
+									@components.IconWhatsApp("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["facebook"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["facebook"]) } target="_blank" rel="noopener" class="footer-social-btn" title="فيسبوك">
+									@components.IconFacebook("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["twitter"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["twitter"]) } target="_blank" rel="noopener" class="footer-social-btn" title="منصة إكس (Twitter)">
+									@components.IconTwitter("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["instagram"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["instagram"]) } target="_blank" rel="noopener" class="footer-social-btn" title="انستجرام">
+									@components.IconInstagram("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["linkedin"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["linkedin"]) } target="_blank" rel="noopener" class="footer-social-btn" title="لينكد إن">
+									@components.IconLinkedIn("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["youtube"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["youtube"]) } target="_blank" rel="noopener" class="footer-social-btn" title="يوتيوب">
+									@components.IconYouTube("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["tiktok"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["tiktok"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تيك توك">
+									@components.IconTikTok("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["telegram"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["telegram"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تيليجرام">
+									@components.IconTelegram("icon-xs")
+								</a>
+							}
+						</div>
+					</div>
+
+					<!-- Quick Links -->
+					<div>
+						<h4 style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;">
+							روابط المنصة
+						</h4>
+						<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
+							<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
+							if features.Enabled(ctx, "offers.enabled") {
+								<li><a href="/offers">العروض والتخفيضات</a></li>
+							}
+							<li><a href="/suppliers">دليل الموردين المعتمدين</a></li>
+							if features.Enabled(ctx, "jobs.enabled") {
+								<li><a href="/jobs">وظائف التوظيف الصيدلي والمهني</a></li>
+							}
+							if features.Enabled(ctx, "services.enabled") {
+								<li><a href="/services">الخدمات المؤسسية</a></li>
+							}
+							<li><a href="/about">من نحن (عن دواء 24)</a></li>
+							<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>
+							<li><a href="/auth/register">انضمام الشركاء والموردين</a></li>
+							<li><a href="/privacy">سياسة الخصوصية</a></li>
+							<li><a href="/terms">الشروط والأحكام</a></li>
+						</ul>
+					</div>
+
+					<!-- Contact & Support -->
+					<div>
+						<h4 style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;">
+							التواصل والدعم الفني
+						</h4>
+						<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);">
+							<li style="display:flex; align-items:center; gap:0.6rem;">
+								@components.IconMail("icon-sm")
+								<a href={ templ.SafeURL("mailto:" + site.SupportEmail) } style="direction:ltr; font-weight:700; color:var(--accent-hover);">{ site.SupportEmail }</a>
+							</li>
+							<li style="display:flex; align-items:center; gap:0.6rem;">
+								@components.IconPhone("icon-sm")
+								<a href={ templ.SafeURL("tel:" + site.Phone) } class="tabular-nums" style="direction:ltr; font-weight:700; color:var(--accent-hover);">{ site.Phone }</a>
+							</li>
+							if site.Address != "" {
+								<li style="display:flex; align-items:center; gap:0.6rem; font-size:0.85rem;">
+									@components.IconBuilding("icon-sm")
+									<span>{ site.Address }</span>
+								</li>
+							}
+							<li style="font-size:0.825rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.6;">
+								الدعم الفني متاح على مدار الساعة للمؤسسات والصيدليات المعتمدة.
+							</li>
+						</ul>
+					</div>
 				</div>
-			</div>
-		</footer>
+
+				<div class="footer-bottom">
+					<div>
+						<p>جميع الحقوق محفوظة © 2026 { site.SiteName } — ترخيص واعتماد المنشآت الطبية والصيدلانية</p>
+					</div>
+					<div style="display:flex; gap:1.75rem;">
+						<a href="/faq">الأسئلة الشائعة</a>
+						<a href="/privacy">الخصوصية</a>
+						<a href="/terms">الشروط</a>
+					</div>
+				</div>
+			</footer>
+		}
 	}
 }
