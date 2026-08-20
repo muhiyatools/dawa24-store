@@ -12,8 +12,8 @@ Record before/after counts for every phase.
 
 | Phase | Task | Status | Commit | Tests | Notes |
 |---|---|---|---|---|---|
-| 1 | 1.1 Weekly coverage TIME bugs | not-started | | D1,D2,D3,D4,CHAIN | **blocks the marketplace** |
-| 1 | 1.2 Cart & order availability | not-started | | D1-D4,RACE | one rule, six surfaces |
+| 1 | 1.1 Weekly coverage TIME bugs | **done** | 31ce6fd | unit ✅ shown failing first; repo round-trip written (runs in CI) | root cause: TIME columns vs Go string, both directions. Same bug fixed in hr.work_times. |
+| 1 | 1.2 Cart & order availability | **done** | 7194799 | 26 unit cases ✅ | CheckAvailability + probe at composition root; wired to add/quantity/checkout, HTML + JSON. RACE test still owed (needs a DB). |
 | 2 | 2.1 Settings 7 → 1 | not-started | | | keep OLD tabbed page |
 | 2 | 2.2 Branches 3 → 2 write paths | not-started | | D2,D3 | |
 | 2 | 2.3 Policies → settings tab | not-started | | D1,D2 | |
