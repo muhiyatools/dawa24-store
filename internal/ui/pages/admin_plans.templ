@@ -12,7 +12,7 @@ templ AdminPlans(lang, dir string, plans []*billing.Plan) {
 		<div class="card" style="margin-bottom:1.25rem;">
 			<h2 class="card-title" style="margin:0 0 1rem;">خطة جديدة</h2>
 			<form method="POST" action="/admin/plans" style="display:flex; flex-direction:column; gap:0.9rem;">
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin-bottom:0;">
 						<label class="form-label" for="p-slug">المعرّف</label>
 						<input type="text" id="p-slug" name="slug" required class="form-input" dir="ltr" />

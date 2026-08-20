@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-file-size check-error-swallow ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-file-size check-inline-styles check-error-swallow ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -148,3 +148,7 @@ build: ## Build all binaries into ./bin
 .PHONY: docker
 docker: ## Build the container image
 	docker build --build-arg VERSION=$(VERSION) --build-arg COMMIT=$(COMMIT) -t dawa24-store:$(VERSION) .
+
+check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
+	@echo "==> checking inline styles"
+	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); 	if [ "$$n" -gt 4227 ]; then 	  echo "FAIL: $$n inline style attributes (ceiling 4227)."; 	  echo ""; 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; 	  echo "drifted: a fix on one page never generalises. Use a class from"; 	  echo "components.css, or add one there. Genuinely one-off positioning may"; 	  echo "stay inline, but must use var(--token) values, never literals."; 	  echo ""; 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; 	  exit 1; 	fi; 	echo "OK: $$n inline styles (ceiling 4227)"

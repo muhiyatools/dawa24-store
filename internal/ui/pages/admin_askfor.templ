@@ -11,11 +11,11 @@ import (
 // AdminAskForPage renders document & action requests table.
 templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 	@layouts.AdminShell("إدارة طلبات المستندات والإجراءات (Ask For)", "tools", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">طلبات المستندات والإجراءات المطلوبة ({ fmt.Sprintf("%d", len(requests)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة طلبات المستندات الرسمية والتحديثات المطلوبة من الصيدليات والموردين.</p>
+					<p class="subtitle">متابعة طلبات المستندات الرسمية والتحديثات المطلوبة من الصيدليات والموردين.</p>
 				</div>
 			</div>
 
@@ -32,7 +32,7 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 								<th>من منشأة</th>
 								<th>إلى منشأة</th>
 								<th>الحالة</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -52,7 +52,7 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 											<span class="badge badge-danger">مرفوض</span>
 										}
 									</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/ask-for/%d", r.ID)) } class="btn btn-secondary btn-sm">عرض الطلب</a>
 									</td>
 								</tr>
@@ -69,10 +69,10 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 templ AdminAskForDetailPage(r *workflow.Request, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("طلب مستند: %s", r.Title.Get("ar")), "tools", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">{ r.Title.Get("ar") }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">طلب #{ fmt.Sprintf("%d", r.ID) } | نوع: { string(r.Type) }</p>
+					<p class="subtitle">طلب #{ fmt.Sprintf("%d", r.ID) } | نوع: { string(r.Type) }</p>
 				</div>
 				<a href="/admin/ask-for" class="btn btn-secondary btn-sm">العودة للطلبات</a>
 			</div>

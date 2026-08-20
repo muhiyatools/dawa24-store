@@ -27,7 +27,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					</p>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					<a href="#new-city-card" class="btn btn-primary btn-sm" style="font-weight:700;">
 						@components.IconPlus("icon-xs")
 						<span>+ إضافة مدينة / منطقة</span>
@@ -129,16 +129,16 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</h3>
 					</div>
 
-					<form method="POST" action="/admin/cities/new" style="display:flex; flex-direction:column; gap:1rem;">
+					<form method="POST" action="/admin/cities/new" class="stack">
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-								اسم المدينة / المحافظة بالعربية <span style="color:var(--danger);">*</span>
+							<label class="field-label">
+								اسم المدينة / المحافظة بالعربية <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input" style="width:100%;"/>
 						</div>
 
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="field-label">
 								اسم المدينة / المحافظة بالإنجليزية
 							</label>
 							<input type="text" name="name_en" placeholder="New Mansoura" class="form-input" style="width:100%;"/>

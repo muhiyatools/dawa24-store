@@ -846,12 +846,20 @@ a:hover {
 /* ============================================================
    FOOTER
    ============================================================ */
+/* The footer was ~space-12 top padding, a space-12 grid gap and a 54px logo,
+   which pushed it well past a third of the viewport on a laptop and turned into
+   a very long single column on a phone. It is chrome, not content. */
 .site-footer {
   margin-top: auto;
   background-color: var(--surface-raised);
   border-top: 1px solid var(--border);
-  padding: var(--space-12) var(--space-6) var(--space-8);
+  padding: var(--space-6) var(--space-6) var(--space-4);
   color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.site-footer img {
+  height: 36px;
 }
 
 .site-footer a {
@@ -865,11 +873,10 @@ a:hover {
 
 .footer-content {
   max-width: var(--max-width);
-  margin: 0 auto;
+  margin: 0 auto var(--space-4);
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  gap: var(--space-12);
-  margin-bottom: var(--space-8);
+  gap: var(--space-6);
 }
 
 .footer-social-links {
@@ -914,7 +921,10 @@ a:hover {
 
 @media (max-width: 900px) {
   .footer-content {
-    grid-template-columns: 1fr;
+    /* Two columns rather than one: stacking every group produced a footer
+       taller than the page it sat under. */
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
     gap: var(--space-8);
   }
 }
@@ -1094,5 +1104,15 @@ dialog.modal::backdrop {
   }
   .page-container {
     padding: var(--space-4);
+  }
+}
+
+/* Very narrow screens: one column, but tighter than the desktop rhythm. */
+@media (max-width: 480px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+  }
+  .site-footer {
+    padding: var(--space-4) var(--space-4) var(--space-3);
   }
 }

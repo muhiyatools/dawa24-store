@@ -22,11 +22,11 @@ type ModelMetaEntry struct {
 // AdminTrashListPage renders trash overview across models.
 templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 	@layouts.AdminShell("سلة المحذوفات المركزية (Trash List)", "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">سلة المحذوفات واسترجاع البيانات ({ fmt.Sprintf("%d", len(models)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">استرجاع البيانات المحذوفة مؤقتاً أو الحذف النهائي مع الحفاظ على سلامة العلاقات.</p>
+					<p class="subtitle">استرجاع البيانات المحذوفة مؤقتاً أو الحذف النهائي مع الحفاظ على سلامة العلاقات.</p>
 				</div>
 			</div>
 
@@ -37,7 +37,7 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 							<th>الجدول / النموذج</th>
 							<th>الاسم</th>
 							<th>السجلات في السلة</th>
-							<th style="text-align:end;">الإجراءات</th>
+							<th class="text-end">الإجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -52,7 +52,7 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 										<span class="badge badge-success">فارغ</span>
 									}
 								</td>
-								<td style="text-align:end;">
+								<td class="text-end">
 									<a href={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s", m.Key)) } class="btn btn-secondary btn-sm">فتح السلة</a>
 								</td>
 							</tr>
@@ -75,11 +75,11 @@ type TrashRowView struct {
 // purge actions that reach the database.
 templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("سلة محذوفات %s", modelKey), "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">سلة محذوفات { modelKey }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">
+					<p class="subtitle">
 						الاسترجاع يعيد السجل للنظام. الحذف النهائي لا يمكن التراجع عنه ويُسجَّل في سجل التدقيق.
 					</p>
 				</div>
@@ -108,13 +108,13 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 									<td><strong>{ row.Label }</strong></td>
 									<td class="tabular-nums">{ row.DeletedAt }</td>
 									<td style="text-align:end; display:flex; gap:0.5rem; justify-content:flex-end;">
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s/%d/restore", modelKey, row.ID)) } style="margin:0;">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s/%d/restore", modelKey, row.ID)) } class="m-0">
 											<button type="submit" class="btn btn-secondary btn-sm">استرجاع</button>
 										</form>
 										<form
 											method="POST"
 											action={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s/%d/purge", modelKey, row.ID)) }
-											style="margin:0;"
+											class="m-0"
 											onsubmit="return confirm('حذف نهائي لا يمكن التراجع عنه. هل أنت متأكد؟');"
 										>
 											<button type="submit" class="btn btn-danger btn-sm">حذف نهائي</button>

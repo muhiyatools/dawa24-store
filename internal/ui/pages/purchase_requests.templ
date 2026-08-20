@@ -113,7 +113,7 @@ templ CustomerPurchaseRequestSupplierListPage(lang, dir string, suppliers []*org
 				<div class="card" style="padding:3rem; text-align:center; color:var(--text-secondary); background:var(--surface-raised); border:1px solid var(--border);">
 					@components.IconBuilding("icon-lg")
 					<h4 style="margin-top:1rem; color:var(--text);">لا يوجد موردون متاحون</h4>
-					<p style="margin:0;">لم يتم العثور على موردين يطابقون خيارات البحث أو مجموعات العمل المؤسسية الحالية.</p>
+					<p class="m-0">لم يتم العثور على موردين يطابقون خيارات البحث أو مجموعات العمل المؤسسية الحالية.</p>
 				</div>
 			} else {
 				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
@@ -350,7 +350,7 @@ templ CustomerPurchaseRequestPreviousPage(lang, dir string, requests []*commerce
 				<div class="card" style="padding:3rem; text-align:center; color:var(--text-secondary); background:var(--surface-raised); border:1px solid var(--border);">
 					@components.IconFile("icon-lg")
 					<h4 style="margin-top:1rem; color:var(--text);">لا توجد طلبات شراء مسجلة</h4>
-					<p style="margin:0;">لم يتم إنشاء طلبات شراء في هذا القسم حتى الآن.</p>
+					<p class="m-0">لم يتم إنشاء طلبات شراء في هذا القسم حتى الآن.</p>
 				</div>
 			} else {
 				<div style="display:flex; flex-direction:column; gap:1.25rem;">
@@ -469,7 +469,7 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 				<div class="card" style="padding:3rem; text-align:center; color:var(--text-secondary); background:var(--surface-raised); border:1px solid var(--border);">
 					@components.IconInbox("icon-lg")
 					<h4 style="margin-top:1rem; color:var(--text);">لا توجد طلبات شراء واردة</h4>
-					<p style="margin:0;">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم.</p>
+					<p class="m-0">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم.</p>
 				</div>
 			} else {
 				<div style="display:flex; flex-direction:column; gap:1.25rem;">

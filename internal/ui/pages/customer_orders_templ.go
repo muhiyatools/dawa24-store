@@ -54,7 +54,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"orders-page-container\" style=\"max-width:100%;\"><div style=\"display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"orders-page-container\" style=\"max-width:100%;\"><div style=\"display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;\"><div class=\"row-center-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -124,7 +124,7 @@ func CustomerOrdersList(orders []*commerce.Order) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div style=\"display:flex; flex-direction:column; gap:1rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"stack\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

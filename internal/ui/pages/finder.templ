@@ -11,14 +11,14 @@ import (
 templ FinderQuestionPage(lang, dir string, q *catalog.FinderQuestion, options []*catalog.FinderOption) {
 	@layouts.PublicShell("دليل اختيار المنتج | Finder", lang, dir) {
 		<div style="max-width:560px;">
-			<div class="card" style="margin-bottom:0;">
+			<div class="card mb-0">
 				<h2 style="font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0 0 1.25rem;">{ q.Question.Get(i18n.Lang(lang)) }</h2>
 				if len(options) == 0 {
 					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد خيارات لهذا السؤال بعد.</p>
 				} else {
 					<div style="display:flex; flex-direction:column; gap:0.75rem;">
 						for _, o := range options {
-							<form method="POST" action="/finder/answer" style="margin:0;">
+							<form method="POST" action="/finder/answer" class="m-0">
 								<input type="hidden" name="option_id" value={ fmt.Sprintf("%d", o.ID) } />
 								<input type="hidden" name="question_id" value={ fmt.Sprintf("%d", q.ID) } />
 								<button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center;">{ o.Label.Get(i18n.Lang(lang)) }</button>

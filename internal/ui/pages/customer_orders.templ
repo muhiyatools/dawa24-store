@@ -14,7 +14,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 		@layouts.CustomerShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
 			<div class="orders-page-container" style="max-width:100%;">
 				<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-					<div style="display:flex; align-items:center; gap:0.6rem;">
+					<div class="row-center-sm">
 						@components.IconPackage("icon-md")
 						<h2 style="font-size:1.5rem; font-weight:900; color:var(--neutral-900); margin:0;">
 							سجل طلبيات وأوامر التوريد
@@ -41,7 +41,7 @@ templ CustomerOrdersList(orders []*commerce.Order) {
 			ActionLabel: "تصفح الكتالوج الدوائي",
 		})
 	} else {
-		<div style="display:flex; flex-direction:column; gap:1rem;">
+		<div class="stack">
 			for _, o := range orders {
 				<div class="card hover-lift" style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; margin-bottom:0;">
 					<div>

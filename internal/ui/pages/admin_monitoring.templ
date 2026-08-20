@@ -11,11 +11,11 @@ import (
 // AdminFullErrorLogsPage renders error logs directory.
 templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeStatus, activeSeverity string, lang, dir string) {
 	@layouts.AdminShell("سجلات الأخطاء والتشخيص (Full Error Logs)", "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">سجلات تشخيص واستثناءات النظام ({ fmt.Sprintf("%d", len(logs)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">مراقبة الأخطاء البرمجية، استثناءات قاعدة البيانات، واستجابات 5xx.</p>
+					<p class="subtitle">مراقبة الأخطاء البرمجية، استثناءات قاعدة البيانات، واستجابات 5xx.</p>
 				</div>
 			</div>
 
@@ -32,7 +32,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 								<th>مستوى الخطورة</th>
 								<th>الحالة</th>
 								<th>التاريخ</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -50,7 +50,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 									</td>
 									<td><span class="badge badge-sky">{ l.Status }</span></td>
 									<td class="tabular-nums">{ l.CreatedAt.Format("2006-01-02 15:04:05") }</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/full-error-logs/%d", l.ID)) } class="btn btn-secondary btn-sm">عرض التفاصيل</a>
 									</td>
 								</tr>
@@ -67,10 +67,10 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل الخطأ #%d", l.ID), "audit", lang, dir) {
 		<div class="card" style="max-width:900px; margin:0 auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">خطأ #{ fmt.Sprintf("%d", l.ID) }: { l.ErrorMessage }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">مسار: <code>{ l.URLPath }</code> | خطورة: { l.ErrorLevel }</p>
+					<p class="subtitle">مسار: <code>{ l.URLPath }</code> | خطورة: { l.ErrorLevel }</p>
 				</div>
 				<a href="/admin/full-error-logs" class="btn btn-secondary btn-sm">العودة للسجلات</a>
 			</div>
@@ -92,7 +92,7 @@ templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 // AdminNotificationsPage renders platform notifications oversight.
 templ AdminNotificationsPage(lang, dir string) {
 	@layouts.AdminShell("إدارة الإشعارات المركزية للمنصة", "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">الإشعارات العامة والتنبيهات الموجهة</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد تنبيهات عامة", Message: "يتم بث الإشعارات المركزية للمستخدمين والتطبيقات عند الأحداث الهامة."})
 		</div>
@@ -102,7 +102,7 @@ templ AdminNotificationsPage(lang, dir string) {
 // AdminSystemResourcesPage renders system health & resource availability.
 templ AdminSystemResourcesPage(systemName string, lang, dir string) {
 	@layouts.AdminShell("حالة موارد النظام والخدمات", "developer", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">موارد النظام وقدرات المنصة ({ systemName })</h2>
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
 				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">

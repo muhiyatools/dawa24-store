@@ -252,7 +252,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				return templ_7745c5c3_Err
 			}
 			if !j.SalaryMin.IsZero() || !j.SalaryMax.IsZero() {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div style=\"text-align:end;\"><div style=\"font-size:0.75rem; color:var(--neutral-500);\">الراتب المعروض</div><div style=\"font-size:1.1rem; font-weight:900; color:var(--emerald);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"text-end\"><div style=\"font-size:0.75rem; color:var(--neutral-500);\">الراتب المعروض</div><div style=\"font-size:1.1rem; font-weight:900; color:var(--emerald);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -389,7 +389,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-name\">الاسم الثلاثي / الاسم المهني *</label> <input type=\"text\" id=\"a-name\" name=\"applicant_name\" required class=\"form-input\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-name\">الاسم الثلاثي / الاسم المهني *</label> <input type=\"text\" id=\"a-name\" name=\"applicant_name\" required class=\"form-input\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -415,7 +415,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"pharmacist@example.com\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-phone\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"a-phone\" name=\"applicant_phone\" required class=\"form-input tabular-nums\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"pharmacist@example.com\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-phone\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"a-phone\" name=\"applicant_phone\" required class=\"form-input tabular-nums\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

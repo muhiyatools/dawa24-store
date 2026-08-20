@@ -89,7 +89,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 										if s.Rating > 0 {
 											<span class="tabular-nums">{ fmt.Sprintf("%.1f", float64(s.Rating)) }</span>
 										} else {
-											<span style="color:var(--text-muted);">5.0</span>
+											<span class="text-muted">5.0</span>
 										}
 									</div>
 									<span class="badge badge-emerald" style="font-size:11px;">مورد معتمد</span>
@@ -189,7 +189,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						</a>
 
 						<!-- Follow / Unfollow Toggle -->
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) } style="margin:0;">
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) } class="m-0">
 							if data.IsFollowing {
 								<button type="submit" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:600; color:var(--danger-text); border-color:var(--danger-border);">
 									@components.IconHeart("icon-xs")

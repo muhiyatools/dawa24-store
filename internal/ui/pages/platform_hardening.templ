@@ -10,11 +10,11 @@ import (
 // AdminSessionPlansPage renders session plan management.
 templ AdminSessionPlansPage(lang, dir string) {
 	@layouts.AdminShell("خطط الجلسات والأجهزة (Session Plans)", "security", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">خطط الجلسات المتعددة وتحديد الأجهزة</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p>
+					<p class="subtitle">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p>
 				</div>
 				<a href="/admin/session-plan/requests" class="btn btn-secondary btn-sm">طلبات زيادة المقاعد</a>
 			</div>
@@ -26,8 +26,8 @@ templ AdminSessionPlansPage(lang, dir string) {
 // AdminSessionPlanRequestsPage renders session seat requests.
 templ AdminSessionPlanRequestsPage(lang, dir string) {
 	@layouts.AdminShell("طلبات زيادة الجلسات والأجهزة", "security", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">طلبات زيادة عدد الأجهزة والجلسات</h2>
 				</div>
@@ -70,11 +70,11 @@ templ CustomerReportIssuePage(lang, dir string) {
 // AdminReportIssuesPage renders admin issues review queue.
 templ AdminReportIssuesPage(lang, dir string) {
 	@layouts.AdminShell("بلاغات المستخدمين والدعم الفني (Report Issues)", "support", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">قائمة بلاغات وشكاوى المستخدمين</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p>
+					<p class="subtitle">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p>
 				</div>
 			</div>
 			@components.EmptyState(components.EmptyStateProps{Title: "سجل البلاغات", Message: "جميع البلاغات والشكاوى المسجلة تم التعامل معها بنجاح."})

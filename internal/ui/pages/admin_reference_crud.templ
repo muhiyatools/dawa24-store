@@ -19,11 +19,11 @@ type ReferenceItem struct {
 // AdminReferenceCRUDPage renders a reusable, high-craft CRUD table and toolbar for reference data.
 templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, items []ReferenceItem, lang, dir string) {
 	@layouts.AdminShell(title, "content", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">{ title } ({ fmt.Sprintf("%d", len(items)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إدارة وتحديث البيانات المرجعية الأساسية للمنصة.</p>
+					<p class="subtitle">إدارة وتحديث البيانات المرجعية الأساسية للمنصة.</p>
 				</div>
 				<button type="button" class="btn btn-primary btn-sm" onclick="alert('جاري فتح نموذج الإضافة')">
 					@components.IconPlus("icon-xs")
@@ -43,7 +43,7 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 								<th>الوصف / التفاصيل</th>
 								<th>معلومات إضافية</th>
 								<th>الحالة</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -60,7 +60,7 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 											<span class="badge badge-danger">معطل</span>
 										}
 									</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
 											<button type="button" class="btn btn-secondary btn-sm">تعديل</button>
 										</div>

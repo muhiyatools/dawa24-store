@@ -11,8 +11,8 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 	@layouts.AdminShell("إدارة المحتوى | Content", "content", lang, dir) {
 		<div class="card" style="margin-bottom:1.5rem;">
 			<h2 class="card-title" style="margin:0 0 1rem;">إضافة / تعديل كتلة محتوى</h2>
-			<form method="POST" action="/admin/content" style="display:flex; flex-direction:column; gap:1rem;">
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+			<form method="POST" action="/admin/content" class="stack">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin-bottom:0;">
 						<label class="form-label" for="ac-key">المفتاح</label>
 						<input type="text" id="ac-key" name="key" required class="form-input" placeholder="about" />
@@ -22,7 +22,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 						<input type="text" id="ac-position" name="position" class="form-input" placeholder="page" />
 					</div>
 				</div>
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin-bottom:0;">
 						<label class="form-label" for="ac-title-ar">العنوان (عربي)</label>
 						<input type="text" id="ac-title-ar" name="title_ar" class="form-input" />
@@ -32,7 +32,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 						<input type="text" id="ac-title-en" name="title_en" class="form-input" dir="ltr" />
 					</div>
 				</div>
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin-bottom:0;">
 						<label class="form-label" for="ac-body-ar">المحتوى (عربي)</label>
 						<textarea id="ac-body-ar" name="body_ar" rows="5" class="form-textarea"></textarea>

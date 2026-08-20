@@ -11,7 +11,7 @@ templ AdminApprovals(organizations []*org.Organization, currentFilter, lang, dir
 	@layouts.AdminShell("اعتماد ومراجعة تراخيص المنشآت", "approvals", lang, dir) {
 		<div class="card" style="margin-bottom:0; overflow:visible;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-				<div style="display:flex; align-items:center; gap:0.6rem;">
+				<div class="row-center-sm">
 					@components.IconShield("icon-md")
 					<div>
 						<h2 class="card-title" style="margin:0;">
@@ -60,7 +60,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 						<th>ترخيص هيئة الدواء</th>
 						<th>ملف الترخيص الرسمي</th>
 						<th>الحالة الحالية</th>
-						<th style="text-align:end;">الإجراء والتدقيق</th>
+						<th class="text-end">الإجراء والتدقيق</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -113,7 +113,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 									<span class="badge badge-sky">قيد التدقيق</span>
 								}
 							</td>
-							<td style="text-align:end;">
+							<td class="text-end">
 								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
 									<button
 										type="button"

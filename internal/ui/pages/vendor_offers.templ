@@ -34,7 +34,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					<a href="/vendor/offers/new" class="btn btn-primary" style="font-weight:800; padding:0.75rem 1.5rem;">
 						@components.IconPlus("icon-xs")
 						<span>إضافة عرض خاص جديد</span>
@@ -182,7 +182,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 									<span>🗺️ نطاقات التغطية</span>
 								</a>
 
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/delete", o.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض الخاص؟');">
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/delete", o.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض الخاص؟');">
 									<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
 										<span>حذف</span>
 									</button>

@@ -232,7 +232,7 @@ templ CustomerCatalogList(products []*catalog.Product, lang string) {
 							</div>
 
 							<!-- Favorite Heart Button -->
-							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", p.ID)) } style="margin:0;">
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", p.ID)) } class="m-0">
 								<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--accent);" title="حفظ في المفضلة">
 									@components.IconHeart("icon-xs")
 								</button>
@@ -257,12 +257,12 @@ templ CustomerCatalogList(products []*catalog.Product, lang string) {
 						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-3); margin-bottom:var(--space-3); font-size:var(--text-xs); display:flex; flex-direction:column; gap:2px;">
 							if p.ScientificName != "" {
 								<div style="color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-									<span style="color:var(--text-muted);">المادة الفعالة:</span> <strong>{ p.ScientificName }</strong>
+									<span class="text-muted">المادة الفعالة:</span> <strong>{ p.ScientificName }</strong>
 								</div>
 							}
 							if p.ManufacturingCompanies != "" {
 								<div style="color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-									<span style="color:var(--text-muted);">الشركة:</span> { p.ManufacturingCompanies }
+									<span class="text-muted">الشركة:</span> { p.ManufacturingCompanies }
 								</div>
 							}
 						</div>

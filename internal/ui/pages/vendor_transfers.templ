@@ -12,7 +12,7 @@ templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string
 		@VendorTransfersTable(transfers)
 	} else {
 		@layouts.VendorShell("التحويلات المخزنية | Stock Transfers", "transfers", lang, dir) {
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">سجل التحويلات بين المخازن</h2>
 					<p style="font-size:0.875rem; color:var(--neutral-500);">متابعة حركة نقل البضائع بين الفروع والمستودعات</p>

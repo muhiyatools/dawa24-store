@@ -139,7 +139,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;\">أوامر شراء مسجلة عبر المنظومة</div></div></div><!-- 2. Quick Actions & Management Links --><div style=\"display:grid; grid-template-columns:2fr 1fr; gap:1.5rem; align-items:start;\"><!-- Approvals & Operations Card --><div class=\"card\" style=\"margin-bottom:0; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">العمليات الرقابية والتحقق</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;\">التحقق من التراخيص الصيدلية، السجلات التجارية، وتوثيق الكيانات</p></div><a href=\"/admin/approvals\" class=\"btn btn-primary btn-sm\"><span>عرض قائمة المراجعة</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;\">أوامر شراء مسجلة عبر المنظومة</div></div></div><!-- 2. Quick Actions & Management Links --><div style=\"display:grid; grid-template-columns:2fr 1fr; gap:1.5rem; align-items:start;\"><!-- Approvals & Operations Card --><div class=\"card\" style=\"margin-bottom:0; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div class=\"header-row\"><div><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">العمليات الرقابية والتحقق</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;\">التحقق من التراخيص الصيدلية، السجلات التجارية، وتوثيق الكيانات</p></div><a href=\"/admin/approvals\" class=\"btn btn-primary btn-sm\"><span>عرض قائمة المراجعة</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -165,12 +165,12 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"display:flex; flex-direction:column; gap:1rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"stack\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, po := range pendingOrgs {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);\"><div class=\"row-center\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

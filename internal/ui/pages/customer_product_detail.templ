@@ -119,7 +119,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</div>
 
 						<!-- Favorite Button -->
-						<form action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", product.ID)) } method="POST" style="margin:0;">
+						<form action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", product.ID)) } method="POST" class="m-0">
 							<button type="submit" class="btn btn-secondary btn-icon" title="إضافة للمفضلة" style="color:var(--accent); width:34px; height:34px;">
 								@components.IconHeart("icon-xs")
 							</button>
@@ -149,24 +149,24 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-4); display:flex; flex-direction:column; gap:var(--space-2); font-size:var(--text-sm);">
 						if product.ScientificName != "" {
 							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:var(--space-1);">
-								<span style="color:var(--text-muted);">المادة الفعالة:</span>
+								<span class="text-muted">المادة الفعالة:</span>
 								<strong style="color:var(--text);">{ product.ScientificName }</strong>
 							</div>
 						}
 						if product.ManufacturingCompanies != "" {
 							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:var(--space-1);">
-								<span style="color:var(--text-muted);">الشركة المصنعة:</span>
+								<span class="text-muted">الشركة المصنعة:</span>
 								<strong style="color:var(--text);">{ product.ManufacturingCompanies }</strong>
 							</div>
 						}
 						if product.Barcode != "" {
 							<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:var(--space-1);">
-								<span style="color:var(--text-muted);">الباركود الدولي:</span>
+								<span class="text-muted">الباركود الدولي:</span>
 								<strong style="color:var(--text);" class="tabular-nums">{ product.Barcode }</strong>
 							</div>
 						}
 						<div style="display:flex; justify-content:space-between;">
-							<span style="color:var(--text-muted);">اشتراطات الحفظ:</span>
+							<span class="text-muted">اشتراطات الحفظ:</span>
 							<strong style="color:var(--text);">15° - 25° مئوية، بعيداً عن الرطوبة</strong>
 						</div>
 					</div>
@@ -331,9 +331,9 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							<!-- Col 2: Batch & Delivery -->
 							<div style="font-size:var(--text-xs); color:var(--text-secondary); display:flex; flex-direction:column; gap:2px;">
 								<div>
-									<span style="color:var(--text-muted);">التشغيلة:</span> <strong class="tabular-nums" style="color:var(--text);">{ offer.BatchNumber }</strong>
+									<span class="text-muted">التشغيلة:</span> <strong class="tabular-nums" style="color:var(--text);">{ offer.BatchNumber }</strong>
 									<span style="margin:0 var(--space-1); color:var(--border-strong);">|</span>
-									<span style="color:var(--text-muted);">الصلاحية:</span> <strong class="tabular-nums" style="color:var(--text);">{ offer.ExpiryDate }</strong>
+									<span class="text-muted">الصلاحية:</span> <strong class="tabular-nums" style="color:var(--text);">{ offer.ExpiryDate }</strong>
 								</div>
 								if offer.DeliveryEstimate != "" {
 									<div style="color:var(--accent); font-weight:600; display:flex; align-items:center; gap:var(--space-1);">

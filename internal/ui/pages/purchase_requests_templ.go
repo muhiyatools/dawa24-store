@@ -196,7 +196,7 @@ func CustomerPurchaseRequestSupplierListPage(lang, dir string, suppliers []*org.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<h4 style=\"margin-top:1rem; color:var(--text);\">لا يوجد موردون متاحون</h4><p style=\"margin:0;\">لم يتم العثور على موردين يطابقون خيارات البحث أو مجموعات العمل المؤسسية الحالية.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<h4 style=\"margin-top:1rem; color:var(--text);\">لا يوجد موردون متاحون</h4><p class=\"m-0\">لم يتم العثور على موردين يطابقون خيارات البحث أو مجموعات العمل المؤسسية الحالية.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -956,7 +956,7 @@ func CustomerPurchaseRequestPreviousPage(lang, dir string, requests []*commerce.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<h4 style=\"margin-top:1rem; color:var(--text);\">لا توجد طلبات شراء مسجلة</h4><p style=\"margin:0;\">لم يتم إنشاء طلبات شراء في هذا القسم حتى الآن.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<h4 style=\"margin-top:1rem; color:var(--text);\">لا توجد طلبات شراء مسجلة</h4><p class=\"m-0\">لم يتم إنشاء طلبات شراء في هذا القسم حتى الآن.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1387,7 +1387,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "<h4 style=\"margin-top:1rem; color:var(--text);\">لا توجد طلبات شراء واردة</h4><p style=\"margin:0;\">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "<h4 style=\"margin-top:1rem; color:var(--text);\">لا توجد طلبات شراء واردة</h4><p class=\"m-0\">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -54,7 +54,7 @@ func VendorOrders(shipments []*commerce.OrderShipment, lang, dir string, isParti
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 style=\"font-size:1.5rem; font-weight:800; color:var(--neutral-900);\">طلبيات الصيدليات والشحنات</h2><p style=\"font-size:0.875rem; color:var(--neutral-500);\">متابعة وتأكيد أوامر التوريد وإصدار إشعارات الشحن والتوصيل</p></div></div><div id=\"vendor-orders-content\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"header-row\"><div><h2 style=\"font-size:1.5rem; font-weight:800; color:var(--neutral-900);\">طلبيات الصيدليات والشحنات</h2><p style=\"font-size:0.875rem; color:var(--neutral-500);\">متابعة وتأكيد أوامر التوريد وإصدار إشعارات الشحن والتوصيل</p></div></div><div id=\"vendor-orders-content\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -107,7 +107,7 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"padding:0; overflow:hidden; margin-bottom:0;\"><table class=\"data-table\"><thead><tr><th>رقم الشحنة</th><th>الطلب الرئيسي</th><th>قيمة الشحنة</th><th>الحالة الحالية</th><th>التاريخ</th><th style=\"text-align:end;\">تحديث الحالة</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"padding:0; overflow:hidden; margin-bottom:0;\"><table class=\"data-table\"><thead><tr><th>رقم الشحنة</th><th>الطلب الرئيسي</th><th>قيمة الشحنة</th><th>الحالة الحالية</th><th>التاريخ</th><th class=\"text-end\">تحديث الحالة</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -177,7 +177,7 @@ func VendorOrdersTable(shipments []*commerce.OrderShipment) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td style=\"text-align:end;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td class=\"text-end\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

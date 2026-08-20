@@ -187,7 +187,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</button><div class=\"dropdown-menu\" style=\"inset-inline-start:auto; inset-inline-end:0; min-width:260px; padding:0.5rem 0;\"><!-- User Header Card --><div style=\"padding:0.75rem 1rem 0.6rem 1rem; border-bottom:1px solid var(--neutral-100);\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</button><div class=\"dropdown-menu\" style=\"inset-inline-start:auto; inset-inline-end:0; min-width:260px; padding:0.5rem 0;\"><!-- User Header Card --><div style=\"padding:0.75rem 1rem 0.6rem 1rem; border-bottom:1px solid var(--neutral-100);\"><div class=\"row-center\"><div style=\"width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -391,7 +391,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"dropdown-divider\"></div><!-- 7. Logout --><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0;\"><button type=\"submit\" class=\"dropdown-item\" style=\"color:var(--danger); font-weight:600; width:100%; border:none; background:none; cursor:pointer; text-align:start; padding:0.5rem 1rem; display:flex; align-items:center; gap:0.5rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"dropdown-divider\"></div><!-- 7. Logout --><form action=\"/auth/logout\" method=\"POST\" class=\"m-0\"><button type=\"submit\" class=\"dropdown-item\" style=\"color:var(--danger); font-weight:600; width:100%; border:none; background:none; cursor:pointer; text-align:start; padding:0.5rem 1rem; display:flex; align-items:center; gap:0.5rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -404,7 +404,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div style=\"display:flex; align-items:center; gap:0.75rem;\"><a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"font-weight:600;\"><span>تسجيل الدخول</span></a> <a href=\"/auth/register\" class=\"btn btn-primary\" style=\"font-weight:600;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"row-center\"><a href=\"/auth/login\" class=\"btn btn-secondary\" style=\"font-weight:600;\"><span>تسجيل الدخول</span></a> <a href=\"/auth/register\" class=\"btn btn-primary\" style=\"font-weight:600;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -451,7 +451,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" style=\"height:54px; object-fit:contain; border-radius:var(--radius-xl); box-shadow:var(--shadow-xs); background:var(--surface-raised); padding:4px;\"></div><h3 style=\"font-size:1.15rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" style=\"object-fit:contain; border-radius:var(--radius-lg); background:var(--surface-raised); padding:3px;\"></div><h3 style=\"font-size:1.15rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -723,7 +723,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الشركاء والموردين</a></li><li><a href=\"/privacy\">سياسة الخصوصية</a></li><li><a href=\"/terms\">الشروط والأحكام</a></li></ul></div><!-- Contact & Support --><div><h4 style=\"font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;\">التواصل والدعم الفني</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);\"><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الشركاء والموردين</a></li><li><a href=\"/privacy\">سياسة الخصوصية</a></li><li><a href=\"/terms\">الشروط والأحكام</a></li></ul></div><!-- Contact & Support --><div><h4 style=\"font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;\">التواصل والدعم الفني</h4><ul style=\"list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);\"><li class=\"row-center-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -757,7 +757,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</a></li><li style=\"display:flex; align-items:center; gap:0.6rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</a></li><li class=\"row-center-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

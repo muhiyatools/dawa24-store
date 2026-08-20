@@ -13,11 +13,11 @@ import (
 // CustomerSavingProductsPage renders customer saving products list.
 templ CustomerSavingProductsPage(search string, lang, dir string) {
 	@layouts.CustomerShell("منتجات التوفير وتتبع فروق الأسعار", "saving_products", lang, dir, nil) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">تتبع فروق الأسعار والخصومات الحية</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">مقارنة مستمرة بين أسعار مشترياتك السابقة وعروض الموردين الحالية في السوق.</p>
+					<p class="subtitle">مقارنة مستمرة بين أسعار مشترياتك السابقة وعروض الموردين الحالية في السوق.</p>
 				</div>
 				<a href="/customer/saving-products/import" class="btn btn-secondary btn-sm">استيراد قائمة أدوية</a>
 			</div>
@@ -38,7 +38,7 @@ templ CustomerSavingProductsPage(search string, lang, dir string) {
 templ CustomerSavingProductsImportPage(lang, dir string) {
 	@layouts.CustomerShell("استيراد أدوية التوفير", "saving_products", lang, dir, nil) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">استيراد قائمة الأدوية للتوفير</h2>
 				</div>
@@ -53,7 +53,7 @@ templ CustomerSavingProductsImportPage(lang, dir string) {
 templ CustomerSavingProductDetailPage(id int64, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("صنف توفير #%d", id), "saving_products", lang, dir, nil) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">تفاصيل الصنف #{ fmt.Sprintf("%d", id) }</h2>
 				</div>
@@ -66,11 +66,11 @@ templ CustomerSavingProductDetailPage(id int64, lang, dir string) {
 // CustomerOfferOrdersPage renders offer-based orders.
 templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 	@layouts.CustomerShell("طلبات العروض والصفقات", "orders_offers", lang, dir, nil) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", len(orders)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p>
+					<p class="subtitle">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p>
 				</div>
 			</div>
 
@@ -85,7 +85,7 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 								<th>الإجمالي</th>
 								<th>الخصم</th>
 								<th>الحالة</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -95,7 +95,7 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
 									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", o.TotalDiscount.String()) }</td>
 									<td><span class="badge badge-sky">{ string(o.Status) }</span></td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm">عرض الطلب</a>
 									</td>
 								</tr>
@@ -112,10 +112,10 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, nil) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">إتمام شراء العرض: { offer.Title.Get("ar") }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">قيمة الخصم: { offer.DiscountValue.String() }</p>
+					<p class="subtitle">قيمة الخصم: { offer.DiscountValue.String() }</p>
 				</div>
 				<a href="/offers" class="btn btn-secondary btn-sm">إلغاء والعودة</a>
 			</div>
@@ -124,7 +124,7 @@ templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 				<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", offer.ID) } />
 				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); margin-bottom:1.5rem;">
 					<h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.75rem;">بيانات التسليم والفرع</h3>
-					<div style="display:flex; flex-direction:column; gap:1rem;">
+					<div class="stack">
 						<div>
 							<label class="form-label">فرع الاستلام</label>
 							<select name="branch_id" class="form-input" required>

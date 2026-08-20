@@ -47,7 +47,7 @@ func AdminSessionPlansPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">خطط الجلسات المتعددة وتحديد الأجهزة</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p></div><a href=\"/admin/session-plan/requests\" class=\"btn btn-secondary btn-sm\">طلبات زيادة المقاعد</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">خطط الجلسات المتعددة وتحديد الأجهزة</h2><p class=\"subtitle\">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p></div><a href=\"/admin/session-plan/requests\" class=\"btn btn-secondary btn-sm\">طلبات زيادة المقاعد</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -103,7 +103,7 @@ func AdminSessionPlanRequestsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلبات زيادة عدد الأجهزة والجلسات</h2></div><a href=\"/admin/session-plan\" class=\"btn btn-secondary btn-sm\">العودة للخطط</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلبات زيادة عدد الأجهزة والجلسات</h2></div><a href=\"/admin/session-plan\" class=\"btn btn-secondary btn-sm\">العودة للخطط</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,7 +207,7 @@ func AdminReportIssuesPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">قائمة بلاغات وشكاوى المستخدمين</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">قائمة بلاغات وشكاوى المستخدمين</h2><p class=\"subtitle\">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

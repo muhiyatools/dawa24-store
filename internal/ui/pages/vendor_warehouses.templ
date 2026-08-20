@@ -11,11 +11,11 @@ import (
 // VendorWarehousesPage renders the list of vendor warehouses.
 templ VendorWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) {
 	@layouts.VendorShell("المستودعات والمخازن", "warehouses", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">مستودعات المنشأة ({ fmt.Sprintf("%d", len(warehouses)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إدارة المستودعات، نسب الإشغال، والتحويلات المخزنية بين الفروع.</p>
+					<p class="subtitle">إدارة المستودعات، نسب الإشغال، والتحويلات المخزنية بين الفروع.</p>
 				</div>
 				<a href="/vendor/transfers" class="btn btn-secondary btn-sm">التحويلات المخزنية</a>
 			</div>
@@ -31,7 +31,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) 
 								<th>الكود</th>
 								<th>العنوان</th>
 								<th>الحالة</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -47,7 +47,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) 
 											<span class="badge badge-danger">معطل</span>
 										}
 									</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm">عرض المخزون</a>
 									</td>
 								</tr>
@@ -63,11 +63,11 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) 
 // VendorWarehouseDetailPage renders single warehouse details and its stocks.
 templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
 	@layouts.VendorShell(fmt.Sprintf("مستودع: %s", w.Name), "warehouses", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">مستودع { w.Name }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">كود: <code>{ w.Code }</code> | عنوان: { w.Address }</p>
+					<p class="subtitle">كود: <code>{ w.Code }</code> | عنوان: { w.Address }</p>
 				</div>
 				<a href="/vendor/warehouses" class="btn btn-secondary btn-sm">العودة للمستودعات</a>
 			</div>

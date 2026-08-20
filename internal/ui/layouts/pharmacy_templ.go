@@ -694,7 +694,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"branch-selector\" style=\"display:inline-flex; align-items:center; gap:0.5rem; padding:0.25rem 0.75rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); font-size:0.875rem;\"><span style=\"color:var(--text-secondary); font-size:0.75rem; font-weight:600;\">فرع الاستلام:</span><form method=\"POST\" action=\"/customer/branches/active\" style=\"margin:0;\"><select name=\"branch_id\" class=\"form-select\" style=\"background:transparent; border:none; padding:0.15rem 0.5rem; font-size:0.875rem; font-weight:600; color:var(--text); cursor:pointer; outline:none;\" onchange=\"this.form.submit()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"branch-selector\" style=\"display:inline-flex; align-items:center; gap:0.5rem; padding:0.25rem 0.75rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); font-size:0.875rem;\"><span style=\"color:var(--text-secondary); font-size:0.75rem; font-weight:600;\">فرع الاستلام:</span><form method=\"POST\" action=\"/customer/branches/active\" class=\"m-0\"><select name=\"branch_id\" class=\"form-select\" style=\"background:transparent; border:none; padding:0.15rem 0.5rem; font-size:0.875rem; font-weight:600; color:var(--text); cursor:pointer; outline:none;\" onchange=\"this.form.submit()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

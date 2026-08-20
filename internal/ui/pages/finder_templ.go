@@ -49,7 +49,7 @@ func FinderQuestionPage(lang, dir string, q *catalog.FinderQuestion, options []*
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:560px;\"><div class=\"card\" style=\"margin-bottom:0;\"><h2 style=\"font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0 0 1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:560px;\"><div class=\"card mb-0\"><h2 style=\"font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0 0 1.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -77,7 +77,7 @@ func FinderQuestionPage(lang, dir string, q *catalog.FinderQuestion, options []*
 					return templ_7745c5c3_Err
 				}
 				for _, o := range options {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form method=\"POST\" action=\"/finder/answer\" style=\"margin:0;\"><input type=\"hidden\" name=\"option_id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form method=\"POST\" action=\"/finder/answer\" class=\"m-0\"><input type=\"hidden\" name=\"option_id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

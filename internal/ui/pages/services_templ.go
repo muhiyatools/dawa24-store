@@ -174,7 +174,7 @@ func ServiceDetail(lang, dir string, s *workflow.InstitutionalService) templ.Com
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"max-width:680px;\"><div class=\"card\" style=\"margin-bottom:0;\"><span class=\"badge badge-emerald\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"max-width:680px;\"><div class=\"card mb-0\"><span class=\"badge badge-emerald\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

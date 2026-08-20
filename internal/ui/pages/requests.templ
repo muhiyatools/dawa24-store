@@ -24,7 +24,7 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 		<div class="card" style="margin-bottom:1.25rem;">
 			<h3 class="card-title" style="margin:0 0 0.75rem;">طلب جديد</h3>
 			<form method="POST" action="/requests" style="display:flex; flex-direction:column; gap:0.9rem;">
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin-bottom:0;">
 						<label class="form-label" for="r-type">النوع</label>
 						<select id="r-type" name="type" class="form-input">

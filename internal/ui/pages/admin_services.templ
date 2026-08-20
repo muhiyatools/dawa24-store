@@ -12,7 +12,7 @@ templ AdminServices(lang, dir string, services []*workflow.InstitutionalService)
 		<div class="card" style="margin-bottom:1.25rem;">
 			<h2 class="card-title" style="margin:0 0 1rem;">خدمة جديدة</h2>
 			<form method="POST" action="/admin/services" style="display:flex; flex-direction:column; gap:0.9rem;">
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin-bottom:0;">
 						<label class="form-label" for="s-title-ar">العنوان (عربي)</label>
 						<input type="text" id="s-title-ar" name="title_ar" required class="form-input" />

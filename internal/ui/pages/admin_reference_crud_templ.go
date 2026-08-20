@@ -58,7 +58,7 @@ func AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, i
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -84,7 +84,7 @@ func AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, i
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">إدارة وتحديث البيانات المرجعية الأساسية للمنصة.</p></div><button type=\"button\" class=\"btn btn-primary btn-sm\" onclick=\"alert('جاري فتح نموذج الإضافة')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p class=\"subtitle\">إدارة وتحديث البيانات المرجعية الأساسية للمنصة.</p></div><button type=\"button\" class=\"btn btn-primary btn-sm\" onclick=\"alert('جاري فتح نموذج الإضافة')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -115,7 +115,7 @@ func AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, i
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>#</th><th>الاسم / العنوان</th><th>الوصف / التفاصيل</th><th>معلومات إضافية</th><th>الحالة</th><th style=\"text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>#</th><th>الاسم / العنوان</th><th>الوصف / التفاصيل</th><th>معلومات إضافية</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -187,7 +187,7 @@ func AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, i
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</td><td style=\"text-align:end;\"><div style=\"display:flex; justify-content:flex-end; gap:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\">تعديل</button></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</td><td class=\"text-end\"><div style=\"display:flex; justify-content:flex-end; gap:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\">تعديل</button></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -12,7 +12,7 @@ templ VendorOrders(shipments []*commerce.OrderShipment, lang, dir string, isPart
 		@VendorOrdersTable(shipments)
 	} else {
 		@layouts.VendorShell("طلبيات الموردين والشحنات | Orders & Shipments", "orders", lang, dir) {
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">طلبيات الصيدليات والشحنات</h2>
 					<p style="font-size:0.875rem; color:var(--neutral-500);">متابعة وتأكيد أوامر التوريد وإصدار إشعارات الشحن والتوصيل</p>
@@ -42,7 +42,7 @@ templ VendorOrdersTable(shipments []*commerce.OrderShipment) {
 						<th>قيمة الشحنة</th>
 						<th>الحالة الحالية</th>
 						<th>التاريخ</th>
-						<th style="text-align:end;">تحديث الحالة</th>
+						<th class="text-end">تحديث الحالة</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -65,7 +65,7 @@ templ VendorOrdersTable(shipments []*commerce.OrderShipment) {
 							<td style="color:var(--neutral-500);" class="tabular-nums">
 								{ sh.CreatedAt.Format("2006-01-02 15:04") }
 							</td>
-							<td style="text-align:end;">
+							<td class="text-end">
 								if sh.Status == commerce.StatusPending {
 									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
 										<input type="hidden" name="status" value="confirmed" />

@@ -60,7 +60,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1.75rem; align-items:start;">
 				
 				<!-- Left Column: Existing Pharmacy Branches List -->
-				<div style="display:flex; flex-direction:column; gap:1rem;">
+				<div class="stack">
 					<div style="font-size:1.1rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
 						@components.IconBuilding("icon-xs")
 						<span>قائمة فروع الصيدلية الحالية</span>
@@ -73,7 +73,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							<p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
 						</div>
 					} else {
-						<div style="display:flex; flex-direction:column; gap:1rem;">
+						<div class="stack">
 							for _, b := range data.Branches {
 								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; gap:0.85rem;">
 									<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
@@ -97,7 +97,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 										<div style="display:flex; align-items:center; gap:0.4rem;">
 											if !b.IsMain {
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
 													<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
 														<span>حذف</span>
 													</button>
@@ -122,7 +122,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 											if b.Latitude != nil && b.Longitude != nil {
 												<span class="tabular-nums" style="font-weight:700;">{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
 											} else {
-												<span style="color:var(--text-muted);">غير محددة</span>
+												<span class="text-muted">غير محددة</span>
 											}
 										</div>
 
@@ -161,13 +161,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					<form method="POST" action="/customer/branches/new" style="display:flex; flex-direction:column; gap:1.1rem;">
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									اسم الفرع بالعربية <span style="color:var(--danger);">*</span>
+								<label class="field-label">
+									اسم الفرع بالعربية <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name_ar" required placeholder="صيدلية الأمل - فرع المعادي" class="form-input" style="width:100%;"/>
 							</div>
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								<label class="field-label">
 									اسم الفرع بالإنجليزية
 								</label>
 								<input type="text" name="name_en" placeholder="Al Amal Pharmacy - Maadi" class="form-input" style="width:100%;"/>
@@ -176,14 +176,14 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								<label class="field-label">
 									كود الفرع الداخلي
 								</label>
 								<input type="text" name="code" placeholder="PH-01" class="form-input tabular-nums" style="width:100%;"/>
 							</div>
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									المحافظة / المدينة <span style="color:var(--danger);">*</span>
+								<label class="field-label">
+									المحافظة / المدينة <span class="text-danger">*</span>
 								</label>
 								<select name="city_id" required class="form-input" style="width:100%;">
 									<option value="">-- اختر المدينة / المحافظة --</option>
@@ -201,14 +201,14 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						</div>
 
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-								العنوان التفصيلي <span style="color:var(--danger);">*</span>
+							<label class="field-label">
+								العنوان التفصيلي <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input" style="width:100%;"/>
 						</div>
 
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="field-label">
 								رقم الهاتف للتواصل
 							</label>
 							<input type="tel" name="phone" placeholder="01012345678" class="form-input tabular-nums" style="width:100%;"/>
@@ -232,7 +232,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 						<!-- Google Maps URL Input -->
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="field-label">
 								🔗 رابط خرائط Google (Google Maps URL)
 							</label>
 							<input type="url" name="google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input" style="width:100%; font-size:0.8rem;"/>

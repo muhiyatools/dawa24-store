@@ -7,11 +7,11 @@ import (
 // VendorPoliciesPage renders policies editor.
 templ VendorPoliciesPage(policies map[string]string, lang, dir string) {
 	@layouts.VendorShell("سياسات التوريد والاسترجاع", "policies", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">سياسات التوريد والدفع والاسترجاع للمنشأة</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p>
+					<p class="subtitle">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p>
 				</div>
 			</div>
 
@@ -42,11 +42,11 @@ templ VendorPoliciesPage(policies map[string]string, lang, dir string) {
 // VendorSocialMediaPage renders social accounts editor.
 templ VendorSocialMediaPage(links map[string]string, lang, dir string) {
 	@layouts.VendorShell("وسائل التواصل الاجتماعي للمورد", "social_media", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">قنوات التواصل الاجتماعي للمنشأة</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p>
+					<p class="subtitle">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p>
 				</div>
 			</div>
 

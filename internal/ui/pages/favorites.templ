@@ -11,7 +11,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 	@layouts.CustomerShell("الأدوية والمستلزمات المفضلة", "favorites", lang, dir, nil) {
 		<div style="max-width:100%; margin:0 0 3rem 0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-				<div style="display:flex; align-items:center; gap:0.6rem;">
+				<div class="row-center-sm">
 					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
 						@components.IconHeart("icon-sm")
 					</div>
@@ -46,7 +46,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 										@components.IconPill("icon-xs")
 										<span>{ p.DosageForm }</span>
 									</span>
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/remove", p.ID)) } style="margin:0;">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/remove", p.ID)) } class="m-0">
 										<button type="submit" class="btn btn-secondary btn-icon" style="color:var(--danger); border-color:var(--danger-border); width:32px; height:32px;" title="إزالة من المفضلة">
 											@components.IconTrash("icon-xs")
 										</button>

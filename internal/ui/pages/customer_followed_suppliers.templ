@@ -72,7 +72,7 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 										</div>
 									</div>
 
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)) } style="margin:0;">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)) } class="m-0">
 										<button type="submit" class="btn btn-secondary btn-icon" title="إلغاء المتابعة" style="color:var(--danger); width:34px; height:34px;">
 											@components.IconHeart("icon-xs")
 										</button>

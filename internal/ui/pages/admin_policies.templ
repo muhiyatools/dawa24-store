@@ -15,7 +15,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 	{{ _ = dir }}
 	<div class="card" style="margin-bottom:0; overflow:visible;">
 		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-			<div style="display:flex; align-items:center; gap:0.6rem;">
+			<div class="row-center-sm">
 				@components.IconFile("icon-md")
 				<div>
 					<h2 class="card-title" style="margin:0;">
@@ -70,7 +70,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 							<th>ملخص التعديلات</th>
 							<th>حالة النشر</th>
 							<th>تاريخ التحديث</th>
-							<th style="text-align:end;">الإجراءات</th>
+							<th class="text-end">الإجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -106,14 +106,14 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 								<td style="font-size:0.8rem; color:var(--neutral-500);">
 									{ p.UpdatedAt.Format("2006-01-02 15:04") }
 								</td>
-								<td style="text-align:end;">
+								<td class="text-end">
 									<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
 										@components.ModalTrigger(fmt.Sprintf("view-policy-modal-%d", p.ID), "btn btn-secondary btn-sm") {
 											<span>معاينة</span>
 										}
 
 										if !p.IsPublished {
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/policies/%d/publish", p.ID)) } style="margin:0;">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/policies/%d/publish", p.ID)) } class="m-0">
 												<button type="submit" class="btn btn-primary btn-sm">
 													@components.IconCheck("icon-xs")
 													<span>نشر هذا الإصدار</span>
@@ -168,7 +168,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			Size:  "lg",
 		}) {
 			<form method="POST" action="/admin/policies" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin:0;">
 						<label class="form-label" for="policy-key">نوع الوثيقة القانونية *</label>
 						<select id="policy-key" name="policy_key" required class="form-select">
@@ -184,7 +184,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 					</div>
 				</div>
 
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin:0;">
 						<label class="form-label" for="policy-title-ar">عنوان الوثيقة (عربي) *</label>
 						<input type="text" id="policy-title-ar" name="title_ar" required class="form-input" placeholder="شروط الاستخدام والخدمة" />
@@ -195,7 +195,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 					</div>
 				</div>
 
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin:0;">
 						<label class="form-label" for="policy-summary-ar">ملخص التغييرات في هذا الإصدار (عربي)</label>
 						<input type="text" id="policy-summary-ar" name="summary_ar" class="form-input" placeholder="تحديث بنود الفواتير الإلكترونية والتسويات الدوائية" />
@@ -206,7 +206,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 					</div>
 				</div>
 
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+				<div class="form-grid-2">
 					<div class="form-group" style="margin:0;">
 						<label class="form-label" for="policy-content-ar">نص الوثيقة القانونية (عربي) *</label>
 						<textarea id="policy-content-ar" name="content_ar" rows="8" required class="form-input" placeholder="أدخل نص وبنود السياسة القانونية بالتفصيل..."></textarea>

@@ -59,7 +59,7 @@ func AdminTrashListPage(models []ModelMetaEntry, lang, dir string) templ.Compone
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">سلة المحذوفات واسترجاع البيانات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">سلة المحذوفات واسترجاع البيانات (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -72,7 +72,7 @@ func AdminTrashListPage(models []ModelMetaEntry, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">استرجاع البيانات المحذوفة مؤقتاً أو الحذف النهائي مع الحفاظ على سلامة العلاقات.</p></div></div><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الجدول / النموذج</th><th>الاسم</th><th>السجلات في السلة</th><th style=\"text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</h2><p class=\"subtitle\">استرجاع البيانات المحذوفة مؤقتاً أو الحذف النهائي مع الحفاظ على سلامة العلاقات.</p></div></div><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الجدول / النموذج</th><th>الاسم</th><th>السجلات في السلة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -131,7 +131,7 @@ func AdminTrashListPage(models []ModelMetaEntry, lang, dir string) templ.Compone
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td style=\"text-align:end;\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td class=\"text-end\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -205,7 +205,7 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">سلة محذوفات ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">سلة محذوفات ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -218,7 +218,7 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">الاسترجاع يعيد السجل للنظام. الحذف النهائي لا يمكن التراجع عنه ويُسجَّل في سجل التدقيق.</p></div><a href=\"/admin/trash-list\" class=\"btn btn-secondary btn-sm\">العودة للسلة</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</h2><p class=\"subtitle\">الاسترجاع يعيد السجل للنظام. الحذف النهائي لا يمكن التراجع عنه ويُسجَّل في سجل التدقيق.</p></div><a href=\"/admin/trash-list\" class=\"btn btn-secondary btn-sm\">العودة للسلة</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -288,7 +288,7 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" style=\"margin:0;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\">استرجاع</button></form><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\">استرجاع</button></form><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -301,7 +301,7 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" style=\"margin:0;\" onsubmit=\"return confirm('حذف نهائي لا يمكن التراجع عنه. هل أنت متأكد؟');\"><button type=\"submit\" class=\"btn btn-danger btn-sm\">حذف نهائي</button></form></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"m-0\" onsubmit=\"return confirm('حذف نهائي لا يمكن التراجع عنه. هل أنت متأكد؟');\"><button type=\"submit\" class=\"btn btn-danger btn-sm\">حذف نهائي</button></form></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

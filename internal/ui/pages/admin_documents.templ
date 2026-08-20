@@ -57,7 +57,7 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 								<th>الحجم</th>
 								<th>تاريخ الرفع</th>
 								<th>الحالة</th>
-								<th style="text-align:end;">الإجراء</th>
+								<th class="text-end">الإجراء</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -124,7 +124,7 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 												<span class="badge badge-amber">قيد التدقيق</span>
 										}
 									</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<div style="display:inline-flex; gap:var(--space-2);">
 											<a href={ templ.SafeURL(fmt.Sprintf("/api/v1/attachments/%d", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm">
 												<span>معاينة</span>

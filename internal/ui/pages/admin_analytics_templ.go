@@ -49,7 +49,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Header --> <div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Header --> <div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -57,7 +57,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 class=\"card-title\" style=\"margin:0; font-size:1.5rem; font-weight:800;\">التحليلات والمؤشرات الحية</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">تحليل جغرافي وتوزيع للأجهزة وحركة الزيارات وأداء التوريد الحقيقي من قاعدة البيانات</p></div></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-emerald\" style=\"font-weight:700; padding:0.4rem 0.85rem; font-size:0.8rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 class=\"card-title\" style=\"margin:0; font-size:1.5rem; font-weight:800;\">التحليلات والمؤشرات الحية</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">تحليل جغرافي وتوزيع للأجهزة وحركة الزيارات وأداء التوريد الحقيقي من قاعدة البيانات</p></div></div><div class=\"row-center\"><span class=\"badge badge-emerald\" style=\"font-weight:700; padding:0.4rem 0.85rem; font-size:0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -191,7 +191,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">قيمة أوامر التوريد المنفذة</div></div></div><!-- 2. Geographic & Devices Distribution --> <div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;\"><!-- Countries Breakdown --><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>🌍</span> <span>توزيع الزوار حسب الدول</span></h3><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">تتبع مباشر</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">قيمة أوامر التوريد المنفذة</div></div></div><!-- 2. Geographic & Devices Distribution --> <div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;\"><!-- Countries Breakdown --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>🌍</span> <span>توزيع الزوار حسب الدول</span></h3><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">تتبع مباشر</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -255,7 +255,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><!-- Cities Breakdown --><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>🏙️</span> <span>أكثر المدن والمحافظات نشاطاً</span></h3><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">المناطق والمدن</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><!-- Cities Breakdown --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>🏙️</span> <span>أكثر المدن والمحافظات نشاطاً</span></h3><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">المناطق والمدن</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -306,7 +306,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><!-- Devices, OS & Browsers --><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>📱</span> <span>الأجهزة والمتصفحات</span></h3></div><div style=\"display:flex; flex-direction:column; gap:0.85rem;\"><!-- Device --><div><div style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;\">نوع الجهاز:</div><div style=\"display:flex; gap:0.4rem; flex-wrap:wrap;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><!-- Devices, OS & Browsers --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>📱</span> <span>الأجهزة والمتصفحات</span></h3></div><div style=\"display:flex; flex-direction:column; gap:0.85rem;\"><!-- Device --><div><div style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;\">نوع الجهاز:</div><div style=\"display:flex; gap:0.4rem; flex-wrap:wrap;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -414,7 +414,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div></div></div></div></div><!-- 3. Recent Visits Table (Fixed RTL Column Alignment) --> <div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;\"><div><h3 class=\"card-title\" style=\"margin:0; font-size:1.15rem; font-weight:800;\">أحدث الزيارات المسجلة على المنصة</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;\">سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول</p></div><span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">محدّث لحظياً</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div></div></div></div></div><!-- 3. Recent Visits Table (Fixed RTL Column Alignment) --> <div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;\"><div><h3 class=\"card-title\" style=\"margin:0; font-size:1.15rem; font-weight:800;\">أحدث الزيارات المسجلة على المنصة</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;\">سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول</p></div><span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">محدّث لحظياً</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -432,7 +432,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 				for _, v := range a.Recent {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<tr><!-- 1. Timestamp (Start Aligned) --><td style=\"text-align:start;\"><div class=\"tabular-nums\" style=\"font-weight:700; color:var(--text); font-size:0.85rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<tr><!-- 1. Timestamp (Start Aligned) --><td class=\"text-start\"><div class=\"tabular-nums\" style=\"font-weight:700; color:var(--text); font-size:0.85rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -458,7 +458,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div></td><!-- 2. Country & City (Start Aligned) --><td style=\"text-align:start;\"><div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div></td><!-- 2. Country & City (Start Aligned) --><td class=\"text-start\"><div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

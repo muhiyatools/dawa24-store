@@ -278,7 +278,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 											@components.IconEye("icon-xs")
 										</a>
 									}
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض؟');">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض؟');">
 										<button
 											type="submit"
 											class="btn btn-secondary btn-icon"

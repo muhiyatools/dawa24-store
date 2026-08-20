@@ -12,11 +12,11 @@ import (
 // AdminFullUserPage renders the categorized user list.
 templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir string) {
 	@layouts.AdminShell("إدارة ودليل المستخدمين الشامل", "users", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة.</p>
+					<p class="subtitle">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة.</p>
 				</div>
 			</div>
 
@@ -41,7 +41,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 								<th>الهاتف</th>
 								<th>الدور</th>
 								<th>الحالة</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -58,7 +58,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 											<span class="badge badge-danger">معطل</span>
 										}
 									</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%d", u.ID)) } class="btn btn-secondary btn-sm">عرض الملف</a>
 									</td>
 								</tr>
@@ -75,10 +75,10 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("ملف المستخدم: %s", u.Name.Get("ar")), "users", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">{ u.Name.Get("ar") }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
+					<p class="subtitle">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
 				</div>
 				<a href="/admin/users" class="btn btn-secondary btn-sm">العودة لدليل المستخدمين</a>
 			</div>
@@ -110,7 +110,7 @@ templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 // AdminDeletionRequestsPage renders deletion requests.
 templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lang, dir string) {
 	@layouts.AdminShell("طلبات حذف الحسابات", "users", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h2>
 			if len(requests) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات حذف معلقة", Message: "لا توجد أي طلبات لحذف الحسابات حالياً."})
@@ -124,7 +124,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 								<th>السبب</th>
 								<th>الحالة</th>
 								<th>تاريخ الطلب</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -135,7 +135,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 									<td>{ r.Reason }</td>
 									<td><span class="badge badge-warning">{ r.Status }</span></td>
 									<td>{ r.CreatedAt.Format("2006-01-02 15:04") }</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
 												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">موافقة وحذف</button>
@@ -158,7 +158,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 // AdminEmployeeActivitiesPage renders employee activity logs.
 templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
 	@layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل نشاطات الموظفين بالمنشآت</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "سجل العمليات فارغ", Message: "يتم تسجيل عمليات الموظفين والموردين تلقائياً عند إجراء التعديلات على المنتجات والأسعار."})
 		</div>
@@ -168,11 +168,11 @@ templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
 // AdminRolesPage renders RBAC roles management.
 templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 	@layouts.AdminShell("إدارة الأدوار والصلاحيات (RBAC)", "roles", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+		<div class="card mb-0">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">الأدوار والصلاحيات ({ fmt.Sprintf("%d", len(roles)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تحديد صلاحيات الوصول والتعديل لمجموعات المستخدمين والموظفين.</p>
+					<p class="subtitle">تحديد صلاحيات الوصول والتعديل لمجموعات المستخدمين والموظفين.</p>
 				</div>
 			</div>
 
@@ -187,7 +187,7 @@ templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 								<th>الكود التعريفي</th>
 								<th>الوصف</th>
 								<th>عدد الصلاحيات</th>
-								<th style="text-align:end;">الإجراءات</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -197,7 +197,7 @@ templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 									<td><code>{ r.Key }</code></td>
 									<td>{ r.Description }</td>
 									<td><span class="badge badge-sky">{ fmt.Sprintf("%d صلاحية", len(r.Permissions)) }</span></td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/admin-roles/%d", r.ID)) } class="btn btn-secondary btn-sm">تعديل الصلاحيات</a>
 									</td>
 								</tr>
@@ -214,10 +214,10 @@ templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 templ AdminRoleEditPage(r *org.Role, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تعديل صلاحيات الدور: %s", r.Name.Get("ar")), "roles", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+			<div class="header-row">
 				<div>
 					<h2 class="card-title" style="margin:0;">تعديل صلاحيات الدور ({ r.Key })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">حدد الصلاحيات الممنوحة للمستخدمين المسند إليهم هذا الدور.</p>
+					<p class="subtitle">حدد الصلاحيات الممنوحة للمستخدمين المسند إليهم هذا الدور.</p>
 				</div>
 				<a href="/admin/roles" class="btn btn-secondary btn-sm">العودة للأدوار</a>
 			</div>

@@ -17,9 +17,9 @@ templ ContactPage(lang, dir string, submitted bool) {
 				</div>
 			}
 
-			<div class="card" style="margin-bottom:0;">
-				<form method="POST" action="/contact" style="display:flex; flex-direction:column; gap:1rem;">
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+			<div class="card mb-0">
+				<form method="POST" action="/contact" class="stack">
+					<div class="form-grid-2">
 						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" for="c-name">الاسم</label>
 							<input type="text" id="c-name" name="name" required class="form-input" />
@@ -29,7 +29,7 @@ templ ContactPage(lang, dir string, submitted bool) {
 							<input type="email" id="c-email" name="email" required class="form-input" />
 						</div>
 					</div>
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div class="form-grid-2">
 						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" for="c-phone">الهاتف</label>
 							<input type="tel" id="c-phone" name="phone" class="form-input tabular-nums" />

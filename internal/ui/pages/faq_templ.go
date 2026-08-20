@@ -115,7 +115,7 @@ func FAQPage(lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			for _, item := range GetFAQs() {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card hover-lift\" style=\"margin-bottom:0; padding:1.5rem;\" x-data=\"{ open: false }\"><div style=\"display:flex; justify-content:space-between; align-items:center; cursor:pointer;\" @click=\"open = !open\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card hover-lift\" style=\"margin-bottom:0; padding:1.5rem;\" x-data=\"{ open: false }\"><div style=\"display:flex; justify-content:space-between; align-items:center; cursor:pointer;\" @click=\"open = !open\"><div class=\"row-center\"><span class=\"badge badge-sky\" style=\"font-size:0.75rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

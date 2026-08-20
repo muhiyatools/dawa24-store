@@ -457,3 +457,78 @@
 .palette-item { display: block; padding: 0.6rem 0.75rem; border-radius: var(--radius-md); color: var(--neutral-800); text-decoration: none; }
 
 .palette-item:hover { background: var(--primary-50); }
+
+/* ---------------------------------------------------------------------------
+   Utilities (PLAN_V7 Phase 5)
+
+   The templates carried ~4,700 inline style attributes, which is why the design
+   drifted: every page invented its own spacing and colour, so fixing one page
+   never generalised. These cover the patterns that repeated most, so markup can
+   name an intent instead of restating a rule. Values come from the tokens in
+   app.css — never literals.
+   --------------------------------------------------------------------------- */
+
+/* Spacing resets that appeared ~390 times between them. */
+.m-0        { margin: 0; }
+.mb-0       { margin-bottom: 0; }
+.mb-section { margin-bottom: var(--space-6); }
+
+/* Page and card headers: title block on one side, actions on the other. */
+.header-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--space-4);
+	flex-wrap: wrap;
+	margin-bottom: var(--space-6);
+}
+.header-row--ruled {
+	border-bottom: 1px solid var(--border);
+	padding-bottom: var(--space-3);
+}
+
+/* The subtitle under a card or page title. */
+.subtitle {
+	font-size: 0.85rem;
+	color: var(--text-secondary);
+	margin-top: 0.2rem;
+}
+
+/* Two-column form rows, which collapse on narrow screens. Previously written
+   inline as a fixed 1fr 1fr grid that did not collapse at all. */
+.form-grid-2 {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: var(--space-4);
+}
+.form-grid-3 {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: var(--space-4);
+}
+
+/* Field labels. */
+.field-label {
+	display: block;
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: var(--text-secondary);
+	margin-bottom: 0.35rem;
+}
+
+/* Inline groups. */
+.row-center   { display: flex; align-items: center; gap: var(--space-3); }
+.row-center-sm{ display: flex; align-items: center; gap: 0.6rem; }
+.stack        { display: flex; flex-direction: column; gap: var(--space-4); }
+.stack-sm     { display: flex; flex-direction: column; gap: var(--space-3); }
+
+/* Text intent. */
+.text-end       { text-align: end; }
+.text-start     { text-align: start; }
+.text-muted     { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.text-danger    { color: var(--danger); }
+.w-full         { width: 100%; }
+.fw-600         { font-weight: 600; }
+.fw-700         { font-weight: 700; }
+.fw-800         { font-weight: 800; }

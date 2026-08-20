@@ -55,7 +55,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					<a href="#branch-form-panel" class="btn btn-primary" style="font-weight:700;">
 						@components.IconPlus("icon-xs")
 						<span>إضافة فرع جديد</span>
@@ -127,13 +127,13 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							</a>
 						</div>
 					} else {
-						<div id="branches-container" style="display:flex; flex-direction:column; gap:1rem;">
+						<div id="branches-container" class="stack">
 							for _, b := range data.Branches {
 								<div class="branch-card" data-name={ b.Name.Get(i18n.Lang(lang)) } data-code={ b.Code } style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.4rem; display:flex; flex-direction:column; gap:0.9rem; transition:border-color 150ms;">
 									<!-- Card Header -->
 									<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; flex-wrap:wrap;">
 										<div>
-											<div style="display:flex; align-items:center; gap:0.6rem;">
+											<div class="row-center-sm">
 												<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
 													{ b.Name.Get(i18n.Lang(lang)) }
 												</h3>
@@ -173,7 +173,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 											if b.ManagerName != "" {
 												<span style="color:var(--accent); font-weight:700;">👤 { b.ManagerName }</span>
 											} else {
-												<span style="color:var(--text-muted);">غير محدد</span>
+												<span class="text-muted">غير محدد</span>
 											}
 										</div>
 										<div>
@@ -234,7 +234,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					
 					<!-- Form Header -->
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="row-center">
 							<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
 								🏢
 							</div>
@@ -254,15 +254,15 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<!-- Section 1: Names & Code -->
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									اسم الفرع (بالعربية) <span style="color:var(--danger);">*</span>
+								<label class="field-label">
+									اسم الفرع (بالعربية) <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input" style="width:100%;"/>
 							</div>
 
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									اسم الفرع (بالإنجليزية) <span style="color:var(--danger);">*</span>
+								<label class="field-label">
+									اسم الفرع (بالإنجليزية) <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name_en" placeholder="e.g. Main Branch - Cairo" class="form-input" style="width:100%;"/>
 							</div>
@@ -270,15 +270,15 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								<label class="field-label">
 									كود الفرع (Branch Code)
 								</label>
 								<input type="text" name="code" placeholder="مثال: BR-CAI-01" class="form-input tabular-nums" style="width:100%;"/>
 							</div>
 
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									نوع المنشأة اللوجستية <span style="color:var(--danger);">*</span>
+								<label class="field-label">
+									نوع المنشأة اللوجستية <span class="text-danger">*</span>
 								</label>
 								<select name="warehouse_type" class="form-input" style="width:100%;">
 									<option value="warehouse">مستودع أدوية مركزي (Warehouse)</option>
@@ -316,7 +316,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 						<!-- Google Maps URL Input (Auto-Extracts Coordinates on Paste) -->
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="field-label">
 								🔗 رابط خرائط Google (Google Maps URL)
 							</label>
 							<div style="position:relative;">
@@ -330,8 +330,8 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<!-- Section 3: City, Address, Manager -->
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-									المدينة / المحافظة <span style="color:var(--danger);">*</span>
+								<label class="field-label">
+									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
 								<select name="city_id" data-map-city class="form-input" style="width:100%;">
 									<option value="">-- اختر المدينة --</option>
@@ -345,7 +345,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							</div>
 
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								<label class="field-label">
 									مدير الفرع المسؤول (من الموظفين)
 								</label>
 								<select name="manager_id" class="form-input" style="width:100%;">
@@ -362,22 +362,22 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						</div>
 
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-								العنوان التفصيلي <span style="color:var(--danger);">*</span>
+							<label class="field-label">
+								العنوان التفصيلي <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="address" required placeholder="مثال: المنطقة الصناعية الثانية، قطعة 42، بجوار شركة توزيع الأدوية" class="form-input" style="width:100%;"/>
 						</div>
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								<label class="field-label">
 									رقم هاتف الفرع
 								</label>
 								<input type="tel" name="phone" placeholder="010XXXXXXXX" class="form-input tabular-nums" style="width:100%;"/>
 							</div>
 
 							<div>
-								<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								<label class="field-label">
 									المساحة التخزينية (م²)
 								</label>
 								<input type="number" name="capacity_sqm" placeholder="500" class="form-input tabular-nums" style="width:100%;"/>

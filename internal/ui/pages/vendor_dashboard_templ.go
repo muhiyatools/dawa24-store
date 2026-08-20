@@ -331,7 +331,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" style=\"display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"status\" value=\"shipped\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"stack\"><input type=\"hidden\" name=\"status\" value=\"shipped\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

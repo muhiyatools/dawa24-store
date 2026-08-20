@@ -13,7 +13,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 		
 		<!-- Header -->
 		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;">
-			<div style="display:flex; align-items:center; gap:0.6rem;">
+			<div class="row-center-sm">
 				<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 					@components.IconChart("icon-sm")
 				</div>
@@ -27,7 +27,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 				</div>
 			</div>
 
-			<div style="display:flex; align-items:center; gap:0.75rem;">
+			<div class="row-center">
 				<span class="badge badge-emerald" style="font-weight:700; padding:0.4rem 0.85rem; font-size:0.8rem;">
 					@components.IconCheck("icon-xs")
 					<span>بيانات حية ومتزامنة</span>
@@ -116,7 +116,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
 			
 			<!-- Countries Breakdown -->
-			<div class="card" style="margin-bottom:0;">
+			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
 						<span>🌍</span>
@@ -147,7 +147,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			</div>
 
 			<!-- Cities Breakdown -->
-			<div class="card" style="margin-bottom:0;">
+			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
 						<span>🏙️</span>
@@ -173,7 +173,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			</div>
 
 			<!-- Devices, OS & Browsers -->
-			<div class="card" style="margin-bottom:0;">
+			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
 						<span>📱</span>
@@ -223,7 +223,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 		</div>
 
 		<!-- 3. Recent Visits Table (Fixed RTL Column Alignment) -->
-		<div class="card" style="margin-bottom:0;">
+		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
 				<div>
 					<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
@@ -258,7 +258,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 							for _, v := range a.Recent {
 								<tr>
 									<!-- 1. Timestamp (Start Aligned) -->
-									<td style="text-align:start;">
+									<td class="text-start">
 										<div class="tabular-nums" style="font-weight:700; color:var(--text); font-size:0.85rem;">
 											{ v.VisitedAt.Format("2006-01-02") }
 										</div>
@@ -268,7 +268,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 									</td>
 
 									<!-- 2. Country & City (Start Aligned) -->
-									<td style="text-align:start;">
+									<td class="text-start">
 										<div style="font-weight:700; color:var(--text); font-size:0.875rem;">
 											{ v.Country }
 										</div>
