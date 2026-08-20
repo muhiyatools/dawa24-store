@@ -161,6 +161,7 @@ func mountModuleRoutes(
 		catalog.NewService(catRepoUI, log),
 		org.NewService(orgRepoUI, log),
 		workflow.NewCoverageService(db),
+		inventory.NewService(invRepoUI, log),
 	)
 	commSvcUI.SetAvailabilityProbe(uiAvailability)
 
@@ -243,7 +244,6 @@ func mountModuleRoutes(
 
 }
 
-
 // mountAuthenticatedModules registers every module whose endpoints require a logged-in caller.
 func mountAuthenticatedModules(
 	r chi.Router,
@@ -276,6 +276,7 @@ func mountAuthenticatedModules(
 		catalog.NewService(catalogPostgres.NewRepository(db), log),
 		org.NewService(orgPostgres.NewRepository(db), log),
 		workflow.NewCoverageService(db),
+		inventory.NewService(inventoryPostgres.NewRepository(db), log),
 	))
 	commerceHttp.NewHandler(commSvc, log).RegisterRoutes(r)
 

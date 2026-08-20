@@ -86,22 +86,28 @@ type Product struct {
 
 // ProductVariant represents a distinct package, concentration, or SKU variation (was product_childerns).
 type ProductVariant struct {
-	ID                   int64         `json:"id"`
-	PublicID             string        `json:"public_id"`
-	OrganizationID       int64         `json:"organization_id"`
-	ProductID            int64         `json:"product_id"`
-	Name                 i18n.Text     `json:"name"`
-	SKU                  string        `json:"sku,omitempty"`
-	Barcode              string        `json:"barcode,omitempty"`
-	Price                money.Amount  `json:"price"`
-	CostPrice            money.Amount  `json:"cost_price"`
-	Discount             money.Amount  `json:"discount"`
-	Unit                 string        `json:"unit,omitempty"`
-	Image                string        `json:"image,omitempty"`
-	BatchNumber          string        `json:"batch_number,omitempty"`
-	ExpiryDate           *time.Time    `json:"expiry_date,omitempty"`
-	MinOrderQty          int           `json:"min_order_qty"`
-	BranchID             *int64        `json:"branch_id,omitempty"`
+	ID             int64        `json:"id"`
+	PublicID       string       `json:"public_id"`
+	OrganizationID int64        `json:"organization_id"`
+	ProductID      int64        `json:"product_id"`
+	Name           i18n.Text    `json:"name"`
+	SKU            string       `json:"sku,omitempty"`
+	Barcode        string       `json:"barcode,omitempty"`
+	Price          money.Amount `json:"price"`
+	CostPrice      money.Amount `json:"cost_price"`
+	Discount       money.Amount `json:"discount"`
+	Unit           string       `json:"unit,omitempty"`
+	Image          string       `json:"image,omitempty"`
+	BatchNumber    string       `json:"batch_number,omitempty"`
+	ExpiryDate     *time.Time   `json:"expiry_date,omitempty"`
+	MinOrderQty    int          `json:"min_order_qty"`
+	BranchID       *int64       `json:"branch_id,omitempty"`
+	// StockQty is NOT persisted on this table. catalog.product_variants has no
+	// stock column — stock lives in inventory.stocks against a warehouse. This
+	// field is a write-side input (a supplier's opening quantity) and a
+	// read-side projection; anything that reads it without populating it from
+	// inventory is reading a permanent zero. That is why the old cart's stock
+	// guard, `if variant.StockQty > 0 && ...`, never fired.
 	StockQty             int           `json:"stock_qty"`
 	Status               ProductStatus `json:"status"`
 	IsFeatured           bool          `json:"is_featured"`

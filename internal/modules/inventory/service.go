@@ -144,3 +144,29 @@ func (s *Service) ListStocksByWarehouse(ctx context.Context, warehouseID int64) 
 func (s *Service) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error) {
 	return s.repo.ListStockMovements(ctx, stockID, limit)
 }
+
+// AvailableQuantity totals a variant's sellable stock across warehouses.
+func (s *Service) AvailableQuantity(ctx context.Context, variantID int64) (int, error) {
+	if variantID <= 0 {
+		return 0, nil
+	}
+	return s.repo.AvailableQuantity(ctx, variantID)
+}
+
+// SetStock creates or updates the stock row for one variant in one warehouse.
+// It is how an opening quantity gets recorded when a supplier publishes a
+// variant — inventory.stocks is the only place stock lives, and its
+// warehouse_id is NOT NULL, so the caller must have a warehouse.
+func (s *Service) SetStock(ctx context.Context, st *Stock) error {
+	if st == nil || st.WarehouseID <= 0 || st.ProductVariantID <= 0 {
+		return apperr.Validation("inventory.stock_invalid",
+			"Warehouse and product variant are required.",
+			map[string]string{"warehouse_id": "المستودع والصنف مطلوبان"})
+	}
+	if st.Quantity < 0 {
+		return apperr.Validation("inventory.quantity_negative",
+			"Quantity cannot be negative.",
+			map[string]string{"quantity": "الكمية لا يمكن أن تكون سالبة"})
+	}
+	return s.repo.UpsertStock(ctx, st)
+}

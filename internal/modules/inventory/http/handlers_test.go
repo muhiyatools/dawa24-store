@@ -320,3 +320,17 @@ func TestInventoryHandler_HappyPaths(t *testing.T) {
 		})
 	}
 }
+
+// AvailableQuantity stub. Real stock totalling is covered by the repository
+// integration tests; catalog.ProductVariant.StockQty is never populated, which
+// is why this lookup exists at all.
+func (s stubRepo) AvailableQuantity(context.Context, int64) (int, error) {
+	return 0, nil
+}
+
+// AvailableQuantity stub. Real stock totalling is covered by the repository
+// integration tests; catalog.ProductVariant.StockQty is never populated, which
+// is why this lookup exists at all.
+func (h happyRepo) AvailableQuantity(context.Context, int64) (int, error) {
+	return 0, nil
+}

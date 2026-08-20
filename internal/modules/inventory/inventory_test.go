@@ -281,3 +281,10 @@ func TestInterWarehouseTransfer(t *testing.T) {
 		t.Errorf("WH2 movement delta = %v; want +30", m2)
 	}
 }
+
+// AvailableQuantity stub. Real stock totalling is covered by the repository
+// integration tests; catalog.ProductVariant.StockQty is never populated, which
+// is why this lookup exists at all.
+func (m *mockInventoryRepo) AvailableQuantity(context.Context, int64) (int, error) {
+	return 0, nil
+}

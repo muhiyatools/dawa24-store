@@ -1,4 +1,4 @@
--- 097_drop_translations (down)
+-- 099_drop_translations (down)
 --
 -- Recreates the table shape. The rows are NOT recoverable — they were dropped
 -- deliberately because nothing read them.

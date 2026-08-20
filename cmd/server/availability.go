@@ -7,6 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -22,13 +23,14 @@ import (
 // (ADR 0002) — the same reason docsGate is built here. commerce declares the
 // AvailabilityProbe interface; this is its only implementation.
 type availabilityProbe struct {
-	catalog  *catalog.Service
-	org      *org.Service
-	coverage *workflow.CoverageService
+	catalog   *catalog.Service
+	org       *org.Service
+	coverage  *workflow.CoverageService
+	inventory *inventory.Service
 }
 
-func newAvailabilityProbe(cat *catalog.Service, o *org.Service, cov *workflow.CoverageService) commerce.AvailabilityProbe {
-	return &availabilityProbe{catalog: cat, org: o, coverage: cov}
+func newAvailabilityProbe(cat *catalog.Service, o *org.Service, cov *workflow.CoverageService, inv *inventory.Service) commerce.AvailabilityProbe {
+	return &availabilityProbe{catalog: cat, org: o, coverage: cov, inventory: inv}
 }
 
 // Variant reads the stock and ownership facts for one sellable variant.
@@ -50,10 +52,23 @@ func (p *availabilityProbe) Variant(ctx context.Context, variantID int64) (comme
 	if v == nil {
 		return commerce.VariantAvailability{}, nil
 	}
+	// Stock comes from inventory.stocks, NOT from v.StockQty. That field is
+	// declared on catalog.ProductVariant but no query populates it — the column
+	// does not exist on catalog.product_variants — so it is a permanent zero.
+	// Reading it here would refuse every purchase.
+	qty := 0
+	if p.inventory != nil {
+		n, err := p.inventory.AvailableQuantity(ctx, variantID)
+		if err != nil {
+			return commerce.VariantAvailability{}, err
+		}
+		qty = n
+	}
+
 	return commerce.VariantAvailability{
 		ID:             v.ID,
 		OrganizationID: v.OrganizationID,
-		StockQty:       v.StockQty,
+		StockQty:       qty,
 		MinOrderQty:    v.MinOrderQty,
 		Active:         v.Status == catalog.StatusActive,
 	}, nil

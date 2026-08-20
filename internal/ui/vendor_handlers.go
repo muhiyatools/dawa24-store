@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"encoding/csv"
 	"fmt"
 	"net/http"
@@ -157,10 +158,28 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 		Status:         catalog.StatusActive,
 	}
 
-	if h.catSvc != nil {
-		if _, err := h.catSvc.CreateVariant(ctx, variant); err != nil {
-			h.log.ErrorContext(ctx, "create variant error", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/variants/new", "error", h.safeMessage(err, langOf(r)))
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/variants/new", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		return
+	}
+	created, err := h.catSvc.CreateVariant(ctx, variant)
+	if err != nil {
+		h.log.ErrorContext(ctx, "create variant error", "error", err)
+		h.redirectWithNotice(w, r, "/vendor/variants/new", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	// The stock number the vendor typed does not live on the variant —
+	// catalog.product_variants has no stock column. It belongs in
+	// inventory.stocks against a warehouse. Writing it there is the difference
+	// between "50 in stock" being real and being silently discarded, which is
+	// what happened before.
+	if stockQty > 0 && created != nil {
+		if err := h.recordInitialStock(ctx, actor.OrganizationID, created, stockQty); err != nil {
+			h.log.WarnContext(ctx, "variant created but its opening stock could not be recorded",
+				"error", err, "variant", created.ID, "org", actor.OrganizationID, "qty", stockQty)
+			h.redirectWithNotice(w, r, "/vendor/products", "error",
+				"تم نشر الصنف، لكن تعذر تسجيل الكمية الافتتاحية. يرجى إضافة مستودع أولاً ثم تحديد الكمية من صفحة المخزون.")
 			return
 		}
 	}
@@ -1073,4 +1092,36 @@ func (h *UIHandler) VendorStockAdjustSubmit(w http.ResponseWriter, r *http.Reque
 		})
 	}
 	http.Redirect(w, r, "/vendor/inventory", http.StatusSeeOther)
+}
+
+// recordInitialStock writes a variant's opening quantity into inventory.stocks.
+//
+// inventory.stocks.warehouse_id is NOT NULL, so this needs somewhere to put it.
+// A supplier with no warehouse yet gets a clear message rather than a number
+// that disappears.
+func (h *UIHandler) recordInitialStock(ctx context.Context, orgID int64, v *catalog.ProductVariant, qty int) error {
+	if h.invSvc == nil {
+		return fmt.Errorf("inventory service unavailable")
+	}
+	warehouses, err := h.invSvc.ListWarehouses(ctx)
+	if err != nil {
+		return err
+	}
+	var warehouseID int64
+	for _, wh := range warehouses {
+		if wh.OrganizationID == orgID {
+			warehouseID = wh.ID
+			break
+		}
+	}
+	if warehouseID == 0 {
+		return fmt.Errorf("organization %d has no warehouse to hold stock", orgID)
+	}
+	return h.invSvc.SetStock(ctx, &inventory.Stock{
+		OrganizationID:   orgID,
+		WarehouseID:      warehouseID,
+		ProductID:        v.ProductID,
+		ProductVariantID: v.ID,
+		Quantity:         qty,
+	})
 }

@@ -352,3 +352,33 @@ func (r *Repository) UpdateTransferStatus(ctx context.Context, id int64, from, t
 		return nil
 	})
 }
+
+// AvailableQuantity totals the sellable stock of one variant across a supplier's
+// warehouses.
+//
+// It exists because catalog.ProductVariant.StockQty is a field no query ever
+// populates — the column does not exist on catalog.product_variants, and stock
+// lives here in inventory.stocks. Anything that trusted that field was reading a
+// permanent zero, which is why the old cart's stock guard
+// (`if variant.StockQty > 0 && ...`) never fired.
+//
+// AsSystem: a pharmacy asking whether it may buy is by definition asking about
+// another tenant's stock. Only the total crosses the boundary.
+func (r *Repository) AvailableQuantity(ctx context.Context, variantID int64) (int, error) {
+	var qty int
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const q = `
+			SELECT COALESCE(SUM(s.quantity), 0)
+			FROM inventory.stocks s
+			WHERE s.product_variant_id = $1
+			  AND s.deleted_at IS NULL;
+		`
+		return tx.QueryRow(txCtx, q, variantID).Scan(&qty)
+	})
+	if qty < 0 {
+		// A negative total means stock movements are inconsistent. Report none
+		// rather than a negative, so callers cannot read it as availability.
+		qty = 0
+	}
+	return qty, err
+}

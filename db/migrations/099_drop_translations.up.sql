@@ -1,4 +1,4 @@
--- 097_drop_translations (up)
+-- 099_drop_translations (up)
 --
 -- platform_admin.translations was written by exactly one screen (the admin
 -- translations manager) and read by nothing. Every user-facing string in the
