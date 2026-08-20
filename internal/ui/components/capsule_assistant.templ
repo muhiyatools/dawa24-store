@@ -7,7 +7,7 @@ templ CapsuleAssistant() {
 		x-cloak
 		style="position:fixed; bottom:24px; left:24px; right:auto; z-index:9990; font-family:var(--font-sans); direction:rtl;"
 	>
-		<!-- Floating Trigger: Polished Circular Button -->
+		<!-- Floating Trigger: Polished Circular Button (Hidden when Window is Open) -->
 		<button
 			type="button"
 			x-show="!isOpen"
@@ -19,17 +19,17 @@ templ CapsuleAssistant() {
 			x-transition:leave-end="opacity-0 transform scale-75"
 			@click="openAssistant()"
 			class="capsule-circle-btn"
-			style="position:relative; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; border:1px solid rgba(255, 255, 255, 0.35); box-shadow:0 12px 28px -4px rgba(37, 99, 235, 0.45), 0 6px 14px -2px rgba(2, 132, 199, 0.3); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); outline:none;"
+			style="position:relative; width:54px; height:54px; border-radius:50%; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; border:1px solid rgba(255, 255, 255, 0.35); box-shadow:0 10px 24px -4px rgba(37, 99, 235, 0.45), 0 4px 12px -2px rgba(2, 132, 199, 0.3); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); outline:none;"
 			title="المساعد الذكي كبسولة"
 		>
-			<div style="display:flex; align-items:center; justify-content:center; transition:transform 0.2s ease;">
+			<div style="display:flex; align-items:center; justify-content:center;">
 				@IconSparkles("icon-md")
 			</div>
 			<!-- Online Pulse Indicator -->
-			<span style="position:absolute; top:2px; right:2px; width:12px; height:12px; background:#10b981; border-radius:50%; border:2px solid #ffffff; box-shadow:0 0 8px rgba(16, 185, 129, 0.8);"></span>
+			<span style="position:absolute; top:2px; right:2px; width:11px; height:11px; background:#10b981; border-radius:50%; border:2px solid #ffffff; box-shadow:0 0 6px rgba(16, 185, 129, 0.8);"></span>
 		</button>
 
-		<!-- Slide-Out Chat Window -->
+		<!-- ChatGPT-Style Chat Window -->
 		<div
 			x-show="isOpen"
 			x-transition:enter="transition ease-out duration-250"
@@ -42,7 +42,7 @@ templ CapsuleAssistant() {
 			@dragover.prevent=""
 			@dragleave.prevent="onDragLeave($event)"
 			@drop.prevent="onDrop($event)"
-			style="position:fixed; bottom:24px; left:24px; right:auto; width:430px; max-width:calc(100vw - 32px); height:600px; max-height:calc(100vh - 48px); background:var(--surface-raised); border:1px solid var(--border); border-radius:24px; box-shadow:0 24px 48px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(20px);"
+			style="position:fixed; bottom:24px; left:24px; right:auto; width:440px; max-width:calc(100vw - 32px); height:620px; max-height:calc(100dvh - 36px); background:var(--surface-raised); border:1px solid var(--border); border-radius:22px; box-shadow:0 24px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(20px);"
 		>
 			<!-- Drag & Drop Overlay Zone -->
 			<div
@@ -53,142 +53,199 @@ templ CapsuleAssistant() {
 				x-transition:leave="transition ease-in duration-100"
 				x-transition:leave-start="opacity-100 scale-100"
 				x-transition:leave-end="opacity-0 scale-95"
-				style="position:absolute; inset:12px; border-radius:20px; z-index:9999; background:rgba(2, 132, 199, 0.96); backdrop-filter:blur(12px); border:2px dashed rgba(255,255,255,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:0.8rem; color:#ffffff; box-shadow:0 16px 36px rgba(0,0,0,0.3); pointer-events:none;"
+				style="position:absolute; inset:10px; border-radius:18px; z-index:9999; background:rgba(2, 132, 199, 0.96); backdrop-filter:blur(12px); border:2px dashed rgba(255,255,255,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:0.75rem; color:#ffffff; box-shadow:0 16px 36px rgba(0,0,0,0.3); pointer-events:none;"
 			>
-				<div style="width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; margin:0 auto; flex-shrink:0; border:1px solid rgba(255,255,255,0.35);">
+				<div style="width:54px; height:54px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; margin:0 auto; flex-shrink:0; border:1px solid rgba(255,255,255,0.35);">
 					@IconUpload("icon-md")
 				</div>
 				<div>
-					<div style="font-weight:800; font-size:1.15rem; margin:0 0 0.25rem 0; line-height:1.3;">أفلت الملفات هنا للإرفاق</div>
-					<div style="font-size:0.8rem; opacity:0.92; margin:0;">يدعم الصور، الروشتات، وملفات PDF الدوائية</div>
+					<div style="font-weight:800; font-size:1.1rem; margin:0 0 0.2rem 0;">أفلت الملفات هنا للإرفاق</div>
+					<div style="font-size:0.775rem; opacity:0.92; margin:0;">يدعم الصور، الروشتات، وملفات PDF الدوائية</div>
 				</div>
 			</div>
 
-			<!-- Window Header -->
-			<div style="padding:0.85rem 1.25rem; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); flex-shrink:0;">
-				<div style="display:flex; align-items:center; gap:0.7rem;">
-					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
-						@IconSparkles("icon-sm")
+			<!-- Sleek Minimal Header -->
+			<div style="padding:0.75rem 1.15rem; background:var(--surface-raised); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; height:56px; box-sizing:border-box;">
+				<div style="display:flex; align-items:center; gap:0.65rem;">
+					<div style="width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(37,99,235,0.3);">
+						@IconSparkles("icon-xs")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:0.95rem; margin:0; display:flex; align-items:center; gap:0.4rem;">
-							<span>المساعد كبسولة</span>
-							<span style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
+						<div style="font-weight:800; font-size:0.925rem; margin:0; display:flex; align-items:center; gap:0.35rem; color:var(--text);">
+							<span>كبسولة</span>
+							<span style="width:6px; height:6px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 4px #10b981;"></span>
 						</div>
-						<div style="font-size:0.725rem; opacity:0.9; margin-top:1px;">المعالج الصيدلي الذكي للأصناف والتوريد</div>
+						<div style="font-size:0.7rem; color:var(--text-muted); line-height:1;">المساعد الصيدلي الذكي</div>
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.35rem;">
+				<!-- Header Action Buttons -->
+				<div style="display:flex; align-items:center; gap:0.3rem;">
+					<!-- New Chat Button -->
+					<button
+						type="button"
+						@click="clearChat()"
+						style="background:none; border:none; color:var(--text-muted); width:28px; height:28px; border-radius:var(--radius-md); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 120ms;"
+						onmouseover="this.style.background='var(--surface-sunken)'; this.style.color='var(--text)';"
+						onmouseout="this.style.background='none'; this.style.color='var(--text-muted)';"
+						title="محادثة جديدة"
+					>
+						@IconRefresh("icon-xs")
+					</button>
+
+					<!-- Close Button -->
 					<button
 						type="button"
 						@click="closeAssistant()"
-						style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; width:30px; height:30px; border-radius:var(--radius-full); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 150ms;"
-						onmouseover="this.style.background='rgba(255,255,255,0.28)'"
-						onmouseout="this.style.background='rgba(255,255,255,0.15)'"
-						title="إغلاق النافذة"
+						style="background:none; border:none; color:var(--text-muted); width:28px; height:28px; border-radius:var(--radius-md); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 120ms;"
+						onmouseover="this.style.background='var(--surface-sunken)'; this.style.color='var(--text)';"
+						onmouseout="this.style.background='none'; this.style.color='var(--text-muted)';"
+						title="إغلاق"
 					>
 						@IconClose("icon-xs")
 					</button>
 				</div>
 			</div>
 
-			<!-- Messages Scroll Area -->
+			<!-- Messages Scroll Area (Canvas Style - Direct Text on Background) -->
 			<div
 				id="capsule-messages-container"
-				style="flex:1 1 auto; min-height:0; padding:1rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.85rem; background:var(--surface-sunken);"
+				style="flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1.25rem 1.15rem; display:flex; flex-direction:column; gap:1.25rem; background:var(--surface-raised); scroll-behavior:smooth;"
 			>
-				<!-- Welcome Greeting Bubble -->
-				<div style="display:flex; flex-direction:column; gap:0.35rem;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.85rem 1.1rem; color:var(--text); font-size:0.85rem; line-height:1.6; max-width:92%; box-shadow:var(--shadow-xs);">
-						مرحباً بك في منصة دواء 24. أنا <strong>كبسولة</strong>، مساعدك الصيدلي الرقمي المباشر. كيف يمكنني مساعدتك اليوم في فحص الأصناف، الروشتات، أو مقارنة عروض التوريد؟
+				<!-- Empty State / Welcome Greeting -->
+				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:1.5rem 0.5rem; gap:1rem;">
+					<div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(37, 99, 235, 0.15)); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid rgba(2, 132, 199, 0.25);">
+						@IconSparkles("icon-md")
+					</div>
+					<div>
+						<h4 style="margin:0 0 0.25rem 0; font-size:1.05rem; font-weight:800; color:var(--text);">مرحباً بك! أنا كبسولة</h4>
+						<p style="margin:0; font-size:0.8rem; color:var(--text-secondary); line-height:1.5; max-width:320px;">
+							مساعدك الذكي لفحص الأدوية، تحليل الروشتات والمرفقات، ومقارنة عروض الموردين والأسعار.
+						</p>
+					</div>
+
+					<!-- Quick Suggestion Chips (Minimalist Outline Pills) -->
+					<div style="display:flex; flex-direction:column; gap:0.45rem; width:100%; max-width:360px; margin-top:0.25rem;">
+						<button
+							type="button"
+							@click="askChip('أفضل عروض المضادات الحيوية المتوفرة اليوم')"
+							class="capsule-chip-btn"
+						>
+							@IconPackage("icon-xs")
+							<span>أفضل عروض المضادات الحيوية المتوفرة اليوم</span>
+						</button>
+
+						<button
+							type="button"
+							@click="askChip('كيف أقوم بمقارنة عروض الموردين والخصومات؟')"
+							class="capsule-chip-btn"
+						>
+							@IconLayers("icon-xs")
+							<span>كيف أقوم بمقارنة عروض الموردين والخصومات؟</span>
+						</button>
+
+						<button
+							type="button"
+							@click="askChip('اشتراطات سلاسل التبريد المعتمدة للأدوية')"
+							class="capsule-chip-btn"
+						>
+							@IconShield("icon-xs")
+							<span>اشتراطات سلاسل التبريد المعتمدة للأدوية</span>
+						</button>
 					</div>
 				</div>
 
-				<!-- Quick Suggestion Chips -->
-				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.25rem;">
-					<div style="font-size:0.725rem; font-weight:700; color:var(--text-muted); margin-bottom:0.1rem;">استفسارات شائعة مقترحة:</div>
-					
-					<button
-						type="button"
-						@click="askChip('أفضل عروض المضادات الحيوية المتوفرة اليوم')"
-						class="chip-btn"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.5rem 0.8rem; font-size:0.775rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
-					>
-						@IconPackage("icon-xs")
-						<span>أفضل عروض المضادات الحيوية المتوفرة اليوم</span>
-					</button>
-
-					<button
-						type="button"
-						@click="askChip('كيف أقوم بمقارنة عروض الموردين والخصومات؟')"
-						class="chip-btn"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.5rem 0.8rem; font-size:0.775rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
-					>
-						@IconLayers("icon-xs")
-						<span>كيف أقوم بمقارنة عروض الموردين والخصومات؟</span>
-					</button>
-
-					<button
-						type="button"
-						@click="askChip('اشتراطات سلاسل التبريد المعتمدة للأدوية المبردة')"
-						class="chip-btn"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.5rem 0.8rem; font-size:0.775rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
-					>
-						@IconShield("icon-xs")
-						<span>اشتراطات سلاسل التبريد المعتمدة للأدوية المبردة</span>
-					</button>
-				</div>
-
-				<!-- Dynamically Rendered Messages -->
+				<!-- Message Stream -->
 				<template x-for="(msg, idx) in messages" :key="idx">
-					<div
-						:style="msg.isUser ? 'display:flex; justify-content:flex-end; animation:fadeIn 180ms ease;' : 'display:flex; justify-content:flex-start; animation:fadeIn 180ms ease;'"
-					>
-						<div style="max-width:88%; display:flex; flex-direction:column; gap:0.3rem;" :style="msg.isUser ? 'align-items:flex-end;' : 'align-items:flex-start;'">
-							
-							<!-- Attached files badge if any -->
-							<template x-if="msg.attachments && msg.attachments.length > 0">
-								<div style="display:flex; flex-wrap:wrap; gap:0.25rem;">
-									<template x-for="file in msg.attachments" :key="file.name || file.filename">
-										<div style="display:flex; align-items:center; gap:0.3rem; background:rgba(0,0,0,0.1); padding:0.2rem 0.45rem; border-radius:var(--radius-md); font-size:0.725rem;">
-											@IconPaperclip("icon-xxs")
-											<span x-text="file.name || file.filename" style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+					<div>
+						<!-- User Message (Subtle Right-Aligned Pill) -->
+						<template x-if="msg.isUser">
+							<div style="display:flex; justify-content:flex-start; margin-bottom:0.25rem;">
+								<div style="max-width:85%; display:flex; flex-direction:column; align-items:flex-start; gap:0.35rem;">
+									<!-- Attached Files Badges -->
+									<template x-if="msg.attachments && msg.attachments.length > 0">
+										<div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
+											<template x-for="file in msg.attachments" :key="file.name || file.filename">
+												<div style="display:flex; align-items:center; gap:0.3rem; background:var(--surface-sunken); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:var(--radius-md); font-size:0.725rem; color:var(--text-secondary);">
+													@IconPaperclip("icon-xxs")
+													<span x-text="file.name || file.filename" style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+												</div>
+											</template>
 										</div>
 									</template>
+									<!-- User Text Bubble -->
+									<div
+										dir="auto"
+										style="background:var(--surface-sunken); border:1px solid var(--border); color:var(--text); border-radius:18px 18px 4px 18px; padding:0.65rem 1rem; font-size:0.875rem; line-height:1.55; word-break:break-word;"
+										x-text="msg.text"
+									></div>
 								</div>
-							</template>
-
-							<!-- Reasoning collapsible block if present -->
-							<template x-if="!msg.isUser && msg.reasoning">
-								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.45rem 0.7rem; font-size:0.725rem; color:var(--text-secondary); width:100%;">
-									<div style="font-weight:700; display:flex; align-items:center; gap:0.3rem; margin-bottom:0.2rem; color:var(--text-muted);">
-										@IconSparkles("icon-xxs")
-										<span>التفكير المنطقي للمساعد:</span>
-									</div>
-									<div style="white-space:pre-wrap; line-height:1.4;" x-text="msg.reasoning"></div>
-								</div>
-							</template>
-
-							<!-- Speech Bubble -->
-							<div
-								:style="msg.isUser ?
-									'background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; border-radius:18px 18px 4px 18px; padding:0.75rem 1.05rem; font-size:0.85rem; line-height:1.55; box-shadow:var(--shadow-xs);' :
-									'background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.85rem 1.1rem; color:var(--text); font-size:0.85rem; line-height:1.6; box-shadow:var(--shadow-xs);'"
-							>
-								<div x-html="renderMarkdown(msg.text)" style="white-space:pre-wrap; word-break:break-word;"></div>
-								
-								<!-- Streaming cursor -->
-								<span x-show="msg.isStreaming" class="capsule-breathing-pill" style="display:inline-block; width:6px; height:6px; background:var(--accent); border-radius:50%; margin-right:4px;"></span>
 							</div>
+						</template>
 
-						</div>
+						<!-- Assistant Message (ChatGPT Style - Direct on Canvas) -->
+						<template x-if="!msg.isUser">
+							<div style="display:flex; flex-direction:column; gap:0.5rem; animation:fadeIn 150ms ease;">
+								
+								<!-- Assistant Header / Avatar Line -->
+								<div style="display:flex; align-items:center; justify-content:space-between;">
+									<div style="display:flex; align-items:center; gap:0.45rem;">
+										<div style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; display:flex; align-items:center; justify-content:center;">
+											@IconSparkles("icon-xxs")
+										</div>
+										<span style="font-size:0.775rem; font-weight:700; color:var(--text);">كبسولة</span>
+									</div>
+
+									<!-- Copy Response Button (Shown when not streaming and has text) -->
+									<button
+										type="button"
+										x-show="!msg.isStreaming && msg.text"
+										@click="copyText(msg.text, $el)"
+										style="background:none; border:none; color:var(--text-muted); font-size:0.725rem; cursor:pointer; padding:2px 6px; border-radius:4px; display:flex; align-items:center; gap:0.25rem;"
+										onmouseover="this.style.color='var(--text)'"
+										onmouseout="this.style.color='var(--text-muted)'"
+										title="نسخ الإجابة"
+									>
+										@IconCopy("icon-xxs")
+										<span class="copy-btn-text">نسخ</span>
+									</button>
+								</div>
+
+								<!-- Collapsible Reasoning Block (Thinking...) -->
+								<template x-if="msg.reasoning">
+									<div x-data="{ open: false }" style="margin:0.2rem 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--surface-sunken);">
+										<button
+											type="button"
+											@click="open = !open"
+											style="width:100%; padding:0.4rem 0.65rem; background:none; border:none; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-size:0.75rem; color:var(--text-secondary);"
+										>
+											<span style="display:flex; align-items:center; gap:0.35rem; font-weight:600;">
+												@IconSparkles("icon-xxs")
+												<span>التفكير المنطقي للمساعد</span>
+											</span>
+											<span x-text="open ? '▲ إخفاء' : '▼ إظهار'" style="font-size:0.7rem; color:var(--text-muted);"></span>
+										</button>
+										<div x-show="open" style="padding:0.5rem 0.65rem; font-size:0.75rem; color:var(--text-muted); border-top:1px solid var(--border); white-space:pre-wrap; line-height:1.45;" x-text="msg.reasoning"></div>
+									</div>
+								</template>
+
+								<!-- Assistant Response Body (Markdown Rendered with Auto Direction) -->
+								<div
+									dir="auto"
+									class="capsule-prose"
+									style="font-size:0.875rem; line-height:1.65; color:var(--text); word-break:break-word;"
+								>
+									<span x-html="renderMarkdown(msg.text)"></span>
+									<!-- Glowing Streaming Cursor -->
+									<span x-show="msg.isStreaming" class="capsule-cursor">▊</span>
+								</div>
+
+							</div>
+						</template>
 					</div>
 				</template>
 
-				<!-- Thinking indicator: three dots, no card, no label. Only
-				     attachment analysis shows text, because it is slow enough
-				     that the user needs to know which file is being read. -->
+				<!-- Thinking indicator: three dots, no card. Only attachment analysis shows text. -->
 				<div x-show="isStreaming && messages.length > 0 && !messages[messages.length-1].text" class="capsule-thinking-row">
 					<div class="capsule-thinking">
 						<span class="capsule-dot"></span>
@@ -200,13 +257,13 @@ templ CapsuleAssistant() {
 
 			</div>
 
-			<!-- Pinned Bottom Controls (Always sits at the bottom of the card) -->
-			<div style="margin-top:auto; flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); width:100%; box-sizing:border-box;">
+			<!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) -->
+			<div style="flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); padding:0.65rem 0.85rem; box-sizing:border-box; width:100%;">
 				
 				<!-- Attached Files Preview Strip -->
-				<div x-show="attachedFiles.length > 0" style="padding:0.4rem 0.85rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; gap:0.35rem; overflow-x:auto; align-items:center;">
+				<div x-show="attachedFiles.length > 0" style="margin-bottom:0.45rem; display:flex; gap:0.35rem; overflow-x:auto; align-items:center;">
 					<template x-for="(f, i) in attachedFiles" :key="i">
-						<div style="display:flex; align-items:center; gap:0.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.25rem 0.5rem; font-size:0.725rem; flex-shrink:0;">
+						<div style="display:flex; align-items:center; gap:0.35rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.2rem 0.45rem; font-size:0.725rem; flex-shrink:0;">
 							@IconPaperclip("icon-xxs")
 							<span x-text="f.name" style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
 							<span x-show="f.uploading" style="color:var(--accent); font-size:0.675rem;">(رفع...)</span>
@@ -218,32 +275,29 @@ templ CapsuleAssistant() {
 				</div>
 
 				<!-- Voice Recording Active Bar -->
-				<div x-show="isRecordingVoice" style="padding:0.75rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
-					<div style="display:flex; align-items:center; gap:0.5rem;">
-						<span style="width:9px; height:9px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span>
-						<span style="font-size:0.8rem; font-weight:700; color:var(--text);" x-text="'جاري الاستماع الصوتي... ' + formatDuration(recordingSeconds)"></span>
+				<div x-show="isRecordingVoice" style="padding:0.4rem 0.5rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:20px; margin-bottom:0.4rem;">
+					<div style="display:flex; align-items:center; gap:0.45rem; padding-inline-start:0.5rem;">
+						<span style="width:8px; height:8px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span>
+						<span style="font-size:0.775rem; font-weight:700; color:var(--text);" x-text="'جاري الاستماع... ' + formatDuration(recordingSeconds)"></span>
 					</div>
-					<div style="display:flex; gap:0.4rem;">
-						<button type="button" @click="cancelVoiceRecord()" class="btn btn-secondary btn-xs">إلغاء</button>
-						<button type="button" @click="finishVoiceRecord()" class="btn btn-primary btn-xs" style="font-weight:700;">إنهاء وإرسال</button>
+					<div style="display:flex; gap:0.35rem;">
+						<button type="button" @click="cancelVoiceRecord()" class="btn btn-secondary btn-xs" style="height:28px; padding:0 0.6rem;">إلغاء</button>
+						<button type="button" @click="finishVoiceRecord()" class="btn btn-primary btn-xs" style="height:28px; padding:0 0.6rem; font-weight:700;">إنهاء</button>
 					</div>
 				</div>
 
-				<!-- Normal Chat Input Bar -->
-				<div x-show="!isRecordingVoice" style="padding:0.65rem 0.85rem; width:100%; box-sizing:border-box;">
+				<!-- ChatGPT-Style Floating Input Capsule -->
+				<div x-show="!isRecordingVoice" style="position:relative;">
 					<input type="file" multiple x-ref="fileInput" @change="handleFileSelect($event)" style="display:none;" />
 					
-					<!-- Integrated Input Pill Container -->
-					<div style="display:flex; align-items:center; gap:0.4rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:24px; padding:0.25rem 0.4rem 0.25rem 0.65rem; transition:border-color 150ms;">
+					<div class="capsule-input-capsule">
 						
-						<!-- Attach Button -->
+						<!-- Attach File Button -->
 						<button
 							type="button"
 							@click="$refs.fileInput.click()"
-							style="width:32px; height:32px; flex-shrink:0; border-radius:var(--radius-full); border:none; background:none; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 120ms;"
-							onmouseover="this.style.background='rgba(0,0,0,0.06)'"
-							onmouseout="this.style.background='none'"
-							title="إرفاق ملفات أو روشتات"
+							class="capsule-tool-btn"
+							title="إرفاق ملف أو روشتة"
 							:disabled="isStreaming"
 						>
 							@IconPaperclip("icon-xs")
@@ -253,34 +307,33 @@ templ CapsuleAssistant() {
 						<button
 							type="button"
 							@click="startVoiceRecord()"
-							style="width:32px; height:32px; flex-shrink:0; border-radius:var(--radius-full); border:none; background:none; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 120ms;"
-							onmouseover="this.style.background='rgba(0,0,0,0.06)'"
-							onmouseout="this.style.background='none'"
+							class="capsule-tool-btn"
 							title="تسجيل صوتي"
 							:disabled="isStreaming"
 						>
 							@IconMicrophone("icon-xs")
 						</button>
 
-						<!-- Multiline Textarea without scrollbar spinners -->
+						<!-- Auto-Expanding Textarea -->
 						<textarea
 							x-ref="chatTextarea"
 							x-model="inputQuery"
 							@keydown="handleKeydown($event)"
 							@input="autoResizeTextarea()"
-							placeholder="اكتب استفسارك الصيدلي... (Enter للإرسال)"
+							placeholder="اسأل كبسولة عن أي دواء، صنف، أو توريد..."
 							rows="1"
-							style="flex:1; background:transparent; border:none; outline:none; resize:none; padding:0.35rem 0.25rem; font-size:0.85rem; color:var(--text); line-height:1.45; max-height:110px; min-height:24px; height:24px; font-family:inherit; overflow-y:auto; scrollbar-width:none; box-sizing:border-box;"
+							class="capsule-textarea"
 							:disabled="isStreaming"
+							dir="auto"
 						></textarea>
 
-						<!-- Send / Stop Button -->
+						<!-- Send Button (Circle with active state) / Stop Button -->
 						<template x-if="!isStreaming">
 							<button
 								type="button"
 								@click="sendMessage()"
-								class="btn btn-primary"
-								style="width:34px; height:34px; padding:0; flex-shrink:0; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;"
+								class="capsule-send-btn"
+								:class="{ 'active': inputQuery.trim().length > 0 || attachedFiles.length > 0 }"
 								:disabled="!inputQuery.trim() && attachedFiles.length === 0"
 								title="إرسال (Enter)"
 							>
@@ -292,8 +345,7 @@ templ CapsuleAssistant() {
 							<button
 								type="button"
 								@click="cancelStream()"
-								class="btn btn-secondary"
-								style="width:34px; height:34px; padding:0; flex-shrink:0; border-radius:var(--radius-full); color:#ef4444; border-color:#ef4444; display:flex; align-items:center; justify-content:center;"
+								class="capsule-stop-btn"
 								title="إيقاف التوليد"
 							>
 								@IconClose("icon-xs")
@@ -307,25 +359,208 @@ templ CapsuleAssistant() {
 
 		</div>
 
+		<!-- Polished Design Styles -->
 		<style>
 			.capsule-circle-btn:hover {
-				transform: translateY(-3px) scale(1.05);
-				box-shadow: 0 16px 32px -4px rgba(37, 99, 235, 0.55), 0 8px 18px -2px rgba(2, 132, 199, 0.4) !important;
+				transform: translateY(-2px) scale(1.04);
+				box-shadow: 0 14px 28px -4px rgba(37, 99, 235, 0.55), 0 6px 14px -2px rgba(2, 132, 199, 0.35) !important;
 			}
-			.chip-btn:hover {
-				border-color: var(--accent) !important;
-				background: var(--accent-subtle) !important;
-				color: var(--accent) !important;
+			.capsule-chip-btn {
+				background: var(--surface-sunken);
+				border: 1px solid var(--border);
+				border-radius: var(--radius-full);
+				padding: 0.45rem 0.85rem;
+				font-size: 0.775rem;
+				color: var(--text-secondary);
+				text-align: start;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				transition: all 140ms ease;
 			}
-			@keyframes capsulePulse {
-				0%, 100% { transform: scale(1); opacity: 0.8; }
-				50% { transform: scale(1.4); opacity: 1; }
+			.capsule-chip-btn:hover {
+				border-color: var(--accent);
+				color: var(--text);
+				background: var(--accent-subtle);
 			}
-			.capsule-breathing-pill {
-				animation: capsulePulse 1.2s infinite ease-in-out;
+			.capsule-input-capsule {
+				display: flex;
+				align-items: flex-end;
+				gap: 0.35rem;
+				background: var(--surface-sunken);
+				border: 1px solid var(--border);
+				border-radius: 22px;
+				padding: 0.3rem 0.45rem 0.3rem 0.6rem;
+				transition: border-color 150ms, box-shadow 150ms;
 			}
+			.capsule-input-capsule:focus-within {
+				border-color: var(--accent);
+				box-shadow: 0 0 0 2px var(--accent-subtle);
+			}
+			.capsule-tool-btn {
+				width: 30px;
+				height: 30px;
+				flex-shrink: 0;
+				border-radius: var(--radius-full);
+				border: none;
+				background: none;
+				color: var(--text-muted);
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 120ms;
+				margin-bottom: 1px;
+			}
+			.capsule-tool-btn:hover:not(:disabled) {
+				background: rgba(0,0,0,0.06);
+				color: var(--text);
+			}
+			.capsule-textarea {
+				flex: 1;
+				background: transparent;
+				border: none;
+				outline: none;
+				resize: none;
+				padding: 0.35rem 0.25rem;
+				font-size: 0.875rem;
+				color: var(--text);
+				line-height: 1.45;
+				max-height: 110px;
+				min-height: 24px;
+				height: 24px;
+				font-family: inherit;
+				overflow-y: auto;
+				scrollbar-width: none;
+				box-sizing: border-box;
+			}
+			.capsule-send-btn {
+				width: 30px;
+				height: 30px;
+				padding: 0;
+				flex-shrink: 0;
+				border-radius: var(--radius-full);
+				border: none;
+				background: var(--surface-raised);
+				color: var(--text-muted);
+				cursor: not-allowed;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 140ms ease;
+				margin-bottom: 1px;
+			}
+			.capsule-send-btn.active {
+				background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+				color: #ffffff;
+				cursor: pointer;
+				box-shadow: 0 2px 8px rgba(37,99,235,0.35);
+			}
+			.capsule-stop-btn {
+				width: 30px;
+				height: 30px;
+				padding: 0;
+				flex-shrink: 0;
+				border-radius: var(--radius-full);
+				border: 1px solid #ef4444;
+				background: rgba(239, 68, 68, 0.1);
+				color: #ef4444;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 1px;
+			}
+			.capsule-cursor {
+				display: inline-block;
+				color: var(--accent);
+				font-weight: 900;
+				margin-inline-start: 2px;
+				animation: blink 0.8s infinite;
+			}
+			@keyframes blink {
+				0%, 100% { opacity: 1; }
+				50% { opacity: 0; }
+			}
+			.capsule-dot-pulse {
+				width: 7px;
+				height: 7px;
+				background: var(--accent);
+				border-radius: 50%;
+				animation: pulseDot 1.2s infinite;
+			}
+			@keyframes pulseDot {
+				0%, 100% { transform: scale(0.9); opacity: 0.7; }
+				50% { transform: scale(1.3); opacity: 1; }
+			}
+			.capsule-dot {
+				width: 6px;
+				height: 6px;
+				background: var(--text-muted);
+				border-radius: 50%;
+				animation: dotBounce 1.2s infinite ease-in-out;
+			}
+			@keyframes dotBounce {
+				0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+				40% { transform: scale(1.1); opacity: 1; }
+			}
+			.capsule-thinking-row {
+				display: flex;
+				align-items: center;
+				padding: 0.25rem 0;
+			}
+			.capsule-thinking {
+				display: flex;
+				align-items: center;
+				gap: 0.35rem;
+			}
+			.capsule-thinking-label {
+				font-size: 0.775rem;
+				color: var(--text-muted);
+				margin-inline-start: 0.35rem;
+			}
+			.capsule-prose p { margin: 0 0 0.5rem 0; }
+			.capsule-prose p:last-child { margin-bottom: 0; }
+			.capsule-prose strong { font-weight: 700; color: var(--text); }
+			.capsule-inline-code {
+				background: var(--surface-sunken);
+				border: 1px solid var(--border);
+				padding: 0.1rem 0.35rem;
+				border-radius: 4px;
+				font-size: 0.825em;
+				font-family: monospace;
+				direction: ltr;
+				display: inline-block;
+			}
+			.capsule-code-block {
+				background: var(--surface-sunken);
+				border: 1px solid var(--border);
+				padding: 0.65rem 0.85rem;
+				border-radius: 8px;
+				font-size: 0.8em;
+				font-family: monospace;
+				direction: ltr;
+				text-align: left;
+				overflow-x: auto;
+				margin: 0.4rem 0;
+			}
+			.capsule-list-item {
+				display: flex;
+				align-items: baseline;
+				gap: 0.45rem;
+				margin: 0.2rem 0;
+			}
+			.capsule-bullet {
+				color: var(--accent);
+				font-weight: 800;
+			}
+			.capsule-h2 { font-size: 1.05rem; font-weight: 800; margin: 0.6rem 0 0.3rem 0; color: var(--text); }
+			.capsule-h3 { font-size: 0.95rem; font-weight: 800; margin: 0.5rem 0 0.25rem 0; color: var(--text); }
+			.capsule-h4 { font-size: 0.875rem; font-weight: 700; margin: 0.4rem 0 0.2rem 0; color: var(--text); }
 		</style>
 
+		<!-- Assistant Core Logic -->
 		<script>
 			function capsuleAssistantManager() {
 				return {
@@ -381,6 +616,9 @@ templ CapsuleAssistant() {
 					openAssistant() {
 						this.isOpen = true;
 						this.scrollToBottom();
+						this.$nextTick(() => {
+							if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
+						});
 					},
 
 					closeAssistant() {
@@ -389,9 +627,30 @@ templ CapsuleAssistant() {
 						this.dragCounter = 0;
 					},
 
+					clearChat() {
+						if (this.isStreaming) this.cancelStream();
+						this.messages = [];
+						this.conversationID = 0;
+						this.attachedFiles = [];
+						this.inputQuery = '';
+						if (this.$refs.chatTextarea) this.$refs.chatTextarea.style.height = '24px';
+					},
+
 					askChip(text) {
 						this.inputQuery = text;
 						this.sendMessage();
+					},
+
+					copyText(text, btnEl) {
+						if (!text) return;
+						navigator.clipboard.writeText(text).then(() => {
+							const textSpan = btnEl ? btnEl.querySelector('.copy-btn-text') : null;
+							if (textSpan) {
+								const orig = textSpan.innerText;
+								textSpan.innerText = 'تم النسخ!';
+								setTimeout(() => { textSpan.innerText = orig; }, 1500);
+							}
+						});
 					},
 
 					onDragEnter(e) {
@@ -603,10 +862,6 @@ templ CapsuleAssistant() {
 							attachments: sentAttachments
 						});
 
-						// Push first, then take the element back out. Alpine wraps
-						// pushed objects in a reactive proxy; keeping a reference to
-						// the original object means every later mutation is invisible
-						// to the DOM, which is why the answer bubble stayed empty.
 						this.messages.push({
 							text: '',
 							reasoning: '',
@@ -722,14 +977,39 @@ templ CapsuleAssistant() {
 
 					renderMarkdown(raw) {
 						if (!raw) return '';
-						let escaped = raw
+						let text = raw
 							.replace(/&/g, '&amp;')
 							.replace(/</g, '&lt;')
 							.replace(/>/g, '&gt;');
 
-						escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-						escaped = escaped.replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.08); padding:0.15rem 0.35rem; border-radius:4px; font-size:0.85em;">$1</code>');
-						return escaped;
+						// Code blocks
+						text = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
+							return `<pre class="capsule-code-block"><code>${p1.trim()}</code></pre>`;
+						});
+
+						// Inline code
+						text = text.replace(/`([^`]+)`/g, '<code class="capsule-inline-code">$1</code>');
+
+						// Bold
+						text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+						// Italic
+						text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+						// Headings
+						text = text.replace(/^### (.*$)/gim, '<h4 class="capsule-h4">$1</h4>');
+						text = text.replace(/^## (.*$)/gim, '<h3 class="capsule-h3">$1</h3>');
+						text = text.replace(/^# (.*$)/gim, '<h2 class="capsule-h2">$1</h2>');
+
+						// List items (bullet points)
+						text = text.replace(/^[-*•]\s+(.*$)/gim, '<div class="capsule-list-item"><span class="capsule-bullet">•</span><span>$1</span></div>');
+
+						// Double newlines to spacing
+						text = text.replace(/\n\n/g, '<div style="height:0.5rem;"></div>');
+						// Single newline
+						text = text.replace(/\n/g, '<br/>');
+
+						return text;
 					},
 
 					scrollToBottom() {
