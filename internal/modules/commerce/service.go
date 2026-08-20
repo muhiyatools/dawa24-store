@@ -16,6 +16,16 @@ type Service struct {
 	log  *slog.Logger
 
 	reqDocs RequiredDocsChecker
+	// availability answers the stock / coverage / branch questions that live in
+	// other modules. Injected at the composition root; see AvailabilityProbe.
+	availability AvailabilityProbe
+}
+
+// SetAvailabilityProbe installs the cross-module availability probe. Without
+// it CheckAvailability fails closed, because a purchase that cannot be
+// verified must not be allowed through.
+func (s *Service) SetAvailabilityProbe(p AvailabilityProbe) {
+	s.availability = p
 }
 
 // SetRequiredDocsChecker installs the §4.2 documents gate. When set, Checkout
@@ -88,6 +98,13 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		if err := s.reqDocs(ctx, input.CustomerOrgID, "customer"); err != nil {
 			return nil, err
 		}
+	}
+
+	// Re-check every line at order time. The cart may have been sitting open
+	// while another pharmacy bought the last unit, or while the supplier
+	// withdrew coverage — availability at add-to-cart time is not a promise.
+	if err := s.revalidateCheckoutLines(ctx, input); err != nil {
+		return nil, err
 	}
 
 	now := time.Now().UTC()
@@ -305,6 +322,25 @@ func (s *Service) GetCart(ctx context.Context, userID int64) (*Cart, error) {
 		return nil, err
 	}
 	return s.repo.GetCartWithItems(ctx, cart.ID)
+}
+
+// GetCartLine returns one line of the user's cart, or nil when the variant is
+// not in it. The quantity controls need the line's supplier so a re-check can
+// run even when the form does not resend it.
+func (s *Service) GetCartLine(ctx context.Context, userID, variantID int64) (*CartItem, error) {
+	cart, err := s.GetCart(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if cart == nil {
+		return nil, nil
+	}
+	for _, it := range cart.Items {
+		if it.ProductVariantID == variantID {
+			return it, nil
+		}
+	}
+	return nil, nil
 }
 
 // AddToCart adds or updates an item in the cart.

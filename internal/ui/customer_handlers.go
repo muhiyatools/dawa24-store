@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -15,8 +16,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
-
-
 
 func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -202,7 +201,6 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-
 func (h *UIHandler) CustomerOrdersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -320,17 +318,12 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	if qty <= 0 {
 		qty = 1
 	}
-	if vendorOrgID <= 0 {
-		vendorOrgID = 1
-	}
 
-	// Limit requested quantity based on supplier's available stock
-	if h.catSvc != nil && variantID > 0 {
-		if variant, err := h.catSvc.GetVariant(ctx, variantID); err == nil && variant != nil {
-			if variant.StockQty > 0 && qty > variant.StockQty {
-				qty = variant.StockQty
-			}
-		}
+	// Stock, supplier approval, branch ownership and weekly coverage are all
+	// decided by commerce.CheckAvailability. Nothing here defaults a missing
+	// supplier or quietly reduces the quantity the pharmacy asked for.
+	if !h.assertCartLineAvailable(w, r, actor, variantID, vendorOrgID, qty, "/catalog") {
+		return
 	}
 
 	item := &commerce.CartItem{
@@ -360,8 +353,54 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, _ = h.commSvc.AddToCart(ctx, userID, item)
+	if _, err := h.commSvc.AddToCart(ctx, userID, item); err != nil {
+		h.log.ErrorContext(ctx, "add to cart", "error", err,
+			"user", userID, "variant", variantID, "vendor", vendorOrgID)
+		h.redirectWithNotice(w, r, "/catalog", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
 	http.Redirect(w, r, "/cart", http.StatusSeeOther)
+}
+
+// assertCartLineAvailable runs the availability rule and, when it refuses,
+// redirects with the reason. It returns false when the caller must stop.
+//
+// Every buying surface goes through here so the rules cannot drift: the cart,
+// the quantity controls and checkout all ask the same question.
+func (h *UIHandler) assertCartLineAvailable(
+	w http.ResponseWriter, r *http.Request, actor authctx.Actor,
+	variantID, vendorOrgID int64, qty int, back string,
+) bool {
+	ctx := r.Context()
+
+	branchID := int64(0)
+	if actor.BranchID != nil {
+		branchID = *actor.BranchID
+	}
+
+	res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
+		VariantID:        variantID,
+		VendorOrgID:      vendorOrgID,
+		CustomerOrgID:    actor.OrganizationID,
+		CustomerBranchID: branchID,
+		Quantity:         qty,
+		When:             time.Now(),
+	})
+	if err != nil {
+		// A failed check is not permission to buy.
+		h.log.ErrorContext(ctx, "availability check failed", "error", err,
+			"variant", variantID, "vendor", vendorOrgID, "branch", branchID)
+		h.redirectWithNotice(w, r, back, "error",
+			"تعذر التحقق من توفر الصنف حالياً، يرجى المحاولة مرة أخرى.")
+		return false
+	}
+	if !res.Allowed {
+		h.log.InfoContext(ctx, "cart line refused", "reason", res.Reason,
+			"variant", variantID, "vendor", vendorOrgID, "branch", branchID, "qty", qty)
+		h.redirectWithNotice(w, r, back, "error", res.MessageAr)
+		return false
+	}
+	return true
 }
 
 func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request) {
@@ -412,16 +451,33 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 		qty = 0
 	}
 
-	// Limit quantity based on supplier's available stock
-	if qty > 0 && h.catSvc != nil && variantID > 0 {
-		if variant, err := h.catSvc.GetVariant(ctx, variantID); err == nil && variant != nil {
-			if variant.StockQty > 0 && qty > variant.StockQty {
-				qty = variant.StockQty
+	// Raising a quantity is a purchase decision and gets the same check as
+	// adding the line. The client's "+" button is a hint; this is the rule.
+	// Quantity 0 means "remove", which needs no availability check.
+	if qty > 0 {
+		actor, ok := authctx.From(ctx)
+		if !ok {
+			http.Redirect(w, r, "/auth/login?redirect=/cart", http.StatusSeeOther)
+			return
+		}
+		vendorOrgID, _ := strconv.ParseInt(r.PostFormValue("vendor_org_id"), 10, 64)
+		if vendorOrgID <= 0 {
+			// The cart row knows its supplier even when the form omits it.
+			if line, err := h.commSvc.GetCartLine(ctx, userID, variantID); err == nil && line != nil {
+				vendorOrgID = line.OrganizationID
 			}
+		}
+		if !h.assertCartLineAvailable(w, r, actor, variantID, vendorOrgID, qty, "/cart") {
+			return
 		}
 	}
 
-	_, _ = h.commSvc.SetCartQuantity(ctx, userID, variantID, qty)
+	if _, err := h.commSvc.SetCartQuantity(ctx, userID, variantID, qty); err != nil {
+		h.log.ErrorContext(ctx, "set cart quantity", "error", err,
+			"user", userID, "variant", variantID, "qty", qty)
+		h.redirectWithNotice(w, r, "/cart", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
 
 	if h.isHTMX(r) {
 		cart, _ := h.commSvc.GetCart(ctx, userID)
@@ -568,7 +624,6 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 	if h.orgSvc != nil {
 		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
 	}
-
 
 	data := pages.CustomerBranchesData{
 		Branches: branches,
@@ -761,5 +816,3 @@ func (h *UIHandler) CustomerSwitchActiveBranchSubmit(w http.ResponseWriter, r *h
 	}
 	http.Redirect(w, r, ref, http.StatusSeeOther)
 }
-
-

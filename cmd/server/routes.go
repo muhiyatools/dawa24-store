@@ -154,6 +154,15 @@ func mountModuleRoutes(
 
 	commSvcUI := commerce.NewService(commRepoUI, log)
 	commSvcUI.SetRequiredDocsChecker(docsGate)
+	// §1.2 availability gate: stock, supplier approval, branch ownership and
+	// weekly coverage are checked in one place for every buying surface.
+	// Composed here because commerce must not import catalog/org/workflow.
+	uiAvailability := newAvailabilityProbe(
+		catalog.NewService(catRepoUI, log),
+		org.NewService(orgRepoUI, log),
+		workflow.NewCoverageService(db),
+	)
+	commSvcUI.SetAvailabilityProbe(uiAvailability)
 
 	promoSvcUI := promo.NewService(promoRepoUI, log)
 	promoSvcUI.SetRequiredDocsChecker(docsGate)
@@ -261,6 +270,13 @@ func mountAuthenticatedModules(
 	commRepo := commercePostgres.NewRepository(db)
 	commSvc := commerce.NewService(commRepo, log)
 	commSvc.SetRequiredDocsChecker(commerce.RequiredDocsChecker(docsGate))
+	// The JSON API must enforce the same availability rules as the HTML surface,
+	// otherwise it is a way around them.
+	commSvc.SetAvailabilityProbe(newAvailabilityProbe(
+		catalog.NewService(catalogPostgres.NewRepository(db), log),
+		org.NewService(orgPostgres.NewRepository(db), log),
+		workflow.NewCoverageService(db),
+	))
 	commerceHttp.NewHandler(commSvc, log).RegisterRoutes(r)
 
 	// 5. Billing & Entitlements
