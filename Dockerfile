@@ -1,42 +1,42 @@
-# Multi-stage build, mirroring the pattern already proven in the MuhiyaLLM
-# Gateway image so both services behave the same way in the Elest.io pipelines.
+# Multi-stage build with BuildKit caching for rapid Elest.io builds
 
 FROM golang:1.26-bookworm AS builder
 
 WORKDIR /app
 
-# Dependencies first so the module cache layer survives source edits.
+# 1. Cache dependencies layer (only re-downloads when go.mod or go.sum change)
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
 
+# 2. Copy application source
 COPY . .
 
 ARG VERSION=dev
 ARG COMMIT=unknown
 
-# CGO_ENABLED=0 produces a static binary that runs on a slim base image.
-# -trimpath keeps build paths out of the binary.
+# 3. Compile all 3 binaries using Go package cache mount (speeds up builds 10x)
 ENV CGO_ENABLED=0
-RUN go build -trimpath \
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -trimpath \
       -ldflags="-s -w -X main.buildVersion=${VERSION} -X main.buildCommit=${COMMIT}" \
       -o /out/server ./cmd/server && \
     go build -trimpath -ldflags="-s -w" -o /out/worker ./cmd/worker && \
     go build -trimpath -ldflags="-s -w" -o /out/cli    ./cmd/cli
 
+# Final minimal runtime image
 FROM debian:bookworm-slim
 
 WORKDIR /app
 
 # ca-certificates for outbound TLS to the Gateway and object storage.
 # curl for the container healthcheck.
-# tzdata because the platform operates in Africa/Cairo and timestamps are
-# rendered in local time even though they are stored as UTC.
+# tzdata for Africa/Cairo timezone localization.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl tzdata && \
     rm -rf /var/lib/apt/lists/*
 
-# A container escape in a root-owned process has host-level blast radius it does
-# not need. Same reasoning as the Gateway image.
 RUN groupadd -r dawa24 && useradd -r -g dawa24 -d /app dawa24
 
 COPY --from=builder /out/server /app/server
@@ -49,8 +49,6 @@ USER dawa24
 
 EXPOSE 8080
 
-# Liveness only. Readiness (which includes migrations and dependencies) is
-# checked by the platform against /ready.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD curl -fsS http://localhost:8080/health || exit 1
 

@@ -1,23 +1,42 @@
-# Keep the build context small and secrets out of the image.
+# Keep the build context tiny, fast, and secrets out of the image.
 
+# Version control and editor noise
 .git
 .github
-.data
+.idea
+.vscode
+.DS_Store
+.system_generated
+
+# Compiled binaries and local builds
 bin
 tmp
+dist
+build
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.log
+*.tar
+*.zip
+*.gz
+*.7z
 
-# Secrets must never enter a build context: anything copied in is recoverable
-# from the image layers even if a later step deletes it.
+# Local development data and coverage
+.data
+coverage.html
+*.test
+
+# Secrets must never enter a build context
 .env
 .env.*
 !.env.example
 
-# Local-only
+# Local-only compose and documentation
 docker-compose*.yml
 *.md
 !README.md
-
-# Test and editor noise
-.idea
-.vscode
-.DS_Store
+docs
+test/fixtures
