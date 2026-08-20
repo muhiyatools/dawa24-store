@@ -14,20 +14,69 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// AdminOfferOrdersPage renders customer offer procurement orders.
-func (h *UIHandler) AdminOfferOrdersPage(w http.ResponseWriter, r *http.Request) {
+// AdminFinancePage renders the unified financial management hub.
+func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var orders []*commerce.Order
-	if h.commSvc != nil {
-		// AsSystem justified: platform administrator finance oversight of orders
-		orders, _ = h.commSvc.ListCustomerOrders(database.AsSystem(ctx), 0, 100, 0)
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		tab = "invoices"
+	}
+
+	var invoices []*billing.Invoice
+	var payments []*billing.Payment
+	var wallets []*billing.Wallet
+
+	if h.billSvc != nil {
+		invoices, _ = h.billSvc.AdminListInvoices(ctx, 100, 0)
+		payments, _ = h.billSvc.AdminListPayments(ctx, 100, 0)
+		wallets, _ = h.billSvc.AdminListWallets(ctx, 100, 0)
+	}
+
+	var totalRevenueMinor int64
+	var totalPaidMinor int64
+	for _, p := range payments {
+		if p.Status == "paid" || p.Status == "completed" || p.Status == "success" {
+			totalPaidMinor += p.Amount.Minor()
+		}
+	}
+	for _, inv := range invoices {
+		if inv.Status != "cancelled" {
+			totalRevenueMinor += inv.TotalAmount.Minor()
+		}
+	}
+	if totalRevenueMinor == 0 && totalPaidMinor > 0 {
+		totalRevenueMinor = totalPaidMinor
+	}
+
+	totalPaid := money.FromMinor(totalPaidMinor)
+	totalRevenue := money.FromMinor(totalRevenueMinor)
+
+	// Platform commission: 5% of gross volume
+	commission := money.FromMinor(totalRevenueMinor * 5 / 100)
+
+	var totalHeldMinor int64
+	for _, w := range wallets {
+		totalHeldMinor += w.Balance.Minor()
+	}
+	totalHeld := money.FromMinor(totalHeldMinor)
+
+	data := pages.AdminFinanceData{
+		ActiveTab:       tab,
+		Invoices:        invoices,
+		Payments:        payments,
+		Wallets:         wallets,
+		TotalRevenue:    totalRevenue,
+		TotalCommission: commission,
+		TotalPaid:       totalPaid,
+		TotalHeld:       totalHeld,
+		Query:           r.URL.Query().Get("q"),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOfferOrdersPage(orders, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin offer orders", "error", err)
+	if err := pages.AdminFinance(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin finance hub", "error", err)
 	}
 }
 
@@ -44,89 +93,13 @@ func (h *UIHandler) AdminOfferOrderDetailPage(w http.ResponseWriter, r *http.Req
 	}
 
 	if order == nil {
-		http.Redirect(w, r, "/admin/orders/offers", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/orders?tab=offers", http.StatusSeeOther)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminOfferOrderDetailPage(order, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin offer order detail", "error", err)
-	}
-}
-
-// AdminEarningsOrderPage renders commissions and gross earnings from marketplace orders.
-func (h *UIHandler) AdminEarningsOrderPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	totalOrdersRevenue := money.FromMajor(150000)
-	totalCommissions := money.FromMajor(7500)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminEarningsOrderPage(totalOrdersRevenue, totalCommissions, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin earnings order", "error", err)
-	}
-}
-
-// AdminEarningsOffersPage renders commissions from vendor promotions & flash offers.
-func (h *UIHandler) AdminEarningsOffersPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	totalOffersRevenue := money.FromMajor(85000)
-	totalCommissions := money.FromMajor(4250)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminEarningsOffersPage(totalOffersRevenue, totalCommissions, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin earnings offers", "error", err)
-	}
-}
-
-// AdminInvoicesPage renders billing invoices.
-func (h *UIHandler) AdminInvoicesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var invoices []*billing.Invoice
-	if h.billSvc != nil {
-		invoices, _ = h.billSvc.AdminListInvoices(ctx, 100, 0)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminInvoicesPage(invoices, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin invoices", "error", err)
-	}
-}
-
-// AdminPaymentsPage renders platform payment transaction logs.
-func (h *UIHandler) AdminPaymentsPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var payments []*billing.Payment
-	if h.billSvc != nil {
-		payments, _ = h.billSvc.AdminListPayments(ctx, 100, 0)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminPaymentsPage(payments, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin payments", "error", err)
-	}
-}
-
-// AdminWalletsPage renders pharmacy and vendor wallet balances.
-func (h *UIHandler) AdminWalletsPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var wallets []*billing.Wallet
-	if h.billSvc != nil {
-		wallets, _ = h.billSvc.AdminListWallets(ctx, 100, 0)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminWalletsPage(wallets, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin wallets", "error", err)
 	}
 }
 

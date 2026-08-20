@@ -254,57 +254,21 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 								<span>المبيعات والمالية</span>
 							</div>
 							if canAccessAdmin(ctx, "commerce.order.view") {
-								<a href="/admin/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
+								<a href="/admin/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders" || activeNav == "offer_orders") }>
 									@components.IconTruck("icon-sm")
 									<span>طلبات الشراء وأوامر التوريد</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "billing.invoice.view") || canAccessAdmin(ctx, "billing.payment.view") || canAccessAdmin(ctx, "billing.invoice.read") {
+								<a href="/admin/finance" class={ "sidebar-link", templ.KV("active", activeNav == "finance" || activeNav == "invoices" || activeNav == "payments" || activeNav == "wallets" || activeNav == "earnings_order" || activeNav == "earnings_offers") }>
+									@components.IconWallet("icon-sm")
+									<span>الإدارة المالية والمحافظ</span>
+								</a>
+							}
 							if canAccessAdmin(ctx, "billing.subscription_plan.view") {
-								<a href="/admin/plans" class={ "sidebar-link", templ.KV("active", activeNav == "plans") }>
+								<a href="/admin/plans" class={ "sidebar-link", templ.KV("active", activeNav == "plans" || activeNav == "subscriptions") }>
 									@components.IconTag("icon-sm")
 									<span>باقات وخطط الاشتراك</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "commerce.order.view") {
-							<a href="/admin/orders/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offer_orders") }>
-									@components.IconPackage("icon-sm")
-									<span>طلبات العروض</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "billing.invoice.read") {
-							<a href="/admin/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
-									@components.IconFile("icon-sm")
-									<span>الفواتير</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "billing.payment.view") {
-							<a href="/admin/payments" class={ "sidebar-link", templ.KV("active", activeNav == "payments") }>
-									@components.IconWallet("icon-sm")
-									<span>المدفوعات</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "billing.wallet.read") {
-							<a href="/admin/wallets" class={ "sidebar-link", templ.KV("active", activeNav == "wallets") }>
-									@components.IconWallet("icon-sm")
-									<span>المحافظ</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "billing.invoice.read") {
-							<a href="/admin/earnings/order" class={ "sidebar-link", templ.KV("active", activeNav == "earnings_order") }>
-									@components.IconChart("icon-sm")
-									<span>إيرادات الطلبات</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "billing.invoice.read") {
-							<a href="/admin/earnings/offers" class={ "sidebar-link", templ.KV("active", activeNav == "earnings_offers") }>
-									@components.IconChart("icon-sm")
-									<span>إيرادات العروض</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "billing.admin") {
-							<a href="/admin/plans/subscriptions" class={ "sidebar-link", templ.KV("active", activeNav == "subscriptions") }>
-									@components.IconWallet("icon-sm")
-									<span>الاشتراكات النشطة</span>
 								</a>
 							}
 						</div>

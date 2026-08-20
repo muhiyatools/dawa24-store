@@ -1,82 +1,172 @@
 package pages
 
 import (
+	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// AdminPlansData holds both plan definitions and live active subscriptions.
+type AdminPlansData struct {
+	ActiveTab     string // "plans", "subscriptions"
+	Plans         []*billing.Plan
+	Subscriptions []*billing.Subscription
+}
+
 templ AdminPlans(lang, dir string, plans []*billing.Plan) {
-	@layouts.AdminShell("خطط الاشتراك | Plans", "plans", lang, dir) {
+	@AdminPlansHub(AdminPlansData{ActiveTab: "plans", Plans: plans}, lang, dir)
+}
 
-		<!-- Sub-views of the plans screen. They are reached from here rather
-		     than from the sidebar: one concept, one top-level entry. -->
-		<div class="row-center" style="margin-bottom:1rem; flex-wrap:wrap;">
-			<a href="/admin/plans-info" class="btn btn-secondary btn-sm">تفاصيل الباقات</a>
-			<a href="/admin/plan-types" class="btn btn-secondary btn-sm">أنواع الباقات</a>
-			<a href="/admin/plan-features" class="btn btn-secondary btn-sm">مزايا الباقات</a>
-			<a href="/admin/plans/subscriptions" class="btn btn-secondary btn-sm">الاشتراكات النشطة</a>
-		</div>
-		<div class="card" style="margin-bottom:1.25rem;">
-			<h2 class="card-title" style="margin:0 0 1rem;">خطة جديدة</h2>
-			<form method="POST" action="/admin/plans" style="display:flex; flex-direction:column; gap:0.9rem;">
-				<div class="form-grid-2">
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="p-slug">المعرّف</label>
-						<input type="text" id="p-slug" name="slug" required class="form-input" dir="ltr" />
-					</div>
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="p-name-ar">الاسم (عربي)</label>
-						<input type="text" id="p-name-ar" name="name_ar" required class="form-input" />
-					</div>
+templ AdminPlansHub(data AdminPlansData, lang, dir string) {
+	@layouts.AdminShell("باقات وخطط الاشتراك", "plans", lang, dir) {
+		<div class="card mb-3" style="border:1px solid var(--border);">
+			<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<h1 class="card-title" style="margin:0; font-size:1.35rem; font-weight:800;">باقات واشتراكات المنظومة</h1>
+					<p class="subtitle" style="margin:0.25rem 0 0; font-size:0.85rem; color:var(--text-secondary);">
+						إدارة باقات العضوية للصيدليات والموردين، ومتابعة سجلات المشتركين الفعالة وتجديداتها.
+					</p>
 				</div>
-				<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="p-month">السعر الشهري</label>
-						<input type="text" id="p-month" name="price_month" class="form-input tabular-nums" value="0.00" />
-					</div>
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="p-year">السعر السنوي</label>
-						<input type="text" id="p-year" name="price_year" class="form-input tabular-nums" value="0.00" />
-					</div>
-					<div class="form-group" style="margin-bottom:0;">
-						<label class="form-label" for="p-days">المدة (أيام)</label>
-						<input type="number" id="p-days" name="duration_days" class="form-input tabular-nums" value="30" />
-					</div>
-				</div>
-				<label style="display:flex; gap:0.5rem; align-items:center; font-size:0.9rem;">
-					<input type="checkbox" name="is_compare" value="1" />
-					<span>خطة مقارنة الخصومات (تمنح صلاحية compare)</span>
-				</label>
-				<button type="submit" class="btn btn-primary" style="justify-content:center;">
-					@components.IconPlus("icon-sm")
-					<span>إضافة الخطة</span>
-				</button>
-			</form>
+			</div>
 		</div>
 
-		<div class="card">
-			<h2 class="card-title" style="margin:0 0 0.75rem;">الخطط الحالية</h2>
-			if len(plans) == 0 {
-				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد خطط بعد.</p>
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead><tr><th>المعرّف</th><th>الاسم</th><th>شهري</th><th>سنوي</th></tr></thead>
-						<tbody>
-							for _, p := range plans {
-								<tr>
-									<td dir="ltr">{ p.Slug }</td>
-									<td>{ p.Name.Get(i18n.Lang(lang)) }</td>
-									<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })</td>
-									<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })</td>
-								</tr>
+		<div class="card mb-0" style="border:1px solid var(--border); padding:0; overflow:hidden;">
+			<!-- Tab Navigation -->
+			<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto;">
+				<a href="/admin/plans?tab=plans" class={ "tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					@components.IconTag("icon-sm")
+					<span>دليل باقات الاشتراك ({ fmt.Sprintf("%d", len(data.Plans)) })</span>
+				</a>
+				<a href="/admin/plans?tab=subscriptions" class={ "tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					@components.IconWallet("icon-sm")
+					<span>الاشتراكات وسجلات المشتركين ({ fmt.Sprintf("%d", len(data.Subscriptions)) })</span>
+				</a>
+			</div>
+
+			<div style="padding:1.5rem;">
+				if data.ActiveTab == "subscriptions" {
+					if len(data.Subscriptions) == 0 {
+						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد اشتراكات مسجلة", Message: "ستظهر هنا اشتراكات المنشآت الفعالة والمنتهية فور تفعيلها."})
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>رقم الاشتراك</th>
+										<th>المستخدم / المنشأة</th>
+										<th>معرف الخطة</th>
+										<th>الحالة</th>
+										<th>تاريخ البدء</th>
+										<th>تاريخ الانتهاء</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, s := range data.Subscriptions {
+										<tr>
+											<td class="tabular-nums"><strong>{ fmt.Sprintf("SUB-%d", s.ID) }</strong></td>
+											<td>
+												if s.OrganizationID != nil {
+													منشأة #{ fmt.Sprintf("%d", *s.OrganizationID) }
+												} else {
+													مستخدم #{ fmt.Sprintf("%d", s.UserID) }
+												}
+											</td>
+											<td class="tabular-nums">خطة #{ fmt.Sprintf("%d", s.PlanID) }</td>
+											<td><span class="badge badge-emerald">{ string(s.Status) }</span></td>
+											<td class="tabular-nums">{ s.StartsAt.Format("2006-01-02") }</td>
+											<td class="tabular-nums">{ s.ExpiresAt.Format("2006-01-02") }</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				} else {
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;">
+						<!-- Form: Add New Plan -->
+						<div class="card" style="margin:0; background:var(--surface-sunken); border:1px solid var(--border);">
+							<h3 style="font-size:1.1rem; font-weight:700; margin:0 0 1rem; color:var(--text);">إضافة باقة اشتراك جديدة</h3>
+							<form method="POST" action="/admin/plans" style="display:flex; flex-direction:column; gap:0.9rem;">
+								<div class="form-grid-2">
+									<div class="form-group" style="margin-bottom:0;">
+										<label class="form-label" for="p-slug">المعرّف الفريد (Slug)</label>
+										<input type="text" id="p-slug" name="slug" required class="form-input" placeholder="e.g. pharmacy-gold" dir="ltr" />
+									</div>
+									<div class="form-group" style="margin-bottom:0;">
+										<label class="form-label" for="p-name-ar">اسم الباقة (عربي)</label>
+										<input type="text" id="p-name-ar" name="name_ar" required class="form-input" placeholder="مثال: الباقة الذهبية للصيدليات" />
+									</div>
+								</div>
+								<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+									<div class="form-group" style="margin-bottom:0;">
+										<label class="form-label" for="p-month">السعر الشهري (ج.م)</label>
+										<input type="text" id="p-month" name="price_month" class="form-input tabular-nums" value="0.00" />
+									</div>
+									<div class="form-group" style="margin-bottom:0;">
+										<label class="form-label" for="p-year">السعر السنوي (ج.م)</label>
+										<input type="text" id="p-year" name="price_year" class="form-input tabular-nums" value="0.00" />
+									</div>
+									<div class="form-group" style="margin-bottom:0;">
+										<label class="form-label" for="p-days">المدة (أيام)</label>
+										<input type="number" id="p-days" name="duration_days" class="form-input tabular-nums" value="30" />
+									</div>
+								</div>
+								<label style="display:flex; gap:0.5rem; align-items:center; font-size:0.9rem; margin-top:0.25rem;">
+									<input type="checkbox" name="is_compare" value="1" />
+									<span>خطة مقارنة الخصومات (تمنح صلاحية مقارنة العروض)</span>
+								</label>
+								<button type="submit" class="btn btn-primary" style="justify-content:center; margin-top:0.5rem;">
+									@components.IconPlus("icon-sm")
+									<span>حفظ وإضافة الخطة</span>
+								</button>
+							</form>
+						</div>
+
+						<!-- Plans List Table -->
+						<div class="card" style="margin:0; border:1px solid var(--border);">
+							<h3 style="font-size:1.1rem; font-weight:700; margin:0 0 1rem; color:var(--text);">الباقات المعرفة الحالية ({ fmt.Sprintf("%d", len(data.Plans)) })</h3>
+							if len(data.Plans) == 0 {
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد خطط معرفة", Message: "يمكنك إضافة باقة اشتراك جديدة عبر النموذج المقابل."})
+							} else {
+								<div class="table-container">
+									<table class="data-table">
+										<thead>
+											<tr>
+												<th>المعرّف</th>
+												<th>اسم الخطة</th>
+												<th>السعر الشهري</th>
+												<th>السعر السنوي</th>
+												<th>الحالة</th>
+											</tr>
+										</thead>
+										<tbody>
+											for _, p := range data.Plans {
+												<tr>
+													<td dir="ltr" class="tabular-nums"><code>{ p.Slug }</code></td>
+													<td><strong>{ p.Name.Get(i18n.Lang(lang)) }</strong></td>
+													<td class="tabular-nums" style="font-weight:700; color:var(--primary);">{ fmt.Sprintf("%s ج.م", p.PriceMonth.String()) }</td>
+													<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", p.PriceYear.String()) }</td>
+													<td>
+														if p.IsActive {
+															<span class="badge badge-emerald">نشطة</span>
+														} else {
+															<span class="badge badge-secondary">معطلة</span>
+														}
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
 							}
-						</tbody>
-					</table>
-				</div>
-			}
+						</div>
+					</div>
+				}
+			</div>
 		</div>
 	}
 }
+

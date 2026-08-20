@@ -107,23 +107,26 @@ func TestPhaseC_AdminFinanceScreens(t *testing.T) {
 	r := newRealUIHandlerRouter(handler)
 	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
 
-	// Invoices
-	rec := doGET(t, r, "/admin/invoices", adminActor)
+	// Unified Finance Hub
+	rec := doGET(t, r, "/admin/finance", adminActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "سجل الفواتير الضريبية والمطالبات")
+	assert.Contains(t, rec.Body.String(), "المركز المالي والمحافظ والتحصيل")
 
-	// Payments
+	// Unified Plans Hub
+	rec = doGET(t, r, "/admin/plans", adminActor)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Contains(t, rec.Body.String(), "باقات واشتراكات المنظومة")
+
+	// Legacy routes redirect to unified hubs
+	rec = doGET(t, r, "/admin/invoices", adminActor)
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
+
 	rec = doGET(t, r, "/admin/payments", adminActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "سجل عمليات الدفع والتحويل البنكي")
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 
-	// Wallets
 	rec = doGET(t, r, "/admin/wallets", adminActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "محافظ العملاء والموردين")
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 
-	// Plans Info
 	rec = doGET(t, r, "/admin/plans-info", adminActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "باقات وخطط الاشتراك المتوفرة")
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 }

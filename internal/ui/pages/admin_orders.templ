@@ -8,37 +8,139 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// AdminOrdersData contains dataset for unified orders and procurement oversight.
+type AdminOrdersData struct {
+	ActiveTab   string // "all", "direct", "offers"
+	Query       string
+	Orders      []*commerce.Order
+	OfferOrders []*commerce.Order
+}
+
 templ AdminOrders(lang, dir, query string, orders []*commerce.Order) {
-	@layouts.AdminShell("الطلبات | Orders", "orders", lang, dir) {
-		<div class="card" style="margin-bottom:1.25rem;">
-			<h2 class="card-title" style="margin:0 0 0.75rem;">البحث في الطلبات</h2>
-			<form method="GET" action="/admin/orders" style="display:flex; gap:0.75rem; margin:0;">
-				<input type="text" name="q" value={ query } class="form-input" style="flex:1;" placeholder="رقم الطلب أو اسم العميل…" />
-				<button type="submit" class="btn btn-primary">بحث</button>
-			</form>
+	@AdminOrdersHub(AdminOrdersData{ActiveTab: "all", Query: query, Orders: orders}, lang, dir)
+}
+
+templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
+	@layouts.AdminShell("إدارة الطلبات وأوامر التوريد", "orders", lang, dir) {
+		<div class="card mb-3" style="border:1px solid var(--border);">
+			<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<h1 class="card-title" style="margin:0; font-size:1.35rem; font-weight:800;">إدارة الطلبات وأوامر التوريد</h1>
+					<p class="subtitle" style="margin:0.25rem 0 0; font-size:0.85rem; color:var(--text-secondary);">
+						متابعة جميع طلبات الشراء، أوامر التوريد المباشرة، واعتمادات صفقات عروض الأسعار.
+					</p>
+				</div>
+				<form method="GET" action="/admin/orders" style="display:flex; gap:0.5rem; margin:0; min-width:320px;">
+					<input type="hidden" name="tab" value={ data.ActiveTab } />
+					<input type="text" name="q" value={ data.Query } class="form-input" style="flex:1;" placeholder="رقم الطلب أو اسم العميل…" />
+					<button type="submit" class="btn btn-primary btn-sm">بحث</button>
+				</form>
+			</div>
 		</div>
 
-		<div class="card">
-			<h2 class="card-title" style="margin:0 0 0.75rem;">النتائج</h2>
-			if len(orders) == 0 {
-				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد طلبات مطابقة.</p>
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead><tr><th>رقم الطلب</th><th>العميل</th><th>الحالة</th><th>الإجمالي</th></tr></thead>
-						<tbody>
-							for _, o := range orders {
-								<tr>
-									<td>{ o.OrderNumber }</td>
-									<td class="tabular-nums">{ fmt.Sprintf("%d", o.CustomerID) }</td>
-									<td><span class="badge badge-amber">{ o.Status }</span></td>
-									<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: o.TotalAmount })</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+		<div class="card mb-0" style="border:1px solid var(--border); padding:0; overflow:hidden;">
+			<!-- Tab Navigation -->
+			<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto;">
+				<a href="/admin/orders?tab=all" class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					@components.IconTruck("icon-sm")
+					<span>جميع طلبات الشراء</span>
+					<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Orders)) }</span>
+				</a>
+				<a href="/admin/orders?tab=direct" class={ "tab-btn", templ.KV("active", data.ActiveTab == "direct") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					@components.IconLayers("icon-sm")
+					<span>أوامر التوريد المباشر</span>
+				</a>
+				<a href="/admin/orders?tab=offers" class={ "tab-btn", templ.KV("active", data.ActiveTab == "offers") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					@components.IconPackage("icon-sm")
+					<span>طلبات عروض الأسعار والصفقات</span>
+					if len(data.OfferOrders) > 0 {
+						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.OfferOrders)) }</span>
+					}
+				</a>
+			</div>
+
+			<div style="padding:1.25rem;">
+				if data.ActiveTab == "offers" {
+					if len(data.OfferOrders) == 0 {
+						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض أسعار", Message: "لم يتم العثور على طلبات مرتبطة بعروض الأسعار الخاصة."})
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>رقم الطلب</th>
+										<th>المنشأة</th>
+										<th>المبلغ الإجمالي</th>
+										<th>الحالة</th>
+										<th>التاريخ</th>
+										<th class="text-end">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, o := range data.OfferOrders {
+										<tr>
+											<td class="tabular-nums"><strong>{ o.OrderNumber }</strong></td>
+											<td>
+												if o.OrganizationID != nil {
+													منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }
+												} else {
+													عميل #{ fmt.Sprintf("%d", o.CustomerID) }
+												}
+											</td>
+											<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
+											<td><span class="badge badge-sky">{ string(o.Status) }</span></td>
+											<td class="tabular-nums">{ o.CreatedAt.Format("2006-01-02") }</td>
+											<td class="text-end">
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/orders/offers/%d", o.ID)) } class="btn btn-secondary btn-sm">عرض التفاصيل</a>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				} else {
+					if len(data.Orders) == 0 {
+						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات مطابقة", Message: "لم يتم تسجيل أي طلبات شراء تطابق معايير البحث."})
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>رقم الطلب</th>
+										<th>العميل / المنشأة</th>
+										<th>طريقة الدفع</th>
+										<th>حالة الدفع</th>
+										<th>حالة الطلب</th>
+										<th>الإجمالي</th>
+										<th>التاريخ</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, o := range data.Orders {
+										<tr>
+											<td class="tabular-nums"><strong>{ o.OrderNumber }</strong></td>
+											<td>
+												if o.OrganizationID != nil {
+													منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }
+												} else {
+													عميل #{ fmt.Sprintf("%d", o.CustomerID) }
+												}
+											</td>
+											<td><span class="badge badge-secondary">{ o.PaymentMethod }</span></td>
+											<td><span class="badge badge-emerald">{ string(o.PaymentStatus) }</span></td>
+											<td><span class="badge badge-amber">{ string(o.Status) }</span></td>
+											<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
+											<td class="tabular-nums">{ o.CreatedAt.Format("2006-01-02") }</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				}
+			</div>
 		</div>
 	}
 }
+

@@ -12,7 +12,9 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("commerce.order.view", h.log))
 		g.Get("/admin/orders", h.AdminOrdersPage)
-		g.Get("/admin/orders/offers", h.AdminOfferOrdersPage)
+		g.Get("/admin/orders/offers", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/orders?tab=offers", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/orders/offers/{id}", h.AdminOfferOrderDetailPage)
 	})
 
@@ -27,24 +29,43 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Post("/admin/offers/{id}/status", h.AdminOfferStatusSubmit)
 	})
 
-	// Finance & Earnings & Invoices & Wallets
+	// Finance Hub, Invoices, Payments, Wallets & Earnings
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("billing.invoice.view", h.log))
-		g.Get("/admin/earnings/order", h.AdminEarningsOrderPage)
-		g.Get("/admin/earnings/offers", h.AdminEarningsOffersPage)
-		g.Get("/admin/invoices", h.AdminInvoicesPage)
-		g.Get("/admin/payments", h.AdminPaymentsPage)
-		g.Get("/admin/wallets", h.AdminWalletsPage)
+		g.Get("/admin/finance", h.AdminFinancePage)
+		g.Get("/admin/earnings/order", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/finance?tab=earnings", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/earnings/offers", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/finance?tab=earnings", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/invoices", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/finance?tab=invoices", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/payments", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/finance?tab=payments", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/wallets", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
+		})
 	})
 
-	// Plans & Subscriptions
+	// Plans & Subscriptions Hub
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("billing.subscription_plan.view", h.log))
 		g.Get("/admin/plans", h.AdminPlansPage)
-		g.Get("/admin/plans-info", h.AdminPlansInfoPage)
-		g.Get("/admin/plan-types", h.AdminPlanTypesPage)
-		g.Get("/admin/plan-features", h.AdminPlanFeaturesPage)
-		g.Get("/admin/plans/subscriptions", h.AdminPlansSubscriptionsPage)
+		g.Get("/admin/plans-info", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/plans?tab=plans", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/plan-types", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/plans?tab=plans", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/plan-features", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/plans?tab=plans", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/plans/subscriptions", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/plans?tab=subscriptions", http.StatusMovedPermanently)
+		})
 	})
 
 	r.Group(func(g chi.Router) {

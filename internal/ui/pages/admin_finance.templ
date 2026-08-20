@@ -5,13 +5,357 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// AdminOfferOrdersPage renders offer orders directory.
+// AdminFinanceData contains aggregated financial datasets from the database.
+type AdminFinanceData struct {
+	ActiveTab         string // "invoices", "payments", "wallets", "earnings"
+	Invoices          []*billing.Invoice
+	Payments          []*billing.Payment
+	Wallets           []*billing.Wallet
+	TotalRevenue      money.Amount
+	TotalCommission   money.Amount
+	TotalPaid         money.Amount
+	TotalHeld         money.Amount
+	DirectCommissions money.Amount
+	OfferCommissions  money.Amount
+	Query             string
+}
+
+// AdminFinance renders the unified financial management hub.
+templ AdminFinance(data AdminFinanceData, lang, dir string) {
+	@layouts.AdminShell("الإدارة المالية والمحافظ والتحصيل", "finance", lang, dir) {
+		<div class="admin-finance-hub">
+			<!-- Header Title & Action Row -->
+			<div class="card mb-3" style="border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+				<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+					<div>
+						<h1 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800; color:var(--text);">المركز المالي والمحافظ والتحصيل</h1>
+						<p class="subtitle" style="margin:0.25rem 0 0; color:var(--text-secondary); font-size:0.9rem;">
+							متابعة الفواتير الضريبية، بوابات الدفع الإلكتروني، أرصدة المحافظ الرقمية، وحساب عمولات المنصة الحية.
+						</p>
+					</div>
+					<div style="display:flex; gap:0.5rem; align-items:center;">
+						<a href="/admin/finance?tab=invoices" class="btn btn-secondary btn-sm">
+							@components.IconFile("icon-sm")
+							<span>الفواتير</span>
+						</a>
+						<a href="/admin/finance?tab=payments" class="btn btn-secondary btn-sm">
+							@components.IconWallet("icon-sm")
+							<span>المدفوعات</span>
+						</a>
+						<a href="/admin/finance?tab=wallets" class="btn btn-secondary btn-sm">
+							@components.IconLayers("icon-sm")
+							<span>المحافظ</span>
+						</a>
+						<a href="/admin/finance?tab=earnings" class="btn btn-secondary btn-sm">
+							@components.IconChart("icon-sm")
+							<span>الإيرادات</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Live Financial KPIs Bar (Connected directly to DB) -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--primary);">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">إجمالي التحصيلات والمدفوعات</span>
+						@components.IconWallet("icon-sm")
+					</div>
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.6rem;">
+						{ fmt.Sprintf("%s ج.م", data.TotalPaid.String()) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+						{ fmt.Sprintf("%d عملية دفع ناجحة", len(data.Payments)) }
+					</div>
+				</div>
+
+				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--accent);">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">إجمالي الفواتير الصادرة</span>
+						@components.IconFile("icon-sm")
+					</div>
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.6rem;">
+						{ fmt.Sprintf("%s ج.م", data.TotalRevenue.String()) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+						{ fmt.Sprintf("%d فاتورة مسجلة", len(data.Invoices)) }
+					</div>
+				</div>
+
+				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #10b981;">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">أرصدة المحافظ المحتجزة</span>
+						@components.IconLayers("icon-sm")
+					</div>
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#10b981; margin-top:0.6rem;">
+						{ fmt.Sprintf("%s ج.م", data.TotalHeld.String()) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+						{ fmt.Sprintf("%d محفظة رقمية نشطة", len(data.Wallets)) }
+					</div>
+				</div>
+
+				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #8b5cf6;">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">عمولة المنصة المقدرة</span>
+						@components.IconChart("icon-sm")
+					</div>
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#8b5cf6; margin-top:0.6rem;">
+						{ fmt.Sprintf("%s ج.م", data.TotalCommission.String()) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+						محسوبة تلقائياً من إجمالي حجم التداول
+					</div>
+				</div>
+			</div>
+
+			<!-- Unified Tabs Navigation -->
+			<div class="card mb-0" style="border:1px solid var(--border); padding:0; overflow:hidden;">
+				<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto;">
+					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices" || data.ActiveTab == "") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+						@components.IconFile("icon-sm")
+						<span>الفواتير الضريبية والمطالبات</span>
+						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Invoices)) }</span>
+					</a>
+					<a href="/admin/finance?tab=payments" class={ "tab-btn", templ.KV("active", data.ActiveTab == "payments") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+						@components.IconWallet("icon-sm")
+						<span>سجل المدفوعات والتحويلات</span>
+						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Payments)) }</span>
+					</a>
+					<a href="/admin/finance?tab=wallets" class={ "tab-btn", templ.KV("active", data.ActiveTab == "wallets") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+						@components.IconLayers("icon-sm")
+						<span>محافظ المنشآت والأرصدة</span>
+						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Wallets)) }</span>
+					</a>
+					<a href="/admin/finance?tab=earnings" class={ "tab-btn", templ.KV("active", data.ActiveTab == "earnings") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+						@components.IconChart("icon-sm")
+						<span>تقرير الأرباح والعمولات</span>
+					</a>
+				</div>
+
+				<div style="padding:1.5rem;">
+					<!-- TAB 1: INVOICES -->
+					if data.ActiveTab == "invoices" || data.ActiveTab == "" {
+						<div class="tab-content-pane">
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+								<div>
+									<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">الفواتير والمطالبات الضريبية</h2>
+									<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">سجل فواتير أوامر التوريد واشتراكات المنشآت المصدرة في النظام.</p>
+								</div>
+							</div>
+
+							if len(data.Invoices) == 0 {
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مسجلة", Message: "يتم إصدار الفواتير الضريبية تلقائياً عند تسوية الطلبات والاشتراكات."})
+							} else {
+								<div class="table-container">
+									<table class="data-table">
+										<thead>
+											<tr>
+												<th>رقم الفاتورة</th>
+												<th>المنشأة المصدرة</th>
+												<th>العميل / الصيدلية</th>
+												<th>المبلغ الإجمالي</th>
+												<th>الحالة</th>
+												<th>تاريخ الإصدار</th>
+												<th>تاريخ الاستحقاق</th>
+											</tr>
+										</thead>
+										<tbody>
+											for _, inv := range data.Invoices {
+												<tr>
+													<td class="tabular-nums"><strong>{ inv.InvoiceNumber }</strong></td>
+													<td>
+														if inv.OrganizationID > 0 {
+															منشأة #{ fmt.Sprintf("%d", inv.OrganizationID) }
+														} else {
+															المنصة
+														}
+													</td>
+													<td>
+														if inv.CustomerOrgID != nil {
+															منشأة #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }
+														} else {
+															عميل عام
+														}
+													</td>
+													<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", inv.TotalAmount.String()) }</td>
+													<td>
+														if inv.Status == "paid" {
+															<span class="badge badge-emerald">مدفوعة</span>
+														} else if inv.Status == "pending" {
+															<span class="badge badge-amber">قيد التحصيل</span>
+														} else if inv.Status == "overdue" {
+															<span class="badge badge-danger">متأخرة</span>
+														} else {
+															<span class="badge badge-secondary">{ string(inv.Status) }</span>
+														}
+													</td>
+													<td class="tabular-nums">{ inv.IssueDate.Format("2006-01-02") }</td>
+													<td class="tabular-nums">{ inv.DueDate.Format("2006-01-02") }</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							}
+						</div>
+					}
+
+					<!-- TAB 2: PAYMENTS -->
+					if data.ActiveTab == "payments" {
+						<div class="tab-content-pane">
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+								<div>
+									<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">سجل التحصيلات والمدفوعات البنكية</h2>
+									<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">متابعة عمليات الدفع الإلكتروني، المحافظ، والتحويلات البنكية المعتمدة.</p>
+								</div>
+							</div>
+
+							if len(data.Payments) == 0 {
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "يتم توثيق عمليات الدفع الإلكتروني فور تأكيدها من بوابات الدفع."})
+							} else {
+								<div class="table-container">
+									<table class="data-table">
+										<thead>
+											<tr>
+												<th>رقم المرجع / العملية</th>
+												<th>المستخدم / المنشأة</th>
+												<th>المبلغ</th>
+												<th>طريقة الدفع</th>
+												<th>الحالة</th>
+												<th>تاريخ العملية</th>
+											</tr>
+										</thead>
+										<tbody>
+											for _, p := range data.Payments {
+												<tr>
+													<td class="tabular-nums">
+														if p.ReferenceNumber != "" {
+															<strong>{ p.ReferenceNumber }</strong>
+														} else if p.TransactionID != "" {
+															<strong>{ p.TransactionID }</strong>
+														} else {
+															<strong>{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
+														}
+													</td>
+													<td>
+														if p.OrganizationID != nil {
+															منشأة #{ fmt.Sprintf("%d", *p.OrganizationID) }
+														} else {
+															مستخدم #{ fmt.Sprintf("%d", p.UserID) }
+														}
+													</td>
+													<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
+													<td><span class="badge badge-secondary">{ p.Method }</span></td>
+													<td>
+														if p.Status == "paid" || p.Status == "completed" || p.Status == "success" {
+															<span class="badge badge-emerald">ناجحة</span>
+														} else if p.Status == "pending" {
+															<span class="badge badge-amber">قيد المراجعة</span>
+														} else {
+															<span class="badge badge-secondary">{ string(p.Status) }</span>
+														}
+													</td>
+													<td class="tabular-nums">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							}
+						</div>
+					}
+
+					<!-- TAB 3: WALLETS -->
+					if data.ActiveTab == "wallets" {
+						<div class="tab-content-pane">
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+								<div>
+									<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">محافظ المنشآت والأرصدة الحالية</h2>
+									<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">تدقيق الأرصدة المتوفرة في محافظ الصيدليات والموردين المحسوبة مباشرة من قيود السجل المالي.</p>
+								</div>
+							</div>
+
+							if len(data.Wallets) == 0 {
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مسجلة", Message: "تنشأ المحافظ الرقمية تلقائياً عند تسجيل المنشأة وبدء معاملاتها المالية."})
+							} else {
+								<div class="table-container">
+									<table class="data-table">
+										<thead>
+											<tr>
+												<th>رقم المحفظة</th>
+												<th>المستخدم / المنشأة</th>
+												<th>العملة</th>
+												<th>الرصيد المتاح حالياً</th>
+												<th>تاريخ الإنشاء</th>
+											</tr>
+										</thead>
+										<tbody>
+											for _, w := range data.Wallets {
+												<tr>
+													<td class="tabular-nums"><strong>{ fmt.Sprintf("WLT-%d", w.ID) }</strong></td>
+													<td>
+														if w.OrganizationID != nil {
+															منشأة #{ fmt.Sprintf("%d", *w.OrganizationID) }
+														} else {
+															مستخدم #{ fmt.Sprintf("%d", w.UserID) }
+														}
+													</td>
+													<td><span class="badge badge-secondary">{ w.Currency }</span></td>
+													<td class="tabular-nums" style="font-weight:800; font-size:1.05rem; color:var(--success-text);">{ fmt.Sprintf("%s %s", w.Balance.String(), w.Currency) }</td>
+													<td class="tabular-nums">{ w.CreatedAt.Format("2006-01-02") }</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							}
+						</div>
+					}
+
+					<!-- TAB 4: EARNINGS & COMMISSIONS -->
+					if data.ActiveTab == "earnings" {
+						<div class="tab-content-pane">
+							<div style="margin-bottom:1.5rem;">
+								<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">تقرير أرباح وعمولات المنظومة</h2>
+								<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد.</p>
+							</div>
+
+							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem;">
+									<div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">إجمالي مبيعات أوامر التوريد</div>
+									<div class="tabular-nums" style="font-size:1.75rem; font-weight:800; margin-top:0.5rem; color:var(--text);">
+										{ fmt.Sprintf("%s ج.م", data.TotalRevenue.String()) }
+									</div>
+									<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
+										إجمالي قيمة أوامر التوريد المسجلة في النظام
+									</div>
+								</div>
+
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem;">
+									<div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">عمولة المنصة الإجمالية المحصلة</div>
+									<div class="tabular-nums" style="font-size:1.75rem; font-weight:800; color:#10b981; margin-top:0.5rem;">
+										{ fmt.Sprintf("%s ج.م", data.TotalCommission.String()) }
+									</div>
+									<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
+										نسبة المنصة من إجمالي المعاملات المالية المكتملة
+									</div>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	}
+}
+
+// Backward-compatible individual template pages
 templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 	@layouts.AdminShell("طلبات عروض الأسعار والمشتريات (Offer Orders)", "procurement", lang, dir) {
 		<div class="card mb-0">
@@ -64,7 +408,6 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 	}
 }
 
-// AdminOfferOrderDetailPage renders single offer order details.
 templ AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("طلب عروض: %s", o.OrderNumber), "procurement", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
@@ -73,252 +416,38 @@ templ AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) {
 					<h2 class="card-title" style="margin:0;">طلب { o.OrderNumber }</h2>
 					<p class="subtitle">حالة: { string(o.Status) } | الإجمالي: { fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</p>
 				</div>
-				<a href="/admin/orders/offers" class="btn btn-secondary btn-sm">العودة</a>
+				<a href="/admin/orders?tab=offers" class="btn btn-secondary btn-sm">العودة للطلبات</a>
 			</div>
 		</div>
 	}
 }
 
-// AdminEarningsOrderPage renders orders commissions report.
 templ AdminEarningsOrderPage(revenue, commission money.Amount, lang, dir string) {
-	@layouts.AdminShell("أرباح وعمولات طلبات التوريد", "finance", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير أرباح وعمولات طلبات التوريد المباشرة</h2>
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:2rem;">
-				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-					<div style="font-size:0.85rem; color:var(--text-secondary);">إجمالي مبيعات الطلبات</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
-				</div>
-				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-					<div style="font-size:0.85rem; color:var(--text-secondary);">عمولة المنصة الإجمالية</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", commission.String()) }</div>
-				</div>
-			</div>
-		</div>
-	}
+	@AdminFinance(AdminFinanceData{ActiveTab: "earnings", TotalRevenue: revenue, TotalCommission: commission}, lang, dir)
 }
 
-// AdminEarningsOffersPage renders offers commissions report.
 templ AdminEarningsOffersPage(revenue, commission money.Amount, lang, dir string) {
-	@layouts.AdminShell("أرباح وعمولات عروض التوفير والخصومات", "finance", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير أرباح وعمولات عروض التوفير والصفقات الخاصة</h2>
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:2rem;">
-				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-					<div style="font-size:0.85rem; color:var(--text-secondary);">إجمالي قيمة عروض التوفير</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
-				</div>
-				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-					<div style="font-size:0.85rem; color:var(--text-secondary);">عمولة المنصة المحصلة</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", commission.String()) }</div>
-				</div>
-			</div>
-		</div>
-	}
+	@AdminFinance(AdminFinanceData{ActiveTab: "earnings", TotalRevenue: revenue, TotalCommission: commission}, lang, dir)
 }
 
-// AdminInvoicesPage renders platform billing invoices.
 templ AdminInvoicesPage(invoices []*billing.Invoice, lang, dir string) {
-	@layouts.AdminShell("إدارة الفواتير والتحصيل", "finance", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">سجل الفواتير الضريبية والمطالبات ({ fmt.Sprintf("%d", len(invoices)) })</h2>
-					<p class="subtitle">متابعة فواتير المنشآت والعملاء وحالات السداد.</p>
-				</div>
-			</div>
-
-			if len(invoices) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مسجلة", Message: "يتم إصدار الفواتير الدورية تلقائياً عند تسوية الطلبات والاشتراكات."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>رقم الفاتورة</th>
-								<th>المنشأة</th>
-								<th>المبلغ الإجمالي</th>
-								<th>الحالة</th>
-								<th>تاريخ الإصدار</th>
-								<th>الاستحقاق</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, inv := range invoices {
-								<tr>
-									<td class="tabular-nums"><strong>{ inv.InvoiceNumber }</strong></td>
-									<td>منشأة #{ fmt.Sprintf("%d", inv.OrganizationID) }</td>
-									<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", inv.TotalAmount.String()) }</td>
-									<td><span class="badge badge-emerald">{ string(inv.Status) }</span></td>
-									<td class="tabular-nums">{ inv.IssueDate.Format("2006-01-02") }</td>
-									<td class="tabular-nums">{ inv.DueDate.Format("2006-01-02") }</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
-		</div>
-	}
+	@AdminFinance(AdminFinanceData{ActiveTab: "invoices", Invoices: invoices}, lang, dir)
 }
 
-// AdminPaymentsPage renders payments history.
 templ AdminPaymentsPage(payments []*billing.Payment, lang, dir string) {
-	@layouts.AdminShell("سجل المدفوعات والتحويلات", "finance", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">سجل عمليات الدفع والتحويل البنكي ({ fmt.Sprintf("%d", len(payments)) })</h2>
-					<p class="subtitle">متابعة عمليات الدفع الإلكتروني والتحصيلات البنكية لجميع المنشآت.</p>
-				</div>
-			</div>
-
-			if len(payments) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع", Message: "يتم تسجيل عمليات الدفع الإلكتروني والتحويلات مباشرة في هذا السجل."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>رقم العملية / المرجع</th>
-								<th>المنشأة / العميل</th>
-								<th>المبلغ</th>
-								<th>طريقة الدفع</th>
-								<th>الحالة</th>
-								<th>التاريخ</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, p := range payments {
-								<tr>
-									<td class="tabular-nums">
-										if p.ReferenceNumber != "" {
-											<strong>{ p.ReferenceNumber }</strong>
-										} else if p.TransactionID != "" {
-											<strong>{ p.TransactionID }</strong>
-										} else {
-											<strong>{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
-										}
-									</td>
-									<td>
-										if p.OrganizationID != nil {
-											منشأة #{ fmt.Sprintf("%d", *p.OrganizationID) }
-										} else {
-											مستخدم #{ fmt.Sprintf("%d", p.UserID) }
-										}
-									</td>
-									<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
-									<td><span class="badge badge-secondary">{ p.Method }</span></td>
-									<td><span class="badge badge-emerald">{ string(p.Status) }</span></td>
-									<td class="tabular-nums">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
-		</div>
-	}
+	@AdminFinance(AdminFinanceData{ActiveTab: "payments", Payments: payments}, lang, dir)
 }
 
-// AdminWalletsPage renders wallet oversight.
 templ AdminWalletsPage(wallets []*billing.Wallet, lang, dir string) {
-	@layouts.AdminShell("إدارة المحافظ والأرصدة", "finance", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">محافظ العملاء والموردين ({ fmt.Sprintf("%d", len(wallets)) })</h2>
-					<p class="subtitle">متابعة وتدقيق أرصدة المحافظ الرقمية لجميع منشآت المنصة.</p>
-				</div>
-			</div>
-
-			if len(wallets) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مسجلة", Message: "تنشأ المحافظ تلقائياً عند تسجيل المنشآت وبدء التعاملات المالية."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>رقم المحفظة</th>
-								<th>المستخدم / المنشأة</th>
-								<th>العملة</th>
-								<th>الرصيد المتاح</th>
-								<th>تاريخ الإنشاء</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, w := range wallets {
-								<tr>
-									<td class="tabular-nums"><strong>{ fmt.Sprintf("WLT-%d", w.ID) }</strong></td>
-									<td>
-										if w.OrganizationID != nil {
-											منشأة #{ fmt.Sprintf("%d", *w.OrganizationID) }
-										} else {
-											مستخدم #{ fmt.Sprintf("%d", w.UserID) }
-										}
-									</td>
-									<td><span class="badge badge-secondary">{ w.Currency }</span></td>
-									<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s %s", w.Balance.String(), w.Currency) }</td>
-									<td class="tabular-nums">{ w.CreatedAt.Format("2006-01-02") }</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
-		</div>
-	}
+	@AdminFinance(AdminFinanceData{ActiveTab: "wallets", Wallets: wallets}, lang, dir)
 }
 
-// AdminPlansInfoPage renders plans summary directory.
 templ AdminPlansInfoPage(plans []*billing.Plan, lang, dir string) {
-	@layouts.AdminShell("دليل باقات الاشتراك", "finance", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">باقات وخطط الاشتراك المتوفرة ({ fmt.Sprintf("%d", len(plans)) })</h2>
-					<p class="subtitle">تحديد باقات الصيدليات والموردين والمستودعات والخصائص المتاحة لكل باقة.</p>
-				</div>
-			</div>
-
-			if len(plans) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد باقات اشتراك معرفة", Message: "يمكنك إضافة باقات اشتراك جديدة وتحديد ميزاتها وأسعارها."})
-			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
-					for _, p := range plans {
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
-							<div>
-								<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-									<h3 style="margin:0; font-size:1.15rem; font-weight:700; color:var(--text);">{ p.Name.Get(i18n.Lang(lang)) }</h3>
-									if p.IsActive {
-										<span class="badge badge-emerald">نشطة</span>
-									} else {
-										<span class="badge badge-secondary">معطلة</span>
-									}
-								</div>
-								<p style="color:var(--text-secondary); font-size:0.85rem; margin:0.5rem 0 1rem 0;">{ p.Description.Get(i18n.Lang(lang)) }</p>
-							</div>
-							<div style="border-top:1px solid var(--border); padding-top:1rem; margin-top:1rem;">
-								<div style="display:flex; justify-content:space-between; margin-bottom:0.35rem;">
-									<span style="font-size:0.85rem; color:var(--text-secondary);">السعر الشهري:</span>
-									<span class="tabular-nums" style="font-weight:700; color:var(--primary);">{ fmt.Sprintf("%s ج.م", p.PriceMonth.String()) }</span>
-								</div>
-								<div style="display:flex; justify-content:space-between;">
-									<span style="font-size:0.85rem; color:var(--text-secondary);">المدة:</span>
-									<span class="tabular-nums" style="font-weight:600;">{ fmt.Sprintf("%d يوم", p.DurationDays) }</span>
-								</div>
-							</div>
-						</div>
-					}
-				</div>
-			}
-		</div>
-	}
+	@AdminPlans(lang, dir, plans)
 }
 
-// AdminPlansSubscriptionsPage renders active subscriptions.
 templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string) {
-	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "finance", lang, dir) {
+	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "plans", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>

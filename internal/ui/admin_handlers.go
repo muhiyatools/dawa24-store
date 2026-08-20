@@ -1087,19 +1087,33 @@ func (h *UIHandler) AdminOrgSuspendSubmit(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
 }
 
-// AdminOrdersPage renders the cross-tenant order search.
+// AdminOrdersPage renders the cross-tenant order search and procurement tabs.
 func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	query := r.URL.Query().Get("q")
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		tab = "all"
+	}
+
 	var orders []*commerce.Order
+	var offerOrders []*commerce.Order
 	if h.commSvc != nil {
-		orders, _ = h.commSvc.AdminSearchOrders(ctx, query, 50, 0)
+		orders, _ = h.commSvc.AdminSearchOrders(ctx, query, 100, 0)
+		offerOrders, _ = h.commSvc.ListCustomerOrders(database.AsSystem(ctx), 0, 100, 0)
+	}
+
+	data := pages.AdminOrdersData{
+		ActiveTab:   tab,
+		Query:       query,
+		Orders:      orders,
+		OfferOrders: offerOrders,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrders(lang, dir, query, orders).Render(ctx, w); err != nil {
+	if err := pages.AdminOrdersHub(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin orders", "error", err)
 	}
 }
@@ -1699,19 +1713,32 @@ func (h *UIHandler) AdminServiceSubmit(w http.ResponseWriter, r *http.Request) {
 	h.redirectWithNotice(w, r, "/admin/services", "success", "تمت إضافة الخدمة.")
 }
 
-// AdminPlansPage renders the subscription plan editor.
+// AdminPlansPage renders the subscription plan editor and active subscribers tab.
 func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		tab = "plans"
+	}
+
 	var plans []*billing.Plan
+	var subs []*billing.Subscription
 	if h.billSvc != nil {
 		plans, _ = h.billSvc.ListPlans(ctx)
+		subs, _ = h.billSvc.AdminListSubscriptions(ctx, 100, 0)
+	}
+
+	data := pages.AdminPlansData{
+		ActiveTab:     tab,
+		Plans:         plans,
+		Subscriptions: subs,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminPlans(lang, dir, plans).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin plans", "error", err)
+	if err := pages.AdminPlansHub(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin plans hub", "error", err)
 	}
 }
 
