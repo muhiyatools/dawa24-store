@@ -159,8 +159,8 @@ func TestWorkflowRepository(t *testing.T) {
 			OrganizationID: testOrgID,
 			BranchID:       testBranchID,
 			DayOfWeek:      1,
-			CoverageFrom:   "08:00",
-			CoverageTo:     "16:00",
+			CoverageFrom:   ptrStr("08:00"),
+			CoverageTo:     ptrStr("16:00"),
 			Address:        "Zone 1 Route",
 			DistanceMeters: 5000,
 			IsActive:       true,
@@ -217,3 +217,6 @@ func TestWorkflowRepository(t *testing.T) {
 		}
 	})
 }
+
+// ptrStr returns a pointer to s, for the *string coverage window bounds.
+func ptrStr(s string) *string { return &s }

@@ -3,6 +3,7 @@
 package workflow
 
 import (
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -38,8 +39,15 @@ type WeeklyCoverage struct {
 	BranchID       int64     `json:"branch_id"`
 	CityID         *int64    `json:"city_id,omitempty"`
 	DayOfWeek      int       `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
-	CoverageFrom   string    `json:"coverage_from,omitempty"`
-	CoverageTo     string    `json:"coverage_to,omitempty"`
+	// CoverageFrom/CoverageTo are the optional daily service window as "HH:MM".
+	// They map to nullable Postgres TIME columns, so they are pointers: a blank
+	// form field means "no window" (NULL), not the empty string. Writing "" into
+	// a TIME column fails with `invalid input syntax for type time`, and reading
+	// a TIME straight into a Go string fails because pgx maps TIME to
+	// pgtype.Time — both bugs shipped, and both are why the coverage screen
+	// could not load. See postgres.coverageColumns.
+	CoverageFrom   *string   `json:"coverage_from,omitempty"`
+	CoverageTo     *string   `json:"coverage_to,omitempty"`
 	Address        string    `json:"address,omitempty"`
 	Latitude       *float64  `json:"latitude,omitempty"`
 	Longitude      *float64  `json:"longitude,omitempty"`
@@ -73,7 +81,59 @@ func (c *WeeklyCoverage) Validate() error {
 	if c.Longitude != nil && (*c.Longitude < -180 || *c.Longitude > 180) {
 		return apperr.Validation("coverage.longitude_invalid", "Longitude must be between -180 and 180.", map[string]string{"longitude": "خط الطول غير صالح"})
 	}
+	if !validTimeOfDay(c.CoverageFrom) {
+		return apperr.Validation("coverage.from_invalid", "Coverage start time must be HH:MM.", map[string]string{"coverage_from": "وقت البداية يجب أن يكون بصيغة HH:MM"})
+	}
+	if !validTimeOfDay(c.CoverageTo) {
+		return apperr.Validation("coverage.to_invalid", "Coverage end time must be HH:MM.", map[string]string{"coverage_to": "وقت النهاية يجب أن يكون بصيغة HH:MM"})
+	}
+	// A half-open window is meaningless: either both ends are set or neither is.
+	if (c.CoverageFrom == nil) != (c.CoverageTo == nil) {
+		return apperr.Validation("coverage.window_incomplete", "Provide both start and end time, or neither.", map[string]string{"coverage_from": "يجب تحديد وقت البداية والنهاية معاً أو تركهما فارغين"})
+	}
+	if c.CoverageFrom != nil && c.CoverageTo != nil && *c.CoverageFrom >= *c.CoverageTo {
+		// Zero-padded HH:MM compares correctly as a string.
+		return apperr.Validation("coverage.window_inverted", "Start time must be before end time.", map[string]string{"coverage_to": "وقت النهاية يجب أن يكون بعد وقت البداية"})
+	}
 	return nil
+}
+
+// validTimeOfDay reports whether a coverage window bound is usable. nil means
+// "no window", which is allowed; a non-nil value must be a zero-padded 24-hour
+// "HH:MM" so it can be cast to a Postgres TIME and string-compared.
+func validTimeOfDay(v *string) bool {
+	if v == nil {
+		return true
+	}
+	s := *v
+	if len(s) != 5 || s[2] != ':' {
+		return false
+	}
+	for i, ch := range s {
+		if i == 2 {
+			continue
+		}
+		if ch < '0' || ch > '9' {
+			return false
+		}
+	}
+	hh := int(s[0]-'0')*10 + int(s[1]-'0')
+	mm := int(s[3]-'0')*10 + int(s[4]-'0')
+	return hh <= 23 && mm <= 59
+}
+
+// TimeOfDay normalises a raw form value into a coverage window bound. A blank
+// or whitespace-only field means "no window" and must become NULL, never "".
+func TimeOfDay(raw string) *string {
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		return nil
+	}
+	// Browsers may submit <input type="time"> as HH:MM:SS.
+	if len(s) == 8 && s[5] == ':' {
+		s = s[:5]
+	}
+	return &s
 }
 
 // ReportIssue tracks customer support and quality tickets.

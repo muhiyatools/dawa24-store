@@ -274,8 +274,8 @@ func TestWorkflowPurchasePriorityAndCoverage(t *testing.T) {
 	err = svc.SetWeeklyCoverage(ctx, &WeeklyCoverage{
 		BranchID:       5,
 		DayOfWeek:      1, // Monday
-		CoverageFrom:   "09:00",
-		CoverageTo:     "17:00",
+		CoverageFrom:   workflow_ptr("09:00"),
+		CoverageTo:     workflow_ptr("17:00"),
 		Address:        "Nasr City Zone 1",
 		DistanceMeters: 3000,
 	})
@@ -307,3 +307,7 @@ func TestWorkflowPurchasePriorityAndCoverage(t *testing.T) {
 		t.Fatalf("ListIssues failed: %v", err)
 	}
 }
+
+// workflow_ptr returns a pointer to s. Coverage window bounds are *string so a
+// blank form field can mean NULL rather than an empty TIME.
+func workflow_ptr(s string) *string { return &s }

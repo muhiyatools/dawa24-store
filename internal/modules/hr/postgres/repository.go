@@ -109,13 +109,20 @@ func (r *Repository) ListEmployees(ctx context.Context, limit, offset int) ([]*h
 }
 
 // SaveWorkTimes saves recurring business hours.
+//
+// open_time/close_time are Postgres TIME columns while hr.WorkTime carries them
+// as Go strings, so both directions need a conversion: NULLIF(...)::time on the
+// way in (a closed day submits "", which Postgres rejects for TIME) and
+// to_char(..., 'HH24:MI') on the way out (pgx maps TIME to pgtype.Time, never to
+// string). This is the same defect that broke workflow.weekly_coverages — see
+// workflow/postgres.coverageColumns.
 func (r *Repository) SaveWorkTimes(ctx context.Context, times []*hr.WorkTime) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		for _, wt := range times {
 			query := `
 				INSERT INTO hr.work_times (
 					organization_id, day_name_ar, day_name_en, open_time, close_time, is_closed, sort_order
-				) VALUES ($1, $2, $3, $4, $5, $6, $7)
+				) VALUES ($1, $2, $3, NULLIF($4, '')::time, NULLIF($5, '')::time, $6, $7)
 				RETURNING id, public_id, created_at, updated_at;
 			`
 			if err := tx.QueryRow(txCtx, query,
@@ -133,7 +140,10 @@ func (r *Repository) ListWorkTimes(ctx context.Context) ([]*hr.WorkTime, error) 
 	var list []*hr.WorkTime
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, day_name_ar, day_name_en, open_time, close_time, is_closed, sort_order, created_at, updated_at
+			SELECT id, public_id, organization_id, day_name_ar, day_name_en,
+			       COALESCE(to_char(open_time,  'HH24:MI'), '') AS open_time,
+			       COALESCE(to_char(close_time, 'HH24:MI'), '') AS close_time,
+			       is_closed, sort_order, created_at, updated_at
 			FROM hr.work_times
 			ORDER BY sort_order ASC;
 		`

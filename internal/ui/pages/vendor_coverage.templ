@@ -173,9 +173,9 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 													<span>
 														📏 نطاق التغطية: <strong style="color:var(--text);">{ fmt.Sprintf("%.1f كم (%d م)", float64(cov.DistanceMeters)/1000.0, cov.DistanceMeters) }</strong>
 													</span>
-													if cov.CoverageFrom != "" && cov.CoverageTo != "" {
+													if cov.CoverageFrom != nil && cov.CoverageTo != nil {
 														<span>
-															⏰ مواعيد العمل: <strong style="color:var(--text);">{ cov.CoverageFrom } - { cov.CoverageTo }</strong>
+															⏰ مواعيد العمل: <strong style="color:var(--text);">{ *cov.CoverageFrom } - { *cov.CoverageTo }</strong>
 														</span>
 													}
 												</div>

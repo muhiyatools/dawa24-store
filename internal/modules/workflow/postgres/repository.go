@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"context"
 	"encoding/json"
 
@@ -32,7 +33,7 @@ func (r *Repository) CreatePriorityRequest(ctx context.Context, req *workflow.Pu
 				user_id, organization_id, request_number, status, priority_highest_discount,
 				priority_lowest_price, priority_fastest_delivery, priority_preferred_suppliers_only,
 				budget_constraint, parameters, recommendations
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+			) VALUES ($1, $2, $3, $4, ` + coverageTimeParam(5) + `, ` + coverageTimeParam(6) + `, $7, $8, $9, $10, $11)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
@@ -78,6 +79,26 @@ func (r *Repository) GetPriorityRequestByID(ctx context.Context, id int64) (*wor
 	return &req, nil
 }
 
+// coverageColumns is the canonical SELECT list for workflow.weekly_coverages.
+//
+// coverage_from and coverage_to are Postgres TIME columns and MUST be read
+// through to_char. Scanning a TIME (OID 1083) straight into a Go *string fails
+// — pgx maps TIME to pgtype.Time — which is what made the whole coverage screen
+// error out. Every read of this table goes through this constant so a new query
+// cannot reintroduce the bug.
+const coverageColumns = `id, public_id, organization_id, branch_id, city_id, day_of_week,
+	       to_char(coverage_from, 'HH24:MI') AS coverage_from,
+	       to_char(coverage_to,   'HH24:MI') AS coverage_to,
+	       address, latitude, longitude, distance_meters, is_active, created_at, updated_at`
+
+// coverageTimeParam casts a bound parameter to TIME for the write path. The
+// domain sends *string ("HH:MM" or nil); NULLIF guards the case where a caller
+// bypasses workflow.TimeOfDay and passes an empty string, which Postgres would
+// otherwise reject with `invalid input syntax for type time: ""`.
+func coverageTimeParam(n int) string {
+	return fmt.Sprintf("NULLIF($%d, '')::time", n)
+}
+
 // SaveWeeklyCoverage creates or updates weekly route coverage for a branch.
 func (r *Repository) SaveWeeklyCoverage(ctx context.Context, c *workflow.WeeklyCoverage) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
@@ -100,7 +121,8 @@ func (r *Repository) UpdateWeeklyCoverage(ctx context.Context, c *workflow.Weekl
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE workflow.weekly_coverages
-			SET branch_id = $1, city_id = $2, day_of_week = $3, coverage_from = $4, coverage_to = $5,
+			SET branch_id = $1, city_id = $2, day_of_week = $3,
+			    coverage_from = ` + coverageTimeParam(4) + `, coverage_to = ` + coverageTimeParam(5) + `,
 			    address = $6, latitude = $7, longitude = $8, distance_meters = $9, is_active = $10,
 			    updated_at = now()
 			WHERE id = $11 AND organization_id = $12
@@ -156,8 +178,7 @@ func (r *Repository) GetWeeklyCoverageByID(ctx context.Context, id int64) (*work
 	var c workflow.WeeklyCoverage
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, branch_id, city_id, day_of_week, coverage_from, coverage_to,
-			       address, latitude, longitude, distance_meters, is_active, created_at, updated_at
+			SELECT ` + coverageColumns + `
 			FROM workflow.weekly_coverages
 			WHERE id = $1;
 		`
@@ -185,8 +206,7 @@ func (r *Repository) ListWeeklyCoverage(ctx context.Context, branchID int64) ([]
 	var list []*workflow.WeeklyCoverage
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, branch_id, city_id, day_of_week, coverage_from, coverage_to,
-			       address, latitude, longitude, distance_meters, is_active, created_at, updated_at
+			SELECT ` + coverageColumns + `
 			FROM workflow.weekly_coverages
 			WHERE branch_id = $1
 			ORDER BY day_of_week ASC;
@@ -219,7 +239,10 @@ func (r *Repository) ListCoverageForOrganization(ctx context.Context, orgID int6
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT wc.id, wc.public_id, wc.organization_id, wc.branch_id, wc.city_id,
-			       wc.day_of_week, wc.coverage_from, wc.coverage_to, wc.address,
+			       wc.day_of_week,
+			       to_char(wc.coverage_from, 'HH24:MI') AS coverage_from,
+			       to_char(wc.coverage_to,   'HH24:MI') AS coverage_to,
+			       wc.address,
 			       wc.latitude, wc.longitude, wc.distance_meters, wc.is_active,
 			       wc.created_at, wc.updated_at,
 			       COALESCE(b.name, '') AS branch_name,
