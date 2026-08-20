@@ -85,9 +85,11 @@ services:
     restart: "no"
     healthcheck:
       disable: true
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
 
   server:
-    <<: *build
     image: dawa24-store:local
     command: ["/app/server"]
     restart: unless-stopped
@@ -113,10 +115,9 @@ services:
       start_period: 15s
     logging:
       driver: json-file
-      options: { max-size: "50m", max-file: "3" }
+      options: { max-size: "10m", max-file: "3" }
 
   worker:
-    <<: *build
     image: dawa24-store:local
     command: ["/app/worker"]
     restart: unless-stopped
@@ -135,4 +136,4 @@ services:
       WORKER_SHUTDOWN_TIMEOUT: ${WORKER_SHUTDOWN_TIMEOUT:-60s}
     logging:
       driver: json-file
-      options: { max-size: "50m", max-file: "3" }
+      options: { max-size: "10m", max-file: "3" }
