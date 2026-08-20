@@ -94,16 +94,24 @@ type Response struct {
 // concrete implementation, so tests inject a stub or a black-hole.
 type Client interface {
 	Invoke(ctx context.Context, req Request) (*Response, error)
+	Stream(ctx context.Context, req ChatRequest) (<-chan StreamEvent, error)
+	Transcribe(ctx context.Context, audio io.Reader, filename, mime string) (string, error)
+	Capabilities(ctx context.Context, role Role) (ModelCapabilities, error)
 	Health(ctx context.Context) error
 	Enabled() bool
 }
 
 // HTTPClient talks to the Gateway over its OpenAI-compatible surface.
 type HTTPClient struct {
-	cfg     config.Gateway
-	http    *http.Client
-	log     *slog.Logger
-	breaker *breaker
+	cfg        config.Gateway
+	http       *http.Client
+	log        *slog.Logger
+	breaker    *breaker
+	source     SettingsSource
+	cache      *settingsCache
+	capCache   *capabilityCache
+	sourceMu   sync.Mutex
+	lastSource string
 }
 
 func New(cfg config.Gateway, log *slog.Logger) *HTTPClient {
@@ -117,12 +125,17 @@ func New(cfg config.Gateway, log *slog.Logger) *HTTPClient {
 				IdleConnTimeout:     90 * time.Second,
 			},
 		},
-		log:     log.With("component", "gateway"),
-		breaker: newBreaker(5, 30*time.Second, 60*time.Second),
+		log:      log.With("component", "gateway"),
+		breaker:  newBreaker(5, 30*time.Second, 60*time.Second),
+		cache:    newSettingsCache(30 * time.Second),
+		capCache: newCapabilityCache(5 * time.Minute),
 	}
 }
 
-func (c *HTTPClient) Enabled() bool { return c.cfg.Enabled && c.cfg.VirtualKey != "" }
+func (c *HTTPClient) Enabled() bool {
+	s := c.resolve(context.Background())
+	return s.Enabled && s.VirtualKey != ""
+}
 
 // Invoke calls the Gateway, honouring the capability's timeout and retry budget.
 //
@@ -228,15 +241,20 @@ func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, 
 		return nil, fmt.Errorf("gateway: marshal request: %w", err)
 	}
 
+	settings := c.resolve(ctx)
+	if !settings.Enabled || settings.VirtualKey == "" {
+		return nil, ErrDisabled
+	}
+
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		c.cfg.BaseURL+"/v1/chat/completions", bytes.NewReader(body))
+		settings.BaseURL+"/v1/chat/completions", bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("gateway: build request: %w", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+c.cfg.VirtualKey)
-	httpReq.Header.Set("X-Client-App", c.cfg.ClientApp)
+	httpReq.Header.Set("Authorization", "Bearer "+settings.VirtualKey)
+	httpReq.Header.Set("X-Client-App", settings.ClientApp)
 	// Per-tenant attribution: lets the Gateway report and cap AI spend by
 	// organisation without the Store having to meter tokens itself.
 	httpReq.Header.Set("X-Dawa-Org-ID", strconv.FormatInt(req.OrganizationID, 10))
@@ -288,15 +306,20 @@ func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, 
 // not make the Store unhealthy — commerce continues on fallbacks — so callers
 // report this as a degraded subsystem, not a failed one.
 func (c *HTTPClient) Health(ctx context.Context) error {
-	if !c.Enabled() {
+	settings := c.resolve(ctx)
+	if !settings.Enabled || settings.VirtualKey == "" {
 		return ErrDisabled
 	}
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.cfg.BaseURL+"/health", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, settings.BaseURL+"/health", nil)
 	if err != nil {
 		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+settings.VirtualKey)
+	if settings.ClientApp != "" {
+		req.Header.Set("X-Client-App", settings.ClientApp)
 	}
 	res, err := c.http.Do(req)
 	if err != nil {

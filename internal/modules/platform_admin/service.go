@@ -179,8 +179,6 @@ func (s *Service) GetAISettings(ctx context.Context) (*AISettings, error) {
 	setting, err := s.repo.GetSetting(ctx, "ai_configuration")
 	if err != nil || setting == nil || setting.Value == nil {
 		return &AISettings{
-			Provider:     "gemini",
-			Model:        "gemini-1.5-pro",
 			Temperature:  0.7,
 			MaxTokens:    2048,
 			SystemPrompt: "أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.",
@@ -189,10 +187,8 @@ func (s *Service) GetAISettings(ctx context.Context) (*AISettings, error) {
 	}
 	v := setting.Value
 	ai := &AISettings{
-		Provider:     getString(v, "provider", "gemini"),
-		Model:        getString(v, "model", "gemini-1.5-pro"),
 		APIKey:       getString(v, "api_key", ""),
-		EndpointURL:  getString(v, "endpoint_url", "https://generativelanguage.googleapis.com/v1beta"),
+		EndpointURL:  getString(v, "endpoint_url", "https://api.muhiya.com"),
 		Temperature:  getFloat(v, "temperature", 0.7),
 		MaxTokens:    getInt(v, "max_tokens", 2048),
 		SystemPrompt: getString(v, "system_prompt", ""),
@@ -204,8 +200,6 @@ func (s *Service) GetAISettings(ctx context.Context) (*AISettings, error) {
 // SaveAISettings writes AI configuration to database settings.
 func (s *Service) SaveAISettings(ctx context.Context, ai *AISettings) error {
 	val := map[string]any{
-		"provider":      ai.Provider,
-		"model":         ai.Model,
 		"api_key":       ai.APIKey,
 		"endpoint_url":  ai.EndpointURL,
 		"temperature":   ai.Temperature,
@@ -216,7 +210,7 @@ func (s *Service) SaveAISettings(ctx context.Context, ai *AISettings) error {
 	return s.repo.SetSetting(ctx, &SystemSetting{
 		Key:         "ai_configuration",
 		Value:       val,
-		Description: "Platform AI LLM Provider Configuration",
+		Description: "Platform AI Configuration",
 		IsPublic:    false,
 	})
 }
@@ -425,7 +419,7 @@ func (s *Service) FetchGatewayModels(ctx context.Context, endpointURL, apiKey st
 	reqURL := endpoint + "/v1/models"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
 	if err != nil {
-		return []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}, nil
+		return nil, err
 	}
 
 	if apiKey != "" {
@@ -437,9 +431,13 @@ func (s *Service) FetchGatewayModels(ctx context.Context, endpointURL, apiKey st
 	resp, err := client.Do(req)
 	if err != nil {
 		s.log.WarnContext(ctx, "failed to query ai gateway models endpoint", "url", reqURL, "error", err)
-		return []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}, nil
+		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("gateway returned status %d", resp.StatusCode)
+	}
 
 	var body struct {
 		Data []struct {
@@ -449,7 +447,7 @@ func (s *Service) FetchGatewayModels(ctx context.Context, endpointURL, apiKey st
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-		return []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}, nil
+		return nil, err
 	}
 
 	var models []string
@@ -460,9 +458,6 @@ func (s *Service) FetchGatewayModels(ctx context.Context, endpointURL, apiKey st
 	}
 	if len(models) == 0 && len(body.Models) > 0 {
 		models = body.Models
-	}
-	if len(models) == 0 {
-		models = []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}
 	}
 
 	return models, nil

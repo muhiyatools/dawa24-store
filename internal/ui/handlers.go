@@ -25,6 +25,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -49,7 +50,13 @@ type UIHandler struct {
 	hrSvc      *hr.Service
 	attSvc     *attachments.Service
 	storage    *storage.Client
+	aiClient   gateway.Client
 	log        *slog.Logger
+}
+
+// SetGatewayClient attaches the Gateway client instance for health probes and AI services.
+func (h *UIHandler) SetGatewayClient(ai gateway.Client) {
+	h.aiClient = ai
 }
 
 // NewUIHandler creates a new UI page handler with all platform domain services wired.

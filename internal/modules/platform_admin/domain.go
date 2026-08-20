@@ -160,10 +160,8 @@ type AuditEntry struct {
 	CreatedAt        time.Time      `json:"created_at"`
 }
 
-// AISettings defines configuration for artificial intelligence LLM providers.
+// AISettings defines configuration for artificial intelligence assistant parameters.
 type AISettings struct {
-	Provider     string  `json:"provider"`      // gemini, openai, anthropic, deepseek, custom
-	Model        string  `json:"model"`         // e.g. gemini-1.5-pro, gpt-4o
 	APIKey       string  `json:"api_key"`       // API secret key
 	EndpointURL  string  `json:"endpoint_url"`  // Custom or Gateway URL
 	Temperature  float64 `json:"temperature"`   // 0.0 - 1.0

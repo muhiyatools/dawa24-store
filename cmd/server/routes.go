@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	assistantPostgres "github.com/muhiya/dawa24-store/internal/modules/assistant/postgres"
 	attachmentsPostgres "github.com/muhiya/dawa24-store/internal/modules/attachments/postgres"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
@@ -23,6 +24,8 @@ import (
 	workflowPostgres "github.com/muhiya/dawa24-store/internal/modules/workflow/postgres"
 
 	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	assistantHttp "github.com/muhiya/dawa24-store/internal/modules/assistant/http"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	attachmentsHttp "github.com/muhiya/dawa24-store/internal/modules/attachments/http"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -195,9 +198,12 @@ func mountModuleRoutes(
 	)
 	compareRepoUI := comparePostgres.NewRepository(db)
 	compareSvcUI := compare.NewService(compareRepoUI, log)
-	if ai != nil && ai.Enabled() {
-		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
-		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
+	if ai != nil {
+		uiHandler.SetGatewayClient(ai)
+		if ai.Enabled() {
+			aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
+			compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
+		}
 	}
 	uiHandler.SetCompareService(compareSvcUI)
 
@@ -325,6 +331,11 @@ func mountAuthenticatedModules(
 	orgRepo := orgPostgres.NewRepository(db)
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
+
+	// 13. Assistant (كبسولة)
+	assistantRepo := assistantPostgres.NewRepository(db)
+	assistantSvc := assistant.NewService(assistantRepo, ai, log)
+	assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log).RegisterRoutes(r)
 
 	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))

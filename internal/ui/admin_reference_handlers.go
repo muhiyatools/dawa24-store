@@ -163,8 +163,8 @@ func (h *UIHandler) AdminApiIntegrationsPage(w http.ResponseWriter, r *http.Requ
 			}
 			items = append(items, pages.ReferenceItem{
 				ID:          2,
-				Name:        fmt.Sprintf("محرك الذكاء الاصطناعي (%s)", ai.Provider),
-				Description: fmt.Sprintf("النموذج: %s | الرابط: %s", ai.Model, ai.EndpointURL),
+				Name:        "بوابة الذكاء الاصطناعي (AI Gateway)",
+				Description: fmt.Sprintf("الرابط: %s", ai.EndpointURL),
 				Status:      aiStatus,
 				Extra:       fmt.Sprintf("الرموز القصوى: %d", ai.MaxTokens),
 			})

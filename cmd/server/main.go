@@ -23,6 +23,8 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	platformadminPostgres "github.com/muhiya/dawa24-store/internal/modules/platform_admin/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -73,14 +75,16 @@ func run() error {
 	// The AI Gateway is optional by construction. Disabled or unreachable, every
 	// capability serves its deterministic fallback and the marketplace keeps
 	// trading.
-	var ai gateway.Client
-	if cfg.Gateway.Enabled {
-		ai = gateway.New(cfg.Gateway, log)
+	adminRepo := platformadminPostgres.NewRepository(deps.Handle())
+	adminSvc := platformadmin.NewService(adminRepo, log)
+	gwSource := newAdminGatewaySettings(adminSvc)
+
+	ai := gateway.New(cfg.Gateway, log).WithSettingsSource(gwSource)
+	if ai.Enabled() {
 		log.Info("ai gateway enabled",
 			"base_url", cfg.Gateway.BaseURL, "client_app", cfg.Gateway.ClientApp)
 	} else {
-		ai = gateway.NewDisabled()
-		log.Info("ai gateway disabled; capabilities will use deterministic fallbacks")
+		log.Info("ai gateway configured with admin settings source (awaiting credentials)")
 	}
 
 	srv := &http.Server{

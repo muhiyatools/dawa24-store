@@ -3,10 +3,10 @@ package components
 templ CapsuleAssistant() {
 	<div
 		x-data="capsuleAssistantManager()"
+		x-init="init()"
 		x-cloak
 		style="position:fixed; bottom:24px; left:24px; right:auto; z-index:9990; font-family:var(--font-sans); direction:rtl;"
 	>
-		
 		<!-- Floating Trigger: Polished Circular Button (Hidden when Drawer is Open) -->
 		<button
 			type="button"
@@ -29,7 +29,7 @@ templ CapsuleAssistant() {
 			<span style="position:absolute; top:2px; right:2px; width:12px; height:12px; background:#10b981; border-radius:50%; border:2px solid #ffffff; box-shadow:0 0 8px rgba(16, 185, 129, 0.8);"></span>
 		</button>
 
-		<!-- Slide-Out Chat Window (Increased Height 640px, Refined Design) -->
+		<!-- Slide-Out Chat Window (Height 640px, Refined Design) -->
 		<div
 			x-show="isOpen"
 			x-transition:enter="transition ease-out duration-250"
@@ -44,8 +44,7 @@ templ CapsuleAssistant() {
 			@drop.prevent="onDrop($event)"
 			style="position:fixed; bottom:24px; left:24px; right:auto; width:430px; max-width:calc(100vw - 32px); height:640px; max-height:calc(100vh - 48px); background:var(--surface-raised); border:1px solid var(--border); border-radius:28px; box-shadow:0 24px 48px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(20px);"
 		>
-			
-			<!-- Drag & Drop Overlay Zone (Centered & Polished) -->
+			<!-- Drag & Drop Overlay Zone -->
 			<div
 				x-show="isDragging"
 				x-transition:enter="transition ease-out duration-150"
@@ -99,11 +98,10 @@ templ CapsuleAssistant() {
 				id="capsule-messages-container"
 				style="flex:1 1 0%; min-height:0; padding:1.25rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.95rem; background:var(--surface-sunken);"
 			>
-				
 				<!-- Welcome Greeting Bubble -->
 				<div style="display:flex; flex-direction:column; gap:0.4rem;">
 					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.95rem 1.15rem; color:var(--text); font-size:0.875rem; line-height:1.65; max-width:92%; box-shadow:var(--shadow-xs);">
-						مرحباً بك في منصة دواء 24. أنا <strong>كبسولة</strong>، مساعدك الصيدلي الرقمي. كيف يمكنني مساعدتك اليوم في فحص الأصناف أو مقارنة عروض التوريد؟
+						مرحباً بك في منصة دواء 24. أنا <strong>كبسولة</strong>، مساعدك الصيدلي الرقمي المباشر. كيف يمكنني مساعدتك اليوم في فحص الأصناف، الروشتات، أو مقارنة عروض التوريد؟
 					</div>
 				</div>
 
@@ -152,12 +150,23 @@ templ CapsuleAssistant() {
 							<!-- Attached files badge if any -->
 							<template x-if="msg.attachments && msg.attachments.length > 0">
 								<div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
-									<template x-for="file in msg.attachments" :key="file.name">
+									<template x-for="file in msg.attachments" :key="file.name || file.filename">
 										<div style="display:flex; align-items:center; gap:0.3rem; background:rgba(0,0,0,0.12); padding:0.25rem 0.5rem; border-radius:var(--radius-md); font-size:0.75rem;">
 											@IconPaperclip("icon-xxs")
-											<span x-text="file.name" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+											<span x-text="file.name || file.filename" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
 										</div>
 									</template>
+								</div>
+							</template>
+
+							<!-- Reasoning collapsible block if present -->
+							<template x-if="!msg.isUser && msg.reasoning">
+								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.5rem 0.75rem; font-size:0.75rem; color:var(--text-secondary); width:100%;">
+									<div style="font-weight:700; display:flex; align-items:center; gap:0.3rem; margin-bottom:0.25rem; color:var(--text-muted);">
+										@IconSparkles("icon-xxs")
+										<span>التفكير المنطقي للمساعد:</span>
+									</div>
+									<div style="white-space:pre-wrap; line-height:1.45;" x-text="msg.reasoning"></div>
 								</div>
 							</template>
 
@@ -167,18 +176,29 @@ templ CapsuleAssistant() {
 									'background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; border-radius:20px 20px 4px 20px; padding:0.85rem 1.15rem; font-size:0.875rem; line-height:1.55; box-shadow:var(--shadow-xs);' :
 									'background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.95rem 1.15rem; color:var(--text); font-size:0.875rem; line-height:1.65; box-shadow:var(--shadow-xs);'"
 							>
-								<span x-text="msg.text" style="white-space:pre-wrap;"></span>
+								<div x-html="renderMarkdown(msg.text)" style="white-space:pre-wrap; word-break:break-word;"></div>
+								
+								<!-- Streaming cursor -->
+								<span x-show="msg.isStreaming" class="capsule-breathing-pill" style="display:inline-block; width:6px; height:6px; background:var(--accent); border-radius:50%; margin-right:4px;"></span>
 							</div>
 
 						</div>
 					</div>
 				</template>
 
+				<!-- Status / Analyzing state badge -->
+				<div x-show="statusStage" style="display:flex; justify-content:flex-start; animation:fadeIn 200ms ease;">
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:0.6rem 0.9rem; display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--text-secondary); box-shadow:var(--shadow-xs);">
+						<div class="capsule-breathing-pill" style="width:7px; height:7px; background:var(--accent); border-radius:50%;"></div>
+						<span x-text="statusMessage || 'كبسولة يعالج طلبك الآن...'"></span>
+					</div>
+				</div>
+
 				<!-- Processing / Breathing Animation State -->
-				<div x-show="isProcessing" style="display:flex; justify-content:flex-start; animation:fadeIn 200ms ease;">
+				<div x-show="isStreaming && !statusStage && messages.length > 0 && !messages[messages.length-1].text" style="display:flex; justify-content:flex-start; animation:fadeIn 200ms ease;">
 					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.85rem 1.15rem; display:flex; align-items:center; gap:0.6rem; box-shadow:var(--shadow-xs);">
 						<div class="capsule-breathing-pill" style="width:8px; height:8px; background:var(--accent); border-radius:50%;"></div>
-						<span style="font-size:0.825rem; color:var(--text-secondary); font-weight:600;">كبسولة يفحص البيانات الآن...</span>
+						<span style="font-size:0.825rem; color:var(--text-secondary); font-weight:600;">جاري صياغة الإجابة...</span>
 					</div>
 				</div>
 
@@ -190,7 +210,9 @@ templ CapsuleAssistant() {
 					<div style="display:flex; align-items:center; gap:0.4rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.3rem 0.6rem; font-size:0.75rem; flex-shrink:0;">
 						@IconPaperclip("icon-xs")
 						<span x-text="f.name" style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
-						<span x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.7rem;"></span>
+						<span x-show="f.uploading" style="color:var(--accent); font-size:0.7rem;">(جاري الرفع...)</span>
+						<span x-show="!f.uploading && !f.error" x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.7rem;"></span>
+						<span x-show="f.error" style="color:var(--danger); font-size:0.7rem;" x-text="f.error"></span>
 						<button type="button" @click="removeAttachment(i)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:800; padding:0 2px; line-height:1;" title="حذف">✕</button>
 					</div>
 				</template>
@@ -200,7 +222,7 @@ templ CapsuleAssistant() {
 			<div x-show="isRecordingVoice" style="padding:0.85rem 1.15rem; background:var(--surface-raised); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-shrink:0;">
 				<div style="display:flex; align-items:center; gap:0.6rem;">
 					<span style="width:10px; height:10px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span>
-					<span style="font-size:0.825rem; font-weight:700; color:var(--text);" x-text="'جاري التسجيل الصوتي... ' + formatDuration(recordingSeconds)"></span>
+					<span style="font-size:0.825rem; font-weight:700; color:var(--text);" x-text="'جاري الاستماع الصوتي... ' + formatDuration(recordingSeconds)"></span>
 				</div>
 				<div style="display:flex; gap:0.5rem;">
 					<button type="button" @click="cancelVoiceRecord()" class="btn btn-secondary btn-xs">إلغاء</button>
@@ -208,7 +230,7 @@ templ CapsuleAssistant() {
 				</div>
 			</div>
 
-			<!-- Normal Chat Input Bar: Compact Bottom Pinned Bar with Multiline Auto-Resize Textarea -->
+			<!-- Normal Chat Input Bar -->
 			<div x-show="!isRecordingVoice" style="padding:0.75rem 1rem; background:var(--surface-raised); border-top:1px solid var(--border); flex-shrink:0; width:100%; box-sizing:border-box;">
 				<input type="file" multiple x-ref="fileInput" @change="handleFileSelect($event)" style="display:none;" />
 				<form @submit.prevent="sendMessage()" style="display:flex; gap:0.5rem; align-items:flex-end; margin:0; width:100%;">
@@ -220,6 +242,7 @@ templ CapsuleAssistant() {
 						class="btn btn-secondary btn-icon"
 						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); color:var(--text-secondary); margin-bottom:1px;"
 						title="إرفاق ملفات أو روشتات"
+						:disabled="isStreaming"
 					>
 						@IconPaperclip("icon-xs")
 					</button>
@@ -231,11 +254,12 @@ templ CapsuleAssistant() {
 						class="btn btn-secondary btn-icon"
 						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); color:var(--text-secondary); margin-bottom:1px;"
 						title="تسجيل صوتي"
+						:disabled="isStreaming"
 					>
 						@IconMicrophone("icon-xs")
 					</button>
 
-					<!-- Multiline Textarea that expands with Shift+Enter for new line and Enter to send -->
+					<!-- Multiline Textarea -->
 					<div style="flex:1; position:relative; display:flex; align-items:center;">
 						<textarea
 							x-ref="chatTextarea"
@@ -246,19 +270,34 @@ templ CapsuleAssistant() {
 							rows="1"
 							class="form-input"
 							style="width:100%; min-height:38px; max-height:120px; resize:none; padding:0.55rem 0.85rem; font-size:0.875rem; line-height:1.45; border-radius:18px; overflow-y:auto; box-sizing:border-box;"
+							:disabled="isStreaming"
 						></textarea>
 					</div>
 
-					<!-- Send Button -->
-					<button
-						type="submit"
-						class="btn btn-primary btn-icon"
-						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); margin-bottom:1px;"
-						:disabled="!inputQuery.trim() && attachedFiles.length === 0"
-						title="إرسال (Enter)"
-					>
-						@IconSend("icon-xs")
-					</button>
+					<!-- Send / Stop Button -->
+					<template x-if="!isStreaming">
+						<button
+							type="submit"
+							class="btn btn-primary btn-icon"
+							style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); margin-bottom:1px;"
+							:disabled="!inputQuery.trim() && attachedFiles.length === 0"
+							title="إرسال (Enter)"
+						>
+							@IconSend("icon-xs")
+						</button>
+					</template>
+
+					<template x-if="isStreaming">
+						<button
+							type="button"
+							@click="cancelStream()"
+							class="btn btn-secondary btn-icon"
+							style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); margin-bottom:1px; color:#ef4444; border-color:#ef4444;"
+							title="إيقاف التوليد"
+						>
+							@IconClose("icon-xs")
+						</button>
+					</template>
 				</form>
 			</div>
 
@@ -288,14 +327,52 @@ templ CapsuleAssistant() {
 				return {
 					isOpen: false,
 					inputQuery: '',
-					isProcessing: false,
+					isStreaming: false,
+					statusStage: '',
+					statusMessage: '',
 					isDragging: false,
 					dragCounter: 0,
 					isRecordingVoice: false,
 					recordingSeconds: 0,
 					recordingTimer: null,
+					mediaRecorder: null,
+					audioChunks: [],
+					speechRecognition: null,
 					attachedFiles: [],
 					messages: [],
+					conversationID: 0,
+					abortController: null,
+
+					init() {
+						const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+						if (SpeechRec) {
+							try {
+								this.speechRecognition = new SpeechRec();
+								this.speechRecognition.lang = 'ar-EG';
+								this.speechRecognition.interimResults = false;
+								this.speechRecognition.maxAlternatives = 1;
+								this.speechRecognition.onresult = (event) => {
+									const text = event.results[0][0].transcript;
+									if (text) {
+										this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + text;
+										this.$nextTick(() => this.autoResizeTextarea());
+									}
+								};
+								this.speechRecognition.onend = () => {
+									this.isRecordingVoice = false;
+									clearInterval(this.recordingTimer);
+									this.recordingSeconds = 0;
+								};
+								this.speechRecognition.onerror = () => {
+									this.isRecordingVoice = false;
+									clearInterval(this.recordingTimer);
+									this.recordingSeconds = 0;
+								};
+							} catch (e) {
+								this.speechRecognition = null;
+							}
+						}
+					},
 
 					openAssistant() {
 						this.isOpen = true;
@@ -335,15 +412,53 @@ templ CapsuleAssistant() {
 						this.dragCounter = 0;
 						this.isDragging = false;
 						const files = Array.from(e.dataTransfer?.files || []);
-						if (files.length > 0) {
-							this.attachedFiles.push(...files);
-						}
+						this.addFiles(files);
 					},
 
 					handleFileSelect(e) {
 						const files = Array.from(e.target.files || []);
-						this.attachedFiles.push(...files);
+						this.addFiles(files);
 						e.target.value = '';
+					},
+
+					async addFiles(files) {
+						for (const file of files) {
+							if (this.attachedFiles.length >= 5) break;
+							const fileItem = {
+								file: file,
+								name: file.name,
+								size: file.size,
+								handle: '',
+								uploading: true,
+								error: ''
+							};
+							this.attachedFiles.push(fileItem);
+							this.uploadAttachment(fileItem);
+						}
+					},
+
+					async uploadAttachment(item) {
+						try {
+							const form = new FormData();
+							form.append('file', item.file);
+							const resp = await fetch('/api/v1/assistant/attachments', {
+								method: 'POST',
+								body: form
+							});
+							if (!resp.ok) {
+								const errData = await resp.json().catch(() => ({}));
+								item.error = errData.message || 'فشل رفع الملف';
+								return;
+							}
+							const data = await resp.json();
+							if (data.attachments && data.attachments.length > 0) {
+								item.handle = data.attachments[0].handle;
+							}
+						} catch (e) {
+							item.error = 'خطأ في الاتصال بالخادم';
+						} finally {
+							item.uploading = false;
+						}
 					},
 
 					removeAttachment(idx) {
@@ -358,25 +473,84 @@ templ CapsuleAssistant() {
 						return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 					},
 
-					startVoiceRecord() {
+					async startVoiceRecord() {
 						this.isRecordingVoice = true;
 						this.recordingSeconds = 0;
 						this.recordingTimer = setInterval(() => {
 							this.recordingSeconds++;
 						}, 1000);
+
+						if (this.speechRecognition) {
+							try {
+								this.speechRecognition.start();
+								return;
+							} catch (e) {
+								// Fallback to MediaRecorder
+							}
+						}
+
+						try {
+							const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+							this.audioChunks = [];
+							this.mediaRecorder = new MediaRecorder(stream);
+							this.mediaRecorder.ondataavailable = (e) => {
+								if (e.data.size > 0) this.audioChunks.push(e.data);
+							};
+							this.mediaRecorder.start();
+						} catch (e) {
+							this.cancelVoiceRecord();
+							alert('تعذر الوصول إلى الميكروفون: ' + e.message);
+						}
 					},
 
 					cancelVoiceRecord() {
 						this.isRecordingVoice = false;
 						clearInterval(this.recordingTimer);
 						this.recordingSeconds = 0;
+						if (this.speechRecognition) {
+							try { this.speechRecognition.stop(); } catch (e) {}
+						}
+						if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+							this.mediaRecorder.stop();
+						}
 					},
 
-					finishVoiceRecord() {
+					async finishVoiceRecord() {
+						if (this.speechRecognition) {
+							try { this.speechRecognition.stop(); } catch (e) {}
+							return;
+						}
+
+						if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+							this.mediaRecorder.onstop = async () => {
+								const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+								this.audioChunks = [];
+								this.statusMessage = 'جاري تفريغ الصوت عبر Whisper...';
+								try {
+									const form = new FormData();
+									form.append('file', audioBlob, 'voice.webm');
+									const resp = await fetch('/api/v1/assistant/transcribe', {
+										method: 'POST',
+										body: form
+									});
+									if (resp.ok) {
+										const data = await resp.json();
+										if (data.text) {
+											this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + data.text;
+											this.$nextTick(() => this.autoResizeTextarea());
+										}
+									}
+								} catch (e) {
+									console.warn('transcription failed', e);
+								} finally {
+									this.statusMessage = '';
+								}
+							};
+							this.mediaRecorder.stop();
+						}
+
 						this.isRecordingVoice = false;
 						clearInterval(this.recordingTimer);
-						this.inputQuery = 'تسجيل صوتي (' + this.formatDuration(this.recordingSeconds) + ')';
-						this.sendMessage();
 						this.recordingSeconds = 0;
 					},
 
@@ -389,10 +563,8 @@ templ CapsuleAssistant() {
 					handleKeydown(e) {
 						if (e.key === 'Enter') {
 							if (e.shiftKey) {
-								// Shift + Enter: create a newline and resize
 								this.$nextTick(() => this.autoResizeTextarea());
 							} else {
-								// Enter alone: send message
 								e.preventDefault();
 								this.sendMessage();
 							}
@@ -407,65 +579,152 @@ templ CapsuleAssistant() {
 						el.style.height = newHeight + 'px';
 					},
 
-					sendMessage() {
+					async sendMessage() {
 						const q = this.inputQuery.trim();
-						if (!q && this.attachedFiles.length === 0) return;
+						if (this.isStreaming || (!q && this.attachedFiles.length === 0)) return;
 
-						const currentAttachments = [...this.attachedFiles];
+						// Check if any file is still uploading
+						const stillUploading = this.attachedFiles.some(f => f.uploading);
+						if (stillUploading) {
+							this.statusMessage = 'يرجى الانتظار حتى اكتمال رفع المرفقات...';
+							return;
+						}
+
+						const handles = this.attachedFiles.filter(f => f.handle && !f.error).map(f => f.handle);
+						const sentAttachments = [...this.attachedFiles];
+
 						this.messages.push({
-							text: q || (currentAttachments.length > 0 ? 'مرفق: ' + currentAttachments.map(f => f.name).join(', ') : ''),
+							text: q || (sentAttachments.length > 0 ? 'مرفق: ' + sentAttachments.map(f => f.name).join(', ') : ''),
 							isUser: true,
-							attachments: currentAttachments
+							attachments: sentAttachments
 						});
+
+						const assistantMsg = {
+							text: '',
+							reasoning: '',
+							isUser: false,
+							isStreaming: true
+						};
+						this.messages.push(assistantMsg);
 
 						this.inputQuery = '';
 						this.attachedFiles = [];
 						if (this.$refs.chatTextarea) {
 							this.$refs.chatTextarea.style.height = '38px';
 						}
-						this.isProcessing = true;
+						this.isStreaming = true;
+						this.statusStage = '';
+						this.statusMessage = '';
 						this.scrollToBottom();
 
-						// Simulated Smart Response with fast typewriter streaming
-						setTimeout(() => {
-							this.isProcessing = false;
-							const responseText = this.generateResponse(q);
-							this.typewriterMessage(responseText);
-						}, 700);
-					},
+						this.abortController = new AbortController();
 
-					typewriterMessage(fullText) {
-						const msgObj = { text: '', isUser: false };
-						this.messages.push(msgObj);
-						let charIdx = 0;
-						const speed = 12;
+						try {
+							const resp = await fetch('/api/v1/assistant/messages', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									text: q,
+									conversation_id: this.conversationID,
+									attachment_handles: handles
+								}),
+								signal: this.abortController.signal
+							});
 
-						const timer = setInterval(() => {
-							if (charIdx < fullText.length) {
-								msgObj.text += fullText.charAt(charIdx);
-								charIdx++;
-								this.scrollToBottom();
-							} else {
-								clearInterval(timer);
+							if (!resp.ok) {
+								const errData = await resp.json().catch(() => ({}));
+								assistantMsg.text = errData.message || 'تعذر الاتصال بالمساعد الذكي.';
+								assistantMsg.isStreaming = false;
+								this.isStreaming = false;
+								return;
 							}
-						}, speed);
+
+							const reader = resp.body.getReader();
+							const decoder = new TextDecoder('utf-8');
+							let buffer = '';
+
+							while (true) {
+								const { done, value } = await reader.read();
+								if (done) break;
+
+								buffer += decoder.decode(value, { stream: true });
+								const lines = buffer.split('\n');
+								buffer = lines.pop() || '';
+
+								let currentEvent = 'message';
+								for (const line of lines) {
+									const trimmed = line.trim();
+									if (trimmed.startsWith('event:')) {
+										currentEvent = trimmed.substring(6).trim();
+									} else if (trimmed.startsWith('data:')) {
+										const dataStr = trimmed.substring(5).trim();
+										if (!dataStr) continue;
+
+										try {
+											const data = JSON.parse(dataStr);
+											if (currentEvent === 'delta' && data.text) {
+												this.statusStage = '';
+												assistantMsg.text += data.text;
+												this.scrollToBottom();
+											} else if (currentEvent === 'reasoning' && data.text) {
+												assistantMsg.reasoning += data.text;
+												this.scrollToBottom();
+											} else if (currentEvent === 'status') {
+												this.statusStage = data.stage || '';
+												this.statusMessage = data.message || (data.stage === 'analyzing_attachment' ? 'جاري تحليل المرفق (' + data.file + ')...' : '');
+												this.scrollToBottom();
+											} else if (currentEvent === 'done') {
+												if (data.conversation_id) {
+													this.conversationID = data.conversation_id;
+												}
+												assistantMsg.isStreaming = false;
+											} else if (currentEvent === 'error') {
+												assistantMsg.text += '\n\n[خطأ: ' + (data.message || 'حدث خطأ غير متوقع') + ']';
+												assistantMsg.isStreaming = false;
+											}
+										} catch (parseErr) {
+											// Non-JSON frame ignore
+										}
+									}
+								}
+							}
+						} catch (e) {
+							if (e.name !== 'AbortError') {
+								assistantMsg.text += '\n\n[انقطع الاتصال بالخادم: ' + e.message + ']';
+							}
+						} finally {
+							assistantMsg.isStreaming = false;
+							this.isStreaming = false;
+							this.statusStage = '';
+							this.statusMessage = '';
+							this.abortController = null;
+							this.scrollToBottom();
+						}
 					},
 
-					generateResponse(q) {
-						const lower = (q || '').toLowerCase();
-						if (lower.includes('مضاد') || lower.includes('antibiotic')) {
-							return 'تم فحص أحدث عروض المضادات الحيوية المسجلة اليوم: تتوفر خصومات إضافية تصل إلى 8.5% على الأوجمنتين والسيبروفلوكساسين من 3 مستودعات معتمدة بسلاسل تبريد موثقة.';
+					cancelStream() {
+						if (this.abortController) {
+							this.abortController.abort();
+							this.abortController = null;
 						}
-						if (lower.includes('مقارنة') || lower.includes('سعر')) {
-							return 'يمكنك النقر على أي صنف في الكتالوج لعرض جدول المقارنة اللحظي بين كافة الموردين المتوفر لديهم الصنف، بما يشمل نسبة الخصم الإضافي، تواريخ الصلاحية، وسرعة التسليم.';
-						}
-						if (lower.includes('تبريد') || lower.includes('تخزين')) {
-							return 'تشترط لائحة التوريد حفظ الأدوية الحيوية والمصلية في نطاق درجات حرارة بين 2° إلى 8° مئوية مع تسجيل بيانات جهاز التتبع الحراري (Data Logger) عند كل تسليم.';
-						}
-						if (lower.includes('صوتي') || lower.includes('تسجيل')) {
-							return 'تم استلام التسجيل الصوتي بنجاح وجاري ربطه مع خوارزمية التحويل الصوتي إلى نصوص (Speech-to-Text) عبر بوابة المعالجة الذكية.';
-						}
-						return 'تم استلام طلبك ومطابقته مع قواعد بيانات الأدوية والتوريد في دواء 24. يمكنك إتمام أمر الشراء أو فحص تفاصيل التوريد عبر لوحة التحكم.';
+						this.isStreaming = false;
+						this.statusStage = '';
+						this.statusMessage = '';
+					},
+
+					renderMarkdown(raw) {
+						if (!raw) return '';
+						// Safe HTML escaping
+						let escaped = raw
+							.replace(/&/g, '&amp;')
+							.replace(/</g, '&lt;')
+							.replace(/>/g, '&gt;');
+
+						// Bold **text**
+						escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+						// Inline code `code`
+						escaped = escaped.replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.08); padding:0.15rem 0.35rem; border-radius:4px; font-size:0.85em;">$1</code>');
+						return escaped;
 					},
 
 					scrollToBottom() {

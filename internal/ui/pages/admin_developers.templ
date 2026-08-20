@@ -330,51 +330,32 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</p>
 						</div>
 
-						<!-- Model Name & Live Fetch Action -->
-						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem; align-items:end;">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">النموذج المعتمد (Active Model Name) *</label>
-								<input
-									type="text"
-									name="model"
-									x-model="selectedModel"
-									required
-									class="form-input"
-									dir="ltr"
-									placeholder="gemini-1.5-flash / gpt-4o-mini"
-								/>
-							</div>
-
+						<!-- Test Connection & Role Breakdown -->
+						<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1rem; align-items:start;">
 							<div>
 								<button
 									type="button"
 									class="btn btn-secondary"
 									style="width:100%; font-weight:700; height:42px; justify-content:center; gap:0.4rem;"
-									@click="fetchModels()"
-									:disabled="isFetchingModels"
+									@click="testConnection()"
+									:disabled="isTesting"
 								>
-									@components.IconRefresh("icon-xs")
-									<span x-show="!isFetchingModels">جلب النماذج المتاحة من البوابة</span>
-									<span x-show="isFetchingModels">جاري الاتصال بالبوابة...</span>
+									@components.IconSparkles("icon-xs")
+									<span x-show="!isTesting">اختبار الاتصال بالبوابة (Live Test)</span>
+									<span x-show="isTesting">جاري فحص الاتصال...</span>
 								</button>
+								<div x-show="testResult" style="margin-top:0.5rem;" x-cloak>
+									<div :class="testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : 'badge badge-rose'" style="width:100%; padding:0.5rem; justify-content:center; font-weight:700;" x-text="testResult ? testResult.message : ''"></div>
+								</div>
 							</div>
-						</div>
 
-						<!-- Fetched Models Live Chips -->
-						<div x-show="fetchedModels.length > 0" style="display:flex; flex-direction:column; gap:0.4rem; background:var(--surface-sunken); padding:0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-							<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">
-								النماذج المسترجعة من البوابة (انقر للاختيار):
-							</div>
-							<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-								<template x-for="m in fetchedModels" :key="m">
-									<button
-										type="button"
-										class="badge badge-sky"
-										style="cursor:pointer; font-size:0.8rem; font-weight:700; padding:0.35rem 0.65rem;"
-										@click="selectedModel = m"
-										x-text="m"
-									></button>
-								</template>
+							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem; font-size:0.8rem;">
+								<div style="font-weight:700; color:var(--text); margin-bottom:0.35rem;">أدوار النماذج المعتمدة بالمنظومة:</div>
+								<div style="display:flex; flex-direction:column; gap:0.25rem; color:var(--text-secondary); font-size:0.75rem;">
+									<div>• <strong>المحادثة الأساسية:</strong> <code>assistant.primary</code></div>
+									<div>• <strong>تحليل المرفقات:</strong> <code>assistant.attachment</code></div>
+									<div>• <strong>التفريغ الصوتي:</strong> <code>assistant.transcribe</code></div>
+								</div>
 							</div>
 						</div>
 
@@ -940,30 +921,22 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					showKey: false,
 					gatewayURL: 'https://api.muhiya.com',
 					gatewayKey: '',
-					selectedModel: 'gemini-1.5-flash',
-					isFetchingModels: false,
-					fetchedModels: [],
+					isTesting: false,
+					testResult: null,
 
-					async fetchModels() {
-						this.isFetchingModels = true;
+					async testConnection() {
+						this.isTesting = true;
+						this.testResult = null;
 						try {
-							const form = new FormData();
-							form.append('endpoint_url', this.gatewayURL);
-							form.append('api_key', this.gatewayKey);
-							const resp = await fetch('/admin/developers/ai/fetch-models', {
-								method: 'POST',
-								body: form
+							const resp = await fetch('/admin/developers/ai/test', {
+								method: 'POST'
 							});
 							const data = await resp.json();
-							if (data.models && data.models.length > 0) {
-								this.fetchedModels = data.models;
-							} else {
-								this.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];
-							}
+							this.testResult = data;
 						} catch (e) {
-							this.fetchedModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gpt-4o-mini', 'claude-3-5-sonnet'];
+							this.testResult = { status: 'error', message: 'تعذر الاتصال بالخادم: ' + e.message };
 						} finally {
-							this.isFetchingModels = false;
+							this.isTesting = false;
 						}
 					}
 				};

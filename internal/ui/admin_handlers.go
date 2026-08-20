@@ -228,7 +228,7 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	if values.GatewaySettings == nil || values.GatewaySettings.EndpointURL == "" {
 		values.GatewaySettings = &platformadmin.GatewaySettings{
 			EndpointURL:    "https://api.muhiya.com",
-			Environment:    "gemini-1.5-flash",
+			Environment:    "production",
 			TimeoutSeconds: 30,
 			IsActive:       true,
 		}
@@ -479,7 +479,7 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", "تم حفظ وتطبيق الهوية البصرية بنجاح.")
 }
 
-// AdminAISettingsSubmit updates AI provider and parameters.
+// AdminAISettingsSubmit updates AI assistant parameters.
 func (h *UIHandler) AdminAISettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if h.adminSvc == nil {
@@ -494,8 +494,6 @@ func (h *UIHandler) AdminAISettingsSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	ai := &platformadmin.AISettings{
-		Provider:     strings.TrimSpace(r.FormValue("provider")),
-		Model:        strings.TrimSpace(r.FormValue("model")),
 		APIKey:       strings.TrimSpace(r.FormValue("api_key")),
 		EndpointURL:  strings.TrimSpace(r.FormValue("endpoint_url")),
 		Temperature:  temp,
@@ -524,17 +522,13 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 	if endpoint == "" {
 		endpoint = "https://api.muhiya.com"
 	}
-	model := strings.TrimSpace(r.FormValue("model"))
-	if model == "" {
-		model = "gemini-1.5-flash"
-	}
 	apiKey := strings.TrimSpace(r.FormValue("api_key"))
 	systemPrompt := strings.TrimSpace(r.FormValue("system_prompt"))
 	isActive := r.FormValue("is_active") == "true"
 
 	gw := &platformadmin.GatewaySettings{
 		EndpointURL:    endpoint,
-		Environment:    model,
+		Environment:    "production",
 		TimeoutSeconds: 30,
 		APIKey:         apiKey,
 		IsActive:       isActive,
@@ -546,8 +540,6 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	ai := &platformadmin.AISettings{
-		Provider:     "gateway",
-		Model:        model,
 		APIKey:       apiKey,
 		EndpointURL:  endpoint,
 		Temperature:  0.7,
@@ -2231,14 +2223,13 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 
 	endpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
 	apiKey := strings.TrimSpace(r.FormValue("api_key"))
-	model := strings.TrimSpace(r.FormValue("model"))
 	isActive := r.FormValue("is_active") == "true"
 	systemPrompt := strings.TrimSpace(r.FormValue("system_prompt"))
 
 	gw := &platformadmin.GatewaySettings{
 		EndpointURL: endpoint,
 		APIKey:      apiKey,
-		Environment: model,
+		Environment: "production",
 		IsActive:    isActive,
 	}
 	if err := h.adminSvc.SaveGatewaySettings(ctx, gw); err != nil {
@@ -2255,9 +2246,6 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 	if apiKey != "" {
 		ai.APIKey = apiKey
 	}
-	if model != "" {
-		ai.Model = model
-	}
 	ai.IsActive = isActive
 	if systemPrompt != "" {
 		ai.SystemPrompt = systemPrompt
@@ -2269,24 +2257,42 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 
 // AdminAIFetchModelsAPI contacts the AI gateway to list available models live.
 func (h *UIHandler) AdminAIFetchModelsAPI(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"models": []string{
+		"assistant.primary",
+		"assistant.attachment",
+		"assistant.transcribe",
+	}})
+}
+
+// AdminGatewayTestConnection probes Gateway readiness live.
+func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json")
 
-	endpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
-	apiKey := strings.TrimSpace(r.FormValue("api_key"))
-
-	if h.adminSvc == nil {
-		_ = json.NewEncoder(w).Encode(map[string]any{"models": []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}})
+	if h.aiClient == nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"status":  "unreachable",
+			"message": "Gateway client not configured",
+		})
 		return
 	}
 
-	models, err := h.adminSvc.FetchGatewayModels(ctx, endpoint, apiKey)
-	if err != nil {
-		_ = json.NewEncoder(w).Encode(map[string]any{"models": []string{"gemini-1.5-flash", "gemini-1.5-pro", "gpt-4o-mini", "claude-3-5-sonnet"}})
+	if err := h.aiClient.Health(ctx); err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"status":  "unreachable",
+			"error":   err.Error(),
+			"message": "تعذر الاتصال ببوابة الذكاء الاصطناعي",
+		})
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(map[string]any{"models": models})
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"status":  "healthy",
+		"message": "الاتصال ببوابة الذكاء الاصطناعي نشط ويعمل بشكل صحيح",
+	})
 }
 
 // AdminErrorLogStatusSubmit updates the status of an error record.

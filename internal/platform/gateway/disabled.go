@@ -1,6 +1,9 @@
 package gateway
 
-import "context"
+import (
+	"context"
+	"io"
+)
 
 // Disabled is a Client that always reports the Gateway as switched off.
 //
@@ -20,8 +23,20 @@ type Disabled struct{}
 func NewDisabled() Disabled { return Disabled{} }
 
 func (Disabled) Invoke(context.Context, Request) (*Response, error) { return nil, ErrDisabled }
-func (Disabled) Health(context.Context) error                       { return ErrDisabled }
-func (Disabled) Enabled() bool                                      { return false }
+func (Disabled) Stream(context.Context, ChatRequest) (<-chan StreamEvent, error) {
+	ch := make(chan StreamEvent, 1)
+	ch <- StreamEvent{Err: ErrDisabled}
+	close(ch)
+	return ch, nil
+}
+func (Disabled) Transcribe(context.Context, io.Reader, string, string) (string, error) {
+	return "", ErrDisabled
+}
+func (Disabled) Capabilities(context.Context, Role) (ModelCapabilities, error) {
+	return ConservativeDefaultCapabilities(), ErrDisabled
+}
+func (Disabled) Health(context.Context) error { return ErrDisabled }
+func (Disabled) Enabled() bool                { return false }
 
 // Ensure both implementations satisfy the interface at compile time.
 var (

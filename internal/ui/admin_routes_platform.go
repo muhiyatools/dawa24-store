@@ -21,6 +21,7 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/settings/branding", h.AdminBrandingSubmit)
 		g.Post("/admin/settings/ai", h.AdminAISettingsSubmit)
 		g.Post("/admin/settings/gateway", h.AdminGatewaySettingsSubmit)
+		g.Post("/admin/settings/gateway/test", h.AdminGatewayTestConnection)
 		g.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
 		g.Post("/admin/settings/payment-methods", h.AdminPlatformPaymentMethodSubmit)
 		g.Post("/admin/settings/payment-methods/toggle", h.AdminPlatformPaymentMethodToggleSubmit)
@@ -115,6 +116,7 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/developers/sql", h.AdminSQLExecuteSubmit)
 		g.Post("/admin/developers/ai", h.AdminDeveloperAISettingsSubmit)
 		g.Post("/admin/developers/ai/fetch-models", h.AdminAIFetchModelsAPI)
+		g.Post("/admin/developers/ai/test", h.AdminGatewayTestConnection)
 		g.Post("/admin/developers/errors/{id}/status", h.AdminErrorLogStatusSubmit)
 	})
 }
