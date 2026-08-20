@@ -22,7 +22,7 @@ templ QuantityStepper(props QuantityStepperProps) {
 			x-model.number="qty"
 			x-bind:min="min"
 			x-bind:max="max"
-			disabled={ props.Disabled }
+			disabled?={ props.Disabled }
 			aria-label="الكمية"
 		/>
 		<button type="button" class="qty-btn" x-on:click="qty = Math.min(max, qty + 1)" aria-label="زيادة">+</button>

@@ -96,7 +96,7 @@ templ CapsuleAssistant() {
 			<!-- Messages Scroll Area -->
 			<div
 				id="capsule-messages-container"
-				style="flex:1 1 auto; height:100%; min-height:0; padding:1rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.85rem; background:var(--surface-sunken);"
+				style="flex:1 1 auto; min-height:0; padding:1rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.85rem; background:var(--surface-sunken);"
 			>
 				<!-- Welcome Greeting Bubble -->
 				<div style="display:flex; flex-direction:column; gap:0.35rem;">
@@ -186,19 +186,15 @@ templ CapsuleAssistant() {
 					</div>
 				</template>
 
-				<!-- Status / Analyzing state badge -->
-				<div x-show="statusStage" style="display:flex; justify-content:flex-start; animation:fadeIn 180ms ease;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:14px; padding:0.5rem 0.85rem; display:flex; align-items:center; gap:0.45rem; font-size:0.775rem; color:var(--text-secondary); box-shadow:var(--shadow-xs);">
-						<div class="capsule-breathing-pill" style="width:7px; height:7px; background:var(--accent); border-radius:50%;"></div>
-						<span x-text="statusMessage || 'كبسولة يعالج طلبك الآن...'"></span>
-					</div>
-				</div>
-
-				<!-- Processing / Breathing Animation State -->
-				<div x-show="isStreaming && !statusStage && messages.length > 0 && !messages[messages.length-1].text" style="display:flex; justify-content:flex-start; animation:fadeIn 180ms ease;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.75rem 1rem; display:flex; align-items:center; gap:0.5rem; box-shadow:var(--shadow-xs);">
-						<div class="capsule-breathing-pill" style="width:7px; height:7px; background:var(--accent); border-radius:50%;"></div>
-						<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">جاري صياغة الإجابة...</span>
+				<!-- Thinking indicator: three dots, no card, no label. Only
+				     attachment analysis shows text, because it is slow enough
+				     that the user needs to know which file is being read. -->
+				<div x-show="isStreaming && messages.length > 0 && !messages[messages.length-1].text" class="capsule-thinking-row">
+					<div class="capsule-thinking">
+						<span class="capsule-dot"></span>
+						<span class="capsule-dot"></span>
+						<span class="capsule-dot"></span>
+						<span x-show="statusStage" x-text="statusMessage" class="capsule-thinking-label"></span>
 					</div>
 				</div>
 
@@ -607,13 +603,17 @@ templ CapsuleAssistant() {
 							attachments: sentAttachments
 						});
 
-						const assistantMsg = {
+						// Push first, then take the element back out. Alpine wraps
+						// pushed objects in a reactive proxy; keeping a reference to
+						// the original object means every later mutation is invisible
+						// to the DOM, which is why the answer bubble stayed empty.
+						this.messages.push({
 							text: '',
 							reasoning: '',
 							isUser: false,
 							isStreaming: true
-						};
-						this.messages.push(assistantMsg);
+						});
+						const assistantMsg = this.messages[this.messages.length - 1];
 
 						this.inputQuery = '';
 						this.attachedFiles = [];

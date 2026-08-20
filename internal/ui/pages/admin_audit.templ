@@ -63,19 +63,19 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 					<div style="min-width:160px;">
 						<select name="severity" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
 							<option value="">كافة درجات الأهمية</option>
-							<option value="info" selected={ values.Severity == "info" }>عادي (Info)</option>
-							<option value="warning" selected={ values.Severity == "warning" }>متوسط (Warning)</option>
-							<option value="critical" selected={ values.Severity == "critical" }>حرج (Critical)</option>
+							<option value="info" selected?={ values.Severity == "info" }>عادي (Info)</option>
+							<option value="warning" selected?={ values.Severity == "warning" }>متوسط (Warning)</option>
+							<option value="critical" selected?={ values.Severity == "critical" }>حرج (Critical)</option>
 						</select>
 					</div>
 
 					<div style="min-width:170px;">
 						<select name="action" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
 							<option value="">كافة الأقسام والعمليات</option>
-							<option value="user" selected={ values.ActionFilter == "user" }>المستخدمين والصلاحيات</option>
-							<option value="org" selected={ values.ActionFilter == "org" }>المنشآت والتراخيص</option>
-							<option value="catalog" selected={ values.ActionFilter == "catalog" }>الكتالوج والأدوية</option>
-							<option value="order" selected={ values.ActionFilter == "order" }>أوامر التوريد</option>
+							<option value="user" selected?={ values.ActionFilter == "user" }>المستخدمين والصلاحيات</option>
+							<option value="org" selected?={ values.ActionFilter == "org" }>المنشآت والتراخيص</option>
+							<option value="catalog" selected?={ values.ActionFilter == "catalog" }>الكتالوج والأدوية</option>
+							<option value="order" selected?={ values.ActionFilter == "order" }>أوامر التوريد</option>
 						</select>
 					</div>
 

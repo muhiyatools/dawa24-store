@@ -304,8 +304,8 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">حالة البوابة</label>
 								<select name="is_active" class="form-select">
-									<option value="true" selected={ values.GatewaySettings.IsActive }>مفعلة (Active)</option>
-									<option value="false" selected={ !values.GatewaySettings.IsActive }>معطلة (Disabled)</option>
+									<option value="true" selected?={ values.GatewaySettings.IsActive }>مفعلة (Active)</option>
+									<option value="false" selected?={ !values.GatewaySettings.IsActive }>معطلة (Disabled)</option>
 								</select>
 							</div>
 						</div>
@@ -443,19 +443,19 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						<div style="min-width:150px;">
 							<select name="err_level" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
 								<option value="">كافة المستويات</option>
-								<option value="CRITICAL" selected={ values.ErrorLevelFilter == "CRITICAL" }>حرج (CRITICAL)</option>
-								<option value="ERROR" selected={ values.ErrorLevelFilter == "ERROR" }>خطأ (ERROR)</option>
-								<option value="WARNING" selected={ values.ErrorLevelFilter == "WARNING" }>تحذير (WARNING)</option>
-								<option value="EXCEPTION" selected={ values.ErrorLevelFilter == "EXCEPTION" }>استثناء (EXCEPTION)</option>
+								<option value="CRITICAL" selected?={ values.ErrorLevelFilter == "CRITICAL" }>حرج (CRITICAL)</option>
+								<option value="ERROR" selected?={ values.ErrorLevelFilter == "ERROR" }>خطأ (ERROR)</option>
+								<option value="WARNING" selected?={ values.ErrorLevelFilter == "WARNING" }>تحذير (WARNING)</option>
+								<option value="EXCEPTION" selected?={ values.ErrorLevelFilter == "EXCEPTION" }>استثناء (EXCEPTION)</option>
 							</select>
 						</div>
 
 						<div style="min-width:150px;">
 							<select name="err_status" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
 								<option value="">كافة الحالات</option>
-								<option value="NEW" selected={ values.ErrorStatusFilter == "NEW" }>جديد (NEW)</option>
-								<option value="INVESTIGATING" selected={ values.ErrorStatusFilter == "INVESTIGATING" }>قيد التحقيق</option>
-								<option value="RESOLVED" selected={ values.ErrorStatusFilter == "RESOLVED" }>تم الحل (RESOLVED)</option>
+								<option value="NEW" selected?={ values.ErrorStatusFilter == "NEW" }>جديد (NEW)</option>
+								<option value="INVESTIGATING" selected?={ values.ErrorStatusFilter == "INVESTIGATING" }>قيد التحقيق</option>
+								<option value="RESOLVED" selected?={ values.ErrorStatusFilter == "RESOLVED" }>تم الحل (RESOLVED)</option>
 							</select>
 						</div>
 

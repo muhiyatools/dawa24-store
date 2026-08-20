@@ -224,9 +224,9 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 											<div class="form-group" style="margin:0;">
 												<label class="form-label" for={ fmt.Sprintf("status-select-%d", o.ID) }>قرار المراجعة والاعتماد *</label>
 												<select id={ fmt.Sprintf("status-select-%d", o.ID) } name="status" required class="form-select">
-													<option value="approved" selected={ string(o.Status) == "approved" || string(o.Status) == "pending" }>اعتماد وترخيص المنشأة (Approve)</option>
-													<option value="rejected" selected={ string(o.Status) == "rejected" }>رفض الطلب (Reject)</option>
-													<option value="suspended" selected={ string(o.Status) == "suspended" }>تعليق مؤقت للحساب (Suspend)</option>
+													<option value="approved" selected?={ string(o.Status) == "approved" || string(o.Status) == "pending" }>اعتماد وترخيص المنشأة (Approve)</option>
+													<option value="rejected" selected?={ string(o.Status) == "rejected" }>رفض الطلب (Reject)</option>
+													<option value="suspended" selected?={ string(o.Status) == "suspended" }>تعليق مؤقت للحساب (Suspend)</option>
 													<option value="pending">إبقاء قيد التدقيق (Pending)</option>
 												</select>
 											</div>

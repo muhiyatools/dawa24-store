@@ -41,7 +41,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					<select id="var-master-prod" name="product_id" class="form-select" required>
 						<option value="" disabled selected>اختر الدواء / الصنف الأساسي من القائمة</option>
 						for _, p := range data.MasterProducts {
-							<option value={ fmt.Sprintf("%d", p.ID) } selected={ p.ID == data.SelectedProdID }>
+							<option value={ fmt.Sprintf("%d", p.ID) } selected?={ p.ID == data.SelectedProdID }>
 								{ p.Name.Get(i18n.Lang(lang)) } — { p.DosageForm }
 								if p.ScientificName != "" {
 									({ p.ScientificName })
