@@ -64,12 +64,9 @@ func TestPhaseA_FabricatedDatasets_Removed(t *testing.T) {
 	assert.NotContains(t, body, "جمهورية مصر العربية (Egypt)")
 	assert.NotContains(t, body, "المملكة العربية السعودية (Saudi Arabia)")
 
-	// 2. Social Media
+	// 2. Social Media (Redirects to Settings site tab)
 	rec = doGET(t, r, "/admin/social-media", staffActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	body = rec.Body.String()
-	assert.NotContains(t, body, "facebook.com/dawa24")
-	assert.NotContains(t, body, "linkedin.com/company/dawa24")
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 
 	// 3. API Integrations
 	rec = doGET(t, r, "/admin/api-integrations", staffActor)

@@ -101,46 +101,16 @@ templ CapsuleAssistant() {
 				class="capsule-messages-scroll"
 				style="flex:1 1 0%; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1rem; display:flex; flex-direction:column; gap:1rem; background:var(--surface-raised); overscroll-behavior:contain; -webkit-overflow-scrolling:touch;"
 			>
-				<!-- Empty State / Welcome Greeting -->
-				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:1.5rem 0.5rem; gap:1rem;">
-					<div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(37, 99, 235, 0.15)); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid rgba(2, 132, 199, 0.25);">
-						@IconSparkles("icon-md")
+				<!-- Empty State / Clean Start Session -->
+				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:2.5rem 1rem; gap:0.65rem; margin:auto 0;">
+					<div style="width:42px; height:42px; border-radius:12px; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid rgba(2, 132, 199, 0.2);">
+						@IconSparkles("icon-sm")
 					</div>
 					<div>
-						<h4 style="margin:0 0 0.25rem 0; font-size:0.9rem; font-weight:800; color:var(--text);">مرحباً بك! أنا كبسولة</h4>
-						<p style="margin:0; font-size:0.75rem; color:var(--text-secondary); line-height:1.5; max-width:320px;">
-							مساعدك الذكي لفحص الأدوية، تحليل الروشتات والمرفقات، ومقارنة عروض الموردين والأسعار.
+						<h4 style="margin:0 0 0.25rem 0; font-size:0.95rem; font-weight:800; color:var(--text);">كبسولة — المساعد الذكي</h4>
+						<p style="margin:0; font-size:0.775rem; color:var(--text-muted); line-height:1.5; max-width:280px;">
+							اطرح استفسارك، قارن عروض الموردين، أو ارفع روشتة وملفات لفحصها فورياً.
 						</p>
-					</div>
-
-					<!-- Quick Suggestion Chips (Minimalist Outline Pills) -->
-					<div style="display:flex; flex-direction:column; gap:0.45rem; width:100%; max-width:360px; margin-top:0.25rem;">
-						<button
-							type="button"
-							@click="askChip('أفضل عروض المضادات الحيوية المتوفرة اليوم')"
-							class="capsule-chip-btn"
-						>
-							@IconPackage("icon-xs")
-							<span>أفضل عروض المضادات الحيوية المتوفرة اليوم</span>
-						</button>
-
-						<button
-							type="button"
-							@click="askChip('كيف أقوم بمقارنة عروض الموردين والخصومات؟')"
-							class="capsule-chip-btn"
-						>
-							@IconLayers("icon-xs")
-							<span>كيف أقوم بمقارنة عروض الموردين والخصومات؟</span>
-						</button>
-
-						<button
-							type="button"
-							@click="askChip('اشتراطات سلاسل التبريد المعتمدة للأدوية')"
-							class="capsule-chip-btn"
-						>
-							@IconShield("icon-xs")
-							<span>اشتراطات سلاسل التبريد المعتمدة للأدوية</span>
-						</button>
 					</div>
 				</div>
 
@@ -270,12 +240,12 @@ templ CapsuleAssistant() {
 							</template>
 							
 							<!-- Uploading Spinner Overlay -->
-							<div x-show="f.uploading" class="capsule-thumb-overlay">
+							<div x-show="f.uploading && !f.error" class="capsule-thumb-overlay">
 								<span class="capsule-spinner"></span>
 							</div>
 							<!-- Error Overlay -->
-							<div x-show="f.error" class="capsule-thumb-overlay error" :title="f.error">
-								<span style="color:#ef4444; font-weight:900;">✕</span>
+							<div x-show="f.error" class="capsule-thumb-overlay" style="background:rgba(239, 68, 68, 0.35);" :title="f.error">
+								<span style="color:#ffffff; font-weight:900; font-size:12px;">!</span>
 							</div>
 							<!-- Delete Button -->
 							<button type="button" @click="removeAttachment(i)" class="capsule-thumb-delete" title="حذف">
@@ -866,6 +836,7 @@ templ CapsuleAssistant() {
 								} catch (e) {}
 							}
 							const fileItem = {
+								id: 'att-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8),
 								file: file,
 								name: file.name,
 								size: file.size,
@@ -877,31 +848,43 @@ templ CapsuleAssistant() {
 								error: ''
 							};
 							this.attachedFiles.push(fileItem);
-							this.uploadAttachment(fileItem);
+							this.uploadAttachment(fileItem.id, file);
 						}
 					},
 
-					async uploadAttachment(item) {
+					async uploadAttachment(itemId, rawFile) {
 						try {
 							const form = new FormData();
-							form.append('file', item.file);
+							form.append('file', rawFile);
 							const resp = await fetch('/api/v1/assistant/attachments', {
 								method: 'POST',
 								body: form
 							});
+							const target = this.attachedFiles.find(f => f.id === itemId);
+							if (!target) return;
+
 							if (!resp.ok) {
 								const errData = await resp.json().catch(() => ({}));
-								item.error = errData.message || 'فشل رفع الملف';
+								target.error = errData.message || 'فشل رفع الملف';
+								target.uploading = false;
 								return;
 							}
 							const data = await resp.json();
 							if (data.attachments && data.attachments.length > 0) {
-								item.handle = data.attachments[0].handle;
+								target.handle = data.attachments[0].handle;
+							} else {
+								target.error = 'استجابة غير صحيحة من الخادم';
 							}
 						} catch (e) {
-							item.error = 'خطأ في الاتصال بالخادم';
+							const target = this.attachedFiles.find(f => f.id === itemId);
+							if (target) {
+								target.error = 'خطأ في الاتصال بالخادم';
+							}
 						} finally {
-							item.uploading = false;
+							const target = this.attachedFiles.find(f => f.id === itemId);
+							if (target) {
+								target.uploading = false;
+							}
 						}
 					},
 

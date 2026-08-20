@@ -45,28 +45,10 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 								@components.IconChart("icon-sm")
 								<span>لوحة المعلومات الرئيسية</span>
 							</a>
-							if canAccessAdmin(ctx, "platform.activity_log.view") {
-								<a href="/admin/audit" class={ "sidebar-link", templ.KV("active", activeNav == "audit") }>
-									@components.IconLayers("icon-sm")
-									<span>سجل النشاطات والعمليات</span>
-								</a>
-							}
 							if canAccessAdmin(ctx, "notifications.notification.view") {
 								<a href="/admin/notifications" class={ "sidebar-link", templ.KV("active", activeNav == "notifications") }>
 									@components.IconBell("icon-sm")
 									<span>مركز الإشعارات والتنبيهات</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "platform.activity_log.view") {
-							<a href="/admin/full-activity-logs" class={ "sidebar-link", templ.KV("active", activeNav == "activity_logs") }>
-									@components.IconClock("icon-sm")
-									<span>سجلات الأنشطة والتدقيق</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "platform.developer.view") {
-							<a href="/admin/full-error-logs" class={ "sidebar-link", templ.KV("active", activeNav == "error_logs") }>
-									@components.IconAlert("icon-sm")
-									<span>سجلات الأخطاء والتشخيص</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "platform.notification.view") {
@@ -196,21 +178,11 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									@components.IconLocation("icon-sm")
 									<span>المحافظات والمدن</span>
 								</a>
-								<a href="/admin/policies" class={ "sidebar-link", templ.KV("active", activeNav == "policies") }>
-									@components.IconShield("icon-sm")
-									<span>السياسات والشروط</span>
-								</a>
 							}
 							if canAccessAdmin(ctx, "platform.content.view") {
 							<a href="/admin/countries" class={ "sidebar-link", templ.KV("active", activeNav == "countries") }>
 									@components.IconGlobe("icon-sm")
 									<span>الدول والعملات</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "platform.content.view") {
-							<a href="/admin/social-media" class={ "sidebar-link", templ.KV("active", activeNav == "social_media") }>
-									@components.IconGlobe("icon-sm")
-									<span>قنوات التواصل</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "platform.content.view") {
@@ -453,12 +425,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							<a href="/admin/report-issues" class={ "sidebar-link", templ.KV("active", activeNav == "report_issues") }>
 									@components.IconAlert("icon-sm")
 									<span>بلاغات المستخدمين</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "platform.setting.view") {
-							<a href="/admin/system-page" class={ "sidebar-link", templ.KV("active", activeNav == "system_resources") }>
-									@components.IconSettings("icon-sm")
-									<span>موارد النظام</span>
 								</a>
 							}
 						</div>

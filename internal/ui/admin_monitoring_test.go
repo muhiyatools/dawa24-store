@@ -36,7 +36,7 @@ func TestAdminMonitoringAndDiagnosticRoutes(t *testing.T) {
 			wantStatus: http.StatusSeeOther,
 		},
 		{
-			name:   "Super admin GET /admin/full-error-logs returns 200",
+			name:   "Super admin GET /admin/full-error-logs returns 301",
 			path:   "/admin/full-error-logs",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -44,10 +44,10 @@ func TestAdminMonitoringAndDiagnosticRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/full-activity-logs returns 200",
+			name:   "Super admin GET /admin/full-activity-logs returns 301",
 			path:   "/admin/full-activity-logs",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -55,7 +55,7 @@ func TestAdminMonitoringAndDiagnosticRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Super admin GET /admin/notifications returns 200",
@@ -80,7 +80,7 @@ func TestAdminMonitoringAndDiagnosticRoutes(t *testing.T) {
 			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/system-page returns 200",
+			name:   "Super admin GET /admin/system-page returns 301",
 			path:   "/admin/system-page",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -88,7 +88,7 @@ func TestAdminMonitoringAndDiagnosticRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Super admin GET /admin/first-look returns 200",

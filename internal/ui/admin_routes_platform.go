@@ -42,7 +42,9 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/categories", h.AdminCategoriesPage)
 		g.Get("/admin/brands", h.AdminBrandsPage)
 		g.Get("/admin/countries", h.AdminCountriesPage)
-		g.Get("/admin/social-media", h.AdminSocialMediaPage)
+		g.Get("/admin/social-media", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/settings?tab=site", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/highlight-sections", h.AdminHighlightSectionsPage)
 		g.Get("/admin/api-integrations", h.AdminApiIntegrationsPage)
 	})
@@ -63,7 +65,9 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 	// Audit & Logs & Chat History & AskFor & Notifications
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.activity_log.view", h.log))
-		g.Get("/admin/audit", h.AdminAuditPage)
+		g.Get("/admin/audit", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers?tab=audit", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/analytics", h.AdminAnalyticsPage)
 		g.Get("/admin/messages", h.AdminMessagesPage)
 		g.Get("/admin/documents", h.AdminDocumentsPage)
@@ -75,11 +79,19 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/ask-for", h.AdminAskForPage)
 		g.Get("/admin/ask-for/{id}", h.AdminAskForDetailPage)
 		g.Post("/admin/ask-for/{id}/respond", h.AdminAskForRespondSubmit)
-		g.Get("/admin/full-error-logs", h.AdminFullErrorLogsPage)
-		g.Get("/admin/full-error-logs/{id}", h.AdminFullErrorLogDetailPage)
+		g.Get("/admin/full-error-logs", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers?tab=errors", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/full-error-logs/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers?tab=errors", http.StatusMovedPermanently)
+		})
 		g.Post("/admin/full-error-logs/{id}/status", h.AdminErrorLogTransitionSubmit)
-		g.Get("/admin/full-activity-logs", h.AdminFullActivityLogsPage)
-		g.Get("/admin/full-activity-logs/{id}", h.AdminFullActivityLogDetailPage)
+		g.Get("/admin/full-activity-logs", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers?tab=audit", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/full-activity-logs/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers?tab=audit", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/notifications", h.AdminFullNotificationsPage)
 		g.Get("/admin/full/admin-notification", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/notifications", http.StatusMovedPermanently)
@@ -87,8 +99,12 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/full/admin-notification/{id}", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/notifications", http.StatusMovedPermanently)
 		})
-		g.Get("/admin/system-page", h.AdminSystemResourcesPage)
-		g.Get("/admin/system-page/{system}", h.AdminSystemResourcesPage)
+		g.Get("/admin/system-page", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/system-page/{system}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/first-look", h.AdminFirstLookPage)
 		// Deletes-lists and trash-list were the same screen twice over the same
 		// (previously fabricated) model list. One survives (PLAN_V7 Task 2.5).
