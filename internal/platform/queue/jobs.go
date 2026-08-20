@@ -52,4 +52,3 @@ func (ProductReindexArgs) Kind() string { return "catalog.reindex" }
 func (ProductReindexArgs) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{Queue: "maintenance"}
 }
-

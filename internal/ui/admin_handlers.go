@@ -217,7 +217,12 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 		values.GatewaySettings, _ = h.adminSvc.GetGatewaySettings(ctx)
 		values.SiteSettings, _ = h.adminSvc.GetSiteSettings(ctx)
 		values.Policies, _ = h.adminSvc.ListPolicyVersions(ctx, "")
-		values.ActivePolicy, _ = h.adminSvc.GetActivePolicy(ctx, policyKey)
+		values.ActivePolicyKey = policyKey
+		if ap, err := h.adminSvc.GetActivePolicy(ctx, policyKey); err != nil {
+			h.log.WarnContext(ctx, "admin settings: active policy", "key", policyKey, "error", err)
+		} else {
+			values.ActivePolicy = ap
+		}
 	}
 
 	if values.GatewaySettings == nil || values.GatewaySettings.EndpointURL == "" {
@@ -1793,35 +1798,13 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	h.redirectWithNotice(w, r, "/admin/plans", "success", "تمت إضافة الخطة.")
 }
 
-// AdminPoliciesPage renders the versioned policy management dashboard.
-func (h *UIHandler) AdminPoliciesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	currentKey := r.URL.Query().Get("key")
-
-	var policies []*platformadmin.Policy
-	if h.adminSvc != nil {
-		list, err := h.adminSvc.ListPolicyVersions(ctx, currentKey)
-		if err != nil {
-			h.log.WarnContext(ctx, "admin policies: list versions", "key", currentKey, "error", err)
-		} else {
-			policies = list
-		}
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminPolicies(lang, dir, currentKey, policies).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin policies", "error", err)
-	}
-}
-
 // AdminPolicyCreateSubmit creates a new draft version of a legal policy document.
 func (h *UIHandler) AdminPolicyCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, _ := authctx.From(ctx)
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/policies", "error", "خدمة السياسات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", "خدمة السياسات غير متاحة.")
 		return
 	}
 
@@ -1836,11 +1819,11 @@ func (h *UIHandler) AdminPolicyCreateSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	if err := h.adminSvc.CreatePolicyVersion(ctx, p); err != nil {
-		h.redirectWithNotice(w, r, "/admin/policies", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/policies?key="+p.PolicyKey, "success", "تم حفظ إصدار السياسة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+p.PolicyKey, "success", "تم حفظ إصدار السياسة بنجاح.")
 }
 
 // AdminPolicyPublishSubmit activates a specific policy version.
@@ -1848,21 +1831,21 @@ func (h *UIHandler) AdminPolicyPublishSubmit(w http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/policies", "error", "معرف السياسة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", "معرف السياسة غير صالح.")
 		return
 	}
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/policies", "error", "خدمة السياسات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", "خدمة السياسات غير متاحة.")
 		return
 	}
 
 	if err := h.adminSvc.PublishPolicyVersion(ctx, id); err != nil {
-		h.redirectWithNotice(w, r, "/admin/policies", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/policies", "success", "تم نشر الإصدار وتفعيله للجمهور.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "success", "تم نشر الإصدار وتفعيله للجمهور.")
 }
 
 // AdminInstitutionalPage renders the institutional hierarchy and classification screen.

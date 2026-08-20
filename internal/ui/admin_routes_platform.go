@@ -31,7 +31,10 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.content.view", h.log))
 		g.Get("/admin/content", h.AdminContentPage)
-		g.Get("/admin/policies", h.AdminPoliciesPage)
+		// The editor lives in the settings Policies tab now (PLAN_V7 Task 2.3).
+		g.Get("/admin/policies", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/settings?tab=policies", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/finder", h.AdminFinderPage)
 		g.Get("/admin/services", h.AdminServicesPage)
 		g.Get("/admin/translations", h.AdminTranslationsPage)
@@ -87,14 +90,19 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/system-page", h.AdminSystemResourcesPage)
 		g.Get("/admin/system-page/{system}", h.AdminSystemResourcesPage)
 		g.Get("/admin/first-look", h.AdminFirstLookPage)
-		g.Get("/admin/deletes-lists", h.AdminDeletesListsPage)
-		g.Get("/admin/deletes-lists/{model}", h.AdminDeletesListModelPage)
+		// Deletes-lists and trash-list were the same screen twice over the same
+		// (previously fabricated) model list. One survives (PLAN_V7 Task 2.5).
+		g.Get("/admin/deletes-lists", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/trash-list", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/deletes-lists/{model}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/trash-list/"+chi.URLParam(r, "model"), http.StatusMovedPermanently)
+		})
 		g.Get("/admin/deletes-lists/{model}/{id}", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/trash-list/"+chi.URLParam(r, "model"), http.StatusMovedPermanently)
 		})
 		g.Get("/admin/trash-list", h.AdminTrashListPage)
 		g.Get("/admin/trash-list/{model}", h.AdminTrashListModelPage)
-		g.Get("/admin/trash-list/{model}/{id}", h.AdminTrashListShowPage)
 		g.Post("/admin/trash-list/{model}/{id}/restore", h.AdminTrashRestoreSubmit)
 		g.Post("/admin/trash-list/{model}/{id}/purge", h.AdminTrashPurgeSubmit)
 		g.Get("/admin/session-plan", h.AdminSessionPlansPage)

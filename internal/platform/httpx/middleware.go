@@ -176,7 +176,6 @@ func SecurityHeaders(next http.Handler) http.Handler {
 	})
 }
 
-
 // Locale resolves the request language and writes it into the context.
 //
 // Order of precedence: explicit ?lang override, then the user's saved cookie,

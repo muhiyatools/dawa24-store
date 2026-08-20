@@ -141,6 +141,13 @@ func TestRepositorySQLMatchesMigrations(t *testing.T) {
 			}
 			cols, table := m[1], strings.ToLower(m[2])
 
+			// Postgres catalog views are not created by our migrations. The
+			// trash screens read information_schema on purpose: the list of
+			// soft-deletable tables is discovered rather than hand-maintained.
+			if strings.HasPrefix(table, "information_schema.") || strings.HasPrefix(table, "pg_") {
+				continue
+			}
+
 			if _, ok := schema[table]; !ok {
 				t.Errorf("%s: selects FROM %s, which no migration creates", rel, table)
 				continue

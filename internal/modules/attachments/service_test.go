@@ -20,12 +20,12 @@ func (s *stubRepo) Create(_ context.Context, doc *Document) (*Document, error) {
 	doc.PublicID = uuid.New()
 	return doc, nil
 }
-func (s *stubRepo) GetByID(context.Context, int64) (*Document, error)       { return nil, nil }
+func (s *stubRepo) GetByID(context.Context, int64) (*Document, error)           { return nil, nil }
 func (s *stubRepo) GetByPublicID(context.Context, uuid.UUID) (*Document, error) { return nil, nil }
 func (s *stubRepo) ListByOrganization(context.Context, int64) ([]*Document, error) {
 	return s.docs, s.listErr
 }
-func (s *stubRepo) ListByUser(context.Context, int64) ([]*Document, error)   { return nil, nil }
+func (s *stubRepo) ListByUser(context.Context, int64) ([]*Document, error) { return nil, nil }
 func (s *stubRepo) ListAll(context.Context, DocumentFilter) ([]*Document, int, error) {
 	return nil, 0, nil
 }

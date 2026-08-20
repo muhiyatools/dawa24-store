@@ -111,5 +111,3 @@ func validateOrgInput(in RegisterOrgInput) error {
 		return apperr.Validation("org.type_invalid", "يرجى تحديد نوع الحساب: صيدلية أو مورد.", nil)
 	}
 }
-
-

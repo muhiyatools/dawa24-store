@@ -17,68 +17,7 @@ type ModelMetaEntry struct {
 	TrashedCount int
 }
 
-// AdminDeletesListsPage renders overview of models.
-templ AdminDeletesListsPage(models []ModelMetaEntry, lang, dir string) {
-	@layouts.AdminShell("سجلات الحذف والبيانات (Deletes Lists)", "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-				<div>
-					<h2 class="card-title" style="margin:0;">سجلات النماذج والبيانات القابلة للحذف ({ fmt.Sprintf("%d", len(models)) })</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة إحصائيات الجداول، السجلات المحذوفة، والتحكم بالحذف الشامل.</p>
-				</div>
-			</div>
 
-			<div class="table-container">
-				<table class="data-table">
-					<thead>
-						<tr>
-							<th>الجدول / النموذج</th>
-							<th>الاسم</th>
-							<th>إجمالي السجلات</th>
-							<th>المحذوف مؤقتاً</th>
-							<th style="text-align:end;">الإجراءات</th>
-						</tr>
-					</thead>
-					<tbody>
-						for _, m := range models {
-							<tr>
-								<td><code>{ m.SchemaTable }</code></td>
-								<td><strong>{ m.NameAr }</strong> ({ m.NameEn })</td>
-								<td class="tabular-nums">{ fmt.Sprintf("%d", m.TotalCount) }</td>
-								<td class="tabular-nums">
-									if m.TrashedCount > 0 {
-										<span class="badge badge-warning">{ fmt.Sprintf("%d", m.TrashedCount) }</span>
-									} else {
-										<span class="badge badge-secondary">0</span>
-									}
-								</td>
-								<td style="text-align:end;">
-									<a href={ templ.SafeURL(fmt.Sprintf("/admin/deletes-lists/%s", m.Key)) } class="btn btn-secondary btn-sm">عرض السجلات</a>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	}
-}
-
-// AdminDeletesListModelPage renders model rows.
-templ AdminDeletesListModelPage(modelKey string, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("سجلات %s", modelKey), "audit", lang, dir) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-				<div>
-					<h2 class="card-title" style="margin:0;">سجلات { modelKey }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">استعراض بيانات الجدول وسجلات الحذف.</p>
-				</div>
-				<a href="/admin/deletes-lists" class="btn btn-secondary btn-sm">العودة</a>
-			</div>
-			@components.EmptyState(components.EmptyStateProps{Title: "سجلات النموذج", Message: "جميع السجلات بحالة نشطة وسليمة."})
-		</div>
-	}
-}
 
 // AdminTrashListPage renders trash overview across models.
 templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
@@ -125,18 +64,68 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 	}
 }
 
-// AdminTrashListModelPage renders items in trash for a model.
-templ AdminTrashListModelPage(modelKey string, lang, dir string) {
+// TrashRowView is one soft-deleted record in the trash listing.
+type TrashRowView struct {
+	ID        int64
+	Label     string
+	DeletedAt string
+}
+
+// AdminTrashListModelPage lists the deleted rows of one table, with restore and
+// purge actions that reach the database.
+templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("سلة محذوفات %s", modelKey), "audit", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
 				<div>
 					<h2 class="card-title" style="margin:0;">سلة محذوفات { modelKey }</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إمكانية استرجاع السجلات أو حذفها نهائياً.</p>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">
+						الاسترجاع يعيد السجل للنظام. الحذف النهائي لا يمكن التراجع عنه ويُسجَّل في سجل التدقيق.
+					</p>
 				</div>
 				<a href="/admin/trash-list" class="btn btn-secondary btn-sm">العودة للسلة</a>
 			</div>
-			@components.EmptyState(components.EmptyStateProps{Title: "السلة فارغة", Message: "لا توجد سجلات محذوفة مؤقتاً لهذا النموذج."})
+			if len(rows) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "السلة فارغة",
+					Message: "لا توجد سجلات محذوفة مؤقتاً لهذا النموذج.",
+				})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th style="width:90px;">المعرف</th>
+								<th>السجل</th>
+								<th style="width:160px;">تاريخ الحذف</th>
+								<th style="width:220px; text-align:end;">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, row := range rows {
+								<tr>
+									<td class="tabular-nums">{ fmt.Sprintf("%d", row.ID) }</td>
+									<td><strong>{ row.Label }</strong></td>
+									<td class="tabular-nums">{ row.DeletedAt }</td>
+									<td style="text-align:end; display:flex; gap:0.5rem; justify-content:flex-end;">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s/%d/restore", modelKey, row.ID)) } style="margin:0;">
+											<button type="submit" class="btn btn-secondary btn-sm">استرجاع</button>
+										</form>
+										<form
+											method="POST"
+											action={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s/%d/purge", modelKey, row.ID)) }
+											style="margin:0;"
+											onsubmit="return confirm('حذف نهائي لا يمكن التراجع عنه. هل أنت متأكد؟');"
+										>
+											<button type="submit" class="btn btn-danger btn-sm">حذف نهائي</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }

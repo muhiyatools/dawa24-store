@@ -30,7 +30,6 @@ type Repository interface {
 	ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
 
-
 	// Custom Roles
 	CreateRole(ctx context.Context, role *Role) error
 	GetRoleByID(ctx context.Context, id int64) (*Role, error)
@@ -80,4 +79,3 @@ type Repository interface {
 	GetUserInstitutionalWorkIDs(ctx context.Context, userID int64) ([]int64, error)
 	GetConnectedInstitutionalWorkIDs(ctx context.Context, fromWorkIDs []int64) ([]int64, error)
 }
-

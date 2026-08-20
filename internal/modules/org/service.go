@@ -183,7 +183,6 @@ func (s *Service) ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeVi
 	return s.repo.ListEmployees(ctx, orgID)
 }
 
-
 // AddMemberDirect adds or updates a member directly with full attributes.
 func (s *Service) AddMemberDirect(ctx context.Context, m *Member) error {
 	if m.OrganizationID <= 0 || m.UserID <= 0 {
@@ -277,7 +276,6 @@ func (s *Service) AddReview(ctx context.Context, orgID, userID int64, rating int
 		Status:         "approved",
 		IsVerified:     true,
 	}
-
 
 	if err := s.repo.AddReview(ctx, rev); err != nil {
 		return nil, err
@@ -532,7 +530,3 @@ func (s *Service) ListEmployeeInstitutionalWorks(ctx context.Context, userID int
 func (s *Service) ListOrgEmployeeInstitutionalWorks(ctx context.Context, orgID int64) ([]*EmployeeInstitutionalWork, error) {
 	return s.repo.ListOrgEmployeeInstitutionalWorks(ctx, orgID)
 }
-
-
-
-

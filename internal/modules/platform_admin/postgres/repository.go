@@ -682,4 +682,3 @@ func (r *Repository) GetErrorDiagnosticsMetrics(ctx context.Context) (total, cri
 	})
 	return
 }
-

@@ -165,7 +165,6 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), nil
 }
 
-
 // CheckPassword verifies a plaintext password against a bcrypt hash ($2y$ or $2a$).
 func CheckPassword(hash, password string) bool {
 	if hash == "" || password == "" {
@@ -305,7 +304,6 @@ func NormalizeOrgType(t string) (string, bool) {
 	}
 }
 
-
 // RegisterOrgInput carries the organization details a signup collects, per the
 // account type chosen in step 1 of the registration form.
 type RegisterOrgInput struct {
@@ -324,7 +322,6 @@ type RegisterOrgInput struct {
 	Longitude          *float64 `json:"longitude,omitempty"`
 	GoogleMapsURL      string   `json:"google_maps_url,omitempty"`
 }
-
 
 // RegisterOrgResult reports what the one-transaction signup created.
 type RegisterOrgResult struct {

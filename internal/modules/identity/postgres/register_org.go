@@ -113,8 +113,6 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			return fmt.Errorf("identity postgres: register main branch: %w", err)
 		}
 
-
-
 		// 5. Audit the privileged creation in the same transaction.
 		if err := database.WriteAudit(txCtx, tx, database.AuditEntry{
 			OrganizationID: &result.OrganizationID,

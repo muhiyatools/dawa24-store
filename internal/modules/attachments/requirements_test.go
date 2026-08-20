@@ -120,7 +120,6 @@ func TestService_MissingRequiredDocuments(t *testing.T) {
 		},
 	}
 
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := &Service{repo: &stubRepo{docs: tt.docs}}

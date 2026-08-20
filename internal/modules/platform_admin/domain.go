@@ -38,7 +38,6 @@ type City struct {
 	IsActive  bool      `json:"is_active"`
 }
 
-
 // Validate ensures setting keys are non-empty.
 func (s *SystemSetting) Validate() error {
 	if s.Key == "" {
@@ -267,11 +266,10 @@ type ErrorLog struct {
 
 // ErrorLogFilter defines search and filter options for system diagnostic error logs.
 type ErrorLogFilter struct {
-	Level   string
-	Status  string
-	Search  string
-	UserID  *int64
-	Limit   int
-	Offset  int
+	Level  string
+	Status string
+	Search string
+	UserID *int64
+	Limit  int
+	Offset int
 }
-

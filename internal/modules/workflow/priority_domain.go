@@ -62,13 +62,13 @@ type Priorities struct {
 
 // ScoredProduct holds the calculated ranking score and breakdown for a candidate product.
 type ScoredProduct struct {
-	Product            CandidateProduct   `json:"product"`
-	TotalScore         float64            `json:"total_score"`
-	ScoreBreakdown     map[string]float64 `json:"score_breakdown"`
-	FinalPrice         money.Amount       `json:"final_price"`
-	DiscountPercentage float64            `json:"discount_percentage"`
-	EstimatedDelivery  int                `json:"estimated_delivery"`
-	IsPreferredSupplier bool              `json:"is_preferred_supplier"`
+	Product             CandidateProduct   `json:"product"`
+	TotalScore          float64            `json:"total_score"`
+	ScoreBreakdown      map[string]float64 `json:"score_breakdown"`
+	FinalPrice          money.Amount       `json:"final_price"`
+	DiscountPercentage  float64            `json:"discount_percentage"`
+	EstimatedDelivery   int                `json:"estimated_delivery"`
+	IsPreferredSupplier bool               `json:"is_preferred_supplier"`
 }
 
 // BudgetImpact captures the financial effect on the total remaining budget.

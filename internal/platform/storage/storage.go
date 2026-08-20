@@ -227,4 +227,3 @@ func (c *Client) PublicURL(key string) string {
 	clean := strings.TrimPrefix(strings.TrimSpace(key), "/")
 	return fmt.Sprintf("%s/%s", c.publicBaseURL, url.PathEscape(clean))
 }
-

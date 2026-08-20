@@ -1,9 +1,9 @@
 package postgres
 
 import (
-	"fmt"
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 

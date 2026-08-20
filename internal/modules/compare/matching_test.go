@@ -175,9 +175,9 @@ func TestManualCorrectionPersistenceAndReuse(t *testing.T) {
 }
 
 type mockAIMatcher struct {
-	called       bool
-	returnName   string
-	returnScore  float64
+	called      bool
+	returnName  string
+	returnScore float64
 }
 
 func (m *mockAIMatcher) MatchCandidate(ctx context.Context, query string, candidateNames []string) (string, float64) {
@@ -253,4 +253,3 @@ func TestWaveB_AIMatchingAndGracefulFallback(t *testing.T) {
 		t.Errorf("expected graceful fallback to unmatched, got %s", match3.Method)
 	}
 }
-

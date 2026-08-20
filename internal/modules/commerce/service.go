@@ -485,4 +485,3 @@ func (s *Service) RespondPurchaseRequest(ctx context.Context, id int64, status P
 func (s *Service) UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error {
 	return s.repo.UpdatePurchaseRequestLineOffer(ctx, lineID, price, discount, status)
 }
-

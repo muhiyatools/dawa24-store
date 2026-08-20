@@ -144,7 +144,6 @@ func (happyRepo) UpsertJobSeekerProfile(ctx context.Context, p *hr.JobSeekerProf
 	return nil
 }
 
-
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()
 

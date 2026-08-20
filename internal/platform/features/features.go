@@ -219,7 +219,6 @@ func (e *Engine) Set(ctx context.Context, key string, enabled bool, updatedBy in
 	return nil
 }
 
-
 // Global accessor functions:
 
 // Enabled checks if a feature is enabled on the global engine.
@@ -254,7 +253,6 @@ func Require(flagKey string) func(http.Handler) http.Handler {
 		})
 	}
 }
-
 
 // GetEngine returns the initialized singleton engine.
 func GetEngine() *Engine {

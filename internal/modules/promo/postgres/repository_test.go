@@ -286,4 +286,3 @@ func TestPromoRepository(t *testing.T) {
 		_ = offers
 	})
 }
-

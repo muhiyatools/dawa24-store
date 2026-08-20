@@ -36,12 +36,12 @@ func (s *stubPromoRepo) ListOffers(context.Context, int, int) ([]*Offer, error) 
 func (s *stubPromoRepo) ListOffersVisibleTo(context.Context, float64, float64, int, int, int, []int64) ([]*VisibleOffer, error) {
 	return nil, nil
 }
-func (s *stubPromoRepo) SetOfferActive(context.Context, int64, bool) error             { return nil }
-func (s *stubPromoRepo) IncrementOfferEngagement(context.Context, int64, bool) error   { return nil }
-func (s *stubPromoRepo) CreatePackage(context.Context, *OfferPackage) error            { return nil }
-func (s *stubPromoRepo) ListPackages(context.Context) ([]*OfferPackage, error)         { return nil, nil }
-func (s *stubPromoRepo) CreateSponsorship(context.Context, *OfferSponsorship) error    { return nil }
-func (s *stubPromoRepo) ListActiveAds(context.Context, string) ([]*Ad, error)          { return nil, nil }
+func (s *stubPromoRepo) SetOfferActive(context.Context, int64, bool) error           { return nil }
+func (s *stubPromoRepo) IncrementOfferEngagement(context.Context, int64, bool) error { return nil }
+func (s *stubPromoRepo) CreatePackage(context.Context, *OfferPackage) error          { return nil }
+func (s *stubPromoRepo) ListPackages(context.Context) ([]*OfferPackage, error)       { return nil, nil }
+func (s *stubPromoRepo) CreateSponsorship(context.Context, *OfferSponsorship) error  { return nil }
+func (s *stubPromoRepo) ListActiveAds(context.Context, string) ([]*Ad, error)        { return nil, nil }
 func (s *stubPromoRepo) RecordAdClick(context.Context, int64, *int64, string, string) error {
 	return nil
 }
@@ -58,8 +58,8 @@ func (s *stubPromoRepo) AddHighlightItem(context.Context, *HighlightSectionItem)
 func (s *stubPromoRepo) ListHighlightItems(context.Context, int64) ([]*HighlightSectionItem, error) {
 	return nil, nil
 }
-func (s *stubPromoRepo) ExpirePromotions(context.Context) (int64, error)                 { return 0, nil }
-func (s *stubPromoRepo) CreateSpecialOffer(context.Context, *SpecialOffer) error         { return nil }
+func (s *stubPromoRepo) ExpirePromotions(context.Context) (int64, error)         { return 0, nil }
+func (s *stubPromoRepo) CreateSpecialOffer(context.Context, *SpecialOffer) error { return nil }
 func (s *stubPromoRepo) GetSpecialOfferByID(context.Context, int64) (*SpecialOffer, error) {
 	return nil, nil
 }

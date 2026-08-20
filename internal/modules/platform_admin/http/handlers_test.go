@@ -459,3 +459,33 @@ func TestPlatformAdminHandler_HappyPaths(t *testing.T) {
 		})
 	}
 }
+
+// Trash methods: the trash screens are exercised by their own tests; these
+// stubs only satisfy the Repository interface.
+func (s stubRepo) ListSoftDeletableTables(context.Context) ([]*platformadmin.TrashModel, error) {
+	return nil, nil
+}
+func (s stubRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, error) {
+	return nil, nil
+}
+func (s stubRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {
+	return nil
+}
+func (s stubRepo) PurgeTrashedRow(context.Context, string, string, int64, int64) error {
+	return nil
+}
+
+// Trash methods: the trash screens are exercised by their own tests; these
+// stubs only satisfy the Repository interface.
+func (h happyRepo) ListSoftDeletableTables(context.Context) ([]*platformadmin.TrashModel, error) {
+	return nil, nil
+}
+func (h happyRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, error) {
+	return nil, nil
+}
+func (h happyRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {
+	return nil
+}
+func (h happyRepo) PurgeTrashedRow(context.Context, string, string, int64, int64) error {
+	return nil
+}

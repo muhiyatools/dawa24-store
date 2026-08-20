@@ -41,6 +41,13 @@ type Repository interface {
 	PublishPolicyVersion(ctx context.Context, id int64) error
 
 	ExecuteSQL(ctx context.Context, actorID *int64, actorName, query string) (*SQLQueryResult, error)
+	// Soft-delete recovery (PLAN_V7 Task 2.5). The model list is discovered
+	// from information_schema rather than hand-maintained.
+	ListSoftDeletableTables(ctx context.Context) ([]*TrashModel, error)
+	ListTrashedRows(ctx context.Context, schema, table string, limit, offset int) ([]*TrashRow, error)
+	RestoreTrashedRow(ctx context.Context, schema, table string, id, actorID int64) error
+	PurgeTrashedRow(ctx context.Context, schema, table string, id, actorID int64) error
+
 	ListSQLLogs(ctx context.Context, limit, offset int) ([]*SQLLog, error)
 
 	LogError(ctx context.Context, entry *ErrorLog) error

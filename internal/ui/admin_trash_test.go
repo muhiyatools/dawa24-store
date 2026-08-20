@@ -36,7 +36,7 @@ func TestAdminDeletesListsAndTrashRoutes(t *testing.T) {
 			wantStatus: http.StatusSeeOther,
 		},
 		{
-			name:   "Super admin GET /admin/deletes-lists returns 200",
+			name:   "Super admin GET /admin/deletes-lists is a 301 to the trash list",
 			path:   "/admin/deletes-lists",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -44,10 +44,10 @@ func TestAdminDeletesListsAndTrashRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/deletes-lists/products returns 200",
+			name:   "Super admin GET /admin/deletes-lists/{model} is a 301 to the trash list",
 			path:   "/admin/deletes-lists/products",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -55,10 +55,10 @@ func TestAdminDeletesListsAndTrashRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/trash-list returns 200",
+			name:   "Super admin GET /admin/trash-list is reachable (needs a real service to render)",
 			path:   "/admin/trash-list",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -66,10 +66,10 @@ func TestAdminDeletesListsAndTrashRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusSeeOther,
 		},
 		{
-			name:   "Super admin GET /admin/trash-list/products returns 200",
+			name:   "Super admin GET /admin/trash-list/{model} is reachable (needs a real service to render)",
 			path:   "/admin/trash-list/products",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -77,7 +77,7 @@ func TestAdminDeletesListsAndTrashRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusSeeOther,
 		},
 		{
 			name:   "Super admin POST /admin/trash-list/products/12/restore redirects",
@@ -103,6 +103,10 @@ func TestAdminDeletesListsAndTrashRoutes(t *testing.T) {
 		},
 	}
 
+	// These cases construct the handler with nil services. That proves the route
+	// exists and is permission-gated; it cannot prove the page renders data —
+	// a page that returns 200 with no services is a page that reads nothing.
+	// Rendering is covered by the tests that use a real database.
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()

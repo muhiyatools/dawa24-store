@@ -142,4 +142,3 @@ func (s *Service) SaveJobSeekerProfile(ctx context.Context, p *JobSeekerProfile)
 	}
 	return s.repo.UpsertJobSeekerProfile(ctx, p)
 }
-

@@ -19,7 +19,6 @@ func Money(a money.Amount, lang string) string {
 		minor = -minor
 	}
 
-
 	whole := minor / 100
 	cents := minor % 100
 

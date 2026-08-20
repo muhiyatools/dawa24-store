@@ -64,8 +64,8 @@ type CartItem struct {
 	ProductName      i18n.Text    `json:"product_name,omitempty"`
 	SupplierName     i18n.Text    `json:"supplier_name,omitempty"`
 	MinOrderPrice    money.Amount `json:"min_order_price,omitempty"`
-OfferID        *int64       `json:"offer_id,omitempty"` // offer the item was added under (064)
-	Quantity       int          `json:"quantity"`
+	OfferID          *int64       `json:"offer_id,omitempty"` // offer the item was added under (064)
+	Quantity         int          `json:"quantity"`
 	UnitPrice        money.Amount `json:"unit_price"`
 	CreatedAt        time.Time    `json:"created_at"`
 	UpdatedAt        time.Time    `json:"updated_at"`
@@ -79,8 +79,8 @@ type Order struct {
 	OrderNumber    string           `json:"order_number"`
 	CustomerID     int64            `json:"customer_id"`
 	OrganizationID *int64           `json:"organization_id,omitempty"`
-	OfferID        int64            `json:"offer_id"` // the offer this order belongs to (063)
-	BranchID       *int64           `json:"branch_id,omitempty"`       // customer branch buying for
+	OfferID        int64            `json:"offer_id"`                   // the offer this order belongs to (063)
+	BranchID       *int64           `json:"branch_id,omitempty"`        // customer branch buying for
 	VendorBranchID *int64           `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
 	UserAddressID  *int64           `json:"user_address_id,omitempty"`
 	Status         OrderStatus      `json:"status"`
@@ -329,4 +329,3 @@ type PurchaseRequestLine struct {
 func GeneratePurchaseRequestNumber(t time.Time, id int64) string {
 	return fmt.Sprintf("PR-%s-%06d", t.Format("20060102"), id%1000000)
 }
-

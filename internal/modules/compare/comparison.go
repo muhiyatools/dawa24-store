@@ -21,25 +21,25 @@ type SupplierOffer struct {
 
 // ProductComparisonRow represents the aggregated multi-supplier comparison row for a product.
 type ProductComparisonRow struct {
-	MatchedProductID   *int64                   `json:"matched_product_id,omitempty"`
-	ProductName        string                   `json:"product_name"`
-	SKU                string                   `json:"sku"`
-	Offers             map[string]SupplierOffer `json:"offers"` // supplier_name -> offer
-	BestPrice          money.Amount             `json:"best_price"`
-	BestDiscount       float64                  `json:"best_discount"`
-	BestNetPrice       money.Amount             `json:"best_net_price"`
-	BestSupplier       string                   `json:"best_supplier"`
-	TotalSuppliers     int                      `json:"total_suppliers"`
+	MatchedProductID *int64                   `json:"matched_product_id,omitempty"`
+	ProductName      string                   `json:"product_name"`
+	SKU              string                   `json:"sku"`
+	Offers           map[string]SupplierOffer `json:"offers"` // supplier_name -> offer
+	BestPrice        money.Amount             `json:"best_price"`
+	BestDiscount     float64                  `json:"best_discount"`
+	BestNetPrice     money.Amount             `json:"best_net_price"`
+	BestSupplier     string                   `json:"best_supplier"`
+	TotalSuppliers   int                      `json:"total_suppliers"`
 }
 
 // ComparisonSummary represents the aggregate metrics across all analyzed supplier files.
 type ComparisonSummary struct {
-	TotalProducts        int                  `json:"total_products"`
-	TotalSuppliers       int                  `json:"total_suppliers"`
-	SuppliersList        []string             `json:"suppliers_list"`
-	AverageDiscount      float64              `json:"average_discount"`
-	BestOffersBySupplier map[string]int       `json:"best_offers_by_supplier"`
-	TotalPotentialSaving money.Amount         `json:"total_potential_saving"`
+	TotalProducts        int            `json:"total_products"`
+	TotalSuppliers       int            `json:"total_suppliers"`
+	SuppliersList        []string       `json:"suppliers_list"`
+	AverageDiscount      float64        `json:"average_discount"`
+	BestOffersBySupplier map[string]int `json:"best_offers_by_supplier"`
+	TotalPotentialSaving money.Amount   `json:"total_potential_saving"`
 }
 
 // ComparisonResultSet is the complete payload of a multi-supplier comparison run.
@@ -58,29 +58,29 @@ type HeadToHeadItem struct {
 	TargetPrice    money.Amount `json:"target_price"`
 	TargetDiscount float64      `json:"target_discount"`
 	TargetNet      money.Amount `json:"target_net"`
-	IsBetter       bool         `json:"is_better"` // true if SourceNet <= TargetNet
+	IsBetter       bool         `json:"is_better"`  // true if SourceNet <= TargetNet
 	PriceDiff      money.Amount `json:"price_diff"` // TargetNet - SourceNet
 }
 
 // HeadToHeadStats represents aggregate head-to-head metrics.
 type HeadToHeadStats struct {
-	SharedCount    int          `json:"shared_count"`
-	BetterCount    int          `json:"better_count"`
-	SourceTotal    money.Amount `json:"source_total"`
-	TargetTotal    money.Amount `json:"target_total"`
-	QualityScore   float64      `json:"quality_score"` // (BetterCount / SharedCount) * 100
-	TotalSavings   money.Amount `json:"total_savings"`   // TargetTotal - SourceTotal
+	SharedCount  int          `json:"shared_count"`
+	BetterCount  int          `json:"better_count"`
+	SourceTotal  money.Amount `json:"source_total"`
+	TargetTotal  money.Amount `json:"target_total"`
+	QualityScore float64      `json:"quality_score"` // (BetterCount / SharedCount) * 100
+	TotalSavings money.Amount `json:"total_savings"` // TargetTotal - SourceTotal
 }
 
 // MarketComparisonFilter represents the 5 filter modes for comparing a supplier with the market baseline.
 type MarketComparisonFilter string
 
 const (
-	MarketFilterAll             MarketComparisonFilter = "all"
-	MarketFilterLowerDiscount   MarketComparisonFilter = "lower_discount_than_market"
-	MarketFilterEqualToMarket   MarketComparisonFilter = "equal_to_market"
-	MarketFilterHigherDiscount  MarketComparisonFilter = "higher_discount_than_market"
-	MarketFilterExclusives      MarketComparisonFilter = "exclusives"
+	MarketFilterAll            MarketComparisonFilter = "all"
+	MarketFilterLowerDiscount  MarketComparisonFilter = "lower_discount_than_market"
+	MarketFilterEqualToMarket  MarketComparisonFilter = "equal_to_market"
+	MarketFilterHigherDiscount MarketComparisonFilter = "higher_discount_than_market"
+	MarketFilterExclusives     MarketComparisonFilter = "exclusives"
 )
 
 // MarketComparisonItem represents a supplier product compared against the market baseline.

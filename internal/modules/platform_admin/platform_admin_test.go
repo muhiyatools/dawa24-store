@@ -252,3 +252,18 @@ func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 		t.Fatalf("ListContactMessages failed: %v", err)
 	}
 }
+
+// Trash methods: the trash screens are exercised by their own tests; these
+// stubs only satisfy the Repository interface.
+func (m mockPlatformAdminRepo) ListSoftDeletableTables(context.Context) ([]*TrashModel, error) {
+	return nil, nil
+}
+func (m mockPlatformAdminRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*TrashRow, error) {
+	return nil, nil
+}
+func (m mockPlatformAdminRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {
+	return nil
+}
+func (m mockPlatformAdminRepo) PurgeTrashedRow(context.Context, string, string, int64, int64) error {
+	return nil
+}

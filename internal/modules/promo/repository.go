@@ -37,4 +37,3 @@ type Repository interface {
 	AddSpecialOfferLocation(ctx context.Context, loc *SpecialOfferLocation) error
 	ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*SpecialOfferLocation, error)
 }
-

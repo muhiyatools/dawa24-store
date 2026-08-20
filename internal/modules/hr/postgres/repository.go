@@ -217,5 +217,3 @@ func (r *Repository) UpsertJobSeekerProfile(ctx context.Context, p *hr.JobSeeker
 		).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
 	})
 }
-
-

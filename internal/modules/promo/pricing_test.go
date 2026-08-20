@@ -12,13 +12,13 @@ func TestEffectivePricePrecedence(t *testing.T) {
 	list := money.MustParse("100.00")
 
 	tests := []struct {
-		name          string
-		op            *OfferProduct
-		o             *Offer
-		wantFinal     string
-		wantSource    DiscountSource
-		wantDiscount  string
-		wantBPS       int64
+		name         string
+		op           *OfferProduct
+		o            *Offer
+		wantFinal    string
+		wantSource   DiscountSource
+		wantDiscount string
+		wantBPS      int64
 	}{
 		{
 			name:         "no line and no offer falls back to list price",
@@ -29,7 +29,7 @@ func TestEffectivePricePrecedence(t *testing.T) {
 		{
 			name: "custom price overrides everything",
 			op: &OfferProduct{
-				CustomPrice: moneyPtr("85.00"),
+				CustomPrice:          moneyPtr("85.00"),
 				CustomDiscountAmount: moneyPtr("10.00"),
 			},
 			o:            &Offer{DiscountType: DiscountPercentage, DiscountValue: money.MustParse("50.00")},
@@ -40,7 +40,7 @@ func TestEffectivePricePrecedence(t *testing.T) {
 		{
 			name: "custom fixed amount beats percent and offer",
 			op: &OfferProduct{
-				CustomDiscountAmount: moneyPtr("10.00"),
+				CustomDiscountAmount:  moneyPtr("10.00"),
 				CustomDiscountPercent: &pct15,
 			},
 			o:            &Offer{DiscountType: DiscountFixed, DiscountValue: money.MustParse("5.00")},
@@ -49,13 +49,13 @@ func TestEffectivePricePrecedence(t *testing.T) {
 			wantDiscount: "10.00",
 		},
 		{
-			name:       "custom percentage beats offer discount",
-			op:         &OfferProduct{CustomDiscountPercent: &pct15},
-			o:          &Offer{DiscountType: DiscountFixed, DiscountValue: money.MustParse("25.00")},
-			wantFinal:  "85.00",
-			wantSource: SourceCustomPercent,
+			name:         "custom percentage beats offer discount",
+			op:           &OfferProduct{CustomDiscountPercent: &pct15},
+			o:            &Offer{DiscountType: DiscountFixed, DiscountValue: money.MustParse("25.00")},
+			wantFinal:    "85.00",
+			wantSource:   SourceCustomPercent,
 			wantDiscount: "15.00",
-			wantBPS:    1500,
+			wantBPS:      1500,
 		},
 		{
 			name:         "offer-level fixed discount",
@@ -74,10 +74,10 @@ func TestEffectivePricePrecedence(t *testing.T) {
 		},
 
 		{
-			name:       "zombie offer with zero value yields list price",
-			o:          &Offer{DiscountType: DiscountPercentage},
-			wantFinal:  "100.00",
-			wantSource: SourceNone,
+			name:         "zombie offer with zero value yields list price",
+			o:            &Offer{DiscountType: DiscountPercentage},
+			wantFinal:    "100.00",
+			wantSource:   SourceNone,
 			wantDiscount: "0.00",
 		},
 	}

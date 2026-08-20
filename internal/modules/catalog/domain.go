@@ -86,29 +86,29 @@ type Product struct {
 
 // ProductVariant represents a distinct package, concentration, or SKU variation (was product_childerns).
 type ProductVariant struct {
-	ID             int64         `json:"id"`
-	PublicID       string        `json:"public_id"`
-	OrganizationID int64         `json:"organization_id"`
-	ProductID      int64         `json:"product_id"`
-	Name           i18n.Text     `json:"name"`
-	SKU            string        `json:"sku,omitempty"`
-	Barcode        string        `json:"barcode,omitempty"`
-	Price          money.Amount  `json:"price"`
-	CostPrice      money.Amount  `json:"cost_price"`
-	Discount       money.Amount  `json:"discount"`
-	Unit           string        `json:"unit,omitempty"`
-	Image          string        `json:"image,omitempty"`
-	BatchNumber    string        `json:"batch_number,omitempty"`
-	ExpiryDate     *time.Time    `json:"expiry_date,omitempty"`
-	MinOrderQty    int           `json:"min_order_qty"`
-	BranchID       *int64        `json:"branch_id,omitempty"`
-	StockQty       int           `json:"stock_qty"`
-	Status         ProductStatus `json:"status"`
-	IsFeatured     bool          `json:"is_featured"`
-	InstitutionalWorkIDs []int64 `json:"institutional_work_ids,omitempty"`
-	CreatedAt      time.Time     `json:"created_at"`
-	UpdatedAt      time.Time     `json:"updated_at"`
-	DeletedAt      *time.Time    `json:"deleted_at,omitempty"`
+	ID                   int64         `json:"id"`
+	PublicID             string        `json:"public_id"`
+	OrganizationID       int64         `json:"organization_id"`
+	ProductID            int64         `json:"product_id"`
+	Name                 i18n.Text     `json:"name"`
+	SKU                  string        `json:"sku,omitempty"`
+	Barcode              string        `json:"barcode,omitempty"`
+	Price                money.Amount  `json:"price"`
+	CostPrice            money.Amount  `json:"cost_price"`
+	Discount             money.Amount  `json:"discount"`
+	Unit                 string        `json:"unit,omitempty"`
+	Image                string        `json:"image,omitempty"`
+	BatchNumber          string        `json:"batch_number,omitempty"`
+	ExpiryDate           *time.Time    `json:"expiry_date,omitempty"`
+	MinOrderQty          int           `json:"min_order_qty"`
+	BranchID             *int64        `json:"branch_id,omitempty"`
+	StockQty             int           `json:"stock_qty"`
+	Status               ProductStatus `json:"status"`
+	IsFeatured           bool          `json:"is_featured"`
+	InstitutionalWorkIDs []int64       `json:"institutional_work_ids,omitempty"`
+	CreatedAt            time.Time     `json:"created_at"`
+	UpdatedAt            time.Time     `json:"updated_at"`
+	DeletedAt            *time.Time    `json:"deleted_at,omitempty"`
 }
 
 // EffectivePrice calculates the final customer price after discount.
@@ -159,7 +159,6 @@ func (p *Product) DiscountPercent() int {
 	}
 	return int((diff * 100) / pub.Minor())
 }
-
 
 // Validate ensures required product attributes are sound before persisting.
 func (p *Product) Validate() error {
@@ -308,4 +307,3 @@ func ComposeUniqueRowID(productID int64, variantID, branchID *int64) string {
 	}
 	return "p_" + strconv.FormatInt(productID, 10)
 }
-

@@ -25,4 +25,3 @@ type Repository interface {
 	GetJobSeekerProfile(ctx context.Context, userID int64) (*JobSeekerProfile, error)
 	UpsertJobSeekerProfile(ctx context.Context, p *JobSeekerProfile) error
 }
-

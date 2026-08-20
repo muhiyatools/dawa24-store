@@ -55,7 +55,6 @@ func (s *Service) MissingRequiredDocuments(ctx context.Context, orgID int64, org
 	return nil, nil
 }
 
-
 // RegisterUpload records a document that was already uploaded through the
 // local /uploads flow (Rebuild V2 §4.2) — the organization-owned files screen
 // uses this instead of presigned storage when object storage is absent.
@@ -262,7 +261,6 @@ func (s *Service) VerifyDocument(ctx context.Context, actor authctx.Actor, id in
 		return apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام للتحقق من المستندات")
 	}
 
-
 	var reviewerID *int64
 	if actor.UserID > 0 {
 		v := actor.UserID
@@ -284,7 +282,6 @@ func (s *Service) Delete(ctx context.Context, actor authctx.Actor, id int64) err
 			return apperr.Forbidden("document.access_denied", "ليس لديك صلاحية حذف هذا المستند")
 		}
 	}
-
 
 	return s.repo.SoftDelete(ctx, id)
 }

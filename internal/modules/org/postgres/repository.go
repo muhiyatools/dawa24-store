@@ -11,7 +11,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-
 // Repository implements org.Repository using PostgreSQL.
 type Repository struct {
 	db *database.DB
@@ -424,7 +423,6 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 	return list, err
 }
 
-
 // ListEmployees returns comprehensive employee rows with user, role, and branch details.
 func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.EmployeeView, error) {
 	var list []*org.EmployeeView
@@ -485,7 +483,6 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 	return list, err
 }
 
-
 // AddMember adds a user to an organization with full employee attributes.
 func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
@@ -514,7 +511,6 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 		).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 	})
 }
-
 
 // ToggleMemberStatus toggles a member's active state.
 func (r *Repository) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
@@ -643,7 +639,6 @@ func (r *Repository) ListReviewsByOrg(ctx context.Context, orgID int64, limit, o
 	})
 	return list, err
 }
-
 
 // ToggleFollower toggles follower status for a user and organization.
 func (r *Repository) ToggleFollower(ctx context.Context, orgID, userID int64) (bool, error) {
@@ -1018,4 +1013,3 @@ func (r *Repository) ReplyToReview(ctx context.Context, reviewID, orgID int64, r
 		return nil
 	})
 }
-

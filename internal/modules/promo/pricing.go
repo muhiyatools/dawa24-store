@@ -35,7 +35,7 @@ type DiscountBreakdown struct {
 	ListPrice      money.Amount
 	FinalPrice     money.Amount
 	DiscountAmount money.Amount
-	DiscountBPS    int64            // effective basis points; 0 for fixed/none
+	DiscountBPS    int64 // effective basis points; 0 for fixed/none
 	Source         DiscountSource
 }
 
@@ -70,7 +70,6 @@ func EffectivePrice(listPrice money.Amount, op *OfferProduct, o *Offer) (money.A
 			return final, bdRes
 		}
 	}
-
 
 	return bd.FinalPrice, bd
 }

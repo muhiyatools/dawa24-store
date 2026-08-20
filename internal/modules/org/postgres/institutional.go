@@ -834,4 +834,3 @@ func (r *Repository) GetConnectedInstitutionalWorkIDs(ctx context.Context, fromW
 	})
 	return ids, err
 }
-

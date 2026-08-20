@@ -15,7 +15,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-
 type ctxKey int
 
 const (
@@ -60,7 +59,6 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
-
 
 			// The session's active organization is the trusted default. A zero
 			// org means the user has no organization membership (or is staff),

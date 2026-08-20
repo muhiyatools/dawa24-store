@@ -105,48 +105,102 @@ func (m *institutionalMockRepo) GetBranchInstitutionalWorks(_ context.Context, _
 }
 
 // Unused organization methods for interface satisfaction
-func (m *institutionalMockRepo) CreateOrganization(_ context.Context, _ *org.Organization) error { return nil }
-func (m *institutionalMockRepo) GetOrganizationByID(_ context.Context, _ int64) (*org.Organization, error) { return nil, nil }
-func (m *institutionalMockRepo) UpdateOrganizationStatus(_ context.Context, _ int64, _ org.OrganizationStatus) error { return nil }
-func (m *institutionalMockRepo) ReviewOrganization(_ context.Context, _ int64, _ org.OrganizationStatus, _, _ string, _ int64) error { return nil }
-func (m *institutionalMockRepo) UpdateOrganization(_ context.Context, _ *org.Organization) error { return nil }
+func (m *institutionalMockRepo) CreateOrganization(_ context.Context, _ *org.Organization) error {
+	return nil
+}
+func (m *institutionalMockRepo) GetOrganizationByID(_ context.Context, _ int64) (*org.Organization, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) UpdateOrganizationStatus(_ context.Context, _ int64, _ org.OrganizationStatus) error {
+	return nil
+}
+func (m *institutionalMockRepo) ReviewOrganization(_ context.Context, _ int64, _ org.OrganizationStatus, _, _ string, _ int64) error {
+	return nil
+}
+func (m *institutionalMockRepo) UpdateOrganization(_ context.Context, _ *org.Organization) error {
+	return nil
+}
 func (m *institutionalMockRepo) DeleteOrganization(_ context.Context, _ int64) error { return nil }
-func (m *institutionalMockRepo) ListOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus, _, _ int) ([]*org.Organization, error) { return nil, nil }
-func (m *institutionalMockRepo) CountOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus) (int, error) { return 0, nil }
+func (m *institutionalMockRepo) ListOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus, _, _ int) ([]*org.Organization, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) CountOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus) (int, error) {
+	return 0, nil
+}
 func (m *institutionalMockRepo) CreateBranch(_ context.Context, _ *org.Branch) error { return nil }
-func (m *institutionalMockRepo) GetBranchByID(_ context.Context, _ int64) (*org.Branch, error) { return nil, nil }
+func (m *institutionalMockRepo) GetBranchByID(_ context.Context, _ int64) (*org.Branch, error) {
+	return nil, nil
+}
 func (m *institutionalMockRepo) UpdateBranch(_ context.Context, _ *org.Branch) error { return nil }
-func (m *institutionalMockRepo) DeleteBranch(_ context.Context, _, _ int64) error { return nil }
-func (m *institutionalMockRepo) ListBranchesByOrg(_ context.Context, _ int64) ([]*org.Branch, error) { return nil, nil }
+func (m *institutionalMockRepo) DeleteBranch(_ context.Context, _, _ int64) error    { return nil }
+func (m *institutionalMockRepo) ListBranchesByOrg(_ context.Context, _ int64) ([]*org.Branch, error) {
+	return nil, nil
+}
 func (m *institutionalMockRepo) UnsetMainBranches(_ context.Context, _ int64) error { return nil }
-func (m *institutionalMockRepo) AssignBranchManager(_ context.Context, _, _ int64, _ *int64) error { return nil }
+func (m *institutionalMockRepo) AssignBranchManager(_ context.Context, _, _ int64, _ *int64) error {
+	return nil
+}
 func (m *institutionalMockRepo) AddMember(_ context.Context, _ *org.Member) error { return nil }
-func (m *institutionalMockRepo) UpdateMemberRole(_ context.Context, _, _ int64, _ string) error { return nil }
-func (m *institutionalMockRepo) ListMembersByOrg(_ context.Context, _ int64) ([]*org.Member, error) { return nil, nil }
-func (m *institutionalMockRepo) ListEmployees(_ context.Context, _ int64) ([]*org.EmployeeView, error) { return nil, nil }
+func (m *institutionalMockRepo) UpdateMemberRole(_ context.Context, _, _ int64, _ string) error {
+	return nil
+}
+func (m *institutionalMockRepo) ListMembersByOrg(_ context.Context, _ int64) ([]*org.Member, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) ListEmployees(_ context.Context, _ int64) ([]*org.EmployeeView, error) {
+	return nil, nil
+}
 func (m *institutionalMockRepo) RemoveMember(_ context.Context, _, _ int64) error { return nil }
-func (m *institutionalMockRepo) CreateRole(_ context.Context, _ *org.Role) error { return nil }
+func (m *institutionalMockRepo) CreateRole(_ context.Context, _ *org.Role) error  { return nil }
 func (m *institutionalMockRepo) GetRoleByID(_ context.Context, id int64) (*org.Role, error) {
 	return &org.Role{ID: id, Key: "custom_role", Permissions: []string{"org.organization.view"}}, nil
 }
 func (m *institutionalMockRepo) UpdateRole(_ context.Context, _ *org.Role) error { return nil }
-func (m *institutionalMockRepo) DeleteRole(_ context.Context, _ int64) error { return nil }
-func (m *institutionalMockRepo) ListRolesByOrg(_ context.Context, _ int64) ([]*org.Role, error) { return nil, nil }
-func (m *institutionalMockRepo) GetDeliveryBands(_ context.Context, _ int64) ([]*org.DeliveryBand, error) { return nil, nil }
-func (m *institutionalMockRepo) SaveDeliveryBands(_ context.Context, _ int64, _ []*org.DeliveryBand) error { return nil }
+func (m *institutionalMockRepo) DeleteRole(_ context.Context, _ int64) error     { return nil }
+func (m *institutionalMockRepo) ListRolesByOrg(_ context.Context, _ int64) ([]*org.Role, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) GetDeliveryBands(_ context.Context, _ int64) ([]*org.DeliveryBand, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) SaveDeliveryBands(_ context.Context, _ int64, _ []*org.DeliveryBand) error {
+	return nil
+}
 func (m *institutionalMockRepo) AddReview(_ context.Context, _ *org.Review) error { return nil }
-func (m *institutionalMockRepo) AddReviewWithRatings(_ context.Context, _ *org.Review, _ []org.ReviewRating) error { return nil }
-func (m *institutionalMockRepo) ListReviewsByOrg(_ context.Context, _ int64, _, _ int) ([]*org.Review, error) { return nil, nil }
-func (m *institutionalMockRepo) GetReviewCriteria(_ context.Context, _ string) ([]*org.ReviewCriterion, error) { return nil, nil }
-func (m *institutionalMockRepo) ReplyToReview(_ context.Context, _, _ int64, _ string, _ int64) error { return nil }
-func (m *institutionalMockRepo) ToggleFollower(_ context.Context, _, _ int64) (bool, error) { return false, nil }
-func (m *institutionalMockRepo) IsFollowing(_ context.Context, _, _ int64) (bool, error) { return false, nil }
-func (m *institutionalMockRepo) ListFollowedOrgs(_ context.Context, _ int64) ([]*org.Organization, error) { return nil, nil }
+func (m *institutionalMockRepo) AddReviewWithRatings(_ context.Context, _ *org.Review, _ []org.ReviewRating) error {
+	return nil
+}
+func (m *institutionalMockRepo) ListReviewsByOrg(_ context.Context, _ int64, _, _ int) ([]*org.Review, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) GetReviewCriteria(_ context.Context, _ string) ([]*org.ReviewCriterion, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) ReplyToReview(_ context.Context, _, _ int64, _ string, _ int64) error {
+	return nil
+}
+func (m *institutionalMockRepo) ToggleFollower(_ context.Context, _, _ int64) (bool, error) {
+	return false, nil
+}
+func (m *institutionalMockRepo) IsFollowing(_ context.Context, _, _ int64) (bool, error) {
+	return false, nil
+}
+func (m *institutionalMockRepo) ListFollowedOrgs(_ context.Context, _ int64) ([]*org.Organization, error) {
+	return nil, nil
+}
 func (m *institutionalMockRepo) CreatePolicy(_ context.Context, _ *org.Policy) error { return nil }
-func (m *institutionalMockRepo) ListPoliciesByOrg(_ context.Context, _ int64) ([]*org.Policy, error) { return nil, nil }
-func (m *institutionalMockRepo) SavePolicies(_ context.Context, _ int64, _ []*org.Policy) error { return nil }
-func (m *institutionalMockRepo) ListSocialMediaByOrg(_ context.Context, _ int64) ([]*org.SocialMedia, error) { return nil, nil }
-func (m *institutionalMockRepo) SaveSocialMedia(_ context.Context, _ int64, _ []*org.SocialMedia) error { return nil }
+func (m *institutionalMockRepo) ListPoliciesByOrg(_ context.Context, _ int64) ([]*org.Policy, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) SavePolicies(_ context.Context, _ int64, _ []*org.Policy) error {
+	return nil
+}
+func (m *institutionalMockRepo) ListSocialMediaByOrg(_ context.Context, _ int64) ([]*org.SocialMedia, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) SaveSocialMedia(_ context.Context, _ int64, _ []*org.SocialMedia) error {
+	return nil
+}
 
 // Employee Institutional Works mock
 func (m *institutionalMockRepo) AssignEmployeeInstitutionalWork(_ context.Context, orgID, userID, workID int64) error {
@@ -361,4 +415,3 @@ func TestInstitutionalWorksFilterModes(t *testing.T) {
 		t.Errorf("after removing work 3: got %v, want 3 works excluding 3", remainingWorks)
 	}
 }
-

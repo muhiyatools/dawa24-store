@@ -78,9 +78,12 @@ func TestPhaseA_FabricatedDatasets_Removed(t *testing.T) {
 	assert.NotContains(t, body, "Twilio")
 	assert.NotContains(t, body, "Paymob")
 
-	// 4. Trash List
+	// 4. Trash List. With no admin service the page redirects rather than
+	// rendering — which is itself the point: the model list and its counts come
+	// from information_schema now, not from a hardcoded slice, so there is
+	// nothing to show without a database.
 	rec = doGET(t, r, "/admin/trash-list", staffActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusSeeOther, rec.Code)
 	body = rec.Body.String()
 	assert.NotContains(t, body, "1240")
 	assert.NotContains(t, body, "14200")

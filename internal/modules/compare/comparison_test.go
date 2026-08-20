@@ -156,7 +156,7 @@ func TestSupplierVsSupplierHeadToHead(t *testing.T) {
 	_ = repo.CreateFile(ctx, f1)
 	rows1 := []*compare.CompareFileRow{
 		{FileID: f1.ID, RawName: "Panadol", SKU: "SKU-1", Price: money.FromMajor(100), Discount: 20.0}, // Net 80
-		{FileID: f1.ID, RawName: "Cataflam", SKU: "SKU-2", Price: money.FromMajor(50), Discount: 10.0},  // Net 45
+		{FileID: f1.ID, RawName: "Cataflam", SKU: "SKU-2", Price: money.FromMajor(50), Discount: 10.0}, // Net 45
 	}
 	_ = repo.InsertFileRows(ctx, rows1)
 
@@ -164,7 +164,7 @@ func TestSupplierVsSupplierHeadToHead(t *testing.T) {
 	_ = repo.CreateFile(ctx, f2)
 	rows2 := []*compare.CompareFileRow{
 		{FileID: f2.ID, RawName: "Panadol", SKU: "SKU-1", Price: money.FromMajor(100), Discount: 10.0}, // Net 90 (Source f1 is better)
-		{FileID: f2.ID, RawName: "Cataflam", SKU: "SKU-2", Price: money.FromMajor(50), Discount: 20.0},  // Net 40 (Target f2 is better)
+		{FileID: f2.ID, RawName: "Cataflam", SKU: "SKU-2", Price: money.FromMajor(50), Discount: 20.0}, // Net 40 (Target f2 is better)
 	}
 	_ = repo.InsertFileRows(ctx, rows2)
 

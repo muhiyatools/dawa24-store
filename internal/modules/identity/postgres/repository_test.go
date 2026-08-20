@@ -359,4 +359,3 @@ func TestRegisterOrganizationLive(t *testing.T) {
 	}
 	t.Logf("Registered Org successfully: OrgID=%d, UserID=%d, Type=%s, Status=%s", res.OrganizationID, u.ID, res.OrganizationType, res.OrganizationStatus)
 }
-

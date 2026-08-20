@@ -230,7 +230,6 @@ func (happyRepo) ListSpecialOfferLocations(ctx context.Context, offerID int64) (
 	return []*promo.SpecialOfferLocation{{ID: 1, Radius: 1000}}, nil
 }
 
-
 const testCookieName = "dawa24_session"
 
 func newTestRouter(t *testing.T) http.Handler {

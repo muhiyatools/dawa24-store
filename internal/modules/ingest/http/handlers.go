@@ -138,9 +138,9 @@ func (h *Handler) GetChunkStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSON(w, http.StatusOK, map[string]any{
-		"file_uuid":        fileUUID,
-		"uploaded_chunks":  present,
-		"count":            len(present),
+		"file_uuid":       fileUUID,
+		"uploaded_chunks": present,
+		"count":           len(present),
 	})
 }
 

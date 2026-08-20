@@ -112,8 +112,8 @@ func TestFindBestHeaderRow(t *testing.T) {
 	rows := [][]string{
 		{"شركة الدواء الحديثة للتوزيع", "", "", ""}, // Title banner row
 		{"تاريخ التقرير: 2026-08-19", "", "", ""},   // Metadata row
-		{"", "", "", ""},                           // Blank row
-		{"كود الصنف", "اسم الصنف", "السعر", "الخصم"},   // Real header row (Index 3)
+		{"", "", "", ""}, // Blank row
+		{"كود الصنف", "اسم الصنف", "السعر", "الخصم"}, // Real header row (Index 3)
 		{"1001", "Panadol Extra 24 Tab", "45.00", "12%"},
 		{"1002", "Cataflam 50mg 20 Tab", "38.50", "8%"},
 	}

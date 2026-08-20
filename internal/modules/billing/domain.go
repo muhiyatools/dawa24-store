@@ -185,21 +185,21 @@ type UserPaymentMethod struct {
 
 // PlatformPaymentMethod represents a payment channel configured for the platform.
 type PlatformPaymentMethod struct {
-	ID                string    `json:"id"`                 // e.g. "bank_transfer", "instapay", "card", "vodafone_cash"
-	Name              i18n.Text `json:"name"`               // Arabic & English name
-	ProviderType      string    `json:"provider_type"`      // "bank", "instapay", "wallet", "card", "cash"
-	Description       i18n.Text `json:"description"`        // Arabic & English guidelines
-	AccountName       string    `json:"account_name"`       // Corporate account holder
-	BankName          string    `json:"bank_name"`          // Official bank name
-	AccountNumber     string    `json:"account_number"`     // Bank account number
-	IBAN              string    `json:"iban"`               // Official IBAN
-	SwiftCode         string    `json:"swift_code"`         // SWIFT / BIC code
-	BranchName        string    `json:"branch_name"`        // Bank branch
-	InstaPayHandle    string    `json:"instapay_handle"`    // IPA address e.g. dawa24@instapay
-	PhoneNumber       string    `json:"phone_number"`       // Phone number for wallets / InstaPay
-	IsActive          bool      `json:"is_active"`          // Globally active or disabled
-	IsDepositEnabled  bool      `json:"is_deposit_enabled"` // Allowed for wallet deposit
-	IsCheckoutEnabled bool      `json:"is_checkout_enabled"`// Allowed for checkout orders
+	ID                string    `json:"id"`                  // e.g. "bank_transfer", "instapay", "card", "vodafone_cash"
+	Name              i18n.Text `json:"name"`                // Arabic & English name
+	ProviderType      string    `json:"provider_type"`       // "bank", "instapay", "wallet", "card", "cash"
+	Description       i18n.Text `json:"description"`         // Arabic & English guidelines
+	AccountName       string    `json:"account_name"`        // Corporate account holder
+	BankName          string    `json:"bank_name"`           // Official bank name
+	AccountNumber     string    `json:"account_number"`      // Bank account number
+	IBAN              string    `json:"iban"`                // Official IBAN
+	SwiftCode         string    `json:"swift_code"`          // SWIFT / BIC code
+	BranchName        string    `json:"branch_name"`         // Bank branch
+	InstaPayHandle    string    `json:"instapay_handle"`     // IPA address e.g. dawa24@instapay
+	PhoneNumber       string    `json:"phone_number"`        // Phone number for wallets / InstaPay
+	IsActive          bool      `json:"is_active"`           // Globally active or disabled
+	IsDepositEnabled  bool      `json:"is_deposit_enabled"`  // Allowed for wallet deposit
+	IsCheckoutEnabled bool      `json:"is_checkout_enabled"` // Allowed for checkout orders
 	DisplayOrder      int       `json:"display_order"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`

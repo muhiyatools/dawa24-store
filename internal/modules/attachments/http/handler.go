@@ -207,7 +207,6 @@ func (h *Handler) adminVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	if err := h.svc.VerifyDocument(r.Context(), actor, id, status, req.Notes); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return

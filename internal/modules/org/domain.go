@@ -66,32 +66,31 @@ type Organization struct {
 
 // Branch represents a physical location or warehouse of an organization.
 type Branch struct {
-	ID             int64     `json:"id"`
-	PublicID       string    `json:"public_id"`
-	OrganizationID int64     `json:"organization_id"`
-	Name           i18n.Text `json:"name"`
-	Code           string    `json:"code"`
-	Address        string    `json:"address"`
-	CityID         *int64    `json:"city_id,omitempty"`
-	Latitude       *float64  `json:"latitude,omitempty"`
-	Longitude      *float64  `json:"longitude,omitempty"`
-	GoogleMapsURL  string    `json:"google_maps_url,omitempty"`
-	ManagerID      *int64    `json:"manager_id,omitempty"`
-	ManagerName    string    `json:"manager_name,omitempty"`
-	ManagerEmail   string    `json:"manager_email,omitempty"`
-	ManagerPhone   string    `json:"manager_phone,omitempty"`
-	WarehouseType  string    `json:"warehouse_type,omitempty"` // warehouse, fast_hub, pharmacy_branch, cold_depot
-	HasColdStorage bool      `json:"has_cold_storage"`
-	CapacitySQM    float64   `json:"capacity_sqm"`
-	OperatingHours string    `json:"operating_hours,omitempty"`
-	Status         string    `json:"status"` // active, inactive
-	IsMain         bool      `json:"is_main"`
+	ID                 int64     `json:"id"`
+	PublicID           string    `json:"public_id"`
+	OrganizationID     int64     `json:"organization_id"`
+	Name               i18n.Text `json:"name"`
+	Code               string    `json:"code"`
+	Address            string    `json:"address"`
+	CityID             *int64    `json:"city_id,omitempty"`
+	Latitude           *float64  `json:"latitude,omitempty"`
+	Longitude          *float64  `json:"longitude,omitempty"`
+	GoogleMapsURL      string    `json:"google_maps_url,omitempty"`
+	ManagerID          *int64    `json:"manager_id,omitempty"`
+	ManagerName        string    `json:"manager_name,omitempty"`
+	ManagerEmail       string    `json:"manager_email,omitempty"`
+	ManagerPhone       string    `json:"manager_phone,omitempty"`
+	WarehouseType      string    `json:"warehouse_type,omitempty"` // warehouse, fast_hub, pharmacy_branch, cold_depot
+	HasColdStorage     bool      `json:"has_cold_storage"`
+	CapacitySQM        float64   `json:"capacity_sqm"`
+	OperatingHours     string    `json:"operating_hours,omitempty"`
+	Status             string    `json:"status"` // active, inactive
+	IsMain             bool      `json:"is_main"`
 	Phone              string    `json:"phone,omitempty"`
 	InstitutionalWorks []string  `json:"institutional_works,omitempty"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 }
-
 
 // Role represents a per-organization role with configurable permissions.
 type Role struct {
@@ -138,33 +137,31 @@ type EmployeeView struct {
 	IsManager  bool
 }
 
-
 // Review represents a multi-criteria customer/supplier review.
 type Review struct {
-	ID             int64          `json:"id"`
-	PublicID       string         `json:"public_id"`
-	OrganizationID int64          `json:"organization_id"`
-	UserID         int64          `json:"user_id"`
-	OrderID        *int64         `json:"order_id,omitempty"`
-	ProductID      *int64         `json:"product_id,omitempty"`
-	Title          string         `json:"title,omitempty"`
-	Rating         int            `json:"rating"` // 1-5 overall score
-	ReviewText     string         `json:"review_text,omitempty"`
-	Response       string         `json:"response,omitempty"`
-	ResponseAt     *time.Time     `json:"response_at,omitempty"`
-	RespondedBy    *int64         `json:"responded_by,omitempty"`
-	IsVerified     bool           `json:"is_verified"`
-	IsApproved     bool           `json:"is_approved"`
-	IsPublic       bool           `json:"is_public"`
-	Status         string         `json:"status"` // pending, approved, rejected
+	ID              int64          `json:"id"`
+	PublicID        string         `json:"public_id"`
+	OrganizationID  int64          `json:"organization_id"`
+	UserID          int64          `json:"user_id"`
+	OrderID         *int64         `json:"order_id,omitempty"`
+	ProductID       *int64         `json:"product_id,omitempty"`
+	Title           string         `json:"title,omitempty"`
+	Rating          int            `json:"rating"` // 1-5 overall score
+	ReviewText      string         `json:"review_text,omitempty"`
+	Response        string         `json:"response,omitempty"`
+	ResponseAt      *time.Time     `json:"response_at,omitempty"`
+	RespondedBy     *int64         `json:"responded_by,omitempty"`
+	IsVerified      bool           `json:"is_verified"`
+	IsApproved      bool           `json:"is_approved"`
+	IsPublic        bool           `json:"is_public"`
+	Status          string         `json:"status"` // pending, approved, rejected
 	HelpfulCount    int            `json:"helpful_count"`
 	Context         string         `json:"context"` // supplier, pharmacy, product, delivery
 	Ratings         []ReviewRating `json:"ratings,omitempty"`
 	ReviewerOrgName string         `json:"reviewer_org_name,omitempty"`
 	CreatedAt       time.Time      `json:"created_at"`
 
-
-	UpdatedAt      time.Time      `json:"updated_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // ReviewCriterion defines one evaluatable metric (e.g. delivery_speed, packaging).
@@ -344,4 +341,3 @@ const (
 	// Laravel: applyInstitutionalWorksFilter_WithConnections — purchase-request pages.
 	FilterWithConnections
 )
-

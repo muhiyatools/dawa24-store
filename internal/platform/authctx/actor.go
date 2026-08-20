@@ -25,7 +25,7 @@ const ctxKeyActor ctxKey = iota
 type Actor struct {
 	UserID         int64
 	OrganizationID int64
-	OrgID          int64 // Alias for OrganizationID
+	OrgID          int64  // Alias for OrganizationID
 	OrgType        string // "customer" | "vendor" | "" for a user with no organization or staff-only
 	OrgStatus      string // pending | approved | rejected | suspended
 	BranchID       *int64 // non-nil when the member is bound to one branch
@@ -52,7 +52,6 @@ func (a Actor) IsCustomer() bool {
 func (a Actor) IsVendor() bool {
 	return !a.IsStaff && a.OrgType == "vendor"
 }
-
 
 // DisplayName returns a user-friendly name to display in the navbar.
 func (a Actor) DisplayName() string {
@@ -137,7 +136,6 @@ func FromContext(ctx context.Context) Actor {
 	a, _ := From(ctx)
 	return a
 }
-
 
 // UserID returns the authenticated user id, or an Unauthorized error.
 //

@@ -33,12 +33,12 @@ type PurchasePriorityRequest struct {
 
 // WeeklyCoverage defines branch geographic delivery schedules.
 type WeeklyCoverage struct {
-	ID             int64     `json:"id"`
-	PublicID       string    `json:"public_id"`
-	OrganizationID int64     `json:"organization_id"`
-	BranchID       int64     `json:"branch_id"`
-	CityID         *int64    `json:"city_id,omitempty"`
-	DayOfWeek      int       `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
+	ID             int64  `json:"id"`
+	PublicID       string `json:"public_id"`
+	OrganizationID int64  `json:"organization_id"`
+	BranchID       int64  `json:"branch_id"`
+	CityID         *int64 `json:"city_id,omitempty"`
+	DayOfWeek      int    `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
 	// CoverageFrom/CoverageTo are the optional daily service window as "HH:MM".
 	// They map to nullable Postgres TIME columns, so they are pointers: a blank
 	// form field means "no window" (NULL), not the empty string. Writing "" into

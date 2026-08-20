@@ -73,7 +73,7 @@ type OfferProduct struct {
 	OfferID               int64         `json:"offer_id"`
 	ProductID             int64         `json:"product_id"`
 	VariantID             *int64        `json:"variant_id,omitempty"`
-	CustomPrice           *money.Amount `json:"custom_price,omitempty"`           // full override of the list price
+	CustomPrice           *money.Amount `json:"custom_price,omitempty"`               // full override of the list price
 	CustomDiscountPercent *float64      `json:"custom_discount_percentage,omitempty"` // percent, e.g. 15.00 = 15%
 	CustomDiscountAmount  *money.Amount `json:"custom_discount_amount,omitempty"`
 	CustomQty             int           `json:"custom_qty"`
@@ -196,15 +196,14 @@ type SpecialOfferLocation struct {
 	AddressEn   string    `json:"address_en"`
 	Latitude    float64   `json:"latitude"`
 	Longitude   float64   `json:"longitude"`
-	Radius      int       `json:"radius"`       // in meters
-	DayOfWeek   int       `json:"day_of_week"`  // 1=Saturday ... 7=Friday
+	Radius      int       `json:"radius"`      // in meters
+	DayOfWeek   int       `json:"day_of_week"` // 1=Saturday ... 7=Friday
 	TimeFrom    string    `json:"time_from,omitempty"`
 	TimeTo      string    `json:"time_to,omitempty"`
 	Status      string    `json:"status"`       // active, inactive
 	AdminStatus string    `json:"admin_status"` // pending, approved, rejected
 	CreatedAt   time.Time `json:"created_at"`
 }
-
 
 // Validate ensures dates and discount amounts are sound.
 func (o *Offer) Validate() error {
@@ -225,7 +224,7 @@ func (o *Offer) Validate() error {
 type HighlightSection struct {
 	ID             int64                  `json:"id"`
 	PublicID       string                 `json:"public_id"`
-	OwnerType      string                 `json:"owner_type"`       // platform | organization (066)
+	OwnerType      string                 `json:"owner_type"`                // platform | organization (066)
 	OrganizationID *int64                 `json:"organization_id,omitempty"` // owner when organization (066)
 	Title          i18n.Text              `json:"title"`
 	Slug           string                 `json:"slug"`
@@ -256,4 +255,3 @@ type InstitutionalGateFunc func(ctx context.Context, userID int64, mode int) ([]
 func (f InstitutionalGateFunc) AllowedWorkIDs(ctx context.Context, userID int64, mode int) ([]int64, error) {
 	return f(ctx, userID, mode)
 }
-

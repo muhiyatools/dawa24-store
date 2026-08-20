@@ -16,7 +16,7 @@ import (
 //   - WRITE: coverage_from/coverage_to are Postgres TIME columns. The handler
 //     passed a Go "" for a blank form field, and Postgres rejects that with
 //     `invalid input syntax for type time: ""`. The write path now casts through
-//     NULLIF($n,'')::time and the domain sends nil for a blank field.
+//     NULLIF($n,”)::time and the domain sends nil for a blank field.
 //
 //   - READ: every SELECT scanned the TIME columns straight into a Go string.
 //     pgx maps TIME (OID 1083) to pgtype.Time, never to string, so every row

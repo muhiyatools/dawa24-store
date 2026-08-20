@@ -213,7 +213,6 @@ func (m *mockPromoRepo) ListSpecialOfferLocations(_ context.Context, _ int64) ([
 	return []*SpecialOfferLocation{{ID: 1, Radius: 1000}}, nil
 }
 
-
 func TestPromoServiceLifecycle(t *testing.T) {
 	ctx := database.WithTenant(context.Background(), 42)
 	repo := newMockPromoRepo()
@@ -226,13 +225,13 @@ func TestPromoServiceLifecycle(t *testing.T) {
 	now := time.Now().UTC()
 
 	o := &Offer{
-		Title:         i18n.New("خصم الصيف", "Summer Discount"),
-		DiscountType:  DiscountPercentage,
-		DiscountValue: discVal,
+		Title:          i18n.New("خصم الصيف", "Summer Discount"),
+		DiscountType:   DiscountPercentage,
+		DiscountValue:  discVal,
 		MinOrderAmount: minOrder,
-		StartsAt:      now,
-		ExpiresAt:     now.Add(7 * 24 * time.Hour),
-		IsActive:      true,
+		StartsAt:       now,
+		ExpiresAt:      now.Add(7 * 24 * time.Hour),
+		IsActive:       true,
 	}
 
 	createdOffer, err := svc.CreateOffer(ctx, o)

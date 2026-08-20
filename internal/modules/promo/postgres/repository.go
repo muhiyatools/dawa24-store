@@ -562,4 +562,3 @@ func (r *Repository) ListSpecialOfferLocations(ctx context.Context, offerID int6
 	})
 	return list, err
 }
-

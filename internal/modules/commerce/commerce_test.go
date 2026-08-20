@@ -296,7 +296,6 @@ func (m *mockCommerceRepo) UpdatePurchaseRequestLineOffer(_ context.Context, lin
 	return apperr.NotFound("purchase_request_line")
 }
 
-
 func (m *mockCommerceRepo) SetShipmentTracking(_ context.Context, _ int64, _, _ string) error {
 	return nil
 }
@@ -404,15 +403,15 @@ func TestIsValidStatusTransition(t *testing.T) {
 	}
 
 	invalid := []struct{ from, to OrderStatus }{
-		{StatusPending, StatusShipped},        // jump forward
-		{StatusShipped, StatusDelivered},      // bypass in_transit/out_for_delivery
-		{StatusCancelled, StatusPending},      // terminal
-		{StatusFailed, StatusRefunded},        // terminal
-		{StatusReturned, StatusRefunded},      // terminal
-		{StatusRefunded, StatusCompleted},     // terminal
-		{StatusCompleted, StatusDelivered},    // after completion
-		{StatusPending, StatusRefunded},       // refund without delivery
-		{StatusDelivered, StatusCancelled},    // cancelled after delivery
+		{StatusPending, StatusShipped},                   // jump forward
+		{StatusShipped, StatusDelivered},                 // bypass in_transit/out_for_delivery
+		{StatusCancelled, StatusPending},                 // terminal
+		{StatusFailed, StatusRefunded},                   // terminal
+		{StatusReturned, StatusRefunded},                 // terminal
+		{StatusRefunded, StatusCompleted},                // terminal
+		{StatusCompleted, StatusDelivered},               // after completion
+		{StatusPending, StatusRefunded},                  // refund without delivery
+		{StatusDelivered, StatusCancelled},               // cancelled after delivery
 		{OrderStatus("ready_for_pickup"), StatusShipped}, // removed legacy state
 	}
 	for _, tc := range invalid {

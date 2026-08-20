@@ -17,21 +17,21 @@ import (
 type DocumentType string
 
 const (
-	DocCommercialRegister   DocumentType = "commercial_register"
-	DocTaxCard              DocumentType = "tax_card"
-	DocPharmacistLicense    DocumentType = "pharmacist_license"
-	DocPharmacyLicense      DocumentType = "pharmacy_license"
-	DocNationalID           DocumentType = "national_id"
-	DocPassport             DocumentType = "passport"
-	DocBankCertificate      DocumentType = "bank_certificate"
-	DocAuthorizationLetter  DocumentType = "authorization_letter"
-	DocAvatar               DocumentType = "avatar"
-	DocOrgLogo              DocumentType = "organization_logo"
-	DocProductImage         DocumentType = "product_image"
-	DocReviewImage          DocumentType = "review_image"
-	DocCV                   DocumentType = "cv"
-	DocImportFile           DocumentType = "import_file"
-	DocOther                DocumentType = "other"
+	DocCommercialRegister  DocumentType = "commercial_register"
+	DocTaxCard             DocumentType = "tax_card"
+	DocPharmacistLicense   DocumentType = "pharmacist_license"
+	DocPharmacyLicense     DocumentType = "pharmacy_license"
+	DocNationalID          DocumentType = "national_id"
+	DocPassport            DocumentType = "passport"
+	DocBankCertificate     DocumentType = "bank_certificate"
+	DocAuthorizationLetter DocumentType = "authorization_letter"
+	DocAvatar              DocumentType = "avatar"
+	DocOrgLogo             DocumentType = "organization_logo"
+	DocProductImage        DocumentType = "product_image"
+	DocReviewImage         DocumentType = "review_image"
+	DocCV                  DocumentType = "cv"
+	DocImportFile          DocumentType = "import_file"
+	DocOther               DocumentType = "other"
 )
 
 // DocumentStatus represents the administrative approval status.
@@ -145,7 +145,6 @@ func ValidatePresignRequest(req PresignRequest) error {
 	return nil
 }
 
-
 // GenerateStorageKey generates a secure, collision-free object key.
 func GenerateStorageKey(docType DocumentType, orgID *int64, userID *int64, originalName string) string {
 	ext := strings.ToLower(filepath.Ext(originalName))
@@ -189,7 +188,6 @@ func RequirementsFor(orgType string) []Requirement {
 		{DocAuthorizationLetter, false},
 	}
 }
-
 
 // DocumentFilter for administrative cross-tenant search.
 type DocumentFilter struct {

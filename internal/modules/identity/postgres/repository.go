@@ -404,4 +404,3 @@ func (r *Repository) ListUserOrganizations(ctx context.Context, userID int64) ([
 	})
 	return list, err
 }
-
