@@ -57,6 +57,24 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>مركز الإشعارات والتنبيهات</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "platform.activity_log.view") {
+							<a href="/admin/full-activity-logs" class={ "sidebar-link", templ.KV("active", activeNav == "activity_logs") }>
+									@components.IconClock("icon-sm")
+									<span>سجلات الأنشطة والتدقيق</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.developer.view") {
+							<a href="/admin/full-error-logs" class={ "sidebar-link", templ.KV("active", activeNav == "error_logs") }>
+									@components.IconAlert("icon-sm")
+									<span>سجلات الأخطاء والتشخيص</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.notification.view") {
+							<a href="/admin/full/admin-notification" class={ "sidebar-link", templ.KV("active", activeNav == "admin_notifications") }>
+									@components.IconBell("icon-sm")
+									<span>إشعارات الإدارة</span>
+								</a>
+							}
 						</div>
 
 						<!-- Group 2: المؤسسة والمشرفين (organization_management) -->
@@ -94,6 +112,66 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>سجل المستندات والتراخيص</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "org.organization.view") {
+							<a href="/admin/approvals" class={ "sidebar-link", templ.KV("active", activeNav == "approvals") }>
+									@components.IconCheck("icon-sm")
+									<span>اعتماد المنشآت والوثائق</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "identity.role.manage") {
+							<a href="/admin/admin-roles" class={ "sidebar-link", templ.KV("active", activeNav == "admin_roles") }>
+									@components.IconShield("icon-sm")
+									<span>أدوار المشرفين</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "identity.role.manage") {
+							<a href="/admin/admin-permissions" class={ "sidebar-link", templ.KV("active", activeNav == "admin_permissions") }>
+									@components.IconShield("icon-sm")
+									<span>كتالوج الصلاحيات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "identity.user.view") {
+							<a href="/admin/employee-activities" class={ "sidebar-link", templ.KV("active", activeNav == "employee_activities") }>
+									@components.IconClock("icon-sm")
+									<span>نشاط الموظفين</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "identity.user.view") {
+							<a href="/admin/user-address" class={ "sidebar-link", templ.KV("active", activeNav == "user_addresses") }>
+									@components.IconLocation("icon-sm")
+									<span>عناوين المستخدمين</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "org.organization.view") {
+							<a href="/admin/user-organization" class={ "sidebar-link", templ.KV("active", activeNav == "user_organization") }>
+									@components.IconUsers("icon-sm")
+									<span>عضوية المنشآت</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "identity.user.manage") {
+							<a href="/admin/want-delete" class={ "sidebar-link", templ.KV("active", activeNav == "want_delete") }>
+									@components.IconTrash("icon-sm")
+									<span>طلبات حذف الحسابات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "org.organization.view") {
+							<a href="/admin/ask-for" class={ "sidebar-link", templ.KV("active", activeNav == "ask_for") }>
+									@components.IconFile("icon-sm")
+									<span>طلبات المستندات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.chat.view") {
+							<a href="/admin/chat/tree" class={ "sidebar-link", templ.KV("active", activeNav == "chat_tree") }>
+									@components.IconInbox("icon-sm")
+									<span>شجرة المحادثات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.chat.view") {
+							<a href="/admin/chat/history" class={ "sidebar-link", templ.KV("active", activeNav == "chat_history") }>
+									@components.IconInbox("icon-sm")
+									<span>سجل المحادثات</span>
+								</a>
+							}
 						</div>
 
 						<!-- Group 3: الإعدادات والمحتوى (settings_and_content) -->
@@ -123,6 +201,48 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>السياسات والشروط</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "platform.content.view") {
+							<a href="/admin/countries" class={ "sidebar-link", templ.KV("active", activeNav == "countries") }>
+									@components.IconGlobe("icon-sm")
+									<span>الدول والعملات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.content.view") {
+							<a href="/admin/social-media" class={ "sidebar-link", templ.KV("active", activeNav == "social_media") }>
+									@components.IconGlobe("icon-sm")
+									<span>قنوات التواصل</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.content.view") {
+							<a href="/admin/highlight-sections" class={ "sidebar-link", templ.KV("active", activeNav == "highlight_sections") }>
+									@components.IconStar("icon-sm")
+									<span>الأقسام المميزة</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.content.view") {
+							<a href="/admin/content" class={ "sidebar-link", templ.KV("active", activeNav == "content") }>
+									@components.IconFile("icon-sm")
+									<span>محتوى الصفحات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.setting.view") {
+							<a href="/admin/api-integrations" class={ "sidebar-link", templ.KV("active", activeNav == "api_integrations") }>
+									@components.IconPaperclip("icon-sm")
+									<span>واجهات الربط والتكامل</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.content.view") {
+							<a href="/admin/finder" class={ "sidebar-link", templ.KV("active", activeNav == "finder") }>
+									@components.IconSearch("icon-sm")
+									<span>دليل اختيار الدواء</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.content.view") {
+							<a href="/admin/services" class={ "sidebar-link", templ.KV("active", activeNav == "services") }>
+									@components.IconLayers("icon-sm")
+									<span>الخدمات المنشورة</span>
+								</a>
+							}
 						</div>
 
 						<!-- Group 4: إدارة المنتجات والمخزون (inventory_management) -->
@@ -146,6 +266,60 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>استيراد الكتالوج العام</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "catalog.product.view") {
+							<a href="/admin/brands" class={ "sidebar-link", templ.KV("active", activeNav == "brands") }>
+									@components.IconTag("icon-sm")
+									<span>الشركات المصنعة</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "catalog.product.view") {
+							<a href="/admin/product-child" class={ "sidebar-link", templ.KV("active", activeNav == "product_child") }>
+									@components.IconLayers("icon-sm")
+									<span>أصناف الموردين</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "catalog.product.view") {
+							<a href="/admin/adv-products" class={ "sidebar-link", templ.KV("active", activeNav == "adv_products") }>
+									@components.IconStar("icon-sm")
+									<span>المنتجات المروَّجة</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "catalog.product.view") {
+							<a href="/admin/apis-products" class={ "sidebar-link", templ.KV("active", activeNav == "apis_products") }>
+									@components.IconPaperclip("icon-sm")
+									<span>منتجات التكاملات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "catalog.product.view") {
+							<a href="/admin/saving-products" class={ "sidebar-link", templ.KV("active", activeNav == "saving_products") }>
+									@components.IconPackage("icon-sm")
+									<span>منتجات التوفير</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "inventory.stock.view") {
+							<a href="/admin/stocks" class={ "sidebar-link", templ.KV("active", activeNav == "stocks") }>
+									@components.IconPackage("icon-sm")
+									<span>المخزون</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "inventory.warehouse.manage") {
+							<a href="/admin/warehouses" class={ "sidebar-link", templ.KV("active", activeNav == "warehouses") }>
+									@components.IconPackage("icon-sm")
+									<span>المستودعات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "inventory.warehouse.manage") {
+							<a href="/admin/user/temparte-warehouses" class={ "sidebar-link", templ.KV("active", activeNav == "temp_warehouses") }>
+									@components.IconPackage("icon-sm")
+									<span>المستودعات المؤقتة</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "workflow.coverage.view") {
+							<a href="/admin/weekly-coverages" class={ "sidebar-link", templ.KV("active", activeNav == "weekly_coverages") }>
+									@components.IconMapPin("icon-sm")
+									<span>التغطية الأسبوعية</span>
+								</a>
+							}
 						</div>
 
 						<!-- Group 5: المبيعات والمالية (sales_and_finance) -->
@@ -165,6 +339,48 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>باقات وخطط الاشتراك</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "commerce.order.view") {
+							<a href="/admin/orders/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offer_orders") }>
+									@components.IconPackage("icon-sm")
+									<span>طلبات العروض</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "billing.invoice.read") {
+							<a href="/admin/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
+									@components.IconFile("icon-sm")
+									<span>الفواتير</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "billing.payment.view") {
+							<a href="/admin/payments" class={ "sidebar-link", templ.KV("active", activeNav == "payments") }>
+									@components.IconWallet("icon-sm")
+									<span>المدفوعات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "billing.wallet.read") {
+							<a href="/admin/wallets" class={ "sidebar-link", templ.KV("active", activeNav == "wallets") }>
+									@components.IconWallet("icon-sm")
+									<span>المحافظ</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "billing.invoice.read") {
+							<a href="/admin/earnings/order" class={ "sidebar-link", templ.KV("active", activeNav == "earnings_order") }>
+									@components.IconChart("icon-sm")
+									<span>إيرادات الطلبات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "billing.invoice.read") {
+							<a href="/admin/earnings/offers" class={ "sidebar-link", templ.KV("active", activeNav == "earnings_offers") }>
+									@components.IconChart("icon-sm")
+									<span>إيرادات العروض</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "billing.admin") {
+							<a href="/admin/plans/subscriptions" class={ "sidebar-link", templ.KV("active", activeNav == "subscriptions") }>
+									@components.IconWallet("icon-sm")
+									<span>الاشتراكات النشطة</span>
+								</a>
+							}
 						</div>
 
 						<!-- Group 6: العروض والتسويق (offers_promotions_management) -->
@@ -176,6 +392,36 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 								<a href="/admin/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
 									@components.IconTag("icon-sm")
 									<span>مراجعة عروض الموردين</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "promo.offer.manage") {
+							<a href="/admin/offers-packages" class={ "sidebar-link", templ.KV("active", activeNav == "offers_packages") }>
+									@components.IconLayers("icon-sm")
+									<span>باقات العروض والرعايات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "promo.offer.manage") {
+							<a href="/admin/offers/locations" class={ "sidebar-link", templ.KV("active", activeNav == "offer_locations") }>
+									@components.IconMapPin("icon-sm")
+									<span>مواقع تغطية العروض</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "promo.ad.view") {
+							<a href="/admin/ads" class={ "sidebar-link", templ.KV("active", activeNav == "ads") }>
+									@components.IconStar("icon-sm")
+									<span>الإعلانات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "promo.ad.view") {
+							<a href="/admin/ad-plan" class={ "sidebar-link", templ.KV("active", activeNav == "ad_plans") }>
+									@components.IconLayers("icon-sm")
+									<span>خطط الإعلانات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.analytics.view") {
+							<a href="/admin/analytics" class={ "sidebar-link", templ.KV("active", activeNav == "analytics") }>
+									@components.IconChart("icon-sm")
+									<span>التحليلات والإحصائيات</span>
 								</a>
 							}
 						</div>
@@ -195,6 +441,24 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 								<a href="/admin/jobs" class={ "sidebar-link", templ.KV("active", activeNav == "jobs") }>
 									@components.IconUsers("icon-sm")
 									<span>وظائف وشواغر القطاع</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "identity.admin") {
+							<a href="/admin/session-plan" class={ "sidebar-link", templ.KV("active", activeNav == "session_plans") }>
+									@components.IconShield("icon-sm")
+									<span>خطط الجلسات المتزامنة</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.support.view") {
+							<a href="/admin/report-issues" class={ "sidebar-link", templ.KV("active", activeNav == "report_issues") }>
+									@components.IconAlert("icon-sm")
+									<span>بلاغات المستخدمين</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "platform.setting.view") {
+							<a href="/admin/system-page" class={ "sidebar-link", templ.KV("active", activeNav == "system_resources") }>
+									@components.IconSettings("icon-sm")
+									<span>موارد النظام</span>
 								</a>
 							}
 						</div>

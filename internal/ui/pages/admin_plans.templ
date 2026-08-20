@@ -9,6 +9,15 @@ import (
 
 templ AdminPlans(lang, dir string, plans []*billing.Plan) {
 	@layouts.AdminShell("خطط الاشتراك | Plans", "plans", lang, dir) {
+
+		<!-- Sub-views of the plans screen. They are reached from here rather
+		     than from the sidebar: one concept, one top-level entry. -->
+		<div class="row-center" style="margin-bottom:1rem; flex-wrap:wrap;">
+			<a href="/admin/plans-info" class="btn btn-secondary btn-sm">تفاصيل الباقات</a>
+			<a href="/admin/plan-types" class="btn btn-secondary btn-sm">أنواع الباقات</a>
+			<a href="/admin/plan-features" class="btn btn-secondary btn-sm">مزايا الباقات</a>
+			<a href="/admin/plans/subscriptions" class="btn btn-secondary btn-sm">الاشتراكات النشطة</a>
+		</div>
 		<div class="card" style="margin-bottom:1.25rem;">
 			<h2 class="card-title" style="margin:0 0 1rem;">خطة جديدة</h2>
 			<form method="POST" action="/admin/plans" style="display:flex; flex-direction:column; gap:0.9rem;">
