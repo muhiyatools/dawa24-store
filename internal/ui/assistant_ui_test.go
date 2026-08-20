@@ -93,8 +93,8 @@ func TestAssistantDrawerSizeIsStyleable(t *testing.T) {
 	}
 	for _, need := range []string{
 		".capsule-drawer {",
-		"@media (max-width: 640px)",  // full-screen sheet on a phone
-		"height: 100dvh",             // visible viewport, not layout viewport
+		"@media (max-width: 640px)", // full-screen sheet on a phone
+		"height: 100dvh",            // visible viewport, not layout viewport
 	} {
 		if !strings.Contains(src, need) {
 			t.Errorf("missing drawer rule: %s", need)
