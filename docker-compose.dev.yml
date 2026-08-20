@@ -1,5 +1,5 @@
 # =============================================================================
-# Dawa24 Store — Local Development & Test Infrastructure
+# Dawa24 Store - Local Development & Test Infrastructure
 # =============================================================================
 #
 # Starts PostgreSQL (with pg_trgm, unaccent, pgcrypto, citext), Redis and MinIO.

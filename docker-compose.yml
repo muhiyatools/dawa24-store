@@ -1,5 +1,5 @@
 # =============================================================================
-# Dawa24 Store — deployment compose (Elest.io reads this file)
+# Dawa24 Store - deployment compose (Elest.io reads this file)
 # =============================================================================
 #
 # Three containers from ONE image, built once from the Dockerfile:
@@ -10,7 +10,7 @@
 #
 # Why a compose file and not just a Dockerfile: the Dockerfile says how to build
 # the image; this says what to run. Without it, Elest.io generates a single
-# "app" service that starts the server and never applies migrations — the server
+# "app" service that starts the server and never applies migrations - the server
 # then boots, reports itself unready, and refuses traffic forever.
 #
 # Why migrations are their own container: N server replicas starting together
@@ -49,7 +49,7 @@ x-app-env: &app-env
   SESSION_TTL: ${SESSION_TTL:-720h}
   SESSION_SECURE: ${SESSION_SECURE:-true}
 
-  # AI Gateway. Leave GATEWAY_ENABLED=false until a virtual key is issued —
+  # AI Gateway. Leave GATEWAY_ENABLED=false until a virtual key is issued -
   # every AI capability has a deterministic fallback, so this is a supported
   # configuration and not a degraded one.
   GATEWAY_ENABLED: ${GATEWAY_ENABLED:-false}
@@ -60,7 +60,7 @@ x-app-env: &app-env
 
   # Google Maps Embed API. Optional; without a key the location picker renders a
   # coordinate-entry fallback (Google blocks framing maps.google.com without the
-  # official Embed API). The key is browser-public — restrict it by HTTP
+  # official Embed API). The key is browser-public - restrict it by HTTP
   # referrer in Google Cloud Console.
   GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
 
@@ -100,7 +100,7 @@ services:
       <<: *app-env
       PORT: "8070"
     healthcheck:
-      # Liveness only — deliberately dependency-free, so a brief database blip
+      # Liveness only - deliberately dependency-free, so a brief database blip
       # does not restart a healthy container and turn an outage into a crash
       # loop. Readiness (/ready) additionally checks dependencies and pending
       # migrations; that is what the reverse proxy should poll.
