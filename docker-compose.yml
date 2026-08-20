@@ -83,6 +83,8 @@ services:
     command: ["/app/cli", "migrate"]
     environment: *app-env
     restart: "no"
+    healthcheck:
+      disable: true
 
   server:
     <<: *build
@@ -121,6 +123,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    healthcheck:
+      disable: true
     environment:
       <<: *app-env
       WORKER_IMPORTS: ${WORKER_IMPORTS:-2}
