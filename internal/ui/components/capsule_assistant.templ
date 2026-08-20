@@ -151,13 +151,22 @@ templ CapsuleAssistant() {
 						<template x-if="msg.isUser">
 							<div style="display:flex; justify-content:flex-start; margin-bottom:0.25rem;">
 								<div style="max-width:85%; display:flex; flex-direction:column; align-items:flex-start; gap:0.35rem;">
-									<!-- Attached Files Badges -->
+									<!-- Attached Files Badges / Image Previews -->
 									<template x-if="msg.attachments && msg.attachments.length > 0">
-										<div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
+										<div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.25rem;">
 											<template x-for="file in msg.attachments" :key="file.name || file.filename">
-												<div style="display:flex; align-items:center; gap:0.3rem; background:var(--surface-sunken); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:var(--radius-md); font-size:0.6875rem; color:var(--text-secondary);">
-													@IconPaperclip("icon-xxs")
-													<span x-text="file.name || file.filename" style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+												<div>
+													<template x-if="file.isImage && file.previewUrl">
+														<img :src="file.previewUrl" style="width:68px; height:68px; border-radius:10px; object-fit:cover; border:1px solid var(--border); cursor:pointer;" @click="window.open(file.previewUrl, '_blank')" alt="صورة مرفقة" />
+													</template>
+													<template x-if="!file.isImage || !file.previewUrl">
+														<div style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--surface-sunken); border:1px solid var(--border); padding:0.25rem 0.55rem; border-radius:8px; font-size:0.7rem; color:var(--text-secondary);">
+															<div style="width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center;">
+																@IconPaperclip("icon-xxs")
+															</div>
+															<span x-text="file.name || file.filename" style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+														</div>
+													</template>
 												</div>
 											</template>
 										</div>
@@ -205,16 +214,20 @@ templ CapsuleAssistant() {
 									<span x-show="msg.isStreaming" class="capsule-cursor">▊</span>
 								</div>
 
-								<!-- Minimalist Discreet Copy Button Under Response -->
-								<div x-show="!msg.isStreaming && msg.text" style="display:flex; align-items:center; gap:0.5rem; margin-top:0.15rem;">
+								<!-- Minimalist Icon-Only Copy Button with Feedback State -->
+								<div x-show="!msg.isStreaming && msg.text" style="display:flex; align-items:center; gap:0.5rem; margin-top:0.2rem;">
 									<button
 										type="button"
 										@click="copyText(msg.text, $el)"
-										class="capsule-mini-copy-btn"
+										class="capsule-icon-copy-btn"
 										title="نسخ الإجابة"
 									>
-										@IconCopy("icon-xxs")
-										<span class="copy-btn-text">نسخ</span>
+										<span class="copy-icon-default">
+											@IconCopy("icon-xs")
+										</span>
+										<span class="copy-icon-success" style="display:none; color:#10b981;">
+											@IconCheck("icon-xs")
+										</span>
 									</button>
 								</div>
 
@@ -223,13 +236,13 @@ templ CapsuleAssistant() {
 					</div>
 				</template>
 
-				<!-- Thinking indicator: three dots, no card. Only attachment analysis shows text. -->
+				<!-- Thinking Indicator: Single Breathing Glowing Avatar Icon -->
 				<div x-show="isStreaming && messages.length > 0 && !messages[messages.length-1].text" class="capsule-thinking-row">
 					<div class="capsule-thinking">
-						<span class="capsule-dot"></span>
-						<span class="capsule-dot"></span>
-						<span class="capsule-dot"></span>
-						<span x-show="statusStage" x-text="statusMessage" class="capsule-thinking-label"></span>
+						<div class="capsule-breathing-icon">
+							@IconSparkles("icon-xs")
+						</div>
+						<span class="capsule-thinking-label" x-text="statusMessage || 'كبسولة يفكر...' "></span>
 					</div>
 				</div>
 
@@ -238,16 +251,36 @@ templ CapsuleAssistant() {
 			<!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) -->
 			<div style="flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); padding:0.65rem 0.85rem; box-sizing:border-box; width:100%; position:relative; z-index:10; margin-top:auto;">
 				
-				<!-- Attached Files Preview Strip -->
-				<div x-show="attachedFiles.length > 0" style="margin-bottom:0.45rem; display:flex; gap:0.35rem; overflow-x:auto; align-items:center;">
+				<!-- Attached Files Preview Strip (Clean Square Thumbnails) -->
+				<div x-show="attachedFiles.length > 0" style="margin-bottom:0.45rem; display:flex; gap:0.45rem; overflow-x:auto; padding:0.2rem 0; align-items:center;">
 					<template x-for="(f, i) in attachedFiles" :key="i">
-						<div style="display:flex; align-items:center; gap:0.35rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.2rem 0.45rem; font-size:0.6875rem; flex-shrink:0;">
-							@IconPaperclip("icon-xxs")
-							<span x-text="f.name" style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
-							<span x-show="f.uploading" style="color:var(--accent); font-size:0.6375rem;">(رفع...)</span>
-							<span x-show="!f.uploading && !f.error" x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.6375rem;"></span>
-							<span x-show="f.error" style="color:var(--danger); font-size:0.6375rem;" x-text="f.error"></span>
-							<button type="button" @click="removeAttachment(i)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:800; padding:0 2px; line-height:1;" title="حذف">✕</button>
+						<div class="capsule-attachment-thumb">
+							<!-- Image Preview Thumbnail -->
+							<template x-if="f.isImage && f.previewUrl">
+								<img :src="f.previewUrl" class="capsule-thumb-img" alt="مرفق" />
+							</template>
+							<!-- Non-Image Document Thumbnail -->
+							<template x-if="!f.isImage || !f.previewUrl">
+								<div class="capsule-thumb-doc">
+									<div style="width:16px; height:16px; display:flex; align-items:center; justify-content:center;">
+										@IconPaperclip("icon-xxs")
+									</div>
+									<span style="font-size:0.625rem; font-weight:800; text-transform:uppercase; margin-top:2px;" x-text="(f.name.split('.').pop() || 'ملف').substring(0,4)"></span>
+								</div>
+							</template>
+							
+							<!-- Uploading Spinner Overlay -->
+							<div x-show="f.uploading" class="capsule-thumb-overlay">
+								<span class="capsule-spinner"></span>
+							</div>
+							<!-- Error Overlay -->
+							<div x-show="f.error" class="capsule-thumb-overlay error" :title="f.error">
+								<span style="color:#ef4444; font-weight:900;">✕</span>
+							</div>
+							<!-- Delete Button -->
+							<button type="button" @click="removeAttachment(i)" class="capsule-thumb-delete" title="حذف">
+								✕
+							</button>
 						</div>
 					</template>
 				</div>
@@ -593,24 +626,120 @@ templ CapsuleAssistant() {
 			.capsule-h2 { font-size: 1.05rem; font-weight: 800; margin: 0.6rem 0 0.3rem 0; color: var(--text); }
 			.capsule-h3 { font-size: 0.95rem; font-weight: 800; margin: 0.5rem 0 0.25rem 0; color: var(--text); }
 			.capsule-h4 { font-size: 0.875rem; font-weight: 700; margin: 0.4rem 0 0.2rem 0; color: var(--text); }
-			.capsule-mini-copy-btn {
+
+			/* Sleek Icon-Only Copy Button */
+			.capsule-icon-copy-btn {
 				background: transparent;
-				border: 1px solid var(--border);
+				border: 1px solid transparent;
 				border-radius: 6px;
 				color: var(--text-muted);
-				font-size: 0.7rem;
+				padding: 4px;
 				cursor: pointer;
-				padding: 2px 7px;
 				display: inline-flex;
 				align-items: center;
-				gap: 0.25rem;
-				transition: all 120ms ease;
+				justify-content: center;
+				transition: all 150ms ease;
 			}
-			.capsule-mini-copy-btn:hover {
-				color: var(--text);
+			.capsule-icon-copy-btn:hover {
 				background: var(--surface-sunken);
-				border-color: var(--accent);
+				border-color: var(--border);
+				color: var(--text);
 			}
+
+			/* Single Breathing Glow Icon for Thinking */
+			.capsule-breathing-icon {
+				width: 22px;
+				height: 22px;
+				border-radius: 7px;
+				background: linear-gradient(135deg, #0284c7, #2563eb);
+				color: #ffffff;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				animation: capsuleBreathe 1.5s infinite ease-in-out;
+				flex-shrink: 0;
+			}
+			@keyframes capsuleBreathe {
+				0%, 100% {
+					transform: scale(0.94);
+					opacity: 0.75;
+					box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.35);
+				}
+				50% {
+					transform: scale(1.06);
+					opacity: 1;
+					box-shadow: 0 0 12px 3px rgba(37, 99, 235, 0.5);
+				}
+			}
+
+			/* Attachment Thumbnails */
+			.capsule-attachment-thumb {
+				position: relative;
+				width: 50px;
+				height: 50px;
+				border-radius: 10px;
+				background: var(--surface-sunken);
+				border: 1px solid var(--border);
+				flex-shrink: 0;
+				overflow: hidden;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.capsule-thumb-img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+			}
+			.capsule-thumb-doc {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				color: var(--text-secondary);
+				width: 100%;
+				height: 100%;
+			}
+			.capsule-thumb-overlay {
+				position: absolute;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.65);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #ffffff;
+			}
+			.capsule-thumb-delete {
+				position: absolute;
+				top: 2px;
+				left: 2px;
+				width: 16px;
+				height: 16px;
+				border-radius: 50%;
+				background: rgba(0, 0, 0, 0.75);
+				color: #ffffff;
+				border: none;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 10px;
+				line-height: 1;
+				transition: background 120ms;
+			}
+			.capsule-thumb-delete:hover {
+				background: #ef4444;
+			}
+			.capsule-spinner {
+				width: 14px;
+				height: 14px;
+				border: 2px solid rgba(255, 255, 255, 0.3);
+				border-top-color: #ffffff;
+				border-radius: 50%;
+				animation: spin 0.8s linear infinite;
+			}
+			@keyframes spin { to { transform: rotate(360deg); } }
 		</style>
 
 		<!-- Assistant Core Logic -->
@@ -627,9 +756,9 @@ templ CapsuleAssistant() {
 					isRecordingVoice: false,
 					recordingSeconds: 0,
 					recordingTimer: null,
+					mediaStream: null,
 					mediaRecorder: null,
 					audioChunks: [],
-					speechRecognition: null,
 					attachedFiles: [],
 					messages: [],
 					conversationID: 0,
@@ -646,35 +775,6 @@ templ CapsuleAssistant() {
 								});
 							}
 						});
-
-						const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-						if (SpeechRec) {
-							try {
-								this.speechRecognition = new SpeechRec();
-								this.speechRecognition.lang = 'ar-EG';
-								this.speechRecognition.interimResults = false;
-								this.speechRecognition.maxAlternatives = 1;
-								this.speechRecognition.onresult = (event) => {
-									const text = event.results[0][0].transcript;
-									if (text) {
-										this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + text;
-										this.$nextTick(() => this.autoResizeTextarea());
-									}
-								};
-								this.speechRecognition.onend = () => {
-									this.isRecordingVoice = false;
-									clearInterval(this.recordingTimer);
-									this.recordingSeconds = 0;
-								};
-								this.speechRecognition.onerror = () => {
-									this.isRecordingVoice = false;
-									clearInterval(this.recordingTimer);
-									this.recordingSeconds = 0;
-								};
-							} catch (e) {
-								this.speechRecognition = null;
-							}
-						}
 					},
 
 					openAssistant() {
@@ -709,11 +809,17 @@ templ CapsuleAssistant() {
 					copyText(text, btnEl) {
 						if (!text) return;
 						navigator.clipboard.writeText(text).then(() => {
-							const textSpan = btnEl ? btnEl.querySelector('.copy-btn-text') : null;
-							if (textSpan) {
-								const orig = textSpan.innerText;
-								textSpan.innerText = 'تم النسخ!';
-								setTimeout(() => { textSpan.innerText = orig; }, 1500);
+							if (btnEl) {
+								const defIcon = btnEl.querySelector('.copy-icon-default');
+								const succIcon = btnEl.querySelector('.copy-icon-success');
+								if (defIcon && succIcon) {
+									defIcon.style.display = 'none';
+									succIcon.style.display = 'inline-flex';
+									setTimeout(() => {
+										defIcon.style.display = 'inline-flex';
+										succIcon.style.display = 'none';
+									}, 1800);
+								}
 							}
 						});
 					},
@@ -752,10 +858,20 @@ templ CapsuleAssistant() {
 					async addFiles(files) {
 						for (const file of files) {
 							if (this.attachedFiles.length >= 5) break;
+							const isImg = file.type.startsWith('image/');
+							let previewUrl = '';
+							if (isImg) {
+								try {
+									previewUrl = URL.createObjectURL(file);
+								} catch (e) {}
+							}
 							const fileItem = {
 								file: file,
 								name: file.name,
 								size: file.size,
+								type: file.type,
+								isImage: isImg,
+								previewUrl: previewUrl,
 								handle: '',
 								uploading: true,
 								error: ''
@@ -790,6 +906,9 @@ templ CapsuleAssistant() {
 					},
 
 					removeAttachment(idx) {
+						if (this.attachedFiles[idx] && this.attachedFiles[idx].previewUrl) {
+							URL.revokeObjectURL(this.attachedFiles[idx].previewUrl);
+						}
 						this.attachedFiles.splice(idx, 1);
 					},
 
@@ -802,84 +921,97 @@ templ CapsuleAssistant() {
 					},
 
 					async startVoiceRecord() {
-						this.isRecordingVoice = true;
-						this.recordingSeconds = 0;
-						this.recordingTimer = setInterval(() => {
-							this.recordingSeconds++;
-						}, 1000);
-
-						if (this.speechRecognition) {
-							try {
-								this.speechRecognition.start();
-								return;
-							} catch (e) {
-								// Fallback to MediaRecorder
-							}
-						}
-
+						if (this.isRecordingVoice) return;
 						try {
 							const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+							this.mediaStream = stream;
 							this.audioChunks = [];
 							this.mediaRecorder = new MediaRecorder(stream);
 							this.mediaRecorder.ondataavailable = (e) => {
-								if (e.data.size > 0) this.audioChunks.push(e.data);
+								if (e.data && e.data.size > 0) this.audioChunks.push(e.data);
 							};
 							this.mediaRecorder.start();
+							this.isRecordingVoice = true;
+							this.recordingSeconds = 0;
+							this.recordingTimer = setInterval(() => {
+								this.recordingSeconds++;
+							}, 1000);
 						} catch (e) {
 							this.cancelVoiceRecord();
-							alert('تعذر الوصول إلى الميكروفون: ' + e.message);
+							alert('تعذر فتح الميكروفون، يرجى السماح بالوصول في إعدادات المتصفح.');
 						}
 					},
 
 					cancelVoiceRecord() {
 						this.isRecordingVoice = false;
-						clearInterval(this.recordingTimer);
+						if (this.recordingTimer) {
+							clearInterval(this.recordingTimer);
+							this.recordingTimer = null;
+						}
 						this.recordingSeconds = 0;
-						if (this.speechRecognition) {
-							try { this.speechRecognition.stop(); } catch (e) {}
-						}
 						if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-							this.mediaRecorder.stop();
+							try { this.mediaRecorder.stop(); } catch (e) {}
 						}
+						if (this.mediaStream) {
+							try { this.mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+							this.mediaStream = null;
+						}
+						this.audioChunks = [];
 					},
 
 					async finishVoiceRecord() {
-						if (this.speechRecognition) {
-							try { this.speechRecognition.stop(); } catch (e) {}
+						if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+							this.cancelVoiceRecord();
 							return;
 						}
 
-						if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-							this.mediaRecorder.onstop = async () => {
-								const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-								this.audioChunks = [];
-								this.statusMessage = 'جاري تفريغ الصوت عبر Whisper...';
-								try {
-									const form = new FormData();
-									form.append('file', audioBlob, 'voice.webm');
-									const resp = await fetch('/api/v1/assistant/transcribe', {
-										method: 'POST',
-										body: form
-									});
-									if (resp.ok) {
-										const data = await resp.json();
-										if (data.text) {
-											this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + data.text;
-											this.$nextTick(() => this.autoResizeTextarea());
-										}
+						this.mediaRecorder.onstop = async () => {
+							const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+							this.audioChunks = [];
+							if (this.mediaStream) {
+								try { this.mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+								this.mediaStream = null;
+							}
+
+							this.statusMessage = 'جاري تحويل الصوت إلى نص...';
+							try {
+								const form = new FormData();
+								form.append('file', audioBlob, 'voice.webm');
+								const resp = await fetch('/api/v1/assistant/transcribe', {
+									method: 'POST',
+									body: form
+								});
+								if (resp.ok) {
+									const data = await resp.json();
+									if (data.text) {
+										this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + data.text.trim();
+										this.$nextTick(() => {
+											this.autoResizeTextarea();
+											if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
+										});
 									}
-								} catch (e) {
-									console.warn('transcription failed', e);
-								} finally {
-									this.statusMessage = '';
+								} else {
+									const err = await resp.json().catch(() => ({}));
+									alert(err.message || 'تعذر تفريغ التسجيل الصوتي.');
 								}
-							};
-							this.mediaRecorder.stop();
-						}
+							} catch (e) {
+								console.warn('transcription failed', e);
+							} finally {
+								this.statusMessage = '';
+							}
+						};
 
 						this.isRecordingVoice = false;
-						clearInterval(this.recordingTimer);
+						if (this.recordingTimer) {
+							clearInterval(this.recordingTimer);
+							this.recordingTimer = null;
+						}
 						this.recordingSeconds = 0;
+						try {
+							this.mediaRecorder.stop();
+						} catch (e) {
+							this.cancelVoiceRecord();
+						}
 					},
 
 					formatDuration(secs) {
