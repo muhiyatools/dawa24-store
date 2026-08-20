@@ -22,6 +22,8 @@ func TestCustomerPhase7Routes(t *testing.T) {
 	handler.RegisterCustomerRoutes(r)
 	handler.RegisterPublicRoutes(r)
 
+	// /customer/cpanel is a 301 to /customer/dashboard: it was a link hub to
+	// three pages already in the sidebar (PLAN_V7 Task 3.2).
 	tests := []struct {
 		name       string
 		path       string
@@ -29,24 +31,6 @@ func TestCustomerPhase7Routes(t *testing.T) {
 		actor      *authctx.Actor
 		wantStatus int
 	}{
-		{
-			name:       "Anonymous GET /customer/cpanel redirects to login",
-			path:       "/customer/cpanel",
-			method:     "GET",
-			actor:      nil,
-			wantStatus: http.StatusSeeOther,
-		},
-		{
-			name:   "Customer GET /customer/cpanel returns 200",
-			path:   "/customer/cpanel",
-			method: "GET",
-			actor: &authctx.Actor{
-				UserID:         1,
-				OrganizationID: 5,
-				OrgType:        "customer",
-			},
-			wantStatus: http.StatusOK,
-		},
 		{
 			name:   "Customer GET /customer/saving-products returns 200",
 			path:   "/customer/saving-products",
