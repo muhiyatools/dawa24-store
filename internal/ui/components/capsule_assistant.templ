@@ -98,7 +98,8 @@ templ CapsuleAssistant() {
 			<!-- Messages Scroll Area (Canvas Style - Direct Text on Background) -->
 			<div
 				id="capsule-messages-container"
-				style="flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1.25rem 1.15rem; display:flex; flex-direction:column; gap:1.25rem; background:var(--surface-raised); scroll-behavior:smooth;"
+				class="capsule-messages-scroll"
+				style="flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1.25rem 1.15rem; display:flex; flex-direction:column; gap:1.25rem; background:var(--surface-raised); overscroll-behavior:contain;"
 			>
 				<!-- Empty State / Welcome Greeting -->
 				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:1.5rem 0.5rem; gap:1rem;">
@@ -243,7 +244,7 @@ templ CapsuleAssistant() {
 			</div>
 
 			<!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) -->
-			<div style="flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); padding:0.65rem 0.85rem; box-sizing:border-box; width:100%;">
+			<div style="flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); padding:0.65rem 0.85rem; box-sizing:border-box; width:100%; position:relative; z-index:10; margin-top:auto;">
 				
 				<!-- Attached Files Preview Strip -->
 				<div x-show="attachedFiles.length > 0" style="margin-bottom:0.45rem; display:flex; gap:0.35rem; overflow-x:auto; align-items:center;">
@@ -345,6 +346,23 @@ templ CapsuleAssistant() {
 
 		<!-- Polished Design Styles -->
 		<style>
+			.capsule-messages-scroll {
+				scrollbar-width: thin;
+				scrollbar-color: var(--border) transparent;
+			}
+			.capsule-messages-scroll::-webkit-scrollbar {
+				width: 6px;
+			}
+			.capsule-messages-scroll::-webkit-scrollbar-track {
+				background: transparent;
+			}
+			.capsule-messages-scroll::-webkit-scrollbar-thumb {
+				background: var(--border);
+				border-radius: 4px;
+			}
+			.capsule-messages-scroll::-webkit-scrollbar-thumb:hover {
+				background: var(--text-muted);
+			}
 			.capsule-circle-btn:hover {
 				transform: translateY(-2px) scale(1.04);
 				box-shadow: 0 14px 28px -4px rgba(37, 99, 235, 0.55), 0 6px 14px -2px rgba(2, 132, 199, 0.35) !important;
@@ -583,8 +601,19 @@ templ CapsuleAssistant() {
 					messages: [],
 					conversationID: 0,
 					abortController: null,
+					autoScrollEnabled: true,
 
 					init() {
+						this.$nextTick(() => {
+							const c = document.getElementById('capsule-messages-container');
+							if (c) {
+								c.addEventListener('scroll', () => {
+									const dist = c.scrollHeight - c.scrollTop - c.clientHeight;
+									this.autoScrollEnabled = dist < 80;
+								});
+							}
+						});
+
 						const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 						if (SpeechRec) {
 							try {
@@ -617,7 +646,8 @@ templ CapsuleAssistant() {
 
 					openAssistant() {
 						this.isOpen = true;
-						this.scrollToBottom();
+						this.autoScrollEnabled = true;
+						this.scrollToBottom(true);
 						this.$nextTick(() => {
 							if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
 						});
@@ -880,7 +910,8 @@ templ CapsuleAssistant() {
 						this.isStreaming = true;
 						this.statusStage = '';
 						this.statusMessage = '';
-						this.scrollToBottom();
+						this.autoScrollEnabled = true;
+						this.scrollToBottom(true);
 
 						this.abortController = new AbortController();
 
@@ -1014,10 +1045,10 @@ templ CapsuleAssistant() {
 						return text;
 					},
 
-					scrollToBottom() {
+					scrollToBottom(force = false) {
 						this.$nextTick(() => {
 							const container = document.getElementById('capsule-messages-container');
-							if (container) {
+							if (container && (this.autoScrollEnabled || force)) {
 								container.scrollTop = container.scrollHeight;
 							}
 						});
