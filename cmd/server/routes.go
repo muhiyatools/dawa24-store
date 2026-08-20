@@ -210,6 +210,7 @@ func mountModuleRoutes(
 	if storageClient != nil {
 		uiHandler.SetStorage(storageClient)
 	}
+	uiHandler.SetAssistantRepository(assistantPostgres.NewRepository(db))
 
 	// Audience-gated UI groups (Rebuild V2 §1.3). Every route is registered
 	// under exactly one group; a route living outside these groups means it is
@@ -336,7 +337,6 @@ func mountAuthenticatedModules(
 	assistantRepo := assistantPostgres.NewRepository(db)
 	assistantSvc := assistant.NewService(assistantRepo, ai, log)
 	assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log).RegisterRoutes(r)
-	uiHandler.SetAssistantRepository(assistantRepo)
 
 	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
