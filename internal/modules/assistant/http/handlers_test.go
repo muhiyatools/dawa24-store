@@ -106,6 +106,44 @@ func (m *memoryRepo) GetConversation(ctx context.Context, id int64) (*assistant.
 	return m.convs[id], nil
 }
 
+func (m *memoryRepo) GetConversationSummary(ctx context.Context, id int64) (*assistant.ConversationSummary, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	c := m.convs[id]
+	if c == nil {
+		return nil, nil
+	}
+	return &assistant.ConversationSummary{
+		ID:             c.ID,
+		PublicID:       c.PublicID,
+		OrganizationID: c.OrganizationID,
+		UserID:         c.UserID,
+		Title:          c.Title,
+		MessageCount:   len(m.messages[c.ID]),
+		CreatedAt:      c.CreatedAt,
+		UpdatedAt:      c.UpdatedAt,
+	}, nil
+}
+
+func (m *memoryRepo) ListAllConversations(ctx context.Context, limit, offset int) ([]*assistant.ConversationSummary, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var list []*assistant.ConversationSummary
+	for _, c := range m.convs {
+		list = append(list, &assistant.ConversationSummary{
+			ID:             c.ID,
+			PublicID:       c.PublicID,
+			OrganizationID: c.OrganizationID,
+			UserID:         c.UserID,
+			Title:          c.Title,
+			MessageCount:   len(m.messages[c.ID]),
+			CreatedAt:      c.CreatedAt,
+			UpdatedAt:      c.UpdatedAt,
+		})
+	}
+	return list, nil
+}
+
 func (m *memoryRepo) ListConversations(ctx context.Context, orgID, userID int64, limit, offset int) ([]*assistant.Conversation, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

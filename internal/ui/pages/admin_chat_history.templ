@@ -3,62 +3,269 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// AdminChatHistoryPage renders conversation threads list.
-templ AdminChatHistoryPage(convs []*chat.Conversation, lang, dir string) {
+type AdminChatHistoryData struct {
+	ActiveTab string // "ai" | "users"
+	AIConvs   []*assistant.ConversationSummary
+	UserConvs []*chat.Conversation
+}
+
+// AdminChatHistoryPage renders conversation threads list for AI Assistant and user-to-user chat.
+templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 	@layouts.AdminShell("سجلات محادثات المنصة والرقابة", "audit", lang, dir) {
 		<div class="card mb-0">
-			<div class="header-row">
+			
+			<!-- Header -->
+			<div class="header-row" style="margin-bottom:1.25rem;">
 				<div>
-					<h2 class="card-title" style="margin:0;">سجل المحادثات والمراسلات ({ fmt.Sprintf("%d", len(convs)) })</h2>
-					<p class="subtitle">مراقبة وتدقيق محادثات الصيدليات والموردين لحل النزاعات ومتابعة جودة الخدمة.</p>
+					<h2 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800;">سجلات محادثات المنصة والرقابة</h2>
+					<p class="subtitle" style="margin:0.25rem 0 0 0;">مراقبة وتدقيق محادثات المساعد الذكي كبسولة ومراسلات الصيدليات والموردين لحل النزاعات ومتابعة الأداء.</p>
 				</div>
-				<a href="/admin/chat/tree" class="btn btn-secondary btn-sm">شجرة قرارات المساعد الذكي</a>
+				<div style="display:flex; gap:0.5rem;">
+					<a href="/admin/chat/tree" class="btn btn-secondary btn-sm">شجرة قرارات المساعد الذكي</a>
+				</div>
 			</div>
 
-			if len(convs) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محادثات", Message: "لم يتم بدء أي محادثات بين المستخدمين بعد."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>الموضوع</th>
-								<th>المنشأة المبادرة</th>
-								<th>الطرف الآخر</th>
-								<th>النوع</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, c := range convs {
+			<!-- Navigation Tabs -->
+			<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.25rem; padding-bottom:0.5rem;">
+				<a
+					href="/admin/chat/history?tab=ai"
+					class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "ai"), templ.KV("btn-secondary", data.ActiveTab != "ai") }
+					style="font-weight:700; gap:0.4rem;"
+				>
+					@components.IconSparkles("icon-xs")
+					<span>جلسات المساعد كبسولة AI</span>
+					<span class="badge badge-sky" style="font-size:0.75rem; padding:0.15rem 0.45rem;">{ fmt.Sprintf("%d", len(data.AIConvs)) }</span>
+				</a>
+				<a
+					href="/admin/chat/history?tab=users"
+					class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "users"), templ.KV("btn-secondary", data.ActiveTab != "users") }
+					style="font-weight:700; gap:0.4rem;"
+				>
+					@components.IconMessageSquare("icon-xs")
+					<span>محادثات المستخدمين المباشرة</span>
+					<span class="badge badge-slate" style="font-size:0.75rem; padding:0.15rem 0.45rem;">{ fmt.Sprintf("%d", len(data.UserConvs)) }</span>
+				</a>
+			</div>
+
+			<!-- TAB 1: AI Assistant Conversations -->
+			if data.ActiveTab == "ai" {
+				if len(data.AIConvs) == 0 {
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد جلسات ذكاء اصطناعي بعد",
+						Message: "لم يقم أي مستخدم بإجراء محادثات مع المساعد الذكي كبسولة حتى الآن.",
+					})
+				} else {
+					<div class="table-container">
+						<table class="data-table">
+							<thead>
 								<tr>
-									<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
-									<td><strong>{ c.Subject.Get("ar") }</strong></td>
-									<td>منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</td>
-									<td>منشأة #{ fmt.Sprintf("%d", c.CounterpartyOrgID) }</td>
-									<td><code>{ string(c.ContextType) }</code></td>
-									<td><span class="badge badge-sky">{ string(c.Status) }</span></td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/history/%d", c.ID)) } class="btn btn-secondary btn-sm">عرض الرسائل</a>
-									</td>
+									<th>#</th>
+									<th>المستخدم المنشئ</th>
+									<th>المنشأة</th>
+									<th>عنوان / موضوع الجلسة</th>
+									<th>عدد الرسائل</th>
+									<th>استهلاك الرموز (Tokens)</th>
+									<th>آخر تحديث</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
+							</thead>
+							<tbody>
+								for _, c := range data.AIConvs {
+									<tr>
+										<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
+										<td>
+											<div style="font-weight:700; color:var(--text);">{ c.UserName }</div>
+											if c.UserPhone != "" {
+												<div style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">{ c.UserPhone }</div>
+											} else if c.UserEmail != "" {
+												<div style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">{ c.UserEmail }</div>
+											}
+										</td>
+										<td>
+											<div style="font-weight:600; color:var(--text-secondary);">{ c.OrganizationName }</div>
+											<div style="font-size:0.75rem; color:var(--text-muted);">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</div>
+										</td>
+										<td>
+											if c.Title != "" {
+												<strong>{ c.Title }</strong>
+											} else {
+												<span style="color:var(--text-muted); font-style:italic;">محادثة بدون عنوان</span>
+											}
+										</td>
+										<td class="tabular-nums">
+											<span class="badge badge-emerald">{ fmt.Sprintf("%d رسائل", c.MessageCount) }</span>
+										</td>
+										<td class="tabular-nums" style="font-size:0.8rem;">
+											<div><span style="color:var(--text-muted);">إدخال:</span> { fmt.Sprintf("%d", c.TotalInputTokens) }</div>
+											<div><span style="color:var(--text-muted);">توليد:</span> { fmt.Sprintf("%d", c.TotalOutputTokens) }</div>
+										</td>
+										<td style="font-size:0.8rem; color:var(--text-secondary);">
+											{ c.UpdatedAt.Format("2006-01-02 15:04") }
+										</td>
+										<td class="text-end">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+												@components.IconEye("icon-xs")
+												<span>عرض المحادثة</span>
+											</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
 			}
+
+			<!-- TAB 2: User-to-User Conversations -->
+			if data.ActiveTab == "users" {
+				if len(data.UserConvs) == 0 {
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد محادثات مباشرة",
+						Message: "لم يتم بدء أي محادثات بين الصيدليات والموردين بعد.",
+					})
+				} else {
+					<div class="table-container">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>الموضوع</th>
+									<th>المنشأة المبادرة</th>
+									<th>الطرف الآخر</th>
+									<th>النوع</th>
+									<th>الحالة</th>
+									<th class="text-end">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, c := range data.UserConvs {
+									<tr>
+										<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
+										<td><strong>{ c.Subject.Get("ar") }</strong></td>
+										<td>منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</td>
+										<td>منشأة #{ fmt.Sprintf("%d", c.CounterpartyOrgID) }</td>
+										<td><code>{ string(c.ContextType) }</code></td>
+										<td><span class="badge badge-sky">{ string(c.Status) }</span></td>
+										<td class="text-end">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/history/%d", c.ID)) } class="btn btn-secondary btn-sm">عرض الرسائل</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			}
+
 		</div>
 	}
 }
 
-// AdminChatHistoryDetailPage renders conversation transcript.
+// AdminAIChatDetailPage renders full messages transcript for an AI assistant conversation.
+templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assistant.Message, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("محادثة ذكاء اصطناعي #%d", summary.ID), "audit", lang, dir) {
+		<div style="max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:1.25rem;">
+			
+			<!-- Header Card -->
+			<div class="card mb-0">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+							<span class="badge badge-emerald">جلسة مساعد كبسولة AI</span>
+							<span class="tabular-nums" style="font-weight:800; color:var(--text); font-size:1.15rem;">#{ fmt.Sprintf("%d", summary.ID) }</span>
+						</div>
+						<h2 style="font-size:1.35rem; font-weight:800; margin:0.25rem 0; color:var(--text);">
+							if summary.Title != "" {
+								{ summary.Title }
+							} else {
+								<span>محادثة كبسولة</span>
+							}
+						</h2>
+						<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.4rem; display:flex; gap:1.25rem; flex-wrap:wrap;">
+							<div>👤 <strong>المستخدم:</strong> { summary.UserName } ({ summary.UserEmail })</div>
+							<div>🏢 <strong>المنشأة:</strong> { summary.OrganizationName } (#{ fmt.Sprintf("%d", summary.OrganizationID) })</div>
+							<div>📅 <strong>التاريخ:</strong> { summary.CreatedAt.Format("2006-01-02 15:04") }</div>
+						</div>
+					</div>
+
+					<div style="display:flex; gap:0.5rem;">
+						<a href="/admin/chat/history?tab=ai" class="btn btn-secondary btn-sm">العودة للسجلات</a>
+					</div>
+				</div>
+
+				<!-- Stats Strip -->
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.75rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
+					<div style="background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);">
+						<div style="font-size:0.725rem; color:var(--text-muted);">إجمالي الرسائل</div>
+						<div style="font-size:1.15rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(msgs)) }</div>
+					</div>
+					<div style="background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);">
+						<div style="font-size:0.725rem; color:var(--text-muted);">رموز الإدخال (Input)</div>
+						<div style="font-size:1.15rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", summary.TotalInputTokens) }</div>
+					</div>
+					<div style="background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);">
+						<div style="font-size:0.725rem; color:var(--text-muted);">رموز التوليد (Output)</div>
+						<div style="font-size:1.15rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", summary.TotalOutputTokens) }</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Transcript -->
+			<div class="card mb-0" style="padding:1.5rem;">
+				<h3 style="font-size:1.05rem; font-weight:800; margin:0 0 1.25rem 0; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
+					سجل المحادثة الكامل (Transcript)
+				</h3>
+
+				if len(msgs) == 0 {
+					@components.EmptyState(components.EmptyStateProps{Title: "لا توجد رسائل مسجلة", Message: "هذه الجلسة لا تحتوي على رسائل."})
+				} else {
+					<div style="display:flex; flex-direction:column; gap:1.25rem;">
+						for _, m := range msgs {
+							if m.Role == "user" {
+								<!-- User Bubble -->
+								<div style="display:flex; justify-content:flex-start;">
+									<div style="max-width:85%; background:var(--surface-sunken); border:1px solid var(--border); border-radius:18px 18px 4px 18px; padding:0.85rem 1.15rem;">
+										<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.35rem; font-size:0.75rem; color:var(--text-muted);">
+											<span style="font-weight:700; color:var(--accent);">👤 { summary.UserName }</span>
+											<span>{ m.CreatedAt.Format("15:04:05") }</span>
+										</div>
+										<div style="font-size:0.9rem; line-height:1.6; color:var(--text); white-space:pre-wrap;" dir="auto">{ m.Content }</div>
+									</div>
+								</div>
+							} else if m.Role == "assistant" {
+								<!-- Assistant Bubble -->
+								<div style="display:flex; justify-content:flex-start;">
+									<div style="width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:1rem 1.25rem;">
+										<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.5rem; font-size:0.75rem; color:var(--text-muted);">
+											<span style="font-weight:700; color:#0284c7; display:flex; align-items:center; gap:0.3rem;">
+												@components.IconSparkles("icon-xxs")
+												<span>المساعد كبسولة</span>
+												if m.ModelRole != "" {
+													<code style="font-size:0.7rem; background:var(--surface-sunken); padding:0.1rem 0.3rem; border-radius:3px;">{ m.ModelRole }</code>
+												}
+											</span>
+											<span class="tabular-nums">{ m.CreatedAt.Format("15:04:05") } ({ fmt.Sprintf("%d tokens", m.OutputTokens) })</span>
+										</div>
+										<div style="font-size:0.9rem; line-height:1.65; color:var(--text); white-space:pre-wrap;" dir="auto">{ m.Content }</div>
+									</div>
+								</div>
+							}
+						}
+					</div>
+				}
+			</div>
+
+		</div>
+	}
+}
+
+// AdminChatHistoryDetailPage renders conversation transcript for peer chat.
 templ AdminChatHistoryDetailPage(convID int64, msgs []*chat.Message, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("محادثة #%d", convID), "audit", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
@@ -67,7 +274,7 @@ templ AdminChatHistoryDetailPage(convID int64, msgs []*chat.Message, lang, dir s
 					<h2 class="card-title" style="margin:0;">محادثة #{ fmt.Sprintf("%d", convID) }</h2>
 					<p class="subtitle">عرض الرسائل المتبادلة للأغراض الإدارية والرقابية.</p>
 				</div>
-				<a href="/admin/chat/history" class="btn btn-secondary btn-sm">العودة للسجلات</a>
+				<a href="/admin/chat/history?tab=users" class="btn btn-secondary btn-sm">العودة للسجلات</a>
 			</div>
 
 			if len(msgs) == 0 {

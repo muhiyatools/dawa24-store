@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -34,24 +35,30 @@ import (
 
 // UIHandler serves server-rendered HTML pages via Templ.
 type UIHandler struct {
-	catSvc     *catalog.Service
-	orgSvc     *org.Service
-	ingSvc     *ingest.Service
-	commSvc    *commerce.Service
-	invSvc     *inventory.Service
-	idSvc      *identity.Service
-	notifSvc   *notifications.Service
-	promoSvc   *promo.Service
-	adminSvc   *platformadmin.Service
-	billSvc    *billing.Service
-	compareSvc *compare.Service
-	chatSvc    *chat.Service
-	wfSvc      *workflow.Service
-	hrSvc      *hr.Service
-	attSvc     *attachments.Service
-	storage    *storage.Client
-	aiClient   gateway.Client
-	log        *slog.Logger
+	catSvc        *catalog.Service
+	orgSvc        *org.Service
+	ingSvc        *ingest.Service
+	commSvc       *commerce.Service
+	invSvc        *inventory.Service
+	idSvc         *identity.Service
+	notifSvc      *notifications.Service
+	promoSvc      *promo.Service
+	adminSvc      *platformadmin.Service
+	billSvc       *billing.Service
+	compareSvc    *compare.Service
+	chatSvc       *chat.Service
+	assistantRepo assistant.Repository
+	wfSvc         *workflow.Service
+	hrSvc         *hr.Service
+	attSvc        *attachments.Service
+	storage       *storage.Client
+	aiClient      gateway.Client
+	log           *slog.Logger
+}
+
+// SetAssistantRepository attaches the Assistant database repository for auditing and history.
+func (h *UIHandler) SetAssistantRepository(repo assistant.Repository) {
+	h.assistantRepo = repo
 }
 
 // SetGatewayClient attaches the Gateway client instance for health probes and AI services.

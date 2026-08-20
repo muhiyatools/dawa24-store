@@ -336,6 +336,7 @@ func mountAuthenticatedModules(
 	assistantRepo := assistantPostgres.NewRepository(db)
 	assistantSvc := assistant.NewService(assistantRepo, ai, log)
 	assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log).RegisterRoutes(r)
+	uiHandler.SetAssistantRepository(assistantRepo)
 
 	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))

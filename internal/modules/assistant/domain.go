@@ -21,6 +21,24 @@ type Conversation struct {
 	DeletedAt      *time.Time `json:"deleted_at,omitempty"`
 }
 
+// ConversationSummary holds enriched metadata about an assistant conversation for administration and auditing.
+type ConversationSummary struct {
+	ID                int64     `json:"id"`
+	PublicID          uuid.UUID `json:"public_id"`
+	OrganizationID    int64     `json:"organization_id"`
+	OrganizationName  string    `json:"organization_name"`
+	UserID            int64     `json:"user_id"`
+	UserName          string    `json:"user_name"`
+	UserEmail         string    `json:"user_email"`
+	UserPhone         string    `json:"user_phone"`
+	Title             string    `json:"title"`
+	MessageCount      int       `json:"message_count"`
+	TotalInputTokens  int       `json:"total_input_tokens"`
+	TotalOutputTokens int       `json:"total_output_tokens"`
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
+}
+
 // Message represents one turn in a conversation.
 type Message struct {
 	ID               int64        `json:"id"`

@@ -70,6 +70,7 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/jobs", h.AdminJobsPage)
 		g.Get("/admin/chat/tree", h.AdminChatTreePage)
 		g.Get("/admin/chat/history", h.AdminChatHistoryPage)
+		g.Get("/admin/chat/ai/{id}", h.AdminAIChatDetailPage)
 		g.Get("/admin/chat/history/{id}", h.AdminChatHistoryDetailPage)
 		g.Get("/admin/ask-for", h.AdminAskForPage)
 		g.Get("/admin/ask-for/{id}", h.AdminAskForDetailPage)

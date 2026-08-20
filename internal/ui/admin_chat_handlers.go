@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -20,27 +21,70 @@ func (h *UIHandler) AdminChatTreePage(w http.ResponseWriter, r *http.Request) {
 func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		tab = "ai"
+	}
 
-	var convs []*chat.Conversation
+	var aiConvs []*assistant.ConversationSummary
+	if h.assistantRepo != nil {
+		aiConvs, _ = h.assistantRepo.ListAllConversations(database.AsSystem(ctx), 100, 0)
+	}
+
+	var userConvs []*chat.Conversation
 	if h.chatSvc != nil {
-		// AsSystem justified: platform administrator audit oversight across peer conversations
-		convs, _ = h.chatSvc.ListConversations(database.AsSystem(ctx), 0, 100, 0)
+		userConvs, _ = h.chatSvc.ListConversations(database.AsSystem(ctx), 0, 100, 0)
+	}
+
+	data := pages.AdminChatHistoryData{
+		ActiveTab: tab,
+		AIConvs:   aiConvs,
+		UserConvs: userConvs,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminChatHistoryPage(convs, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminChatHistoryPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin chat history", "error", err)
 	}
 }
 
-// AdminChatHistoryDetailPage renders messages within a specific conversation.
+// AdminAIChatDetailPage renders full messages transcript for an AI assistant conversation.
+func (h *UIHandler) AdminAIChatDetailPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+	idStr := chi.URLParam(r, "id")
+	convID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || convID <= 0 {
+		http.Redirect(w, r, "/admin/chat/history?tab=ai", http.StatusSeeOther)
+		return
+	}
+
+	var summary *assistant.ConversationSummary
+	var msgs []*assistant.Message
+	if h.assistantRepo != nil {
+		summary, _ = h.assistantRepo.GetConversationSummary(database.AsSystem(ctx), convID)
+		msgs, _ = h.assistantRepo.ListMessages(database.AsSystem(ctx), convID, 200)
+	}
+
+	if summary == nil {
+		http.Redirect(w, r, "/admin/chat/history?tab=ai", http.StatusSeeOther)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminAIChatDetailPage(summary, msgs, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin ai chat detail", "error", err)
+	}
+}
+
+// AdminChatHistoryDetailPage renders messages within a specific peer conversation.
 func (h *UIHandler) AdminChatHistoryDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	idStr := chi.URLParam(r, "id")
 	convID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || convID <= 0 {
-		http.Redirect(w, r, "/admin/chat/history", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/chat/history?tab=users", http.StatusSeeOther)
 		return
 	}
 

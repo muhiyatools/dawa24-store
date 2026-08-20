@@ -64,6 +64,90 @@ func (r *Repository) GetConversation(ctx context.Context, id int64) (*assistant.
 	return &c, nil
 }
 
+// GetConversationSummary fetches enriched metadata for one conversation.
+func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*assistant.ConversationSummary, error) {
+	pool := r.db.Pool()
+
+	query := `
+		SELECT 
+			c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || c.organization_id) AS org_name,
+			c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
+			COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
+			c.title, c.created_at, c.updated_at,
+			COUNT(m.id) AS message_count,
+			COALESCE(SUM(m.input_tokens), 0) AS total_input_tokens,
+			COALESCE(SUM(m.output_tokens), 0) AS total_output_tokens
+		FROM assistant.conversations c
+		LEFT JOIN org.organizations o ON o.id = c.organization_id
+		LEFT JOIN identity.users u ON u.id = c.user_id
+		LEFT JOIN assistant.messages m ON m.conversation_id = c.id
+		WHERE c.id = $1 AND c.deleted_at IS NULL
+		GROUP BY c.id, c.public_id, c.organization_id, o.name, c.user_id, u.full_name, u.email, u.phone, c.title, c.created_at, c.updated_at
+	`
+	var s assistant.ConversationSummary
+	err := pool.QueryRow(ctx, query, id).Scan(
+		&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName,
+		&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone,
+		&s.Title, &s.CreatedAt, &s.UpdatedAt,
+		&s.MessageCount, &s.TotalInputTokens, &s.TotalOutputTokens,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("assistant: get conversation summary: %w", err)
+	}
+	return &s, nil
+}
+
+// ListAllConversations returns all assistant sessions across organizations for administrative audit.
+func (r *Repository) ListAllConversations(ctx context.Context, limit, offset int) ([]*assistant.ConversationSummary, error) {
+	pool := r.db.Pool()
+
+	if limit <= 0 || limit > 100 {
+		limit = 50
+	}
+
+	query := `
+		SELECT 
+			c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || c.organization_id) AS org_name,
+			c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
+			COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
+			c.title, c.created_at, c.updated_at,
+			COUNT(m.id) AS message_count,
+			COALESCE(SUM(m.input_tokens), 0) AS total_input_tokens,
+			COALESCE(SUM(m.output_tokens), 0) AS total_output_tokens
+		FROM assistant.conversations c
+		LEFT JOIN org.organizations o ON o.id = c.organization_id
+		LEFT JOIN identity.users u ON u.id = c.user_id
+		LEFT JOIN assistant.messages m ON m.conversation_id = c.id
+		WHERE c.deleted_at IS NULL
+		GROUP BY c.id, c.public_id, c.organization_id, o.name, c.user_id, u.full_name, u.email, u.phone, c.title, c.created_at, c.updated_at
+		ORDER BY c.updated_at DESC
+		LIMIT $1 OFFSET $2
+	`
+	rows, err := pool.Query(ctx, query, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("assistant: list all conversations: %w", err)
+	}
+	defer rows.Close()
+
+	var convs []*assistant.ConversationSummary
+	for rows.Next() {
+		var s assistant.ConversationSummary
+		if err := rows.Scan(
+			&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName,
+			&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone,
+			&s.Title, &s.CreatedAt, &s.UpdatedAt,
+			&s.MessageCount, &s.TotalInputTokens, &s.TotalOutputTokens,
+		); err != nil {
+			return nil, fmt.Errorf("assistant: scan conversation summary: %w", err)
+		}
+		convs = append(convs, &s)
+	}
+	return convs, rows.Err()
+}
+
 // ListConversations returns recent active conversations for a user.
 func (r *Repository) ListConversations(ctx context.Context, orgID, userID int64, limit, offset int) ([]*assistant.Conversation, error) {
 	pool := r.db.Pool()
