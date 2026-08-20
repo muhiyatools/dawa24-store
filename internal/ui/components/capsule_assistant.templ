@@ -81,18 +81,6 @@ templ CapsuleAssistant() {
 
 				<!-- Header Action Buttons -->
 				<div style="display:flex; align-items:center; gap:0.3rem;">
-					<!-- New Chat Button -->
-					<button
-						type="button"
-						@click="clearChat()"
-						style="background:none; border:none; color:var(--text-muted); width:28px; height:28px; border-radius:var(--radius-md); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 120ms;"
-						onmouseover="this.style.background='var(--surface-sunken)'; this.style.color='var(--text)';"
-						onmouseout="this.style.background='none'; this.style.color='var(--text-muted)';"
-						title="محادثة جديدة"
-					>
-						@IconRefresh("icon-xs")
-					</button>
-
 					<!-- Close Button -->
 					<button
 						type="button"
@@ -110,7 +98,7 @@ templ CapsuleAssistant() {
 			<!-- Messages Scroll Area (Canvas Style - Direct Text on Background) -->
 			<div
 				id="capsule-messages-container"
-				style="flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1.25rem 1.15rem; display:flex; flex-direction:column; gap:1.25rem; background:var(--surface-raised); scroll-behavior:smooth;"
+				style="flex:1 1 auto; min-height:0; height:0; overflow-y:auto; overflow-x:hidden; padding:1.25rem 1.15rem; display:flex; flex-direction:column; gap:1.25rem; background:var(--surface-raised); scroll-behavior:smooth;"
 			>
 				<!-- Empty State / Welcome Greeting -->
 				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:1.5rem 0.5rem; gap:1rem;">
@@ -185,30 +173,14 @@ templ CapsuleAssistant() {
 
 						<!-- Assistant Message (ChatGPT Style - Direct on Canvas) -->
 						<template x-if="!msg.isUser">
-							<div style="display:flex; flex-direction:column; gap:0.5rem; animation:fadeIn 150ms ease;">
+							<div style="display:flex; flex-direction:column; gap:0.45rem; animation:fadeIn 150ms ease;">
 								
 								<!-- Assistant Header / Avatar Line -->
-								<div style="display:flex; align-items:center; justify-content:space-between;">
-									<div style="display:flex; align-items:center; gap:0.45rem;">
-										<div style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; display:flex; align-items:center; justify-content:center;">
-											@IconSparkles("icon-xxs")
-										</div>
-										<span style="font-size:0.775rem; font-weight:700; color:var(--text);">كبسولة</span>
+								<div style="display:flex; align-items:center; gap:0.45rem;">
+									<div style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; display:flex; align-items:center; justify-content:center;">
+										@IconSparkles("icon-xxs")
 									</div>
-
-									<!-- Copy Response Button (Shown when not streaming and has text) -->
-									<button
-										type="button"
-										x-show="!msg.isStreaming && msg.text"
-										@click="copyText(msg.text, $el)"
-										style="background:none; border:none; color:var(--text-muted); font-size:0.725rem; cursor:pointer; padding:2px 6px; border-radius:4px; display:flex; align-items:center; gap:0.25rem;"
-										onmouseover="this.style.color='var(--text)'"
-										onmouseout="this.style.color='var(--text-muted)'"
-										title="نسخ الإجابة"
-									>
-										@IconCopy("icon-xxs")
-										<span class="copy-btn-text">نسخ</span>
-									</button>
+									<span style="font-size:0.775rem; font-weight:700; color:var(--text);">كبسولة</span>
 								</div>
 
 								<!-- Collapsible Reasoning Block (Thinking...) -->
@@ -240,6 +212,19 @@ templ CapsuleAssistant() {
 									<span x-show="msg.isStreaming" class="capsule-cursor">▊</span>
 								</div>
 
+								<!-- Minimalist Discreet Copy Button Under Response -->
+								<div x-show="!msg.isStreaming && msg.text" style="display:flex; align-items:center; gap:0.5rem; margin-top:0.15rem;">
+									<button
+										type="button"
+										@click="copyText(msg.text, $el)"
+										class="capsule-mini-copy-btn"
+										title="نسخ الإجابة"
+									>
+										@IconCopy("icon-xxs")
+										<span class="copy-btn-text">نسخ</span>
+									</button>
+								</div>
+
 							</div>
 						</template>
 					</div>
@@ -258,7 +243,7 @@ templ CapsuleAssistant() {
 			</div>
 
 			<!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) -->
-			<div style="margin-top:auto; flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); padding:0.65rem 0.85rem; box-sizing:border-box; width:100%;">
+			<div style="flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); padding:0.65rem 0.85rem; box-sizing:border-box; width:100%;">
 				
 				<!-- Attached Files Preview Strip -->
 				<div x-show="attachedFiles.length > 0" style="margin-bottom:0.45rem; display:flex; gap:0.35rem; overflow-x:auto; align-items:center;">
@@ -557,6 +542,24 @@ templ CapsuleAssistant() {
 			.capsule-h2 { font-size: 1.05rem; font-weight: 800; margin: 0.6rem 0 0.3rem 0; color: var(--text); }
 			.capsule-h3 { font-size: 0.95rem; font-weight: 800; margin: 0.5rem 0 0.25rem 0; color: var(--text); }
 			.capsule-h4 { font-size: 0.875rem; font-weight: 700; margin: 0.4rem 0 0.2rem 0; color: var(--text); }
+			.capsule-mini-copy-btn {
+				background: transparent;
+				border: 1px solid var(--border);
+				border-radius: 6px;
+				color: var(--text-muted);
+				font-size: 0.7rem;
+				cursor: pointer;
+				padding: 2px 7px;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.25rem;
+				transition: all 120ms ease;
+			}
+			.capsule-mini-copy-btn:hover {
+				color: var(--text);
+				background: var(--surface-sunken);
+				border-color: var(--accent);
+			}
 		</style>
 
 		<!-- Assistant Core Logic -->
