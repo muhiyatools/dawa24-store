@@ -1,4 +1,4 @@
--- Migration 099: Create assistant conversations and messages schema with RLS
+-- Migration 103: Create assistant conversations and messages schema with RLS
 CREATE SCHEMA IF NOT EXISTS assistant;
 
 CREATE TABLE IF NOT EXISTS assistant.conversations (
