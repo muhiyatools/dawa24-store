@@ -37,7 +37,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-
 func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -611,7 +610,7 @@ func (h *UIHandler) AdminPlatformPaymentMethodSubmit(w http.ResponseWriter, r *h
 	if h.billSvc != nil {
 		if err := h.billSvc.SavePlatformPaymentMethod(ctx, pm); err != nil {
 			h.log.ErrorContext(ctx, "failed to save platform payment method", "error", err, "id", id)
-			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", "فشل حفظ بيانات وسيلة الدفع: "+err.Error())
+			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -758,7 +757,7 @@ func (h *UIHandler) AdminUserDeletionApproveSubmit(w http.ResponseWriter, r *htt
 
 	if h.idSvc != nil {
 		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, true, "تمت الموافقة من إدارة المنصة"); err != nil {
-			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "فشل قبول طلب الحذف: "+err.Error())
+			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -783,7 +782,7 @@ func (h *UIHandler) AdminUserDeletionRejectSubmit(w http.ResponseWriter, r *http
 
 	if h.idSvc != nil {
 		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, false, "تم رفض طلب الحذف من الإدارة"); err != nil {
-			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "فشل رفض طلب الحذف: "+err.Error())
+			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -1299,7 +1298,7 @@ func (h *UIHandler) AdminProductDeleteSubmit(w http.ResponseWriter, r *http.Requ
 	if err == nil && h.catSvc != nil {
 		if err := h.catSvc.DeleteProduct(database.AsSystem(ctx), id); err != nil {
 			h.log.ErrorContext(ctx, "admin delete product failed", "error", err, "id", id)
-			h.redirectWithNotice(w, r, "/admin/products", "error", "فشل في حذف الصنف الدوائي: "+err.Error())
+			h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -1954,7 +1953,7 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 
 	if err := h.orgSvc.CreateInstitutionalWork(ctx, iw); err != nil {
 		h.log.ErrorContext(ctx, "failed to create institutional work", "error", err)
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", "فشل إضافة التصنيف: "+err.Error())
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -2027,7 +2026,7 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 
 	if err := h.orgSvc.UpdateInstitutionalWork(ctx, iw); err != nil {
 		h.log.ErrorContext(ctx, "failed to update institutional work", "error", err)
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", "فشل تحديث التصنيف: "+err.Error())
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -2141,7 +2140,7 @@ func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request
 
 	if h.adminSvc != nil {
 		if err := h.adminSvc.CreateCity(ctx, city); err != nil {
-			h.redirectWithNotice(w, r, "/admin/cities", "error", "فشل إضافة المدينة: "+err.Error())
+			h.redirectWithNotice(w, r, "/admin/cities", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -2160,7 +2159,7 @@ func (h *UIHandler) AdminCityToggleSubmit(w http.ResponseWriter, r *http.Request
 
 	if h.adminSvc != nil {
 		if err := h.adminSvc.ToggleCityStatus(ctx, id); err != nil {
-			h.redirectWithNotice(w, r, "/admin/cities", "error", "فشل تحديث حالة المدينة: "+err.Error())
+			h.redirectWithNotice(w, r, "/admin/cities", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -2367,12 +2366,9 @@ func (h *UIHandler) AdminErrorLogStatusSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if err := h.adminSvc.UpdateErrorLogStatus(ctx, id, status); err != nil {
-		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", "فشل تحديث حالة الخطأ: "+err.Error())
+		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
 	h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "success", "تم تحديث حالة الخطأ بنجاح.")
 }
-
-
-

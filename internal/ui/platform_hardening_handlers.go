@@ -8,8 +8,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-
-
 // AdminSessionPlansPage renders session plan management and seats list.
 func (h *UIHandler) AdminSessionPlansPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -73,7 +71,7 @@ func (h *UIHandler) CustomerReportIssueSubmit(w http.ResponseWriter, r *http.Req
 
 	if _, err := h.wfSvc.ReportIssue(ctx, issue); err != nil {
 		h.log.ErrorContext(ctx, "failed reporting issue", "error", err, "user_id", actor.UserID)
-		h.redirectWithNotice(w, r, "/report-issue", "error", "فشل في تسجيل البلاغ: "+err.Error())
+		h.redirectWithNotice(w, r, "/report-issue", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 

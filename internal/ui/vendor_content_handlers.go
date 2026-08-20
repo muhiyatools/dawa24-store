@@ -63,7 +63,7 @@ func (h *UIHandler) VendorPoliciesSubmit(w http.ResponseWriter, r *http.Request)
 
 	if err := h.orgSvc.SavePolicies(ctx, actor.OrganizationID, policies); err != nil {
 		h.log.ErrorContext(ctx, "save vendor policies", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/policies", "error", "فشل حفظ السياسات: "+err.Error())
+		h.redirectWithNotice(w, r, "/vendor/policies", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -125,7 +125,7 @@ func (h *UIHandler) VendorSocialMediaSubmit(w http.ResponseWriter, r *http.Reque
 
 	if err := h.orgSvc.SaveSocialMedia(ctx, actor.OrganizationID, links); err != nil {
 		h.log.ErrorContext(ctx, "save vendor social media", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/social-media", "error", "فشل حفظ روابط التواصل: "+err.Error())
+		h.redirectWithNotice(w, r, "/vendor/social-media", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 

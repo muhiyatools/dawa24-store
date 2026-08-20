@@ -55,7 +55,7 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 		g.Get("/admin/user-organization", h.AdminUserOrganizationPage)
 		g.Get("/admin/want-delete", h.AdminWantDeletePage)
 		g.Get("/admin/want-delete/{id}", h.AdminWantDeletePage)
-		
+
 		// Roles & RBAC
 		g.Get("/admin/roles", h.AdminRolesPage)
 		g.Get("/admin/admin-roles", h.AdminRolesPage)

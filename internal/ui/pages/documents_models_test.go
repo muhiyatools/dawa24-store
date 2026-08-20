@@ -51,7 +51,6 @@ func TestBuildOrganizationDocumentsData_VerifiedClearsMissing(t *testing.T) {
 	}
 }
 
-
 func TestOrganizationDocumentsData_LatestFor(t *testing.T) {
 	now := time.Now()
 	data := &OrganizationDocumentsData{Docs: []*attachments.Document{

@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	UploadBaseDir   = "data/uploads"
-	MaxUploadBytes  = 20 * 1024 * 1024 // 20 MB
+	UploadBaseDir  = "data/uploads"
+	MaxUploadBytes = 20 * 1024 * 1024 // 20 MB
 )
 
 // RegisterUploadRoutes registers the public static file server for uploaded documents & media.

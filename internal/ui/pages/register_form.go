@@ -30,7 +30,6 @@ type RegisterFormData struct {
 	Error              string
 }
 
-
 // AlpineState renders the Alpine.js x-data payload for the two-step form.
 // If an account type is already present (a failed submit re-render), the form
 // opens on step 2 with that type selected so the user's work is not lost.

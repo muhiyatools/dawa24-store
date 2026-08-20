@@ -29,7 +29,7 @@ func InvalidateSiteSettingsCache() {
 func (h *UIHandler) siteSettingsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		
+
 		cacheMu.RLock()
 		if cachedSettings != nil && time.Since(cachedAt) < 10*time.Second {
 			s := cachedSettings

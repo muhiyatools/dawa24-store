@@ -8,11 +8,11 @@ import (
 // itself lives in the attachments module (RequirementsFor); only presentation
 // lives here.
 var docTitlesAr = map[attachments.DocumentType]string{
-	attachments.DocCommercialRegister:   "السجل التجاري",
-	attachments.DocTaxCard:              "البطاقة الضريبية",
-	attachments.DocPharmacyLicense:      "ترخيص الصيدلية",
-	attachments.DocPharmacistLicense:    "بطاقة الصيدلي",
-	attachments.DocAuthorizationLetter:  "خطاب تفويض",
+	attachments.DocCommercialRegister:  "السجل التجاري",
+	attachments.DocTaxCard:             "البطاقة الضريبية",
+	attachments.DocPharmacyLicense:     "ترخيص الصيدلية",
+	attachments.DocPharmacistLicense:   "بطاقة الصيدلي",
+	attachments.DocAuthorizationLetter: "خطاب تفويض",
 }
 
 // DocRequirement is one entry of the mandatory-document table (Rebuild V2
@@ -72,7 +72,6 @@ func BuildOrganizationDocumentsData(docs []*attachments.Document, vendor bool) *
 	}
 	return data
 }
-
 
 // LatestFor returns the newest document of the given type, or nil.
 func (d *OrganizationDocumentsData) LatestFor(t attachments.DocumentType) *attachments.Document {

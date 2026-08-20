@@ -25,8 +25,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-
-
 // VendorProductsPage renders the vendor's supply variants/offers.
 func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -162,7 +160,7 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	if h.catSvc != nil {
 		if _, err := h.catSvc.CreateVariant(ctx, variant); err != nil {
 			h.log.ErrorContext(ctx, "create variant error", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/variants/new", "error", "فشل في حفظ عرض الصنف: "+err.Error())
+			h.redirectWithNotice(w, r, "/vendor/variants/new", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -325,18 +323,16 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 		InstitutionalWorks: instWorks,
 	}
 
-
 	if h.orgSvc != nil {
 		if err := h.orgSvc.CreateBranch(ctx, b); err != nil {
 			h.log.ErrorContext(ctx, "create branch error", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/branches", "error", "فشل في حفظ الفرع: "+err.Error())
+			h.redirectWithNotice(w, r, "/vendor/branches", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم إضافة الفرع ونقطة التوزيع بنجاح.")
 }
-
 
 // VendorBranchDeleteSubmit deletes a branch scoped to the vendor organization.
 func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
@@ -357,7 +353,7 @@ func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Requ
 	}
 	if err := h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID); err != nil {
 		h.log.ErrorContext(ctx, "delete branch", "error", err, "branch", id, "org", actor.OrganizationID)
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "فشل حذف الفرع: "+err.Error())
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم حذف الفرع بنجاح.")
@@ -452,7 +448,7 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 			Role:     "employer",
 		})
 		if err != nil {
-			h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل في تسجيل حساب الموظف: "+err.Error())
+			h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 
@@ -483,7 +479,7 @@ func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Reques
 	}
 	if err := h.orgSvc.ToggleMemberStatus(ctx, actor.OrganizationID, id); err != nil {
 		h.log.ErrorContext(ctx, "toggle member status", "error", err, "member", id, "org", actor.OrganizationID)
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل تحديث حالة الموظف: "+err.Error())
+		h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم تحديث حالة حساب الموظف بنجاح.")
@@ -590,7 +586,6 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 }
 
 // Vendor catalog import handlers are implemented in vendor_ingest_handlers.go (Plan V5 Phase 4).
-
 
 // VendorIngestSampleXLSX streams a styled Excel template for vendor catalog and inventory upload.
 func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Request) {
@@ -831,7 +826,6 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 		IsEdit:   false,
 	}
 
-
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.VendorOfferFormPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor offer new page", "error", err)
@@ -921,11 +915,10 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 		Products:           prods,
 	}
 
-
 	if h.promoSvc != nil {
 		if _, err := h.promoSvc.CreateSpecialOffer(ctx, o); err != nil {
 			h.log.ErrorContext(ctx, "create special offer error", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/offers/new", "error", "فشل في حفظ العرض الخاص: "+err.Error())
+			h.redirectWithNotice(w, r, "/vendor/offers/new", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -1037,7 +1030,6 @@ func (h *UIHandler) VendorOfferDeleteSubmit(w http.ResponseWriter, r *http.Reque
 	h.redirectWithNotice(w, r, "/vendor/offers", "success", "تم حذف العرض الخاص بنجاح.")
 }
 
-
 // VendorOrderStatusSubmit transitions shipment delivery states.
 func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1082,4 +1074,3 @@ func (h *UIHandler) VendorStockAdjustSubmit(w http.ResponseWriter, r *http.Reque
 	}
 	http.Redirect(w, r, "/vendor/inventory", http.StatusSeeOther)
 }
-

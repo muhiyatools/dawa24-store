@@ -24,7 +24,6 @@ func (h *UIHandler) ServicesPage(w http.ResponseWriter, r *http.Request) {
 	}
 	lang, dir := h.localeAndDir(r)
 
-
 	var services []*workflow.InstitutionalService
 	if h.wfSvc != nil {
 		services, _ = h.wfSvc.ListServices(ctx, nil)

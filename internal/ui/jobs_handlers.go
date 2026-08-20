@@ -23,7 +23,6 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 	}
 	lang, dir := h.localeAndDir(r)
 
-
 	var jobs []*hr.JobOffer
 	if h.hrSvc != nil {
 		jobs, _ = h.hrSvc.ListPublishedJobs(ctx, 50, 0)

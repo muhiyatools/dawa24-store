@@ -158,7 +158,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 
 	storageKey, err := saveUploadedFile(r, "compare_file", "compare")
 	if err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "فشل حفظ الملف: "+err.Error())
+		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 

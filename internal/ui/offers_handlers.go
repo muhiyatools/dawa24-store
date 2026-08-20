@@ -20,7 +20,6 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 	}
 	lang, dir := h.localeAndDir(r)
 
-
 	var offers []*promo.Offer
 	if h.promoSvc != nil {
 		offers, _ = h.promoSvc.ListActiveOffers(ctx, 20, 0)

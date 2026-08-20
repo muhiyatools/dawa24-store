@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -17,7 +16,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
-
 
 // SettingsIndex renders the comprehensive unified tab-based account settings hub.
 func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +30,7 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 
 	var user *identity.User
 	var sessions []*identity.Session
+	var sessionPlans []*identity.SessionPlan
 	var paymentMethods []*billing.UserPaymentMethod
 	var wallet *billing.Wallet
 	var txs []*billing.WalletTransaction
@@ -48,6 +47,11 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 			h.log.WarnContext(ctx, "settings: list sessions", "error", err)
 		} else {
 			sessions = sess
+		}
+		if plans, err := h.idSvc.ListSessionPlans(ctx); err != nil {
+			h.log.WarnContext(ctx, "settings: list session plans", "error", err)
+		} else {
+			sessionPlans = plans
 		}
 	}
 
@@ -90,40 +94,13 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		PaymentMethods:         paymentMethods,
 		PlatformPaymentMethods: platformPaymentMethods,
 		Sessions:               sessions,
+		SessionPlans:           sessionPlans,
 		ActiveTab:              "profile",
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.UnifiedSettingsPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render unified settings page", "error", err)
-	}
-}
-
-// SettingsProfilePage renders the profile tab.
-func (h *UIHandler) SettingsProfilePage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/profile", http.StatusSeeOther)
-		return
-	}
-
-	var user *identity.User
-	if h.idSvc != nil {
-		if me, err := h.idSvc.GetMe(ctx, actor.UserID, nil); err == nil && me != nil {
-			user = me.User
-		}
-	}
-	if user == nil {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/profile", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsProfile(lang, dir, user).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render settings profile", "error", err)
 	}
 }
 
@@ -167,30 +144,6 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	h.redirectWithNotice(w, r, "/settings#profile", "success", "تم حفظ التغييرات وتحديث الملف الشخصي بنجاح.")
-}
-
-// SettingsAddressesPage renders the saved-address list and the add form.
-func (h *UIHandler) SettingsAddressesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/addresses", http.StatusSeeOther)
-		return
-	}
-
-	var addresses []*identity.UserAddress
-	var history []*identity.UserAddressHistory
-	if h.idSvc != nil {
-		addresses, _ = h.idSvc.ListAddresses(ctx, actor.UserID)
-		history, _ = h.idSvc.ListAddressHistory(ctx, actor.UserID, 20)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsAddresses(lang, dir, addresses, h.listCities(ctx), history).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render settings addresses", "error", err)
-	}
 }
 
 // SettingsAddressSubmit adds a saved address.
@@ -243,30 +196,6 @@ func (h *UIHandler) SettingsAddressDeleteSubmit(w http.ResponseWriter, r *http.R
 		}
 	}
 	h.redirectWithNotice(w, r, "/settings/addresses", "success", "تم حذف العنوان.")
-}
-
-// SettingsSecurityPage renders the active-sessions security tab.
-func (h *UIHandler) SettingsSecurityPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/security", http.StatusSeeOther)
-		return
-	}
-
-	var sessions []*identity.Session
-	var plans []*identity.SessionPlan
-	if h.idSvc != nil {
-		sessions, _ = h.idSvc.ListSessions(ctx, actor.UserID)
-		plans, _ = h.idSvc.ListSessionPlans(ctx)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsSecurity(lang, dir, sessions, plans).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render settings security", "error", err)
-	}
 }
 
 // SettingsSessionPlanPurchaseSubmit applies a session plan's concurrency limit.
@@ -337,37 +266,6 @@ func (h *UIHandler) SettingsPasswordSubmit(w http.ResponseWriter, r *http.Reques
 	h.redirectWithNotice(w, r, "/settings#security", "success", "تم تغيير كلمة المرور بنجاح.")
 }
 
-
-// SettingsOrganizationPage renders the organization profile and branches.
-func (h *UIHandler) SettingsOrganizationPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
-		return
-	}
-
-	var o *org.Organization
-	var branches []*org.Branch
-	var members []*org.Member
-	if h.orgSvc != nil {
-		o, _ = h.orgSvc.GetOrganization(ctx, actor.OrganizationID)
-		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-		members, _ = h.orgSvc.ListMembers(ctx, actor.OrganizationID)
-	}
-	if o == nil {
-		http.Redirect(w, r, "/settings/profile", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsOrganization(lang, dir, o, branches, members).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render settings organization", "error", err)
-	}
-}
-
 // SettingsMemberRoleSubmit changes a member's organization role.
 func (h *UIHandler) SettingsMemberRoleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -414,79 +312,6 @@ func (h *UIHandler) SettingsOrgUpdateSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	h.redirectWithNotice(w, r, "/settings/organization", "success", "تم حفظ بيانات المؤسسة.")
-}
-
-// SettingsBranchCreateSubmit adds a branch.
-func (h *UIHandler) SettingsBranchCreateSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
-		return
-	}
-
-	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", "الخدمة غير متاحة حالياً.")
-		return
-	}
-
-	code := r.PostFormValue("code")
-	if code == "" {
-		code = "BR-" + strconv.FormatInt(time.Now().UnixNano()%100000, 10)
-	}
-	b := &org.Branch{
-		OrganizationID: actor.OrganizationID,
-		Name:           i18n.New(r.PostFormValue("name_ar"), ""),
-		Code:           code,
-		Address:        r.PostFormValue("address"),
-		IsMain:         false,
-	}
-	if err := h.orgSvc.CreateBranch(ctx, b); err != nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/settings/organization", "success", "تمت إضافة الفرع.")
-}
-
-// SettingsBranchDeleteSubmit removes a non-main branch.
-func (h *UIHandler) SettingsBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
-		return
-	}
-
-	if h.orgSvc != nil {
-		if id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64); err == nil {
-			_ = h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID)
-		}
-	}
-	http.Redirect(w, r, "/settings/organization", http.StatusSeeOther)
-}
-
-// SettingsPreferencesPage renders the user's display and notification prefs.
-func (h *UIHandler) SettingsPreferencesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/preferences", http.StatusSeeOther)
-		return
-	}
-
-	p := &identity.UserPreferences{UserID: actor.UserID, Theme: "light"}
-	if h.idSvc != nil {
-		if prefs, err := h.idSvc.GetPreferences(ctx, actor.UserID); err == nil && prefs != nil {
-			p = prefs
-		}
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsPreferences(lang, dir, p).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render settings preferences", "error", err)
-	}
 }
 
 // SettingsPreferencesSubmit saves the user's preferences.
@@ -549,22 +374,6 @@ func (h *UIHandler) SettingsMemberAddSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	h.redirectWithNotice(w, r, "/settings/organization", "success", "تمت إضافة العضو.")
-}
-
-// SettingsPaymentMethodsPage renders the saved payment methods and dynamic add method form.
-func (h *UIHandler) SettingsPaymentMethodsPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	if _, ok := authctx.From(ctx); !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/payment-methods", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SettingsPaymentMethods(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render settings payment methods", "error", err)
-	}
 }
 
 // SettingsPaymentMethodsSubmit saves a new payment method.
@@ -649,7 +458,7 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 
 	if err := h.billSvc.AddPaymentMethod(ctx, pm); err != nil {
 		h.log.ErrorContext(ctx, "failed to add payment method", "error", err)
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "فشل حفظ وسيلة الدفع: "+err.Error())
+		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -674,7 +483,7 @@ func (h *UIHandler) SettingsPaymentMethodDeleteSubmit(w http.ResponseWriter, r *
 	if h.billSvc != nil {
 		if err := h.billSvc.DeletePaymentMethod(ctx, actor.UserID, id); err != nil {
 			h.log.ErrorContext(ctx, "failed to delete payment method", "error", err)
-			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "فشل حذف وسيلة الدفع: "+err.Error())
+			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -720,7 +529,6 @@ func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request
 		h.log.ErrorContext(ctx, "render settings employees", "error", err)
 	}
 }
-
 
 // SettingsEmployeeCreateSubmit creates a new employee account and assigns them to the organization and branch.
 func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.Request) {
@@ -841,7 +649,6 @@ func (h *UIHandler) SettingsBranchManagerAssignSubmit(w http.ResponseWriter, r *
 	h.redirectWithNotice(w, r, "/settings/employees", "success", "تم تعيين وتثبيت مدير الفرع بنجاح.")
 }
 
-
 // SettingsEmployeeDeleteSubmit removes an employee member from the organization.
 func (h *UIHandler) SettingsEmployeeDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -888,11 +695,9 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if err := h.idSvc.RequestAccountDeletion(ctx, actor.UserID, orgID, reason); err != nil {
-		h.redirectWithNotice(w, r, "/settings?tab=security", "error", "فشل إرسال طلب الحذف: "+err.Error())
+		h.redirectWithNotice(w, r, "/settings?tab=security", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
 	h.redirectWithNotice(w, r, "/settings?tab=security", "success", "تم استلام طلب حذف الحساب بنجاح، وسيتم مراجعته من قبل إدارة المنصة.")
 }
-
-

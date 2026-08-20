@@ -275,4 +275,3 @@ func TestVendorIngestAndRolesRoutes(t *testing.T) {
 		}
 	})
 }
-

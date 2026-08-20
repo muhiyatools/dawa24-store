@@ -31,7 +31,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-
 // UIHandler serves server-rendered HTML pages via Templ.
 type UIHandler struct {
 	catSvc     *catalog.Service
@@ -125,7 +124,6 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Use(h.visitorMiddleware)
 		RegisterStaticRoutes(pub)
 		RegisterUploadRoutes(pub)
-
 
 		// Public & Auth (marketing, catalogue browsing, sign-in)
 		pub.Get("/", h.HomePage)
@@ -272,7 +270,6 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Get("/customer/automation/{id}", h.CustomerAutomationDetailPage)
 }
 
-
 // RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
 // RequireVendor.
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
@@ -403,14 +400,21 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 
 	// Settings (account surface, both shells)
 
+	// One settings surface: the tabbed page. Six separate sub-pages used to
+	// render the same data through a second tab component, so the two could
+	// disagree about what the account looked like. They are 301s now — the
+	// paths stay reachable because they were linked from sidebars and may be
+	// bookmarked (PLAN_V7 Task 2.1).
 	r.Get("/settings", h.SettingsIndex)
-	r.Get("/settings/profile", h.SettingsProfilePage)
-	r.Get("/settings/addresses", h.SettingsAddressesPage)
-	r.Get("/settings/security", h.SettingsSecurityPage)
-	r.Get("/settings/organization", h.SettingsOrganizationPage)
+	r.Get("/settings/profile", redirectToSettingsTab("profile"))
+	r.Get("/settings/addresses", redirectToSettingsTab("profile"))
+	r.Get("/settings/security", redirectToSettingsTab("security"))
+	r.Get("/settings/organization", redirectToSettingsTab("organization"))
+	r.Get("/settings/preferences", redirectToSettingsTab("preferences"))
+	r.Get("/settings/payment-methods", redirectToSettingsTab("payments"))
+	// Employees is a real management screen, not a settings tab: it lists
+	// staff, assigns branch managers and creates accounts.
 	r.Get("/settings/employees", h.SettingsEmployeesPage)
-	r.Get("/settings/preferences", h.SettingsPreferencesPage)
-	r.Get("/settings/payment-methods", h.SettingsPaymentMethodsPage)
 
 	r.Post("/settings/profile", h.SettingsProfileSubmit)
 	r.Post("/settings/password", h.SettingsPasswordSubmit)
@@ -422,8 +426,9 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Post("/settings/delete-request", h.SettingsDeleteRequestSubmit)
 
 	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
-	r.Post("/settings/organization/branch", h.SettingsBranchCreateSubmit)
-	r.Post("/settings/organization/branch/{id}/delete", h.SettingsBranchDeleteSubmit)
+	// Branch management lives at /customer/branches and /vendor/branches. The
+	// settings page used to carry a third, lower-quality write path that even
+	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2).
 	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
 	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
 	r.Post("/settings/employees/create", h.SettingsEmployeeCreateSubmit)
@@ -521,7 +526,6 @@ func (h *UIHandler) safeMessage(err error, lang string) string {
 	}
 	return "Operation could not be completed: " + errStr
 }
-
 
 // statusForError maps an error onto a response code. A full page load that
 // returns 200 for a failure is invisible to uptime checks and to the browser.
@@ -652,4 +656,12 @@ func acceptLanguage(header string) string {
 		}
 	}
 	return ""
+}
+
+// redirectToSettingsTab permanently redirects a retired settings sub-page to
+// its tab on the unified page.
+func redirectToSettingsTab(tab string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/settings?tab="+tab, http.StatusMovedPermanently)
+	}
 }

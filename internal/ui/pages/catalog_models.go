@@ -39,11 +39,11 @@ type ProductDetailViewData struct {
 
 // CatalogFilterParams encapsulates filter inputs for the catalog page.
 type CatalogFilterParams struct {
-	Query        string
-	CategoryID   *int64
-	MinPrice     string
-	MaxPrice     string
-	DosageForm   string
-	Sort         string
-	InStock      bool
+	Query      string
+	CategoryID *int64
+	MinPrice   string
+	MaxPrice   string
+	DosageForm string
+	Sort       string
+	InStock    bool
 }

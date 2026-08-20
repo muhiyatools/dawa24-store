@@ -95,7 +95,6 @@ func (h *UIHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 // listCities loads the Egyptian cities for the registration form's city picker.
 func (h *UIHandler) listCities(ctx context.Context) []*platformadmin.City {
 	if h.adminSvc == nil {
@@ -359,7 +358,6 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	if sess != nil {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "dawa24_session",
@@ -504,5 +502,3 @@ func (h *UIHandler) findNearestCityID(ctx context.Context, lat, lon float64) int
 	}
 	return bestID
 }
-
-

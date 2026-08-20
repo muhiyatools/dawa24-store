@@ -51,7 +51,7 @@ func (h *UIHandler) WalletDepositSubmit(w http.ResponseWriter, r *http.Request) 
 
 	if _, err := h.billSvc.Deposit(ctx, actor.UserID, "EGP", amt, "user_deposit", nil, desc); err != nil {
 		h.log.ErrorContext(ctx, "failed wallet deposit", "error", err)
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية الإيداع: "+err.Error())
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *UIHandler) WalletWithdrawSubmit(w http.ResponseWriter, r *http.Request)
 
 	if _, err := h.billSvc.Withdraw(ctx, actor.UserID, "EGP", amt, "user_withdrawal", nil, desc); err != nil {
 		h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية السحب: "+err.Error())
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 

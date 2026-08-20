@@ -697,7 +697,7 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 	if h.orgSvc != nil {
 		if err := h.orgSvc.CreateBranch(ctx, b); err != nil {
 			h.log.ErrorContext(ctx, "customer create branch error", "error", err)
-			h.redirectWithNotice(w, r, "/customer/branches", "error", "فشل في حفظ فرع الصيدلية: "+err.Error())
+			h.redirectWithNotice(w, r, "/customer/branches", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -722,7 +722,7 @@ func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Re
 
 	if h.orgSvc != nil {
 		if err := h.orgSvc.DeleteBranch(ctx, actor.OrganizationID, id); err != nil {
-			h.redirectWithNotice(w, r, "/customer/branches", "error", "فشل في حذف الفرع: "+err.Error())
+			h.redirectWithNotice(w, r, "/customer/branches", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
@@ -785,7 +785,7 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	if h.orgSvc != nil {
 		if err := h.orgSvc.SubmitReview(ctx, rev); err != nil {
 			h.log.ErrorContext(ctx, "failed to submit review", "error", err, "target_org_id", targetOrgID)
-			h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "error", "فشل إضافة التقييم: "+err.Error())
+			h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
