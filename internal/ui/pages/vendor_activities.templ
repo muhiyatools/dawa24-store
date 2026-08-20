@@ -2,58 +2,222 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+func formatAuditAction(action, labelAr string) (string, string) {
+	if labelAr != "" {
+		return labelAr, "badge-sky"
+	}
+	switch strings.ToLower(action) {
+	case "org.registered", "user.registered":
+		return "تسجيل منشأة جديدة", "badge-emerald"
+	case "user.login":
+		return "تسجيل دخول", "badge-sky"
+	case "offer.created", "product.created":
+		return "إضافة صنف / عرض", "badge-emerald"
+	case "offer.updated", "product.updated":
+		return "تحديث صنف / سعر", "badge-amber"
+	case "offer.deleted", "product.deleted":
+		return "حذف صنف / عرض", "badge-rose"
+	case "order.approved", "order.status_changed":
+		return "تحديث حالة أمر توريد", "badge-indigo"
+	case "invoice.created":
+		return "إصدار فاتورة", "badge-sky"
+	case "branch.created", "warehouse.created":
+		return "إضافة فرع / مستودع", "badge-emerald"
+	default:
+		clean := strings.ReplaceAll(action, ".", " — ")
+		clean = strings.ReplaceAll(clean, "_", " ")
+		return clean, "badge-slate"
+	}
+}
+
+func formatEntityType(entityType, entityTypeAr string) string {
+	if entityTypeAr != "" {
+		return entityTypeAr
+	}
+	switch strings.ToLower(entityType) {
+	case "organization", "org":
+		return "المنشأة"
+	case "user":
+		return "موظف / مستخدم"
+	case "offer", "variant":
+		return "عرض توريد"
+	case "product":
+		return "منتج دوائي"
+	case "order":
+		return "أمر توريد"
+	case "invoice":
+		return "فاتورة ضريبية"
+	case "warehouse", "branch":
+		return "مستودع / فرع"
+	default:
+		return entityType
+	}
+}
+
+func formatShortID(id string) string {
+	if len(id) > 12 {
+		return id[:8] + "…"
+	}
+	return id
+}
+
 // VendorActivitiesPage renders activity history for the vendor's team.
 templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string) {
-	@layouts.VendorShell("سجل نشاطات الموظفين", "activities", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">سجل نشاطات وعمليات موظفي المنشأة ({ fmt.Sprintf("%d", len(entries)) })</h2>
-					<p class="subtitle">تدقيق ومراقبة الإجراءات المنفذة بواسطة موظفي الفروع والمستودعات.</p>
+	@layouts.VendorShell("سجل نشاطات وعمليات الموظفين", "activities", lang, dir) {
+		<div class="vendor-activities-page" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="{ search: '' }">
+			
+			<!-- Header & Action Summary -->
+			<div class="card mb-0" style="padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+							<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconClock("icon-xs")
+							</div>
+							<h2 class="card-title" style="margin:0; font-size:1.35rem; font-weight:800; color:var(--text);">
+								سجل نشاطات وعمليات موظفي المنشأة
+							</h2>
+						</div>
+						<p class="subtitle" style="color:var(--text-secondary); font-size:0.875rem; margin:0;">
+							تدقيق وتتبع كافة العمليات والإجراءات المنفذة بواسطة موظفي الفروع، المستودعات، والمبيعات.
+						</p>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.75rem;">
+						<span class="badge badge-sky" style="font-weight:700; font-size:0.825rem; padding:0.4rem 0.85rem;">
+							{ fmt.Sprintf("%d", len(entries)) } عملية موثقة
+						</span>
+					</div>
+				</div>
+
+				<!-- Quick Filter Search -->
+				<div style="margin-top:1.25rem; display:flex; gap:0.75rem;">
+					<input
+						type="search"
+						x-model="search"
+						placeholder="ابحث باسم الموظف، نوع الإجراء، أو المعرف..."
+						class="form-input"
+						style="max-width:400px; font-size:0.85rem; padding:0.5rem 0.85rem;"
+					/>
 				</div>
 			</div>
 
 			if len(entries) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد نشاطات مسجلة", Message: "يتم توثيق كل عملية إنشاء عروض، تعديل أسعار، أو اعتماد شحنات هنا تلقائياً."})
+				<div class="card mb-0" style="padding:3rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد نشاطات مسجلة بعد",
+						Message: "يتم توثيق كل عملية إنشاء عروض، تعديل أسعار، أو اعتماد شحنات وفواتير هنا تلقائياً لضمان الشفافية والرقابة الداخلية.",
+					})
+				</div>
 			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>المستخدم / الموظف</th>
-								<th>الإجراء</th>
-								<th>نوع العنصر</th>
-								<th>المعرف</th>
-								<th>عنوان IP</th>
-								<th>التاريخ والوقت</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, e := range entries {
-								<tr>
-									<td>
-										<div class="fw-600">{ e.ActorName }</div>
-										if e.ActorEmail != "" {
-											<div style="font-size:0.75rem; color:var(--text-secondary);">{ e.ActorEmail }</div>
-										}
-									</td>
-									<td><span class="badge badge-sky">{ e.Action }</span></td>
-									<td><span class="badge badge-secondary">{ e.EntityType }</span></td>
-									<td class="tabular-nums">#{ e.EntityID }</td>
-									<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-secondary);">{ e.IPAddress }</td>
-									<td class="tabular-nums">{ e.CreatedAt.Format("2006-01-02 15:04:05") }</td>
+				<div class="card mb-0" style="padding:0; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); overflow:hidden;">
+					<div class="table-container" style="margin:0; border:none;">
+						<table class="data-table" style="margin:0; width:100%;">
+							<thead>
+								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
+									<th style="font-weight:700; font-size:0.825rem; color:var(--text-secondary); padding:0.85rem 1rem;">الموظف / المنفذ</th>
+									<th style="font-weight:700; font-size:0.825rem; color:var(--text-secondary); padding:0.85rem 1rem;">نوع الإجراء</th>
+									<th style="font-weight:700; font-size:0.825rem; color:var(--text-secondary); padding:0.85rem 1rem;">القسم / العنصر</th>
+									<th style="font-weight:700; font-size:0.825rem; color:var(--text-secondary); padding:0.85rem 1rem;">المعرف</th>
+									<th style="font-weight:700; font-size:0.825rem; color:var(--text-secondary); padding:0.85rem 1rem;">عنوان IP</th>
+									<th style="font-weight:700; font-size:0.825rem; color:var(--text-secondary); padding:0.85rem 1rem;">التاريخ والوقت</th>
 								</tr>
-							}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								for _, e := range entries {
+									{{ actionLabel, badgeClass := formatAuditAction(e.Action, e.ActionLabelAr) }}
+									<tr
+										style="border-bottom:1px solid var(--border); transition:background-color 120ms ease;"
+										x-show={ fmt.Sprintf("search === '' || '%s'.toLowerCase().includes(search.toLowerCase()) || '%s'.toLowerCase().includes(search.toLowerCase()) || '%s'.toLowerCase().includes(search.toLowerCase())", e.ActorName, actionLabel, e.EntityID) }
+									>
+										<!-- Actor Info -->
+										<td style="padding:0.85rem 1rem;">
+											<div style="display:flex; align-items:center; gap:0.6rem;">
+												<div style="width:32px; height:32px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem; flex-shrink:0;">
+													if len(e.ActorName) > 0 {
+														{ string([]rune(e.ActorName)[0]) }
+													} else {
+														م
+													}
+												</div>
+												<div>
+													<div style="font-weight:700; font-size:0.85rem; color:var(--text); line-height:1.3;">
+														if e.ActorName != "" {
+															{ e.ActorName }
+														} else {
+															مستخدم النظام
+														}
+													</div>
+													if e.ActorEmail != "" {
+														<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:right;">
+															{ e.ActorEmail }
+														</div>
+													}
+												</div>
+											</div>
+										</td>
+
+										<!-- Action -->
+										<td style="padding:0.85rem 1rem;">
+											<span class={ "badge", badgeClass } style="font-weight:700; font-size:0.75rem;">
+												{ actionLabel }
+											</span>
+										</td>
+
+										<!-- Entity Type -->
+										<td style="padding:0.85rem 1rem;">
+											<span class="badge badge-slate" style="font-size:0.75rem;">
+												{ formatEntityType(e.EntityType, e.EntityTypeAr) }
+											</span>
+										</td>
+
+										<!-- Entity ID -->
+										<td style="padding:0.85rem 1rem;">
+											if e.EntityID != "" {
+												<code
+													class="tabular-nums"
+													style="font-size:0.75rem; background:var(--surface-sunken); padding:0.2rem 0.45rem; border-radius:var(--radius-sm); border:1px solid var(--border); color:var(--text);"
+													title={ e.EntityID }
+												>
+													{ formatShortID(e.EntityID) }
+												</code>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.75rem;">—</span>
+											}
+										</td>
+
+										<!-- IP Address -->
+										<td style="padding:0.85rem 1rem;">
+											if e.IPAddress != "" {
+												<span class="tabular-nums" style="font-size:0.775rem; color:var(--text-secondary);">
+													{ e.IPAddress }
+												</span>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.75rem;">داخلي (لوحة التحكم)</span>
+											}
+										</td>
+
+										<!-- Timestamp -->
+										<td style="padding:0.85rem 1rem;">
+											<span class="tabular-nums" style="font-size:0.8rem; color:var(--text); font-weight:600;">
+												{ e.CreatedAt.Format("2006-01-02 15:04:05") }
+											</span>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			}
 		</div>
 	}
 }
+

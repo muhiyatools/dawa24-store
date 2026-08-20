@@ -165,10 +165,6 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							@components.IconShield("icon-sm")
 							<span>سياسات التوريد والضمان</span>
 						</a>
-						<a href="/vendor/social-media" class={ "sidebar-link", templ.KV("active", activeNav == "social_media") }>
-							@components.IconMail("icon-sm")
-							<span>قنوات التواصل الاجتماعي</span>
-						</a>
 						<a href="/vendor/activities" class={ "sidebar-link", templ.KV("active", activeNav == "activities") }>
 							@components.IconClock("icon-sm")
 							<span>سجل العمليات والنشاط</span>

@@ -365,8 +365,9 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/earnings/offers", h.VendorEarningsOffersPage)
 	r.Get("/vendor/policies", h.VendorPoliciesPage)
 	r.Post("/vendor/policies", h.VendorPoliciesSubmit)
-	r.Get("/vendor/social-media", h.VendorSocialMediaPage)
-	r.Post("/vendor/social-media", h.VendorSocialMediaSubmit)
+	r.Get("/vendor/social-media", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/vendor/policies", http.StatusMovedPermanently)
+	})
 	r.Get("/vendor/storefront", h.VendorStorefrontPage)
 	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
 	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)

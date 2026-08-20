@@ -6,106 +6,107 @@ import (
 )
 
 templ AboutPage(lang, dir string) {
-	@layouts.PublicShell("من نحن | About DAWA24", lang, dir) {
-		<div style="max-width:1120px; margin:1rem auto 4rem auto;">
-			<!-- Hero -->
-			<section style="background:#ffffff; border:1px solid var(--border-card); border-radius:var(--radius-2xl); padding:3.5rem 2.5rem; text-align:center; box-shadow:var(--shadow-sm); margin-bottom:3rem;">
-				<div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.4rem 1rem; border-radius:var(--radius-full); background:var(--primary-50); color:var(--primary-800); font-weight:800; font-size:0.85rem; margin-bottom:1.25rem; border:1px solid var(--primary-200);">
+	@layouts.PublicShell("من نحن — منصة التوريد والربط الدوائي الذكية", lang, dir) {
+		<div class="about-page-container" style="max-width:1120px; margin:1.5rem auto 4rem auto; padding:0 1rem;">
+			
+			<!-- Hero Banner -->
+			<section class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3.5rem 2rem; text-align:center; margin-bottom:2.5rem;">
+				<div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 0.85rem; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); font-weight:800; font-size:0.825rem; margin-bottom:1.25rem; border:1px solid var(--border);">
 					@components.IconBuilding("icon-xs")
-					<span>شركة DAWA24 لتكنولوجيا التوريد الدوائي</span>
+					<span>شركة DAWA24 للتكنولوجيا وحلول الإمداد الدوائي</span>
 				</div>
-				<h1 style="font-size:2.5rem; font-weight:900; color:var(--neutral-900); margin-bottom:1rem; letter-spacing:-0.02em;">
+				<h1 style="font-size:2.4rem; font-weight:900; color:var(--text); margin-bottom:1rem; letter-spacing:-0.02em; line-height:1.3;">
 					من نحن — منصة التوريد الدوائي الذكية
 				</h1>
-				<p style="color:var(--neutral-600); font-size:1.1rem; max-width:760px; margin:0 auto; line-height:1.9;">
+				<p style="color:var(--text-secondary); font-size:1.05rem; max-width:760px; margin:0 auto; line-height:1.9;">
 					دواء 24 هي المنظومة الرقمية الرائدة في جمهورية مصر العربية المصممة لربط الصيدليات، المستشفيات، والمراكز الطبية المرخصة مباشرة بمصانع وشركات ومستودعات توزيع الأدوية المعتمدة، لخلق سوق دوائي موثوق، شفاف، وفائق الكفاءة.
 				</p>
 			</section>
 
 			<!-- Mission and Vision Cards -->
-			<section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:2rem; margin-bottom:3.5rem;">
-				<div class="card hover-lift" style="margin-bottom:0; padding:2.25rem;">
-					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;">
+			<section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; margin-bottom:2.5rem;">
+				<div class="card mb-0" style="padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;">
 						@components.IconShield("icon-md")
 					</div>
-					<h3 style="font-size:1.35rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.75rem;">
+					<h3 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;">
 						رؤيتنا
 					</h3>
-					<p style="color:var(--neutral-600); font-size:0.95rem; line-height:1.8;">
+					<p style="color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0;">
 						أن نكون البنية التحتية الرقمية الأكثر أماناً وموثوقية لسلاسل الإمداد والتوريد الدوائي في الشرق الأوسط وإفريقيا، وضمان توافر الدواء بجودة قياسية وأسعار عادلة لكل مريض عبر تمكين الصيدلي والمورد.
 					</p>
 				</div>
 
-				<div class="card hover-lift" style="margin-bottom:0; padding:2.25rem;">
-					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;">
+				<div class="card mb-0" style="padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;">
 						@components.IconTruck("icon-md")
 					</div>
-					<h3 style="font-size:1.35rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.75rem;">
+					<h3 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;">
 						رسالتنا
 					</h3>
-					<p style="color:var(--neutral-600); font-size:0.95rem; line-height:1.8;">
+					<p style="color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0;">
 						القضاء على تعقيدات ونواقص التوريد التقليدي عبر توفير منصة إلكترونية ذكية تتيح مقارنة الأسعار، الشراء المباشر، الفواتير الإلكترونية المعتمدة، وسلاسل التبريد المتطورة بدعم تقني وصيدلي متواصل 24/7.
 					</p>
 				</div>
 			</section>
 
 			<!-- Strategic Pillars -->
-			<section style="background:#ffffff; border:1px solid var(--border-card); border-radius:var(--radius-2xl); padding:3.5rem 2.5rem; margin-bottom:3.5rem;">
-				<div style="text-align:center; margin-bottom:3rem;">
-					<h2 style="font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;">
+			<section class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; margin-bottom:2.5rem;">
+				<div style="text-align:center; margin-bottom:2.5rem;">
+					<h2 style="font-size:1.75rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;">
 						ركائز العمل في منصة دواء 24
 					</h2>
-					<p style="color:var(--neutral-500); font-size:1rem;">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p>
+					<p style="color:var(--text-secondary); font-size:0.95rem; margin:0;">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p>
 				</div>
 
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:2rem;">
-					<div>
-						<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
+					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;">
 							@components.IconCheckCircle("icon-sm")
 						</div>
-						<h4 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.35rem;">توثيق التراخيص الرسمية</h4>
-						<p style="color:var(--neutral-600); font-size:0.875rem; line-height:1.7;">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p>
+						<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">توثيق التراخيص الرسمية</h4>
+						<p style="color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p>
 					</div>
 
-					<div>
-						<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;">
 							@components.IconTruck("icon-sm")
 						</div>
-						<h4 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.35rem;">سلسلة تبريد معتمدة (Cold-Chain)</h4>
-						<p style="color:var(--neutral-600); font-size:0.875rem; line-height:1.7;">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p>
+						<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">سلسلة تبريد معتمدة (Cold-Chain)</h4>
+						<p style="color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p>
 					</div>
 
-					<div>
-						<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;">
 							@components.IconFileText("icon-sm")
 						</div>
-						<h4 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.35rem;">تكامل الفاتورة الإلكترونية</h4>
-						<p style="color:var(--neutral-600); font-size:0.875rem; line-height:1.7;">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p>
+						<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">تكامل الفاتورة الإلكترونية</h4>
+						<p style="color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p>
 					</div>
 
-					<div>
-						<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;">
 							@components.IconPhone("icon-sm")
 						</div>
-						<h4 style="font-size:1.1rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.35rem;">دعم فني واستشارات 24/7</h4>
-						<p style="color:var(--neutral-600); font-size:0.875rem; line-height:1.7;">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p>
+						<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">دعم فني واستشارات 24/7</h4>
+						<p style="color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p>
 					</div>
 				</div>
 			</section>
 
-			<!-- CTA Section -->
-			<section style="background:linear-gradient(135deg, var(--primary-700) 0%, var(--primary-950) 100%); border-radius:var(--radius-2xl); padding:3.5rem 2rem; text-align:center; color:#ffffff; box-shadow:var(--shadow-md);">
-				<h2 style="font-size:2rem; font-weight:900; color:#ffffff; margin-bottom:0.75rem;">
+			<!-- Registration Banner -->
+			<section class="card mb-0" style="background:var(--accent-subtle); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center;">
+				<h2 style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;">
 					كن جزءاً من مستقبل التوريد الدوائي الذكي
 				</h2>
-				<p style="color:var(--primary-100); font-size:1.05rem; max-width:600px; margin:0 auto 2rem auto; line-height:1.8;">
+				<p style="color:var(--text-secondary); font-size:0.95rem; max-width:600px; margin:0 auto 1.75rem auto; line-height:1.8;">
 					سواء كنت صيدلية تسعى لتأمين احتياجاتها بأفضل الأسعار، أو مورداً يريد توسيع قاعدة عملائه، دواء 24 هو شريكك الاستراتيجي.
 				</p>
 				<div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
-					<a href="/auth/register" class="btn" style="background:#ffffff; color:var(--primary-800) !important; font-size:1rem; font-weight:800; padding:0.75rem 2rem;">
-						<span>تسجيل حساب صيدلية جديد</span>
+					<a href="/auth/register" class="btn btn-primary" style="font-size:0.95rem; font-weight:800; padding:0.65rem 1.75rem;">
+						<span>تسجيل صيدلية جديدة</span>
 					</a>
-					<a href="/auth/register" class="btn" style="background:rgba(255,255,255,0.15); color:#ffffff !important; border:1px solid rgba(255,255,255,0.4); font-size:1rem; font-weight:700; padding:0.75rem 2rem;">
+					<a href="/auth/register" class="btn btn-secondary" style="font-size:0.95rem; font-weight:700; padding:0.65rem 1.75rem;">
 						<span>انضمام كشريك مورد</span>
 					</a>
 				</div>
@@ -113,3 +114,4 @@ templ AboutPage(lang, dir string) {
 		</div>
 	}
 }
+

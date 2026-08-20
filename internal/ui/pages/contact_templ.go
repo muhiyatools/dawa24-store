@@ -46,31 +46,87 @@ func ContactPage(lang, dir string, submitted bool) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:560px;\"><h2 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;\">تواصل معنا</h2><p style=\"color:var(--neutral-500); font-size:0.9rem; margin-bottom:1.5rem;\">فريق دعم دواء 24 جاهز للرد على استفساراتك.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"contact-page-container\" style=\"max-width:1120px; margin:1.5rem auto 4rem auto; padding:0 1rem;\"><!-- Page Header --><div style=\"text-align:center; margin-bottom:2.5rem;\"><div style=\"display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 0.85rem; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); font-weight:700; font-size:0.825rem; margin-bottom:0.75rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPhone("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز التواصل وخدمة الشركاء</span></div><h1 style=\"font-size:2rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;\">تواصل مع فريق دواء 24</h1><p style=\"color:var(--text-secondary); font-size:0.95rem; max-width:580px; margin:0 auto;\">فريق الدعم الفني والخدمات الصيدلانية متاح للإجابة على استفسارات الصيدليات والموردين على مدار الساعة.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if submitted {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"background:var(--success-light); color:var(--primary-800); border:1px solid var(--success-border); padding:1rem 1.25rem; border-radius:var(--radius-md); margin-bottom:1.25rem;\">تم استلام رسالتك بنجاح. سيتواصل معك فريق الدعم خلال يوم عمل واحد.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"background:var(--accent-subtle); color:var(--text); border:1px solid var(--accent); padding:1.25rem; border-radius:var(--radius-xl); margin-bottom:2rem; display:flex; align-items:center; gap:0.75rem; max-width:800px; margin-inline:auto;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconCheckCircle("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div><strong style=\"display:block; font-size:1rem; color:var(--accent-text);\">تم إرسال رسالتك بنجاح!</strong> <span style=\"font-size:0.875rem; color:var(--text-secondary);\">سيتواصل معك ممثل خدمة العملاء المختص خلال أقرب وقت ممكن.</span></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card mb-0\"><form method=\"POST\" action=\"/contact\" class=\"stack\"><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-name\">الاسم</label> <input type=\"text\" id=\"c-name\" name=\"name\" required class=\"form-input\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"c-email\" name=\"email\" required class=\"form-input\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-phone\">الهاتف</label> <input type=\"tel\" id=\"c-phone\" name=\"phone\" class=\"form-input tabular-nums\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-subject\">الموضوع</label> <input type=\"text\" id=\"c-subject\" name=\"subject\" required class=\"form-input\"></div></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-message\">الرسالة</label> <textarea id=\"c-message\" name=\"message\" required rows=\"5\" class=\"form-textarea\"></textarea></div><button type=\"submit\" class=\"btn btn-primary\" style=\"justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div style=\"display:grid; grid-template-columns:1fr 1.3fr; gap:2rem; align-items:start;\"><!-- Left: Direct Contact Channels & Headquarters Info --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Direct Hotline Card --><div class=\"card mb-0\" style=\"padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconPhone("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إرسال الرسالة</span></button></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><div style=\"font-size:0.775rem; color:var(--text-muted); font-weight:600;\">الخط الساخن للمبيعات والطلبيات</div><a href=\"tel:01065397000\" class=\"tabular-nums\" style=\"font-size:1.15rem; font-weight:900; color:var(--text); text-decoration:none; direction:ltr; display:inline-block;\">01065397000</a></div></div><div style=\"display:flex; align-items:center; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--success-surface, var(--surface-sunken)); color:var(--success-text, #10b981); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconWhatsApp("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div style=\"flex:1;\"><div style=\"font-size:0.775rem; color:var(--text-muted); font-weight:600;\">محادثة واتساب للطلبيات العاجلة</div><a href=\"https://wa.me/201065397000\" target=\"_blank\" rel=\"noopener\" style=\"font-size:0.875rem; font-weight:700; color:var(--accent); text-decoration:none;\">تحدث مباشرة مع مسؤول التوزيع ←</a></div></div></div><!-- Email & Support Hours Card --><div class=\"card mb-0\" style=\"padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:1rem;\"><div style=\"display:flex; align-items:flex-start; gap:0.75rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--surface-sunken); color:var(--text); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--border);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconMail("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><div style=\"font-size:0.775rem; color:var(--text-muted); font-weight:600;\">البريد الإلكتروني المعتمد</div><a href=\"mailto:support@dawa24.com\" style=\"font-size:0.9rem; font-weight:700; color:var(--text); text-decoration:none; direction:ltr; display:inline-block;\">support@dawa24.com</a></div></div><div style=\"display:flex; align-items:flex-start; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--surface-sunken); color:var(--text); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--border);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconBuilding("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div><div style=\"font-size:0.775rem; color:var(--text-muted); font-weight:600;\">المقر الرئيسي</div><div style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5;\">القاهرة، جمهورية مصر العربية</div></div></div><div style=\"display:flex; align-items:flex-start; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--surface-sunken); color:var(--text); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--border);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconClock("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div><div style=\"font-size:0.775rem; color:var(--text-muted); font-weight:600;\">ساعات العمل والدعم</div><div style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5;\">الدعم الفني متاح 24/7 للصيدليات والمستودعات</div></div></div></div></div><!-- Right: Contact Form Card --><div class=\"card mb-0\" style=\"padding:2rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0 0 1.25rem 0;\">أرسل استفسارك أو طلبك</h3><form method=\"POST\" action=\"/contact\" style=\"display:flex; flex-direction:column; gap:1rem;\"><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-name\" style=\"font-size:0.825rem; font-weight:700;\">الاسم بالكامل *</label> <input type=\"text\" id=\"c-name\" name=\"name\" required class=\"form-input\" placeholder=\"د. أحمد محمود\" style=\"padding:0.5rem 0.75rem; font-size:0.85rem;\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-email\" style=\"font-size:0.825rem; font-weight:700;\">البريد الإلكتروني *</label> <input type=\"email\" id=\"c-email\" name=\"email\" required class=\"form-input tabular-nums\" placeholder=\"name@pharmacy.com\" style=\"padding:0.5rem 0.75rem; font-size:0.85rem;\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-phone\" style=\"font-size:0.825rem; font-weight:700;\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"c-phone\" name=\"phone\" required class=\"form-input tabular-nums\" placeholder=\"01012345678\" style=\"padding:0.5rem 0.75rem; font-size:0.85rem;\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-subject\" style=\"font-size:0.825rem; font-weight:700;\">نوع الاستفسار *</label> <select id=\"c-subject\" name=\"subject\" required class=\"form-select\" style=\"padding:0.45rem 0.75rem; font-size:0.85rem;\"><option value=\"استفسار عن طلبية أو توريد\">استفسار عن طلبية أو توريد</option> <option value=\"طلب انضمام صيدلية\">طلب انضمام صيدلية جديدة</option> <option value=\"طلب انضمام مورد أو شركة\">طلب انضمام مورد أو شركة أدوية</option> <option value=\"استفسار عن الفواتير والمدفوعات\">استفسار عن الفواتير والمدفوعات</option> <option value=\"دعم فني واقتراحات\">دعم فني واقتراحات تطويرية</option></select></div></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"c-message\" style=\"font-size:0.825rem; font-weight:700;\">نص الرسالة أو الاستفسار *</label> <textarea id=\"c-message\" name=\"message\" required rows=\"4\" placeholder=\"اكتب تفاصيل طلبك أو استفسارك هنا...\" class=\"form-textarea\" style=\"padding:0.6rem 0.75rem; font-size:0.85rem; line-height:1.6;\"></textarea></div><button type=\"submit\" class=\"btn btn-primary\" style=\"justify-content:center; padding:0.65rem; font-weight:800; font-size:0.925rem; margin-top:0.25rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>إرسال الرسالة الآن</span></button></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell("تواصل معنا | Contact", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("تواصل معنا | خدمة العملاء والدعم الفني", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
