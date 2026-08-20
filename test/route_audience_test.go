@@ -88,8 +88,6 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 		"RegisterSharedRoutes":   {"identityHttp.RequireAuth", "identityHttp.ResolveTenant"},
 	}
 
-
-
 	for i, line := range lines {
 		if !strings.Contains(line, "uiHandler.Register") {
 			continue

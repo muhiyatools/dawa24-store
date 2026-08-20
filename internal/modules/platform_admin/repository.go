@@ -28,8 +28,6 @@ type Repository interface {
 	RecordVisitor(ctx context.Context, v *Visitor) error
 	VisitorAnalytics(ctx context.Context, limit int) (*VisitorAnalytics, error)
 
-	ListTranslations(ctx context.Context) ([]*Translation, error)
-	UpsertTranslation(ctx context.Context, t *Translation) error
 	ListAuditLog(ctx context.Context, limit, offset int) ([]*AuditEntry, error)
 	ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, error)
 	QueueStats(ctx context.Context) (map[string]int, error)

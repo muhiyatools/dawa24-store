@@ -76,36 +76,6 @@ func (r *Repository) UpsertContentBlock(ctx context.Context, b *platformadmin.Co
 	})
 }
 
-// ListTranslations returns all UI translations.
-func (r *Repository) ListTranslations(ctx context.Context) ([]*platformadmin.Translation, error) {
-	var list []*platformadmin.Translation
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `SELECT id, key, translation_group, text, updated_at FROM platform_admin.translations ORDER BY key ASC;`
-		rows, err := tx.Query(txCtx, query)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var t platformadmin.Translation
-			if err := rows.Scan(&t.ID, &t.Key, &t.Group, &t.Text, &t.UpdatedAt); err != nil {
-				return err
-			}
-			list = append(list, &t)
-		}
-		return rows.Err()
-	})
-	return list, err
-}
-
-// UpsertTranslation creates or updates a translation by key.
-func (r *Repository) UpsertTranslation(ctx context.Context, t *platformadmin.Translation) error {
-	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `INSERT INTO platform_admin.translations (key, translation_group, text, updated_at) VALUES ($1, $2, $3, now()) ON CONFLICT (key) DO UPDATE SET translation_group = EXCLUDED.translation_group, text = EXCLUDED.text, updated_at = now() RETURNING id, updated_at;`
-		return tx.QueryRow(txCtx, query, t.Key, t.Group, t.Text).Scan(&t.ID, &t.UpdatedAt)
-	})
-}
-
 // ListAuditLog returns the platform audit trail, newest first.
 func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*platformadmin.AuditEntry, error) {
 	var list []*platformadmin.AuditEntry

@@ -188,4 +188,3 @@ func TestAdminUIRoutesRequirePagePermission(t *testing.T) {
 		}
 	}
 }
-

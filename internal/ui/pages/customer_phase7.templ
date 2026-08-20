@@ -9,36 +9,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// CustomerCPanelPage renders CPanel operational dashboard summary.
-templ CustomerCPanelPage(orgID int64, lang, dir string) {
-	@layouts.CustomerShell("لوحة التحكم والإعدادات المركزية (CPanel)", "cpanel", lang, dir, nil) {
-		<div class="card" style="margin-bottom:0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-				<div>
-					<h2 class="card-title" style="margin:0;">مركز التحكم بالصيدلية (CPanel)</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">نظرة شاملة على حالة الحساب، فروع الاستلام، ورصيد المحفظة.</p>
-				</div>
-			</div>
-
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
-				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-					<div style="font-size:0.85rem; color:var(--text-secondary);">معرف المنشأة</div>
-					<div style="font-size:1.25rem; font-weight:700; color:var(--text); margin-top:0.3rem;">#{ fmt.Sprintf("%d", orgID) }</div>
-				</div>
-				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-					<div style="font-size:0.85rem; color:var(--text-secondary);">حالة التوثيق</div>
-					<div style="font-size:1.25rem; font-weight:700; color:var(--success-text); margin-top:0.3rem;">صيدلية معتمدة وموثقة</div>
-				</div>
-			</div>
-
-			<div style="display:flex; gap:0.75rem;">
-				<a href="/settings/organization" class="btn btn-secondary btn-sm">بيانات المنشأة</a>
-				<a href="/customer/branches" class="btn btn-secondary btn-sm">فروع الاستلام</a>
-				<a href="/wallet" class="btn btn-secondary btn-sm">المحفظة الإلكترونية</a>
-			</div>
-		</div>
-	}
-}
 
 // CustomerSavingProductsPage renders customer saving products list.
 templ CustomerSavingProductsPage(search string, lang, dir string) {

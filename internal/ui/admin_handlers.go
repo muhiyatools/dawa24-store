@@ -877,46 +877,6 @@ func (h *UIHandler) AdminAnalyticsPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminTranslationsPage renders the translation editor.
-func (h *UIHandler) AdminTranslationsPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var translations []*platformadmin.Translation
-	if h.adminSvc != nil {
-		translations, _ = h.adminSvc.ListTranslations(ctx)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminTranslations(lang, dir, translations).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin translations", "error", err)
-	}
-}
-
-// AdminTranslationsSubmit upserts a translation override.
-func (h *UIHandler) AdminTranslationsSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "الخدمة غير متاحة حالياً.")
-		return
-	}
-
-	t := &platformadmin.Translation{
-		Key:   r.PostFormValue("key"),
-		Group: r.PostFormValue("group"),
-		Text:  i18n.New(r.PostFormValue("text_ar"), r.PostFormValue("text_en")),
-	}
-	if t.Group == "" {
-		t.Group = "general"
-	}
-	if err := h.adminSvc.UpsertTranslation(ctx, t); err != nil {
-		h.redirectWithNotice(w, r, "/admin/translations", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/admin/translations", "success", "تم حفظ الترجمة.")
-}
-
 // AdminAuditPage renders the platform audit trail.
 func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

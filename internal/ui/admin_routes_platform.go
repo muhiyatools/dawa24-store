@@ -37,7 +37,6 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		})
 		g.Get("/admin/finder", h.AdminFinderPage)
 		g.Get("/admin/services", h.AdminServicesPage)
-		g.Get("/admin/translations", h.AdminTranslationsPage)
 		g.Get("/admin/cities", h.AdminCitiesPage)
 		g.Get("/admin/categories", h.AdminCategoriesPage)
 		g.Get("/admin/brands", h.AdminBrandsPage)
@@ -50,7 +49,6 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.content.update", h.log))
 		g.Post("/admin/content", h.AdminContentSubmit)
-		g.Post("/admin/translations", h.AdminTranslationsSubmit)
 		g.Post("/admin/policies", h.AdminPolicyCreateSubmit)
 		g.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
 		g.Post("/admin/finder/question", h.AdminFinderQuestionSubmit)

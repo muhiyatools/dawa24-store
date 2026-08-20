@@ -14,23 +14,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// CustomerCPanelPage renders account and organization operational dashboard summary.
-func (h *UIHandler) CustomerCPanelPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/customer/cpanel", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerCPanelPage(actor.OrganizationID, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer cpanel", "error", err)
-	}
-}
-
 // CustomerSavingProductsPage renders the customer's live price-delta tracking list.
 func (h *UIHandler) CustomerSavingProductsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

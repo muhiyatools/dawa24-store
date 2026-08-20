@@ -16,7 +16,7 @@ structural randomness. Written from mechanical scans, not from commit messages.
 | Pages rendering zero data | **31** | down from 44, still a third of the admin surface |
 | Inline `style="` attributes | **4,938** | this is why the design looks random |
 | Duplicate systems found | **9** | detailed below |
-| Dead files | ≥1 confirmed (`layouts/pharmacy.templ`, 203 lines, 0 references) | |
+| Dead files | see PART 4 | |
 
 The platform has more routes than Laravel while implementing less of it. That is
 the whole problem in one line: **growth without consolidation.**
@@ -224,7 +224,7 @@ generalises. This is a systemic fix, not a per-page one.
 
 | Item | Evidence |
 |---|---|
-| `internal/ui/layouts/pharmacy.templ` | 203 lines, **0** references to `PharmacyShell` |
+| ~~`internal/ui/layouts/pharmacy.templ`~~ | **Retracted.** It defines `CustomerShell`, which `shell_for.templ` dispatches to. The file name is misleading, not the file dead. |
 | 31 data-less pages | `grep -rhoE 'pages\.[A-Za-z0-9_]+\(lang, dir\)'` |
 | `platform_admin.translations` | written by one screen, read by nothing |
 | 4 catalog screens | two of them (`adv-products`, `apis-products`) render nothing |

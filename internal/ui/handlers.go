@@ -199,7 +199,12 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 		http.Redirect(w, r, "/customer/dashboard", http.StatusFound)
 	})
 
-	r.Get("/customer/cpanel", h.CustomerCPanelPage)
+	// The cPanel was a link hub to /customer/branches, /settings/organization
+	// and /wallet — all three already in the sidebar. Nothing on it was
+	// reachable only from there (PLAN_V7 Task 3.2).
+	r.Get("/customer/cpanel", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/customer/dashboard", http.StatusMovedPermanently)
+	})
 	r.Get("/customer/saving-products", h.CustomerSavingProductsPage)
 	r.Get("/customer/saving-products/import", h.CustomerSavingProductsImportPage)
 	r.Get("/customer/saving-products/{id}", h.CustomerSavingProductDetailPage)

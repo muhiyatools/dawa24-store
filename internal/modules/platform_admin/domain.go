@@ -135,15 +135,6 @@ type VisitorAnalytics struct {
 	Recent          []*Visitor
 }
 
-// Translation is one bilingual UI string override (platform_admin.translations).
-type Translation struct {
-	ID        int64     `json:"id"`
-	Key       string    `json:"key"`
-	Group     string    `json:"translation_group"`
-	Text      i18n.Text `json:"text"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
 // AuditEntry is one row of the platform audit trail, for /admin/audit.
 type AuditEntry struct {
 	ID               int64          `json:"id"`
