@@ -46,7 +46,9 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 			http.Redirect(w, r, "/admin/settings?tab=site", http.StatusMovedPermanently)
 		})
 		g.Get("/admin/highlight-sections", h.AdminHighlightSectionsPage)
-		g.Get("/admin/api-integrations", h.AdminApiIntegrationsPage)
+		g.Get("/admin/api-integrations", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/developers", http.StatusMovedPermanently)
+		})
 	})
 
 	r.Group(func(g chi.Router) {

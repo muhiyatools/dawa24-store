@@ -50,17 +50,31 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 		})
 
 		g.Get("/admin/employee-activities", h.AdminEmployeeActivitiesPage)
-		g.Get("/admin/user-address", h.AdminUserAddressesPage)
-		g.Get("/admin/user-address/{id}", h.AdminUserAddressesPage)
-		g.Get("/admin/user-organization", h.AdminUserOrganizationPage)
-		g.Get("/admin/want-delete", h.AdminWantDeletePage)
-		g.Get("/admin/want-delete/{id}", h.AdminWantDeletePage)
+		g.Get("/admin/user-address", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/user-address/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/user-organization", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/want-delete", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users?tab=deletion_requests", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/want-delete/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users?tab=deletion_requests", http.StatusMovedPermanently)
+		})
 
 		// Roles & RBAC
 		g.Get("/admin/roles", h.AdminRolesPage)
-		g.Get("/admin/admin-roles", h.AdminRolesPage)
+		g.Get("/admin/admin-roles", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/roles", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/admin-roles/{id}", h.AdminRoleDetailPage)
-		g.Get("/admin/admin-permissions", h.AdminRolesPage)
+		g.Get("/admin/admin-permissions", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/roles", http.StatusMovedPermanently)
+		})
 	})
 
 	r.Group(func(g chi.Router) {

@@ -51,12 +51,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>مركز الإشعارات والتنبيهات</span>
 								</a>
 							}
-							if canAccessAdmin(ctx, "platform.notification.view") {
-							<a href="/admin/full/admin-notification" class={ "sidebar-link", templ.KV("active", activeNav == "admin_notifications") }>
-									@components.IconBell("icon-sm")
-									<span>إشعارات الإدارة</span>
-								</a>
-							}
 						</div>
 
 						<!-- Group 2: المؤسسة والمشرفين (organization_management) -->
@@ -79,10 +73,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									@components.IconUsers("icon-sm")
 									<span>لوحة المستخدمين الشاملة</span>
 								</a>
-								<a href="/admin/admins" class={ "sidebar-link", templ.KV("active", activeNav == "admins") }>
-									@components.IconShield("icon-sm")
-									<span>إدارة المشرفين والإداريين</span>
-								</a>
 								<a href="/admin/roles" class={ "sidebar-link", templ.KV("active", activeNav == "roles") }>
 									@components.IconSettings("icon-sm")
 									<span>الأدوار والصلاحيات (RBAC)</span>
@@ -100,40 +90,10 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>اعتماد المنشآت والوثائق</span>
 								</a>
 							}
-							if canAccessAdmin(ctx, "identity.role.manage") {
-							<a href="/admin/admin-roles" class={ "sidebar-link", templ.KV("active", activeNav == "admin_roles") }>
-									@components.IconShield("icon-sm")
-									<span>أدوار المشرفين</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "identity.role.manage") {
-							<a href="/admin/admin-permissions" class={ "sidebar-link", templ.KV("active", activeNav == "admin_permissions") }>
-									@components.IconShield("icon-sm")
-									<span>كتالوج الصلاحيات</span>
-								</a>
-							}
 							if canAccessAdmin(ctx, "identity.user.view") {
 							<a href="/admin/employee-activities" class={ "sidebar-link", templ.KV("active", activeNav == "employee_activities") }>
 									@components.IconClock("icon-sm")
 									<span>نشاط الموظفين</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "identity.user.view") {
-							<a href="/admin/user-address" class={ "sidebar-link", templ.KV("active", activeNav == "user_addresses") }>
-									@components.IconLocation("icon-sm")
-									<span>عناوين المستخدمين</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "org.organization.view") {
-							<a href="/admin/user-organization" class={ "sidebar-link", templ.KV("active", activeNav == "user_organization") }>
-									@components.IconUsers("icon-sm")
-									<span>عضوية المنشآت</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "identity.user.manage") {
-							<a href="/admin/want-delete" class={ "sidebar-link", templ.KV("active", activeNav == "want_delete") }>
-									@components.IconTrash("icon-sm")
-									<span>طلبات حذف الحسابات</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "org.organization.view") {
@@ -195,12 +155,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							<a href="/admin/content" class={ "sidebar-link", templ.KV("active", activeNav == "content") }>
 									@components.IconFile("icon-sm")
 									<span>محتوى الصفحات</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "platform.setting.view") {
-							<a href="/admin/api-integrations" class={ "sidebar-link", templ.KV("active", activeNav == "api_integrations") }>
-									@components.IconPaperclip("icon-sm")
-									<span>واجهات الربط والتكامل</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "platform.content.view") {

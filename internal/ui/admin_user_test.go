@@ -91,7 +91,7 @@ func TestAdminFullUserAndRolesRoutes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Super admin GET /admin/want-delete returns 200",
+			name:   "Super admin GET /admin/want-delete returns 301",
 			path:   "/admin/want-delete",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -99,7 +99,7 @@ func TestAdminFullUserAndRolesRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 	}
 

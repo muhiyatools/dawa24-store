@@ -91,7 +91,7 @@ func TestAdminReferenceRoutes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Super admin GET /admin/api-integrations returns 200",
+			name:   "Super admin GET /admin/api-integrations returns 301",
 			path:   "/admin/api-integrations",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -99,7 +99,7 @@ func TestAdminReferenceRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 	}
 

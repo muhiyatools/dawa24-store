@@ -68,12 +68,9 @@ func TestPhaseA_FabricatedDatasets_Removed(t *testing.T) {
 	rec = doGET(t, r, "/admin/social-media", staffActor)
 	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 
-	// 3. API Integrations
+	// 3. API Integrations (Redirects to Developers)
 	rec = doGET(t, r, "/admin/api-integrations", staffActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	body = rec.Body.String()
-	assert.NotContains(t, body, "Twilio")
-	assert.NotContains(t, body, "Paymob")
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 
 	// 4. Trash List. With no admin service the page redirects rather than
 	// rendering — which is itself the point: the model list and its counts come

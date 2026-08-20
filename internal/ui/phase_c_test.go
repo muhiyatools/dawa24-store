@@ -96,10 +96,9 @@ func TestPhaseC_AdminReferenceData(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Contains(t, rec.Body.String(), "الأقسام المميزة والعروض البارزة")
 
-	// API Integrations
+	// API Integrations (Redirects to Developers)
 	rec = doGET(t, r, "/admin/api-integrations", adminActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "بوابات الربط والواجهات البرمجية")
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
 }
 
 // TestPhaseC_AdminFinanceScreens verifies Task C.3: Admin Invoices, Payments, Wallets, Plans.

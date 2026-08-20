@@ -177,7 +177,7 @@ window.closeModal = function(id) {
 window.openDialog = window.openModal;
 window.closeDialog = window.closeModal;
 
-// Animated Sidebar Toggle Handler
+// Animated Sidebar Toggle & Scroll Preservation Handler
 function initSidebarToggle() {
   const isMobile = () => window.innerWidth <= 768;
   const isCollapsed = localStorage.getItem('dawa_sidebar_collapsed') === 'true';
@@ -199,6 +199,63 @@ function initSidebarToggle() {
           localStorage.setItem('dawa_sidebar_collapsed', collapsed ? 'true' : 'false');
         }
       }
+    }
+  });
+
+  initSidebarScrollPreservation();
+}
+
+function initSidebarScrollPreservation() {
+  const nav = document.querySelector('.sidebar-nav') || document.querySelector('.sidebar');
+  if (!nav) return;
+
+  const storageKey = 'dawa_sidebar_scroll_top';
+
+  // Restore scroll position immediately
+  const savedScroll = sessionStorage.getItem(storageKey);
+  if (savedScroll !== null) {
+    nav.scrollTop = parseInt(savedScroll, 10);
+  } else {
+    const activeLink = nav.querySelector('.sidebar-link.active');
+    if (activeLink) {
+      activeLink.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }
+
+  // Save on scroll
+  let scrollTimeout;
+  nav.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      sessionStorage.setItem(storageKey, nav.scrollTop.toString());
+    }, 40);
+  }, { passive: true });
+
+  // Save on click of any sidebar link
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.sidebar-link, .sidebar a');
+    if (link) {
+      const currentNav = document.querySelector('.sidebar-nav') || document.querySelector('.sidebar');
+      if (currentNav) {
+        sessionStorage.setItem(storageKey, currentNav.scrollTop.toString());
+      }
+    }
+  });
+
+  // Save before unload
+  window.addEventListener('beforeunload', () => {
+    const currentNav = document.querySelector('.sidebar-nav') || document.querySelector('.sidebar');
+    if (currentNav) {
+      sessionStorage.setItem(storageKey, currentNav.scrollTop.toString());
+    }
+  });
+
+  // Handle HTMX partial swaps if triggered
+  document.body.addEventListener('htmx:afterSwap', () => {
+    const currentNav = document.querySelector('.sidebar-nav') || document.querySelector('.sidebar');
+    const scrollPos = sessionStorage.getItem(storageKey);
+    if (currentNav && scrollPos !== null) {
+      currentNav.scrollTop = parseInt(scrollPos, 10);
     }
   });
 }
