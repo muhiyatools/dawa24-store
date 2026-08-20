@@ -7,7 +7,7 @@ templ CapsuleAssistant() {
 		x-cloak
 		style="position:fixed; bottom:24px; left:24px; right:auto; z-index:9990; font-family:var(--font-sans); direction:rtl;"
 	>
-		<!-- Floating Trigger: Polished Circular Button (Hidden when Drawer is Open) -->
+		<!-- Floating Trigger: Polished Circular Button -->
 		<button
 			type="button"
 			x-show="!isOpen"
@@ -29,7 +29,7 @@ templ CapsuleAssistant() {
 			<span style="position:absolute; top:2px; right:2px; width:12px; height:12px; background:#10b981; border-radius:50%; border:2px solid #ffffff; box-shadow:0 0 8px rgba(16, 185, 129, 0.8);"></span>
 		</button>
 
-		<!-- Slide-Out Chat Window (Height 640px, Refined Design) -->
+		<!-- Slide-Out Chat Window -->
 		<div
 			x-show="isOpen"
 			x-transition:enter="transition ease-out duration-250"
@@ -42,7 +42,7 @@ templ CapsuleAssistant() {
 			@dragover.prevent=""
 			@dragleave.prevent="onDragLeave($event)"
 			@drop.prevent="onDrop($event)"
-			style="position:fixed; bottom:24px; left:24px; right:auto; width:430px; max-width:calc(100vw - 32px); height:640px; max-height:calc(100vh - 48px); background:var(--surface-raised); border:1px solid var(--border); border-radius:28px; box-shadow:0 24px 48px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(20px);"
+			style="position:fixed; bottom:24px; left:24px; right:auto; width:430px; max-width:calc(100vw - 32px); height:600px; max-height:calc(100vh - 48px); background:var(--surface-raised); border:1px solid var(--border); border-radius:24px; box-shadow:0 24px 48px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(20px);"
 		>
 			<!-- Drag & Drop Overlay Zone -->
 			<div
@@ -53,29 +53,29 @@ templ CapsuleAssistant() {
 				x-transition:leave="transition ease-in duration-100"
 				x-transition:leave-start="opacity-100 scale-100"
 				x-transition:leave-end="opacity-0 scale-95"
-				style="position:absolute; inset:12px; border-radius:22px; z-index:9999; background:rgba(2, 132, 199, 0.96); backdrop-filter:blur(12px); border:2px dashed rgba(255,255,255,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:0.9rem; color:#ffffff; box-shadow:0 16px 36px rgba(0,0,0,0.3); pointer-events:none;"
+				style="position:absolute; inset:12px; border-radius:20px; z-index:9999; background:rgba(2, 132, 199, 0.96); backdrop-filter:blur(12px); border:2px dashed rgba(255,255,255,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:0.8rem; color:#ffffff; box-shadow:0 16px 36px rgba(0,0,0,0.3); pointer-events:none;"
 			>
-				<div style="width:68px; height:68px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; margin:0 auto; flex-shrink:0; border:1px solid rgba(255,255,255,0.35);">
+				<div style="width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; margin:0 auto; flex-shrink:0; border:1px solid rgba(255,255,255,0.35);">
 					@IconUpload("icon-md")
 				</div>
 				<div>
-					<div style="font-weight:800; font-size:1.25rem; margin:0 0 0.35rem 0; line-height:1.3;">أفلت الملفات هنا للإرفاق</div>
-					<div style="font-size:0.875rem; opacity:0.92; margin:0;">يدعم الصور، الروشتات، وملفات PDF الدوائية</div>
+					<div style="font-weight:800; font-size:1.15rem; margin:0 0 0.25rem 0; line-height:1.3;">أفلت الملفات هنا للإرفاق</div>
+					<div style="font-size:0.8rem; opacity:0.92; margin:0;">يدعم الصور، الروشتات، وملفات PDF الدوائية</div>
 				</div>
 			</div>
 
 			<!-- Window Header -->
-			<div style="padding:1rem 1.35rem; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); flex-shrink:0;">
-				<div style="display:flex; align-items:center; gap:0.75rem;">
-					<div style="width:38px; height:38px; border-radius:var(--radius-xl); background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+			<div style="padding:0.85rem 1.25rem; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); flex-shrink:0;">
+				<div style="display:flex; align-items:center; gap:0.7rem;">
+					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
 						@IconSparkles("icon-sm")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:1rem; margin:0; display:flex; align-items:center; gap:0.45rem;">
+						<div style="font-weight:800; font-size:0.95rem; margin:0; display:flex; align-items:center; gap:0.4rem;">
 							<span>المساعد كبسولة</span>
 							<span style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
 						</div>
-						<div style="font-size:0.75rem; opacity:0.9; margin-top:2px;">المعالج الصيدلي الذكي للأصناف والتوريد</div>
+						<div style="font-size:0.725rem; opacity:0.9; margin-top:1px;">المعالج الصيدلي الذكي للأصناف والتوريد</div>
 					</div>
 				</div>
 
@@ -83,7 +83,7 @@ templ CapsuleAssistant() {
 					<button
 						type="button"
 						@click="closeAssistant()"
-						style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; width:32px; height:32px; border-radius:var(--radius-full); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 150ms;"
+						style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; width:30px; height:30px; border-radius:var(--radius-full); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 150ms;"
 						onmouseover="this.style.background='rgba(255,255,255,0.28)'"
 						onmouseout="this.style.background='rgba(255,255,255,0.15)'"
 						title="إغلاق النافذة"
@@ -96,24 +96,24 @@ templ CapsuleAssistant() {
 			<!-- Messages Scroll Area -->
 			<div
 				id="capsule-messages-container"
-				style="flex:1 1 0%; min-height:0; padding:1.25rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.95rem; background:var(--surface-sunken);"
+				style="flex:1 1 auto; height:100%; min-height:0; padding:1rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.85rem; background:var(--surface-sunken);"
 			>
 				<!-- Welcome Greeting Bubble -->
-				<div style="display:flex; flex-direction:column; gap:0.4rem;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.95rem 1.15rem; color:var(--text); font-size:0.875rem; line-height:1.65; max-width:92%; box-shadow:var(--shadow-xs);">
+				<div style="display:flex; flex-direction:column; gap:0.35rem;">
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.85rem 1.1rem; color:var(--text); font-size:0.85rem; line-height:1.6; max-width:92%; box-shadow:var(--shadow-xs);">
 						مرحباً بك في منصة دواء 24. أنا <strong>كبسولة</strong>، مساعدك الصيدلي الرقمي المباشر. كيف يمكنني مساعدتك اليوم في فحص الأصناف، الروشتات، أو مقارنة عروض التوريد؟
 					</div>
 				</div>
 
 				<!-- Quick Suggestion Chips -->
-				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; gap:0.45rem; margin-top:0.4rem;">
-					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:0.1rem;">استفسارات شائعة مقترحة:</div>
+				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.25rem;">
+					<div style="font-size:0.725rem; font-weight:700; color:var(--text-muted); margin-bottom:0.1rem;">استفسارات شائعة مقترحة:</div>
 					
 					<button
 						type="button"
 						@click="askChip('أفضل عروض المضادات الحيوية المتوفرة اليوم')"
 						class="chip-btn"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.55rem 0.85rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
+						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.5rem 0.8rem; font-size:0.775rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
 					>
 						@IconPackage("icon-xs")
 						<span>أفضل عروض المضادات الحيوية المتوفرة اليوم</span>
@@ -123,7 +123,7 @@ templ CapsuleAssistant() {
 						type="button"
 						@click="askChip('كيف أقوم بمقارنة عروض الموردين والخصومات؟')"
 						class="chip-btn"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.55rem 0.85rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
+						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.5rem 0.8rem; font-size:0.775rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
 					>
 						@IconLayers("icon-xs")
 						<span>كيف أقوم بمقارنة عروض الموردين والخصومات؟</span>
@@ -133,7 +133,7 @@ templ CapsuleAssistant() {
 						type="button"
 						@click="askChip('اشتراطات سلاسل التبريد المعتمدة للأدوية المبردة')"
 						class="chip-btn"
-						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.55rem 0.85rem; font-size:0.8rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
+						style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.5rem 0.8rem; font-size:0.775rem; color:var(--text); text-align:start; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:all 150ms;"
 					>
 						@IconShield("icon-xs")
 						<span>اشتراطات سلاسل التبريد المعتمدة للأدوية المبردة</span>
@@ -143,17 +143,17 @@ templ CapsuleAssistant() {
 				<!-- Dynamically Rendered Messages -->
 				<template x-for="(msg, idx) in messages" :key="idx">
 					<div
-						:style="msg.isUser ? 'display:flex; justify-content:flex-end; animation:fadeIn 200ms ease;' : 'display:flex; justify-content:flex-start; animation:fadeIn 200ms ease;'"
+						:style="msg.isUser ? 'display:flex; justify-content:flex-end; animation:fadeIn 180ms ease;' : 'display:flex; justify-content:flex-start; animation:fadeIn 180ms ease;'"
 					>
-						<div style="max-width:88%; display:flex; flex-direction:column; gap:0.35rem;" :style="msg.isUser ? 'align-items:flex-end;' : 'align-items:flex-start;'">
+						<div style="max-width:88%; display:flex; flex-direction:column; gap:0.3rem;" :style="msg.isUser ? 'align-items:flex-end;' : 'align-items:flex-start;'">
 							
 							<!-- Attached files badge if any -->
 							<template x-if="msg.attachments && msg.attachments.length > 0">
-								<div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
+								<div style="display:flex; flex-wrap:wrap; gap:0.25rem;">
 									<template x-for="file in msg.attachments" :key="file.name || file.filename">
-										<div style="display:flex; align-items:center; gap:0.3rem; background:rgba(0,0,0,0.12); padding:0.25rem 0.5rem; border-radius:var(--radius-md); font-size:0.75rem;">
+										<div style="display:flex; align-items:center; gap:0.3rem; background:rgba(0,0,0,0.1); padding:0.2rem 0.45rem; border-radius:var(--radius-md); font-size:0.725rem;">
 											@IconPaperclip("icon-xxs")
-											<span x-text="file.name || file.filename" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+											<span x-text="file.name || file.filename" style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
 										</div>
 									</template>
 								</div>
@@ -161,20 +161,20 @@ templ CapsuleAssistant() {
 
 							<!-- Reasoning collapsible block if present -->
 							<template x-if="!msg.isUser && msg.reasoning">
-								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.5rem 0.75rem; font-size:0.75rem; color:var(--text-secondary); width:100%;">
-									<div style="font-weight:700; display:flex; align-items:center; gap:0.3rem; margin-bottom:0.25rem; color:var(--text-muted);">
+								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.45rem 0.7rem; font-size:0.725rem; color:var(--text-secondary); width:100%;">
+									<div style="font-weight:700; display:flex; align-items:center; gap:0.3rem; margin-bottom:0.2rem; color:var(--text-muted);">
 										@IconSparkles("icon-xxs")
 										<span>التفكير المنطقي للمساعد:</span>
 									</div>
-									<div style="white-space:pre-wrap; line-height:1.45;" x-text="msg.reasoning"></div>
+									<div style="white-space:pre-wrap; line-height:1.4;" x-text="msg.reasoning"></div>
 								</div>
 							</template>
 
 							<!-- Speech Bubble -->
 							<div
 								:style="msg.isUser ?
-									'background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; border-radius:20px 20px 4px 20px; padding:0.85rem 1.15rem; font-size:0.875rem; line-height:1.55; box-shadow:var(--shadow-xs);' :
-									'background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.95rem 1.15rem; color:var(--text); font-size:0.875rem; line-height:1.65; box-shadow:var(--shadow-xs);'"
+									'background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; border-radius:18px 18px 4px 18px; padding:0.75rem 1.05rem; font-size:0.85rem; line-height:1.55; box-shadow:var(--shadow-xs);' :
+									'background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.85rem 1.1rem; color:var(--text); font-size:0.85rem; line-height:1.6; box-shadow:var(--shadow-xs);'"
 							>
 								<div x-html="renderMarkdown(msg.text)" style="white-space:pre-wrap; word-break:break-word;"></div>
 								
@@ -187,118 +187,126 @@ templ CapsuleAssistant() {
 				</template>
 
 				<!-- Status / Analyzing state badge -->
-				<div x-show="statusStage" style="display:flex; justify-content:flex-start; animation:fadeIn 200ms ease;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:0.6rem 0.9rem; display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--text-secondary); box-shadow:var(--shadow-xs);">
+				<div x-show="statusStage" style="display:flex; justify-content:flex-start; animation:fadeIn 180ms ease;">
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:14px; padding:0.5rem 0.85rem; display:flex; align-items:center; gap:0.45rem; font-size:0.775rem; color:var(--text-secondary); box-shadow:var(--shadow-xs);">
 						<div class="capsule-breathing-pill" style="width:7px; height:7px; background:var(--accent); border-radius:50%;"></div>
 						<span x-text="statusMessage || 'كبسولة يعالج طلبك الآن...'"></span>
 					</div>
 				</div>
 
 				<!-- Processing / Breathing Animation State -->
-				<div x-show="isStreaming && !statusStage && messages.length > 0 && !messages[messages.length-1].text" style="display:flex; justify-content:flex-start; animation:fadeIn 200ms ease;">
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:20px 20px 20px 4px; padding:0.85rem 1.15rem; display:flex; align-items:center; gap:0.6rem; box-shadow:var(--shadow-xs);">
-						<div class="capsule-breathing-pill" style="width:8px; height:8px; background:var(--accent); border-radius:50%;"></div>
-						<span style="font-size:0.825rem; color:var(--text-secondary); font-weight:600;">جاري صياغة الإجابة...</span>
+				<div x-show="isStreaming && !statusStage && messages.length > 0 && !messages[messages.length-1].text" style="display:flex; justify-content:flex-start; animation:fadeIn 180ms ease;">
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:0.75rem 1rem; display:flex; align-items:center; gap:0.5rem; box-shadow:var(--shadow-xs);">
+						<div class="capsule-breathing-pill" style="width:7px; height:7px; background:var(--accent); border-radius:50%;"></div>
+						<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">جاري صياغة الإجابة...</span>
 					</div>
 				</div>
 
 			</div>
 
-			<!-- Attached Files Preview Strip -->
-			<div x-show="attachedFiles.length > 0" style="padding:0.5rem 1rem; background:var(--surface-raised); border-top:1px solid var(--border); display:flex; gap:0.4rem; overflow-x:auto; align-items:center; flex-shrink:0;">
-				<template x-for="(f, i) in attachedFiles" :key="i">
-					<div style="display:flex; align-items:center; gap:0.4rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.3rem 0.6rem; font-size:0.75rem; flex-shrink:0;">
-						@IconPaperclip("icon-xs")
-						<span x-text="f.name" style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
-						<span x-show="f.uploading" style="color:var(--accent); font-size:0.7rem;">(جاري الرفع...)</span>
-						<span x-show="!f.uploading && !f.error" x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.7rem;"></span>
-						<span x-show="f.error" style="color:var(--danger); font-size:0.7rem;" x-text="f.error"></span>
-						<button type="button" @click="removeAttachment(i)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:800; padding:0 2px; line-height:1;" title="حذف">✕</button>
+			<!-- Pinned Bottom Controls (Always sits at the bottom of the card) -->
+			<div style="margin-top:auto; flex-shrink:0; background:var(--surface-raised); border-top:1px solid var(--border); width:100%; box-sizing:border-box;">
+				
+				<!-- Attached Files Preview Strip -->
+				<div x-show="attachedFiles.length > 0" style="padding:0.4rem 0.85rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; gap:0.35rem; overflow-x:auto; align-items:center;">
+					<template x-for="(f, i) in attachedFiles" :key="i">
+						<div style="display:flex; align-items:center; gap:0.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.25rem 0.5rem; font-size:0.725rem; flex-shrink:0;">
+							@IconPaperclip("icon-xxs")
+							<span x-text="f.name" style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
+							<span x-show="f.uploading" style="color:var(--accent); font-size:0.675rem;">(رفع...)</span>
+							<span x-show="!f.uploading && !f.error" x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.675rem;"></span>
+							<span x-show="f.error" style="color:var(--danger); font-size:0.675rem;" x-text="f.error"></span>
+							<button type="button" @click="removeAttachment(i)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:800; padding:0 2px; line-height:1;" title="حذف">✕</button>
+						</div>
+					</template>
+				</div>
+
+				<!-- Voice Recording Active Bar -->
+				<div x-show="isRecordingVoice" style="padding:0.75rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+					<div style="display:flex; align-items:center; gap:0.5rem;">
+						<span style="width:9px; height:9px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span>
+						<span style="font-size:0.8rem; font-weight:700; color:var(--text);" x-text="'جاري الاستماع الصوتي... ' + formatDuration(recordingSeconds)"></span>
 					</div>
-				</template>
-			</div>
-
-			<!-- Voice Recording Active Bar -->
-			<div x-show="isRecordingVoice" style="padding:0.85rem 1.15rem; background:var(--surface-raised); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-shrink:0;">
-				<div style="display:flex; align-items:center; gap:0.6rem;">
-					<span style="width:10px; height:10px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span>
-					<span style="font-size:0.825rem; font-weight:700; color:var(--text);" x-text="'جاري الاستماع الصوتي... ' + formatDuration(recordingSeconds)"></span>
+					<div style="display:flex; gap:0.4rem;">
+						<button type="button" @click="cancelVoiceRecord()" class="btn btn-secondary btn-xs">إلغاء</button>
+						<button type="button" @click="finishVoiceRecord()" class="btn btn-primary btn-xs" style="font-weight:700;">إنهاء وإرسال</button>
+					</div>
 				</div>
-				<div style="display:flex; gap:0.5rem;">
-					<button type="button" @click="cancelVoiceRecord()" class="btn btn-secondary btn-xs">إلغاء</button>
-					<button type="button" @click="finishVoiceRecord()" class="btn btn-primary btn-xs" style="font-weight:700;">إنهاء وإرسال</button>
-				</div>
-			</div>
 
-			<!-- Normal Chat Input Bar -->
-			<div x-show="!isRecordingVoice" style="padding:0.75rem 1rem; background:var(--surface-raised); border-top:1px solid var(--border); flex-shrink:0; width:100%; box-sizing:border-box;">
-				<input type="file" multiple x-ref="fileInput" @change="handleFileSelect($event)" style="display:none;" />
-				<form @submit.prevent="sendMessage()" style="display:flex; gap:0.5rem; align-items:flex-end; margin:0; width:100%;">
+				<!-- Normal Chat Input Bar -->
+				<div x-show="!isRecordingVoice" style="padding:0.65rem 0.85rem; width:100%; box-sizing:border-box;">
+					<input type="file" multiple x-ref="fileInput" @change="handleFileSelect($event)" style="display:none;" />
 					
-					<!-- Attach Button -->
-					<button
-						type="button"
-						@click="$refs.fileInput.click()"
-						class="btn btn-secondary btn-icon"
-						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); color:var(--text-secondary); margin-bottom:1px;"
-						title="إرفاق ملفات أو روشتات"
-						:disabled="isStreaming"
-					>
-						@IconPaperclip("icon-xs")
-					</button>
+					<!-- Integrated Input Pill Container -->
+					<div style="display:flex; align-items:center; gap:0.4rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:24px; padding:0.25rem 0.4rem 0.25rem 0.65rem; transition:border-color 150ms;">
+						
+						<!-- Attach Button -->
+						<button
+							type="button"
+							@click="$refs.fileInput.click()"
+							style="width:32px; height:32px; flex-shrink:0; border-radius:var(--radius-full); border:none; background:none; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 120ms;"
+							onmouseover="this.style.background='rgba(0,0,0,0.06)'"
+							onmouseout="this.style.background='none'"
+							title="إرفاق ملفات أو روشتات"
+							:disabled="isStreaming"
+						>
+							@IconPaperclip("icon-xs")
+						</button>
 
-					<!-- Voice Input Button -->
-					<button
-						type="button"
-						@click="startVoiceRecord()"
-						class="btn btn-secondary btn-icon"
-						style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); color:var(--text-secondary); margin-bottom:1px;"
-						title="تسجيل صوتي"
-						:disabled="isStreaming"
-					>
-						@IconMicrophone("icon-xs")
-					</button>
+						<!-- Voice Input Button -->
+						<button
+							type="button"
+							@click="startVoiceRecord()"
+							style="width:32px; height:32px; flex-shrink:0; border-radius:var(--radius-full); border:none; background:none; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 120ms;"
+							onmouseover="this.style.background='rgba(0,0,0,0.06)'"
+							onmouseout="this.style.background='none'"
+							title="تسجيل صوتي"
+							:disabled="isStreaming"
+						>
+							@IconMicrophone("icon-xs")
+						</button>
 
-					<!-- Multiline Textarea -->
-					<div style="flex:1; position:relative; display:flex; align-items:center;">
+						<!-- Multiline Textarea without scrollbar spinners -->
 						<textarea
 							x-ref="chatTextarea"
 							x-model="inputQuery"
 							@keydown="handleKeydown($event)"
 							@input="autoResizeTextarea()"
-							placeholder="اكتب استفسارك الصيدلي... (Shift+Enter لسطر جديد)"
+							placeholder="اكتب استفسارك الصيدلي... (Enter للإرسال)"
 							rows="1"
-							class="form-input"
-							style="width:100%; min-height:38px; max-height:120px; resize:none; padding:0.55rem 0.85rem; font-size:0.875rem; line-height:1.45; border-radius:18px; overflow-y:auto; box-sizing:border-box;"
+							style="flex:1; background:transparent; border:none; outline:none; resize:none; padding:0.35rem 0.25rem; font-size:0.85rem; color:var(--text); line-height:1.45; max-height:110px; min-height:24px; height:24px; font-family:inherit; overflow-y:auto; scrollbar-width:none; box-sizing:border-box;"
 							:disabled="isStreaming"
 						></textarea>
+
+						<!-- Send / Stop Button -->
+						<template x-if="!isStreaming">
+							<button
+								type="button"
+								@click="sendMessage()"
+								class="btn btn-primary"
+								style="width:34px; height:34px; padding:0; flex-shrink:0; border-radius:var(--radius-full); display:flex; align-items:center; justify-content:center;"
+								:disabled="!inputQuery.trim() && attachedFiles.length === 0"
+								title="إرسال (Enter)"
+							>
+								@IconSend("icon-xs")
+							</button>
+						</template>
+
+						<template x-if="isStreaming">
+							<button
+								type="button"
+								@click="cancelStream()"
+								class="btn btn-secondary"
+								style="width:34px; height:34px; padding:0; flex-shrink:0; border-radius:var(--radius-full); color:#ef4444; border-color:#ef4444; display:flex; align-items:center; justify-content:center;"
+								title="إيقاف التوليد"
+							>
+								@IconClose("icon-xs")
+							</button>
+						</template>
+
 					</div>
+				</div>
 
-					<!-- Send / Stop Button -->
-					<template x-if="!isStreaming">
-						<button
-							type="submit"
-							class="btn btn-primary btn-icon"
-							style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); margin-bottom:1px;"
-							:disabled="!inputQuery.trim() && attachedFiles.length === 0"
-							title="إرسال (Enter)"
-						>
-							@IconSend("icon-xs")
-						</button>
-					</template>
-
-					<template x-if="isStreaming">
-						<button
-							type="button"
-							@click="cancelStream()"
-							class="btn btn-secondary btn-icon"
-							style="width:38px; height:38px; flex-shrink:0; border-radius:var(--radius-full); margin-bottom:1px; color:#ef4444; border-color:#ef4444;"
-							title="إيقاف التوليد"
-						>
-							@IconClose("icon-xs")
-						</button>
-					</template>
-				</form>
 			</div>
 
 		</div>
@@ -574,8 +582,8 @@ templ CapsuleAssistant() {
 					autoResizeTextarea() {
 						const el = this.$refs.chatTextarea;
 						if (!el) return;
-						el.style.height = 'auto';
-						const newHeight = Math.min(Math.max(el.scrollHeight, 38), 120);
+						el.style.height = '24px';
+						const newHeight = Math.min(Math.max(el.scrollHeight, 24), 110);
 						el.style.height = newHeight + 'px';
 					},
 
@@ -610,7 +618,7 @@ templ CapsuleAssistant() {
 						this.inputQuery = '';
 						this.attachedFiles = [];
 						if (this.$refs.chatTextarea) {
-							this.$refs.chatTextarea.style.height = '38px';
+							this.$refs.chatTextarea.style.height = '24px';
 						}
 						this.isStreaming = true;
 						this.statusStage = '';
@@ -714,15 +722,12 @@ templ CapsuleAssistant() {
 
 					renderMarkdown(raw) {
 						if (!raw) return '';
-						// Safe HTML escaping
 						let escaped = raw
 							.replace(/&/g, '&amp;')
 							.replace(/</g, '&lt;')
 							.replace(/>/g, '&gt;');
 
-						// Bold **text**
 						escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-						// Inline code `code`
 						escaped = escaped.replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.08); padding:0.15rem 0.35rem; border-radius:4px; font-size:0.85em;">$1</code>');
 						return escaped;
 					},

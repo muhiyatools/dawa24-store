@@ -2158,6 +2158,15 @@ func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) 
 			localizeAuditEntry(e)
 		}
 		auditEntries = ae
+
+		ai, _ := h.adminSvc.GetAISettings(ctx)
+		if ai == nil {
+			ai = &platformadmin.AISettings{
+				EndpointURL: "https://api.muhiya.com",
+				IsActive:    true,
+			}
+		}
+		values.AISettings = ai
 	}
 
 	if gateway == nil {
@@ -2226,6 +2235,18 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 	isActive := r.FormValue("is_active") == "true"
 	systemPrompt := strings.TrimSpace(r.FormValue("system_prompt"))
 
+	// If apiKey is empty in the submission, preserve existing saved key
+	if apiKey == "" {
+		if existingGW, _ := h.adminSvc.GetGatewaySettings(ctx); existingGW != nil && existingGW.APIKey != "" {
+			apiKey = existingGW.APIKey
+		}
+	}
+	if apiKey == "" {
+		if existingAI, _ := h.adminSvc.GetAISettings(ctx); existingAI != nil && existingAI.APIKey != "" {
+			apiKey = existingAI.APIKey
+		}
+	}
+
 	gw := &platformadmin.GatewaySettings{
 		EndpointURL: endpoint,
 		APIKey:      apiKey,
@@ -2243,9 +2264,7 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 		ai = &platformadmin.AISettings{}
 	}
 	ai.EndpointURL = endpoint
-	if apiKey != "" {
-		ai.APIKey = apiKey
-	}
+	ai.APIKey = apiKey
 	ai.IsActive = isActive
 	if systemPrompt != "" {
 		ai.SystemPrompt = systemPrompt

@@ -11,6 +11,7 @@ import (
 type AdminDevelopersValues struct {
 	ActiveTab       string // "sql", "ai", "errors", "audit"
 	GatewaySettings *platformadmin.GatewaySettings
+	AISettings      *platformadmin.AISettings
 	SQLLogs         []*platformadmin.SQLLog
 	ErrorLogs       []*platformadmin.ErrorLog
 	ErrorMetrics    struct {
@@ -255,7 +256,11 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 2: AI Gateway & Live Model Fetcher     -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'ai'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminAIManager()">
+			<div
+				x-show="activeTab === 'ai'"
+				style="display:flex; flex-direction:column; gap:1.5rem;"
+				x-data={ fmt.Sprintf("adminAIManager(%q, %q)", values.GatewaySettings.EndpointURL, values.GatewaySettings.APIKey) }
+			>
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
@@ -361,7 +366,11 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 						<div class="form-group" style="margin:0;">
 							<label class="form-label">التعليمات التوجيهية للذكاء الاصطناعي (System Prompt)</label>
-							<textarea name="system_prompt" rows="3" class="form-input">أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.</textarea>
+							if values.AISettings != nil && values.AISettings.SystemPrompt != "" {
+								<textarea name="system_prompt" rows="3" class="form-input">{ values.AISettings.SystemPrompt }</textarea>
+							} else {
+								<textarea name="system_prompt" rows="3" class="form-input">أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.</textarea>
+							}
 						</div>
 
 						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
@@ -916,11 +925,11 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				};
 			}
 
-			function adminAIManager() {
+			function adminAIManager(initURL, initKey) {
 				return {
 					showKey: false,
-					gatewayURL: 'https://api.muhiya.com',
-					gatewayKey: '',
+					gatewayURL: initURL || 'https://api.muhiya.com',
+					gatewayKey: initKey || '',
 					isTesting: false,
 					testResult: null,
 
