@@ -10,178 +10,240 @@ import (
 )
 
 templ JobsPage(lang, dir string, jobs []*hr.JobOffer) {
-	@layouts.PublicShell("بوابة التوظيف وفرص العمل في القطاع الدوائي", lang, dir) {
-		<div style="margin-bottom:2rem; text-align:start;">
-			<h1 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0 0 0.5rem;">
-				فرص التوظيف والوظائف الدوائية المتاحة
-			</h1>
-			<p style="font-size:0.95rem; color:var(--neutral-600); margin:0;">
-				تصفح أحدث إعلانات التوظيف والوظائف الشاغرة لدى كبرى الصيدليات ومستودعات وشركات الأدوية المعتمدة في مصر.
-			</p>
-		</div>
-
-		if len(jobs) == 0 {
-			@components.EmptyState(components.EmptyStateProps{
-				Title:       "لا توجد فرص توظيف معلنة حالياً",
-				Message:     "لم يتم نشر أي شواغر وظيفية جديدة في الوقت الراهن. يرجى مراجعة الصفحة لاحقاً.",
-				ActionLabel: "تصفح كتالوج الأدوية",
-			})
-		} else {
-			<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;">
-				for _, j := range jobs {
-					<div class="card hover-lift" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; border-radius:var(--radius-xl);">
-						<div>
-							<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;">
-								<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:700;">فرصة عمل معتمدة</span>
-								<span style="font-size:0.75rem; color:var(--neutral-400);">{ j.CreatedAt.Format("2006-01-02") }</span>
+	@layouts.PublicShell("بوابة التوظيف وفرص العمل في القطاع الصيدلاني والدوائي", lang, dir) {
+		<div class="jobs-page-container" style="max-width:1200px; margin:1.5rem auto 4rem auto; padding:0 1rem;">
+			
+			<!-- Hero Header -->
+			<div style="margin-bottom:2rem; background:var(--surface-raised); padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconUser("icon-sm")
 							</div>
-
-							<h3 style="font-size:1.2rem; font-weight:900; color:var(--neutral-900); margin:0 0 0.4rem;">
-								{ j.Title.Get(i18n.Lang(lang)) }
-							</h3>
-							
-							<div style="display:flex; align-items:center; gap:0.4rem; color:var(--neutral-600); font-size:0.875rem; margin-bottom:0.75rem;">
-								@components.IconBuilding("icon-xs")
-								<span>{ j.Location }</span>
-							</div>
-
-							<p style="font-size:0.875rem; color:var(--neutral-600); line-height:1.6; margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">
-								{ j.Description }
-							</p>
+							<h1 style="font-size:1.65rem; font-weight:900; color:var(--text); margin:0;">
+								فرص التوظيف والعمل في القطاع الدوائي
+							</h1>
 						</div>
-
-						<div style="margin-top:1.5rem; border-top:1px solid var(--neutral-100); padding-top:1rem; display:flex; justify-content:space-between; align-items:center;">
-							if !j.SalaryMin.IsZero() || !j.SalaryMax.IsZero() {
-								<div style="font-size:0.85rem; font-weight:800; color:var(--emerald);">
-									@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.SalaryMin })
-								</div>
-							} else {
-								<span style="font-size:0.8rem; color:var(--neutral-500);">الراتب يحدد بالمقابلة</span>
-							}
-
-							<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.ID)) } class="btn btn-primary btn-sm" style="font-weight:800;">
-								<span>التفاصيل والتقديم</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
+						<p style="font-size:0.925rem; color:var(--text-secondary); margin:0; max-width:620px;">
+							بوابة الوظائف المعتمدة للصيادلة، مساعدي الصيدلة، ومسؤولي التوزيع وسلاسل الإمداد الطبي في مصر.
+						</p>
 					</div>
-				}
+
+					<div style="display:flex; gap:0.75rem;">
+						<a href="/auth/register" class="btn btn-primary" style="font-weight:700;">
+							@components.IconPlus("icon-xs")
+							<span>نشر وظيفة جديدة</span>
+						</a>
+					</div>
+				</div>
 			</div>
-		}
+
+			<!-- Job Listings Grid -->
+			if len(jobs) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:       "لا توجد فرص توظيف معلنة حالياً",
+					Message:     "لم يتم نشر أي شواغر وظيفية جديدة في الوقت الراهن. يرجى مراجعة الصفحة لاحقاً.",
+					ActionLabel: "تصفح كتالوج الأدوية",
+				})
+			} else {
+				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:1.25rem;">
+					for _, j := range jobs {
+						<div class="card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; padding:1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);">
+							<div>
+								<!-- Header Badge & Date -->
+								<div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+									<span class="badge badge-emerald" style="font-size:0.725rem; font-weight:700;">
+										@components.IconCheckCircle("icon-xs")
+										<span>فرصة معتمدة</span>
+									</span>
+									<span class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">{ j.CreatedAt.Format("2006-01-02") }</span>
+								</div>
+
+								<!-- Job Title -->
+								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0; line-height:1.4;">
+									<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.ID)) } style="color:inherit; text-decoration:none;">
+										{ j.Title.Get(i18n.Lang(lang)) }
+									</a>
+								</h3>
+								
+								<!-- Location Pill -->
+								<div style="display:flex; align-items:center; gap:0.35rem; color:var(--text-secondary); font-size:0.825rem; margin-bottom:0.75rem;">
+									@components.IconBuilding("icon-xs")
+									<span>{ j.Location }</span>
+								</div>
+
+								<!-- Description Excerpt -->
+								<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.6; margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">
+									{ j.Description }
+								</p>
+							</div>
+
+							<!-- Footer Salary & Action -->
+							<div style="margin-top:1.25rem; border-top:1px solid var(--border); padding-top:0.85rem; display:flex; justify-content:space-between; align-items:center;">
+								<div>
+									if !j.SalaryMin.IsZero() || !j.SalaryMax.IsZero() {
+										<div style="font-size:0.95rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+											@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.SalaryMin })
+											if !j.SalaryMax.IsZero() {
+												<span> - </span>
+												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.SalaryMax })
+											}
+										</div>
+									} else {
+										<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">الراتب يحدد بالمقابلة</span>
+									}
+								</div>
+
+								<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.ID)) } class="btn btn-primary btn-sm" style="font-weight:700; font-size:0.825rem; padding:0.4rem 0.85rem;">
+									<span>عرض والتقديم</span>
+									@components.IconArrowLeft("icon-xs")
+								</a>
+							</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
 	}
 }
 
 templ JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool, userEmail, userName, userPhone string) {
-	@layouts.PublicShell("تفاصيل الوظيفة والتقديم", lang, dir) {
-		<div style="max-width:760px; margin:0 auto;">
-			<div style="margin-bottom:1rem;">
+	@layouts.PublicShell("تفاصيل الوظيفة والتقديم المهني", lang, dir) {
+		<div style="max-width:1040px; margin:1.5rem auto 4rem auto; padding:0 1rem;">
+			
+			<!-- Top Breadcrumb Back Navigation -->
+			<div style="margin-bottom:1.25rem;">
 				<a href="/jobs" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.4rem;">
 					@components.IconArrowRight("icon-xs")
-					<span>العودة لكافة الوظائف</span>
+					<span>العودة لكافة الشواغر الوظيفية</span>
 				</a>
 			</div>
 
-			<div class="card" style="margin-bottom:1.5rem; padding:2rem;">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
-					<div>
-						<span class="badge badge-emerald" style="font-size:0.8rem; margin-bottom:0.5rem; display:inline-block;">فرصة عمل معتمدة</span>
-						<h1 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">{ j.Title.Get(i18n.Lang(lang)) }</h1>
+			<div style="display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start;">
+				
+				<!-- Left (Main Column): Job Details, Requirements & Scope -->
+				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					
+					<!-- Primary Job Header Card -->
+					<div class="card mb-0" style="padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+						<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+							<div>
+								<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+									<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:700;">
+										@components.IconCheckCircle("icon-xs")
+										<span>فرصة عمل معتمدة</span>
+									</span>
+									<span class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">نشرت بتاريخ: { j.CreatedAt.Format("2006-01-02") }</span>
+								</div>
+								<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">{ j.Title.Get(i18n.Lang(lang)) }</h1>
+							</div>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-secondary); font-size:0.9rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+							@components.IconBuilding("icon-xs")
+							<span>مقر العمل: <strong style="color:var(--text);">{ j.Location }</strong></span>
+						</div>
 					</div>
-					if !j.SalaryMin.IsZero() || !j.SalaryMax.IsZero() {
-						<div class="text-end">
-							<div style="font-size:0.75rem; color:var(--neutral-500);">الراتب المعروض</div>
-							<div style="font-size:1.1rem; font-weight:900; color:var(--emerald);">
+
+					<!-- Description Section -->
+					<div class="card mb-0" style="padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.75rem 0;">الوصف الوظيفي والمسؤوليات</h3>
+						<div style="white-space:pre-line; color:var(--text-secondary); line-height:1.9; font-size:0.925rem;">{ j.Description }</div>
+					</div>
+
+					<!-- Requirements Section -->
+					if j.Requirements != "" {
+						<div class="card mb-0" style="padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.75rem 0;">المؤهلات والشروط المطلوبة</h3>
+							<div style="white-space:pre-line; color:var(--text-secondary); line-height:1.9; font-size:0.925rem;">{ j.Requirements }</div>
+						</div>
+					}
+				</div>
+
+				<!-- Right (Sidebar Column): Application Form & Summary Box -->
+				<div style="display:flex; flex-direction:column; gap:1.25rem; position:sticky; top:80px;">
+					
+					<!-- Salary & Quick Summary Card -->
+					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.25rem;">الراتب المقترح:</div>
+						if !j.SalaryMin.IsZero() || !j.SalaryMax.IsZero() {
+							<div style="font-size:1.35rem; font-weight:900; color:var(--accent);" class="tabular-nums">
 								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.SalaryMin })
 								if !j.SalaryMax.IsZero() {
 									<span> - </span>
 									@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.SalaryMax })
 								}
 							</div>
-						</div>
-					}
-				</div>
-
-				<div style="display:flex; align-items:center; gap:0.5rem; color:var(--neutral-600); font-size:0.9rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--neutral-100);">
-					@components.IconBuilding("icon-xs")
-					<span>الموقع ومقر العمل: <strong>{ j.Location }</strong></span>
-				</div>
-
-				<div style="margin-bottom:1.5rem;">
-					<h3 style="font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;">الوصف الوظيفي والمهام:</h3>
-					<div style="white-space:pre-line; color:var(--neutral-700); line-height:1.9; font-size:0.95rem;">{ j.Description }</div>
-				</div>
-
-				if j.Requirements != "" {
-					<div style="margin-bottom:1.5rem;">
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem;">المؤهلات والمتطلبات:</h3>
-						<div style="white-space:pre-line; color:var(--neutral-700); line-height:1.9; font-size:0.95rem;">{ j.Requirements }</div>
+						} else {
+							<div style="font-size:1.1rem; font-weight:800; color:var(--text);">يحدد بناءً على المقابلة والخبرة</div>
+						}
 					</div>
-				}
-			</div>
 
-			<!-- Job Application Section -->
-			<div class="card" style="margin-bottom:0; padding:2rem;">
-				<h3 class="card-title" style="margin:0 0 1.25rem; font-size:1.25rem;">التقديم على هذه الوظيفة</h3>
+					<!-- Job Application Form Card -->
+					<div class="card mb-0" style="padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+						<h3 style="margin:0 0 1rem 0; font-size:1.1rem; font-weight:800; color:var(--text);">التقديم على هذه الوظيفة</h3>
 
-				if submitted {
-					<div style="background:var(--success-bg); color:var(--success); border:1px solid var(--success-border); padding:1.25rem; border-radius:var(--radius-lg); display:flex; align-items:center; gap:0.75rem;">
-						@components.IconCheckCircle("icon-md")
-						<div>
-							<strong style="display:block; font-size:1rem;">تم إرسال طلب التوظيف بنجاح!</strong>
-							<span style="font-size:0.875rem; color:var(--neutral-700);">سيقوم مسؤول الموارد البشرية بالمنشأة بمراجعة سيرتك الذاتية والتواصل معك قريباً.</span>
-						</div>
+						if submitted {
+							<div style="background:var(--accent-subtle); color:var(--text); border:1px solid var(--accent); padding:1rem; border-radius:var(--radius-lg); display:flex; align-items:center; gap:0.75rem;">
+								@components.IconCheckCircle("icon-md")
+								<div>
+									<strong style="display:block; font-size:0.95rem; color:var(--accent-text);">تم إرسال طلب التوظيف بنجاح!</strong>
+									<span style="font-size:0.825rem; color:var(--text-secondary);">سيقوم مسؤول التوظيف بمراجعة سيرتك الذاتية والتواصل معك.</span>
+								</div>
+							</div>
+						} else if !isLoggedIn {
+							<div style="text-align:center; padding:1.25rem; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg);">
+								<div style="width:40px; height:40px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem;">
+									@components.IconUser("icon-xs")
+								</div>
+								<h4 style="font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;">
+									يتطلب التقديم تسجيل الدخول
+								</h4>
+								<p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.5;">
+									يرجى تسجيل الدخول بحسابك المهني لإرفاق سيرتك الذاتية ومتابعة طلبك.
+								</p>
+								<div style="display:flex; flex-direction:column; gap:0.5rem;">
+									<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/jobs/%d", j.ID)) } class="btn btn-primary btn-sm" style="font-weight:700; justify-content:center; padding:0.5rem;">
+										<span>تسجيل الدخول للتقديم</span>
+									</a>
+									<a href="/auth/register" class="btn btn-secondary btn-sm" style="font-weight:600; justify-content:center; padding:0.5rem;">
+										<span>إنشاء حساب جديد</span>
+									</a>
+								</div>
+							</div>
+						} else {
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/jobs/%d/apply", j.ID)) } enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:0.85rem;">
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label" for="a-name" style="font-size:0.8rem; font-weight:700;">الاسم الثلاثي / المهني *</label>
+									<input type="text" id="a-name" name="applicant_name" required class="form-input" value={ userName } placeholder="د. أحمد محمود" style="font-size:0.85rem; padding:0.45rem 0.65rem;" />
+								</div>
+								
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label" for="a-email" style="font-size:0.8rem; font-weight:700;">البريد الإلكتروني *</label>
+									<input type="email" id="a-email" name="applicant_email" required class="form-input tabular-nums" value={ userEmail } placeholder="pharmacist@example.com" style="font-size:0.85rem; padding:0.45rem 0.65rem;" />
+								</div>
+
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label" for="a-phone" style="font-size:0.8rem; font-weight:700;">رقم الهاتف / الواتساب *</label>
+									<input type="tel" id="a-phone" name="applicant_phone" required class="form-input tabular-nums" value={ userPhone } placeholder="01012345678" style="font-size:0.85rem; padding:0.45rem 0.65rem;" />
+								</div>
+
+								<div class="form-group" style="margin-bottom:0;">
+									<label class="form-label" for="a-cv" style="font-size:0.8rem; font-weight:700;">إرفاق السيرة الذاتية (CV / PDF) *</label>
+									<input type="file" id="a-cv" name="resume_file" accept=".pdf,.doc,.docx" required class="form-input" style="padding:0.35rem; font-size:0.8rem;" />
+								</div>
+
+								<button type="submit" class="btn btn-primary" style="justify-content:center; padding:0.65rem; font-size:0.9rem; font-weight:800; margin-top:0.35rem;">
+									@components.IconCheck("icon-xs")
+									<span>إرسال طلب التوظيف</span>
+								</button>
+							</form>
+						}
 					</div>
-				} else if !isLoggedIn {
-					<div style="text-align:center; padding:1.5rem; background:var(--neutral-50); border:1px dashed var(--neutral-300); border-radius:var(--radius-xl);">
-						<div style="width:48px; height:48px; border-radius:50%; background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
-							@components.IconUser("icon-sm")
-						</div>
-						<h4 style="font-weight:900; font-size:1.1rem; color:var(--neutral-900); margin-bottom:0.35rem;">
-							يتطلب التقديم تسجيل الدخول بحسابك
-						</h4>
-						<p style="font-size:0.875rem; color:var(--neutral-600); margin-bottom:1.25rem; max-width:440px; margin-inline:auto;">
-							يجب تسجيل الدخول بحسابك المهني على منصة دواء24 لإرفاق سيرتك الذاتية ومتابعة حالة طلب التوظيف.
-						</p>
-						<div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
-							<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/jobs/%d", j.ID)) } class="btn btn-primary" style="font-weight:800; padding:0.65rem 1.5rem;">
-								<span>تسجيل الدخول للتقديم</span>
-							</a>
-							<a href="/auth/register" class="btn btn-secondary" style="font-weight:700; padding:0.65rem 1.25rem;">
-								<span>إنشاء حساب باحث عن عمل جديد</span>
-							</a>
-						</div>
-					</div>
-				} else {
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/jobs/%d/apply", j.ID)) } enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem;">
-						<div class="form-grid-2">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="a-name">الاسم الثلاثي / الاسم المهني *</label>
-								<input type="text" id="a-name" name="applicant_name" required class="form-input" value={ userName } placeholder="د. أحمد محمود" />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="a-email">البريد الإلكتروني للتواصل *</label>
-								<input type="email" id="a-email" name="applicant_email" required class="form-input tabular-nums" value={ userEmail } placeholder="pharmacist@example.com" />
-							</div>
-						</div>
-
-						<div class="form-grid-2">
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="a-phone">رقم الهاتف / الواتساب *</label>
-								<input type="tel" id="a-phone" name="applicant_phone" required class="form-input tabular-nums" value={ userPhone } placeholder="01012345678" />
-							</div>
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" for="a-cv">إرفاق السيرة الذاتية (CV / Resume) *</label>
-								<input type="file" id="a-cv" name="resume_file" accept=".pdf,.doc,.docx" required class="form-input" style="padding:0.45rem;" />
-							</div>
-						</div>
-
-						<button type="submit" class="btn btn-primary" style="justify-content:center; padding:0.85rem; font-size:1rem; font-weight:800; margin-top:0.5rem;">
-							@components.IconCheck("icon-xs")
-							<span>إرسال طلب التوظيف الآن</span>
-						</button>
-					</form>
-				}
+				</div>
 			</div>
 		</div>
 	}
 }
+

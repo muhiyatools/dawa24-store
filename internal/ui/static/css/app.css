@@ -265,6 +265,14 @@ body {
   color: var(--text);
 }
 
+.page-body {
+  flex: 1 0 auto;
+  width: 100%;
+  min-height: calc(100dvh - 320px);
+  display: flex;
+  flex-direction: column;
+}
+
 /* ---- Typography ---- */
 h1, h2, h3, h4, h5, h6 {
   color: var(--text);

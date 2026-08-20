@@ -1314,6 +1314,17 @@ func (h *UIHandler) AdminProductsSampleCSV(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+// AdminProductsImportPage renders the bulk catalog import wizard.
+func (h *UIHandler) AdminProductsImportPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminProductsImportPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin products import wizard", "error", err)
+	}
+}
+
 // AdminProductsSampleXLSX streams a styled Excel (.xlsx) template file for bulk products import.
 func (h *UIHandler) AdminProductsSampleXLSX(w http.ResponseWriter, r *http.Request) {
 	f := excelize.NewFile()

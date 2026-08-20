@@ -13,107 +13,86 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 		<div class="followed-suppliers-container" style="max-width:100%;">
 			
 			<!-- Page Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
+			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-						<div style="width:38px; height:38px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
-							@components.IconBuilding("icon-sm")
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconBuilding("icon-xs")
 						</div>
-						<h2 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">
-							الموردون المتابعون وقائمتك المعتمدة
+						<h2 style="font-size:1.4rem; font-weight:800; color:var(--text); margin:0;">
+							الموردون المتابعون
 						</h2>
 					</div>
-					<p style="color:var(--neutral-500); font-size:0.925rem; margin:0;">
-						متابعة تحديثات المخزون، العروض الخاصة، والأسعار الحصرية من شركات التوزيع المفضلة لصيدليتك
+					<p style="color:var(--text-secondary); font-size:0.875rem; margin:0;">
+						الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.
 					</p>
 				</div>
 
 				<a href="/suppliers" class="btn btn-secondary" style="font-weight:700;">
 					@components.IconSearch("icon-xs")
-					<span>استكشاف دليل الموردين المعتمدين</span>
+					<span>دليل الموردين المعتمدين</span>
 				</a>
 			</div>
 
 			if len(suppliers) == 0 {
-				<div class="card" style="padding:4rem 2rem; text-align:center;">
-					<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--primary-50); color:var(--primary-600); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
-						@components.IconBuilding("icon-lg")
-					</div>
-					<h2 style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;">
-						لم تقم بمتابعة أي مورد بعد
-					</h2>
-					<p style="color:var(--neutral-500); font-size:0.95rem; max-width:480px; margin:0 auto 2rem auto; line-height:1.6;">
-						عند متابعة شركات الأدوية والموزعين المعتمدين، ستتمكن من الوصول السريع لكتالوجاتهم وأرقام التواصل المباشرة والتوريد الفوري.
-					</p>
-					<a href="/suppliers" class="btn btn-primary" style="padding:0.75rem 2rem; font-size:1rem; font-weight:800; display:inline-flex;">
-						@components.IconSearch("icon-xs")
-						<span>تصفح دليل شركات وموردي الأدوية</span>
-					</a>
-				</div>
+				@components.EmptyState(components.EmptyStateProps{
+					Title:       "لم تقم بمتابعة أي مورد بعد",
+					Message:     "عند متابعة شركات الأدوية والموزعين المعتمدين، ستتمكن من الوصول السريع لكتالوجاتهم وأسعارهم الحصرية والتوريد المباشر.",
+					ActionLabel: "تصفح دليل الموردين المعتمدين",
+				})
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:1.5rem;">
+				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
 					for _, s := range suppliers {
-						<div class="card hover-lift" style="margin-bottom:0; padding:1.75rem; border:1px solid var(--border-card); border-radius:var(--radius-2xl); display:flex; flex-direction:column; justify-content:space-between; background:#ffffff;">
+						<div class="card" style="margin-bottom:0; padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-raised);">
 							<div>
 								<!-- Header with Emblem and Verified Badge -->
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem;">
-									<div style="display:flex; align-items:center; gap:0.875rem;">
-										<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center; border:1px solid var(--primary-100);">
+								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+									<div style="display:flex; align-items:center; gap:0.75rem;">
+										<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); flex-shrink:0;">
 											@components.IconBuilding("icon-md")
 										</div>
 										<div>
-											<h3 style="font-size:1.15rem; font-weight:900; color:var(--neutral-900); margin:0;">
+											<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
 												{ s.TradeName.Get(i18n.Lang(lang)) }
 											</h3>
-											<div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;">
-												<span class="badge badge-emerald" style="font-size:0.72rem; padding:0.15rem 0.45rem;">مورد أدوية معتمد</span>
+											<div style="display:flex; align-items:center; gap:0.35rem; margin-top:0.2rem;">
+												<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:700;">مورد معتمد</span>
 											</div>
-
 										</div>
 									</div>
 
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)) } class="m-0">
-										<button type="submit" class="btn btn-secondary btn-icon" title="إلغاء المتابعة" style="color:var(--danger); width:34px; height:34px;">
+										<button type="submit" class="btn btn-secondary btn-icon" title="إلغاء المتابعة" style="color:var(--danger); width:30px; height:30px;">
 											@components.IconHeart("icon-xs")
 										</button>
 									</form>
 								</div>
 
 								<!-- Legal Info -->
-								<div style="font-size:0.85rem; color:var(--neutral-600); line-height:1.6; margin-bottom:1.25rem; background:var(--neutral-50); padding:0.85rem; border-radius:var(--radius-lg); border:1px solid var(--neutral-200);">
-									<div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
-										<span style="color:var(--neutral-400);">الاسم التجاري الرسمي:</span>
-										<strong style="color:var(--neutral-800);">{ s.LegalName }</strong>
-									</div>
-									if s.CommercialRegister != "" {
+								<div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem; background:var(--surface-sunken); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+									if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
 										<div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
-											<span style="color:var(--neutral-400);">السجل التجاري:</span>
-											<strong class="tabular-nums" style="color:var(--neutral-800);">{ s.CommercialRegister }</strong>
+											<span style="color:var(--text-muted);">الاسم القانوني:</span>
+											<strong style="color:var(--text);">{ s.LegalName }</strong>
 										</div>
 									}
-									<div style="display:flex; justify-content:space-between;">
-										<span style="color:var(--neutral-400);">زمن التوريد المعتمد:</span>
-										<strong style="color:var(--primary-700);">خلال 24 ساعة</strong>
-									</div>
-								</div>
-
-								<!-- Direct Hotlines -->
-								<div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.25rem; font-size:0.85rem;">
-									<a href="tel:+201012345678" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--neutral-800);">
-										@components.IconPhone("icon-xs")
-										<span>اتصال هاتفي مباشر (01012345678)</span>
-									</a>
-									<a href="https://wa.me/201012345678" target="_blank" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--emerald-700); background:var(--emerald-50); border-color:var(--emerald-200);">
-										<span>💬 محادثة واتساب للطلبيات السريعة</span>
-									</a>
+									if s.CommercialRegister != "" {
+										<div style="display:flex; justify-content:space-between;">
+											<span style="color:var(--text-muted);">السجل التجاري:</span>
+											<strong class="tabular-nums" style="color:var(--text);">{ s.CommercialRegister }</strong>
+										</div>
+									}
 								</div>
 							</div>
 
-							<!-- Bottom Action -->
-							<div style="border-top:1px solid var(--neutral-100); padding-top:1rem;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary" style="width:100%; justify-content:center; font-weight:800;">
-									@components.IconSearch("icon-xs")
-									<span>تصفح كتالوج أدوية المورد</span>
+							<!-- Bottom Actions -->
+							<div style="border-top:1px solid var(--border); padding-top:0.85rem; display:flex; gap:0.5rem;">
+								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm" style="flex:1; justify-content:center; font-weight:700; font-size:0.825rem;">
+									@components.IconPackage("icon-xs")
+									<span>عرض الكتالوج والطلب</span>
+								</a>
+								<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon" style="color:var(--success-text);" title="تواصل عبر واتساب">
+									@components.IconWhatsApp("icon-xs")
 								</a>
 							</div>
 						</div>

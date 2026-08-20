@@ -138,11 +138,19 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						{ product.Name["en"] }
 					</h2>
 
-					<!-- Rating Stars -->
+					<!-- EDA Verified & Sales Badge -->
 					<div style="display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-4); padding-bottom:var(--space-2); border-bottom:1px solid var(--border);">
-						@components.RatingStars(4.9, 148)
-						<span style="color:var(--border-strong);">•</span>
-						<span style="font-size:var(--text-xs); color:var(--success-text); font-weight:600;">98% تقييم إيجابي من الصيادلة</span>
+						if product.SoldTimes > 0 {
+							<span class="badge badge-sky" style="font-size:0.75rem; font-weight:700;">
+								@components.IconCheckCircle("icon-xs")
+								<span>تم توريدها { fmt.Sprintf("%d", product.SoldTimes) } مرة عبر المنصة</span>
+							</span>
+						} else {
+							<span class="badge badge-slate" style="font-size:0.75rem;">
+								@components.IconShield("icon-xs")
+								<span>صنف دوائي معتمد وموثق</span>
+							</span>
+						}
 					</div>
 
 					<!-- Medical Specifications Matrix -->
@@ -420,56 +428,23 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 				</div>
 			</div>
 
-			<!-- 3. Pharmacy Customer Reviews & Ratings -->
+			<!-- 3. Pharmacy Verified Product Standards -->
 			<div class="card" style="margin-bottom:0; padding:var(--space-6); background:var(--surface-raised); border-radius:var(--radius-lg); border:1px solid var(--border);">
-				<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-4);">
+				<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-3);">
 					@components.IconCheckCircle("icon-md")
 					<h3 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">
-						تقييمات وتجارب الصيادلة
+						معايير الجودة والرقابة الدوائية
 					</h3>
 				</div>
 
-				<div style="display:grid; grid-template-columns:220px 1fr; gap:var(--space-6); align-items:start;">
-					<!-- Score Overview Card -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-5); text-align:center;">
-						<div style="font-size:var(--text-3xl); font-weight:700; color:var(--accent); line-height:1;" class="tabular-nums">
-							4.9
-						</div>
-						<div style="margin:var(--space-2) 0 var(--space-1) 0;">
-							@components.RatingStars(4.9, 0)
-						</div>
-						<div style="font-size:var(--text-xs); color:var(--text-muted);">
-							بناءً على 148 تقييم صيدلية موثقة
-						</div>
-					</div>
-
-					<!-- Reviews List -->
-					<div style="display:flex; flex-direction:column; gap:var(--space-3);">
-						<div style="padding:var(--space-4); background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
-							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
-								<span style="font-weight:600; font-size:var(--text-sm); color:var(--text);">صيدلية النصر المركزية — د. حسام فتحي</span>
-								<span style="font-size:var(--text-xs); color:var(--text-muted);" class="tabular-nums">منذ 3 أيام</span>
-							</div>
-							<div style="margin-bottom:var(--space-1);">
-								@components.RatingStars(5.0, 0)
-							</div>
-							<p style="font-size:var(--text-xs); color:var(--text-secondary); line-height:1.6; margin:0;">
-								صنف دوائي أصلي وتاريخ صلاحية ممتد لعام 2028. تم التوريد والتسليم خلال أقل من 18 ساعة بسيارة مبردة مطابقة للمواصفات.
-							</p>
-						</div>
-
-						<div style="padding:var(--space-4); background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
-							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-1);">
-								<span style="font-weight:600; font-size:var(--text-sm); color:var(--text);">مجموعة صيدليات الحياة — فرع المعادي</span>
-								<span style="font-size:var(--text-xs); color:var(--text-muted);" class="tabular-nums">منذ أسبوع</span>
-							</div>
-							<div style="margin-bottom:var(--space-1);">
-								@components.RatingStars(4.8, 0)
-							</div>
-							<p style="font-size:var(--text-xs); color:var(--text-secondary); line-height:1.6; margin:0;">
-								سعر منافس جداً مقارنة بالسوق وتوافر كميات كبيرة للتوريد الفوري. الفواتير الإلكترونية ممتازة ودقيقة.
-							</p>
-						</div>
+				<div style="padding:var(--space-4); background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border); font-size:var(--text-sm); color:var(--text-secondary); line-height:1.7;">
+					<p style="margin:0 0 0.5rem 0;">
+						يتم فحص وتوريد كافة الأدوية والمستحضرات الدوائية عبر شبكة الموردين المرخصين والمعتمدين رسمياً من هيئة الدواء المصرية، مع الالتزام التام باشتراطات التخزين، النقل المبرد (Cold Chain)، وإصدار الفواتير الإلكترونية المعتمدة.
+					</p>
+					<div style="display:flex; gap:var(--space-4); flex-wrap:wrap; font-size:var(--text-xs); color:var(--text-muted); padding-top:var(--space-2); border-top:1px solid var(--border);">
+						<span>✓ مطابقة للتشغيلات والباركود الدولي</span>
+						<span>✓ صلاحية مضمونة وموثقة في الفاتورة</span>
+						<span>✓ رقابة مباشرة على درجات الحرارة</span>
 					</div>
 				</div>
 			</div>

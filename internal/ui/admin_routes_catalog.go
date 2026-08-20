@@ -17,7 +17,7 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Get("/admin/product-child/{id}", h.AdminProductDetailPage)
 		g.Get("/admin/adv-products", h.AdminAdvProductsPage)
 		g.Get("/admin/apis-products", h.AdminApisProductsPage)
-		g.Get("/admin/products/import", h.AdminAdvProductsPage)
+		g.Get("/admin/products/import", h.AdminProductsImportPage)
 		g.Get("/admin/import", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/products/import", http.StatusMovedPermanently)
 		})
