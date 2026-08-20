@@ -13,7 +13,7 @@ import (
 )
 
 // VendorPoliciesPage renders policies editor.
-func VendorPoliciesPage(lang, dir string) templ.Component {
+func VendorPoliciesPage(policies map[string]string, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -46,7 +46,46 @@ func VendorPoliciesPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">سياسات التوريد والدفع والاسترجاع للمنشأة</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">سياسة الشحن والتسليم</h3><textarea class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط التوصيل والحد الأدنى للطلبات...\"></textarea></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">سياسة المرتجعات والتوالف</h3><textarea class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط وفترة قبول المرتجعات...\"></textarea></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">شروط السداد والدفع الآجل</h3><textarea class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط السداد وشيكات الضمان...\"></textarea></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem;\"><button type=\"button\" class=\"btn btn-primary\">حفظ السياسات</button></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">سياسات التوريد والدفع والاسترجاع للمنشأة</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p></div></div><form method=\"POST\" action=\"/vendor/policies\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">سياسة الشحن والتسليم</h3><textarea name=\"shipping_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط التوصيل والحد الأدنى للطلبات...\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(policies["shipping"])
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_content.templ`, Line: 22, Col: 178}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</textarea></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">سياسة المرتجعات والتوالف</h3><textarea name=\"returns_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط وفترة قبول المرتجعات...\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(policies["returns"])
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_content.templ`, Line: 26, Col: 161}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</textarea></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">شروط السداد والدفع الآجل</h3><textarea name=\"terms_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط السداد وشيكات الضمان...\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(policies["terms"])
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_content.templ`, Line: 30, Col: 157}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</textarea></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem;\"><button type=\"submit\" class=\"btn btn-primary\">حفظ السياسات</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -61,7 +100,7 @@ func VendorPoliciesPage(lang, dir string) templ.Component {
 }
 
 // VendorSocialMediaPage renders social accounts editor.
-func VendorSocialMediaPage(lang, dir string) templ.Component {
+func VendorSocialMediaPage(links map[string]string, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -77,12 +116,12 @@ func VendorSocialMediaPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var3 == nil {
-			templ_7745c5c3_Var3 = templ.NopComponent
+		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var6 == nil {
+			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var4 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var7 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -94,13 +133,52 @@ func VendorSocialMediaPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">قنوات التواصل الاجتماعي للمنشأة</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\">رقم الواتساب الرسمي (WhatsApp)</label> <input type=\"text\" class=\"form-input\" placeholder=\"+2010...\"></div><div><label class=\"form-label\">رابط صفحة الفيسبوك (Facebook)</label> <input type=\"url\" class=\"form-input\" placeholder=\"https://facebook.com/...\"></div><div><label class=\"form-label\">حساب لينكد إن (LinkedIn)</label> <input type=\"url\" class=\"form-input\" placeholder=\"https://linkedin.com/company/...\"></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem;\"><button type=\"button\" class=\"btn btn-primary\">حفظ الروابط</button></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">قنوات التواصل الاجتماعي للمنشأة</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p></div></div><form method=\"POST\" action=\"/vendor/social-media\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\">رقم الواتساب الرسمي (WhatsApp)</label> <input type=\"text\" name=\"whatsapp\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(links["whatsapp"])
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_content.templ`, Line: 57, Col: 66}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" class=\"form-input\" placeholder=\"+2010...\"></div><div><label class=\"form-label\">رابط صفحة الفيسبوك (Facebook)</label> <input type=\"url\" name=\"facebook\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(links["facebook"])
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_content.templ`, Line: 61, Col: 65}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" class=\"form-input\" placeholder=\"https://facebook.com/...\"></div><div><label class=\"form-label\">حساب لينكد إن (LinkedIn)</label> <input type=\"url\" name=\"linkedin\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(links["linkedin"])
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_content.templ`, Line: 65, Col: 65}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input\" placeholder=\"https://linkedin.com/company/...\"></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem;\"><button type=\"submit\" class=\"btn btn-primary\">حفظ الروابط</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.VendorShell("وسائل التواصل الاجتماعي للمورد", "social_media", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.VendorShell("وسائل التواصل الاجتماعي للمورد", "social_media", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

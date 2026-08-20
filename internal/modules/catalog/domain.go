@@ -192,6 +192,22 @@ type CustomerProductMapping struct {
 	UpdatedAt        time.Time     `json:"updated_at"`
 }
 
+// SavingProduct represents a target-saving or tracked price product for a pharmacy or vendor.
+type SavingProduct struct {
+	ID             int64        `json:"id"`
+	PublicID       string       `json:"public_id"`
+	UserID         *int64       `json:"user_id,omitempty"`
+	OrganizationID int64        `json:"organization_id"`
+	ProductID      *int64       `json:"product_id,omitempty"`
+	NameProduct    string       `json:"name_product"`
+	SKU            string       `json:"sku,omitempty"`
+	Quantity       float64      `json:"quantity"`
+	Price          money.Amount `json:"price"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
+	DeletedAt      *time.Time   `json:"deleted_at,omitempty"`
+}
+
 // ProductAlert represents user notification triggers for price drops and restocks.
 type ProductAlert struct {
 	ID          int64        `json:"id"`

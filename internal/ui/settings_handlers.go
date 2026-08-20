@@ -882,11 +882,14 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 		orgID = &actor.OrganizationID
 	}
 
-	if h.idSvc != nil {
-		if err := h.idSvc.RequestAccountDeletion(ctx, actor.UserID, orgID, reason); err != nil {
-			h.redirectWithNotice(w, r, "/settings?tab=security", "error", "فشل إرسال طلب الحذف: "+err.Error())
-			return
-		}
+	if h.idSvc == nil {
+		h.redirectWithNotice(w, r, "/settings?tab=security", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	if err := h.idSvc.RequestAccountDeletion(ctx, actor.UserID, orgID, reason); err != nil {
+		h.redirectWithNotice(w, r, "/settings?tab=security", "error", "فشل إرسال طلب الحذف: "+err.Error())
+		return
 	}
 
 	h.redirectWithNotice(w, r, "/settings?tab=security", "success", "تم استلام طلب حذف الحساب بنجاح، وسيتم مراجعته من قبل إدارة المنصة.")

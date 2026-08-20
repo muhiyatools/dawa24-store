@@ -338,11 +338,28 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 }
 
 
-// VendorBranchDeleteSubmit deletes a branch.
+// VendorBranchDeleteSubmit deletes a branch scoped to the vendor organization.
 func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
-	_ = r.Context()
-	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	_ = id
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "معرف الفرع غير صالح.")
+		return
+	}
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "خدمة المؤسسات غير متوفرة.")
+		return
+	}
+	if err := h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID); err != nil {
+		h.log.ErrorContext(ctx, "delete branch", "error", err, "branch", id, "org", actor.OrganizationID)
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "فشل حذف الفرع: "+err.Error())
+		return
+	}
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم حذف الفرع بنجاح.")
 }
 
@@ -449,8 +466,27 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 
 // VendorTeamToggleSubmit toggles a member's active status.
 func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Request) {
-	_ = r.Context()
-	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم تحديث حالة حساب الموظف.")
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "معرف الموظف غير صالح.")
+		return
+	}
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "خدمة المؤسسات غير متوفرة.")
+		return
+	}
+	if err := h.orgSvc.ToggleMemberStatus(ctx, actor.OrganizationID, id); err != nil {
+		h.log.ErrorContext(ctx, "toggle member status", "error", err, "member", id, "org", actor.OrganizationID)
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل تحديث حالة الموظف: "+err.Error())
+		return
+	}
+	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم تحديث حالة حساب الموظف بنجاح.")
 }
 
 // VendorRolesPage renders the full roles and permissions matrix for vendor organization.
@@ -507,7 +543,9 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 
 	if h.invSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.VendorInventory(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		if err := pages.VendorInventory(nil, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render vendor inventory fallback", "error", err)
+		}
 		return
 	}
 
@@ -533,7 +571,9 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 
 	if h.invSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.VendorTransfers(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		if err := pages.VendorTransfers(nil, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render vendor transfers fallback", "error", err)
+		}
 		return
 	}
 
@@ -702,7 +742,9 @@ func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 
 	if h.commSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.VendorOrders(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		if err := pages.VendorOrders(nil, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render vendor orders fallback", "error", err)
+		}
 		return
 	}
 

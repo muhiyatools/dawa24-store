@@ -55,7 +55,9 @@ func (h *UIHandler) AdminFullErrorLogDetailPage(w http.ResponseWriter, r *http.R
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFullErrorLogDetailPage(logEntry, lang, dir).Render(ctx, w)
+	if err := pages.AdminFullErrorLogDetailPage(logEntry, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin full error log detail", "error", err)
+	}
 }
 
 // AdminFullActivityLogsPage renders system audit logs.
@@ -74,7 +76,9 @@ func (h *UIHandler) AdminFullNotificationsPage(w http.ResponseWriter, r *http.Re
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminNotificationsPage(lang, dir).Render(ctx, w)
+	if err := pages.AdminNotificationsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin notifications", "error", err)
+	}
 }
 
 // AdminSystemResourcesPage renders system resource availability and health.
@@ -88,7 +92,9 @@ func (h *UIHandler) AdminSystemResourcesPage(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminSystemResourcesPage(systemName, lang, dir).Render(ctx, w)
+	if err := pages.AdminSystemResourcesPage(systemName, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin system resources", "error", err)
+	}
 }
 
 // AdminFirstLookPage renders admin onboarding introduction.
@@ -97,7 +103,9 @@ func (h *UIHandler) AdminFirstLookPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFirstLookPage(lang, dir).Render(ctx, w)
+	if err := pages.AdminFirstLookPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin first look", "error", err)
+	}
 }
 
 // AdminErrorLogTransitionSubmit updates an error status (INVESTIGATING, RESOLVED, IGNORED).

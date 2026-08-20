@@ -25,6 +25,7 @@ type Repository interface {
 
 	AddMember(ctx context.Context, m *Member) error
 	UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error
+	ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error
 	ListMembersByOrg(ctx context.Context, orgID int64) ([]*Member, error)
 	ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
@@ -54,6 +55,10 @@ type Repository interface {
 
 	CreatePolicy(ctx context.Context, p *Policy) error
 	ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*Policy, error)
+	SavePolicies(ctx context.Context, orgID int64, policies []*Policy) error
+
+	ListSocialMediaByOrg(ctx context.Context, orgID int64) ([]*SocialMedia, error)
+	SaveSocialMedia(ctx context.Context, orgID int64, links []*SocialMedia) error
 
 	// Institutional Works (الهيكل المؤسسي وأنواعه)
 	CreateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error

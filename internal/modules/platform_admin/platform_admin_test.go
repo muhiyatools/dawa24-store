@@ -170,6 +170,10 @@ func (m *mockPlatformAdminRepo) GetErrorDiagnosticsMetrics(_ context.Context) (t
 	return 0, 0, 0, 0, nil
 }
 
+func (m *mockPlatformAdminRepo) ListAuditLogByOrg(_ context.Context, _ int64, _, _ int) ([]*AuditEntry, error) {
+	return nil, nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

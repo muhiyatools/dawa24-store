@@ -23,180 +23,158 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					</button>
 				</div>
 
-				<nav class="sidebar-nav" style="padding:0.75rem 0.65rem; display:flex; flex-direction:column; gap:0.25rem;">
-					<!-- 1. لوحة التحكم -->
-					<a href="/vendor/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
-						@components.IconHome("icon-sm")
-						<span>لوحة التحكم</span>
-					</a>
+				<nav class="sidebar-nav" style="padding:0.75rem 0.65rem; display:flex; flex-direction:column; gap:0.5rem; overflow-y:auto;">
+					
+					<!-- Group 1: المنشأة والفروع -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>المنشأة والفروع</span>
+						</div>
+						<a href="/vendor/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
+							@components.IconHome("icon-sm")
+							<span>لوحة التحكم</span>
+						</a>
+						<a href="/settings/organization" class={ "sidebar-link", templ.KV("active", activeNav == "organization" || activeNav == "user_organization") }>
+							@components.IconBuilding("icon-sm")
+							<span>بيانات المنشأة</span>
+						</a>
+						<a href="/vendor/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
+							@components.IconLayers("icon-sm")
+							<span>الفروع والمستودعات</span>
+						</a>
+						<a href="/vendor/team" class={ "sidebar-link", templ.KV("active", activeNav == "employees" || activeNav == "team") }>
+							@components.IconUsers("icon-sm")
+							<span>فريق العمل والموظفون</span>
+						</a>
+						<a href="/vendor/roles" class={ "sidebar-link", templ.KV("active", activeNav == "roles") }>
+							@components.IconShield("icon-sm")
+							<span>الأدوار والصلاحيات</span>
+						</a>
+						<a href="/vendor/coverage" class={ "sidebar-link", templ.KV("active", activeNav == "coverage") }>
+							@components.IconTruck("icon-sm")
+							<span>التغطية الأسبوعية</span>
+						</a>
+						<a href="/vendor/pharmacy-coverage" class={ "sidebar-link", templ.KV("active", activeNav == "pharmacy_coverage") }>
+							@components.IconUsers("icon-sm")
+							<span>تغطية الصيدليات</span>
+						</a>
+					</div>
 
-					<!-- 2. بيانات المنشأة -->
-					<a href="/settings/organization" class={ "sidebar-link", templ.KV("active", activeNav == "organization") }>
-						@components.IconBuilding("icon-sm")
-						<span>بيانات المنشأة</span>
-					</a>
+					<!-- Group 2: الكتالوج والمخزون -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>الكتالوج والمخزون</span>
+						</div>
+						<a href="/vendor/products" class={ "sidebar-link", templ.KV("active", activeNav == "products" || activeNav == "variants") }>
+							@components.IconPackage("icon-sm")
+							<span>أصناف المورد</span>
+						</a>
+						<a href="/vendor/catalog/select" class={ "sidebar-link", templ.KV("active", activeNav == "catalog_select") }>
+							@components.IconCheckCircle("icon-sm")
+							<span>اختيار من الكتالوج العام</span>
+						</a>
+						<a href="/vendor/ingest" class={ "sidebar-link", templ.KV("active", activeNav == "ingest") }>
+							@components.IconUpload("icon-sm")
+							<span>استيراد الكتالوج الذكي</span>
+						</a>
+						<a href="/vendor/saving-products" class={ "sidebar-link", templ.KV("active", activeNav == "saving_products") }>
+							@components.IconTag("icon-sm")
+							<span>منتجات التوفير</span>
+						</a>
+						<a href="/vendor/inventory" class={ "sidebar-link", templ.KV("active", activeNav == "inventory") }>
+							@components.IconLayers("icon-sm")
+							<span>إدارة المخزون</span>
+						</a>
+						<a href="/vendor/warehouses" class={ "sidebar-link", templ.KV("active", activeNav == "warehouses") }>
+							@components.IconBuilding("icon-sm")
+							<span>المستودعات ومواقع التخزين</span>
+						</a>
+					</div>
 
-					<!-- 3. الفروع -->
-					<a href="/vendor/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
-						@components.IconBuilding("icon-sm")
-						<span>الفروع</span>
-					</a>
+					<!-- Group 3: العروض والتسويق -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>العروض والتسويق</span>
+						</div>
+						<a href="/vendor/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
+							@components.IconTag("icon-sm")
+							<span>العروض والخصومات</span>
+						</a>
+						<a href="/vendor/offers-packages" class={ "sidebar-link", templ.KV("active", activeNav == "offers_packages") }>
+							@components.IconTag("icon-sm")
+							<span>باقات العروض والرعايات</span>
+						</a>
+						<a href="/vendor/storefront" class={ "sidebar-link", templ.KV("active", activeNav == "storefront") }>
+							@components.IconGlobe("icon-sm")
+							<span>الأقسام المميزة وواجهة المتجر</span>
+						</a>
+					</div>
 
-					<!-- 4. الموظفون -->
-					<a href="/settings/employees" class={ "sidebar-link", templ.KV("active", activeNav == "employees" || activeNav == "team") }>
-						@components.IconUsers("icon-sm")
-						<span>الموظفون</span>
-					</a>
+					<!-- Group 4: الطلبات والمالية -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>الطلبات والمالية</span>
+						</div>
+						<a href="/vendor/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
+							@components.IconTruck("icon-sm")
+							<span>أوامر التوريد والشحنات</span>
+						</a>
+						<a href="/vendor/orders/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offer_orders") }>
+							@components.IconFile("icon-sm")
+							<span>طلبات عروض الأسعار</span>
+						</a>
+						<a href="/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
+							@components.IconFile("icon-sm")
+							<span>الفواتير والمستحقات</span>
+						</a>
+						<a href="/vendor/payments" class={ "sidebar-link", templ.KV("active", activeNav == "payments") }>
+							@components.IconWallet("icon-sm")
+							<span>المدفوعات والحركات المالية</span>
+						</a>
+					</div>
 
-					<!-- 5. الأدوار والصلاحيات -->
-					<a href="/vendor/roles" class={ "sidebar-link", templ.KV("active", activeNav == "roles") }>
-						@components.IconShield("icon-sm")
-						<span>الأدوار والصلاحيات</span>
-					</a>
+					<!-- Group 5: الأدوات والتحليلات -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>الأدوات والتحليلات</span>
+						</div>
+						<a href="/compare/tool" class={ "sidebar-link", templ.KV("active", activeNav == "compare") }>
+							@components.IconTrendingUp("icon-sm")
+							<span>مقارنة الخصومات</span>
+						</a>
+						<a href="/market-discounts" class={ "sidebar-link", templ.KV("active", activeNav == "market-discounts") }>
+							@components.IconChart("icon-sm")
+							<span>خصومات السوق</span>
+						</a>
+						<a href="/vendor/jobs" class={ "sidebar-link", templ.KV("active", activeNav == "jobs") }>
+							@components.IconBriefcase("icon-sm")
+							<span>وظائف التوظيف</span>
+						</a>
+					</div>
 
-					<!-- 6. رفع الموظفين دفعة واحدة -->
-					<a href="/vendor/team/import" class={ "sidebar-link", templ.KV("active", activeNav == "team_import") }>
-						@components.IconUpload("icon-sm")
-						<span>رفع الموظفين دفعة واحدة</span>
-					</a>
+					<!-- Group 6: المحتوى والسياسات -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>المحتوى والسياسات</span>
+						</div>
+						<a href="/vendor/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
+							@components.IconFile("icon-sm")
+							<span>المستندات والتراخيص</span>
+						</a>
+						<a href="/vendor/policies" class={ "sidebar-link", templ.KV("active", activeNav == "policies") }>
+							@components.IconShield("icon-sm")
+							<span>سياسات التوريد والضمان</span>
+						</a>
+						<a href="/vendor/social-media" class={ "sidebar-link", templ.KV("active", activeNav == "social_media") }>
+							@components.IconMail("icon-sm")
+							<span>قنوات التواصل الاجتماعي</span>
+						</a>
+						<a href="/vendor/activities" class={ "sidebar-link", templ.KV("active", activeNav == "activities") }>
+							@components.IconClock("icon-sm")
+							<span>سجل العمليات والنشاط</span>
+						</a>
+					</div>
 
-					<!-- 7. التغطية الأسبوعية -->
-					<a href="/vendor/coverage" class={ "sidebar-link", templ.KV("active", activeNav == "coverage") }>
-						@components.IconTruck("icon-sm")
-						<span>التغطية الأسبوعية</span>
-					</a>
-
-					<!-- 8. تغطية الصيدليات -->
-					<a href="/vendor/pharmacy-coverage" class={ "sidebar-link", templ.KV("active", activeNav == "pharmacy_coverage") }>
-						@components.IconUsers("icon-sm")
-						<span>تغطية الصيدليات</span>
-					</a>
-
-					<!-- 9. اختيار المنتجات المتاحة -->
-					<a href="/vendor/catalog/select" class={ "sidebar-link", templ.KV("active", activeNav == "catalog_select") }>
-						@components.IconPackage("icon-sm")
-						<span>اختيار المنتجات المتاحة</span>
-					</a>
-
-					<!-- 10. منتجاتي -->
-					<a href="/vendor/products" class={ "sidebar-link", templ.KV("active", activeNav == "products" || activeNav == "variants") }>
-						@components.IconPill("icon-sm")
-						<span>منتجاتي</span>
-					</a>
-
-					<!-- 11. استيراد المنتجات -->
-					<a href="/vendor/ingest" class={ "sidebar-link", templ.KV("active", activeNav == "ingest") }>
-						@components.IconUpload("icon-sm")
-						<span>استيراد المنتجات</span>
-					</a>
-
-					<!-- 12. منتجات التوفير -->
-					<a href="/vendor/saving-products" class={ "sidebar-link", templ.KV("active", activeNav == "saving_products") }>
-						@components.IconTag("icon-sm")
-						<span>منتجات التوفير</span>
-					</a>
-
-					<!-- 13. المخزون -->
-					<a href="/vendor/inventory" class={ "sidebar-link", templ.KV("active", activeNav == "inventory") }>
-						@components.IconPackage("icon-sm")
-						<span>المخزون</span>
-					</a>
-
-					<!-- 14. المستودعات -->
-					<a href="/vendor/warehouses" class={ "sidebar-link", templ.KV("active", activeNav == "warehouses") }>
-						@components.IconBuilding("icon-sm")
-						<span>المستودعات</span>
-					</a>
-
-					<!-- 15. العروض -->
-					<a href="/vendor/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
-						@components.IconTag("icon-sm")
-						<span>العروض</span>
-					</a>
-
-					<!-- 16-19. باقات العروض والرعايات -->
-					<a href="/vendor/offers-packages" class={ "sidebar-link", templ.KV("active", activeNav == "offers_packages") }>
-						@components.IconTag("icon-sm")
-						<span>باقات العروض</span>
-					</a>
-
-					<!-- 20. الطلبات -->
-					<a href="/vendor/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
-						@components.IconTruck("icon-sm")
-						<span>الطلبات</span>
-					</a>
-
-					<!-- 21. طلبات العروض -->
-					<a href="/vendor/orders/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offer_orders") }>
-						@components.IconFile("icon-sm")
-						<span>طلبات العروض</span>
-					</a>
-
-					<!-- 22. الفواتير -->
-					<a href="/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
-						@components.IconFile("icon-sm")
-						<span>الفواتير</span>
-					</a>
-
-					<!-- 23. المدفوعات -->
-					<a href="/vendor/payments" class={ "sidebar-link", templ.KV("active", activeNav == "payments") }>
-						@components.IconWallet("icon-sm")
-						<span>المدفوعات</span>
-					</a>
-
-					<!-- 24. مقارنة الخصومات -->
-					<a href="/compare/tool" class={ "sidebar-link", templ.KV("active", activeNav == "compare") }>
-						@components.IconTrendingUp("icon-sm")
-						<span>مقارنة الخصومات</span>
-					</a>
-
-					<!-- 25. خصومات السوق -->
-					<a href="/market-discounts" class={ "sidebar-link", templ.KV("active", activeNav == "market-discounts") }>
-						@components.IconBarChart("icon-sm")
-						<span>خصومات السوق</span>
-					</a>
-
-					<!-- 26. الوظائف -->
-					<a href="/vendor/jobs" class={ "sidebar-link", templ.KV("active", activeNav == "jobs") }>
-						@components.IconFile("icon-sm")
-						<span>الوظائف</span>
-					</a>
-
-					<!-- 27. المستندات -->
-					<a href="/vendor/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
-						@components.IconFile("icon-sm")
-						<span>المستندات</span>
-					</a>
-
-					<!-- 28. السياسات -->
-					<a href="/vendor/policies" class={ "sidebar-link", templ.KV("active", activeNav == "policies") }>
-						@components.IconShield("icon-sm")
-						<span>السياسات</span>
-					</a>
-
-					<!-- 29. وسائل التواصل -->
-					<a href="/vendor/social-media" class={ "sidebar-link", templ.KV("active", activeNav == "social_media") }>
-						@components.IconMail("icon-sm")
-						<span>وسائل التواصل</span>
-					</a>
-
-					<!-- 30. الأقسام المميزة -->
-					<a href="/vendor/storefront" class={ "sidebar-link", templ.KV("active", activeNav == "storefront") }>
-						@components.IconTag("icon-sm")
-						<span>الأقسام المميزة</span>
-					</a>
-
-					<!-- 31. سجل النشاطات -->
-					<a href="/vendor/activities" class={ "sidebar-link", templ.KV("active", activeNav == "activities") }>
-						@components.IconClock("icon-sm")
-						<span>سجل النشاطات</span>
-					</a>
-
-					<!-- 32. عضوية المنشآت -->
-					<a href="/settings/organization" class={ "sidebar-link", templ.KV("active", activeNav == "user_organization") }>
-						@components.IconUsers("icon-sm")
-						<span>عضوية المنشآت</span>
-					</a>
 				</nav>
 
 				<div style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem;">

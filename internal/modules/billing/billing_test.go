@@ -244,6 +244,18 @@ func (m *mockBillingRepo) AdminListSubscriptions(_ context.Context, limit, offse
 	return nil, nil
 }
 
+func (m *mockBillingRepo) ListPaymentsByOrg(_ context.Context, orgID int64, limit, offset int) ([]*Payment, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListInvoices(_ context.Context, limit, offset int) ([]*Invoice, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListWallets(_ context.Context, limit, offset int) ([]*Wallet, error) {
+	return nil, nil
+}
+
 func TestWalletDepositAndWithdraw(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockBillingRepo()

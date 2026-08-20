@@ -199,6 +199,22 @@ func (r stubRepo) RebuildProductIndex(ctx context.Context) (int64, error) {
 	r.fail("RebuildProductIndex")
 	return 0, nil
 }
+func (r stubRepo) CreateSavingProduct(ctx context.Context, sp *catalog.SavingProduct) error {
+	r.fail("CreateSavingProduct")
+	return nil
+}
+func (r stubRepo) ListSavingProductsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*catalog.SavingProduct, error) {
+	r.fail("ListSavingProductsByOrg")
+	return nil, nil
+}
+func (r stubRepo) GetSavingProductByID(ctx context.Context, id int64) (*catalog.SavingProduct, error) {
+	r.fail("GetSavingProductByID")
+	return nil, nil
+}
+func (r stubRepo) DeleteSavingProduct(ctx context.Context, id, orgID int64) error {
+	r.fail("DeleteSavingProduct")
+	return nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

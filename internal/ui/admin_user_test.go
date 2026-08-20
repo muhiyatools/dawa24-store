@@ -36,7 +36,18 @@ func TestAdminFullUserAndRolesRoutes(t *testing.T) {
 			wantStatus: http.StatusSeeOther,
 		},
 		{
-			name:   "Super admin GET /admin/full-user returns 200",
+			name:   "Super admin GET /admin/users returns 200",
+			path:   "/admin/users",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/full-user returns 301",
 			path:   "/admin/full-user",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -44,10 +55,10 @@ func TestAdminFullUserAndRolesRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/customer-list returns 200",
+			name:   "Super admin GET /admin/customer-list returns 301",
 			path:   "/admin/customer-list",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -55,10 +66,10 @@ func TestAdminFullUserAndRolesRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/vendor-list returns 200",
+			name:   "Super admin GET /admin/vendor-list returns 301",
 			path:   "/admin/vendor-list",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -66,7 +77,7 @@ func TestAdminFullUserAndRolesRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Super admin GET /admin/roles returns 200",

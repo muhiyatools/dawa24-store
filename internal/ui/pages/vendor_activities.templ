@@ -1,22 +1,59 @@
 package pages
 
 import (
+	"fmt"
+
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // VendorActivitiesPage renders activity history for the vendor's team.
-templ VendorActivitiesPage(lang, dir string) {
+templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string) {
 	@layouts.VendorShell("سجل نشاطات الموظفين", "activities", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
 				<div>
-					<h2 class="card-title" style="margin:0;">سجل نشاطات وعمليات موظفي المنشأة</h2>
+					<h2 class="card-title" style="margin:0;">سجل نشاطات وعمليات موظفي المنشأة ({ fmt.Sprintf("%d", len(entries)) })</h2>
 					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تدقيق ومراقبة الإجراءات المنفذة بواسطة موظفي الفروع والمستودعات.</p>
 				</div>
 			</div>
 
-			@components.EmptyState(components.EmptyStateProps{Title: "سجل النشاطات سليم", Message: "يتم توثيق كل عملية إنشاء عروض، تعديل أسعار، أو اعتماد شحنات هنا."})
+			if len(entries) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد نشاطات مسجلة", Message: "يتم توثيق كل عملية إنشاء عروض، تعديل أسعار، أو اعتماد شحنات هنا تلقائياً."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>المستخدم / الموظف</th>
+								<th>الإجراء</th>
+								<th>نوع العنصر</th>
+								<th>المعرف</th>
+								<th>عنوان IP</th>
+								<th>التاريخ والوقت</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, e := range entries {
+								<tr>
+									<td>
+										<div style="font-weight:600;">{ e.ActorName }</div>
+										if e.ActorEmail != "" {
+											<div style="font-size:0.75rem; color:var(--text-secondary);">{ e.ActorEmail }</div>
+										}
+									</td>
+									<td><span class="badge badge-sky">{ e.Action }</span></td>
+									<td><span class="badge badge-secondary">{ e.EntityType }</span></td>
+									<td class="tabular-nums">#{ e.EntityID }</td>
+									<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-secondary);">{ e.IPAddress }</td>
+									<td class="tabular-nums">{ e.CreatedAt.Format("2006-01-02 15:04:05") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }

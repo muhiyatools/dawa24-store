@@ -139,6 +139,18 @@ func (r stubRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount 
 	r.fail("AdminAdjustWallet")
 	return nil
 }
+func (r stubRepo) ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, error) {
+	r.fail("ListPaymentsByOrg")
+	return nil, nil
+}
+func (r stubRepo) AdminListInvoices(ctx context.Context, limit, offset int) ([]*billing.Invoice, error) {
+	r.fail("AdminListInvoices")
+	return nil, nil
+}
+func (r stubRepo) AdminListWallets(ctx context.Context, limit, offset int) ([]*billing.Wallet, error) {
+	r.fail("AdminListWallets")
+	return nil, nil
+}
 func (r stubRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
 	r.fail("AdminListPayments")
 	return nil, nil
@@ -229,6 +241,15 @@ func (happyRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) 
 }
 func (happyRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
 	return nil
+}
+func (happyRepo) ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, error) {
+	return []*billing.Payment{{ID: 1, OrganizationID: &orgID, Amount: money.MustParse("100.00")}}, nil
+}
+func (happyRepo) AdminListInvoices(ctx context.Context, limit, offset int) ([]*billing.Invoice, error) {
+	return []*billing.Invoice{{ID: 1, InvoiceNumber: "INV-1"}}, nil
+}
+func (happyRepo) AdminListWallets(ctx context.Context, limit, offset int) ([]*billing.Wallet, error) {
+	return []*billing.Wallet{{ID: 1, UserID: 1, Balance: money.MustParse("100.00")}}, nil
 }
 func (happyRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
 	return []*billing.Payment{{ID: 1, UserID: 1}}, nil

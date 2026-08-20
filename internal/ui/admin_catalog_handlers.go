@@ -62,7 +62,9 @@ func (h *UIHandler) AdminAdvProductsPage(w http.ResponseWriter, r *http.Request)
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminAdvProductsPage(lang, dir).Render(ctx, w)
+	if err := pages.AdminAdvProductsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin adv products", "error", err)
+	}
 }
 
 // AdminApisProductsPage renders external API inventory connector.
@@ -71,7 +73,9 @@ func (h *UIHandler) AdminApisProductsPage(w http.ResponseWriter, r *http.Request
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminApisProductsPage(lang, dir).Render(ctx, w)
+	if err := pages.AdminApisProductsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin apis products", "error", err)
+	}
 }
 
 // AdminStocksPage renders inventory stocks across all warehouses.
@@ -81,34 +85,32 @@ func (h *UIHandler) AdminStocksPage(w http.ResponseWriter, r *http.Request) {
 
 	var stocks []*inventory.Stock
 	if h.invSvc != nil {
-		// AsSystem justified: platform admin inspecting aggregate stocks
-		stocks, _ = h.invSvc.ListStocksByWarehouse(database.AsSystem(ctx), 0)
+		stocks, _ = h.invSvc.ListLowStock(database.AsSystem(ctx), 100, 0)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminStocksPage(stocks, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin stocks", "error", err)
+		h.log.ErrorContext(ctx, "render admin stocks page", "error", err)
 	}
 }
 
-// AdminWarehousesPage renders permanent warehouses list.
+// AdminWarehousesPage renders warehouse registry for fulfillment network.
 func (h *UIHandler) AdminWarehousesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	var warehouses []*inventory.Warehouse
 	if h.invSvc != nil {
-		// AsSystem justified: platform admin inspecting all warehouses
 		warehouses, _ = h.invSvc.ListWarehouses(database.AsSystem(ctx))
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminWarehousesPage(warehouses, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin warehouses", "error", err)
+		h.log.ErrorContext(ctx, "render admin warehouses page", "error", err)
 	}
 }
 
-// AdminWarehouseDetailPage renders warehouse details and stock levels.
+// AdminWarehouseDetailPage renders single warehouse details and current stock list.
 func (h *UIHandler) AdminWarehouseDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -134,7 +136,9 @@ func (h *UIHandler) AdminWarehouseDetailPage(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminWarehouseDetailPage(wh, stocks, lang, dir).Render(ctx, w)
+	if err := pages.AdminWarehouseDetailPage(wh, stocks, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin warehouse detail", "error", err)
+	}
 }
 
 // AdminTempWarehousesPage renders temporary warehouses staging directory.

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -23,8 +24,13 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var payments []*billing.Payment
+	if h.billSvc != nil {
+		payments, _ = h.billSvc.ListPayments(ctx, actor.OrganizationID, 50, 0)
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorPaymentsPage(lang, dir).Render(ctx, w); err != nil {
+	if err := pages.VendorPaymentsPage(payments, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor payments", "error", err)
 	}
 }
@@ -105,5 +111,7 @@ func (h *UIHandler) VendorOfferOrderDetailPage(w http.ResponseWriter, r *http.Re
 	shipID, _ := strconv.ParseInt(idStr, 10, 64)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorOfferOrderDetailPage(shipID, lang, dir).Render(ctx, w)
+	if err := pages.VendorOfferOrderDetailPage(shipID, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor offer order detail", "error", err)
+	}
 }

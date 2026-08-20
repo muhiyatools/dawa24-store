@@ -240,9 +240,38 @@ func (r stubRepo) GetConnectedInstitutionalWorkIDs(ctx context.Context, fromWork
 	r.fail("GetConnectedInstitutionalWorkIDs")
 	return nil, nil
 }
+func (r stubRepo) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
+	r.fail("ToggleMemberStatus")
+	return nil
+}
+func (r stubRepo) SavePolicies(ctx context.Context, orgID int64, policies []*org.Policy) error {
+	r.fail("SavePolicies")
+	return nil
+}
+func (r stubRepo) ListSocialMediaByOrg(ctx context.Context, orgID int64) ([]*org.SocialMedia, error) {
+	r.fail("ListSocialMediaByOrg")
+	return nil, nil
+}
+func (r stubRepo) SaveSocialMedia(ctx context.Context, orgID int64, links []*org.SocialMedia) error {
+	r.fail("SaveSocialMedia")
+	return nil
+}
 
 type happyRepo struct{}
 
+func (happyRepo) SavePolicies(ctx context.Context, orgID int64, policies []*org.Policy) error {
+	return nil
+}
+func (happyRepo) ListSocialMediaByOrg(ctx context.Context, orgID int64) ([]*org.SocialMedia, error) {
+	return nil, nil
+}
+func (happyRepo) SaveSocialMedia(ctx context.Context, orgID int64, links []*org.SocialMedia) error {
+	return nil
+}
+
+func (happyRepo) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
+	return nil
+}
 func (happyRepo) AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error {
 	return nil
 }

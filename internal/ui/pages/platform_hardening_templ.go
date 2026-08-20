@@ -13,8 +13,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// Security2FAEnrollmentPage renders TOTP QR code and setup.
-func Security2FAEnrollmentPage(lang, dir string) templ.Component {
+// AdminSessionPlansPage renders session plan management.
+func AdminSessionPlansPage(lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -47,13 +47,21 @@ func Security2FAEnrollmentPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"max-width:650px; margin:0 auto;\"><h2 class=\"card-title\" style=\"margin-bottom:0.5rem;\">تفعيل المصادقة الثنائية (Google Authenticator)</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">حماية إضافية لحسابك تتطلب إدخال رمز التحقق من هاتفك عند تسجيل الدخول.</p><div style=\"background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-md); text-align:center; margin-bottom:1.5rem;\"><div style=\"width:160px; height:160px; background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-md); margin:0 auto 1rem auto; display:flex; align-items:center; justify-content:center;\"><span style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700;\">[ رمز QR الآمن ]</span></div><p style=\"font-size:0.8rem; color:var(--text-secondary);\">امسح الرمز أعلاه باستخدام تطبيق Google Authenticator أو 1Password.</p></div><form method=\"POST\" action=\"/settings/security/2fa/enable\" style=\"display:flex; flex-direction:column; gap:1rem;\"><div><label class=\"form-label\">أدخل رمز التحقق المكون من 6 أرقام</label> <input type=\"text\" name=\"code\" class=\"form-input\" placeholder=\"000000\" maxlength=\"6\" style=\"text-align:center; font-size:1.25rem; letter-spacing:4px;\" required></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%;\">تأكيد وتفعيل الحماية</button></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">خطط الجلسات المتعددة وتحديد الأجهزة</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p></div><a href=\"/admin/session-plan/requests\" class=\"btn btn-secondary btn-sm\">طلبات زيادة المقاعد</a></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "خطط الجلسات", Message: "تحديد الحد الأقصى للجلسات الفعالة والأجهزة المسجلة."}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("المصادقة الثنائية (2FA)", "security", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("خطط الجلسات والأجهزة (Session Plans)", "security", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -61,8 +69,8 @@ func Security2FAEnrollmentPage(lang, dir string) templ.Component {
 	})
 }
 
-// Auth2FAChallengePage renders login 2FA verification.
-func Auth2FAChallengePage(lang, dir string) templ.Component {
+// AdminSessionPlanRequestsPage renders session seat requests.
+func AdminSessionPlanRequestsPage(lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -95,13 +103,21 @@ func Auth2FAChallengePage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"container\" style=\"max-width:480px; padding:4rem 1rem; margin:0 auto;\"><div class=\"card\"><h2 class=\"card-title\" style=\"text-align:center; margin-bottom:0.5rem;\">تأكيد تسجيل الدخول</h2><p style=\"text-align:center; font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">أدخل الرمز السري من تطبيق المصادقة الخاص بك لإكمال تسجيل الدخول.</p><form method=\"POST\" action=\"/auth/2fa-challenge\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div><label class=\"form-label\">رمز التحقق (2FA Code)</label> <input type=\"text\" name=\"code\" class=\"form-input\" placeholder=\"000000\" maxlength=\"6\" style=\"text-align:center; font-size:1.35rem; letter-spacing:6px;\" required autofocus></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; font-size:1rem; padding:0.75rem;\">تحقق ومتابعة</button></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلبات زيادة عدد الأجهزة والجلسات</h2></div><a href=\"/admin/session-plan\" class=\"btn btn-secondary btn-sm\">العودة للخطط</a></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات معلقة", Message: "تظهر هنا طلبات المنشآت لزيادة عدد المقاعد والأجهزة المتصلة."}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell("التحقق بخطوتين", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("طلبات زيادة الجلسات والأجهزة", "security", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -109,8 +125,8 @@ func Auth2FAChallengePage(lang, dir string) templ.Component {
 	})
 }
 
-// AdminSessionPlansPage renders session plan management.
-func AdminSessionPlansPage(lang, dir string) templ.Component {
+// CustomerReportIssuePage renders issue form.
+func CustomerReportIssuePage(lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -143,21 +159,13 @@ func AdminSessionPlansPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">خطط الجلسات المتعددة وتحديد الأجهزة</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p></div><a href=\"/admin/session-plan/requests\" class=\"btn btn-secondary btn-sm\">طلبات زيادة المقاعد</a></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "خطط الجلسات", Message: "تحديد الحد الأقصى للجلسات الفعالة والأجهزة المسجلة."}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"max-width:700px; margin:0 auto;\"><h2 class=\"card-title\" style=\"margin-bottom:0.5rem;\">الإبلاغ عن مشكلة أو إرسال اقتراح</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">فريق الدعم الفني يتابع بلاغاتك ويعمل على حلها فوراً.</p><form method=\"POST\" action=\"/report-issue\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div><label class=\"form-label\">نوع البلاغ</label> <select name=\"issue_type\" class=\"form-input\" required><option value=\"technical\">مشكلة تقنية أو خطأ في النظام</option> <option value=\"order\">مشكلة في طلب أو شحنة</option> <option value=\"billing\">مشكلة في الدفع أو الفاتورة</option> <option value=\"suggestion\">اقتراح تحسين للمنصة</option></select></div><div><label class=\"form-label\">تفاصيل البلاغ</label> <textarea name=\"description\" class=\"form-input\" rows=\"5\" placeholder=\"اشرح المشكلة بالتفصيل مع ذكر أي أرقام مرجعية ذات صلة...\" required></textarea></div><div style=\"display:flex; justify-content:flex-end;\"><button type=\"submit\" class=\"btn btn-primary\">إرسال البلاغ للدعم الفني</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("خطط الجلسات والأجهزة (Session Plans)", "security", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("الإبلاغ عن مشكلة أو اقتراح", "support", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -165,8 +173,8 @@ func AdminSessionPlansPage(lang, dir string) templ.Component {
 	})
 }
 
-// AdminSessionPlanRequestsPage renders session seat requests.
-func AdminSessionPlanRequestsPage(lang, dir string) templ.Component {
+// AdminReportIssuesPage renders admin issues review queue.
+func AdminReportIssuesPage(lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -199,111 +207,7 @@ func AdminSessionPlanRequestsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلبات زيادة عدد الأجهزة والجلسات</h2></div><a href=\"/admin/session-plan\" class=\"btn btn-secondary btn-sm\">العودة للخطط</a></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات معلقة", Message: "تظهر هنا طلبات المنشآت لزيادة عدد المقاعد والأجهزة المتصلة."}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = layouts.AdminShell("طلبات زيادة الجلسات والأجهزة", "security", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-// CustomerReportIssuePage renders issue form.
-func CustomerReportIssuePage(lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var9 == nil {
-			templ_7745c5c3_Var9 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var10 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"card\" style=\"max-width:700px; margin:0 auto;\"><h2 class=\"card-title\" style=\"margin-bottom:0.5rem;\">الإبلاغ عن مشكلة أو إرسال اقتراح</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">فريق الدعم الفني يتابع بلاغاتك ويعمل على حلها فوراً.</p><form method=\"POST\" action=\"/report-issue\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div><label class=\"form-label\">نوع البلاغ</label> <select name=\"issue_type\" class=\"form-input\" required><option value=\"technical\">مشكلة تقنية أو خطأ في النظام</option> <option value=\"order\">مشكلة في طلب أو شحنة</option> <option value=\"billing\">مشكلة في الدفع أو الفاتورة</option> <option value=\"suggestion\">اقتراح تحسين للمنصة</option></select></div><div><label class=\"form-label\">تفاصيل البلاغ</label> <textarea name=\"description\" class=\"form-input\" rows=\"5\" placeholder=\"اشرح المشكلة بالتفصيل مع ذكر أي أرقام مرجعية ذات صلة...\" required></textarea></div><div style=\"display:flex; justify-content:flex-end;\"><button type=\"submit\" class=\"btn btn-primary\">إرسال البلاغ للدعم الفني</button></div></form></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = layouts.CustomerShell("الإبلاغ عن مشكلة أو اقتراح", "support", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-// AdminReportIssuesPage renders admin issues review queue.
-func AdminReportIssuesPage(lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var11 == nil {
-			templ_7745c5c3_Var11 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var12 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">قائمة بلاغات وشكاوى المستخدمين</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">قائمة بلاغات وشكاوى المستخدمين</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;\">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -311,13 +215,13 @@ func AdminReportIssuesPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("بلاغات المستخدمين والدعم الفني (Report Issues)", "support", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("بلاغات المستخدمين والدعم الفني (Report Issues)", "support", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

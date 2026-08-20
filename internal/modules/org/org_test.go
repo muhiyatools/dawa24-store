@@ -223,6 +223,19 @@ func (m *mockOrgRepo) ListPoliciesByOrg(_ context.Context, orgID int64) ([]*Poli
 	return m.policies[orgID], nil
 }
 
+func (m *mockOrgRepo) SavePolicies(_ context.Context, orgID int64, policies []*Policy) error {
+	m.policies[orgID] = policies
+	return nil
+}
+
+func (m *mockOrgRepo) ListSocialMediaByOrg(_ context.Context, orgID int64) ([]*SocialMedia, error) {
+	return nil, nil
+}
+
+func (m *mockOrgRepo) SaveSocialMedia(_ context.Context, orgID int64, links []*SocialMedia) error {
+	return nil
+}
+
 func (m *mockOrgRepo) CreateRole(_ context.Context, role *Role) error {
 	role.ID = 1
 	return nil
@@ -332,6 +345,10 @@ func (m *mockOrgRepo) GetUserInstitutionalWorkIDs(_ context.Context, _ int64) ([
 
 func (m *mockOrgRepo) GetConnectedInstitutionalWorkIDs(_ context.Context, _ []int64) ([]int64, error) {
 	return nil, nil
+}
+
+func (m *mockOrgRepo) ToggleMemberStatus(_ context.Context, _, _ int64) error {
+	return nil
 }
 
 func TestOrgLifecycleAndBranches(t *testing.T) {

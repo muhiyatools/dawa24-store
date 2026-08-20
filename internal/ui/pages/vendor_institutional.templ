@@ -1,22 +1,57 @@
 package pages
 
 import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // VendorInstitutionalWorkPage renders vendor institutional memberships.
-templ VendorInstitutionalWorkPage(lang, dir string) {
+templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir string) {
 	@layouts.VendorShell("الأعمال المؤسسية للشركات والجهات", "institutional_work", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
 				<div>
-					<h2 class="card-title" style="margin:0;">الأعمال والاتفاقيات المؤسسية للمنشأة</h2>
+					<h2 class="card-title" style="margin:0;">الأعمال والاتفاقيات المؤسسية للمنشأة ({ fmt.Sprintf("%d", len(works)) })</h2>
 					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">إدارة عضويات الجهات الطبية، المجموعات الصيدلانية، وسلاسل التوريد الخاصة.</p>
 				</div>
 			</div>
 
-			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أعمال مؤسسية معتمدة", Message: "تتيح الأعمال المؤسسية تقديم عروض حصرية لفئات محددة من الصيدليات والجهات الطبية."})
+			if len(works) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أعمال مؤسسية معتمدة", Message: "تتيح الأعمال المؤسسية تقديم عروض حصرية لفئات محددة من الصيدليات والجهات الطبية."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>اسم الهيكل المؤسسي</th>
+								<th>الوصف</th>
+								<th>نوع التسعير</th>
+								<th>الحالة</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, w := range works {
+								<tr>
+									<td><strong>{ w.Title.Get(i18n.Lang(lang)) }</strong></td>
+									<td>{ w.Description.Get(i18n.Lang(lang)) }</td>
+									<td><span class="badge badge-sky">{ string(w.PricingType) }</span></td>
+									<td>
+										if w.IsActive {
+											<span class="badge badge-success">نشط</span>
+										} else {
+											<span class="badge badge-secondary">غير نشط</span>
+										}
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }

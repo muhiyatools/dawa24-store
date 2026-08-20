@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
@@ -12,16 +15,40 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 		g.Get("/admin/users", h.AdminUsersPage)
 		g.Get("/admin/users/{id}", h.AdminUserDetailPage)
 		g.Get("/admin/users/{id}/info", h.AdminUserDetailPage)
-		g.Get("/admin/full-user", h.AdminFullUserPage)
-		g.Get("/admin/full-user/new-clients", h.AdminNewClientsPage)
-		g.Get("/admin/customer-list", h.AdminCustomerListPage)
-		g.Get("/admin/customer-list/{id}", h.AdminUserDetailPage)
-		g.Get("/admin/vendor-list", h.AdminVendorListPage)
-		g.Get("/admin/vendor-list/{id}", h.AdminUserDetailPage)
-		g.Get("/admin/admin-list", h.AdminStaffListPage)
-		g.Get("/admin/admins", h.AdminStaffListPage)
-		g.Get("/admin/admins/{id}", h.AdminUserDetailPage)
-		g.Get("/admin/admins/{id}/edit", h.AdminUserDetailPage)
+		g.Get("/admin/users/{id}/edit", h.AdminUserDetailPage)
+
+		// 301 Redirects for duplicate user screens (Task B.1)
+		g.Get("/admin/full-user", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/full-user/new-clients", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users?type=new", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/customer-list", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users?type=customer", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/customer-list/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, fmt.Sprintf("/admin/users/%s", chi.URLParam(r, "id")), http.StatusMovedPermanently)
+		})
+		g.Get("/admin/vendor-list", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users?type=vendor", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/vendor-list/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, fmt.Sprintf("/admin/users/%s", chi.URLParam(r, "id")), http.StatusMovedPermanently)
+		})
+		g.Get("/admin/admin-list", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users?type=staff", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/admins", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/users?type=staff", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/admins/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, fmt.Sprintf("/admin/users/%s", chi.URLParam(r, "id")), http.StatusMovedPermanently)
+		})
+		g.Get("/admin/admins/{id}/edit", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, fmt.Sprintf("/admin/users/%s/edit", chi.URLParam(r, "id")), http.StatusMovedPermanently)
+		})
+
 		g.Get("/admin/employee-activities", h.AdminEmployeeActivitiesPage)
 		g.Get("/admin/user-address", h.AdminUserAddressesPage)
 		g.Get("/admin/user-address/{id}", h.AdminUserAddressesPage)

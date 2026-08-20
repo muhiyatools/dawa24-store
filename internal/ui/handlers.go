@@ -71,6 +71,9 @@ func NewUIHandler(
 	attSvc *attachments.Service,
 	log *slog.Logger,
 ) *UIHandler {
+	if log == nil {
+		log = slog.Default()
+	}
 	return &UIHandler{
 		catSvc:   catSvc,
 		orgSvc:   orgSvc,
@@ -172,8 +175,6 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/promotions/track-click/{offer}", h.PublicPromotionTrackClick)
 		pub.Get("/promotions/track-click/{offer}/{promotion}", h.PublicPromotionTrackClick)
 		pub.Get("/ads/click/{ad}", h.PublicAdClick)
-		pub.Get("/auth/2fa-challenge", h.Auth2FAChallengePage)
-		pub.Post("/auth/2fa-challenge", h.Auth2FAChallengeSubmit)
 
 		// Form actions that work signed-out (sign-up must be reachable pre-login)
 		pub.Post("/auth/login", h.LoginSubmit)
@@ -237,6 +238,7 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 
 	// Pharmacy Branches & Delivery Receiving Locations (Rebuild V2 §5)
 	r.Get("/customer/branches", h.CustomerBranchesPage)
+	r.Post("/customer/branches/active", h.CustomerSwitchActiveBranchSubmit)
 	r.Post("/customer/branches/new", h.CustomerBranchNewSubmit)
 	r.Post("/customer/branches/{id}/delete", h.CustomerBranchDeleteSubmit)
 
@@ -346,7 +348,9 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/earnings/order", h.VendorEarningsOrderPage)
 	r.Get("/vendor/earnings/offers", h.VendorEarningsOffersPage)
 	r.Get("/vendor/policies", h.VendorPoliciesPage)
+	r.Post("/vendor/policies", h.VendorPoliciesSubmit)
 	r.Get("/vendor/social-media", h.VendorSocialMediaPage)
+	r.Post("/vendor/social-media", h.VendorSocialMediaSubmit)
 	r.Get("/vendor/storefront", h.VendorStorefrontPage)
 	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
 	r.Post("/vendor/storefront/section/{id}/item", h.VendorStorefrontItemSubmit)
@@ -434,18 +438,11 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	// Wallet, invoices, messages, requests
 	r.Get("/wallet", h.WalletPage)
 	r.Get("/invoices", h.InvoicesPage)
-	r.Get("/invoices/{id}/pdf", h.InvoicePDFDownload)
-	r.Get("/orders/{id}/pdf", h.OrderPDFDownload)
 	r.Get("/messages", h.MessagesPage)
 	r.Get("/messages/{id}", h.MessagesConversationPage)
 	r.Get("/requests", h.RequestsPage)
 	r.Get("/report-issue", h.CustomerReportIssuePage)
 	r.Post("/report-issue", h.CustomerReportIssueSubmit)
-
-	r.Get("/settings/security/2fa", h.Security2FAEnrollmentPage)
-	r.Post("/settings/security/2fa/enable", h.Security2FAEnableSubmit)
-	r.Post("/settings/security/2fa/disable", h.Security2FADisableSubmit)
-	r.Post("/settings/security/2fa/recovery", h.Security2FARecoverySubmit)
 
 	r.Post("/wallet/deposit", h.WalletDepositSubmit)
 	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)

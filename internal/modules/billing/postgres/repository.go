@@ -215,6 +215,44 @@ func (r *Repository) GetPaymentByID(ctx context.Context, id int64) (*billing.Pay
 	return &p, nil
 }
 
+// ListPaymentsByOrg retrieves payments associated with an organization.
+func (r *Repository) ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, error) {
+	var list []*billing.Payment
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT id, public_id, payment_integration_id, order_id, user_id, organization_id,
+			       amount, method, status, transaction_id, reference_number, paid_at,
+			       created_at, updated_at
+			FROM billing.payments
+			WHERE organization_id = $1
+			ORDER BY created_at DESC
+			LIMIT $2 OFFSET $3;
+		`
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var p billing.Payment
+			if err := rows.Scan(
+				&p.ID, &p.PublicID, &p.PaymentIntegrationID, &p.OrderID, &p.UserID,
+				&p.OrganizationID, &p.Amount, &p.Method, &p.Status, &p.TransactionID,
+				&p.ReferenceNumber, &p.PaidAt, &p.CreatedAt, &p.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &p)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
 // ListPlans lists all active subscription plans.
 func (r *Repository) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 	var plans []*billing.Plan

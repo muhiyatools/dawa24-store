@@ -144,6 +144,9 @@ func (m *institutionalMockRepo) IsFollowing(_ context.Context, _, _ int64) (bool
 func (m *institutionalMockRepo) ListFollowedOrgs(_ context.Context, _ int64) ([]*org.Organization, error) { return nil, nil }
 func (m *institutionalMockRepo) CreatePolicy(_ context.Context, _ *org.Policy) error { return nil }
 func (m *institutionalMockRepo) ListPoliciesByOrg(_ context.Context, _ int64) ([]*org.Policy, error) { return nil, nil }
+func (m *institutionalMockRepo) SavePolicies(_ context.Context, _ int64, _ []*org.Policy) error { return nil }
+func (m *institutionalMockRepo) ListSocialMediaByOrg(_ context.Context, _ int64) ([]*org.SocialMedia, error) { return nil, nil }
+func (m *institutionalMockRepo) SaveSocialMedia(_ context.Context, _ int64, _ []*org.SocialMedia) error { return nil }
 
 // Employee Institutional Works mock
 func (m *institutionalMockRepo) AssignEmployeeInstitutionalWork(_ context.Context, orgID, userID, workID int64) error {
@@ -212,6 +215,10 @@ func (m *institutionalMockRepo) GetConnectedInstitutionalWorkIDs(_ context.Conte
 		}
 	}
 	return res, nil
+}
+
+func (m *institutionalMockRepo) ToggleMemberStatus(_ context.Context, _, _ int64) error {
+	return nil
 }
 
 func TestInstitutionalWorkHierarchyAndConnections(t *testing.T) {

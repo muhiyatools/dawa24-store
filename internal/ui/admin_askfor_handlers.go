@@ -56,7 +56,9 @@ func (h *UIHandler) AdminAskForDetailPage(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminAskForDetailPage(req, lang, dir).Render(ctx, w)
+	if err := pages.AdminAskForDetailPage(req, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin ask for detail", "error", err)
+	}
 }
 
 // AdminAskForRespondSubmit handles admin accepting/declining/cancelling request.

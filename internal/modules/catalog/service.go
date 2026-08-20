@@ -326,3 +326,26 @@ func (s *Service) ListFinderResults(ctx context.Context) ([]*FinderResult, error
 func (s *Service) CountProductsByOrg(ctx context.Context, orgID int64, status string) (int, error) {
 	return s.repo.CountProductsByOrg(ctx, orgID, status)
 }
+
+// CreateSavingProduct registers a saving target product.
+func (s *Service) CreateSavingProduct(ctx context.Context, sp *SavingProduct) error {
+	if sp.NameProduct == "" {
+		return apperr.Validation("name_product.required", "اسم المنتج مطلوب.", nil)
+	}
+	return s.repo.CreateSavingProduct(ctx, sp)
+}
+
+// ListSavingProducts returns saving products for an organization.
+func (s *Service) ListSavingProducts(ctx context.Context, orgID int64, limit, offset int) ([]*SavingProduct, error) {
+	return s.repo.ListSavingProductsByOrg(ctx, orgID, limit, offset)
+}
+
+// GetSavingProduct returns a single saving product by ID.
+func (s *Service) GetSavingProduct(ctx context.Context, id int64) (*SavingProduct, error) {
+	return s.repo.GetSavingProductByID(ctx, id)
+}
+
+// DeleteSavingProduct removes a saving product record.
+func (s *Service) DeleteSavingProduct(ctx context.Context, id, orgID int64) error {
+	return s.repo.DeleteSavingProduct(ctx, id, orgID)
+}

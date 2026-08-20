@@ -153,6 +153,54 @@ func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*pl
 	return list, err
 }
 
+// ListAuditLogByOrg returns audit trail entries filtered to a specific organization.
+func (r *Repository) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, error) {
+	var list []*platformadmin.AuditEntry
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT a.id, a.organization_id,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), 'المنصة الرئيسية') AS org_name,
+			       a.actor_user_id,
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email, 'النظام / System') AS actor_name,
+			       COALESCE(u.email, '') AS actor_email,
+			       a.action, a.entity_type, a.entity_id,
+			       COALESCE(HOST(a.ip), '') AS ip_addr,
+			       COALESCE(a.request_id, '') AS req_id,
+			       a.before, a.after, a.created_at
+			FROM platform.audit_log a
+			LEFT JOIN identity.users u ON a.actor_user_id = u.id
+			LEFT JOIN org.organizations o ON a.organization_id = o.id
+			WHERE a.organization_id = $1
+			ORDER BY a.created_at DESC
+			LIMIT $2 OFFSET $3;
+		`
+		if limit <= 0 || limit > 100 {
+			limit = 50
+		}
+		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var e platformadmin.AuditEntry
+			var ipAddr, reqID string
+			if err := rows.Scan(
+				&e.ID, &e.OrganizationID, &e.OrganizationName, &e.ActorUserID,
+				&e.ActorName, &e.ActorEmail, &e.Action, &e.EntityType, &e.EntityID,
+				&ipAddr, &reqID, &e.Before, &e.After, &e.CreatedAt,
+			); err != nil {
+				return err
+			}
+			e.IPAddress = ipAddr
+			e.Route = reqID
+			list = append(list, &e)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
 // QueueStats returns River job counts grouped by state.
 func (r *Repository) QueueStats(ctx context.Context) (map[string]int, error) {
 	stats := map[string]int{}

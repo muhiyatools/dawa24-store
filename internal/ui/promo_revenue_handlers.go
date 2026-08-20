@@ -13,84 +13,114 @@ import (
 
 // AdminOffersPackagesHubPage renders the monetization and packages overview hub.
 func (h *UIHandler) AdminOffersPackagesHubPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOffersPackagesHubPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOffersPackagesHubPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offers packages hub", "error", err)
+	}
 }
 
 // AdminOfferPackagesListPage renders list of offer packages and pricing tiers.
 func (h *UIHandler) AdminOfferPackagesListPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOfferPackagesListPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOfferPackagesListPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offer packages list", "error", err)
+	}
 }
 
 // AdminOfferPackageDetailPage renders single offer package details and features.
 func (h *UIHandler) AdminOfferPackageDetailPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")
 	pkgID, _ := strconv.ParseInt(idStr, 10, 64)
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOfferPackageDetailPage(pkgID, lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOfferPackageDetailPage(pkgID, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offer package detail", "error", err)
+	}
 }
 
 // AdminOfferSponsorshipsPage renders list of sponsored offers and active subscriptions.
 func (h *UIHandler) AdminOfferSponsorshipsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOfferSponsorshipsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOfferSponsorshipsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offer sponsorships", "error", err)
+	}
 }
 
 // AdminOfferPromotionsPage renders promotional campaigns list.
 func (h *UIHandler) AdminOfferPromotionsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOfferPromotionsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOfferPromotionsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offer promotions", "error", err)
+	}
 }
 
 // AdminAdsListPage renders advertisements and banners management table.
 func (h *UIHandler) AdminAdsListPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminAdsListPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminAdsListPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin ads list", "error", err)
+	}
 }
 
 // AdminAdPlansPage renders advertising placement plans.
 func (h *UIHandler) AdminAdPlansPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminAdPlansPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminAdPlansPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin ad plans", "error", err)
+	}
 }
 
 // AdminOfferAnalyticsViewsPage renders views time-series and aggregate report.
 func (h *UIHandler) AdminOfferAnalyticsViewsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOfferAnalyticsViewsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOfferAnalyticsViewsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offer analytics views", "error", err)
+	}
 }
 
 // AdminOfferAnalyticsClicksPage renders clicks time-series and CTR report.
 func (h *UIHandler) AdminOfferAnalyticsClicksPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOfferAnalyticsClicksPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOfferAnalyticsClicksPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offer analytics clicks", "error", err)
+	}
 }
 
 // AdminOfferLocationsPage renders geographic coverage distribution for offers.
 func (h *UIHandler) AdminOfferLocationsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminOfferLocationsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.AdminOfferLocationsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin offer locations", "error", err)
+	}
 }
 
 // VendorOffersPackagesPage renders available packages and current subscription for vendor.
@@ -105,35 +135,49 @@ func (h *UIHandler) VendorOffersPackagesPage(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorOffersPackagesPage(lang, dir).Render(ctx, w)
+	if err := pages.VendorOffersPackagesPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor offers packages", "error", err)
+	}
 }
 
 // VendorOffersPackagesSponsorshipsPage renders vendor's sponsored offers list.
 func (h *UIHandler) VendorOffersPackagesSponsorshipsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorOffersPackagesSponsorshipsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.VendorOffersPackagesSponsorshipsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor offers packages sponsorships", "error", err)
+	}
 }
 
 // VendorOffersPackagesPromotionsPage renders vendor's promotional campaigns.
 func (h *UIHandler) VendorOffersPackagesPromotionsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorOffersPackagesPromotionsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.VendorOffersPackagesPromotionsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor offers packages promotions", "error", err)
+	}
 }
 
 // VendorAdsPage renders vendor's active banners and ads.
 func (h *UIHandler) VendorAdsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorAdsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.VendorAdsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor ads", "error", err)
+	}
 }
 
 // VendorOffersLocationsPage renders vendor's offer geographic coverage.
 func (h *UIHandler) VendorOffersLocationsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorOffersLocationsPage(lang, dir).Render(r.Context(), w)
+	if err := pages.VendorOffersLocationsPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor offers locations", "error", err)
+	}
 }
 
 // PublicPromotionTrackClick records a click to promo.offer_clicks with open redirect guard.

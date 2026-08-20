@@ -44,13 +44,15 @@ func (h *UIHandler) WalletDepositSubmit(w http.ResponseWriter, r *http.Request) 
 		desc += " - " + notes
 	}
 
-	if h.billSvc != nil {
-		_, err := h.billSvc.Deposit(ctx, actor.UserID, "EGP", amt, "user_deposit", nil, desc)
-		if err != nil {
-			h.log.ErrorContext(ctx, "failed wallet deposit", "error", err)
-			h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية الإيداع: "+err.Error())
-			return
-		}
+	if h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "خدمة المحفظة والفواتير غير متوفرة.")
+		return
+	}
+
+	if _, err := h.billSvc.Deposit(ctx, actor.UserID, "EGP", amt, "user_deposit", nil, desc); err != nil {
+		h.log.ErrorContext(ctx, "failed wallet deposit", "error", err)
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية الإيداع: "+err.Error())
+		return
 	}
 
 	h.redirectWithNotice(w, r, "/settings?tab=wallet", "success", "تم إيداع الرصيد وتحديث المحفظة بنجاح.")
@@ -80,13 +82,15 @@ func (h *UIHandler) WalletWithdrawSubmit(w http.ResponseWriter, r *http.Request)
 		desc += fmt.Sprintf(" (السبب: %s)", reason)
 	}
 
-	if h.billSvc != nil {
-		_, err := h.billSvc.Withdraw(ctx, actor.UserID, "EGP", amt, "user_withdrawal", nil, desc)
-		if err != nil {
-			h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
-			h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية السحب: "+err.Error())
-			return
-		}
+	if h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "خدمة المحفظة والفواتير غير متوفرة.")
+		return
+	}
+
+	if _, err := h.billSvc.Withdraw(ctx, actor.UserID, "EGP", amt, "user_withdrawal", nil, desc); err != nil {
+		h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
+		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "فشل إتمام عملية السحب: "+err.Error())
+		return
 	}
 
 	h.redirectWithNotice(w, r, "/settings?tab=wallet", "success", "تم خصم وتسجيل طلب السحب بنجاح.")

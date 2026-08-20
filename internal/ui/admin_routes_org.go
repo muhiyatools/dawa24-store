@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
@@ -14,8 +16,12 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Get("/admin/organizations/{id}/info", h.AdminOrganizationInfoPage)
 		g.Get("/admin/organizations/{id}/users", h.AdminOrganizationUsersPage)
 		g.Get("/admin/organizations/{id}/branches", h.AdminOrganizationBranchesPage)
-		g.Get("/admin/vendors", h.AdminOrganizationsPage)
-		g.Get("/admin/suppliers", h.AdminOrganizationsPage)
+		g.Get("/admin/vendors", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/organizations?type=vendor", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/suppliers", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/organizations?type=vendor", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/approvals", h.AdminApprovalsPage)
 	})
 

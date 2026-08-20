@@ -51,7 +51,27 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-file-size ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-file-size check-error-swallow ## Run every gate
+
+.PHONY: check-error-swallow
+check-error-swallow: ## Fail if a service error is silently discarded
+	@echo "==> checking for swallowed errors"
+	@bad=$$( \
+	  { grep -rn 'err == nil {' internal/ui/*.go internal/modules/*/*.go 2>/dev/null | grep -v '_test.go'; \
+	    grep -rnE '[a-zA-Z]+, _ = h\.[a-zA-Z]+Svc\.' internal/ui/*.go 2>/dev/null | grep -v '_test.go'; \
+	    grep -rn '_ = pages\.' internal/ui/*.go 2>/dev/null | grep -v '_test.go'; \
+	  } | grep -v 'nolint:errswallow' | wc -l ); \
+	if [ "$$bad" -ne 0 ]; then \
+	  echo "FAIL: $$bad swallowed-error site(s):"; \
+	  { grep -rn 'err == nil {' internal/ui/*.go internal/modules/*/*.go; \
+	    grep -rnE '[a-zA-Z]+, _ = h\.[a-zA-Z]+Svc\.' internal/ui/*.go; \
+	    grep -rn '_ = pages\.' internal/ui/*.go; } | grep -v '_test.go' | grep -v 'nolint:errswallow'; \
+	  echo ""; \
+	  echo "Each site must surface the error (see docs/PLAN_V6/04_PHASE_D_SILENCE.md §D.1.4)."; \
+	  echo "If silence is genuinely correct, annotate the line with // nolint:errswallow and say why."; \
+	  exit 1; \
+	fi; \
+	echo "OK: no swallowed errors"
 
 .PHONY: fmt
 fmt: ## Format the codebase
@@ -77,6 +97,11 @@ test: ## Run tests with race detection
 .PHONY: test-short
 test-short: ## Run unit tests only, skipping anything needing containers
 	go test -short -count=1 ./...
+
+.PHONY: test-integration
+test-integration: ## Run database integration tests
+	go test -v -count=1 ./test/integration/...
+
 
 # --- architectural invariants --------------------------------------------
 

@@ -255,6 +255,14 @@ func (s *Service) RemoveMember(ctx context.Context, orgID, userID int64) error {
 	return s.repo.RemoveMember(ctx, orgID, userID)
 }
 
+// ToggleMemberStatus toggles a member's active status.
+func (s *Service) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
+	if orgID <= 0 || memberID <= 0 {
+		return apperr.Validation("member.invalid", "Valid org and member IDs are required.", nil)
+	}
+	return s.repo.ToggleMemberStatus(ctx, orgID, memberID)
+}
+
 // AddReview records a customer review for a vendor organization.
 func (s *Service) AddReview(ctx context.Context, orgID, userID int64, rating int, text string) (*Review, error) {
 	if rating < 1 || rating > 5 {
@@ -302,6 +310,21 @@ func (s *Service) ListFollowedOrganizations(ctx context.Context, userID int64) (
 // ListPolicies returns an organization's active policies.
 func (s *Service) ListPolicies(ctx context.Context, orgID int64) ([]*Policy, error) {
 	return s.repo.ListPoliciesByOrg(ctx, orgID)
+}
+
+// SavePolicies updates an organization's policies.
+func (s *Service) SavePolicies(ctx context.Context, orgID int64, policies []*Policy) error {
+	return s.repo.SavePolicies(ctx, orgID, policies)
+}
+
+// ListSocialMedia returns an organization's social media accounts.
+func (s *Service) ListSocialMedia(ctx context.Context, orgID int64) ([]*SocialMedia, error) {
+	return s.repo.ListSocialMediaByOrg(ctx, orgID)
+}
+
+// SaveSocialMedia updates an organization's social media links.
+func (s *Service) SaveSocialMedia(ctx context.Context, orgID int64, links []*SocialMedia) error {
+	return s.repo.SaveSocialMedia(ctx, orgID, links)
 }
 
 // UpdateOrganization updates organization details.

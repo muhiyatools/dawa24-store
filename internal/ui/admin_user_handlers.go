@@ -42,7 +42,9 @@ func (h *UIHandler) AdminNewClientsPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFullUserPage(users, "new_clients", lang, dir).Render(ctx, w)
+	if err := pages.AdminFullUserPage(users, "new_clients", lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin new clients", "error", err)
+	}
 }
 
 // AdminCustomerListPage renders pharmacy customer accounts.
@@ -56,7 +58,9 @@ func (h *UIHandler) AdminCustomerListPage(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFullUserPage(users, "customers", lang, dir).Render(ctx, w)
+	if err := pages.AdminFullUserPage(users, "customers", lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin customers", "error", err)
+	}
 }
 
 // AdminVendorListPage renders vendor and supplier user accounts.
@@ -70,7 +74,9 @@ func (h *UIHandler) AdminVendorListPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFullUserPage(users, "vendors", lang, dir).Render(ctx, w)
+	if err := pages.AdminFullUserPage(users, "vendors", lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin vendors", "error", err)
+	}
 }
 
 // AdminStaffListPage renders platform administrators and staff users.
@@ -84,7 +90,9 @@ func (h *UIHandler) AdminStaffListPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFullUserPage(users, "staff", lang, dir).Render(ctx, w)
+	if err := pages.AdminFullUserPage(users, "staff", lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin staff", "error", err)
+	}
 }
 
 // AdminUserDetailPage renders detailed user profile with role and organization info.
@@ -125,7 +133,9 @@ func (h *UIHandler) AdminUserAddressesPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFullUserPage(users, "addresses", lang, dir).Render(ctx, w)
+	if err := pages.AdminFullUserPage(users, "addresses", lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin user addresses", "error", err)
+	}
 }
 
 // AdminUserOrganizationPage renders user-to-organization membership directory.
@@ -139,7 +149,9 @@ func (h *UIHandler) AdminUserOrganizationPage(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminFullUserPage(users, "organizations", lang, dir).Render(ctx, w)
+	if err := pages.AdminFullUserPage(users, "organizations", lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin user organizations", "error", err)
+	}
 }
 
 // AdminWantDeletePage renders account deletion requests.
@@ -204,7 +216,9 @@ func (h *UIHandler) AdminRoleDetailPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminRoleEditPage(role, lang, dir).Render(ctx, w)
+	if err := pages.AdminRoleEditPage(role, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin role edit", "error", err)
+	}
 }
 
 // AdminRoleUpdateSubmit saves updated permissions for a role.

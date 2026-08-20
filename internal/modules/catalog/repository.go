@@ -80,4 +80,10 @@ type Repository interface {
 	DeleteProductIndexByProduct(ctx context.Context, productID int64) error
 	SearchProductIndex(ctx context.Context, params SearchParams) ([]*ProductIndexItem, error)
 	RebuildProductIndex(ctx context.Context) (int64, error)
+
+	// Saving Products (catalog.saving_products)
+	CreateSavingProduct(ctx context.Context, sp *SavingProduct) error
+	ListSavingProductsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*SavingProduct, error)
+	GetSavingProductByID(ctx context.Context, id int64) (*SavingProduct, error)
+	DeleteSavingProduct(ctx context.Context, id, orgID int64) error
 }

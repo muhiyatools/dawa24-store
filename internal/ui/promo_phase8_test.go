@@ -53,8 +53,8 @@ func TestPromoPhase8Routes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Super admin GET /admin/offer-sponsorships returns 200",
-			path:   "/admin/offer-sponsorships",
+			name:   "Super admin GET /admin/offers-packages/sponsorships returns 200",
+			path:   "/admin/offers-packages/sponsorships",
 			method: "GET",
 			actor: &authctx.Actor{
 				UserID:  1,
@@ -62,6 +62,17 @@ func TestPromoPhase8Routes(t *testing.T) {
 				Role:    "super_admin",
 			},
 			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/offer-sponsorships returns 301",
+			path:   "/admin/offer-sponsorships",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Super admin GET /admin/ads returns 200",

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -21,8 +22,13 @@ func (h *UIHandler) VendorInstitutionalWorkPage(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	var works []*org.InstitutionalWork
+	if h.orgSvc != nil {
+		works, _ = h.orgSvc.ListInstitutionalWorks(ctx, true)
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorInstitutionalWorkPage(lang, dir).Render(ctx, w); err != nil {
+	if err := pages.VendorInstitutionalWorkPage(works, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor institutional work", "error", err)
 	}
 }

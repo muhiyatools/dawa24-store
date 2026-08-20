@@ -163,6 +163,19 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if res.RequiresMFA {
+		// No challenge UI exists yet (PLAN_V6 Task C.9). Refusing is the safe
+		// failure: never issue a session to an account that asked for a second
+		// factor we cannot verify.
+		var uid int64
+		if res.User != nil {
+			uid = res.User.ID
+		}
+		h.log.WarnContext(ctx, "login refused: MFA required but no challenge implemented", "user_id", uid)
+		http.Redirect(w, r, "/auth/login?error=mfa_unavailable", http.StatusSeeOther)
+		return
+	}
+
 	if res.Session != nil {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "dawa24_session",
@@ -282,7 +295,9 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	if err := identity.ValidatePassword(password); err != nil {
 		form.Error = err.Error()
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.RegisterPage(lang, dir, form, h.listCities(ctx)).Render(ctx, w)
+		if err := pages.RegisterPage(lang, dir, form, h.listCities(ctx)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render register page validation error", "error", err)
+		}
 		return
 	}
 

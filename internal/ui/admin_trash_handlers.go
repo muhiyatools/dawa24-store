@@ -10,32 +10,36 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-var defaultModelRegistry = []pages.ModelMetaEntry{
-	{Key: "products", NameAr: "المنتجات الرئيسية", NameEn: "Products", SchemaTable: "catalog.products", TotalCount: 1240, TrashedCount: 14},
-	{Key: "variants", NameAr: "أصناف وعروض المنتجات", NameEn: "Product Variants", SchemaTable: "catalog.product_variants", TotalCount: 3890, TrashedCount: 42},
-	{Key: "categories", NameAr: "التصنيفات الطبية", NameEn: "Categories", SchemaTable: "catalog.categories", TotalCount: 48, TrashedCount: 2},
-	{Key: "brands", NameAr: "الشركات المصنعة والماركات", NameEn: "Brands", SchemaTable: "catalog.brands", TotalCount: 180, TrashedCount: 5},
-	{Key: "offers", NameAr: "عروض التوريد والخصومات", NameEn: "Offers", SchemaTable: "promo.offers", TotalCount: 512, TrashedCount: 8},
-	{Key: "orders", NameAr: "طلبات الشراء والتوريد", NameEn: "Orders", SchemaTable: "commerce.orders", TotalCount: 14200, TrashedCount: 23},
-	{Key: "organizations", NameAr: "المنشآت (صيدليات وموردين)", NameEn: "Organizations", SchemaTable: "org.organizations", TotalCount: 860, TrashedCount: 3},
-	{Key: "users", NameAr: "المستخدمين والحسابات", NameEn: "Users", SchemaTable: "identity.users", TotalCount: 1950, TrashedCount: 11},
+var systemModelEntries = []pages.ModelMetaEntry{
+	{Key: "products", NameAr: "المنتجات والأدوية", NameEn: "Products", SchemaTable: "catalog.products"},
+	{Key: "organizations", NameAr: "المنشآت والشركات", NameEn: "Organizations", SchemaTable: "org.organizations"},
+	{Key: "users", NameAr: "المستخدمين والعملاء", NameEn: "Users", SchemaTable: "identity.users"},
+	{Key: "branches", NameAr: "الفروع والمستودعات", NameEn: "Branches", SchemaTable: "org.branches"},
+	{Key: "orders", NameAr: "الطلبات والمبيعات", NameEn: "Orders", SchemaTable: "commerce.orders"},
+	{Key: "invoices", NameAr: "الفواتير الضريبية", NameEn: "Invoices", SchemaTable: "billing.invoices"},
 }
 
 // AdminDeletesListsPage renders overview of all system models and their soft-deletable status.
 func (h *UIHandler) AdminDeletesListsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminDeletesListsPage(defaultModelRegistry, lang, dir).Render(r.Context(), w)
+	if err := pages.AdminDeletesListsPage(systemModelEntries, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin deletes lists", "error", err)
+	}
 }
 
 // AdminDeletesListModelPage renders rows for a specific model.
 func (h *UIHandler) AdminDeletesListModelPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	modelKey := chi.URLParam(r, "model")
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminDeletesListModelPage(modelKey, lang, dir).Render(r.Context(), w)
+	if err := pages.AdminDeletesListModelPage(modelKey, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin deletes list model", "error", err)
+	}
 }
 
 // AdminDeletesListShowPage renders specific record detail.
@@ -46,19 +50,25 @@ func (h *UIHandler) AdminDeletesListShowPage(w http.ResponseWriter, r *http.Requ
 
 // AdminTrashListPage renders deleted rows directory across models.
 func (h *UIHandler) AdminTrashListPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminTrashListPage(defaultModelRegistry, lang, dir).Render(r.Context(), w)
+	if err := pages.AdminTrashListPage(systemModelEntries, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin trash list", "error", err)
+	}
 }
 
 // AdminTrashListModelPage renders trashed rows for a specific model with restore/purge actions.
 func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	modelKey := chi.URLParam(r, "model")
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.AdminTrashListModelPage(modelKey, lang, dir).Render(r.Context(), w)
+	if err := pages.AdminTrashListModelPage(modelKey, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin trash list model", "error", err)
+	}
 }
 
 // AdminTrashListShowPage renders single trashed item details.
@@ -73,8 +83,8 @@ func (h *UIHandler) AdminTrashRestoreSubmit(w http.ResponseWriter, r *http.Reque
 	idStr := chi.URLParam(r, "id")
 	rowID, _ := strconv.ParseInt(idStr, 10, 64)
 
-	h.log.InfoContext(r.Context(), "admin restored trashed row", "model", modelKey, "id", rowID)
-	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/trash-list/%s", modelKey), "success", "تم استرجاع السجل بنجاح.")
+	h.log.WarnContext(r.Context(), "admin restore requested but registry not connected", "model", modelKey, "id", rowID)
+	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/trash-list/%s", modelKey), "error", "خاصية استرجاع السجلات قيد التحديث.")
 }
 
 // AdminTrashPurgeSubmit permanently hard-deletes a record.
@@ -83,6 +93,6 @@ func (h *UIHandler) AdminTrashPurgeSubmit(w http.ResponseWriter, r *http.Request
 	idStr := chi.URLParam(r, "id")
 	rowID, _ := strconv.ParseInt(idStr, 10, 64)
 
-	h.log.WarnContext(r.Context(), "admin permanently purged row", "model", modelKey, "id", rowID)
-	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/trash-list/%s", modelKey), "success", "تم الحذف النهائي للسجل.")
+	h.log.WarnContext(r.Context(), "admin purge requested but registry not connected", "model", modelKey, "id", rowID)
+	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/trash-list/%s", modelKey), "error", "خاصية الحذف النهائي قيد التحديث.")
 }

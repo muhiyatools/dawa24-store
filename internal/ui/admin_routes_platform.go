@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
@@ -19,7 +21,6 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/settings/branding", h.AdminBrandingSubmit)
 		g.Post("/admin/settings/ai", h.AdminAISettingsSubmit)
 		g.Post("/admin/settings/gateway", h.AdminGatewaySettingsSubmit)
-		g.Post("/admin/settings/policy", h.AdminPolicyEditSubmit)
 		g.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
 		g.Post("/admin/settings/payment-methods", h.AdminPlatformPaymentMethodSubmit)
 		g.Post("/admin/settings/payment-methods/toggle", h.AdminPlatformPaymentMethodToggleSubmit)
@@ -57,7 +58,7 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/cities/{id}/toggle", h.AdminCityToggleSubmit)
 	})
 
-	// Audit & Logs & Chat History & AskFor & Miscellaneous View
+	// Audit & Logs & Chat History & AskFor & Notifications
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.activity_log.view", h.log))
 		g.Get("/admin/audit", h.AdminAuditPage)
@@ -76,14 +77,21 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/full-error-logs/{id}/status", h.AdminErrorLogTransitionSubmit)
 		g.Get("/admin/full-activity-logs", h.AdminFullActivityLogsPage)
 		g.Get("/admin/full-activity-logs/{id}", h.AdminFullActivityLogDetailPage)
-		g.Get("/admin/full/admin-notification", h.AdminFullNotificationsPage)
-		g.Get("/admin/full/admin-notification/{id}", h.AdminFullNotificationsPage)
+		g.Get("/admin/notifications", h.AdminFullNotificationsPage)
+		g.Get("/admin/full/admin-notification", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/notifications", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/full/admin-notification/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/notifications", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/system-page", h.AdminSystemResourcesPage)
 		g.Get("/admin/system-page/{system}", h.AdminSystemResourcesPage)
 		g.Get("/admin/first-look", h.AdminFirstLookPage)
 		g.Get("/admin/deletes-lists", h.AdminDeletesListsPage)
 		g.Get("/admin/deletes-lists/{model}", h.AdminDeletesListModelPage)
-		g.Get("/admin/deletes-lists/{model}/{id}", h.AdminDeletesListShowPage)
+		g.Get("/admin/deletes-lists/{model}/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/trash-list/"+chi.URLParam(r, "model"), http.StatusMovedPermanently)
+		})
 		g.Get("/admin/trash-list", h.AdminTrashListPage)
 		g.Get("/admin/trash-list/{model}", h.AdminTrashListModelPage)
 		g.Get("/admin/trash-list/{model}/{id}", h.AdminTrashListShowPage)

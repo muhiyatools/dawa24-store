@@ -38,7 +38,11 @@ type Repository interface {
 	TogglePlatformPaymentMethod(ctx context.Context, id string, active bool) error
 	DeletePlatformPaymentMethod(ctx context.Context, id string) error
 
+	ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error)
+
 	AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*Subscription, error)
 	AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error
 	AdminListPayments(ctx context.Context, limit, offset int) ([]*Payment, error)
+	AdminListInvoices(ctx context.Context, limit, offset int) ([]*Invoice, error)
+	AdminListWallets(ctx context.Context, limit, offset int) ([]*Wallet, error)
 }

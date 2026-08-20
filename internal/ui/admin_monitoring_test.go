@@ -58,8 +58,8 @@ func TestAdminMonitoringAndDiagnosticRoutes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Super admin GET /admin/full/admin-notification returns 200",
-			path:   "/admin/full/admin-notification",
+			name:   "Super admin GET /admin/notifications returns 200",
+			path:   "/admin/notifications",
 			method: "GET",
 			actor: &authctx.Actor{
 				UserID:  1,
@@ -67,6 +67,17 @@ func TestAdminMonitoringAndDiagnosticRoutes(t *testing.T) {
 				Role:    "super_admin",
 			},
 			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/full/admin-notification returns 301",
+			path:   "/admin/full/admin-notification",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Super admin GET /admin/system-page returns 200",

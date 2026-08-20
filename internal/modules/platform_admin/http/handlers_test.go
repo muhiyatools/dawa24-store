@@ -114,6 +114,10 @@ func (r stubRepo) ListAuditLog(context.Context, int, int) ([]*platformadmin.Audi
 	r.fail("ListAuditLog")
 	return nil, nil
 }
+func (r stubRepo) ListAuditLogByOrg(context.Context, int64, int, int) ([]*platformadmin.AuditEntry, error) {
+	r.fail("ListAuditLogByOrg")
+	return nil, nil
+}
 
 func (r stubRepo) ListPolicyVersions(ctx context.Context, key string) ([]*platformadmin.Policy, error) {
 	r.fail("ListPolicyVersions")
@@ -281,6 +285,9 @@ func (happyRepo) UpsertTranslation(ctx context.Context, t *platformadmin.Transla
 }
 func (happyRepo) ListAuditLog(ctx context.Context, limit, offset int) ([]*platformadmin.AuditEntry, error) {
 	return []*platformadmin.AuditEntry{{ID: 1, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, nil
+}
+func (happyRepo) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, error) {
+	return []*platformadmin.AuditEntry{{ID: 1, OrganizationID: &orgID, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, nil
 }
 
 func (happyRepo) QueueStats(ctx context.Context) (map[string]int, error) {

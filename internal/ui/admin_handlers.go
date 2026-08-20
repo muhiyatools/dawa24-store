@@ -216,17 +216,26 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		values.GatewaySettings, _ = h.adminSvc.GetGatewaySettings(ctx)
-		if values.GatewaySettings == nil || values.GatewaySettings.EndpointURL == "" {
-			values.GatewaySettings = &platformadmin.GatewaySettings{
-				EndpointURL:    "https://api.muhiya.com",
-				Environment:    "gemini-1.5-flash",
-				TimeoutSeconds: 30,
-				IsActive:       true,
-			}
-		}
 		values.SiteSettings, _ = h.adminSvc.GetSiteSettings(ctx)
 		values.Policies, _ = h.adminSvc.ListPolicyVersions(ctx, "")
 		values.ActivePolicy, _ = h.adminSvc.GetActivePolicy(ctx, policyKey)
+	}
+
+	if values.GatewaySettings == nil || values.GatewaySettings.EndpointURL == "" {
+		values.GatewaySettings = &platformadmin.GatewaySettings{
+			EndpointURL:    "https://api.muhiya.com",
+			Environment:    "gemini-1.5-flash",
+			TimeoutSeconds: 30,
+			IsActive:       true,
+		}
+	}
+	if values.SiteSettings == nil {
+		values.SiteSettings = &platformadmin.SiteSettings{
+			SiteName:    "دواء 24",
+			SocialLinks: make(map[string]string),
+		}
+	} else if values.SiteSettings.SocialLinks == nil {
+		values.SiteSettings.SocialLinks = make(map[string]string)
 	}
 
 	if h.billSvc != nil {
@@ -545,62 +554,6 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 	_ = h.adminSvc.SaveAISettings(ctx, ai)
 
 	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ وتحديث إعدادات بوابة الذكاء الاصطناعي بنجاح.")
-}
-
-// AdminPolicyEditSubmit saves and immediately publishes a policy version from the unified settings tab.
-func (h *UIHandler) AdminPolicyEditSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
-		http.Redirect(w, r, "/auth/login?redirect=/admin/settings?tab=policies", http.StatusSeeOther)
-		return
-	}
-
-	policyKey := strings.TrimSpace(r.FormValue("policy_key"))
-	if policyKey == "" {
-		policyKey = "terms"
-	}
-	titleAr := strings.TrimSpace(r.FormValue("title_ar"))
-	titleEn := strings.TrimSpace(r.FormValue("title_en"))
-	if titleEn == "" {
-		titleEn = titleAr
-	}
-	contentAr := strings.TrimSpace(r.FormValue("content_ar"))
-	contentEn := strings.TrimSpace(r.FormValue("content_en"))
-	if contentEn == "" {
-		contentEn = contentAr
-	}
-	changelog := strings.TrimSpace(r.FormValue("changelog"))
-
-	if titleAr == "" || contentAr == "" {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+policyKey, "error", "عنوان ونص السياسة مطلوبان.")
-		return
-	}
-
-	if h.adminSvc != nil {
-		var actorID *int64
-		if actor.UserID > 0 {
-			actorID = &actor.UserID
-		}
-		now := time.Now()
-		policy := &platformadmin.Policy{
-			PolicyKey:   policyKey,
-			Version:     fmt.Sprintf("v%s", now.Format("2006.01.02.150405")),
-			Title:       i18n.New(titleAr, titleEn),
-			Content:     i18n.New(contentAr, contentEn),
-			Summary:     i18n.New(changelog, changelog),
-			IsPublished: true,
-			PublishedAt: &now,
-			CreatedBy:   actorID,
-		}
-		if err := h.adminSvc.CreatePolicyVersion(ctx, policy); err != nil {
-			h.log.ErrorContext(ctx, "failed to create policy version", "error", err)
-			h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+policyKey, "error", "فشل حفظ السياسة: "+err.Error())
-			return
-		}
-	}
-
-	h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+policyKey, "success", "تم حفظ ونشر السياسة بنجاح وعكسها فورياً على الموقع.")
 }
 
 // AdminPlatformPaymentMethodSubmit creates or updates a platform supported payment channel.
@@ -2408,8 +2361,14 @@ func (h *UIHandler) AdminErrorLogStatusSubmit(w http.ResponseWriter, r *http.Req
 		status = "RESOLVED"
 	}
 
-	if h.adminSvc != nil {
-		_ = h.adminSvc.UpdateErrorLogStatus(ctx, id, status)
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", "خدمة إدارة المنظومة غير متاحة.")
+		return
+	}
+
+	if err := h.adminSvc.UpdateErrorLogStatus(ctx, id, status); err != nil {
+		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", "فشل تحديث حالة الخطأ: "+err.Error())
+		return
 	}
 
 	h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "success", "تم تحديث حالة الخطأ بنجاح.")

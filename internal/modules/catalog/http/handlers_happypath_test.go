@@ -142,6 +142,19 @@ func (happyRepo) SearchProductIndex(ctx context.Context, params catalog.SearchPa
 func (happyRepo) RebuildProductIndex(ctx context.Context) (int64, error) {
 	return 0, nil
 }
+func (happyRepo) CreateSavingProduct(ctx context.Context, sp *catalog.SavingProduct) error {
+	sp.ID = 1
+	return nil
+}
+func (happyRepo) ListSavingProductsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*catalog.SavingProduct, error) {
+	return []*catalog.SavingProduct{{ID: 1, NameProduct: "Panadol"}}, nil
+}
+func (happyRepo) GetSavingProductByID(ctx context.Context, id int64) (*catalog.SavingProduct, error) {
+	return &catalog.SavingProduct{ID: id, NameProduct: "Panadol"}, nil
+}
+func (happyRepo) DeleteSavingProduct(ctx context.Context, id, orgID int64) error {
+	return nil
+}
 
 func newAuthedRouter(repo catalog.Repository) http.Handler {
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))

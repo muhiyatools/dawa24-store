@@ -480,3 +480,8 @@ func (s *Service) FetchGatewayModels(ctx context.Context, endpointURL, apiKey st
 
 	return models, nil
 }
+
+// ListAuditLogByOrg returns audit trail entries filtered to an organization.
+func (s *Service) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, error) {
+	return s.repo.ListAuditLogByOrg(ctx, orgID, limit, offset)
+}

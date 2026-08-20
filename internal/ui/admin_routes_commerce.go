@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
@@ -56,8 +58,12 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/offers-packages", h.AdminOffersPackagesHubPage)
 		g.Get("/admin/offers-packages/packages", h.AdminOfferPackagesListPage)
 		g.Get("/admin/offers-packages/packages/{id}", h.AdminOfferPackageDetailPage)
-		g.Get("/admin/offer-sponsorships", h.AdminOfferSponsorshipsPage)
-		g.Get("/admin/offer-sponsorships/{id}", h.AdminOfferSponsorshipsPage)
+		g.Get("/admin/offer-sponsorships", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/offers-packages/sponsorships", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/offer-sponsorships/{id}", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/offers-packages/sponsorships", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/offers-packages/sponsorships", h.AdminOfferSponsorshipsPage)
 		g.Get("/admin/offers-packages/sponsorships/{id}", h.AdminOfferSponsorshipsPage)
 		g.Get("/admin/offers-packages/promotions", h.AdminOfferPromotionsPage)

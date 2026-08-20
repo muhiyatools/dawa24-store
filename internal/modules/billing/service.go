@@ -253,3 +253,8 @@ func (s *Service) DeletePlatformPaymentMethod(ctx context.Context, id string) er
 	}
 	return s.repo.DeletePlatformPaymentMethod(ctx, id)
 }
+
+// ListPayments returns payments for an organization.
+func (s *Service) ListPayments(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error) {
+	return s.repo.ListPaymentsByOrg(ctx, orgID, limit, offset)
+}

@@ -52,20 +52,26 @@ func (h *UIHandler) CustomerSavingProductsPage(w http.ResponseWriter, r *http.Re
 
 // CustomerSavingProductsImportPage renders bulk spreadsheet upload for customer saving products.
 func (h *UIHandler) CustomerSavingProductsImportPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerSavingProductsImportPage(lang, dir).Render(r.Context(), w)
+	if err := pages.CustomerSavingProductsImportPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render customer saving products import", "error", err)
+	}
 }
 
 // CustomerSavingProductDetailPage renders single saving product delta details.
 func (h *UIHandler) CustomerSavingProductDetailPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	idStr := chi.URLParam(r, "id")
 	id, _ := strconv.ParseInt(idStr, 10, 64)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerSavingProductDetailPage(id, lang, dir).Render(r.Context(), w)
+	if err := pages.CustomerSavingProductDetailPage(id, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render customer saving product detail", "error", err)
+	}
 }
 
 // CustomerSavingProductsAlias redirects misspelled route /customer/saveing-products.
@@ -137,9 +143,12 @@ func (h *UIHandler) CustomerOfferCheckoutPage(w http.ResponseWriter, r *http.Req
 
 // CustomerAddOrderPage renders manual / quick order entry form.
 func (h *UIHandler) CustomerAddOrderPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.CustomerAddOrderPage(lang, dir).Render(r.Context(), w)
+	if err := pages.CustomerAddOrderPage(lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render customer add order", "error", err)
+	}
 }
 
 // CustomerProductsMainAlias redirects /customer/products/main/{id} to /catalog/{id}.

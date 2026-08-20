@@ -64,7 +64,9 @@ func (h *UIHandler) VendorTeamUserDetailPage(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = pages.VendorTeamUserDetailPage(empID, lang, dir).Render(ctx, w)
+	if err := pages.VendorTeamUserDetailPage(empID, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor team user detail", "error", err)
+	}
 }
 
 // VendorTeamUserInfoPage renders employee audit information.

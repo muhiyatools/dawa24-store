@@ -50,9 +50,11 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	if h.catSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.CustomerCatalog(pages.CatalogPageData{
+		if err := pages.CustomerCatalog(pages.CatalogPageData{
 			Query: query,
-		}, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		}, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render customer catalog", "error", err)
+		}
 		return
 	}
 
@@ -136,7 +138,9 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 
 	if h.commSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.CustomerCart(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		if err := pages.CustomerCart(nil, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render cart page", "error", err)
+		}
 		return
 	}
 
@@ -171,7 +175,9 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 
 	if h.commSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.CustomerCheckout(nil, nil, lang, dir).Render(ctx, w)
+		if err := pages.CustomerCheckout(nil, nil, lang, dir).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render checkout page", "error", err)
+		}
 		return
 	}
 
@@ -209,7 +215,9 @@ func (h *UIHandler) CustomerOrdersPage(w http.ResponseWriter, r *http.Request) {
 
 	if h.commSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.CustomerOrders(nil, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		if err := pages.CustomerOrders(nil, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render customer orders page", "error", err)
+		}
 		return
 	}
 
@@ -266,7 +274,9 @@ func (h *UIHandler) NotificationsPage(w http.ResponseWriter, r *http.Request) {
 
 	if h.notifSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.Notifications(nil, 0, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		if err := pages.Notifications(nil, 0, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render notifications page", "error", err)
+		}
 		return
 	}
 
@@ -374,7 +384,9 @@ func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request)
 		cart, _ := h.commSvc.GetCart(ctx, userID)
 		lang, _ := h.localeAndDir(r)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+		if err := pages.CustomerCartContent(cart, lang).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render customer cart content", "error", err)
+		}
 		return
 	}
 
@@ -415,7 +427,9 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 		cart, _ := h.commSvc.GetCart(ctx, userID)
 		lang, _ := h.localeAndDir(r)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+		if err := pages.CustomerCartContent(cart, lang).Render(ctx, w); err != nil {
+			h.log.ErrorContext(ctx, "render customer cart content", "error", err)
+		}
 		return
 	}
 
@@ -722,6 +736,30 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "success", "تم إرسال تقييمك بنجاح. شكراً لمشاركتك!")
+}
+
+// CustomerSwitchActiveBranchSubmit handles switching the active branch for customer context.
+func (h *UIHandler) CustomerSwitchActiveBranchSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || !actor.IsCustomer() {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	_ = r.ParseForm()
+	branchIDStr := r.FormValue("branch_id")
+	if branchIDStr != "" {
+		if branchID, err := strconv.ParseInt(branchIDStr, 10, 64); err == nil && branchID > 0 {
+			h.log.InfoContext(ctx, "switched active pharmacy branch", "branch_id", branchID, "org_id", actor.OrganizationID)
+		}
+	}
+
+	ref := r.Header.Get("Referer")
+	if ref == "" {
+		ref = "/customer/dashboard"
+	}
+	http.Redirect(w, r, ref, http.StatusSeeOther)
 }
 
 

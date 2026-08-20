@@ -257,6 +257,24 @@ func (m *mockCatalogRepo) RebuildProductIndex(_ context.Context) (int64, error) 
 	return int64(len(m.products)), nil
 }
 
+func (m *mockCatalogRepo) CreateSavingProduct(_ context.Context, sp *SavingProduct) error {
+	sp.ID = m.nextID
+	m.nextID++
+	return nil
+}
+
+func (m *mockCatalogRepo) ListSavingProductsByOrg(_ context.Context, _ int64, _, _ int) ([]*SavingProduct, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) GetSavingProductByID(_ context.Context, _ int64) (*SavingProduct, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) DeleteSavingProduct(_ context.Context, _, _ int64) error {
+	return nil
+}
+
 func TestProductEffectivePrice(t *testing.T) {
 	p := &Product{
 		Price:    money.MustParse("100.00"),

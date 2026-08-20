@@ -516,6 +516,21 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 }
 
 
+// ToggleMemberStatus toggles a member's active state.
+func (r *Repository) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE org.members SET is_active = NOT is_active, updated_at = now() WHERE id = $1 AND organization_id = $2;`
+		tag, err := tx.Exec(txCtx, query, memberID, orgID)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("member")
+		}
+		return nil
+	})
+}
+
 // ListMembersByOrg returns members of an organization.
 func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.Member, error) {
 	var list []*org.Member
@@ -730,6 +745,78 @@ func (r *Repository) ListPoliciesByOrg(ctx context.Context, orgID int64) ([]*org
 		return rows.Err()
 	})
 	return list, err
+}
+
+// SavePolicies replaces the policies for an organization with the given set.
+func (r *Repository) SavePolicies(ctx context.Context, orgID int64, policies []*org.Policy) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organization_policies WHERE organization_id = $1;`, orgID); err != nil {
+			return err
+		}
+		for _, p := range policies {
+			query := `
+				INSERT INTO org.organization_policies (organization_id, title, content, policy_type, is_active)
+				VALUES ($1, $2, $3, $4, $5)
+				RETURNING id, public_id, created_at, updated_at;
+			`
+			if p.PolicyType == "" {
+				p.PolicyType = "terms"
+			}
+			if err := tx.QueryRow(txCtx, query, orgID, p.Title, p.Content, p.PolicyType, p.IsActive).
+				Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt); err != nil {
+				return err
+			}
+			p.OrganizationID = orgID
+		}
+		return nil
+	})
+}
+
+// ListSocialMediaByOrg lists social media accounts for an organization.
+func (r *Repository) ListSocialMediaByOrg(ctx context.Context, orgID int64) ([]*org.SocialMedia, error) {
+	var list []*org.SocialMedia
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT id, public_id, organization_id, platform, url, created_at, updated_at FROM org.organization_social_media WHERE organization_id = $1 ORDER BY id ASC;`
+		rows, err := tx.Query(txCtx, query, orgID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var s org.SocialMedia
+			if err := rows.Scan(&s.ID, &s.PublicID, &s.OrganizationID, &s.Platform, &s.URL, &s.CreatedAt, &s.UpdatedAt); err != nil {
+				return err
+			}
+			list = append(list, &s)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// SaveSocialMedia replaces social media channels for an organization.
+func (r *Repository) SaveSocialMedia(ctx context.Context, orgID int64, links []*org.SocialMedia) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx, `DELETE FROM org.organization_social_media WHERE organization_id = $1;`, orgID); err != nil {
+			return err
+		}
+		for _, l := range links {
+			if l.Platform == "" || l.URL == "" {
+				continue
+			}
+			query := `
+				INSERT INTO org.organization_social_media (organization_id, platform, url)
+				VALUES ($1, $2, $3)
+				RETURNING id, public_id, created_at, updated_at;
+			`
+			if err := tx.QueryRow(txCtx, query, orgID, l.Platform, l.URL).
+				Scan(&l.ID, &l.PublicID, &l.CreatedAt, &l.UpdatedAt); err != nil {
+				return err
+			}
+			l.OrganizationID = orgID
+		}
+		return nil
+	})
 }
 
 // CountOrganizations returns how many organizations match the filter.

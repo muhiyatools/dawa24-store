@@ -3,7 +3,9 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -116,51 +118,251 @@ templ AdminEarningsOffersPage(revenue, commission money.Amount, lang, dir string
 }
 
 // AdminInvoicesPage renders platform billing invoices.
-templ AdminInvoicesPage(lang, dir string) {
+templ AdminInvoicesPage(invoices []*billing.Invoice, lang, dir string) {
 	@layouts.AdminShell("إدارة الفواتير والتحصيل", "finance", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل الفواتير الضريبية والمطالبات المالية</h2>
-			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير معلقة", Message: "يتم إصدار الفواتير الدورية تلقائياً عند تسوية الطلبات والاشتراكات."})
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سجل الفواتير الضريبية والمطالبات ({ fmt.Sprintf("%d", len(invoices)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة فواتير المنشآت والعملاء وحالات السداد.</p>
+				</div>
+			</div>
+
+			if len(invoices) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مسجلة", Message: "يتم إصدار الفواتير الدورية تلقائياً عند تسوية الطلبات والاشتراكات."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>رقم الفاتورة</th>
+								<th>المنشأة</th>
+								<th>المبلغ الإجمالي</th>
+								<th>الحالة</th>
+								<th>تاريخ الإصدار</th>
+								<th>الاستحقاق</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, inv := range invoices {
+								<tr>
+									<td class="tabular-nums"><strong>{ inv.InvoiceNumber }</strong></td>
+									<td>منشأة #{ fmt.Sprintf("%d", inv.OrganizationID) }</td>
+									<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", inv.TotalAmount.String()) }</td>
+									<td><span class="badge badge-emerald">{ string(inv.Status) }</span></td>
+									<td class="tabular-nums">{ inv.IssueDate.Format("2006-01-02") }</td>
+									<td class="tabular-nums">{ inv.DueDate.Format("2006-01-02") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }
 
 // AdminPaymentsPage renders payments history.
-templ AdminPaymentsPage(lang, dir string) {
+templ AdminPaymentsPage(payments []*billing.Payment, lang, dir string) {
 	@layouts.AdminShell("سجل المدفوعات والتحويلات", "finance", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل عمليات الدفع والتحويل البنكي</h2>
-			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع", Message: "يتم تسجيل عمليات الدفع الإلكتروني والتحويلات مباشرة في هذا السجل."})
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سجل عمليات الدفع والتحويل البنكي ({ fmt.Sprintf("%d", len(payments)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة عمليات الدفع الإلكتروني والتحصيلات البنكية لجميع المنشآت.</p>
+				</div>
+			</div>
+
+			if len(payments) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع", Message: "يتم تسجيل عمليات الدفع الإلكتروني والتحويلات مباشرة في هذا السجل."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>رقم العملية / المرجع</th>
+								<th>المنشأة / العميل</th>
+								<th>المبلغ</th>
+								<th>طريقة الدفع</th>
+								<th>الحالة</th>
+								<th>التاريخ</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, p := range payments {
+								<tr>
+									<td class="tabular-nums">
+										if p.ReferenceNumber != "" {
+											<strong>{ p.ReferenceNumber }</strong>
+										} else if p.TransactionID != "" {
+											<strong>{ p.TransactionID }</strong>
+										} else {
+											<strong>{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
+										}
+									</td>
+									<td>
+										if p.OrganizationID != nil {
+											منشأة #{ fmt.Sprintf("%d", *p.OrganizationID) }
+										} else {
+											مستخدم #{ fmt.Sprintf("%d", p.UserID) }
+										}
+									</td>
+									<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
+									<td><span class="badge badge-secondary">{ p.Method }</span></td>
+									<td><span class="badge badge-emerald">{ string(p.Status) }</span></td>
+									<td class="tabular-nums">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }
 
 // AdminWalletsPage renders wallet oversight.
-templ AdminWalletsPage(lang, dir string) {
+templ AdminWalletsPage(wallets []*billing.Wallet, lang, dir string) {
 	@layouts.AdminShell("إدارة المحافظ والأرصدة", "finance", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">محافظ العملاء والموردين</h2>
-			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أرصدة معلقة", Message: "متابعة وتدقيق أرصدة المحافظ الرقمية لجميع منشآت المنصة."})
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">محافظ العملاء والموردين ({ fmt.Sprintf("%d", len(wallets)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة وتدقيق أرصدة المحافظ الرقمية لجميع منشآت المنصة.</p>
+				</div>
+			</div>
+
+			if len(wallets) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مسجلة", Message: "تنشأ المحافظ تلقائياً عند تسجيل المنشآت وبدء التعاملات المالية."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>رقم المحفظة</th>
+								<th>المستخدم / المنشأة</th>
+								<th>العملة</th>
+								<th>الرصيد المتاح</th>
+								<th>تاريخ الإنشاء</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, w := range wallets {
+								<tr>
+									<td class="tabular-nums"><strong>{ fmt.Sprintf("WLT-%d", w.ID) }</strong></td>
+									<td>
+										if w.OrganizationID != nil {
+											منشأة #{ fmt.Sprintf("%d", *w.OrganizationID) }
+										} else {
+											مستخدم #{ fmt.Sprintf("%d", w.UserID) }
+										}
+									</td>
+									<td><span class="badge badge-secondary">{ w.Currency }</span></td>
+									<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s %s", w.Balance.String(), w.Currency) }</td>
+									<td class="tabular-nums">{ w.CreatedAt.Format("2006-01-02") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }
 
 // AdminPlansInfoPage renders plans summary directory.
-templ AdminPlansInfoPage(lang, dir string) {
+templ AdminPlansInfoPage(plans []*billing.Plan, lang, dir string) {
 	@layouts.AdminShell("دليل باقات الاشتراك", "finance", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">باقات وخطط الاشتراك المتوفرة</h2>
-			@components.EmptyState(components.EmptyStateProps{Title: "باقات الاشتراك", Message: "تحديد باقات الصيدليات والموردين والمستودعات والخصائص المتاحة لكل باقة."})
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">باقات وخطط الاشتراك المتوفرة ({ fmt.Sprintf("%d", len(plans)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">تحديد باقات الصيدليات والموردين والمستودعات والخصائص المتاحة لكل باقة.</p>
+				</div>
+			</div>
+
+			if len(plans) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد باقات اشتراك معرفة", Message: "يمكنك إضافة باقات اشتراك جديدة وتحديد ميزاتها وأسعارها."})
+			} else {
+				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+					for _, p := range plans {
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+							<div>
+								<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+									<h3 style="margin:0; font-size:1.15rem; font-weight:700; color:var(--text);">{ p.Name.Get(i18n.Lang(lang)) }</h3>
+									if p.IsActive {
+										<span class="badge badge-emerald">نشطة</span>
+									} else {
+										<span class="badge badge-secondary">معطلة</span>
+									}
+								</div>
+								<p style="color:var(--text-secondary); font-size:0.85rem; margin:0.5rem 0 1rem 0;">{ p.Description.Get(i18n.Lang(lang)) }</p>
+							</div>
+							<div style="border-top:1px solid var(--border); padding-top:1rem; margin-top:1rem;">
+								<div style="display:flex; justify-content:space-between; margin-bottom:0.35rem;">
+									<span style="font-size:0.85rem; color:var(--text-secondary);">السعر الشهري:</span>
+									<span class="tabular-nums" style="font-weight:700; color:var(--primary);">{ fmt.Sprintf("%s ج.م", p.PriceMonth.String()) }</span>
+								</div>
+								<div style="display:flex; justify-content:space-between;">
+									<span style="font-size:0.85rem; color:var(--text-secondary);">المدة:</span>
+									<span class="tabular-nums" style="font-weight:600;">{ fmt.Sprintf("%d يوم", p.DurationDays) }</span>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			}
 		</div>
 	}
 }
 
 // AdminPlansSubscriptionsPage renders active subscriptions.
-templ AdminPlansSubscriptionsPage(lang, dir string) {
+templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string) {
 	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "finance", lang, dir) {
 		<div class="card" style="margin-bottom:0;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل المشتركين الفعلي والترقيات</h2>
-			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد اشتراكات نشطة", Message: "متابعة تجديدات الاشتراكات، الترقيات، وحالات الإلغاء."})
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+				<div>
+					<h2 class="card-title" style="margin:0;">سجل المشتركين الفعلي والترقيات ({ fmt.Sprintf("%d", len(subs)) })</h2>
+					<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">متابعة تجديدات الاشتراكات، الترقيات، وحالات الإلغاء لجميع العملاء.</p>
+				</div>
+			</div>
+
+			if len(subs) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد اشتراكات مسجلة", Message: "ستظهر هنا اشتراكات المنشآت الفعالة والمنتهية فور تفعيلها."})
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>رقم الاشتراك</th>
+								<th>المستخدم / المنشأة</th>
+								<th>معرف الخطة</th>
+								<th>الحالة</th>
+								<th>تاريخ البدء</th>
+								<th>تاريخ الانتهاء</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, s := range subs {
+								<tr>
+									<td class="tabular-nums"><strong>{ fmt.Sprintf("SUB-%d", s.ID) }</strong></td>
+									<td>
+										if s.OrganizationID != nil {
+											منشأة #{ fmt.Sprintf("%d", *s.OrganizationID) }
+										} else {
+											مستخدم #{ fmt.Sprintf("%d", s.UserID) }
+										}
+									</td>
+									<td class="tabular-nums">خطة #{ fmt.Sprintf("%d", s.PlanID) }</td>
+									<td><span class="badge badge-emerald">{ string(s.Status) }</span></td>
+									<td class="tabular-nums">{ s.StartsAt.Format("2006-01-02") }</td>
+									<td class="tabular-nums">{ s.ExpiresAt.Format("2006-01-02") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }

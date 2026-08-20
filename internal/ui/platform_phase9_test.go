@@ -31,14 +31,14 @@ func TestPlatformPhase9Routes(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name:       "Anonymous GET /auth/2fa-challenge returns 200",
+			name:       "Anonymous GET /auth/2fa-challenge returns 404 (deleted theatre)",
 			path:       "/auth/2fa-challenge",
 			method:     "GET",
 			actor:      nil,
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusNotFound,
 		},
 		{
-			name:   "User GET /settings/security/2fa returns 200",
+			name:   "User GET /settings/security/2fa returns 404 (deleted theatre)",
 			path:   "/settings/security/2fa",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -46,10 +46,10 @@ func TestPlatformPhase9Routes(t *testing.T) {
 				OrganizationID: 2,
 				OrgType:        "customer",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusNotFound,
 		},
 		{
-			name:   "User GET /invoices/10/pdf returns 200 with pdf header",
+			name:   "User GET /invoices/10/pdf returns 404 (deleted fake stub)",
 			path:   "/invoices/10/pdf",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -57,7 +57,7 @@ func TestPlatformPhase9Routes(t *testing.T) {
 				OrganizationID: 2,
 				OrgType:        "customer",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusNotFound,
 		},
 		{
 			name:   "User GET /report-issue returns 200",
