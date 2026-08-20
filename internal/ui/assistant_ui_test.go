@@ -30,7 +30,7 @@ func TestAssistantMessageListDoesNotClaimFullHeight(t *testing.T) {
 	if !strings.Contains(style, "min-height:0") {
 		t.Errorf("messages container needs min-height:0 or it refuses to shrink.\nstyle: %s", style)
 	}
-	if !strings.Contains(style, "flex:1 1 auto") {
+	if !strings.Contains(style, "flex:1 1") {
 		t.Errorf("messages container must flex, not be fixed.\nstyle: %s", style)
 	}
 }
@@ -76,4 +76,63 @@ func readAssistant(t *testing.T) string {
 		t.Fatalf("read assistant template: %v", err)
 	}
 	return string(b)
+}
+
+// The drawer's size was written as a style attribute, so no media query could
+// touch it: the assistant had no small-screen behaviour and on a short viewport
+// it ran past the bottom edge with the composer out of reach and the answer
+// unscrollable.
+func TestAssistantDrawerSizeIsStyleable(t *testing.T) {
+	src := readAssistant(t)
+
+	if strings.Contains(src, `height:620px`) {
+		t.Error("the drawer height is inline again; a media query cannot override a style attribute")
+	}
+	if !strings.Contains(src, `class="capsule-drawer"`) {
+		t.Error("the drawer should carry the capsule-drawer class, which is where its size lives")
+	}
+	for _, need := range []string{
+		".capsule-drawer {",
+		"@media (max-width: 640px)",  // full-screen sheet on a phone
+		"height: 100dvh",             // visible viewport, not layout viewport
+	} {
+		if !strings.Contains(src, need) {
+			t.Errorf("missing drawer rule: %s", need)
+		}
+	}
+}
+
+// A flex child with basis auto sizes to its content first, so a long answer can
+// push the composer out of the parent before min-height:0 is consulted. Basis 0
+// makes the scroll area take the leftover space and nothing more.
+func TestAssistantScrollAreaUsesDefiniteBasis(t *testing.T) {
+	src := readAssistant(t)
+
+	i := strings.Index(src, `id="capsule-messages-container"`)
+	if i < 0 {
+		t.Fatal("messages container not found")
+	}
+	seg := src[i : i+600]
+
+	if !strings.Contains(seg, "flex:1 1 0%") {
+		t.Error("scroll area must use flex:1 1 0%, not basis auto")
+	}
+	if !strings.Contains(seg, "overflow-y:auto") {
+		t.Error("scroll area must scroll")
+	}
+}
+
+// Every answer is from the assistant; repeating its name and avatar above each
+// one is noise in a two-party chat and costs a line of the drawer.
+func TestAssistantMessagesHaveNoPerMessageByline(t *testing.T) {
+	b, err := os.ReadFile("components/capsule_assistant_templ.go")
+	if err != nil {
+		t.Fatalf("read generated assistant: %v", err)
+	}
+	rendered := string(b)
+
+	// The header keeps its title, so exactly one occurrence is expected.
+	if n := strings.Count(rendered, "كبسولة</span>"); n != 1 {
+		t.Errorf("expected the drawer header title only, found %d occurrences of the byline", n)
+	}
 }

@@ -42,7 +42,7 @@ templ CapsuleAssistant() {
 			@dragover.prevent=""
 			@dragleave.prevent="onDragLeave($event)"
 			@drop.prevent="onDrop($event)"
-			style="position:fixed; bottom:24px; left:24px; right:auto; width:440px; max-width:calc(100vw - 32px); height:620px; max-height:calc(100dvh - 36px); background:var(--surface-raised); border:1px solid var(--border); border-radius:22px; box-shadow:0 24px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08); display:flex; flex-direction:column; overflow:hidden; z-index:9995; backdrop-filter:blur(20px);"
+			class="capsule-drawer"
 		>
 			<!-- Drag & Drop Overlay Zone -->
 			<div
@@ -59,8 +59,8 @@ templ CapsuleAssistant() {
 					@IconUpload("icon-md")
 				</div>
 				<div>
-					<div style="font-weight:800; font-size:1.1rem; margin:0 0 0.2rem 0;">أفلت الملفات هنا للإرفاق</div>
-					<div style="font-size:0.775rem; opacity:0.92; margin:0;">يدعم الصور، الروشتات، وملفات PDF الدوائية</div>
+					<div style="font-weight:800; font-size:0.95rem; margin:0 0 0.2rem 0;">أفلت الملفات هنا للإرفاق</div>
+					<div style="font-size:0.725rem; opacity:0.92; margin:0;">يدعم الصور، الروشتات، وملفات PDF الدوائية</div>
 				</div>
 			</div>
 
@@ -71,11 +71,11 @@ templ CapsuleAssistant() {
 						@IconSparkles("icon-xs")
 					</div>
 					<div>
-						<div style="font-weight:800; font-size:0.925rem; margin:0; display:flex; align-items:center; gap:0.35rem; color:var(--text);">
+						<div style="font-weight:800; font-size:0.825rem; margin:0; display:flex; align-items:center; gap:0.35rem; color:var(--text);">
 							<span>كبسولة</span>
 							<span style="width:6px; height:6px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 4px #10b981;"></span>
 						</div>
-						<div style="font-size:0.7rem; color:var(--text-muted); line-height:1;">المساعد الصيدلي الذكي</div>
+						<div style="font-size:0.65rem; color:var(--text-muted); line-height:1;">المساعد الصيدلي الذكي</div>
 					</div>
 				</div>
 
@@ -99,7 +99,7 @@ templ CapsuleAssistant() {
 			<div
 				id="capsule-messages-container"
 				class="capsule-messages-scroll"
-				style="flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1.25rem 1.15rem; display:flex; flex-direction:column; gap:1.25rem; background:var(--surface-raised); overscroll-behavior:contain;"
+				style="flex:1 1 0%; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1rem; display:flex; flex-direction:column; gap:1rem; background:var(--surface-raised); overscroll-behavior:contain; -webkit-overflow-scrolling:touch;"
 			>
 				<!-- Empty State / Welcome Greeting -->
 				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:1.5rem 0.5rem; gap:1rem;">
@@ -107,8 +107,8 @@ templ CapsuleAssistant() {
 						@IconSparkles("icon-md")
 					</div>
 					<div>
-						<h4 style="margin:0 0 0.25rem 0; font-size:1.05rem; font-weight:800; color:var(--text);">مرحباً بك! أنا كبسولة</h4>
-						<p style="margin:0; font-size:0.8rem; color:var(--text-secondary); line-height:1.5; max-width:320px;">
+						<h4 style="margin:0 0 0.25rem 0; font-size:0.9rem; font-weight:800; color:var(--text);">مرحباً بك! أنا كبسولة</h4>
+						<p style="margin:0; font-size:0.75rem; color:var(--text-secondary); line-height:1.5; max-width:320px;">
 							مساعدك الذكي لفحص الأدوية، تحليل الروشتات والمرفقات، ومقارنة عروض الموردين والأسعار.
 						</p>
 					</div>
@@ -155,7 +155,7 @@ templ CapsuleAssistant() {
 									<template x-if="msg.attachments && msg.attachments.length > 0">
 										<div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
 											<template x-for="file in msg.attachments" :key="file.name || file.filename">
-												<div style="display:flex; align-items:center; gap:0.3rem; background:var(--surface-sunken); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:var(--radius-md); font-size:0.725rem; color:var(--text-secondary);">
+												<div style="display:flex; align-items:center; gap:0.3rem; background:var(--surface-sunken); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:var(--radius-md); font-size:0.6875rem; color:var(--text-secondary);">
 													@IconPaperclip("icon-xxs")
 													<span x-text="file.name || file.filename" style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
 												</div>
@@ -165,7 +165,7 @@ templ CapsuleAssistant() {
 									<!-- User Text Bubble -->
 									<div
 										dir="auto"
-										style="background:var(--surface-sunken); border:1px solid var(--border); color:var(--text); border-radius:18px 18px 4px 18px; padding:0.65rem 1rem; font-size:0.875rem; line-height:1.55; word-break:break-word;"
+										style="background:var(--surface-sunken); border:1px solid var(--border); color:var(--text); border-radius:18px 18px 4px 18px; padding:0.65rem 1rem; font-size:0.8125rem; line-height:1.55; word-break:break-word;"
 										x-text="msg.text"
 									></div>
 								</div>
@@ -176,29 +176,21 @@ templ CapsuleAssistant() {
 						<template x-if="!msg.isUser">
 							<div style="display:flex; flex-direction:column; gap:0.45rem; animation:fadeIn 150ms ease;">
 								
-								<!-- Assistant Header / Avatar Line -->
-								<div style="display:flex; align-items:center; gap:0.45rem;">
-									<div style="width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; display:flex; align-items:center; justify-content:center;">
-										@IconSparkles("icon-xxs")
-									</div>
-									<span style="font-size:0.775rem; font-weight:700; color:var(--text);">كبسولة</span>
-								</div>
-
 								<!-- Collapsible Reasoning Block (Thinking...) -->
 								<template x-if="msg.reasoning">
 									<div x-data="{ open: false }" style="margin:0.2rem 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--surface-sunken);">
 										<button
 											type="button"
 											@click="open = !open"
-											style="width:100%; padding:0.4rem 0.65rem; background:none; border:none; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-size:0.75rem; color:var(--text-secondary);"
+											style="width:100%; padding:0.4rem 0.65rem; background:none; border:none; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-size:0.7rem; color:var(--text-secondary);"
 										>
 											<span style="display:flex; align-items:center; gap:0.35rem; font-weight:600;">
 												@IconSparkles("icon-xxs")
 												<span>التفكير المنطقي للمساعد</span>
 											</span>
-											<span x-text="open ? '▲ إخفاء' : '▼ إظهار'" style="font-size:0.7rem; color:var(--text-muted);"></span>
+											<span x-text="open ? '▲ إخفاء' : '▼ إظهار'" style="font-size:0.65rem; color:var(--text-muted);"></span>
 										</button>
-										<div x-show="open" style="padding:0.5rem 0.65rem; font-size:0.75rem; color:var(--text-muted); border-top:1px solid var(--border); white-space:pre-wrap; line-height:1.45;" x-text="msg.reasoning"></div>
+										<div x-show="open" style="padding:0.5rem 0.65rem; font-size:0.7rem; color:var(--text-muted); border-top:1px solid var(--border); white-space:pre-wrap; line-height:1.45;" x-text="msg.reasoning"></div>
 									</div>
 								</template>
 
@@ -206,7 +198,7 @@ templ CapsuleAssistant() {
 								<div
 									dir="auto"
 									class="capsule-prose"
-									style="font-size:0.875rem; line-height:1.65; color:var(--text); word-break:break-word;"
+									style="font-size:0.8125rem; line-height:1.65; color:var(--text); word-break:break-word;"
 								>
 									<span x-html="renderMarkdown(msg.text)"></span>
 									<!-- Glowing Streaming Cursor -->
@@ -249,12 +241,12 @@ templ CapsuleAssistant() {
 				<!-- Attached Files Preview Strip -->
 				<div x-show="attachedFiles.length > 0" style="margin-bottom:0.45rem; display:flex; gap:0.35rem; overflow-x:auto; align-items:center;">
 					<template x-for="(f, i) in attachedFiles" :key="i">
-						<div style="display:flex; align-items:center; gap:0.35rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.2rem 0.45rem; font-size:0.725rem; flex-shrink:0;">
+						<div style="display:flex; align-items:center; gap:0.35rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.2rem 0.45rem; font-size:0.6875rem; flex-shrink:0;">
 							@IconPaperclip("icon-xxs")
 							<span x-text="f.name" style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;"></span>
-							<span x-show="f.uploading" style="color:var(--accent); font-size:0.675rem;">(رفع...)</span>
-							<span x-show="!f.uploading && !f.error" x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.675rem;"></span>
-							<span x-show="f.error" style="color:var(--danger); font-size:0.675rem;" x-text="f.error"></span>
+							<span x-show="f.uploading" style="color:var(--accent); font-size:0.6375rem;">(رفع...)</span>
+							<span x-show="!f.uploading && !f.error" x-text="formatBytes(f.size)" style="color:var(--text-muted); font-size:0.6375rem;"></span>
+							<span x-show="f.error" style="color:var(--danger); font-size:0.6375rem;" x-text="f.error"></span>
 							<button type="button" @click="removeAttachment(i)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:800; padding:0 2px; line-height:1;" title="حذف">✕</button>
 						</div>
 					</template>
@@ -264,7 +256,7 @@ templ CapsuleAssistant() {
 				<div x-show="isRecordingVoice" style="padding:0.4rem 0.5rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:20px; margin-bottom:0.4rem;">
 					<div style="display:flex; align-items:center; gap:0.45rem; padding-inline-start:0.5rem;">
 						<span style="width:8px; height:8px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span>
-						<span style="font-size:0.775rem; font-weight:700; color:var(--text);" x-text="'جاري الاستماع... ' + formatDuration(recordingSeconds)"></span>
+						<span style="font-size:0.725rem; font-weight:700; color:var(--text);" x-text="'جاري الاستماع... ' + formatDuration(recordingSeconds)"></span>
 					</div>
 					<div style="display:flex; gap:0.35rem;">
 						<button type="button" @click="cancelVoiceRecord()" class="btn btn-secondary btn-xs" style="height:28px; padding:0 0.6rem;">إلغاء</button>
@@ -346,6 +338,47 @@ templ CapsuleAssistant() {
 
 		<!-- Polished Design Styles -->
 		<style>
+			/* The drawer's size lives here, not in a style attribute: an inline
+			   style cannot be overridden by a media query, which is why the
+			   assistant had no small-screen behaviour and ran past the bottom of
+			   short viewports with the composer out of reach. */
+			.capsule-drawer {
+				position: fixed;
+				bottom: 24px;
+				inset-inline-start: 24px;
+				width: 440px;
+				max-width: calc(100vw - 32px);
+				/* One source of truth for the height. dvh tracks the VISIBLE
+				   viewport, so mobile browser chrome cannot push the composer
+				   underneath the address bar. */
+				height: min(620px, calc(100dvh - 48px));
+				background: var(--surface-raised);
+				border: 1px solid var(--border);
+				border-radius: 22px;
+				box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+				z-index: 9995;
+			}
+
+			@media (max-width: 1024px) {
+				.capsule-drawer { width: 390px; }
+			}
+
+			/* Phone: a full-screen sheet. A 440px floating card on a 400px screen
+			   leaves no room for the answer or the composer. */
+			@media (max-width: 640px) {
+				.capsule-drawer {
+					inset: 0;
+					width: 100%;
+					max-width: 100%;
+					height: 100dvh;
+					border-radius: 0;
+					border: none;
+				}
+			}
+
 			.capsule-messages-scroll {
 				scrollbar-width: thin;
 				scrollbar-color: var(--border) transparent;
