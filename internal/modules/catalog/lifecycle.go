@@ -147,3 +147,34 @@ func (s *Service) SetProductsStatus(ctx context.Context, ids []int64, status Pro
 	}
 	return s.repo.SetProductsStatus(ctx, ids, status)
 }
+
+// ListBrandsByCategory returns the manufacturers that operate in one category.
+//
+// The product form offers a category first and then only that category's
+// brands. Nothing constrained the pair before, so a product could sit in
+// "مستحضرات تجميل" with a brand that only makes medical supplies.
+func (s *Service) ListBrandsByCategory(ctx context.Context, categoryID int64) ([]*Brand, error) {
+	if categoryID <= 0 {
+		return nil, apperr.Validation("catalog.category_required",
+			"Category is required.", map[string]string{"category_id": "التصنيف مطلوب"})
+	}
+	return s.repo.ListBrandsByCategory(ctx, categoryID)
+}
+
+// BrandInCategory reports whether a (category, brand) pair is allowed. The
+// product form filters client-side for convenience; this is the rule.
+func (s *Service) BrandInCategory(ctx context.Context, categoryID, brandID int64) (bool, error) {
+	if categoryID <= 0 || brandID <= 0 {
+		return false, nil
+	}
+	return s.repo.BrandInCategory(ctx, categoryID, brandID)
+}
+
+// SetBrandCategories replaces the categories a manufacturer operates in.
+func (s *Service) SetBrandCategories(ctx context.Context, brandID int64, categoryIDs []int64) error {
+	if brandID <= 0 {
+		return apperr.Validation("catalog.brand_required",
+			"Brand is required.", map[string]string{"brand_id": "الشركة المصنعة مطلوبة"})
+	}
+	return s.repo.SetBrandCategories(ctx, brandID, categoryIDs)
+}

@@ -350,3 +350,17 @@ func (r stubRepo) CountProductsByOrg(_ context.Context, _ int64, _ string) (int,
 	r.fail("CountProductsByOrg")
 	return 0, nil
 }
+
+// Category -> brand relationship stubs (PLAN_V7 Phase 4). Behaviour is covered
+// by the catalog repository tests; these only satisfy the interface.
+func (s stubRepo) ListBrandsByCategory(context.Context, int64) ([]*catalog.Brand, error) {
+	return nil, nil
+}
+
+func (s stubRepo) BrandInCategory(context.Context, int64, int64) (bool, error) {
+	return true, nil
+}
+
+func (s stubRepo) SetBrandCategories(context.Context, int64, []int64) error {
+	return nil
+}

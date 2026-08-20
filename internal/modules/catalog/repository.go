@@ -54,6 +54,12 @@ type Repository interface {
 	GetBrandByID(ctx context.Context, id int64) (*Brand, error)
 	UpdateBrand(ctx context.Context, b *Brand) error
 	DeleteBrand(ctx context.Context, id int64) error
+	// Category -> brand relationship (PLAN_V7 Phase 4). The product form offers
+	// a category first, then only that category's manufacturers.
+	ListBrandsByCategory(ctx context.Context, categoryID int64) ([]*Brand, error)
+	BrandInCategory(ctx context.Context, categoryID, brandID int64) (bool, error)
+	SetBrandCategories(ctx context.Context, brandID int64, categoryIDs []int64) error
+
 	ListBrands(ctx context.Context) ([]*Brand, error)
 	CountProductsInBrand(ctx context.Context, brandID int64) (int, error)
 

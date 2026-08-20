@@ -25,6 +25,8 @@ func NewHandler(service *catalog.Service, log *slog.Logger) *Handler {
 
 // RegisterRoutes registers catalog endpoints on a Chi router.
 func (h *Handler) RegisterRoutes(r chi.Router) {
+	// Feeds the cascading category -> brand selector in every product form.
+	r.Get("/api/v1/catalog/categories/{id}/brands", h.ListBrandsByCategory)
 	r.Get("/api/v1/catalog/search", h.Search)
 	r.Get("/api/v1/catalog/products/{id}", h.GetProduct)
 	r.Put("/api/v1/catalog/products/{id}", h.UpdateProduct)
@@ -183,4 +185,21 @@ func (h *Handler) ListBrands(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, map[string]any{
 		"brands": brands,
 	})
+}
+
+// ListBrandsByCategory returns the manufacturers that operate in one category,
+// for the product form's brand selector.
+func (h *Handler) ListBrandsByCategory(w http.ResponseWriter, r *http.Request) {
+	categoryID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || categoryID <= 0 {
+		httpx.Error(w, r, h.log, apperr.Validation("catalog.category_invalid",
+			"Category id is invalid.", map[string]string{"id": "معرف التصنيف غير صالح"}))
+		return
+	}
+	brands, err := h.service.ListBrandsByCategory(r.Context(), categoryID)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"brands": brands})
 }

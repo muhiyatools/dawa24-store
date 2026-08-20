@@ -41,6 +41,9 @@ func (s *Service) CreateProduct(ctx context.Context, p *Product) (*Product, erro
 	if err := p.Validate(); err != nil {
 		return nil, err
 	}
+	if err := s.assertBrandInCategory(ctx, p); err != nil {
+		return nil, err
+	}
 
 	if p.Status == "" {
 		p.Status = StatusActive
@@ -74,7 +77,33 @@ func (s *Service) UpdateProduct(ctx context.Context, p *Product) error {
 	if err := p.Validate(); err != nil {
 		return err
 	}
+	if err := s.assertBrandInCategory(ctx, p); err != nil {
+		return err
+	}
 	return s.repo.UpdateProduct(ctx, p)
+}
+
+// assertBrandInCategory refuses a product whose manufacturer does not operate
+// in its category. The product form filters the brand list client-side for
+// convenience; this is the rule, so a crafted or stale form cannot save a
+// cosmetics product under a medical-supplies-only manufacturer.
+//
+// A product with no category or no brand is left alone: both columns are
+// nullable and plenty of legacy rows carry only one.
+func (s *Service) assertBrandInCategory(ctx context.Context, p *Product) error {
+	if p.CategoryID == nil || p.BrandID == nil || *p.CategoryID <= 0 || *p.BrandID <= 0 {
+		return nil
+	}
+	ok, err := s.repo.BrandInCategory(ctx, *p.CategoryID, *p.BrandID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return apperr.Validation("catalog.brand_category_mismatch",
+			"The selected manufacturer does not operate in the selected category.",
+			map[string]string{"brand_id": "الشركة المصنعة المختارة لا تعمل ضمن التصنيف المحدد"})
+	}
+	return nil
 }
 
 // DeleteProduct soft-deletes a product.

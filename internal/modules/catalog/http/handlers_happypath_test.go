@@ -241,3 +241,17 @@ func TestCatalogHandler_HappyPaths(t *testing.T) {
 }
 
 func (happyRepo) CountProductsByOrg(_ context.Context, _ int64, _ string) (int, error) { return 3, nil }
+
+// Category -> brand relationship stubs (PLAN_V7 Phase 4). Behaviour is covered
+// by the catalog repository tests; these only satisfy the interface.
+func (h happyRepo) ListBrandsByCategory(context.Context, int64) ([]*catalog.Brand, error) {
+	return nil, nil
+}
+
+func (h happyRepo) BrandInCategory(context.Context, int64, int64) (bool, error) {
+	return true, nil
+}
+
+func (h happyRepo) SetBrandCategories(context.Context, int64, []int64) error {
+	return nil
+}

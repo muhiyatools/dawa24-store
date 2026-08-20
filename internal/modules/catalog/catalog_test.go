@@ -390,3 +390,17 @@ func TestCatalogServiceCreateAndVariants(t *testing.T) {
 		t.Errorf("expected 1 variant with ID %d, got %d variants", v.ID, len(variants))
 	}
 }
+
+// Category -> brand relationship stubs (PLAN_V7 Phase 4). Behaviour is covered
+// by the catalog repository tests; these only satisfy the interface.
+func (m *mockCatalogRepo) ListBrandsByCategory(context.Context, int64) ([]*Brand, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) BrandInCategory(context.Context, int64, int64) (bool, error) {
+	return true, nil
+}
+
+func (m *mockCatalogRepo) SetBrandCategories(context.Context, int64, []int64) error {
+	return nil
+}
