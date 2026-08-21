@@ -1,13 +1,23 @@
 package compare
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
+	"fmt"
+	"io"
 	"log/slog"
+	"math"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/xuri/excelize/v2"
+
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/arabic"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // ClientInfo captures client environment details for session device cap tracking.
@@ -31,6 +41,7 @@ type Service struct {
 	repo      Repository
 	log       *slog.Logger
 	aiMatcher AIMatcher
+	storage   *storage.Client
 }
 
 // NewService creates a new compare service.
@@ -44,6 +55,11 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 // SetAIMatcher configures the optional AI matching capability (Wave B / Plan V5 §2.6).
 func (s *Service) SetAIMatcher(m AIMatcher) {
 	s.aiMatcher = m
+}
+
+// SetStorage configures the object storage client for downloading uploaded files.
+func (s *Service) SetStorage(st *storage.Client) {
+	s.storage = st
 }
 
 // EntitlementFor answers "what may this user do in the compare tool right now?".
@@ -362,6 +378,7 @@ func (s *Service) GetFileByPublicID(ctx context.Context, publicID string) (*Comp
 }
 
 // SaveFileMapping validates and persists user-defined column mapping for a spreadsheet (Plan V5 Phase 2 §2.3.3).
+// After saving the mapping, it automatically processes the file to extract rows.
 func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config MappingConfig) error {
 	if config.NameCol == nil {
 		return apperr.Validation("mapping.name_required", "يرجى تحديد عمود اسم الصنف على الأقل.", map[string]string{
@@ -381,5 +398,258 @@ func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config Mapp
 
 	file.MappingConfig = config
 	file.Status = FileReady
+	if err := s.repo.UpdateFile(ctx, file); err != nil {
+		return err
+	}
+
+	// Automatically process the file after mapping is saved
+	return s.ProcessCompareFile(ctx, fileID)
+}
+
+// ProcessCompareFile downloads the uploaded spreadsheet from storage, parses it using the
+// saved column mapping, extracts rows, and inserts them into compare.file_rows.
+func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
+	file, err := s.repo.GetFileByID(ctx, fileID)
+	if err != nil {
+		return err
+	}
+
+	if s.storage == nil {
+		return apperr.Internal(fmt.Errorf("object storage is not configured for file processing"))
+	}
+
+	if file.MappingConfig.NameCol == nil {
+		return apperr.Validation("compare.no_mapping", "Column mapping not configured for this file.", nil)
+	}
+
+	// Download file from storage
+	reader, _, err := s.storage.Get(ctx, file.StorageKey)
+	if err != nil {
+		return fmt.Errorf("download file from storage: %w", err)
+	}
+	defer reader.Close()
+
+	// Parse spreadsheet based on file type
+	var rows []*CompareFileRow
+	lowerName := strings.ToLower(file.OriginalFilename)
+	if strings.HasSuffix(lowerName, ".xlsx") || strings.HasSuffix(lowerName, ".xls") {
+		rows, err = s.parseXLSX(reader, file)
+	} else if strings.HasSuffix(lowerName, ".csv") {
+		rows, err = s.parseCSV(reader, file)
+	} else {
+		return apperr.Validation("compare.unsupported_format", "Unsupported file format. Use .xlsx, .xls, or .csv", nil)
+	}
+	if err != nil {
+		file.Status = FileFailed
+		file.ErrorMessage = err.Error()
+		_ = s.repo.UpdateFile(ctx, file)
+		return fmt.Errorf("parse spreadsheet: %w", err)
+	}
+
+	// Delete any existing rows for this file (re-process case)
+	if err := s.repo.DeleteFileRows(ctx, fileID); err != nil {
+		return fmt.Errorf("delete old rows: %w", err)
+	}
+
+	// Insert new rows in batches
+	if len(rows) > 0 {
+		if err := s.repo.InsertFileRows(ctx, rows); err != nil {
+			file.Status = FileFailed
+			file.ErrorMessage = err.Error()
+			_ = s.repo.UpdateFile(ctx, file)
+			return fmt.Errorf("insert file rows: %w", err)
+		}
+	}
+
+	// Update file with row count and status
+	file.RowCount = len(rows)
+	file.Status = FileReady
+	file.ErrorMessage = ""
 	return s.repo.UpdateFile(ctx, file)
+}
+
+// parseCSV parses a CSV file using the column mapping.
+func (s *Service) parseCSV(reader io.Reader, file *CompareFile) ([]*CompareFileRow, error) {
+	csvReader := csv.NewReader(reader)
+	csvReader.FieldsPerRecord = -1
+	csvReader.TrimLeadingSpace = true
+
+	headers, err := csvReader.Read()
+	if err != nil {
+		return nil, fmt.Errorf("read csv headers: %w", err)
+	}
+
+	var rows []*CompareFileRow
+	rowNumber := 1
+
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			continue // skip corrupted line
+		}
+
+		row := s.extractRowFromRecord(record, headers, file, rowNumber)
+		if row != nil {
+			rows = append(rows, row)
+		}
+		rowNumber++
+	}
+
+	return rows, nil
+}
+
+// parseXLSX parses an XLSX file using the column mapping.
+func (s *Service) parseXLSX(reader io.Reader, file *CompareFile) ([]*CompareFileRow, error) {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, fmt.Errorf("read xlsx data: %w", err)
+	}
+
+	f, err := excelize.OpenReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("open xlsx: %w", err)
+	}
+	defer f.Close()
+
+	sheets := f.GetSheetList()
+	if len(sheets) == 0 {
+		return nil, fmt.Errorf("xlsx workbook has no sheets")
+	}
+
+	rowsIter, err := f.Rows(sheets[0])
+	if err != nil {
+		return nil, fmt.Errorf("open sheet rows: %w", err)
+	}
+	defer rowsIter.Close()
+
+	if !rowsIter.Next() {
+		return nil, fmt.Errorf("empty sheet")
+	}
+
+	headers, err := rowsIter.Columns()
+	if err != nil {
+		return nil, fmt.Errorf("read xlsx headers: %w", err)
+	}
+
+	var rows []*CompareFileRow
+	rowNumber := 1
+
+	for rowsIter.Next() {
+		columns, err := rowsIter.Columns()
+		if err != nil {
+			continue
+		}
+
+		row := s.extractRowFromRecord(columns, headers, file, rowNumber)
+		if row != nil {
+			rows = append(rows, row)
+		}
+		rowNumber++
+	}
+
+	return rows, nil
+}
+
+// extractRowFromRecord extracts a CompareFileRow from a parsed record using the mapping config.
+func (s *Service) extractRowFromRecord(record []string, headers []string, file *CompareFile, rowNumber int) *CompareFileRow {
+	cfg := file.MappingConfig
+
+	// Build a map of header index -> value for easy lookup
+	values := make(map[int]string)
+	for i, v := range record {
+		if i < len(headers) {
+			values[i] = v
+		}
+	}
+
+	// Extract required fields using mapping config
+	getValue := func(col *int) string {
+		if col == nil {
+			return ""
+		}
+		if *col >= 0 && *col < len(record) {
+			return strings.TrimSpace(record[*col])
+		}
+		return ""
+	}
+
+	name := getValue(cfg.NameCol)
+	if name == "" {
+		return nil // Skip rows without product name
+	}
+
+	// Parse price
+	priceStr := getValue(cfg.PriceCol)
+	price := money.Zero
+	if priceStr != "" {
+		if val, err := strconv.ParseFloat(priceStr, 64); err == nil {
+			price = money.FromMinor(int64(math.Round(val * 100)))
+		} else {
+			// Try to extract number from string
+			if val, err := extractNumber(priceStr); err == nil {
+				price = money.FromMinor(int64(math.Round(val * 100)))
+			}
+		}
+	}
+
+	// Parse discount
+	discountStr := getValue(cfg.DiscountCol)
+	discount := 0.0
+	if discountStr != "" {
+		if val, err := strconv.ParseFloat(discountStr, 64); err == nil {
+			discount = val
+		} else {
+			if val, err := extractNumber(discountStr); err == nil {
+				discount = val
+			}
+		}
+	}
+
+	// Parse code/SKU
+	code := getValue(cfg.CodeCol)
+
+	// Calculate price after discount
+	priceAfterDiscount := CalculatePriceAfterDiscount(price, discount)
+
+	// Normalize name for matching
+	normalizedName := arabic.Normalize(name)
+	normalizedName = strings.ToLower(strings.TrimSpace(normalizedName))
+
+	return &CompareFileRow{
+		FileID:             file.ID,
+		OrganizationID:     file.OrganizationID,
+		RowNumber:          rowNumber,
+		RawName:            name,
+		NormalizedName:     normalizedName,
+		SKU:                code,
+		Price:              price,
+		Discount:           discount,
+		PriceAfterDiscount: priceAfterDiscount,
+		MatchMethod:        MatchMethodUnmatched,
+	}
+}
+
+// extractNumber extracts the first number from a string.
+func extractNumber(s string) (float64, error) {
+	var numStr strings.Builder
+	foundDigit := false
+	for _, r := range s {
+		if r >= '0' && r <= '9' || r == '.' || r == ',' {
+			if r == ',' {
+				numStr.WriteRune('.')
+			} else {
+				numStr.WriteRune(r)
+			}
+			foundDigit = true
+		} else if foundDigit {
+			break
+		}
+	}
+	if !foundDigit {
+		return 0, fmt.Errorf("no number found")
+	}
+	return strconv.ParseFloat(numStr.String(), 64)
 }

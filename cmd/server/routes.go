@@ -205,6 +205,9 @@ func mountModuleRoutes(
 			compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 		}
 	}
+	if storageClient != nil {
+		compareSvcUI.SetStorage(storageClient)
+	}
 	uiHandler.SetCompareService(compareSvcUI)
 
 	if storageClient != nil {
