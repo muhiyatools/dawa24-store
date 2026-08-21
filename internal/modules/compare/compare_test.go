@@ -1,6 +1,7 @@
 package compare_test
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"log/slog"
@@ -8,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -769,4 +772,58 @@ func TestMultiSupplierComparison_WithProcessedFiles(t *testing.T) {
 		}
 	}
 }
+
+func TestUploadAndProcessCompareFile_TemplateXLSX(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := compare.NewService(repo, logger)
+
+	userID := int64(999)
+	orgID := int64(888)
+
+	// Create sample Excel file identical to CompareSampleDownload
+	xf := excelize.NewFile()
+	sheetName := "كشف أسعار المورد"
+	xf.SetSheetName("Sheet1", sheetName)
+	_ = xf.SetSheetView(sheetName, 0, &excelize.ViewOptions{
+		RightToLeft: func() *bool { b := true; return &b }(),
+	})
+
+	headers := []string{"كود الصنف (SKU)", "اسم الصنف الدوائي (Product Name)", "السعر الرسمي (Price)", "نسبة الخصم % (Discount)", "ملاحظات (Notes)"}
+	for i, hName := range headers {
+		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
+		_ = xf.SetCellValue(sheetName, cell, hName)
+	}
+
+	samples := [][]any{
+		{"1001", "بانادول اكسترا 24 قرص (Panadol Extra 24 Tab)", 45.00, 18.5, "متوفر كميات كبيرة"},
+		{"1002", "اوجمنتين 1 جم 14 قرص (Augmentin 1g 14 Tab)", 135.00, 12.0, "خصم إضافي للطلبيات الكبيرة"},
+		{"1003", "كونجستال 20 قرص (Congestal 20 Tab)", 31.00, 20.0, "عرض موسمي حصري"},
+	}
+	for rowIdx, row := range samples {
+		for colIdx, val := range row {
+			cell, _ := excelize.CoordinatesToCellName(colIdx+1, rowIdx+2)
+			_ = xf.SetCellValue(sheetName, cell, val)
+		}
+	}
+
+	var buf bytes.Buffer
+	if err := xf.Write(&buf); err != nil {
+		t.Fatalf("failed to write xlsx: %v", err)
+	}
+	xlsxBytes := buf.Bytes()
+
+	file, _, err := svc.UploadAndProcessCompareFile(ctx, userID, &orgID, "شركة الفتح للأدوية", "dawa24_supplier_template.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", int64(len(xlsxBytes)), "storage-key-123", xlsxBytes)
+	if err != nil {
+		t.Fatalf("UploadAndProcessCompareFile failed: %v", err)
+	}
+
+	t.Logf("File created: ID=%d, RowCount=%d, Status=%s, ErrorMessage=%s, NameCol=%v, PriceCol=%v", file.ID, file.RowCount, file.Status, file.ErrorMessage, file.MappingConfig.NameCol, file.MappingConfig.PriceCol)
+
+	if file.RowCount != 3 {
+		t.Fatalf("expected RowCount=3, got %d", file.RowCount)
+	}
+}
+
 

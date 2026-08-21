@@ -252,6 +252,9 @@ func calculateOverallConfidence(scores map[TargetField]float64) float64 {
 
 // FindBestHeaderRow scans the top rows of a spreadsheet to find the most probable header row.
 func FindBestHeaderRow(rows [][]string) (int, map[int]TargetField, float64) {
+	if len(rows) == 0 {
+		return 0, nil, 0.0
+	}
 	bestIndex := -1
 	bestConfidence := 0.0
 	var bestMapping map[int]TargetField
@@ -288,10 +291,13 @@ func FindBestHeaderRow(rows [][]string) (int, map[int]TargetField, float64) {
 		}
 	}
 
-	if bestIndex != -1 && bestConfidence > 0.4 {
+	if bestIndex != -1 && bestConfidence > 0.3 {
 		return bestIndex, bestMapping, bestConfidence
 	}
-	return 0, DetectColumns(rows[0]), 0.0
+	if len(rows) > 0 {
+		return 0, DetectColumns(rows[0]), 0.0
+	}
+	return 0, nil, 0.0
 }
 
 // ValidateMapping checks if the mapping contains required columns (product_name and at least price or discount).

@@ -407,16 +407,10 @@ func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config Mapp
 	return s.ProcessCompareFile(ctx, fileID)
 }
 
-// UploadAndProcessCompareFile creates the file record, auto-detects columns, parses spreadsheet rows from byte data,
-// and immediately inserts them into compare.file_rows so the file is ready for instant comparison.
+// UploadAndProcessCompareFile uploads a spreadsheet, detects columns, extracts rows, and stores them in compare.file_rows immediately.
 func (s *Service) UploadAndProcessCompareFile(
-	ctx context.Context,
-	userID int64,
-	orgID *int64,
-	supplierName, originalFilename, mimeType string,
-	sizeBytes int64,
-	storageKey string,
-	fileBytes []byte,
+	ctx context.Context, userID int64, orgID *int64, supplierName, originalFilename, mimeType string,
+	sizeBytes int64, storageKey string, fileBytes []byte,
 ) (*CompareFile, []string, error) {
 	file, archived, err := s.UploadCompareFile(ctx, userID, orgID, supplierName, originalFilename, mimeType, sizeBytes, storageKey)
 	if err != nil {
@@ -427,8 +421,8 @@ func (s *Service) UploadAndProcessCompareFile(
 		return file, archived, nil
 	}
 
-	// 1. Parse headers and auto-detect columns
-	var headers []string
+	// 1. Read all rows from file (using GetRows for Excel or ReadAll for CSV)
+	var allRows [][]string
 	lowerName := strings.ToLower(originalFilename)
 	if strings.HasSuffix(lowerName, ".xlsx") || strings.HasSuffix(lowerName, ".xls") {
 		f, err := excelize.OpenReader(bytes.NewReader(fileBytes))
@@ -436,12 +430,9 @@ func (s *Service) UploadAndProcessCompareFile(
 			defer f.Close()
 			sheets := f.GetSheetList()
 			if len(sheets) > 0 {
-				rowsIter, err := f.Rows(sheets[0])
+				rows, err := f.GetRows(sheets[0])
 				if err == nil {
-					defer rowsIter.Close()
-					if rowsIter.Next() {
-						headers, _ = rowsIter.Columns()
-					}
+					allRows = rows
 				}
 			}
 		}
@@ -449,64 +440,92 @@ func (s *Service) UploadAndProcessCompareFile(
 		r := csv.NewReader(bytes.NewReader(fileBytes))
 		r.FieldsPerRecord = -1
 		r.TrimLeadingSpace = true
-		headers, _ = r.Read()
+		rows, err := r.ReadAll()
+		if err == nil {
+			allRows = rows
+		}
 	}
 
-	// 2. Build mapping config
+	if len(allRows) == 0 {
+		file.Status = FileFailed
+		file.ErrorMessage = "الملف فارغ أو تعذر قراءة الجداول بداخله"
+		_ = s.repo.UpdateFile(ctx, file)
+		return file, archived, nil
+	}
+
+	// 2. Find best header row and detect columns
+	headerRowIdx, fieldMapping, _ := FindBestHeaderRow(allRows)
 	var config MappingConfig
-	if len(headers) > 0 {
-		fieldMapping, _, _ := DetectColumnsWithConfidence(headers)
-		colMapping := make(map[TargetField]*int)
-		for colIdx, field := range fieldMapping {
-			idx := colIdx
-			colMapping[field] = &idx
-		}
-		config.NameCol = colMapping[FieldProductName]
-		config.PriceCol = colMapping[FieldPrice]
-		config.DiscountCol = colMapping[FieldDiscount]
-		config.CodeCol = colMapping[FieldSKU]
-		if config.CodeCol == nil {
-			config.CodeCol = colMapping[FieldProductID]
-		}
+	colMapping := make(map[TargetField]*int)
+	for colIdx, field := range fieldMapping {
+		idx := colIdx
+		colMapping[field] = &idx
+	}
+	config.NameCol = colMapping[FieldProductName]
+	config.PriceCol = colMapping[FieldPrice]
+	config.DiscountCol = colMapping[FieldDiscount]
+	config.CodeCol = colMapping[FieldSKU]
+	if config.CodeCol == nil {
+		config.CodeCol = colMapping[FieldProductID]
 	}
 
-	// Heuristic fallback if product name not detected
-	if config.NameCol == nil && len(headers) > 0 {
+	// Heuristic fallbacks if columns were not auto-detected
+	headerRow := allRows[headerRowIdx]
+	if config.NameCol == nil && len(headerRow) > 0 {
 		idx := 0
-		if len(headers) > 1 {
+		if len(headerRow) > 1 {
 			idx = 1
 		}
 		config.NameCol = &idx
 	}
-	if config.PriceCol == nil && len(headers) > 2 {
+	if config.PriceCol == nil && len(headerRow) > 2 {
 		idx := 2
 		config.PriceCol = &idx
+	}
+	if config.DiscountCol == nil && len(headerRow) > 3 {
+		idx := 3
+		config.DiscountCol = &idx
+	}
+	if config.CodeCol == nil && len(headerRow) > 0 {
+		idx := 0
+		config.CodeCol = &idx
 	}
 
 	file.MappingConfig = config
 
 	// 3. Extract and insert rows
 	var rows []*CompareFileRow
-	if strings.HasSuffix(lowerName, ".xlsx") || strings.HasSuffix(lowerName, ".xls") {
-		rows, err = s.parseXLSX(bytes.NewReader(fileBytes), file)
-	} else if strings.HasSuffix(lowerName, ".csv") {
-		rows, err = s.parseCSV(bytes.NewReader(fileBytes), file)
+	rowNum := 1
+	for i := headerRowIdx + 1; i < len(allRows); i++ {
+		record := allRows[i]
+		if len(record) == 0 {
+			continue
+		}
+		row := s.extractRowFromRecord(record, headerRow, file, rowNum)
+		if row != nil {
+			rows = append(rows, row)
+			rowNum++
+		}
 	}
 
-	if err == nil && len(rows) > 0 {
+	if len(rows) > 0 {
 		_ = s.repo.DeleteFileRows(ctx, file.ID)
 		if insertErr := s.repo.InsertFileRows(ctx, rows); insertErr == nil {
 			file.RowCount = len(rows)
 			file.Status = FileReady
 			file.ErrorMessage = ""
-			_ = s.repo.UpdateFile(ctx, file)
 		} else {
 			s.log.ErrorContext(ctx, "failed to insert compare file rows", "error", insertErr, "file_id", file.ID)
+			file.Status = FileFailed
+			file.ErrorMessage = "تعذر إدراج أصناف الملف في قاعدة البيانات"
 		}
-	} else if err != nil {
-		s.log.WarnContext(ctx, "failed to parse uploaded compare file", "error", err, "file_id", file.ID)
+	} else {
+		file.RowCount = 0
+		file.Status = FileUploaded
+		file.ErrorMessage = "لم يتم العثور على صفوف أصناف صالحة"
 	}
 
+	_ = s.repo.UpdateFile(ctx, file)
 	return file, archived, nil
 }
 
@@ -570,13 +589,13 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 		return fmt.Errorf("delete old rows: %w", err)
 	}
 
-	// Insert new rows in batches
+	// Insert new extracted rows
 	if len(rows) > 0 {
 		if err := s.repo.InsertFileRows(ctx, rows); err != nil {
 			file.Status = FileFailed
-			file.ErrorMessage = err.Error()
+			file.ErrorMessage = fmt.Sprintf("Failed to insert file rows: %v", err)
 			_ = s.repo.UpdateFile(ctx, file)
-			return fmt.Errorf("insert file rows: %w", err)
+			return fmt.Errorf("insert rows: %w", err)
 		}
 	}
 
@@ -638,35 +657,31 @@ func (s *Service) parseXLSX(reader io.Reader, file *CompareFile) ([]*CompareFile
 		return nil, fmt.Errorf("xlsx workbook has no sheets")
 	}
 
-	rowsIter, err := f.Rows(sheets[0])
+	allRows, err := f.GetRows(sheets[0])
 	if err != nil {
-		return nil, fmt.Errorf("open sheet rows: %w", err)
+		return nil, fmt.Errorf("get rows: %w", err)
 	}
-	defer rowsIter.Close()
-
-	if !rowsIter.Next() {
+	if len(allRows) == 0 {
 		return nil, fmt.Errorf("empty sheet")
 	}
 
-	headers, err := rowsIter.Columns()
-	if err != nil {
-		return nil, fmt.Errorf("read xlsx headers: %w", err)
-	}
+	headerRowIdx, _, _ := FindBestHeaderRow(allRows)
+	headers := allRows[headerRowIdx]
 
 	var rows []*CompareFileRow
 	rowNumber := 1
 
-	for rowsIter.Next() {
-		columns, err := rowsIter.Columns()
-		if err != nil {
+	for i := headerRowIdx + 1; i < len(allRows); i++ {
+		columns := allRows[i]
+		if len(columns) == 0 {
 			continue
 		}
 
 		row := s.extractRowFromRecord(columns, headers, file, rowNumber)
 		if row != nil {
 			rows = append(rows, row)
+			rowNumber++
 		}
-		rowNumber++
 	}
 
 	return rows, nil
@@ -675,14 +690,6 @@ func (s *Service) parseXLSX(reader io.Reader, file *CompareFile) ([]*CompareFile
 // extractRowFromRecord extracts a CompareFileRow from a parsed record using the mapping config.
 func (s *Service) extractRowFromRecord(record []string, headers []string, file *CompareFile, rowNumber int) *CompareFileRow {
 	cfg := file.MappingConfig
-
-	// Build a map of header index -> value for easy lookup
-	values := make(map[int]string)
-	for i, v := range record {
-		if i < len(headers) {
-			values[i] = v
-		}
-	}
 
 	// Extract required fields using mapping config
 	getValue := func(col *int) string {
@@ -751,8 +758,21 @@ func (s *Service) extractRowFromRecord(record []string, headers []string, file *
 	}
 }
 
-// extractNumber extracts the first number from a string.
+// extractNumber extracts the first number from a string, handling Arabic/Eastern numerals and commas.
 func extractNumber(s string) (float64, error) {
+	// Convert Eastern Arabic numerals to standard digits
+	s = strings.ReplaceAll(s, "٠", "0")
+	s = strings.ReplaceAll(s, "١", "1")
+	s = strings.ReplaceAll(s, "٢", "2")
+	s = strings.ReplaceAll(s, "٣", "3")
+	s = strings.ReplaceAll(s, "٤", "4")
+	s = strings.ReplaceAll(s, "٥", "5")
+	s = strings.ReplaceAll(s, "٦", "6")
+	s = strings.ReplaceAll(s, "٧", "7")
+	s = strings.ReplaceAll(s, "٨", "8")
+	s = strings.ReplaceAll(s, "٩", "9")
+	s = strings.ReplaceAll(s, "٫", ".")
+
 	var numStr strings.Builder
 	foundDigit := false
 	for _, r := range s {
