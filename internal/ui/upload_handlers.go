@@ -81,6 +81,32 @@ func saveUploadedFile(r *http.Request, formKey, category string) (string, error)
 	return fmt.Sprintf("/uploads/%s/%s", category, safeFilename), nil
 }
 
+// saveUploadedBytes writes raw byte content safely to disk in the upload directory.
+func saveUploadedBytes(data []byte, originalFilename, category string) (string, error) {
+	if len(data) > MaxUploadBytes {
+		return "", fmt.Errorf("file size exceeds maximum allowed limit (20MB)")
+	}
+
+	ext := strings.ToLower(filepath.Ext(originalFilename))
+	if ext == "" {
+		ext = ".bin"
+	}
+
+	randomBytes := make([]byte, 8)
+	_, _ = rand.Read(randomBytes)
+	safeFilename := fmt.Sprintf("%s_%s%s", category, hex.EncodeToString(randomBytes), ext)
+
+	targetDir := filepath.Join(UploadBaseDir, category)
+	_ = os.MkdirAll(targetDir, 0755)
+
+	targetPath := filepath.Join(targetDir, safeFilename)
+	if err := os.WriteFile(targetPath, data, 0644); err != nil {
+		return "", fmt.Errorf("failed to save file: %w", err)
+	}
+
+	return fmt.Sprintf("/uploads/%s/%s", category, safeFilename), nil
+}
+
 // UploadAPISubmit allows asynchronous HTMX or JavaScript file uploads.
 func (h *UIHandler) UploadAPISubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

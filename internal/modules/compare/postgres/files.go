@@ -97,8 +97,8 @@ func (r *Repository) ListFiles(ctx context.Context, userID int64, orgID *int64, 
 			WHERE deleted_at IS NULL
 			  AND ($1::text IS NULL OR status = $1)
 			  AND (
-			      ($2::bigint IS NOT NULL AND organization_id = $2)
-			      OR (organization_id IS NULL AND user_id = $3)
+			      user_id = $3
+			      OR ($2::bigint IS NOT NULL AND organization_id = $2)
 			  )
 			ORDER BY created_at DESC;
 		`
@@ -134,8 +134,8 @@ func (r *Repository) CountActiveFiles(ctx context.Context, userID int64, orgID *
 			WHERE deleted_at IS NULL
 			  AND status != 'archived'
 			  AND (
-			      ($1::bigint IS NOT NULL AND organization_id = $1)
-			      OR (organization_id IS NULL AND user_id = $2)
+			      user_id = $2
+			      OR ($1::bigint IS NOT NULL AND organization_id = $1)
 			  );
 		`
 		return tx.QueryRow(txCtx, query, orgID, userID).Scan(&count)
@@ -191,8 +191,8 @@ func (r *Repository) ArchiveOldestFiles(ctx context.Context, userID int64, orgID
 				WHERE deleted_at IS NULL
 				  AND status != 'archived'
 				  AND (
-				      ($1::bigint IS NOT NULL AND organization_id = $1)
-				      OR (organization_id IS NULL AND user_id = $2)
+				      user_id = $2
+				      OR ($1::bigint IS NOT NULL AND organization_id = $1)
 				  )
 			),
 			to_archive AS (

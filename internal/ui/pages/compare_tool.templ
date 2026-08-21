@@ -8,9 +8,28 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
+templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType, noticeMsg string) {
 	@layouts.VendorShell("محرك مقارنة الخصومات والأسعار", "compare", lang, dir) {
 		<div style="max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
+
+			<!-- Notice / Toast Banner -->
+			if noticeMsg != "" {
+				if noticeType == "error" {
+					<div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
+							<span style="font-size:1.4rem;">⚠️</span>
+							<span>{ noticeMsg }</span>
+						</div>
+					</div>
+				} else {
+					<div class="alert alert-success" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
+							<span style="font-size:1.4rem;">✅</span>
+							<span>{ noticeMsg }</span>
+						</div>
+					</div>
+				}
+			}
 			
 			<!-- Header Banner -->
 			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">

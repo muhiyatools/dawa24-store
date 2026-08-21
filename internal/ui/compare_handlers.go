@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xuri/excelize/v2"
@@ -114,6 +115,9 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	noticeType := r.URL.Query().Get("notice")
+	noticeMsg := r.URL.Query().Get("msg")
+
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
 		var orgPtr *int64
@@ -124,7 +128,7 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareToolPage(lang, dir, files).Render(ctx, w); err != nil {
+	if err := pages.CompareToolPage(lang, dir, files, noticeType, noticeMsg).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render compare tool", "error", err)
 	}
 }
@@ -242,10 +246,21 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		supplierName = strings.TrimSuffix(header.Filename, ext)
 	}
 
-	storageKey, err := saveUploadedFile(r, "compare_file", "compare")
-	if err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
-		return
+	// 1. Upload to MinIO object storage if configured
+	storageKey := fmt.Sprintf("compare/%d/%d_%s", actor.UserID, time.Now().Unix(), filepath.Base(header.Filename))
+	if h.storage != nil {
+		if err := h.storage.Put(ctx, storageKey, bytes.NewReader(fileBytes), int64(len(fileBytes)), header.Header.Get("Content-Type")); err != nil {
+			h.log.WarnContext(ctx, "minio put upload warning", "error", err, "key", storageKey)
+		}
+	}
+
+	// 2. Also write to local storage as fallback
+	localURL, localErr := saveUploadedBytes(fileBytes, header.Filename, "compare")
+	if localErr != nil {
+		h.log.WarnContext(ctx, "local disk save warning", "error", localErr)
+	}
+	if storageKey == "" || h.storage == nil {
+		storageKey = localURL
 	}
 
 	var orgPtr *int64
@@ -258,9 +273,12 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		header.Header.Get("Content-Type"), header.Size, storageKey, fileBytes,
 	)
 	if err != nil {
+		h.log.ErrorContext(ctx, "failed to upload and process compare file", "error", err, "supplier", supplierName)
 		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
+
+	h.log.InfoContext(ctx, "compare file uploaded and processed successfully", "file_id", uploadedFile.ID, "rows", uploadedFile.RowCount, "supplier", uploadedFile.SupplierName)
 
 	msg := fmt.Sprintf("تم رفع ومعالجة كشف المورد '%s' بنجاح (تم استخراج %d صنف جاهزة للمقارنة).", uploadedFile.SupplierName, uploadedFile.RowCount)
 	if len(archived) > 0 {
