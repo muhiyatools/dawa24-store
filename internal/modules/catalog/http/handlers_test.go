@@ -66,6 +66,10 @@ func (r stubRepo) ListVariantsByProduct(ctx context.Context, productID int64) ([
 	r.fail("ListVariantsByProduct")
 	return nil, nil
 }
+func (r stubRepo) ListVariantsByOrganization(ctx context.Context, orgID int64, params catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
+	r.fail("ListVariantsByOrganization")
+	return nil, 0, nil
+}
 func (r stubRepo) UpdateVariant(ctx context.Context, v *catalog.ProductVariant) error {
 	r.fail("UpdateVariant")
 	return nil

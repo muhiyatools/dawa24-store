@@ -25,6 +25,12 @@ type SupplierOffer struct {
 	ExpiryDate       string
 	DeliveryEstimate string
 	ColdChain        bool
+	BranchName       string
+	WarehouseName    string
+	CityName         string
+	IsCovered        bool
+	CoverageReason   string // e.g. "مفيش فرع بيوصل لموقعك للمنتج ده"
+	CanAddToCart     bool
 }
 
 // ProductDetailViewData encapsulates complete B2B pharmaceutical presentation.

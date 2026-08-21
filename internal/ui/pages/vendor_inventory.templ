@@ -2,95 +2,226 @@ package pages
 
 import (
 	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ VendorInventory(stocks []*inventory.Stock, lang, dir string, isPartial bool) {
+templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehouse, variants []*catalog.ProductVariant, lang, dir string, isPartial bool) {
 	if isPartial {
-		@VendorInventoryTable(stocks)
+		@VendorInventoryTable(stocks, warehouses, variants)
 	} else {
 		@layouts.VendorShell("المخزون والأرصدة | Inventory & Stock", "inventory", lang, dir) {
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">أرصدة المخازن والفروع</h2>
-					<p style="font-size:0.875rem; color:var(--neutral-500);">مراقبة الكميات المتاحة والمحجوزة للطلبيات في الوقت الفعلي</p>
+			<div class="space-y-6" x-data="{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 } }">
+				<!-- Header -->
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+					<div>
+						<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">أرصدة المخازن والتشغيلات</h1>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
+							مراقبة الكميات المتاحة في المستودعات، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.
+						</p>
+					</div>
+					<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+						<a href="/vendor/warehouses" class="btn btn-secondary btn-sm">
+							@components.IconBuilding("icon-xs")
+							<span>مستودعات المنشأة</span>
+						</a>
+						<a href="/vendor/transfers" class="btn btn-secondary btn-sm">
+							@components.IconRefresh("icon-xs")
+							<span>تحويل بين المخازن</span>
+						</a>
+						<a href="/vendor/saving-products" class="btn btn-primary btn-sm">
+							@components.IconPlus("icon-xs")
+							<span>إدارة أصناف المورد</span>
+						</a>
+					</div>
 				</div>
-				<div style="display:flex; gap:0.75rem;">
-					<a href="/vendor/transfers" class="btn btn-secondary">
-						@components.IconRefresh("icon-xs")
-						<span>تحويل بين المخازن</span>
-					</a>
-					<a href="/vendor/ingest" class="btn btn-primary">
-						@components.IconUpload("icon-xs")
-						<span>استيراد ملف أرصدة</span>
-					</a>
-				</div>
-			</div>
 
-			<div id="vendor-inventory-content">
-				@VendorInventoryTable(stocks)
+				<!-- Inventory Metrics -->
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">إجمالي الأصناف بالمخزن</div>
+						<div style="font-size:1.65rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(stocks)) }</div>
+					</div>
+
+					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">إجمالي العبوات المتوفرة</div>
+						<div style="font-size:1.65rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
+							{ fmt.Sprintf("%d", func() int {
+								total := 0
+								for _, s := range stocks {
+									total += s.Quantity
+								}
+								return total
+							}()) }
+						</div>
+					</div>
+
+					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">تنبيهات انخفاض المخزون</div>
+						<div style="font-size:1.65rem; font-weight:900; color:var(--warning-text);" class="tabular-nums">
+							{ fmt.Sprintf("%d", func() int {
+								low := 0
+								for _, s := range stocks {
+									if s.Quantity <= s.MinThreshold {
+										low++
+									}
+								}
+								return low
+							}()) }
+						</div>
+					</div>
+
+					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">المستودعات المغذية</div>
+						<div style="font-size:1.65rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
+					</div>
+				</div>
+
+				<!-- Inventory Table Card -->
+				<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
+					<div id="vendor-inventory-content">
+						@VendorInventoryTable(stocks, warehouses, variants)
+					</div>
+				</div>
+
+				<!-- Stock Adjustment Modal -->
+				<div
+					x-show="adjustModal"
+					style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:1rem;"
+					x-cloak
+					@keydown.escape.window="adjustModal = false"
+				>
+					<div
+						@click.away="adjustModal = false"
+						class="card mb-0"
+						style="max-width:480px; width:100%; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);"
+					>
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">تسوية وتعديل رصيد المخزن</h3>
+							<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
+						</div>
+
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; margin-bottom:1.25rem; font-size:0.85rem;">
+							<div style="font-weight:700; color:var(--text);" x-text="selectedStock.variantName"></div>
+							<div style="color:var(--text-muted); margin-top:0.25rem;">
+								الرصيد الحالي بالمستودع: <strong class="tabular-nums" style="color:var(--accent);" x-text="selectedStock.currentQty + ' عبوة'"></strong>
+							</div>
+						</div>
+
+						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+							<div class="form-group mb-0">
+								<label class="form-label">الكمية المراد إضافتها أو خصمها (+/-) <span style="color:var(--danger-text);">*</span></label>
+								<input type="number" name="delta" required class="form-input tabular-nums" placeholder="+50 (إضافة) أو -10 (خصم)" />
+								<small style="color:var(--text-muted); font-size:0.75rem;">اكتب رقم موجب للإيداع أو رقم سالب للخصم والتسوية.</small>
+							</div>
+
+							<div class="form-group mb-0">
+								<label class="form-label">سبب التعديل</label>
+								<select name="reason" class="form-select">
+									<option value="تسوية جرد دوري">تسوية جرد دوري</option>
+									<option value="استلام شحنة جديدة من المصنع">استلام شحنة جديدة من المصنع</option>
+									<option value="تالف / كسر / انتهاء صلاحية">تالف / كسر / انتهاء صلاحية</option>
+									<option value="تسوية مبيعات يدوية">تسوية مبيعات يدوية</option>
+									<option value="أخرى">أسباب أخرى</option>
+								</select>
+							</div>
+
+							<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+								<button type="button" class="btn btn-secondary" @click="adjustModal = false">إلغاء</button>
+								<button type="submit" class="btn btn-primary">تأكيد تعديل الرصيد</button>
+							</div>
+						</form>
+					</div>
+				</div>
 			</div>
 		}
 	}
 }
 
-templ VendorInventoryTable(stocks []*inventory.Stock) {
+templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Warehouse, variants []*catalog.ProductVariant) {
 	if len(stocks) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
 			Title:       "لا توجد أرصدة مسجلة بالمخزن",
-			Message:     "لم يتم تسجيل أي تشغيلات أو كميات مخزون بعد.",
-			ActionLabel: "رفع ملف مخزون",
+			Message:     "لم يتم تسجيل أي تشغيلات أو كميات مخزون بعد. يمكنك إضافة أصناف وتحديد كمياتها الأولية.",
+			ActionLabel: "إضافة أصناف المورد",
 		})
 	} else {
-		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
+		<div class="table-container">
 			<table class="data-table">
 				<thead>
 					<tr>
-						<th>المنتج / العبوة</th>
-						<th>المخزن / الفرع</th>
+						<th>الصنف والتشغيلة</th>
+						<th>المستودع / الفرع</th>
 						<th>الرصيد المتاح</th>
 						<th>حد إعادة الطلب</th>
-						<th>إجراءات</th>
+						<th>الحالة</th>
+						<th class="text-end">الإجراءات</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, s := range stocks {
 						<tr>
-							<td style="font-weight:700; color:var(--neutral-900);">
-								Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }
-							</td>
-							<td style="color:var(--neutral-600);">
-								Warehouse #{ fmt.Sprintf("%d", s.WarehouseID) }
+							<td>
+								<div style="display:flex; align-items:center; gap:0.5rem;">
+									<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+										@components.IconPackage("icon-xs")
+									</div>
+									<div>
+										<strong style="color:var(--text); font-size:0.925rem;">
+											{ resolveVariantName(s.ProductVariantID, variants) }
+										</strong>
+										<div style="font-size:0.75rem; color:var(--text-muted);">
+											<span>Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }</span>
+											{ resolveVariantMeta(s.ProductVariantID, variants) }
+										</div>
+									</div>
+								</div>
 							</td>
 							<td>
-								<span class="badge badge-emerald tabular-nums" style="font-size:0.85rem; font-weight:700;">
-									{ fmt.Sprintf("%d", s.Quantity) } عبوة
+								<div style="font-weight:600; color:var(--text); font-size:0.875rem;">
+									{ resolveWarehouseName(s.WarehouseID, warehouses) }
+								</div>
+								<div style="font-size:0.75rem; color:var(--text-muted);">WH #{ fmt.Sprintf("%d", s.WarehouseID) }</div>
+							</td>
+							<td>
+								if s.Quantity > s.MinThreshold {
+									<span class="badge badge-emerald tabular-nums" style="font-size:0.875rem; font-weight:800;">
+										{ fmt.Sprintf("%d", s.Quantity) } عبوة
+									</span>
+								} else if s.Quantity > 0 {
+									<span class="badge badge-amber tabular-nums" style="font-size:0.875rem; font-weight:800;">
+										{ fmt.Sprintf("%d", s.Quantity) } عبوة (منخفض)
+									</span>
+								} else {
+									<span class="badge badge-rose tabular-nums" style="font-size:0.875rem; font-weight:800;">
+										نفد الرصيد
+									</span>
+								}
+							</td>
+							<td class="tabular-nums">
+								<span style="font-size:0.85rem; color:var(--text-secondary);">
+									{ fmt.Sprintf("%d", s.MinThreshold) } عبوة
 								</span>
 							</td>
 							<td>
-								<span class="badge badge-amber tabular-nums" style="font-size:0.85rem;">
-									{ fmt.Sprintf("%d", s.MinThreshold) }
-								</span>
+								if s.Quantity > 0 {
+									<span class="badge badge-success">جاهز للبيع</span>
+								} else {
+									<span class="badge badge-danger">غير متوفر</span>
+								}
 							</td>
-							<td>
-								@components.ModalTrigger(fmt.Sprintf("adjust-%d", s.ID), "btn btn-secondary btn-sm") {
-									تعديل
-								}
-								@components.Modal(components.ModalProps{ ID: fmt.Sprintf("adjust-%d", s.ID), Title: "تعديل الرصيد", Size: "sm" }) {
-									<form method="POST" action={ fmt.Sprintf("/vendor/inventory/%d/adjust", s.ID) } style="display:flex; flex-direction:column; gap:0.9rem;">
-										<div class="form-group" style="margin-bottom:0;">
-											<label class="form-label">التعديل (+/-)</label>
-											<input type="number" name="delta" required class="form-input tabular-nums" placeholder="+10 أو -5" />
-										</div>
-										<div class="form-group" style="margin-bottom:0;">
-											<label class="form-label">السبب</label>
-											<input type="text" name="reason" class="form-input" placeholder="جرد / تلف / تسوية" />
-										</div>
-										<button type="submit" class="btn btn-primary" style="justify-content:center;">حفظ التعديل</button>
-									</form>
-								}
+							<td class="text-end">
+								<button
+									type="button"
+									class="btn btn-secondary btn-sm"
+									@click={ fmt.Sprintf("selectedStock = { id: %d, variantName: %q, currentQty: %d }; adjustModal = true;", s.ID, resolveVariantName(s.ProductVariantID, variants), s.Quantity) }
+								>
+									@components.IconRefresh("icon-xs")
+									<span>تعديل الرصيد</span>
+								</button>
 							</td>
 						</tr>
 					}
@@ -99,3 +230,46 @@ templ VendorInventoryTable(stocks []*inventory.Stock) {
 		</div>
 	}
 }
+
+func resolveWarehouseName(whID int64, warehouses []*inventory.Warehouse) string {
+	for _, w := range warehouses {
+		if w.ID == whID {
+			return w.Name
+		}
+	}
+	return fmt.Sprintf("مستودع #%d", whID)
+}
+
+func resolveVariantName(variantID int64, variants []*catalog.ProductVariant) string {
+	for _, v := range variants {
+		if v.ID == variantID {
+			if v.Name["ar"] != "" {
+				return v.Name["ar"]
+			}
+			if v.Name["en"] != "" {
+				return v.Name["en"]
+			}
+			if v.SKU != "" {
+				return "تشغيلة " + v.SKU
+			}
+		}
+	}
+	return fmt.Sprintf("تشغيلة رقم #%d", variantID)
+}
+
+func resolveVariantMeta(variantID int64, variants []*catalog.ProductVariant) string {
+	for _, v := range variants {
+		if v.ID == variantID {
+			meta := ""
+			if v.BatchNumber != "" {
+				meta += " • تشغيلة: " + v.BatchNumber
+			}
+			if v.ExpiryDate != nil {
+				meta += " • صلاحية: " + v.ExpiryDate.Format("2006-01")
+			}
+			return meta
+		}
+	}
+	return ""
+}
+

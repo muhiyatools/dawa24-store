@@ -241,6 +241,38 @@ func (r *Repository) ListStocksByWarehouse(ctx context.Context, warehouseID int6
 	return list, err
 }
 
+// ListStocksByOrg retrieves all stocks belonging to an organization across warehouses.
+func (r *Repository) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inventory.Stock, error) {
+	var list []*inventory.Stock
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
+			       quantity, min_threshold, negotiation, created_at, updated_at, deleted_at
+			FROM inventory.stocks
+			WHERE organization_id = $1 AND deleted_at IS NULL
+			ORDER BY id ASC;
+		`
+		rows, err := tx.Query(txCtx, query, orgID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var s inventory.Stock
+			if err := rows.Scan(
+				&s.ID, &s.OrganizationID, &s.WarehouseID, &s.ProductID, &s.ProductVariantID,
+				&s.Quantity, &s.MinThreshold, &s.Negotiation, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &s)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
 // ListStockMovements retrieves ledger movements for an individual stock.
 func (r *Repository) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	var list []*inventory.StockMovement

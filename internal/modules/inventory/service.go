@@ -140,6 +140,14 @@ func (s *Service) ListStocksByWarehouse(ctx context.Context, warehouseID int64) 
 	return s.repo.ListStocksByWarehouse(ctx, warehouseID)
 }
 
+// ListStocksByOrg retrieves all stock rows for an organization across all its warehouses.
+func (s *Service) ListStocksByOrg(ctx context.Context, orgID int64) ([]*Stock, error) {
+	if orgID <= 0 {
+		return nil, nil
+	}
+	return s.repo.ListStocksByOrg(ctx, orgID)
+}
+
 // ListStockMovements retrieves the movement ledger for a stock row.
 func (s *Service) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error) {
 	return s.repo.ListStockMovements(ctx, stockID, limit)

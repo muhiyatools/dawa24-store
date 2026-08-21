@@ -1,8 +1,10 @@
 package ui
 
 import (
+	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -76,10 +78,39 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	data := pages.SupplierProfileData{Org: o}
-	if h.catSvc != nil {
-		data.Products, _ = h.catSvc.Search(ctx, catalog.SearchParams{OrganizationID: &id, Limit: 24})
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	page := 1
+	if pStr := r.URL.Query().Get("page"); pStr != "" {
+		if p, err := strconv.Atoi(pStr); err == nil && p > 0 {
+			page = p
+		}
 	}
+	limit := 24
+	offset := (page - 1) * limit
+
+	data := pages.SupplierProfileData{
+		Org:         o,
+		CurrentPage: page,
+		SearchQuery: q,
+	}
+
+	if h.catSvc != nil {
+		variants, total, err := h.catSvc.ListVariantsByOrganization(ctx, id, catalog.VariantSearchParams{
+			Query:  q,
+			Limit:  limit,
+			Offset: offset,
+		})
+		if err == nil {
+			data.Variants = variants
+			data.TotalVariants = total
+			if total > 0 {
+				data.TotalPages = int(math.Ceil(float64(total) / float64(limit)))
+			} else {
+				data.TotalPages = 1
+			}
+		}
+	}
+
 	if h.promoSvc != nil {
 		data.Sections, _ = h.promoSvc.ListHighlightSectionsByOrg(ctx, id)
 	}

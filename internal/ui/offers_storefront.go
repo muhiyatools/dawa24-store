@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -21,6 +22,9 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 
 	offers := make([]pages.SupplierOffer, 0, len(variants)+2)
 	seenSuppliers := make(map[int64]int) // supplierID -> index in offers
+
+	actor, hasActor := authctx.From(ctx)
+	isPharmacy := hasActor && actor.IsCustomer()
 
 	// 1. Process all direct vendor supply variants
 	for _, v := range variants {
@@ -53,6 +57,74 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			price = product.EffectivePrice()
 		}
 
+		// Resolve actual stock from inventory.stocks
+		stockQty := 0
+		if h.invSvc != nil {
+			if s, err := h.invSvc.AvailableQuantity(ctx, v.ID); err == nil && s > 0 {
+				stockQty = s
+			}
+		}
+		if stockQty == 0 && v.StockQty > 0 {
+			stockQty = v.StockQty
+		}
+
+		branchName := ""
+		if v.BranchID != nil && *v.BranchID > 0 && h.orgSvc != nil {
+			if b, err := h.orgSvc.GetBranch(ctx, *v.BranchID); err == nil && b != nil {
+				if b.Name["ar"] != "" {
+					branchName = b.Name["ar"]
+				} else {
+					branchName = b.Name["en"]
+				}
+			}
+		}
+
+		isCovered := true
+		canAddToCart := true
+		covReason := ""
+
+		if isPharmacy {
+			branchID := int64(0)
+			if actor.BranchID != nil {
+				branchID = *actor.BranchID
+			}
+			if h.commSvc != nil {
+				res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
+					VariantID:        v.ID,
+					VendorOrgID:      v.OrganizationID,
+					CustomerOrgID:    actor.OrganizationID,
+					CustomerBranchID: branchID,
+					Quantity:         1,
+					When:             time.Now(),
+				})
+				if err == nil {
+					if res.Allowed {
+						isCovered = true
+						canAddToCart = true
+					} else {
+						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
+							isCovered = false
+							covReason = "مفيش فرع بيوصل لموقعك للمنتج ده"
+							canAddToCart = false
+						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
+							isCovered = true
+							covReason = "نفد المخزون لدى المورد"
+							canAddToCart = false
+						} else {
+							isCovered = true
+							covReason = res.MessageAr
+							canAddToCart = false
+						}
+					}
+				}
+			}
+		} else {
+			if stockQty <= 0 {
+				canAddToCart = false
+				covReason = "نفد المخزون لدى المورد"
+			}
+		}
+
 		off := pages.SupplierOffer{
 			VariantID:        v.ID,
 			SupplierID:       v.OrganizationID,
@@ -60,12 +132,16 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			IsVerified:       orgn == nil || orgn.Status == org.StatusApproved,
 			Price:            price,
 			OldPrice:         price,
-			AvailableStock:   v.StockQty,
+			AvailableStock:   stockQty,
 			MinOrderQty:      minQty,
 			BatchNumber:      v.BatchNumber,
 			ExpiryDate:       expiryStr,
 			DeliveryEstimate: "توصيل خلال 24 ساعة",
 			ColdChain:        true,
+			BranchName:       branchName,
+			IsCovered:        isCovered,
+			CanAddToCart:     canAddToCart,
+			CoverageReason:   covReason,
 		}
 
 		seenSuppliers[v.OrganizationID] = len(offers)
@@ -115,6 +191,8 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 						MinOrderQty:      row.Product.CustomQty,
 						DeliveryEstimate: "توصيل خلال 24 ساعة",
 						ColdChain:        true,
+						IsCovered:        true,
+						CanAddToCart:     true,
 					}
 					if newOffer.MinOrderQty <= 0 {
 						newOffer.MinOrderQty = 1

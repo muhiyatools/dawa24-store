@@ -13,14 +13,19 @@ type SupplierDirectoryData struct {
 
 // SupplierProfileData is the /suppliers/{id} profile view model.
 type SupplierProfileData struct {
-	Org         *org.Organization
-	Products    []*catalog.Product
-	Reviews     []*org.Review
-	Policies    []*org.Policy
-	Sections    []*promo.HighlightSection
-	IsFollowing bool
-	Rating      float64
-	ReviewCount int
+	Org           *org.Organization
+	Products      []*catalog.Product
+	Variants      []*catalog.ProductVariant
+	TotalVariants int
+	CurrentPage   int
+	TotalPages    int
+	SearchQuery   string
+	Reviews       []*org.Review
+	Policies      []*org.Policy
+	Sections      []*promo.HighlightSection
+	IsFollowing   bool
+	Rating        float64
+	ReviewCount   int
 }
 
 // OrgTypeLabel maps an organization type onto an Arabic label.

@@ -21,6 +21,15 @@ type SearchParams struct {
 	FilterMode     int // 0 = Simple (dashboard/catalog), 1 = WithConnections (purchase requests)
 }
 
+// VariantSearchParams holds filters for searching product variants.
+type VariantSearchParams struct {
+	Query      string
+	CategoryID *int64
+	Status     string
+	Limit      int
+	Offset     int
+}
+
 // Repository defines the persistence interface for the catalog bounded context.
 type Repository interface {
 	CreateProduct(ctx context.Context, p *Product) error
@@ -36,6 +45,7 @@ type Repository interface {
 	CreateVariant(ctx context.Context, v *ProductVariant) error
 	GetVariantByID(ctx context.Context, id int64) (*ProductVariant, error)
 	ListVariantsByProduct(ctx context.Context, productID int64) ([]*ProductVariant, error)
+	ListVariantsByOrganization(ctx context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error)
 	UpdateVariant(ctx context.Context, v *ProductVariant) error
 	DeleteVariant(ctx context.Context, id int64) error
 

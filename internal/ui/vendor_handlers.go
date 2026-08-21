@@ -697,25 +697,28 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	if _, ok := database.TenantFrom(ctx); !ok {
-		ctx = database.WithTenant(ctx, 1)
-	}
-
-	if h.invSvc == nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := pages.VendorInventory(nil, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
-			h.log.ErrorContext(ctx, "render vendor inventory fallback", "error", err)
-		}
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/inventory", http.StatusSeeOther)
 		return
 	}
 
-	stocks, err := h.invSvc.ListLowStock(ctx, h.pageLimit(r), h.pageOffset(r))
-	if err != nil {
-		h.log.WarnContext(ctx, "list low stock error", "error", err)
+	var stocks []*inventory.Stock
+	var warehouses []*inventory.Warehouse
+	if h.invSvc != nil {
+		stocks, _ = h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
+		warehouses, _ = h.invSvc.ListWarehouses(ctx)
+	}
+
+	var variants []*catalog.ProductVariant
+	if h.catSvc != nil {
+		variants, _, _ = h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{
+			Limit: 500,
+		})
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorInventory(stocks, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.VendorInventory(stocks, warehouses, variants, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor inventory page", "error", err)
 	}
 }

@@ -25,6 +25,7 @@ type Repository interface {
 	// the real source.
 	AvailableQuantity(ctx context.Context, variantID int64) (int, error)
 	ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*Stock, error)
+	ListStocksByOrg(ctx context.Context, orgID int64) ([]*Stock, error)
 	ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error)
 	// ListLowStock returns rows at or below their reorder threshold, which is
 	// what the vendor replenishment screen is built on.

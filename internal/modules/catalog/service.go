@@ -224,6 +224,11 @@ func (s *Service) ListVariantsByProduct(ctx context.Context, productID int64) ([
 	return s.repo.ListVariantsByProduct(ctx, productID)
 }
 
+// ListVariantsByOrganization retrieves all variants sold by a supplier with pagination and search.
+func (s *Service) ListVariantsByOrganization(ctx context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error) {
+	return s.repo.ListVariantsByOrganization(ctx, orgID, params)
+}
+
 // ListCategories returns all categories.
 func (s *Service) ListCategories(ctx context.Context) ([]*Category, error) {
 	return s.repo.ListCategories(ctx)

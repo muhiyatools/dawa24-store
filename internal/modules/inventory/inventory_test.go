@@ -113,6 +113,16 @@ func (m *mockInventoryRepo) ListStocksByWarehouse(_ context.Context, warehouseID
 	return list, nil
 }
 
+func (m *mockInventoryRepo) ListStocksByOrg(_ context.Context, orgID int64) ([]*inventory.Stock, error) {
+	var list []*inventory.Stock
+	for _, s := range m.stocksByID {
+		if s.OrganizationID == orgID {
+			list = append(list, s)
+		}
+	}
+	return list, nil
+}
+
 func (m *mockInventoryRepo) ListStockMovements(_ context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	return m.movements[stockID], nil
 }
