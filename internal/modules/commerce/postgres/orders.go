@@ -60,9 +60,30 @@ func (r *Repository) CreateOrder(
 			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 			RETURNING id, public_id, created_at, updated_at;
 		`
+		var offerID *int64
+		if order.OfferID > 0 {
+			offerID = &order.OfferID
+		}
+		var branchID *int64
+		if order.BranchID != nil && *order.BranchID > 0 {
+			branchID = order.BranchID
+		}
+		var vendorBranchID *int64
+		if order.VendorBranchID != nil && *order.VendorBranchID > 0 {
+			vendorBranchID = order.VendorBranchID
+		}
+		var userAddressID *int64
+		if order.UserAddressID != nil && *order.UserAddressID > 0 {
+			userAddressID = order.UserAddressID
+		}
+		var orgID *int64
+		if order.OrganizationID != nil && *order.OrganizationID > 0 {
+			orgID = order.OrganizationID
+		}
+
 		err := tx.QueryRow(txCtx, queryOrder,
-			order.OrderNumber, order.CustomerID, order.OrganizationID, order.OfferID,
-			order.BranchID, order.VendorBranchID, order.UserAddressID, string(order.Status),
+			order.OrderNumber, order.CustomerID, orgID, offerID,
+			branchID, vendorBranchID, userAddressID, string(order.Status),
 			order.Subtotal, order.DiscountAmount, order.TotalDiscount, order.ShippingFee,
 			order.TaxAmount, order.TotalAmount, order.FinalPrice,
 			order.PaymentMethod, string(order.PaymentStatus), order.Notes,
@@ -78,6 +99,11 @@ func (r *Repository) CreateOrder(
 			s.ShipmentNumber = commerce.GenerateShipmentNumber(order.OrderNumber, seq+1)
 			s.Status = order.Status
 
+			var sBranchID *int64
+			if s.BranchID != nil && *s.BranchID > 0 {
+				sBranchID = s.BranchID
+			}
+
 			queryShipment := `
 				INSERT INTO commerce.order_shipments (
 					order_id, organization_id, branch_id, shipment_number,
@@ -86,7 +112,7 @@ func (r *Repository) CreateOrder(
 				RETURNING id, public_id, created_at, updated_at;
 			`
 			err := tx.QueryRow(txCtx, queryShipment,
-				s.OrderID, s.OrganizationID, s.BranchID, s.ShipmentNumber,
+				s.OrderID, s.OrganizationID, sBranchID, s.ShipmentNumber,
 				string(s.Status), s.Subtotal, s.ShippingFee, s.TotalAmount,
 			).Scan(&s.ID, &s.PublicID, &s.CreatedAt, &s.UpdatedAt)
 			if err != nil {
@@ -102,6 +128,19 @@ func (r *Repository) CreateOrder(
 				line.ShipmentID = shipmentIDMap[line.OrganizationID]
 			}
 
+			var pID *int64
+			if line.ProductID != nil && *line.ProductID > 0 {
+				pID = line.ProductID
+			}
+			var pvID *int64
+			if line.ProductVariantID != nil && *line.ProductVariantID > 0 {
+				pvID = line.ProductVariantID
+			}
+			var opID *int64
+			if line.OfferProductID != nil && *line.OfferProductID > 0 {
+				opID = line.OfferProductID
+			}
+
 			queryLine := `
 				INSERT INTO commerce.order_lines (
 					order_id, shipment_id, organization_id, product_id,
@@ -112,9 +151,9 @@ func (r *Repository) CreateOrder(
 				RETURNING id, created_at;
 			`
 			err := tx.QueryRow(txCtx, queryLine,
-				line.OrderID, line.ShipmentID, line.OrganizationID, line.ProductID,
-				line.ProductVariantID, line.ProductName, line.VariantName, line.SKU,
-				line.OfferProductID, line.UnitPrice, line.Quantity, line.DiscountAmount,
+				line.OrderID, line.ShipmentID, line.OrganizationID, pID,
+				pvID, line.ProductName, line.VariantName, line.SKU,
+				opID, line.UnitPrice, line.Quantity, line.DiscountAmount,
 				line.TotalPrice, line.ListPrice, line.OriginalPrice, line.OriginalDiscount,
 			).Scan(&line.ID, &line.CreatedAt)
 			if err != nil {

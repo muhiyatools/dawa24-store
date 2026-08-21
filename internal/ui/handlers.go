@@ -563,17 +563,20 @@ func (h *UIHandler) safeMessage(err error, lang string) string {
 	if strings.Contains(errStr, "commercial_register") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505")) {
 		return "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى."
 	}
-	if strings.Contains(errStr, "city_id") || strings.Contains(errStr, "branches_city_id_fkey") || strings.Contains(errStr, "cities") {
+	if strings.Contains(errStr, "city_id") || strings.Contains(errStr, "branches_city_id_fkey") {
 		return "بيانات الموقع أو المدينة غير صالحة. يرجى إعادة اختيار المدينة من الخريطة."
 	}
 	if strings.Contains(errStr, "order_shipments_organization_id_fkey") || strings.Contains(errStr, "order_lines_organization_id_fkey") {
-		return "تعذر تحديد بيانات شركة التوريد المسؤولة عن هذا الصنف. يرجى مراجعة الأصناف بالسلة."
+		return "تعذر تحديد بيانات شركة التوريد المسؤولة عن هذا الصنف (رمز المورد غير مسجل). يرجى مراجعة الأصناف بالسلة."
 	}
 	if strings.Contains(errStr, "orders_branch_id_fkey") || strings.Contains(errStr, "order_shipments_branch_id_fkey") {
 		return "فرع الصيدلية المحدد غير صالح أو تم حذفه. يرجى اختيار فرع صيدلية نشط."
 	}
+	if strings.Contains(errStr, "orders_vendor_branch_id_fkey") {
+		return "فرع التوريد المحدد للمورد غير صالح أو غير مسجل."
+	}
 	if strings.Contains(errStr, "foreign key") || strings.Contains(errStr, "23503") {
-		return "تعذر إتمام العملية بسبب عدم تطابق بعض البيانات المرجعية. يرجى مراجعة بيانات الفرع والمورد."
+		return "تعذر إتمام العملية بسبب عدم تطابق البيانات المرجعية (" + errStr + ")."
 	}
 	if lang == "ar" {
 		return "حدث خطأ أثناء المعالجة: " + errStr
