@@ -3,113 +3,353 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ VendorOrders(shipments []*commerce.OrderShipment, lang, dir string, isPartial bool) {
+type VendorOrdersData struct {
+	Shipments      []*commerce.OrderShipment
+	FilterStatus   string
+	TotalCount     int
+	PendingCount   int
+	ConfirmedCount int
+	ShippedCount   int
+	DeliveredCount int
+}
+
+func filterCardBorder(current, target string) string {
+	if current == target {
+		return "var(--accent)"
+	}
+	return "var(--border)"
+}
+
+templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@VendorOrdersTable(shipments)
+		@VendorOrdersContent(data, lang, dir)
 	} else {
-		@layouts.VendorShell("طلبيات الموردين والشحنات | Orders & Shipments", "orders", lang, dir) {
-			<div class="header-row">
+		@layouts.VendorShell("طلبيات الصيدليات والشحنات | Orders & Shipments", "orders", lang, dir) {
+			<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
-					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">طلبيات الصيدليات والشحنات</h2>
-					<p style="font-size:0.875rem; color:var(--neutral-500);">متابعة وتأكيد أوامر التوريد وإصدار إشعارات الشحن والتوصيل</p>
+					<h1 style="font-size:1.75rem; font-weight:900; color:var(--text); margin:0;">طلبيات الصيدليات والشحنات</h1>
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin-top:0.25rem; margin-bottom:0;">
+						مراجعة تفاصيل أصناف أوامر التوريد الواردة من الصيدليات وتأكيد التجهيز وبدء الشحن
+					</p>
 				</div>
 			</div>
 
+			<!-- Quick Status Metrics Cards -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+				<a href="/vendor/orders" class="card" style={ fmt.Sprintf("padding:1.25rem; margin:0; text-decoration:none; background:var(--surface-raised); border:1px solid %s; border-radius:var(--radius-xl); transition:transform 150ms;", filterCardBorder(data.FilterStatus, "")) }>
+					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">إجمالي الشحنات</div>
+					<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", data.TotalCount) }</div>
+				</a>
+
+				<a href="/vendor/orders?status=pending" class="card" style={ fmt.Sprintf("padding:1.25rem; margin:0; text-decoration:none; background:var(--surface-raised); border:1px solid %s; border-radius:var(--radius-xl); transition:transform 150ms;", filterCardBorder(data.FilterStatus, "pending")) }>
+					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+						<span style="width:8px; height:8px; border-radius:var(--radius-full); background:#f59e0b;"></span>
+						<span>بانتظار التأكيد</span>
+					</div>
+					<div style="font-size:1.75rem; font-weight:900; color:#f59e0b;" class="tabular-nums">{ fmt.Sprintf("%d", data.PendingCount) }</div>
+				</a>
+
+				<a href="/vendor/orders?status=confirmed" class="card" style={ fmt.Sprintf("padding:1.25rem; margin:0; text-decoration:none; background:var(--surface-raised); border:1px solid %s; border-radius:var(--radius-xl); transition:transform 150ms;", filterCardBorder(data.FilterStatus, "confirmed")) }>
+					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+						<span style="width:8px; height:8px; border-radius:var(--radius-full); background:#0284c7;"></span>
+						<span>قيد التجهيز المخزني</span>
+					</div>
+					<div style="font-size:1.75rem; font-weight:900; color:#0284c7;" class="tabular-nums">{ fmt.Sprintf("%d", data.ConfirmedCount) }</div>
+				</a>
+
+				<a href="/vendor/orders?status=shipped" class="card" style={ fmt.Sprintf("padding:1.25rem; margin:0; text-decoration:none; background:var(--surface-raised); border:1px solid %s; border-radius:var(--radius-xl); transition:transform 150ms;", filterCardBorder(data.FilterStatus, "shipped")) }>
+					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+						<span style="width:8px; height:8px; border-radius:var(--radius-full); background:#6366f1;"></span>
+						<span>قيد الشحن والتوصيل</span>
+					</div>
+					<div style="font-size:1.75rem; font-weight:900; color:#6366f1;" class="tabular-nums">{ fmt.Sprintf("%d", data.ShippedCount) }</div>
+				</a>
+
+				<a href="/vendor/orders?status=delivered" class="card" style={ fmt.Sprintf("padding:1.25rem; margin:0; text-decoration:none; background:var(--surface-raised); border:1px solid %s; border-radius:var(--radius-xl); transition:transform 150ms;", filterCardBorder(data.FilterStatus, "delivered")) }>
+					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+						<span style="width:8px; height:8px; border-radius:var(--radius-full); background:#10b981;"></span>
+						<span>تم التسليم بنجاح</span>
+					</div>
+					<div style="font-size:1.75rem; font-weight:900; color:#10b981;" class="tabular-nums">{ fmt.Sprintf("%d", data.DeliveredCount) }</div>
+				</a>
+			</div>
+
+			<!-- Filter Tabs Bar -->
+			<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; overflow-x:auto;">
+				<a
+					href="/vendor/orders"
+					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == ""), templ.KV("btn-secondary", data.FilterStatus != "") }
+					style="font-weight:700;"
+				>
+					الكل ({ fmt.Sprintf("%d", data.TotalCount) })
+				</a>
+				<a
+					href="/vendor/orders?status=pending"
+					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "pending"), templ.KV("btn-secondary", data.FilterStatus != "pending") }
+					style="font-weight:700;"
+				>
+					بانتظار التأكيد ({ fmt.Sprintf("%d", data.PendingCount) })
+				</a>
+				<a
+					href="/vendor/orders?status=confirmed"
+					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "confirmed"), templ.KV("btn-secondary", data.FilterStatus != "confirmed") }
+					style="font-weight:700;"
+				>
+					قيد التجهيز ({ fmt.Sprintf("%d", data.ConfirmedCount) })
+				</a>
+				<a
+					href="/vendor/orders?status=shipped"
+					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "shipped"), templ.KV("btn-secondary", data.FilterStatus != "shipped") }
+					style="font-weight:700;"
+				>
+					قيد التوصيل ({ fmt.Sprintf("%d", data.ShippedCount) })
+				</a>
+				<a
+					href="/vendor/orders?status=delivered"
+					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "delivered"), templ.KV("btn-secondary", data.FilterStatus != "delivered") }
+					style="font-weight:700;"
+				>
+					تم التسليم ({ fmt.Sprintf("%d", data.DeliveredCount) })
+				</a>
+			</div>
+
 			<div id="vendor-orders-content">
-				@VendorOrdersTable(shipments)
+				@VendorOrdersContent(data, lang, dir)
 			</div>
 		}
 	}
 }
 
-templ VendorOrdersTable(shipments []*commerce.OrderShipment) {
-	if len(shipments) == 0 {
+templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
+	if len(data.Shipments) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
-			Title:   "لا توجد طلبيات واردة حالياً",
-			Message: "ستظهر هنا أي طلبيات جديدة يتم إجراؤها من الصيدليات والعملاء.",
+			Title:   "لا توجد طلبيات مطابقة في هذا القسم",
+			Message: "ستظهر هنا أي طلبيات جديدة يتم إجراؤها من الصيدليات والعملاء التابعين لتغطيتك الجغرافية.",
 		})
 	} else {
-		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
-			<table class="data-table">
-				<thead>
-					<tr>
-						<th>رقم الشحنة</th>
-						<th>الطلب الرئيسي</th>
-						<th>قيمة الشحنة</th>
-						<th>الحالة الحالية</th>
-						<th>التاريخ</th>
-						<th class="text-end">تحديث الحالة</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, sh := range shipments {
-						<tr>
-							<td style="font-weight:700; color:var(--primary-700);" class="tabular-nums">
-								#{ sh.ShipmentNumber }
-							</td>
-							<td style="color:var(--neutral-600);">
-								Order #{ fmt.Sprintf("%d", sh.OrderID) }
-							</td>
-							<td style="font-weight:700; color:var(--neutral-900);" class="tabular-nums">
-								{ sh.TotalAmount.String() } EGP
-							</td>
-							<td>
-								<span class="badge badge-sky">
-									{ string(sh.Status) }
+		<div style="display:flex; flex-direction:column; gap:1.5rem;">
+			for _, sh := range data.Shipments {
+				<div class="card" style="padding:1.75rem; margin:0; background:var(--surface-raised); border:1.5px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+					
+					<!-- Header Row: Order/Shipment Identification & Badges -->
+					<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.25rem;">
+						<div>
+							<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem; flex-wrap:wrap;">
+								<span style="font-size:1.15rem; font-weight:900; color:var(--text);" class="tabular-nums">
+									شحنة #{ sh.ShipmentNumber }
 								</span>
-							</td>
-							<td style="color:var(--neutral-500);" class="tabular-nums">
-								{ sh.CreatedAt.Format("2006-01-02 15:04") }
-							</td>
-							<td class="text-end">
-								if sh.Status == commerce.StatusPending {
-									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
-										<input type="hidden" name="status" value="confirmed" />
-										<button
-											type="submit"
-											class="btn btn-primary btn-sm"
-										>
-											@components.IconCheck("icon-xs")
-											<span>تأكيد الطلب</span>
-										</button>
-									</form>
-								} else if sh.Status == commerce.StatusConfirmed {
-									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
-										<input type="hidden" name="status" value="shipped" />
-										<button
-											type="submit"
-											class="btn btn-primary btn-sm"
-										>
-											@components.IconTruck("icon-xs")
-											<span>بدء الشحن</span>
-										</button>
-									</form>
-								} else if sh.Status == commerce.StatusShipped {
-									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
-										<input type="hidden" name="status" value="delivered" />
-										<button
-											type="submit"
-											class="btn btn-primary btn-sm"
-										>
-											@components.IconCheckCircle("icon-xs")
-											<span>تم التسليم</span>
-										</button>
-									</form>
-								} else {
-									<span class="badge badge-emerald">
-										@components.IconCheck("icon-xs")
-										<span>مكتمل</span>
+								if sh.OrderNumber != "" {
+									<span class="badge badge-subtle" style="font-size:0.8rem; font-weight:700;">
+										أمر الشراء #{ sh.OrderNumber }
 									</span>
 								}
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
+								if sh.Status == commerce.StatusPending {
+									<span class="badge badge-amber" style="font-size:0.8rem; font-weight:800;">بانتظار التأكيد والموافقة</span>
+								} else if sh.Status == commerce.StatusConfirmed {
+									<span class="badge badge-sky" style="font-size:0.8rem; font-weight:800;">قيد التجهيز بالمستودع</span>
+								} else if sh.Status == commerce.StatusShipped {
+									<span class="badge badge-indigo" style="font-size:0.8rem; font-weight:800;">قيد الشحن والتوصيل</span>
+								} else if sh.Status == commerce.StatusDelivered {
+									<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:800;">تم التسليم بنجاح</span>
+								} else {
+									<span class="badge badge-slate" style="font-size:0.8rem; font-weight:800;">{ string(sh.Status) }</span>
+								}
+							</div>
+							<div style="font-size:0.825rem; color:var(--text-secondary);" class="tabular-nums">
+								تاريخ وتوقيت الطلب: <strong style="color:var(--text);">{ sh.CreatedAt.Format("2006-01-02 15:04:05") }</strong>
+							</div>
+						</div>
+
+						<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.25rem;">
+							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">قيمة الشحنة المطلوبة:</div>
+							<div style="font-size:1.85rem; font-weight:900; color:var(--accent); line-height:1;" class="tabular-nums">
+								{ sh.TotalAmount.String() } <span style="font-size:1rem; font-weight:700; color:var(--text-muted);">ج.م</span>
+							</div>
+							<div style="font-size:0.75rem; color:var(--text-muted);">
+								{ sh.PaymentMethod } • { string(sh.PaymentStatus) }
+							</div>
+						</div>
+					</div>
+
+					<!-- Pharmacy Destination & Contact Box -->
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; background:var(--surface-sunken); padding:1.25rem 1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); margin-bottom:1.5rem; font-size:0.875rem;">
+						<div>
+							<div style="color:var(--text-muted); font-size:0.775rem; font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+								@components.IconBuilding("icon-xs")
+								<span>الصيدلية والفرع المستلم:</span>
+							</div>
+							<strong style="font-size:1.05rem; color:var(--text); display:block;">
+								{ sh.CustomerBranchName.Get(i18n.Lang(lang)) }
+							</strong>
+							if sh.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
+								<span style="color:var(--text-secondary); font-size:0.825rem;">
+									{ sh.CustomerOrgName.Get(i18n.Lang(lang)) }
+								</span>
+							}
+						</div>
+
+						<div>
+							<div style="color:var(--text-muted); font-size:0.775rem; font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+								@components.IconTruck("icon-xs")
+								<span>عنوان التسليم الجغرافي:</span>
+							</div>
+							<div style="color:var(--text); line-height:1.4;">
+								if sh.CustomerBranchAddress != "" {
+									{ sh.CustomerBranchAddress }
+								} else {
+									<span style="color:var(--text-muted);">العنوان المسجل لفرع الصيدلية</span>
+								}
+							</div>
+						</div>
+
+						<div>
+							<div style="color:var(--text-muted); font-size:0.775rem; font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+								@components.IconPhone("icon-xs")
+								<span>مسؤول الاستلام والتواصل:</span>
+							</div>
+							<div style="color:var(--text);">
+								if sh.CustomerManagerName != "" {
+									<div>{ sh.CustomerManagerName }</div>
+								}
+								if sh.CustomerBranchPhone != "" {
+									<div class="tabular-nums" style="color:var(--text-secondary); direction:ltr; text-align:right;">{ sh.CustomerBranchPhone }</div>
+								} else if sh.CustomerManagerName == "" {
+									<span style="color:var(--text-muted);">الصيدلي المسؤول بالفرع</span>
+								}
+							</div>
+						</div>
+
+						if sh.Notes != "" {
+							<div style="grid-column:1/-1; border-top:1px solid var(--border); padding-top:0.75rem; margin-top:0.25rem;">
+								<div style="color:var(--text-muted); font-size:0.775rem; font-weight:700; margin-bottom:0.15rem;">ملاحظات خاصة من الصيدلية:</div>
+								<div style="color:var(--text); font-size:0.85rem;">{ sh.Notes }</div>
+							</div>
+						}
+					</div>
+
+					<!-- Detailed Line Items Table -->
+					<div style="margin-bottom:1.5rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+							<h4 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+								@components.IconPackage("icon-xs")
+								<span>الأصناف والكميات المطلوبة ({ fmt.Sprintf("%d", len(sh.Lines)) } صنف)</span>
+							</h4>
+							<span class="badge badge-sky" style="font-size:0.75rem;">شحن مبرد معتمد Cold-Chain</span>
+						</div>
+
+						<div style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+							<table class="data-table" style="margin:0; width:100%;">
+								<thead>
+									<tr style="background:var(--surface-sunken);">
+										<th style="font-size:0.8rem; font-weight:700;">اسم الدواء / الصنف</th>
+										<th style="font-size:0.8rem; font-weight:700; text-align:center;">الكمية المطلوبة</th>
+										<th style="font-size:0.8rem; font-weight:700; text-align:center;">سعر الوحدة</th>
+										<th style="font-size:0.8rem; font-weight:700; text-align:end;">الإجمالي</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, line := range sh.Lines {
+										<tr>
+											<td>
+												<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+													{ line.ProductName.Get(i18n.Lang(lang)) }
+												</div>
+												if line.VariantName.Get(i18n.Lang(lang)) != "" {
+													<div style="font-size:0.775rem; color:var(--text-muted);">
+														{ line.VariantName.Get(i18n.Lang(lang)) }
+													</div>
+												}
+											</td>
+											<td style="text-align:center;">
+												<span class="badge badge-subtle" style="font-size:0.875rem; font-weight:800;">
+													{ fmt.Sprintf("%d", line.Quantity) } عبوة
+												</span>
+											</td>
+											<td style="text-align:center;" class="tabular-nums">
+												<span style="color:var(--text); font-weight:700;">{ line.UnitPrice.String() } ج.م</span>
+											</td>
+											<td style="text-align:end;" class="tabular-nums">
+												<strong style="color:var(--accent); font-size:1.05rem;">{ line.TotalPrice.String() } ج.م</strong>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- Action Controls Toolbar -->
+					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							if sh.TrackingNumber != "" {
+								<div style="font-size:0.825rem; color:var(--text-secondary); background:var(--surface-sunken); padding:0.4rem 0.75rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+									<span>رقم البوليصة / الشحنة:</span>
+									<strong class="tabular-nums" style="color:var(--text); margin-inline-start:0.35rem;">{ sh.TrackingNumber }</strong>
+								</div>
+							}
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+							if sh.Status == commerce.StatusPending {
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+									<input type="hidden" name="status" value="confirmed" />
+									<input type="hidden" name="notes" value="تمت مراجعة الأصناف والموافقة على أمر التوريد والتجهيز بالمستودع" />
+									<button
+										type="submit"
+										class="btn btn-primary"
+										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem;"
+									>
+										@components.IconCheck("icon-xs")
+										<span>تأكيد الطلب وبدء التجهيز المخزني</span>
+									</button>
+								</form>
+							} else if sh.Status == commerce.StatusConfirmed {
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+									<input type="hidden" name="status" value="shipped" />
+									<input
+										type="text"
+										name="tracking"
+										placeholder="رقم البوليصة / المندوب (اختياري)..."
+										class="form-input"
+										style="font-size:0.85rem; padding:0.45rem 0.75rem; width:200px; border-radius:var(--radius-md);"
+									/>
+									<button
+										type="submit"
+										class="btn btn-primary"
+										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem;"
+									>
+										@components.IconTruck("icon-xs")
+										<span>إصدار إشعار الشحن وبدء التوصيل</span>
+									</button>
+								</form>
+							} else if sh.Status == commerce.StatusShipped {
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+									<input type="hidden" name="status" value="delivered" />
+									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية واستلام إيصال الاستلام" />
+									<button
+										type="submit"
+										class="btn btn-primary"
+										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem; background:#10b981; border-color:#10b981;"
+									>
+										@components.IconCheckCircle("icon-xs")
+										<span>تأكيد إتمام التسليم للصيدلية</span>
+									</button>
+								</form>
+							} else {
+								<span class="badge badge-emerald" style="padding:0.5rem 1rem; font-size:0.875rem; font-weight:800;">
+									@components.IconCheckCircle("icon-xs")
+									<span>تم تسليم الشحنة وتوثيق الاستلام</span>
+								</span>
+							}
+						</div>
+					</div>
+				</div>
+			}
 		</div>
 	}
 }

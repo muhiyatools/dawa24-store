@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -37,51 +38,71 @@ func isStepActive(status commerce.OrderStatus, step int) bool {
 	}
 }
 
+func orderProgressWidth(status commerce.OrderStatus) string {
+	switch status {
+	case commerce.StatusPending:
+		return "15%"
+	case commerce.StatusConfirmed:
+		return "50%"
+	case commerce.StatusShipped:
+		return "80%"
+	case commerce.StatusDelivered:
+		return "100%"
+	default:
+		return "15%"
+	}
+}
+
 templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("طلب #%s | Order Detail", order.OrderNumber), "orders", lang, dir, nil) {
 		<div class="order-detail-container" style="max-width:1160px; margin:1rem auto 4rem auto; display:flex; flex-direction:column; gap:2rem;">
 			
 			<!-- Breadcrumb Navigation -->
-			<nav style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--neutral-500);">
-				<a href="/" style="color:var(--neutral-600); text-decoration:none;">الرئيسية</a>
+			<nav style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text-muted);">
+				<a href="/" style="color:var(--text-secondary); text-decoration:none;">الرئيسية</a>
 				<span>/</span>
-				<a href="/orders" style="color:var(--neutral-600); text-decoration:none;">طلبياتي</a>
+				<a href="/orders" style="color:var(--text-secondary); text-decoration:none;">طلبياتي</a>
 				<span>/</span>
-				<span style="color:var(--neutral-900); font-weight:700;">طلب #{ order.OrderNumber }</span>
+				<span style="color:var(--text); font-weight:700;">طلب #{ order.OrderNumber }</span>
 			</nav>
 
 			<!-- 1. Order Header Summary Card -->
-			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);">
+			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 8px 32px rgba(0,0,0,0.12);">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-						<span class="badge badge-sky" style="font-size:0.775rem;">أمر توريد دوائي مؤكد</span>
-						<span class="badge badge-emerald" style="font-size:0.775rem;">دفع مؤكد</span>
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; flex-wrap:wrap;">
+						<span class="badge badge-sky" style="font-size:0.8rem; font-weight:700;">أمر توريد دوائي معتمد</span>
+						if order.PaymentStatus == commerce.PaymentPaid {
+							<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:700;">مدفوع بالكامل</span>
+						} else {
+							<span class="badge badge-amber" style="font-size:0.8rem; font-weight:700;">دفع عند الاستلام (COD)</span>
+						}
+						<span class="badge badge-indigo" style="font-size:0.8rem; font-weight:700;">الحالة: { string(order.Status) }</span>
 					</div>
-					<h1 style="font-size:2rem; font-weight:900; color:var(--neutral-900); margin:0.25rem 0;" class="tabular-nums">
+					<h1 style="font-size:2rem; font-weight:900; color:var(--text); margin:0.25rem 0;" class="tabular-nums">
 						طلب #{ order.OrderNumber }
 					</h1>
-					<div style="font-size:0.875rem; color:var(--neutral-500);">
-						تاريخ التسجيل: <strong class="tabular-nums" style="color:var(--neutral-700);">{ order.CreatedAt.Format("2006-01-02 15:04") }</strong>
+					<div style="font-size:0.875rem; color:var(--text-secondary);">
+						تاريخ التسجيل: <strong class="tabular-nums" style="color:var(--text);">{ order.CreatedAt.Format("2006-01-02 15:04") }</strong>
 					</div>
 				</div>
 
-				<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
-					<div style="font-size:0.85rem; color:var(--neutral-500); font-weight:700;">إجمالي الفاتورة المعتمدة:</div>
-					<div style="font-size:2rem; font-weight:900; color:var(--primary-700); line-height:1;" class="tabular-nums">
-						{ order.TotalAmount.String() } <span style="font-size:1.1rem; font-weight:700;">ج.م</span>
+				<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.35rem;">
+					<div style="font-size:0.85rem; color:var(--text-muted); font-weight:700;">إجمالي الفاتورة المعتمدة:</div>
+					<div style="font-size:2.2rem; font-weight:900; color:var(--accent); line-height:1;" class="tabular-nums">
+						{ order.TotalAmount.String() } <span style="font-size:1.1rem; font-weight:700; color:var(--text-muted);">ج.م</span>
 					</div>
-					<div style="font-size:0.775rem; color:var(--neutral-400);">شامل ضريبة القيمة المضافة والشحن المبرد</div>
+					<div style="font-size:0.775rem; color:var(--text-muted);">شامل ضريبة القيمة المضافة والشحن المبرد (Cold-Chain)</div>
 				</div>
 			</div>
 
-			<!-- 2. Amazon-Style Horizontal Tracking Bar -->
-			<div class="card" style="margin-bottom:0; padding:2.5rem 2rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);">
+			<!-- 2. Interactive Tracking Bar -->
+			<div class="card" style="margin-bottom:0; padding:2.25rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 8px 32px rgba(0,0,0,0.12);">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; flex-wrap:wrap; gap:1rem;">
 					<div>
-						<h2 style="font-size:1.35rem; font-weight:900; color:var(--neutral-900); margin:0;">
+						<h2 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0;">
 							مسار وتتبع الشحنة المباشر
 						</h2>
-						<p style="color:var(--neutral-500); font-size:0.875rem; margin-top:0.25rem;">
+						<p style="color:var(--text-secondary); font-size:0.875rem; margin-top:0.25rem; margin-bottom:0;">
 							تحديثات فورية لخطوات التجهيز المخزني والتوصيل المبرد
 						</p>
 					</div>
@@ -96,20 +117,20 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				<div style="position:relative; display:flex; justify-content:space-between; align-items:flex-start; max-width:920px; margin:0 auto; padding-inline:1rem;">
 					
 					<!-- Background Connecting Line -->
-					<div style="position:absolute; top:20px; inset-inline-start:3.5rem; inset-inline-end:3.5rem; height:4px; background:var(--neutral-200); z-index:1;">
+					<div style="position:absolute; top:20px; inset-inline-start:3.5rem; inset-inline-end:3.5rem; height:4px; background:var(--border); z-index:1; border-radius:4px;">
 						<div
-							style="height:100%; background:var(--primary-600); transition:width 0.4s ease;"
-							style={ fmt.Sprintf("width: %d%%;", (len(order.Shipments) + 2) * 25) }
+							style="height:100%; background:var(--accent); transition:width 0.4s ease; border-radius:4px;"
+							style={ fmt.Sprintf("width: %s;", orderProgressWidth(order.Status)) }
 						></div>
 					</div>
 
 					<!-- Step 1: Order Placed -->
 					<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; width:130px;">
-						<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--primary-100); margin-bottom:0.75rem;">
+						<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--accent-subtle); margin-bottom:0.75rem;">
 							@components.IconCheck("icon-sm")
 						</div>
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">تم تأكيد الطلب</div>
-						<div style="font-size:0.775rem; color:var(--neutral-500); margin-top:0.2rem;" class="tabular-nums">
+						<div style="font-weight:800; font-size:0.95rem; color:var(--text);">تم استلام الطلب</div>
+						<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;" class="tabular-nums">
 							{ order.CreatedAt.Format("02 Jan 15:04") }
 						</div>
 					</div>
@@ -117,105 +138,187 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					<!-- Step 2: Processing in Warehouse -->
 					<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; width:140px;">
 						if isStepDone(order.Status, 2) {
-							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--primary-100); margin-bottom:0.75rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--accent-subtle); margin-bottom:0.75rem;">
 								@components.IconCheck("icon-sm")
 							</div>
 						} else {
-							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--neutral-100); border:2px solid var(--neutral-300); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--surface-sunken); border:2px solid var(--border); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
 								@components.IconBuilding("icon-sm")
 							</div>
 						}
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">قيد التجهيز المخزني</div>
-						<div style="font-size:0.775rem; color:var(--neutral-500); margin-top:0.2rem;">مطابقة التشغيلات والتبريد</div>
+						<div style="font-weight:800; font-size:0.95rem; color:var(--text);">التجهيز بالمستودع</div>
+						<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;">مطابقة التشغيلات والتبريد</div>
 					</div>
 
 					<!-- Step 3: Out for Delivery -->
 					<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; width:130px;">
 						if isStepDone(order.Status, 3) {
-							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--primary-100); margin-bottom:0.75rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--accent-subtle); margin-bottom:0.75rem;">
 								@components.IconCheck("icon-sm")
 							</div>
 						} else if isStepActive(order.Status, 3) {
-							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--primary-600); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--primary-100); margin-bottom:0.75rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--accent-subtle); margin-bottom:0.75rem;">
 								@components.IconTruck("icon-sm")
 							</div>
 						} else {
-							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--neutral-100); border:2px solid var(--neutral-300); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--surface-sunken); border:2px solid var(--border); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
 								@components.IconTruck("icon-sm")
 							</div>
 						}
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">خرج للتوصيل</div>
-						<div style="font-size:0.775rem; color:var(--neutral-500); margin-top:0.2rem;">مع المندوب المبرد</div>
+						<div style="font-weight:800; font-size:0.95rem; color:var(--text);">خرج للتوصيل</div>
+						<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;">مع المندوب المبرد</div>
 					</div>
 
 					<!-- Step 4: Delivered -->
 					<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; width:130px;">
 						if isStepDone(order.Status, 4) {
-							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--success); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px var(--success-bg); margin-bottom:0.75rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:#10b981; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px rgba(16,185,129,0.2); margin-bottom:0.75rem;">
 								@components.IconCheckCircle("icon-sm")
 							</div>
 						} else {
-							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--neutral-100); border:2px solid var(--neutral-300); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-full); background:var(--surface-sunken); border:2px solid var(--border); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
 								@components.IconCheck("icon-sm")
 							</div>
 						}
-						<div style="font-weight:800; font-size:0.95rem; color:var(--neutral-900);">تم الاستلام</div>
-						<div style="font-size:0.775rem; color:var(--neutral-500); margin-top:0.2rem;">استلام الصيدلية الموثق</div>
+						<div style="font-weight:800; font-size:0.95rem; color:var(--text);">تم الاستلام</div>
+						<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;">استلام الصيدلية الموثق</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- 3. Supplier Shipments Breakdown -->
-			<div class="card" style="margin-bottom:0; padding:2.5rem 2rem; background:#ffffff; border-radius:var(--radius-2xl); border:1px solid var(--border-card); box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1.25rem;">
-					<div class="row-center-sm">
-						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+			<!-- 3. Delivery Branch & Pharmacy Destination Details -->
+			<div class="card" style="margin-bottom:0; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);">
+				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.875rem;">
+					<div style="width:34px; height:34px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						@components.IconBuilding("icon-xs")
+					</div>
+					<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+						بيانات الاستلام والتسليم للصيدلية
+					</h3>
+				</div>
+
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; font-size:0.9rem;">
+					<div>
+						<div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.2rem;">فرع الصيدلية المستلم:</div>
+						<strong style="color:var(--text); font-size:1rem;">{ order.CustomerBranchName.Get(i18n.Lang(lang)) }</strong>
+						if order.CustomerManagerName != "" {
+							<div style="color:var(--text-secondary); font-size:0.825rem; margin-top:0.15rem;">
+								الصيدلي المسؤول: { order.CustomerManagerName }
+							</div>
+						}
+					</div>
+
+					<div>
+						<div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.2rem;">عنوان التوصيل المعتمد:</div>
+						<div style="color:var(--text); line-height:1.4;">
+							if order.CustomerBranchAddress != "" {
+								{ order.CustomerBranchAddress }
+							} else {
+								<span>العنوان المسجل للفرع الرئيسي</span>
+							}
+						</div>
+					</div>
+
+					<div>
+						<div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.2rem;">طريقة الدفع والتسوية:</div>
+						<div style="color:var(--text); font-weight:700;">
+							if order.PaymentMethod == "cod" || order.PaymentMethod == "" {
+								<span>الدفع عند الاستلام والتسليم (نقداً / شيك)</span>
+							} else {
+								<span>{ order.PaymentMethod }</span>
+							}
+						</div>
+					</div>
+
+					if order.Notes != "" {
+						<div style="grid-column:1/-1; background:var(--surface-sunken); padding:0.875rem 1.25rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+							<div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.2rem;">تعليمات التوصيل الخاصة:</div>
+							<div style="color:var(--text); font-size:0.875rem;">{ order.Notes }</div>
+						</div>
+					}
+				</div>
+			</div>
+
+			<!-- 4. Supplier Shipments Breakdown -->
+			<div class="card" style="margin-bottom:0; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 8px 32px rgba(0,0,0,0.12);">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+					<div class="row-center-sm" style="gap:0.75rem;">
+						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 							@components.IconPackage("icon-sm")
 						</div>
 						<div>
-							<h3 style="font-size:1.3rem; font-weight:900; color:var(--neutral-900); margin:0;">
+							<h3 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0;">
 								تفاصيل الشحنات والأصناف الدوائية
 							</h3>
-							<div style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
+							<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">
 								مقسمة حسب الموردين المعتمدين مع أرقام التشغيلات والحرارة
 							</div>
 						</div>
 					</div>
 
-					<div class="badge badge-sky" style="font-size:0.85rem; padding:0.35rem 0.75rem;">
+					<div class="badge badge-sky" style="font-size:0.85rem; padding:0.4rem 0.85rem;">
 						<span>شحن مبرد معتمد Cold-Chain (2-8°C)</span>
 					</div>
 				</div>
 
-				if len(order.Shipments) == 0 {
+				if len(order.Shipments) == 0 && len(order.Lines) == 0 {
 					@components.EmptyState(components.EmptyStateProps{
 						Title:   "جاري إعداد وتجهيز الشحنات",
 						Message: "يقوم الموردون حالياً بمراجعة أرقام التشغيلات وإصدار بوالص الشحن.",
 					})
+				} else if len(order.Shipments) == 0 && len(order.Lines) > 0 {
+					<!-- Render directly from order lines if shipments not split -->
+					<div style="display:flex; flex-direction:column; gap:0.75rem;">
+						for _, line := range order.Lines {
+							<div style="display:flex; justify-content:space-between; align-items:center; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); background:var(--surface-sunken); border:1px solid var(--border);">
+								<div class="row-center" style="gap:1rem;">
+									<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+										@components.IconPill("icon-xs")
+									</div>
+									<div>
+										<div style="font-weight:800; color:var(--text); font-size:1.05rem;">
+											{ line.ProductName.Get(i18n.Lang(lang)) }
+										</div>
+										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.2rem;">
+											الكمية: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", line.Quantity) } عبوة</strong>
+											<span style="margin:0 0.5rem; color:var(--border);">•</span>
+											سعر الوحدة: <span class="tabular-nums" style="color:var(--text);">{ line.UnitPrice.String() } ج.م</span>
+										</div>
+									</div>
+								</div>
+
+								<div style="font-size:1.25rem; font-weight:900; color:var(--accent);" class="tabular-nums">
+									{ line.TotalPrice.String() } ج.م
+								</div>
+							</div>
+						}
+					</div>
 				} else {
 					<div style="display:flex; flex-direction:column; gap:1.5rem;">
 						for idx, sh := range order.Shipments {
-							<div style="border:1.5px solid var(--neutral-200); border-radius:var(--radius-xl); padding:1.5rem; background:#ffffff; box-shadow:var(--shadow-xs);">
-								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
-									<div class="row-center">
-										<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--neutral-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+							<div style="border:1.5px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; background:var(--surface-sunken);">
+								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+									<div class="row-center" style="gap:0.75rem;">
+										<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 											@components.IconBuilding("icon-xs")
 										</div>
 										<div>
-											<div style="font-weight:800; font-size:1.05rem; color:var(--neutral-900);">
-												شحنة المورد #{ fmt.Sprintf("%d", sh.OrganizationID) } (طرد رقم { fmt.Sprintf("%d", idx + 1) })
+											<div style="font-weight:800; font-size:1.05rem; color:var(--text);">
+												{ sh.VendorName.Get(i18n.Lang(lang)) } (طرد رقم { fmt.Sprintf("%d", idx + 1) })
 											</div>
-											<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;">
-												حالة الشحنة: <strong style="color:var(--primary-700);">{ string(sh.Status) }</strong>
+											<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
+												رقم الشحنة: <strong class="tabular-nums" style="color:var(--accent);">{ sh.ShipmentNumber }</strong>
+												<span style="margin:0 0.4rem; color:var(--border);">•</span>
+												الحالة: <strong style="color:var(--accent);">{ string(sh.Status) }</strong>
 											</div>
 										</div>
 									</div>
 
-									<div class="row-center">
+									<div class="row-center" style="gap:0.5rem;">
 										if sh.TrackingNumber != "" {
-											<div style="font-size:0.85rem; background:var(--neutral-50); border:1px solid var(--neutral-200); padding:0.35rem 0.75rem; border-radius:var(--radius-md);">
-												<span style="color:var(--neutral-500);">رقم البوليصة:</span>
-												<strong class="tabular-nums" style="color:var(--neutral-900);">{ sh.TrackingNumber }</strong>
+											<div style="font-size:0.85rem; background:var(--surface-raised); border:1px solid var(--border); padding:0.35rem 0.75rem; border-radius:var(--radius-md);">
+												<span style="color:var(--text-muted);">رقم البوليصة:</span>
+												<strong class="tabular-nums" style="color:var(--text);">{ sh.TrackingNumber }</strong>
 											</div>
 										}
 										<span class="badge badge-emerald">معتمد للتسليم</span>
@@ -225,24 +328,24 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								<!-- Items in this shipment -->
 								<div style="display:flex; flex-direction:column; gap:0.6rem;">
 									for _, line := range sh.Lines {
-										<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1rem; border-radius:var(--radius-md); background:var(--neutral-50); border:1px solid var(--neutral-200);">
-											<div class="row-center">
-												<div style="width:28px; height:28px; border-radius:var(--radius-md); background:#ffffff; color:var(--primary-700); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-xs);">
+										<div style="display:flex; justify-content:space-between; align-items:center; padding:0.9rem 1.1rem; border-radius:var(--radius-lg); background:var(--surface-raised); border:1px solid var(--border);">
+											<div class="row-center" style="gap:0.75rem;">
+												<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 													@components.IconPill("icon-xs")
 												</div>
 												<div>
-													<div style="font-weight:800; color:var(--neutral-900); font-size:0.925rem;">
-														{ line.ProductName["ar"] }
+													<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+														{ line.ProductName.Get(i18n.Lang(lang)) }
 													</div>
-													<div style="font-size:0.775rem; color:var(--neutral-500); margin-top:0.15rem;">
-														الكمية: <strong class="tabular-nums" style="color:var(--neutral-800);">{ fmt.Sprintf("%d", line.Quantity) } عبوة</strong>
-														<span style="margin:0 0.35rem; color:var(--neutral-300);">•</span>
+													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
+														الكمية: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", line.Quantity) } عبوة</strong>
+														<span style="margin:0 0.35rem; color:var(--border);">•</span>
 														سعر الوحدة: <span class="tabular-nums">{ line.UnitPrice.String() } ج.م</span>
 													</div>
 												</div>
 											</div>
 
-											<div style="font-size:1.1rem; font-weight:900; color:var(--primary-800);" class="tabular-nums">
+											<div style="font-size:1.15rem; font-weight:900; color:var(--accent);" class="tabular-nums">
 												{ line.TotalPrice.String() } ج.م
 											</div>
 										</div>
@@ -256,11 +359,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 			<!-- Modal: Shipment Updates & Audit Log -->
 			<div id="shipment-updates-modal" class="modal-overlay hidden">
-				<div class="modal-card" style="max-width:620px; width:100%; padding:2rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
+				<div class="modal-card" style="max-width:620px; width:100%; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl);">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div style="display:flex; align-items:center; gap:0.5rem;">
 							@components.IconRefresh("icon-sm")
-							<h3 style="font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0;">
+							<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
 								سجل تحديثات الشحنة والمحطات
 							</h3>
 						</div>
@@ -271,24 +374,24 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 					<div style="display:flex; flex-direction:column; gap:1.25rem; max-height:420px; overflow-y:auto; padding-inline-end:0.5rem;">
 						if len(history) == 0 {
-							<div style="text-align:center; color:var(--neutral-500); padding:2rem;">
+							<div style="text-align:center; color:var(--text-muted); padding:2rem;">
 								تم تسجيل أمر التوريد بنجاح، جاري إرسال التحديثات من مستودعات الموردين فورياً.
 							</div>
 						} else {
 							for _, h := range history {
-								<div style="display:flex; align-items:flex-start; gap:1rem; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:var(--neutral-50); border:1px solid var(--neutral-200);">
-									<div style="width:10px; height:10px; border-radius:var(--radius-full); background:var(--primary-600); margin-top:0.45rem; flex-shrink:0;"></div>
+								<div style="display:flex; align-items:flex-start; gap:1rem; padding:0.85rem 1.1rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border);">
+									<div style="width:10px; height:10px; border-radius:var(--radius-full); background:var(--accent); margin-top:0.45rem; flex-shrink:0;"></div>
 									<div style="flex:1;">
 										<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
 											<span class="badge badge-sky" style="font-weight:800; font-size:0.75rem;">{ h.ToStatus }</span>
-											<span class="tabular-nums" style="font-size:0.775rem; color:var(--neutral-400);">{ h.CreatedAt.Format("2006-01-02 15:04:05") }</span>
+											<span class="tabular-nums" style="font-size:0.775rem; color:var(--text-muted);">{ h.CreatedAt.Format("2006-01-02 15:04:05") }</span>
 										</div>
 										if h.Notes != "" {
-											<div style="font-size:0.875rem; color:var(--neutral-700); line-height:1.5;">
+											<div style="font-size:0.875rem; color:var(--text-secondary); line-height:1.5;">
 												{ h.Notes }
 											</div>
 										} else {
-											<div style="font-size:0.85rem; color:var(--neutral-600);">
+											<div style="font-size:0.85rem; color:var(--text-muted);">
 												تم تحديث حالة الشحنة بنجاح في المنظومة
 											</div>
 										}
@@ -298,7 +401,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						}
 					</div>
 
-					<div style="display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--neutral-100); padding-top:1rem;">
+					<div style="display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
 						<button type="button" class="btn btn-primary" data-modal-close style="font-weight:800; padding-inline:2rem;">
 							إغلاق
 						</button>

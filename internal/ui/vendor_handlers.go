@@ -904,20 +904,51 @@ func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 
 	if h.commSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := pages.VendorOrders(nil, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+		if err := pages.VendorOrders(pages.VendorOrdersData{}, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 			h.log.ErrorContext(ctx, "render vendor orders fallback", "error", err)
 		}
 		return
 	}
 
-	orders, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, h.pageLimit(r), h.pageOffset(r))
+	shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 100, 0)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
+	filterStatus := r.URL.Query().Get("status")
+	var pendingCount, confirmedCount, shippedCount, deliveredCount int
+	var filtered []*commerce.OrderShipment
+
+	for _, s := range shipments {
+		switch s.Status {
+		case commerce.StatusPending:
+			pendingCount++
+		case commerce.StatusConfirmed:
+			confirmedCount++
+		case commerce.StatusShipped:
+			shippedCount++
+		case commerce.StatusDelivered:
+			deliveredCount++
+		}
+
+		if filterStatus == "" || string(s.Status) == filterStatus {
+			filtered = append(filtered, s)
+		}
+	}
+
+	data := pages.VendorOrdersData{
+		Shipments:      filtered,
+		FilterStatus:   filterStatus,
+		TotalCount:     len(shipments),
+		PendingCount:   pendingCount,
+		ConfirmedCount: confirmedCount,
+		ShippedCount:   shippedCount,
+		DeliveredCount: deliveredCount,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorOrders(orders, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.VendorOrders(data, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor orders page", "error", err)
 	}
 }
@@ -1208,10 +1239,18 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 
 	shipmentID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	toStatus := r.PostFormValue("status")
+	notes := r.PostFormValue("notes")
+
+	if actor.OrganizationID > 0 {
+		ctx = database.WithTenant(ctx, actor.OrganizationID)
+	}
 
 	if h.commSvc != nil && shipmentID > 0 && toStatus != "" {
-		_, _ = h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, "")
-		if carrier := r.PostFormValue("carrier"); carrier != "" {
+		_, err := h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, notes)
+		if err != nil {
+			h.log.ErrorContext(ctx, "vendor transition shipment status failed", "error", err, "shipment", shipmentID, "to", toStatus)
+		}
+		if carrier := r.PostFormValue("carrier"); carrier != "" || r.PostFormValue("tracking") != "" {
 			_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, r.PostFormValue("tracking"))
 		}
 	}

@@ -175,6 +175,104 @@ func (r *Repository) CreateOrder(
 	})
 }
 
+func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) error {
+	if o == nil {
+		return nil
+	}
+
+	// 1. Hydrate customer branch & organization info
+	queryCustomer := `
+		SELECT COALESCE(org.trade_name, org.legal_name, '{"ar":"","en":""}'::jsonb),
+		       COALESCE(b.name, '{"ar":"","en":""}'::jsonb),
+		       COALESCE(b.address, ''),
+		       COALESCE(b.phone, ''),
+		       COALESCE(b.manager_name, '')
+		FROM commerce.orders ord
+		LEFT JOIN org.organizations org ON org.id = ord.organization_id
+		LEFT JOIN org.branches b ON b.id = ord.branch_id
+		WHERE ord.id = $1;
+	`
+	_ = tx.QueryRow(txCtx, queryCustomer, o.ID).Scan(
+		&o.CustomerOrgName,
+		&o.CustomerBranchName,
+		&o.CustomerBranchAddress,
+		&o.CustomerBranchPhone,
+		&o.CustomerManagerName,
+	)
+
+	// 2. Load shipments
+	queryShipments := `
+		SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
+		       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
+		       s.carrier_name, s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
+		       COALESCE(org.trade_name, org.legal_name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name
+		FROM commerce.order_shipments s
+		LEFT JOIN org.organizations org ON org.id = s.organization_id
+		WHERE s.order_id = $1
+		ORDER BY s.id ASC;
+	`
+	sRows, err := tx.Query(txCtx, queryShipments, o.ID)
+	if err == nil {
+		defer sRows.Close()
+		shipmentMap := make(map[int64]*commerce.OrderShipment)
+		for sRows.Next() {
+			var s commerce.OrderShipment
+			var statusStr string
+			if err := sRows.Scan(
+				&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID,
+				&s.ShipmentNumber, &statusStr, &s.Subtotal, &s.ShippingFee,
+				&s.TotalAmount, &s.TrackingNumber, &s.CarrierName,
+				&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,
+				&s.VendorName,
+			); err == nil {
+				s.Status = commerce.OrderStatus(statusStr)
+				s.OrderNumber = o.OrderNumber
+				s.CustomerOrgName = o.CustomerOrgName
+				s.CustomerBranchName = o.CustomerBranchName
+				s.CustomerBranchAddress = o.CustomerBranchAddress
+				s.CustomerBranchPhone = o.CustomerBranchPhone
+				s.CustomerManagerName = o.CustomerManagerName
+				s.PaymentMethod = o.PaymentMethod
+				s.PaymentStatus = o.PaymentStatus
+				s.Notes = o.Notes
+
+				o.Shipments = append(o.Shipments, &s)
+				shipmentMap[s.ID] = &s
+			}
+		}
+
+		// 3. Load order lines
+		queryLines := `
+			SELECT l.id, l.order_id, l.shipment_id, l.organization_id, l.product_id,
+			       l.product_variant_id, l.product_name, l.variant_name, l.sku,
+			       l.offer_product_id, l.unit_price, l.quantity, l.discount_amount,
+			       l.total_price, l.list_price, l.original_price, l.original_discount, l.rating
+			FROM commerce.order_lines l
+			WHERE l.order_id = $1
+			ORDER BY l.id ASC;
+		`
+		lRows, err := tx.Query(txCtx, queryLines, o.ID)
+		if err == nil {
+			defer lRows.Close()
+			for lRows.Next() {
+				var l commerce.OrderLine
+				if err := lRows.Scan(
+					&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID,
+					&l.ProductVariantID, &l.ProductName, &l.VariantName, &l.SKU,
+					&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
+					&l.TotalPrice, &l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &l.Rating,
+				); err == nil {
+					o.Lines = append(o.Lines, &l)
+					if sh, ok := shipmentMap[l.ShipmentID]; ok {
+						sh.Lines = append(sh.Lines, &l)
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // GetOrderByID retrieves order details.
 func (r *Repository) GetOrderByID(ctx context.Context, id int64) (*commerce.Order, error) {
 	var o *commerce.Order
@@ -192,7 +290,7 @@ func (r *Repository) GetOrderByID(ctx context.Context, id int64) (*commerce.Orde
 			}
 			return err
 		}
-		return nil
+		return hydrateOrderDetails(txCtx, tx, o)
 	})
 	if err != nil {
 		return nil, err
@@ -217,7 +315,7 @@ func (r *Repository) GetOrderByNumber(ctx context.Context, number string) (*comm
 			}
 			return err
 		}
-		return nil
+		return hydrateOrderDetails(txCtx, tx, o)
 	})
 	if err != nil {
 		return nil, err
@@ -298,18 +396,30 @@ func (r *Repository) ListOrdersByCustomer(ctx context.Context, customerID int64,
 // ListShipmentsByVendor retrieves shipment partitions for a vendor organization.
 func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*commerce.OrderShipment, error) {
 	var shipments []*commerce.OrderShipment
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, order_id, organization_id, branch_id, shipment_number,
-			       status, subtotal, shipping_fee, total_amount, tracking_number,
-			       carrier_name, shipped_at, delivered_at, created_at, updated_at
-			FROM commerce.order_shipments
-			WHERE organization_id = $1
-			ORDER BY created_at DESC
+			SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
+			       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
+			       s.carrier_name, s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
+			       COALESCE(ord.order_number, ''),
+			       COALESCE(ord.payment_method, 'cod'),
+			       COALESCE(ord.payment_status, 'unpaid'),
+			       COALESCE(ord.notes, ''),
+			       COALESCE(org.trade_name, org.legal_name, '{"ar":"صيدلية معتمدة","en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
+			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name,
+			       COALESCE(b.address, '') AS branch_address,
+			       COALESCE(b.phone, '') AS branch_phone,
+			       COALESCE(b.manager_name, '') AS manager_name
+			FROM commerce.order_shipments s
+			JOIN commerce.orders ord ON ord.id = s.order_id
+			LEFT JOIN org.organizations org ON org.id = ord.organization_id
+			LEFT JOIN org.branches b ON b.id = ord.branch_id
+			WHERE s.organization_id = $1
+			ORDER BY s.created_at DESC
 			LIMIT $2 OFFSET $3;
 		`
 		if limit <= 0 || limit > 100 {
-			limit = 20
+			limit = 50
 		}
 		rows, err := tx.Query(txCtx, query, vendorOrgID, limit, offset)
 		if err != nil {
@@ -317,19 +427,57 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 		}
 		defer rows.Close()
 
+		var shipmentIDs []int64
+		shipmentMap := make(map[int64]*commerce.OrderShipment)
+
 		for rows.Next() {
 			var s commerce.OrderShipment
-			var statusStr string
+			var statusStr, payStatusStr string
 			if err := rows.Scan(
 				&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID,
 				&s.ShipmentNumber, &statusStr, &s.Subtotal, &s.ShippingFee,
 				&s.TotalAmount, &s.TrackingNumber, &s.CarrierName,
 				&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,
+				&s.OrderNumber, &s.PaymentMethod, &payStatusStr, &s.Notes,
+				&s.CustomerOrgName, &s.CustomerBranchName, &s.CustomerBranchAddress,
+				&s.CustomerBranchPhone, &s.CustomerManagerName,
 			); err != nil {
 				return err
 			}
 			s.Status = commerce.OrderStatus(statusStr)
+			s.PaymentStatus = commerce.PaymentStatus(payStatusStr)
 			shipments = append(shipments, &s)
+			shipmentIDs = append(shipmentIDs, s.ID)
+			shipmentMap[s.ID] = &s
+		}
+
+		if len(shipmentIDs) > 0 {
+			queryLines := `
+				SELECT id, order_id, shipment_id, organization_id, product_id,
+				       product_variant_id, product_name, variant_name, sku,
+				       offer_product_id, unit_price, quantity, discount_amount,
+				       total_price, list_price, original_price, original_discount, rating
+				FROM commerce.order_lines
+				WHERE shipment_id = ANY($1)
+				ORDER BY id ASC;
+			`
+			lRows, err := tx.Query(txCtx, queryLines, shipmentIDs)
+			if err == nil {
+				defer lRows.Close()
+				for lRows.Next() {
+					var l commerce.OrderLine
+					if err := lRows.Scan(
+						&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID,
+						&l.ProductVariantID, &l.ProductName, &l.VariantName, &l.SKU,
+						&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
+						&l.TotalPrice, &l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &l.Rating,
+					); err == nil {
+						if sh, ok := shipmentMap[l.ShipmentID]; ok {
+							sh.Lines = append(sh.Lines, &l)
+						}
+					}
+				}
+			}
 		}
 		return rows.Err()
 	})

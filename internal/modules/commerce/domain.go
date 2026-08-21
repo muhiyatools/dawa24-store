@@ -97,35 +97,55 @@ type Order struct {
 	PaymentMethod  string           `json:"payment_method"`
 	PaymentStatus  PaymentStatus    `json:"payment_status"`
 	Notes          string           `json:"notes,omitempty"`
-	Rating         *float64         `json:"rating,omitempty"`
-	Review         *string          `json:"review,omitempty"`
-	RatedAt        *time.Time       `json:"rated_at,omitempty"`
-	DeliveredAt    *time.Time       `json:"delivered_at,omitempty"`
-	Shipments      []*OrderShipment `json:"shipments,omitempty"`
-	CreatedAt      time.Time        `json:"created_at"`
-	UpdatedAt      time.Time        `json:"updated_at"`
-	DeletedAt      *time.Time       `json:"deleted_at,omitempty"`
+	Rating                *float64         `json:"rating,omitempty"`
+	Review                *string          `json:"review,omitempty"`
+	RatedAt               *time.Time       `json:"rated_at,omitempty"`
+	DeliveredAt           *time.Time       `json:"delivered_at,omitempty"`
+	Shipments             []*OrderShipment `json:"shipments,omitempty"`
+	Lines                 []*OrderLine     `json:"lines,omitempty"`
+	CreatedAt             time.Time        `json:"created_at"`
+	UpdatedAt             time.Time        `json:"updated_at"`
+	DeletedAt             *time.Time       `json:"deleted_at,omitempty"`
+
+	// Enriched metadata for views
+	CustomerOrgName       i18n.Text        `json:"customer_org_name,omitempty"`
+	CustomerBranchName    i18n.Text        `json:"customer_branch_name,omitempty"`
+	CustomerBranchAddress string           `json:"customer_branch_address,omitempty"`
+	CustomerBranchPhone   string           `json:"customer_branch_phone,omitempty"`
+	CustomerManagerName   string           `json:"customer_manager_name,omitempty"`
 }
 
 // OrderShipment represents a vendor-specific shipment split from a master order.
 type OrderShipment struct {
-	ID             int64        `json:"id"`
-	PublicID       string       `json:"public_id"`
-	OrderID        int64        `json:"order_id"`
-	OrganizationID int64        `json:"organization_id"`
-	BranchID       *int64       `json:"branch_id,omitempty"`
-	ShipmentNumber string       `json:"shipment_number"`
-	Status         OrderStatus  `json:"status"`
-	Subtotal       money.Amount `json:"subtotal"`
-	ShippingFee    money.Amount `json:"shipping_fee"`
-	TotalAmount    money.Amount `json:"total_amount"`
-	TrackingNumber string       `json:"tracking_number,omitempty"`
-	CarrierName    string       `json:"carrier_name,omitempty"`
-	Lines          []*OrderLine `json:"lines,omitempty"`
-	ShippedAt      *time.Time   `json:"shipped_at,omitempty"`
-	DeliveredAt    *time.Time   `json:"delivered_at,omitempty"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
+	ID                    int64        `json:"id"`
+	PublicID              string       `json:"public_id"`
+	OrderID               int64        `json:"order_id"`
+	OrganizationID        int64        `json:"organization_id"`
+	BranchID              *int64       `json:"branch_id,omitempty"`
+	ShipmentNumber        string       `json:"shipment_number"`
+	Status                OrderStatus  `json:"status"`
+	Subtotal              money.Amount `json:"subtotal"`
+	ShippingFee           money.Amount `json:"shipping_fee"`
+	TotalAmount           money.Amount `json:"total_amount"`
+	TrackingNumber        string       `json:"tracking_number,omitempty"`
+	CarrierName           string       `json:"carrier_name,omitempty"`
+	Lines                 []*OrderLine `json:"lines,omitempty"`
+	ShippedAt             *time.Time   `json:"shipped_at,omitempty"`
+	DeliveredAt           *time.Time   `json:"delivered_at,omitempty"`
+	CreatedAt             time.Time    `json:"created_at"`
+	UpdatedAt             time.Time    `json:"updated_at"`
+
+	// Enriched metadata for views
+	OrderNumber           string       `json:"order_number,omitempty"`
+	VendorName            i18n.Text    `json:"vendor_name,omitempty"`
+	CustomerOrgName       i18n.Text    `json:"customer_org_name,omitempty"`
+	CustomerBranchName    i18n.Text    `json:"customer_branch_name,omitempty"`
+	CustomerBranchAddress string       `json:"customer_branch_address,omitempty"`
+	CustomerBranchPhone   string       `json:"customer_branch_phone,omitempty"`
+	CustomerManagerName   string       `json:"customer_manager_name,omitempty"`
+	PaymentMethod         string       `json:"payment_method,omitempty"`
+	PaymentStatus         PaymentStatus `json:"payment_status,omitempty"`
+	Notes                 string       `json:"notes,omitempty"`
 }
 
 // OrderLine is an immutable snapshot of a product variant purchased in an order.
