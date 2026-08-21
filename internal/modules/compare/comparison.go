@@ -2,7 +2,6 @@ package compare
 
 import (
 	"context"
-	"fmt"
 	"math"
 	"sort"
 	"strings"
@@ -116,6 +115,17 @@ func CalculatePriceAfterDiscount(price money.Amount, discountPercent float64) mo
 	return net
 }
 
+// getSortedWordsKey generates a bag-of-words key for order-independent name matching (e.g. "Panadol Extra" == "Extra Panadol").
+func getSortedWordsKey(name string) string {
+	norm := normalizeProductText(name)
+	if norm == "" {
+		return ""
+	}
+	words := strings.Fields(norm)
+	sort.Strings(words)
+	return strings.Join(words, " ")
+}
+
 // RunMultiSupplierComparison executes multi-supplier analysis across 1 to 10 selected files (Plan V5 Phase 2 §2.5).
 func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int64) (*ComparisonResultSet, error) {
 	if len(fileIDs) < 1 {
@@ -135,7 +145,12 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 		files = append(files, f)
 	}
 
-	groupedProducts := make(map[string]*ProductComparisonRow)
+	var resultRows []*ProductComparisonRow
+	bySKU := make(map[string]*ProductComparisonRow)
+	byNorm := make(map[string]*ProductComparisonRow)
+	bySorted := make(map[string]*ProductComparisonRow)
+	byCatalogID := make(map[int64]*ProductComparisonRow)
+
 	supplierBestCounts := make(map[string]int)
 	var suppliersList []string
 
@@ -147,12 +162,30 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 		}
 
 		for _, r := range rows {
-			productKey := r.NormalizedName
-			if productKey == "" {
-				productKey = normalizeProductText(r.RawName)
+			normText := normalizeProductText(r.RawName)
+			if normText == "" {
+				normText = r.NormalizedName
 			}
+			sortedKey := getSortedWordsKey(r.RawName)
+			cleanSKU := strings.ToLower(strings.TrimSpace(r.SKU))
+
+			var compRow *ProductComparisonRow
+
+			// 1. Match by Catalog ID if linked
 			if r.MatchedProductID != nil && *r.MatchedProductID > 0 {
-				productKey = fmt.Sprintf("catalog_prod_%d", *r.MatchedProductID)
+				compRow = byCatalogID[*r.MatchedProductID]
+			}
+			// 2. Match by SKU
+			if compRow == nil && cleanSKU != "" {
+				compRow = bySKU[cleanSKU]
+			}
+			// 3. Match by exact normalized Arabic/English name
+			if compRow == nil && normText != "" {
+				compRow = byNorm[normText]
+			}
+			// 4. Match by bag-of-words sorted key
+			if compRow == nil && sortedKey != "" {
+				compRow = bySorted[sortedKey]
 			}
 
 			netPrice := r.PriceAfterDiscount
@@ -167,8 +200,7 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 				PriceAfterDiscount: netPrice,
 			}
 
-			compRow, exists := groupedProducts[productKey]
-			if !exists {
+			if compRow == nil {
 				compRow = &ProductComparisonRow{
 					MatchedProductID: r.MatchedProductID,
 					ProductName:      r.RawName,
@@ -179,7 +211,21 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 					BestNetPrice:     netPrice,
 					BestSupplier:     f.SupplierName,
 				}
-				groupedProducts[productKey] = compRow
+				resultRows = append(resultRows, compRow)
+
+				// Register in all lookup indices
+				if r.MatchedProductID != nil && *r.MatchedProductID > 0 {
+					byCatalogID[*r.MatchedProductID] = compRow
+				}
+				if cleanSKU != "" {
+					bySKU[cleanSKU] = compRow
+				}
+				if normText != "" {
+					byNorm[normText] = compRow
+				}
+				if sortedKey != "" {
+					bySorted[sortedKey] = compRow
+				}
 			}
 
 			compRow.Offers[f.SupplierName] = offer
@@ -194,14 +240,12 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 		}
 	}
 
-	var resultRows []*ProductComparisonRow
 	totalDiscountSum := 0.0
 	discountCount := 0
 
-	for _, row := range groupedProducts {
+	for _, row := range resultRows {
 		row.TotalSuppliers = len(row.Offers)
 		supplierBestCounts[row.BestSupplier]++
-		resultRows = append(resultRows, row)
 
 		for _, off := range row.Offers {
 			if off.Discount > 0 {
@@ -246,17 +290,23 @@ func (s *Service) RunSupplierVsSupplier(ctx context.Context, sourceFileID, targe
 		return nil, nil, err
 	}
 
-	// Index target rows by SKU and normalized name
+	// Index target rows by SKU, normalized name, and bag-of-words
 	targetBySKU := make(map[string]*CompareFileRow)
 	targetByName := make(map[string]*CompareFileRow)
+	targetBySorted := make(map[string]*CompareFileRow)
 
 	for _, tr := range targetRows {
-		if tr.SKU != "" {
-			targetBySKU[strings.ToLower(strings.TrimSpace(tr.SKU))] = tr
+		cleanSKU := strings.ToLower(strings.TrimSpace(tr.SKU))
+		if cleanSKU != "" {
+			targetBySKU[cleanSKU] = tr
 		}
 		norm := normalizeProductText(tr.RawName)
 		if norm != "" {
 			targetByName[norm] = tr
+		}
+		sortedKey := getSortedWordsKey(tr.RawName)
+		if sortedKey != "" {
+			targetBySorted[sortedKey] = tr
 		}
 	}
 
@@ -274,6 +324,10 @@ func (s *Service) RunSupplierVsSupplier(ctx context.Context, sourceFileID, targe
 		if tr == nil {
 			norm := normalizeProductText(sr.RawName)
 			tr = targetByName[norm]
+		}
+		if tr == nil {
+			sortedKey := getSortedWordsKey(sr.RawName)
+			tr = targetBySorted[sortedKey]
 		}
 
 		if tr != nil {

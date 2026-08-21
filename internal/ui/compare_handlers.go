@@ -261,7 +261,11 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// 2. Also write to local storage as fallback
+	// 2. Also write to local storage as guaranteed disk fallback
+	localDiskPath := filepath.Join("data", filepath.FromSlash(storageKey))
+	_ = os.MkdirAll(filepath.Dir(localDiskPath), 0755)
+	_ = os.WriteFile(localDiskPath, fileBytes, 0644)
+
 	localURL, localErr := saveUploadedBytes(fileBytes, header.Filename, "compare")
 	if localErr != nil {
 		h.log.WarnContext(ctx, "local disk save warning", "error", localErr)

@@ -56,7 +56,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;\"><!-- Header Banner --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">📈</div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">تقرير تحليل ومقارنة عروض الموردين</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">مقارنة تفصيلية لأسعار وخصومات الأصناف بين الموردين المحددين ومتوسط أسعار السوق الدوائي.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><a href=\"/compare/tool\" class=\"btn btn-secondary\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;\"><!-- Header Banner --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">📈</div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">تقرير تحليل ومقارنة عروض الموردين</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين المحددة واستخراج أفضل فرص الشراء والتوفير.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/compare/tool\" class=\"btn btn-secondary\" style=\"font-weight:700;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -64,7 +64,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>العودة لمركز الملفات</span></a> <button type=\"button\" class=\"btn btn-primary\" onclick=\"exportComparisonTableToCSV()\" style=\"font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز الملفات</span></a> <button type=\"button\" class=\"btn btn-primary\" onclick=\"exportComparisonTableToCSV()\" style=\"font-weight:800;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -72,7 +72,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>تصدير تقرير Excel / CSV</span></button></div></div></div><!-- KPI Summary Metric Cards --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><!-- Total Compared --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">إجمالي الأصناف المقارنة</span> <span style=\"font-size:1.25rem;\">📦</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--text);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>تصدير تقرير Excel / CSV</span></button></div></div><!-- Navigation Subtabs --><div style=\"display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;\"><a href=\"/compare/results\" class=\"btn btn-primary btn-sm\" style=\"font-weight:800; border-radius:var(--radius-lg);\">📊 المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-lg);\">⚖️ مقارنة رأس برأس (مورد ضد مورد)</a> <a href=\"/market-discounts\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-lg);\">🌐 مقارنة المورد مع متوسط السوق</a></div></div><!-- KPI Summary Metric Cards --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><!-- Total Compared --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">إجمالي الأصناف المقارنة</span> <span style=\"font-size:1.25rem;\">📦</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--text);\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -80,7 +80,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", result.Summary.TotalProducts))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 68, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 81, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -100,14 +100,14 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("عبر %d موردين", result.Summary.TotalSuppliers))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 75, Col: 77}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 88, Col: 77}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></div><!-- Higher Discount (Best Deals) --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--success-text);\">متوسط الخصم في السوق</span> <span style=\"font-size:1.25rem;\">🔥</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--success-text);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></div><!-- Average Discount --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--success-text);\">متوسط الخصم في السوق</span> <span style=\"font-size:1.25rem;\">🔥</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--success-text);\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -115,7 +115,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", result.Summary.AverageDiscount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 88, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 101, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", result.Summary.TotalSuppliers))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 104, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 117, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -147,30 +147,30 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><span style=\"font-size:0.75rem; color:var(--text-secondary);\">كشوف أسعار نشطة</span></div></div><!-- 5 Filter Tabs Bar --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;\"><button type=\"button\" class=\"btn btn-primary btn-sm filter-tab active\" data-filter=\"all\" onclick=\"applyTableFilter('all', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>الكل (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><span style=\"font-size:0.75rem; color:var(--text-secondary);\">كشوف أسعار نشطة ومطابقة</span></div></div><!-- Filter Bar & Search --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><!-- Quick Filter Tabs --><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-primary btn-sm filter-tab active\" data-filter=\"all\" onclick=\"applyTableFilter('all', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>الكل (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(formatRowsCount(result))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 124, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 140, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, ")</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab\" data-filter=\"best-discount\" onclick=\"applyTableFilter('best-discount', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>🔥 خصم أعلى من 15%</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab\" data-filter=\"multi-offer\" onclick=\"applyTableFilter('multi-offer', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>⚖️ متوفر لدى أكثر من مورد</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab\" data-filter=\"single-offer\" onclick=\"applyTableFilter('single-offer', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>⭐ أصناف حصرية لمورد واحد</span></button></div><!-- Comparison Table -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, ")</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab\" data-filter=\"best-discount\" onclick=\"applyTableFilter('best-discount', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>🔥 خصم أعلى من 15%</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab\" data-filter=\"multi-offer\" onclick=\"applyTableFilter('multi-offer', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>⚖️ متوفر لدى أكثر من مورد</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab\" data-filter=\"single-offer\" onclick=\"applyTableFilter('single-offer', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>⭐ أصناف حصرية لمورد واحد</span></button></div><!-- Instant Search Filter --><div style=\"position:relative; min-width:280px;\"><input type=\"text\" id=\"comparison-table-search\" placeholder=\"بحث باسم الصنف، الكود، أو المورد...\" class=\"form-input\" oninput=\"filterTableBySearch(this.value)\" style=\"width:100%; padding:0.5rem 0.85rem; border-radius:var(--radius-full); font-size:0.85rem;\"></div></div><!-- Comparison Table -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if result == nil || len(result.Rows) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"padding:3rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl);\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📊</div><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.25rem;\">لا توجد نتائج مقارنة متطابقة</h3><p style=\"color:var(--text-muted); font-size:0.85rem; margin:0;\">يرجى اختيار ملفات موردين تحتوي على أصناف مسجلة بالكتالوج.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"padding:3.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl);\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📊</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem;\">لا توجد أصناف مستخرجة في الكشوف المختارة</h3><p style=\"color:var(--text-muted); font-size:0.85rem; margin:0 0 1rem 0;\">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس ⚙️ في مركز الملفات.</p><a href=\"/compare/tool\" class=\"btn btn-primary\" style=\"font-weight:700;\">العودة لمركز ملفات الموردين</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"overflow-x:auto;\"><table class=\"table\" id=\"comparison-results-table\" style=\"width:100%; border-collapse:collapse;\"><thead><tr style=\"border-bottom:2px solid var(--border); text-align:start; font-size:0.85rem; color:var(--text-muted);\"><th style=\"padding:0.75rem 1rem; font-weight:800;\">اسم الصنف الدوائي</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">السعر الرسمي</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">أعلى نسبة خصم</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">أفضل سعر صافي</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">المورد صاحب أفضل سعر</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">عدد العروض المتاحة</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">حالة التطابق</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"overflow-x:auto;\"><table class=\"table\" id=\"comparison-results-table\" style=\"width:100%; border-collapse:collapse;\"><thead><tr style=\"border-bottom:2px solid var(--border); text-align:start; font-size:0.85rem; color:var(--text-muted);\"><th style=\"padding:0.75rem 1rem; font-weight:800;\">اسم الصنف الدوائي</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">السعر الرسمي</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">أعلى نسبة خصم</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">أفضل سعر صافي</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">المورد الفائز بالصفقة</th><th style=\"padding:0.75rem 1rem; font-weight:800;\">عروض كافة الموردين</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -182,7 +182,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", row.BestDiscount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 183, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 214, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
@@ -195,192 +195,290 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", row.TotalSuppliers))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 184, Col: 64}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 215, Col: 64}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" style=\"border-bottom:1px solid var(--border); font-size:0.875rem;\"><!-- Product Name --><td style=\"padding:0.85rem 1rem;\"><strong style=\"color:var(--text); display:block;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" data-search=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(row.ProductName)
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(row.ProductName + " " + row.SKU + " " + row.BestSupplier)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 189, Col: 78}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 216, Col: 80}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" style=\"border-bottom:1px solid var(--border); font-size:0.875rem;\"><!-- Product Name --><td style=\"padding:0.85rem 1rem;\"><strong style=\"color:var(--text); display:block; font-size:0.925rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var11 string
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(row.ProductName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 221, Col: 98}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if row.SKU != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span style=\"font-size:0.75rem; color:var(--text-muted);\" class=\"tabular-nums\">كود: ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var11 string
-						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(row.SKU)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 191, Col: 108}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</td><!-- Best Price --><td style=\"padding:0.85rem 1rem;\" class=\"tabular-nums\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if row.BestPrice.IsPositive() {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span style=\"font-size:0.75rem; color:var(--text-muted);\" class=\"tabular-nums\">كود: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var12 string
-						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestPrice.String())
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(row.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 198, Col: 42}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 223, Col: 108}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " ج.م</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span style=\"color:var(--text-muted);\">--</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><!-- Best Discount --><td style=\"padding:0.85rem 1rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><!-- Best Price --><td style=\"padding:0.85rem 1rem;\" class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if row.BestDiscount > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-emerald\" style=\"font-weight:800; font-size:0.85rem;\">")
+					if row.BestPrice.IsPositive() {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var13 string
-						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", row.BestDiscount))
+						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestPrice.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 208, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 230, Col: 42}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " ج.م</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">بدون خصم</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span style=\"color:var(--text-muted);\">--</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><!-- Net Price --><td style=\"padding:0.85rem 1rem; font-weight:900; color:var(--accent);\" class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</td><!-- Best Discount --><td style=\"padding:0.85rem 1rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if row.BestNetPrice.IsPositive() {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>")
+					if row.BestDiscount > 0 {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-emerald\" style=\"font-weight:800; font-size:0.85rem;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var14 string
-						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestNetPrice.String())
+						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", row.BestDiscount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 218, Col: 45}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 240, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, " ج.م</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span style=\"color:var(--text-muted);\">--</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">بدون خصم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</td><!-- Best Supplier --><td style=\"padding:0.85rem 1rem;\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.8rem;\">🏢 ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</td><!-- Net Price --><td style=\"padding:0.85rem 1rem; font-weight:900; color:var(--accent);\" class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var15 string
-					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestSupplier)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 227, Col: 35}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></td><!-- Total Suppliers --><td style=\"padding:0.85rem 1rem;\" class=\"tabular-nums\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if row.TotalSuppliers > 1 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">")
+					if row.BestNetPrice.IsPositive() {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var16 string
-						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d موردين", row.TotalSuppliers))
+						var templ_7745c5c3_Var15 string
+						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestNetPrice.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 235, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 250, Col: 45}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, " ج.م</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">مورد واحد</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span style=\"color:var(--text-muted);\">--</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><!-- Match Quality --><td style=\"padding:0.85rem 1rem;\"><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><!-- Best Supplier --><td style=\"padding:0.85rem 1rem;\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.8rem;\">👑 ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconCheckCircle("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					var templ_7745c5c3_Var16 string
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestSupplier)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 259, Col: 35}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>تطابق ذكي مؤكد</span></span></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></td><!-- Detailed Offers Breakdown --><td style=\"padding:0.85rem 1rem;\"><div style=\"display:flex; flex-wrap:wrap; gap:0.35rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					for supName, off := range row.Offers {
+						if supName == row.BestSupplier {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-emerald\" style=\"font-size:0.725rem; font-weight:700;\" title=\"")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var17 string
+							templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 268, Col: 182}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\">✓ ")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var18 string
+							templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(supName)
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 269, Col: 28}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, ": ")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var19 string
+							templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", off.Discount))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 269, Col: 69}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " (")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var20 string
+							templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(off.PriceAfterDiscount.String())
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 269, Col: 106}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, " ج.م)</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span class=\"badge badge-secondary\" style=\"font-size:0.725rem;\" title=\"")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var21 string
+							templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 272, Col: 167}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var22 string
+							templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(supName)
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 273, Col: 24}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, ": ")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var23 string
+							templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", off.Discount))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 273, Col: 65}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " (")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var24 string
+							templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(off.PriceAfterDiscount.String())
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 273, Col: 102}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, " ج.م)</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div></div><!-- Script for filter tabs and CSV export --> <script>\n\t\t\tfunction applyTableFilter(filter, button) {\n\t\t\t\tdocument.querySelectorAll('.filter-tab').forEach(b => {\n\t\t\t\t\tb.classList.remove('btn-primary');\n\t\t\t\t\tb.classList.add('btn-secondary');\n\t\t\t\t});\n\t\t\t\tbutton.classList.remove('btn-secondary');\n\t\t\t\tbutton.classList.add('btn-primary');\n\n\t\t\t\tconst rows = document.querySelectorAll('.comparison-row');\n\t\t\t\trows.forEach(row => {\n\t\t\t\t\tconst disc = parseFloat(row.getAttribute('data-discount') || '0');\n\t\t\t\t\tconst sups = parseInt(row.getAttribute('data-suppliers') || '1', 10);\n\n\t\t\t\t\tif (filter === 'all') {\n\t\t\t\t\t\trow.style.display = '';\n\t\t\t\t\t} else if (filter === 'best-discount') {\n\t\t\t\t\t\trow.style.display = disc >= 15.0 ? '' : 'none';\n\t\t\t\t\t} else if (filter === 'multi-offer') {\n\t\t\t\t\t\trow.style.display = sups > 1 ? '' : 'none';\n\t\t\t\t\t} else if (filter === 'single-offer') {\n\t\t\t\t\t\trow.style.display = sups === 1 ? '' : 'none';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction exportComparisonTableToCSV() {\n\t\t\t\tconst table = document.getElementById('comparison-results-table');\n\t\t\t\tif (!table) return;\n\n\t\t\t\tlet csv = [];\n\t\t\t\tconst rows = table.querySelectorAll('tr');\n\t\t\t\tfor (let i = 0; i < rows.length; i++) {\n\t\t\t\t\tif (rows[i].style.display === 'none') continue;\n\t\t\t\t\tlet row = [], cols = rows[i].querySelectorAll('td, th');\n\t\t\t\t\tfor (let j = 0; j < cols.length; j++) {\n\t\t\t\t\t\tlet text = cols[j].innerText.replace(/\"/g, '\"\"').trim();\n\t\t\t\t\t\trow.push('\"' + text + '\"');\n\t\t\t\t\t}\n\t\t\t\t\tcsv.push(row.join(','));\n\t\t\t\t}\n\n\t\t\t\tconst csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\n\t\t\t\tconst downloadLink = document.createElement(\"a\");\n\t\t\t\tdownloadLink.download = `dawa24-discount-comparison-${new Date().toISOString().slice(0,10)}.csv`;\n\t\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\n\t\t\t\tdownloadLink.style.display = \"none\";\n\t\t\t\tdocument.body.appendChild(downloadLink);\n\t\t\t\tdownloadLink.click();\n\t\t\t\tdocument.body.removeChild(downloadLink);\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div></div><!-- Script for filter tabs, search and CSV export --> <script>\n\t\t\tlet currentFilter = 'all';\n\n\t\t\tfunction applyTableFilter(filter, button) {\n\t\t\t\tcurrentFilter = filter;\n\t\t\t\tdocument.querySelectorAll('.filter-tab').forEach(b => {\n\t\t\t\t\tb.classList.remove('btn-primary');\n\t\t\t\t\tb.classList.add('btn-secondary');\n\t\t\t\t});\n\t\t\t\tbutton.classList.remove('btn-secondary');\n\t\t\t\tbutton.classList.add('btn-primary');\n\n\t\t\t\tfilterRows();\n\t\t\t}\n\n\t\t\tfunction filterTableBySearch(query) {\n\t\t\t\tfilterRows();\n\t\t\t}\n\n\t\t\tfunction filterRows() {\n\t\t\t\tconst query = (document.getElementById('comparison-table-search')?.value || '').toLowerCase().trim();\n\t\t\t\tconst rows = document.querySelectorAll('.comparison-row');\n\n\t\t\t\trows.forEach(row => {\n\t\t\t\t\tconst disc = parseFloat(row.getAttribute('data-discount') || '0');\n\t\t\t\t\tconst sups = parseInt(row.getAttribute('data-suppliers') || '1', 10);\n\t\t\t\t\tconst searchData = (row.getAttribute('data-search') || '').toLowerCase();\n\n\t\t\t\t\tlet matchesFilter = true;\n\t\t\t\t\tif (currentFilter === 'best-discount') {\n\t\t\t\t\t\tmatchesFilter = disc >= 15.0;\n\t\t\t\t\t} else if (currentFilter === 'multi-offer') {\n\t\t\t\t\t\tmatchesFilter = sups > 1;\n\t\t\t\t\t} else if (currentFilter === 'single-offer') {\n\t\t\t\t\t\tmatchesFilter = sups === 1;\n\t\t\t\t\t}\n\n\t\t\t\t\tlet matchesSearch = true;\n\t\t\t\t\tif (query) {\n\t\t\t\t\t\tmatchesSearch = searchData.includes(query);\n\t\t\t\t\t}\n\n\t\t\t\t\trow.style.display = (matchesFilter && matchesSearch) ? '' : 'none';\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction exportComparisonTableToCSV() {\n\t\t\t\tconst table = document.getElementById('comparison-results-table');\n\t\t\t\tif (!table) return;\n\n\t\t\t\tlet csv = [];\n\t\t\t\tconst rows = table.querySelectorAll('tr');\n\t\t\t\tfor (let i = 0; i < rows.length; i++) {\n\t\t\t\t\tif (rows[i].style.display === 'none') continue;\n\t\t\t\t\tlet row = [], cols = rows[i].querySelectorAll('td, th');\n\t\t\t\t\tfor (let j = 0; j < cols.length; j++) {\n\t\t\t\t\t\tlet text = cols[j].innerText.replace(/\"/g, '\"\"').trim();\n\t\t\t\t\t\trow.push('\"' + text + '\"');\n\t\t\t\t\t}\n\t\t\t\t\tcsv.push(row.join(','));\n\t\t\t\t}\n\n\t\t\t\tconst csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\n\t\t\t\tconst downloadLink = document.createElement(\"a\");\n\t\t\t\tdownloadLink.download = `dawa24-discount-comparison-${new Date().toISOString().slice(0,10)}.csv`;\n\t\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\n\t\t\t\tdownloadLink.style.display = \"none\";\n\t\t\t\tdocument.body.appendChild(downloadLink);\n\t\t\t\tdownloadLink.click();\n\t\t\t\tdocument.body.removeChild(downloadLink);\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

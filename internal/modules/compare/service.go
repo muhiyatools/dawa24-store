@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"math"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -547,7 +548,7 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 	}
 
 	var reader io.ReadCloser
-	// Try object storage if available
+	// 1. Try object storage if available
 	if s.storage != nil && file.StorageKey != "" && !strings.HasPrefix(file.StorageKey, "/") && !strings.HasPrefix(file.StorageKey, "data/") {
 		r, _, err := s.storage.Get(ctx, file.StorageKey)
 		if err == nil {
@@ -555,20 +556,49 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 		}
 	}
 
-	// Fallback to local disk path if storage was not used or local upload
+	// 2. Try exact storage key on local disk
 	if reader == nil && file.StorageKey != "" {
-		localPath := file.StorageKey
-		if strings.HasPrefix(localPath, "/uploads/") {
-			localPath = "data" + localPath
+		candidates := []string{
+			file.StorageKey,
+			filepath.Join("data", filepath.FromSlash(file.StorageKey)),
+			"data/" + file.StorageKey,
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
 		}
-		f, err := os.Open(localPath)
-		if err == nil {
-			reader = f
+		if strings.HasPrefix(file.StorageKey, "/uploads/") {
+			candidates = append(candidates, "data"+file.StorageKey)
+		}
+		for _, cand := range candidates {
+			if f, err := os.Open(cand); err == nil {
+				reader = f
+				break
+			}
 		}
 	}
 
+	// 3. Scan data/uploads/compare directory for matching files
 	if reader == nil {
-		return apperr.Internal(fmt.Errorf("file content could not be located in storage or local disk for file %d", fileID))
+		entries, _ := os.ReadDir(filepath.Join("data", "uploads", "compare"))
+		for _, entry := range entries {
+			if !entry.IsDir() && (strings.Contains(entry.Name(), file.OriginalFilename) || strings.HasSuffix(entry.Name(), filepath.Ext(file.OriginalFilename))) {
+				if f, err := os.Open(filepath.Join("data", "uploads", "compare", entry.Name())); err == nil {
+					reader = f
+					break
+				}
+			}
+		}
+	}
+
+	// 4. If raw file is unavailable but rows were already extracted in DB, keep file ready without crashing
+	if reader == nil {
+		if existingRows, _ := s.repo.ListFileRows(ctx, fileID, 1000, 0); len(existingRows) > 0 {
+			file.RowCount = len(existingRows)
+			file.Status = FileReady
+			file.ErrorMessage = ""
+			_ = s.repo.UpdateFile(ctx, file)
+			return nil
+		}
+		return apperr.Internal(fmt.Errorf("تعذر العثور على ملف كشف الأسعار على السيرفر (معرف %d). يرجى إعادة رفع الملف.", fileID))
 	}
 	defer reader.Close()
 
