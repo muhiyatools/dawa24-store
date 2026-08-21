@@ -1,4 +1,4 @@
--- 089_supplier_featured_sections.down.sql
+-- 104_supplier_featured_sections.down.sql
 
 BEGIN;
 

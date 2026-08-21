@@ -1,4 +1,4 @@
--- 089_supplier_featured_sections.up.sql
+-- 104_supplier_featured_sections.up.sql
 -- Supplier profile featured sections: rich description/content, section category type, accent color, and header visibility.
 
 BEGIN;
