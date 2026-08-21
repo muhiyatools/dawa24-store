@@ -8,175 +8,176 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection) {
-	@layouts.VendorShell("تعيين أعمدة الملف - "+file.SupplierName, "compare", lang, dir) {
-		<div style="max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
-
-			<!-- Header -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+templ CompareFileMappingModal(file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection) {
+	<div
+		id="compare-mapping-modal-backdrop"
+		style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; padding:1rem;"
+		onclick="if(event.target === this) closeMappingModal();"
+	>
+		<div
+			class="card"
+			style="position:relative; max-width:880px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;"
+			onclick="event.stopPropagation();"
+		>
+			<!-- Modal Header -->
+			<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div style="width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+						📋
+					</div>
 					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
-							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
-								📋
-							</div>
-							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
-								تعيين أعمدة ملف المورد
-							</h1>
-						</div>
-						<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
-							ملف: <strong>{ file.SupplierName }</strong> • { file.OriginalFilename } • حدد الأعمدة المقابلة لكل حقل مطلوب
+						<h2 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+							تعيين وتأكيد أعمدة كشف المورد
+						</h2>
+						<p style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;">
+							المورد: <strong style="color:var(--text);">{ file.SupplierName }</strong> • { file.OriginalFilename }
 						</p>
 					</div>
-					<a href="/compare/tool" class="btn btn-secondary" style="font-weight:700;">
-						@components.IconArrowLeft("icon-xs")
-						<span>العودة</span>
-					</a>
 				</div>
+
+				<button
+					type="button"
+					onclick="closeMappingModal()"
+					class="btn btn-secondary btn-sm btn-icon"
+					style="font-size:1.1rem; width:36px; height:36px; border-radius:var(--radius-lg);"
+					title="إغلاق"
+				>
+					✕
+				</button>
 			</div>
 
-			<!-- Mapping Form -->
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) } style="display:flex; flex-direction:column; gap:1.5rem;">
-
-				<!-- Required Fields Notice -->
-				<div class="card" style="background:var(--surface-sunken); border:1px solid var(--warning-border); border-radius:var(--radius-xl); padding:1rem;">
-					<div style="display:flex; align-items:start; gap:0.5rem;">
-						<span style="font-size:1.25rem; color:var(--warning-text); margin-top:0.15rem;">⚠️</span>
-						<div>
-							<strong style="color:var(--warning-text);">الحقول المطلوبة:</strong>
-							<ul style="margin:0.5rem 0 0 1rem; color:var(--text-muted); font-size:0.875rem;">
-								<li><strong>اسم الصنف</strong> - مطلوب</li>
-								<li><strong>السعر</strong> أو <strong>الخصم</strong> - مطلوب على الأقل أحدهما</li>
-							</ul>
-						</div>
+			<!-- Form Content -->
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) } style="display:flex; flex-direction:column; gap:1.25rem; margin:0;">
+				
+				<!-- Helpful Hint -->
+				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem 1.15rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;">
+					<div style="font-size:0.85rem; color:var(--text-muted);">
+						💡 تم فحص أعمدة الملف تلقائياً. تأكد من صحة اختيار الحقول أدناه ثم اضغط حفظ.
 					</div>
+					<span class="badge badge-sky" style="font-weight:700; font-size:0.75rem;">{ fmt.Sprintf("%d عمود تم رصده", len(headers)) }</span>
 				</div>
 
-				<!-- Column Mapping Fields -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
-					<h3 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">تعيين الأعمدة</h3>
-
-					<div style="display:grid; gap:1rem;">
-						<!-- Product Name (Required) -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
-									اسم الصنف <span style="color:var(--danger-text);">*</span>
-								</label>
-								if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldProductName]; ok {
-										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
-											<i class="ti ti-check" style="font-size:12px;"></i>
-											{ fmt.Sprintf("%.0f%%", score*100) }
-										</span>
-									}
+				<!-- Column Selector Grid -->
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1rem;">
+					
+					<!-- 1. Product Name (Required) -->
+					<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								اسم الصنف الدوائي <span style="color:var(--danger-text);">* (مطلوب)</span>
+							</label>
+							if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
+								if score, ok := detection.FieldScores[compare.FieldProductName]; ok {
+									<span class="badge badge-emerald" style="font-size:0.7rem;">
+										{ fmt.Sprintf("تطابق %.0f%%", score*100) }
+									</span>
 								}
-							</div>
-							<select name="name_col" required class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
-								<option value="">-- اختر عمود اسم الصنف --</option>
-								for idx, h := range headers {
-									if detection != nil && detection.NameCol != nil && *detection.NameCol == idx {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									}
-								}
-							</select>
+							}
 						</div>
-
-						<!-- Price -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
-									السعر
-								</label>
-								if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldPrice]; ok {
-										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
-											<i class="ti ti-check" style="font-size:12px;"></i>
-											{ fmt.Sprintf("%.0f%%", score*100) }
-										</span>
-									}
+						<select name="name_col" required class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+							<option value="">-- اختر عمود اسم الصنف --</option>
+							for idx, h := range headers {
+								if (file.MappingConfig.NameCol != nil && *file.MappingConfig.NameCol == idx) || (file.MappingConfig.NameCol == nil && detection != nil && detection.NameCol != nil && *detection.NameCol == idx) {
+									<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
+								} else {
+									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
 								}
-							</div>
-							<select name="price_col" class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
-								<option value="">-- اختر عمود السعر (اختياري) --</option>
-								for idx, h := range headers {
-									if detection != nil && detection.PriceCol != nil && *detection.PriceCol == idx {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									}
-								}
-							</select>
-						</div>
-
-						<!-- Discount -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
-									الخصم (%)
-								</label>
-								if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldDiscount]; ok {
-										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
-											<i class="ti ti-check" style="font-size:12px;"></i>
-											{ fmt.Sprintf("%.0f%%", score*100) }
-										</span>
-									}
-								}
-							</div>
-							<select name="discount_col" class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
-								<option value="">-- اختر عمود الخصم (اختياري) --</option>
-								for idx, h := range headers {
-									if detection != nil && detection.DiscountCol != nil && *detection.DiscountCol == idx {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									}
-								}
-							</select>
-						</div>
-
-						<!-- Code/SKU -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
-									الكود / SKU
-								</label>
-								if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldSKU]; ok {
-										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
-											<i class="ti ti-check" style="font-size:12px;"></i>
-											{ fmt.Sprintf("%.0f%%", score*100) }
-										</span>
-									}
-								}
-							</div>
-							<select name="code_col" class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
-								<option value="">-- اختر عمود الكود (اختياري) --</option>
-								for idx, h := range headers {
-									if detection != nil && detection.CodeCol != nil && *detection.CodeCol == idx {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
-									}
-								}
-							</select>
-						</div>
+							}
+						</select>
 					</div>
+
+					<!-- 2. Price -->
+					<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								السعر الرسمي (Official Price)
+							</label>
+							if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
+								if score, ok := detection.FieldScores[compare.FieldPrice]; ok {
+									<span class="badge badge-emerald" style="font-size:0.7rem;">
+										{ fmt.Sprintf("تطابق %.0f%%", score*100) }
+									</span>
+								}
+							}
+						</div>
+						<select name="price_col" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+							<option value="">-- اختر عمود السعر (اختياري) --</option>
+							for idx, h := range headers {
+								if (file.MappingConfig.PriceCol != nil && *file.MappingConfig.PriceCol == idx) || (file.MappingConfig.PriceCol == nil && detection != nil && detection.PriceCol != nil && *detection.PriceCol == idx) {
+									<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
+								} else {
+									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
+								}
+							}
+						</select>
+					</div>
+
+					<!-- 3. Discount -->
+					<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								نسبة الخصم % (Discount)
+							</label>
+							if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
+								if score, ok := detection.FieldScores[compare.FieldDiscount]; ok {
+									<span class="badge badge-emerald" style="font-size:0.7rem;">
+										{ fmt.Sprintf("تطابق %.0f%%", score*100) }
+									</span>
+								}
+							}
+						</div>
+						<select name="discount_col" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+							<option value="">-- اختر عمود الخصم (اختياري) --</option>
+							for idx, h := range headers {
+								if (file.MappingConfig.DiscountCol != nil && *file.MappingConfig.DiscountCol == idx) || (file.MappingConfig.DiscountCol == nil && detection != nil && detection.DiscountCol != nil && *detection.DiscountCol == idx) {
+									<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
+								} else {
+									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
+								}
+							}
+						</select>
+					</div>
+
+					<!-- 4. Code / SKU -->
+					<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								كود الصنف / SKU
+							</label>
+							if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
+								if score, ok := detection.FieldScores[compare.FieldSKU]; ok {
+									<span class="badge badge-emerald" style="font-size:0.7rem;">
+										{ fmt.Sprintf("تطابق %.0f%%", score*100) }
+									</span>
+								}
+							}
+						</div>
+						<select name="code_col" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+							<option value="">-- اختر عمود الكود (اختياري) --</option>
+							for idx, h := range headers {
+								if (file.MappingConfig.CodeCol != nil && *file.MappingConfig.CodeCol == idx) || (file.MappingConfig.CodeCol == nil && detection != nil && detection.CodeCol != nil && *detection.CodeCol == idx) {
+									<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
+								} else {
+									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
+								}
+							}
+						</select>
+					</div>
+
 				</div>
 
-				<!-- Preview Table -->
-				if len(headers) > 0 {
-					<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem;">
-						<h3 style="font-size:1rem; font-weight:800; color:var(--text); margin:0 0 1rem;">معاينة البيانات (أول 5 صفوف)</h3>
-						<div style="overflow-x:auto;">
-							<table class="table" style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+				<!-- Live Preview Table -->
+				if len(headers) > 0 && len(preview) > 0 {
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column; gap:0.6rem;">
+						<div style="font-weight:800; font-size:0.875rem; color:var(--text);">
+							🔍 عينة من بيانات الملف (أول صفوف):
+						</div>
+						<div style="overflow-x:auto; max-height:180px;">
+							<table class="table" style="width:100%; border-collapse:collapse; font-size:0.8rem; text-align:start;">
 								<thead>
-									<tr style="border-bottom:2px solid var(--border); text-align:start; color:var(--text-muted);">
+									<tr style="border-bottom:2px solid var(--border); color:var(--text-muted);">
 										for _, h := range headers {
-											<th style="padding:0.5rem 0.75rem; font-weight:800;">{ h }</th>
+											<th style="padding:0.4rem 0.6rem; font-weight:800; white-space:nowrap;">{ h }</th>
 										}
 									</tr>
 								</thead>
@@ -184,7 +185,7 @@ templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, header
 									for _, row := range preview {
 										<tr style="border-bottom:1px solid var(--border);">
 											for _, cell := range row {
-												<td style="padding:0.5rem 0.75rem; color:var(--text);">{ cell }</td>
+												<td style="padding:0.4rem 0.6rem; color:var(--text); white-space:nowrap;">{ cell }</td>
 											}
 										</tr>
 									}
@@ -194,15 +195,36 @@ templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, header
 					</div>
 				}
 
-				<!-- Submit Button -->
-				<div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:1rem; border-top:1px solid var(--border);">
-					<a href="/compare/tool" class="btn btn-secondary" style="font-weight:700;">إلغاء</a>
-					<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.75rem 2rem;">
+				<!-- Actions -->
+				<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
+					<button
+						type="button"
+						onclick="closeMappingModal()"
+						class="btn btn-secondary"
+						style="font-weight:700; padding:0.6rem 1.25rem;"
+					>
+						إلغاء
+					</button>
+
+					<button
+						type="submit"
+						class="btn btn-primary"
+						style="font-weight:800; padding:0.6rem 1.75rem; gap:0.5rem;"
+					>
 						@components.IconCheck("icon-xs")
-						<span>حفظ وتعيين الأعمدة</span>
+						<span>حفظ وإعادة معالجة الأصناف فورياً 💾</span>
 					</button>
 				</div>
+
 			</form>
+		</div>
+	</div>
+}
+
+templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection) {
+	@layouts.VendorShell("تعيين أعمدة الملف - "+file.SupplierName, "compare", lang, dir) {
+		<div style="max-width:920px; margin:0 auto; padding:1.5rem 0;">
+			@CompareFileMappingModal(file, headers, preview, detection)
 		</div>
 	}
 }

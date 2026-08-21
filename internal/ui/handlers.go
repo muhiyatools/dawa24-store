@@ -185,6 +185,8 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Post("/compare/file/{id}/delete", h.CompareFileDeleteSubmit)
 		pub.Get("/compare/files/{id}/mapping", h.CompareFileMappingPage)
 		pub.Get("/compare/file/{id}/mapping", h.CompareFileMappingPage)
+		pub.Get("/compare/files/{id}/mapping-modal", h.CompareFileMappingModal)
+		pub.Get("/compare/file/{id}/mapping-modal", h.CompareFileMappingModal)
 		pub.Post("/compare/files/{id}/mapping", h.CompareFileMappingSubmit)
 		pub.Post("/compare/file/{id}/mapping", h.CompareFileMappingSubmit)
 		pub.Post("/compare/rows/{id}/match", h.CompareRowManualMatchSubmit)

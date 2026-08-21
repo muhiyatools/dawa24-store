@@ -378,6 +378,11 @@ func (s *Service) GetFileByPublicID(ctx context.Context, publicID string) (*Comp
 	return s.repo.GetFileByPublicID(ctx, publicID)
 }
 
+// ListFileRows retrieves extracted rows for a compare file.
+func (s *Service) ListFileRows(ctx context.Context, fileID int64, limit, offset int) ([]*CompareFileRow, error) {
+	return s.repo.ListFileRows(ctx, fileID, limit, offset)
+}
+
 // SaveFileMapping validates and persists user-defined column mapping for a spreadsheet (Plan V5 Phase 2 §2.3.3).
 // After saving the mapping, it automatically processes the file to extract rows.
 func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config MappingConfig) error {

@@ -3,6 +3,7 @@ package ui_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"mime/multipart"
@@ -12,9 +13,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
@@ -300,5 +304,67 @@ func TestCompareSampleDownload_E2E(t *testing.T) {
 	}
 	if rec.Body.Len() == 0 {
 		t.Errorf("expected non-empty Excel template response body")
+	}
+}
+
+func TestCompareFileMappingModal_E2E(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	repo := newMockCompareRepoE2E()
+	compareSvc := compare.NewService(repo, logger)
+
+	h := ui.NewUIHandler(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+	)
+	h.SetCompareService(compareSvc)
+
+	// Create test file with rows
+	nameCol := 1
+	priceCol := 2
+	file := &compare.CompareFile{
+		SupplierName:     "شركة الدواء الحديث للتوزيع",
+		OriginalFilename: "prices.xlsx",
+		UserID:           100,
+		RowCount:         3,
+		Status:           compare.FileReady,
+		MappingConfig: compare.MappingConfig{
+			NameCol:  &nameCol,
+			PriceCol: &priceCol,
+		},
+	}
+	_ = repo.CreateFile(context.Background(), file)
+
+	// Add sample rows to repo
+	_ = repo.InsertFileRows(context.Background(), []*compare.CompareFileRow{
+		{FileID: file.ID, SKU: "101", RawName: "بانادول 24 قرص", NormalizedName: "بانادول 24 قرص", Price: money.FromMinor(4500), Discount: 15.0},
+		{FileID: file.ID, SKU: "102", RawName: "كونجستال 20 قرص", NormalizedName: "كونجستال 20 قرص", Price: money.FromMinor(3100), Discount: 20.0},
+	})
+
+	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+
+	// Test GET /compare/files/{id}/mapping-modal
+	reqModal := httptest.NewRequest("GET", fmt.Sprintf("/compare/files/%d/mapping-modal", file.ID), nil)
+	reqModal = reqModal.WithContext(authctx.WithActor(reqModal.Context(), actor))
+	recModal := httptest.NewRecorder()
+
+	// Use chi routing context to provide URL param {id}
+	rCtx := chi.NewRouteContext()
+	rCtx.URLParams.Add("id", fmt.Sprintf("%d", file.ID))
+	reqModal = reqModal.WithContext(context.WithValue(reqModal.Context(), chi.RouteCtxKey, rCtx))
+
+	h.CompareFileMappingModal(recModal, reqModal)
+
+	if recModal.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for mapping modal, got %d", recModal.Code)
+	}
+
+	body := recModal.Body.String()
+	if !strings.Contains(body, "شركة الدواء الحديث للتوزيع") {
+		t.Errorf("expected modal to contain supplier name")
+	}
+	if !strings.Contains(body, "اسم الصنف الدوائي") {
+		t.Errorf("expected modal to contain product name field")
+	}
+	if !strings.Contains(body, "حفظ وإعادة معالجة الأصناف فورياً") {
+		t.Errorf("expected modal to contain submit button")
 	}
 }

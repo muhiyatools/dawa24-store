@@ -2,6 +2,7 @@ package ui
 
 import (
 	"bytes"
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -19,6 +20,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -247,7 +249,12 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 1. Upload to MinIO object storage if configured
-	storageKey := fmt.Sprintf("compare/%d/%d_%s", actor.UserID, time.Now().Unix(), filepath.Base(header.Filename))
+	var storageKey string
+	if actor.OrganizationID > 0 {
+		storageKey = storage.KeyFor(actor.OrganizationID, fmt.Sprintf("compare/%d_%s", time.Now().Unix(), filepath.Base(header.Filename)))
+	} else {
+		storageKey = fmt.Sprintf("users/%d/compare/%d_%s", actor.UserID, time.Now().Unix(), filepath.Base(header.Filename))
+	}
 	if h.storage != nil {
 		if err := h.storage.Put(ctx, storageKey, bytes.NewReader(fileBytes), int64(len(fileBytes)), header.Header.Get("Content-Type")); err != nil {
 			h.log.WarnContext(ctx, "minio put upload warning", "error", err, "key", storageKey)
@@ -321,8 +328,66 @@ func (h *UIHandler) CompareFileRenameSubmit(w http.ResponseWriter, r *http.Reque
 	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تغيير اسم المورد بنجاح.")
 }
 
-// CompareFileMappingPage shows the column mapping page for a compare file with auto-detection.
+// CompareFileMappingModal renders the interactive modal HTML fragment for column mapping.
+func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		http.Error(w, "معرف ملف غير صالح.", http.StatusBadRequest)
+		return
+	}
+
+	var file *compare.CompareFile
+	if h.compareSvc != nil {
+		file, err = h.compareSvc.GetFile(ctx, id)
+		if err != nil {
+			http.Error(w, "الملف غير موجود.", http.StatusNotFound)
+			return
+		}
+	}
+
+	if !h.checkFileOwnership(actor, file) {
+		http.Error(w, "غير مصرح لك بالوصول لهذا الملف.", http.StatusForbidden)
+		return
+	}
+
+	headers, preview := h.loadFileHeadersAndPreview(ctx, file)
+
+	fieldMapping, scores, confidence := compare.DetectColumnsWithConfidence(headers)
+	colMapping := make(map[compare.TargetField]*int)
+	for colIdx, field := range fieldMapping {
+		idx := colIdx
+		colMapping[field] = &idx
+	}
+
+	detectedMapping := &compare.ColumnDetection{
+		NameCol:     colMapping[compare.FieldProductName],
+		PriceCol:    colMapping[compare.FieldPrice],
+		DiscountCol: colMapping[compare.FieldDiscount],
+		CodeCol:     colMapping[compare.FieldSKU],
+		Confidence:  confidence,
+		FieldScores: scores,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.CompareFileMappingModal(file, headers, preview, detectedMapping).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render compare file mapping modal", "error", err)
+	}
+}
+
+// CompareFileMappingPage shows the column mapping page or modal.
 func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("HX-Request") == "true" || r.URL.Query().Get("modal") == "1" {
+		h.CompareFileMappingModal(w, r)
+		return
+	}
+
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
@@ -347,18 +412,41 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	// Check ownership
 	if !h.checkFileOwnership(actor, file) {
 		h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بالوصول لهذا الملف.")
 		return
 	}
 
-	// Read first few rows for preview and column detection
+	headers, preview := h.loadFileHeadersAndPreview(ctx, file)
+
+	fieldMapping, scores, confidence := compare.DetectColumnsWithConfidence(headers)
+	colMapping := make(map[compare.TargetField]*int)
+	for colIdx, field := range fieldMapping {
+		idx := colIdx
+		colMapping[field] = &idx
+	}
+
+	detectedMapping := &compare.ColumnDetection{
+		NameCol:     colMapping[compare.FieldProductName],
+		PriceCol:    colMapping[compare.FieldPrice],
+		DiscountCol: colMapping[compare.FieldDiscount],
+		CodeCol:     colMapping[compare.FieldSKU],
+		Confidence:  confidence,
+		FieldScores: scores,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.CompareFileMappingPage(lang, dir, file, headers, preview, detectedMapping).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render compare file mapping", "error", err)
+	}
+}
+
+// loadFileHeadersAndPreview extracts headers and sample preview rows from storage, local disk, or database.
+func (h *UIHandler) loadFileHeadersAndPreview(ctx context.Context, file *compare.CompareFile) ([]string, [][]string) {
 	var headers []string
 	var preview [][]string
-	var detectedMapping *compare.ColumnDetection
 
-	if file.StorageKey != "" {
+	if file != nil && file.StorageKey != "" {
 		if h.storage != nil && !strings.HasPrefix(file.StorageKey, "/") && !strings.HasPrefix(file.StorageKey, "data/") {
 			reader, _, err := h.storage.Get(ctx, file.StorageKey)
 			if err == nil {
@@ -379,30 +467,23 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	// Auto-detect columns using bilingual matching
-	if len(headers) > 0 {
-		fieldMapping, scores, confidence := compare.DetectColumnsWithConfidence(headers)
-
-		colMapping := make(map[compare.TargetField]*int)
-		for colIdx, field := range fieldMapping {
-			idx := colIdx
-			colMapping[field] = &idx
-		}
-
-		detectedMapping = &compare.ColumnDetection{
-			NameCol:     colMapping[compare.FieldProductName],
-			PriceCol:    colMapping[compare.FieldPrice],
-			DiscountCol: colMapping[compare.FieldDiscount],
-			CodeCol:     colMapping[compare.FieldSKU],
-			Confidence:  confidence,
-			FieldScores: scores,
+	// Fallback to already extracted rows in DB if storage read didn't populate headers
+	if len(headers) == 0 && file != nil && h.compareSvc != nil {
+		if dbRows, _ := h.compareSvc.ListFileRows(ctx, file.ID, 5, 0); len(dbRows) > 0 {
+			headers = []string{"كود الصنف", "اسم الصنف", "السعر", "الخصم"}
+			for _, dr := range dbRows {
+				preview = append(preview, []string{
+					dr.SKU, dr.RawName, dr.Price.String(), fmt.Sprintf("%.1f%%", dr.Discount),
+				})
+			}
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareFileMappingPage(lang, dir, file, headers, preview, detectedMapping).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render compare file mapping", "error", err)
+	if len(headers) == 0 {
+		headers = []string{"كود الصنف", "اسم الصنف", "السعر", "الخصم", "ملاحظات"}
 	}
+
+	return headers, preview
 }
 
 // parseFilePreview reads the first few rows of a spreadsheet for mapping preview.
@@ -422,21 +503,22 @@ func (h *UIHandler) parseCSVPreview(reader io.Reader) ([]string, [][]string, err
 	csvReader.FieldsPerRecord = -1
 	csvReader.TrimLeadingSpace = true
 
-	headers, err := csvReader.Read()
+	allRows, err := csvReader.ReadAll()
 	if err != nil {
 		return nil, nil, err
 	}
+	if len(allRows) == 0 {
+		return nil, nil, fmt.Errorf("empty csv")
+	}
+
+	headerRowIdx, _, _ := compare.FindBestHeaderRow(allRows)
+	headers := allRows[headerRowIdx]
 
 	var preview [][]string
-	for i := 0; i < 5; i++ {
-		record, err := csvReader.Read()
-		if err == io.EOF {
-			break
+	for i := headerRowIdx + 1; i < len(allRows) && len(preview) < 5; i++ {
+		if len(allRows[i]) > 0 {
+			preview = append(preview, allRows[i])
 		}
-		if err != nil {
-			continue
-		}
-		preview = append(preview, record)
 	}
 	return headers, preview, nil
 }
@@ -458,28 +540,22 @@ func (h *UIHandler) parseXLSXPreview(reader io.Reader) ([]string, [][]string, er
 		return nil, nil, fmt.Errorf("no sheets")
 	}
 
-	rowsIter, err := f.Rows(sheets[0])
+	allRows, err := f.GetRows(sheets[0])
 	if err != nil {
 		return nil, nil, err
 	}
-	defer rowsIter.Close()
-
-	if !rowsIter.Next() {
+	if len(allRows) == 0 {
 		return nil, nil, fmt.Errorf("empty sheet")
 	}
 
-	headers, err := rowsIter.Columns()
-	if err != nil {
-		return nil, nil, err
-	}
+	headerRowIdx, _, _ := compare.FindBestHeaderRow(allRows)
+	headers := allRows[headerRowIdx]
 
 	var preview [][]string
-	for i := 0; i < 5 && rowsIter.Next(); i++ {
-		columns, err := rowsIter.Columns()
-		if err != nil {
-			continue
+	for i := headerRowIdx + 1; i < len(allRows) && len(preview) < 5; i++ {
+		if len(allRows[i]) > 0 {
+			preview = append(preview, allRows[i])
 		}
-		preview = append(preview, columns)
 	}
 
 	return headers, preview, nil
