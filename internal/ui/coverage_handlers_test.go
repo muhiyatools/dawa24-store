@@ -328,6 +328,67 @@ func TestVendorCoverageRoutes(t *testing.T) {
 		}
 	})
 
+	// T6: Vendor POST /vendor/coverage/{id} updates coverage
+	t.Run("Vendor POST /vendor/coverage/1 update", func(t *testing.T) {
+		// Re-create coverage 1 first
+		wfRepo.coverages[1] = &workflow.WeeklyCoverage{
+			ID:             1,
+			OrganizationID: 10,
+			BranchID:       100,
+			DayOfWeek:      1,
+			DistanceMeters: 25000,
+			IsActive:       true,
+		}
+
+		form := url.Values{
+			"branch_id":       {"100"},
+			"day_of_week":     {"4"},
+			"distance_meters": {"50000"},
+			"coverage_from":   {"10:00"},
+			"coverage_to":     {"18:00"},
+			"address":         {"Updated Warehouse Route"},
+			"is_active":       {"true"},
+		}
+		req := httptest.NewRequest("POST", "/vendor/coverage/1", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		vendorRouter.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusSeeOther {
+			t.Errorf("want 303 redirect, got %d", rec.Code)
+		}
+		if wfRepo.coverages[1].DayOfWeek != 4 {
+			t.Errorf("want DayOfWeek 4, got %d", wfRepo.coverages[1].DayOfWeek)
+		}
+		if wfRepo.coverages[1].DistanceMeters != 50000 {
+			t.Errorf("want DistanceMeters 50000, got %d", wfRepo.coverages[1].DistanceMeters)
+		}
+	})
+
+	// T6: Vendor POST /vendor/coverage with apply_to_all_days
+	t.Run("Vendor POST /vendor/coverage with apply_to_all_days creates 7 days", func(t *testing.T) {
+		initialCount := len(wfRepo.coverages)
+		form := url.Values{
+			"branch_id":          {"100"},
+			"apply_to_all_days":  {"true"},
+			"distance_meters":    {"20000"},
+			"coverage_from":      {"09:00"},
+			"coverage_to":        {"17:00"},
+			"is_active":          {"true"},
+		}
+		req := httptest.NewRequest("POST", "/vendor/coverage", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		vendorRouter.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusSeeOther {
+			t.Errorf("want 303 redirect, got %d", rec.Code)
+		}
+		if len(wfRepo.coverages) != initialCount+7 {
+			t.Errorf("want %d coverages, got %d", initialCount+7, len(wfRepo.coverages))
+		}
+	})
+
 	// T6: Vendor POST /vendor/coverage/{id}/delete deletes coverage
 	t.Run("Vendor POST /vendor/coverage/1/delete", func(t *testing.T) {
 		req := httptest.NewRequest("POST", "/vendor/coverage/1/delete", nil)

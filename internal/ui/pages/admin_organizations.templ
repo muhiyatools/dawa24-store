@@ -354,6 +354,7 @@ templ AdminWeeklyCoveragesPage(coverages []*workflow.CoverageView, lang, dir str
 								<th>الفرع / المستودع</th>
 								<th>يوم التوصيل</th>
 								<th>أقصى نطاق توصيل</th>
+								<th>ساعات التوصيل</th>
 								<th>الحالة</th>
 								<th class="text-end">الإجراءات</th>
 							</tr>
@@ -369,9 +370,19 @@ templ AdminWeeklyCoveragesPage(coverages []*workflow.CoverageView, lang, dir str
 										} else {
 											<span>فرع #{ fmt.Sprintf("%d", c.BranchID) }</span>
 										}
+										if c.CityName != "" {
+											<span class="badge badge-secondary" style="margin-inline-start:0.35rem; font-size:0.75rem;">{ c.CityName }</span>
+										}
 									</td>
-									<td><strong>يوم { fmt.Sprintf("%d", c.DayOfWeek) }</strong></td>
-									<td class="tabular-nums">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</td>
+									<td><strong>{ dayNameArabic(c.DayOfWeek) }</strong></td>
+									<td class="tabular-nums">{ fmt.Sprintf("%.1f كم (%d م)", float64(c.DistanceMeters)/1000.0, c.DistanceMeters) }</td>
+									<td>
+										if c.CoverageFrom != nil && c.CoverageTo != nil {
+											<span class="tabular-nums">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
+										} else {
+											<span style="color:var(--text-muted);">طوال اليوم</span>
+										}
+									</td>
 									<td>
 										if c.IsActive {
 											<span class="badge badge-success">مفعل</span>
@@ -382,7 +393,7 @@ templ AdminWeeklyCoveragesPage(coverages []*workflow.CoverageView, lang, dir str
 									<td class="text-end">
 										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/edit/%d", c.ID)) } class="btn btn-secondary btn-sm">تعديل</a>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) }>
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا النطاق؟');">
 												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">حذف</button>
 											</form>
 										</div>
@@ -425,22 +436,25 @@ templ AdminWeeklyCoverageForm(cov *workflow.WeeklyCoverage, branches []*org.Bran
 				</div>
 
 				<div class="form-group" style="margin-bottom:1.25rem;">
-					<label class="form-label">يوم التوصيل الأسبوعي (1 = الأحد، 7 = السبت)</label>
-					<input type="number" name="day_of_week" min="1" max="7" required class="form-control" value={ func() string {
-						if cov != nil {
-							return fmt.Sprintf("%d", cov.DayOfWeek)
-						}
-						return "1"
-					}() } />
+					<label class="form-label">يوم التوصيل الأسبوعي</label>
+					<select name="day_of_week" class="form-control" required>
+						<option value="0" selected?={ cov != nil && cov.DayOfWeek == 0 }>الأحد (Sunday)</option>
+						<option value="1" selected?={ cov != nil && cov.DayOfWeek == 1 }>الاثنين (Monday)</option>
+						<option value="2" selected?={ cov != nil && cov.DayOfWeek == 2 }>الثلاثاء (Tuesday)</option>
+						<option value="3" selected?={ cov != nil && cov.DayOfWeek == 3 }>الأربعاء (Wednesday)</option>
+						<option value="4" selected?={ cov != nil && cov.DayOfWeek == 4 }>الخميس (Thursday)</option>
+						<option value="5" selected?={ cov != nil && cov.DayOfWeek == 5 }>الجمعة (Friday)</option>
+						<option value="6" selected?={ cov != nil && cov.DayOfWeek == 6 }>السبت (Saturday)</option>
+					</select>
 				</div>
 
 				<div class="form-group" style="margin-bottom:1.5rem;">
-					<label class="form-label">أقصى مسافة تغطية (بالمتر، مثلاً 50000 = 50 كم)</label>
-					<input type="number" name="distance_meters" min="1000" step="1000" required class="form-control" value={ func() string {
+					<label class="form-label">أقصى مسافة تغطية (بالمتر، مثلاً 25000 = 25 كم)</label>
+					<input type="number" name="distance_meters" min="500" max="500000" step="500" required class="form-control" value={ func() string {
 						if cov != nil {
 							return fmt.Sprintf("%d", cov.DistanceMeters)
 						}
-						return "50000"
+						return "25000"
 					}() } />
 				</div>
 

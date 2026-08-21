@@ -33,7 +33,7 @@ func (r *Repository) CreatePriorityRequest(ctx context.Context, req *workflow.Pu
 				user_id, organization_id, request_number, status, priority_highest_discount,
 				priority_lowest_price, priority_fastest_delivery, priority_preferred_suppliers_only,
 				budget_constraint, parameters, recommendations
-			) VALUES ($1, $2, $3, $4, ` + coverageTimeParam(5) + `, ` + coverageTimeParam(6) + `, $7, $8, $9, $10, $11)
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
@@ -106,7 +106,7 @@ func (r *Repository) SaveWeeklyCoverage(ctx context.Context, c *workflow.WeeklyC
 			INSERT INTO workflow.weekly_coverages (
 				organization_id, branch_id, city_id, day_of_week, coverage_from, coverage_to,
 				address, latitude, longitude, distance_meters, is_active
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+			) VALUES ($1, $2, $3, $4, ` + coverageTimeParam(5) + `, ` + coverageTimeParam(6) + `, $7, $8, $9, $10, $11)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
@@ -245,13 +245,13 @@ func (r *Repository) ListCoverageForOrganization(ctx context.Context, orgID int6
 			       wc.address,
 			       wc.latitude, wc.longitude, wc.distance_meters, wc.is_active,
 			       wc.created_at, wc.updated_at,
-			       COALESCE(b.name, '') AS branch_name,
+			       COALESCE(b.name->>'ar', b.name->>'en', b.name::text, '') AS branch_name,
 			       COALESCE(c.name->>'ar', c.name->>'en', '') AS city_name
 			FROM workflow.weekly_coverages wc
 			JOIN org.branches b ON b.id = wc.branch_id AND b.deleted_at IS NULL
 			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
-			WHERE wc.organization_id = $1
-			ORDER BY wc.day_of_week ASC, b.name ASC;
+			WHERE ($1 = 0 OR wc.organization_id = $1)
+			ORDER BY wc.day_of_week ASC, branch_name ASC;
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {
