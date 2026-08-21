@@ -2,11 +2,16 @@ package ui
 
 import (
 	"fmt"
+	"math"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -44,8 +49,270 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	search := strings.TrimSpace(r.URL.Query().Get("q"))
+	filterDay := strings.TrimSpace(r.URL.Query().Get("day"))
+	filterBranch := strings.TrimSpace(r.URL.Query().Get("branch"))
+	filterCity := strings.TrimSpace(r.URL.Query().Get("city"))
+
+	// 1. Fetch vendor's active weekly coverage windows
+	var coverages []*workflow.CoverageView
+	if h.wfSvc != nil {
+		covs, err := h.wfSvc.ListCoverageForOrganization(ctx, actor.OrganizationID)
+		if err == nil {
+			for _, c := range covs {
+				if c != nil && c.IsActive {
+					coverages = append(coverages, c)
+				}
+			}
+		}
+	}
+
+	// 2. Fetch all customer pharmacy organizations
+	var pharmacies []*org.Organization
+	if h.orgSvc != nil {
+		typ := org.TypeCustomer
+		status := org.StatusApproved
+		pharmacies, _ = h.orgSvc.ListOrganizations(ctx, &typ, &status, 500, 0)
+	}
+
+	// 3. Load cities map
+	cityNames := make(map[int64]string)
+	cList := h.listCities(ctx)
+	for _, c := range cList {
+		if c != nil {
+			name := c.Name.Get("ar")
+			if name == "" {
+				name = c.Name.Get("en")
+			}
+			cityNames[c.ID] = name
+		}
+	}
+
+	todayWeekday := int(time.Now().Weekday())
+	dayNamesAr := []string{"الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"}
+
+	var items []pages.CoveredPharmacyItem
+	seenCities := make(map[string]bool)
+	seenBranches := make(map[string]bool)
+	coveredTodayCount := 0
+
+	for _, pharm := range pharmacies {
+		if pharm == nil {
+			continue
+		}
+
+		pharmName := orgName(pharm)
+		if pharmName == "" {
+			pharmName = pharm.LegalName
+		}
+		tradeName := pharm.TradeName.Get("ar")
+		if tradeName == "" {
+			tradeName = pharm.TradeName.Get("en")
+		}
+
+		var branches []*org.Branch
+		if h.orgSvc != nil {
+			branches, _ = h.orgSvc.ListBranches(ctx, pharm.ID)
+		}
+
+		for _, pb := range branches {
+			if pb == nil || pb.Status != "active" {
+				continue
+			}
+
+			pbBranchName := pb.Name["ar"]
+			if pbBranchName == "" {
+				pbBranchName = pb.Name["en"]
+			}
+			if pbBranchName == "" {
+				pbBranchName = "الفرع الرئيسي"
+			}
+
+			cityName := ""
+			if pb.CityID != nil {
+				if cn, ok := cityNames[*pb.CityID]; ok {
+					cityName = cn
+				}
+			}
+
+			// Match against vendor coverage windows
+			matched := false
+			minDist := math.MaxInt32
+			daysMap := make(map[int]bool)
+			var matchedBranchName string
+			var matchedBranchID int64
+			var timeWindow string
+			matchReason := ""
+
+			for _, cov := range coverages {
+				isMatch := false
+				dist := -1
+
+				// 1. Match by Coordinates / Distance radius
+				if cov.Latitude != nil && cov.Longitude != nil && pb.Latitude != nil && pb.Longitude != nil {
+					dist = haversineCoverageDistance(*cov.Latitude, *cov.Longitude, *pb.Latitude, *pb.Longitude)
+					maxDist := cov.DistanceMeters
+					if maxDist <= 0 {
+						maxDist = 50000 // default 50km
+					}
+					if dist <= maxDist {
+						isMatch = true
+						if matchReason == "" {
+							if dist < 1000 {
+								matchReason = fmt.Sprintf("ضمن نطاق التغطية (%d متر)", dist)
+							} else {
+								matchReason = fmt.Sprintf("ضمن نطاق التغطية (%.1f كم)", float64(dist)/1000.0)
+							}
+						}
+					}
+				}
+
+				// 2. Match by City ID fallback
+				if !isMatch && cov.CityID != nil && pb.CityID != nil && *cov.CityID == *pb.CityID {
+					isMatch = true
+					if matchReason == "" {
+						matchReason = "ضمن نطاق مدينة التوزيع"
+					}
+				}
+
+				if isMatch {
+					matched = true
+					daysMap[cov.DayOfWeek] = true
+					if dist >= 0 && dist < minDist {
+						minDist = dist
+					}
+					if matchedBranchName == "" {
+						matchedBranchName = cov.BranchName
+						matchedBranchID = cov.BranchID
+					}
+					if timeWindow == "" && cov.CoverageFrom != nil && cov.CoverageTo != nil {
+						timeWindow = fmt.Sprintf("%s - %s", *cov.CoverageFrom, *cov.CoverageTo)
+					}
+				}
+			}
+
+			if !matched {
+				continue
+			}
+
+			var coveredDays []int
+			var coveredDaysLabels []string
+			isCoveredToday := false
+
+			for d := 0; d <= 6; d++ {
+				if daysMap[d] {
+					coveredDays = append(coveredDays, d)
+					if d < len(dayNamesAr) {
+						coveredDaysLabels = append(coveredDaysLabels, dayNamesAr[d])
+					}
+					if d == todayWeekday {
+						isCoveredToday = true
+					}
+				}
+			}
+
+			if isCoveredToday {
+				coveredTodayCount++
+			}
+
+			if cityName != "" {
+				seenCities[cityName] = true
+			}
+			if matchedBranchName != "" {
+				seenBranches[matchedBranchName] = true
+			}
+
+			distanceKM := 0.0
+			distanceMetersVal := 0
+			if minDist != math.MaxInt32 {
+				distanceMetersVal = minDist
+				distanceKM = math.Round((float64(minDist)/1000.0)*100) / 100
+			}
+
+			item := pages.CoveredPharmacyItem{
+				PharmacyID:         pharm.ID,
+				PharmacyName:       pharmName,
+				PharmacyTradeName:  tradeName,
+				BranchID:           pb.ID,
+				BranchName:         pbBranchName,
+				Address:            pb.Address,
+				Phone:              pb.Phone,
+				CityID:             pb.CityID,
+				CityName:           cityName,
+				CoveringBranchID:   matchedBranchID,
+				CoveringBranchName: matchedBranchName,
+				DistanceMeters:     distanceMetersVal,
+				DistanceKM:         distanceKM,
+				CoveredDays:        coveredDays,
+				CoveredDaysLabels:  coveredDaysLabels,
+				TimeWindow:         timeWindow,
+				IsCoveredToday:     isCoveredToday,
+				MatchReason:        matchReason,
+			}
+
+			// Apply Search Filter
+			if search != "" {
+				qLow := strings.ToLower(search)
+				if !strings.Contains(strings.ToLower(item.PharmacyName), qLow) &&
+					!strings.Contains(strings.ToLower(item.PharmacyTradeName), qLow) &&
+					!strings.Contains(strings.ToLower(item.BranchName), qLow) &&
+					!strings.Contains(strings.ToLower(item.Address), qLow) &&
+					!strings.Contains(strings.ToLower(item.Phone), qLow) &&
+					!strings.Contains(strings.ToLower(item.CityName), qLow) {
+					continue
+				}
+			}
+
+			// Apply Day Filter
+			if filterDay != "" {
+				if filterDay == "today" {
+					if !isCoveredToday {
+						continue
+					}
+				} else if dInt, err := strconv.Atoi(filterDay); err == nil {
+					if !daysMap[dInt] {
+						continue
+					}
+				}
+			}
+
+			// Apply Branch Filter
+			if filterBranch != "" && matchedBranchName != filterBranch {
+				continue
+			}
+
+			// Apply City Filter
+			if filterCity != "" && cityName != filterCity {
+				continue
+			}
+
+			items = append(items, item)
+		}
+	}
+
+	var coveredCitiesList []string
+	for c := range seenCities {
+		coveredCitiesList = append(coveredCitiesList, c)
+	}
+	var coveredBranchesList []string
+	for b := range seenBranches {
+		coveredBranchesList = append(coveredBranchesList, b)
+	}
+
+	data := pages.VendorPharmacyCoverageData{
+		Pharmacies:        items,
+		TotalPharmacies:   len(items),
+		CoveredTodayCount: coveredTodayCount,
+		CoveredCities:     coveredCitiesList,
+		CoveredBranches:   coveredBranchesList,
+		FilterDay:         filterDay,
+		FilterBranch:      filterBranch,
+		FilterCity:        filterCity,
+		SearchQuery:       search,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorPharmacyCoveragePage(lang, dir).Render(ctx, w); err != nil {
+	if err := pages.VendorPharmacyCoveragePage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor pharmacy coverage", "error", err)
 	}
 }
@@ -55,3 +322,16 @@ func (h *UIHandler) VendorPharmacyCoverageDetailPage(w http.ResponseWriter, r *h
 	idStr := chi.URLParam(r, "id")
 	http.Redirect(w, r, fmt.Sprintf("/vendor/pharmacy-coverage?id=%s", idStr), http.StatusSeeOther)
 }
+
+func haversineCoverageDistance(lat1, lon1, lat2, lon2 float64) int {
+	const earthRadius = 6371000.0 // meters
+	dLat := (lat2 - lat1) * (math.Pi / 180.0)
+	dLon := (lon2 - lon1) * (math.Pi / 180.0)
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(lat1*(math.Pi/180.0))*math.Cos(lat2*(math.Pi/180.0))*
+			math.Sin(dLon/2)*math.Sin(dLon/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	return int(earthRadius * c)
+}
+

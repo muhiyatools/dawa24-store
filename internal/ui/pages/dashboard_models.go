@@ -32,3 +32,38 @@ type PharmacyDashboardData struct {
 	Orders        []*commerce.Order
 	Offers        []*promo.Offer
 }
+
+// CoveredPharmacyItem represents one pharmacy branch covered by the vendor's distribution network.
+type CoveredPharmacyItem struct {
+	PharmacyID         int64
+	PharmacyName       string
+	PharmacyTradeName  string
+	BranchID           int64
+	BranchName         string
+	Address            string
+	Phone              string
+	CityID             *int64
+	CityName           string
+	CoveringBranchID   int64
+	CoveringBranchName string
+	DistanceMeters     int
+	DistanceKM         float64
+	CoveredDays        []int
+	CoveredDaysLabels  []string
+	TimeWindow         string
+	IsCoveredToday     bool
+	MatchReason        string
+}
+
+// VendorPharmacyCoverageData encapsulates all data for the /vendor/pharmacy-coverage page.
+type VendorPharmacyCoverageData struct {
+	Pharmacies        []CoveredPharmacyItem
+	TotalPharmacies   int
+	CoveredTodayCount int
+	CoveredCities     []string
+	CoveredBranches   []string
+	FilterDay         string
+	FilterBranch      string
+	FilterCity        string
+	SearchQuery       string
+}
