@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -670,3 +671,102 @@ func TestArchiveRetentionPolicyAndQuota(t *testing.T) {
 		t.Errorf("expected status active after unarchive")
 	}
 }
+
+func TestUploadAndProcessCompareFile_CSV(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := compare.NewService(repo, logger)
+
+	userID := int64(701)
+	orgID := int64(801)
+
+	csvContent := `كود الصنف,اسم الصنف الدوائي,السعر الرسمي,نسبة الخصم,ملاحظات
+1001,بانادول اكسترا 24 قرص,45.00,18.5,متوفر
+1002,اوجمنتين 1 جم 14 قرص,135.00,12.0,تسليم فوري
+1003,كونجستال 20 قرص,31.00,20.0,عرض خاص`
+
+	file, _, err := svc.UploadAndProcessCompareFile(
+		ctx, userID, &orgID, "مورد النور", "test_prices.csv", "text/csv",
+		int64(len(csvContent)), "/uploads/compare/test.csv", []byte(csvContent),
+	)
+	if err != nil {
+		t.Fatalf("UploadAndProcessCompareFile failed: %v", err)
+	}
+	if file.RowCount != 3 {
+		t.Errorf("expected 3 rows extracted, got %d", file.RowCount)
+	}
+	if file.Status != compare.FileReady {
+		t.Errorf("expected status ready, got %s", file.Status)
+	}
+
+	// Verify rows stored in repository
+	rows, err := repo.ListFileRows(ctx, file.ID, 10, 0)
+	if err != nil {
+		t.Fatalf("ListFileRows failed: %v", err)
+	}
+	if len(rows) != 3 {
+		t.Fatalf("expected 3 rows in repo, got %d", len(rows))
+	}
+	if rows[0].RawName != "بانادول اكسترا 24 قرص" {
+		t.Errorf("unexpected first row product name: %s", rows[0].RawName)
+	}
+	if rows[0].Discount != 18.5 {
+		t.Errorf("expected discount 18.5, got %f", rows[0].Discount)
+	}
+}
+
+func TestMultiSupplierComparison_WithProcessedFiles(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := compare.NewService(repo, logger)
+
+	userID := int64(701)
+	orgID := int64(801)
+
+	csvSup1 := `كود الصنف,اسم الصنف,السعر,الخصم
+101,بانادول اكسترا 24 قرص,45.00,15.0
+102,كونجستال 20 قرص,31.00,22.0`
+
+	csvSup2 := `كود الصنف,اسم الصنف,السعر,الخصم
+201,بانادول اكسترا 24 قرص,45.00,20.0
+202,كونجستال 20 قرص,31.00,18.0`
+
+	f1, _, err := svc.UploadAndProcessCompareFile(ctx, userID, &orgID, "مورد القاهرة", "sup1.csv", "text/csv", int64(len(csvSup1)), "k1", []byte(csvSup1))
+	if err != nil {
+		t.Fatalf("upload sup 1 failed: %v", err)
+	}
+	f2, _, err := svc.UploadAndProcessCompareFile(ctx, userID, &orgID, "مورد الجيزة", "sup2.csv", "text/csv", int64(len(csvSup2)), "k2", []byte(csvSup2))
+	if err != nil {
+		t.Fatalf("upload sup 2 failed: %v", err)
+	}
+
+	result, err := svc.RunMultiSupplierComparison(ctx, []int64{f1.ID, f2.ID})
+	if err != nil {
+		t.Fatalf("RunMultiSupplierComparison failed: %v", err)
+	}
+
+	if result.Summary.TotalProducts != 2 {
+		t.Errorf("expected 2 unique products compared, got %d", result.Summary.TotalProducts)
+	}
+	if result.Summary.TotalSuppliers != 2 {
+		t.Errorf("expected 2 suppliers, got %d", result.Summary.TotalSuppliers)
+	}
+
+	// Verify best supplier calculation
+	for _, row := range result.Rows {
+		if strings.Contains(row.ProductName, "بانادول") {
+			if row.BestSupplier != "مورد الجيزة" {
+				t.Errorf("expected مورد الجيزة to be best supplier for Panadol (20%% vs 15%%), got %s", row.BestSupplier)
+			}
+			if row.BestDiscount != 20.0 {
+				t.Errorf("expected best discount 20.0, got %f", row.BestDiscount)
+			}
+			if len(row.Offers) != 2 {
+				t.Errorf("expected 2 offers for Panadol, got %d", len(row.Offers))
+			}
+		}
+	}
+}
+

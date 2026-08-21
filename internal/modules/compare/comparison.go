@@ -2,6 +2,7 @@ package compare
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"sort"
 	"strings"
@@ -150,8 +151,8 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 			if productKey == "" {
 				productKey = normalizeProductText(r.RawName)
 			}
-			if r.SKU != "" {
-				productKey = r.SKU + "_" + productKey
+			if r.MatchedProductID != nil && *r.MatchedProductID > 0 {
+				productKey = fmt.Sprintf("catalog_prod_%d", *r.MatchedProductID)
 			}
 
 			netPrice := r.PriceAfterDiscount

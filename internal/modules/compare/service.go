@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -406,7 +407,110 @@ func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config Mapp
 	return s.ProcessCompareFile(ctx, fileID)
 }
 
-// ProcessCompareFile downloads the uploaded spreadsheet from storage, parses it using the
+// UploadAndProcessCompareFile creates the file record, auto-detects columns, parses spreadsheet rows from byte data,
+// and immediately inserts them into compare.file_rows so the file is ready for instant comparison.
+func (s *Service) UploadAndProcessCompareFile(
+	ctx context.Context,
+	userID int64,
+	orgID *int64,
+	supplierName, originalFilename, mimeType string,
+	sizeBytes int64,
+	storageKey string,
+	fileBytes []byte,
+) (*CompareFile, []string, error) {
+	file, archived, err := s.UploadCompareFile(ctx, userID, orgID, supplierName, originalFilename, mimeType, sizeBytes, storageKey)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if len(fileBytes) == 0 {
+		return file, archived, nil
+	}
+
+	// 1. Parse headers and auto-detect columns
+	var headers []string
+	lowerName := strings.ToLower(originalFilename)
+	if strings.HasSuffix(lowerName, ".xlsx") || strings.HasSuffix(lowerName, ".xls") {
+		f, err := excelize.OpenReader(bytes.NewReader(fileBytes))
+		if err == nil {
+			defer f.Close()
+			sheets := f.GetSheetList()
+			if len(sheets) > 0 {
+				rowsIter, err := f.Rows(sheets[0])
+				if err == nil {
+					defer rowsIter.Close()
+					if rowsIter.Next() {
+						headers, _ = rowsIter.Columns()
+					}
+				}
+			}
+		}
+	} else if strings.HasSuffix(lowerName, ".csv") {
+		r := csv.NewReader(bytes.NewReader(fileBytes))
+		r.FieldsPerRecord = -1
+		r.TrimLeadingSpace = true
+		headers, _ = r.Read()
+	}
+
+	// 2. Build mapping config
+	var config MappingConfig
+	if len(headers) > 0 {
+		fieldMapping, _, _ := DetectColumnsWithConfidence(headers)
+		colMapping := make(map[TargetField]*int)
+		for colIdx, field := range fieldMapping {
+			idx := colIdx
+			colMapping[field] = &idx
+		}
+		config.NameCol = colMapping[FieldProductName]
+		config.PriceCol = colMapping[FieldPrice]
+		config.DiscountCol = colMapping[FieldDiscount]
+		config.CodeCol = colMapping[FieldSKU]
+		if config.CodeCol == nil {
+			config.CodeCol = colMapping[FieldProductID]
+		}
+	}
+
+	// Heuristic fallback if product name not detected
+	if config.NameCol == nil && len(headers) > 0 {
+		idx := 0
+		if len(headers) > 1 {
+			idx = 1
+		}
+		config.NameCol = &idx
+	}
+	if config.PriceCol == nil && len(headers) > 2 {
+		idx := 2
+		config.PriceCol = &idx
+	}
+
+	file.MappingConfig = config
+
+	// 3. Extract and insert rows
+	var rows []*CompareFileRow
+	if strings.HasSuffix(lowerName, ".xlsx") || strings.HasSuffix(lowerName, ".xls") {
+		rows, err = s.parseXLSX(bytes.NewReader(fileBytes), file)
+	} else if strings.HasSuffix(lowerName, ".csv") {
+		rows, err = s.parseCSV(bytes.NewReader(fileBytes), file)
+	}
+
+	if err == nil && len(rows) > 0 {
+		_ = s.repo.DeleteFileRows(ctx, file.ID)
+		if insertErr := s.repo.InsertFileRows(ctx, rows); insertErr == nil {
+			file.RowCount = len(rows)
+			file.Status = FileReady
+			file.ErrorMessage = ""
+			_ = s.repo.UpdateFile(ctx, file)
+		} else {
+			s.log.ErrorContext(ctx, "failed to insert compare file rows", "error", insertErr, "file_id", file.ID)
+		}
+	} else if err != nil {
+		s.log.WarnContext(ctx, "failed to parse uploaded compare file", "error", err, "file_id", file.ID)
+	}
+
+	return file, archived, nil
+}
+
+// ProcessCompareFile downloads the uploaded spreadsheet from storage or local disk, parses it using the
 // saved column mapping, extracts rows, and inserts them into compare.file_rows.
 func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 	file, err := s.repo.GetFileByID(ctx, fileID)
@@ -414,18 +518,33 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 		return err
 	}
 
-	if s.storage == nil {
-		return apperr.Internal(fmt.Errorf("object storage is not configured for file processing"))
-	}
-
 	if file.MappingConfig.NameCol == nil {
 		return apperr.Validation("compare.no_mapping", "Column mapping not configured for this file.", nil)
 	}
 
-	// Download file from storage
-	reader, _, err := s.storage.Get(ctx, file.StorageKey)
-	if err != nil {
-		return fmt.Errorf("download file from storage: %w", err)
+	var reader io.ReadCloser
+	// Try object storage if available
+	if s.storage != nil && file.StorageKey != "" && !strings.HasPrefix(file.StorageKey, "/") && !strings.HasPrefix(file.StorageKey, "data/") {
+		r, _, err := s.storage.Get(ctx, file.StorageKey)
+		if err == nil {
+			reader = r
+		}
+	}
+
+	// Fallback to local disk path if storage was not used or local upload
+	if reader == nil && file.StorageKey != "" {
+		localPath := file.StorageKey
+		if strings.HasPrefix(localPath, "/uploads/") {
+			localPath = "data" + localPath
+		}
+		f, err := os.Open(localPath)
+		if err == nil {
+			reader = f
+		}
+	}
+
+	if reader == nil {
+		return apperr.Internal(fmt.Errorf("file content could not be located in storage or local disk for file %d", fileID))
 	}
 	defer reader.Close()
 

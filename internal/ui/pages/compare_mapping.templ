@@ -36,7 +36,7 @@ templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, header
 			</div>
 
 			<!-- Mapping Form -->
-			<form method="POST" action={ fmt.Sprintf("/compare/files/%d/mapping", file.ID) } style="display:flex; flex-direction:column; gap:1.5rem;">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) } style="display:flex; flex-direction:column; gap:1.5rem;">
 
 				<!-- Required Fields Notice -->
 				<div class="card" style="background:var(--surface-sunken); border:1px solid var(--warning-border); border-radius:var(--radius-xl); padding:1rem;">
