@@ -21,15 +21,19 @@ type SupplierOffer struct {
 
 // ProductComparisonRow represents the aggregated multi-supplier comparison row for a product.
 type ProductComparisonRow struct {
-	MatchedProductID *int64                   `json:"matched_product_id,omitempty"`
-	ProductName      string                   `json:"product_name"`
-	SKU              string                   `json:"sku"`
-	Offers           map[string]SupplierOffer `json:"offers"` // supplier_name -> offer
-	BestPrice        money.Amount             `json:"best_price"`
-	BestDiscount     float64                  `json:"best_discount"`
-	BestNetPrice     money.Amount             `json:"best_net_price"`
-	BestSupplier     string                   `json:"best_supplier"`
-	TotalSuppliers   int                      `json:"total_suppliers"`
+	MatchedProductID   *int64                   `json:"matched_product_id,omitempty"`
+	InCatalog          bool                     `json:"in_catalog"`
+	CatalogStatus      CatalogStatus            `json:"catalog_status"`
+	ProductName        string                   `json:"product_name"`
+	SKU                string                   `json:"sku"`
+	Offers             map[string]SupplierOffer `json:"offers"` // supplier_name -> offer
+	BestPrice          money.Amount             `json:"best_price"`
+	BestDiscount       float64                  `json:"best_discount"`
+	BestNetPrice       money.Amount             `json:"best_net_price"`
+	BestSupplier       string                   `json:"best_supplier"`
+	TotalSuppliers     int                      `json:"total_suppliers"`
+	MissingSuppliers   []string                 `json:"missing_suppliers"`
+	AvailabilityStatus string                   `json:"availability_status"`
 }
 
 // ComparisonSummary represents the aggregate metrics across all analyzed supplier files.
@@ -246,6 +250,31 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 	for _, row := range resultRows {
 		row.TotalSuppliers = len(row.Offers)
 		supplierBestCounts[row.BestSupplier]++
+
+		// Set 3-way catalog status
+		if row.MatchedProductID != nil && *row.MatchedProductID > 0 {
+			row.InCatalog = true
+			row.CatalogStatus = StatusCatalogAndSuppliers
+		} else {
+			row.InCatalog = false
+			row.CatalogStatus = StatusSupplierCustom
+		}
+
+		// Calculate missing suppliers from selected comparison files
+		for _, sup := range suppliersList {
+			if _, hasOffer := row.Offers[sup]; !hasOffer {
+				row.MissingSuppliers = append(row.MissingSuppliers, sup)
+			}
+		}
+
+		// Determine availability status
+		if len(row.MissingSuppliers) == 0 {
+			row.AvailabilityStatus = "all_suppliers"
+		} else if len(row.Offers) > 1 {
+			row.AvailabilityStatus = "multi_supplier"
+		} else {
+			row.AvailabilityStatus = "single_exclusive"
+		}
 
 		for _, off := range row.Offers {
 			if off.Discount > 0 {

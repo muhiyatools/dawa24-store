@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -717,4 +718,41 @@ func (h *UIHandler) CompareRowManualMatchSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتثبيت المطابقة بنجاح.")
+}
+
+// CompareQuickSearch handles GET /compare/search?q=... and /api/v1/compare/search?q=...
+func (h *UIHandler) CompareQuickSearch(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor := authctx.FromContext(ctx)
+
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	if len(query) < 2 {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"query":         query,
+			"total_matches": 0,
+			"items":         []any{},
+		})
+		return
+	}
+
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+
+	if h.compareSvc == nil {
+		http.Error(w, `{"error":"service unavailable"}`, http.StatusServiceUnavailable)
+		return
+	}
+
+	results, err := h.compareSvc.SearchAcrossSuppliersAndCatalog(ctx, actor.UserID, orgPtr, query)
+	if err != nil {
+		h.log.ErrorContext(ctx, "compare quick search error", "error", err, "query", query)
+		http.Error(w, `{"error":"search failed"}`, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(results)
 }

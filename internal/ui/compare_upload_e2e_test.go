@@ -3,6 +3,7 @@ package ui_test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
@@ -196,6 +197,25 @@ func (m *mockCompareRepoE2E) GetSavedProductMapping(ctx context.Context, orgID *
 func (m *mockCompareRepoE2E) FindCandidateProducts(ctx context.Context, orgID *int64, query, sku string, limit int) ([]*compare.CandidateProduct, error) {
 	return nil, nil
 }
+func (m *mockCompareRepoE2E) SearchFileRows(ctx context.Context, userID int64, orgID *int64, query string, limit int) ([]*compare.CompareFileRowWithSupplier, error) {
+	var results []*compare.CompareFileRowWithSupplier
+	cleanQ := strings.ToLower(strings.TrimSpace(query))
+	for fileID, rows := range m.fileRows {
+		file, ok := m.files[fileID]
+		if !ok || file.DeletedAt != nil || file.Status != compare.FileReady {
+			continue
+		}
+		for _, r := range rows {
+			if cleanQ == "" || strings.Contains(strings.ToLower(r.RawName), cleanQ) || strings.Contains(strings.ToLower(r.NormalizedName), cleanQ) || strings.Contains(strings.ToLower(r.SKU), cleanQ) || strings.Contains(strings.ToLower(file.SupplierName), cleanQ) {
+				results = append(results, &compare.CompareFileRowWithSupplier{
+					CompareFileRow: *r,
+					SupplierName:   file.SupplierName,
+				})
+			}
+		}
+	}
+	return results, nil
+}
 
 func TestCompareUploadSubmit_E2E(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -366,5 +386,75 @@ func TestCompareFileMappingModal_E2E(t *testing.T) {
 	}
 	if !strings.Contains(body, "حفظ وإعادة معالجة الأصناف فورياً") {
 		t.Errorf("expected modal to contain submit button")
+	}
+}
+
+func TestCompareQuickSearch_E2E(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	repo := newMockCompareRepoE2E()
+	compareSvc := compare.NewService(repo, logger)
+
+	h := ui.NewUIHandler(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+	)
+	h.SetCompareService(compareSvc)
+
+	// Create test file and rows
+	file := &compare.CompareFile{
+		ID:               10,
+		UserID:           100,
+		OrganizationID:   &[]int64{200}[0],
+		SupplierName:     "شركة النصر للأدوية",
+		OriginalFilename: "nasr.xlsx",
+		Status:           compare.FileReady,
+	}
+	_ = repo.CreateFile(context.Background(), file)
+
+	_ = repo.InsertFileRows(context.Background(), []*compare.CompareFileRow{
+		{
+			FileID:             file.ID,
+			SKU:                "1001",
+			RawName:            "بانادول اكسترا 24 قرص",
+			NormalizedName:     "بانادول اكسترا 24 قرص",
+			Price:              money.FromMajor(45),
+			Discount:           18.5,
+			PriceAfterDiscount: money.FromMinor(3668),
+			MatchedProductID:   &[]int64{45}[0],
+		},
+	})
+
+	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+
+	// Test GET /compare/search?q=بانادول
+	req := httptest.NewRequest("GET", "/compare/search?q=بانادول", nil)
+	req = req.WithContext(authctx.WithActor(req.Context(), actor))
+	rec := httptest.NewRecorder()
+
+	h.CompareQuickSearch(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", rec.Code)
+	}
+
+	contentType := rec.Header().Get("Content-Type")
+	if !strings.Contains(contentType, "application/json") {
+		t.Errorf("expected application/json Content-Type, got %s", contentType)
+	}
+
+	var res compare.CompareSearchResults
+	if err := json.Unmarshal(rec.Body.Bytes(), &res); err != nil {
+		t.Fatalf("failed to decode JSON response: %v", err)
+	}
+
+	if res.TotalMatches == 0 {
+		t.Fatalf("expected search results for 'بانادول', got 0")
+	}
+
+	item := res.Items[0]
+	if item.BestSupplier != "شركة النصر للأدوية" {
+		t.Errorf("expected best supplier 'شركة النصر للأدوية', got %s", item.BestSupplier)
+	}
+	if item.CatalogStatus != compare.StatusCatalogAndSuppliers {
+		t.Errorf("expected catalog status %s, got %s", compare.StatusCatalogAndSuppliers, item.CatalogStatus)
 	}
 }

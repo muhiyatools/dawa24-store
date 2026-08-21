@@ -454,13 +454,23 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 					return;
 				}
 
+				resultsContainer.innerHTML = `
+					<div style="padding:1.5rem 1rem; text-align:center; color:var(--text-muted); font-size:0.85rem;">
+						⏳ جاري البحث عبر الكتالوج وكشوف الموردين...
+					</div>
+				`;
+
 				searchTimeout = setTimeout(() => {
-					fetch(`/catalog/search?q=${encodeURIComponent(query.trim())}`, {
+					fetch(`/compare/search?q=${encodeURIComponent(query.trim())}`, {
 						headers: { 'Accept': 'application/json' }
 					})
-					.then(r => r.json())
+					.then(r => {
+						if (!r.ok) throw new Error('Search failed');
+						return r.json();
+					})
 					.then(data => {
-						if (!data || data.length === 0) {
+						const items = data.items || [];
+						if (items.length === 0) {
 							resultsContainer.innerHTML = `
 								<div style="padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;">
 									لم يتم العثور على أصناف مطابقة لـ "${query}".
@@ -468,30 +478,92 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 							`;
 							return;
 						}
-						let html = '';
-						data.slice(0, 10).forEach(item => {
-							html += `
-								<div style="padding:0.75rem 1rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; justify-content:space-between; align-items:center;">
-									<div>
-										<strong style="color:var(--text); font-size:0.875rem; display:block;">${item.name || item.name_ar || 'صنف دوائي'}</strong>
-										<span style="color:var(--text-muted); font-size:0.75rem;">${item.dosage_form || 'مستحضر صيدلي'}</span>
-									</div>
-									<div style="font-weight:800; color:var(--accent); font-size:0.9rem;" class="tabular-nums">
-										${item.price || '--'} ج.م
-									</div>
-								</div>
-							`;
-						});
-						resultsContainer.innerHTML = html;
-					})
-					.catch(() => {
-						resultsContainer.innerHTML = `
-							<div style="padding:1rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">
-								البحث متاح عبر كتالوج الأدوية
+
+						let html = `
+							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.25rem 0.5rem; font-size:0.775rem; color:var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:0.35rem;">
+								<span>تم العثور على <strong>${items.length}</strong> صنف</span>
+								<span>🟢 بالكتالوج: ${data.in_catalog_count || 0} | 🟡 أصناف موردين: ${data.custom_items_count || 0}</span>
 							</div>
 						`;
+
+						items.slice(0, 15).forEach(item => {
+							// 3-way status badge
+							let statusBadge = '';
+							if (item.catalog_status === 'catalog_and_suppliers') {
+								statusBadge = '<span class="badge badge-emerald" style="font-size:0.68rem; font-weight:700;">🟢 معتمد بالكتالوج ومتوفر</span>';
+							} else if (item.catalog_status === 'catalog_only') {
+								statusBadge = '<span class="badge badge-sky" style="font-size:0.68rem; font-weight:700;">🔵 مسجل بالكتالوج (غير متوفر بالكشوف)</span>';
+							} else {
+								statusBadge = '<span class="badge badge-amber" style="font-size:0.68rem; font-weight:700;">🟡 صنف خاص بكشف المورد</span>';
+							}
+
+							// Best price and supplier pill
+							let bestPriceHtml = '';
+							if (item.best_net_price && parseFloat(item.best_net_price) > 0) {
+								bestPriceHtml = `
+									<div style="text-align:end;">
+										<div style="font-weight:900; color:var(--accent); font-size:0.95rem;" class="tabular-nums">
+											${item.best_net_price} ج.م
+										</div>
+										<div style="font-size:0.725rem; color:var(--success-text); font-weight:700;">
+											👑 ${item.best_supplier || 'أفضل سعر'} (${item.best_discount || 0}%)
+										</div>
+									</div>
+								`;
+							} else {
+								bestPriceHtml = `
+									<div style="text-align:end; font-size:0.75rem; color:var(--text-muted);">
+										لا توجد عروض أسعار مرفوعة
+									</div>
+								`;
+							}
+
+							// Offers pill list
+							let offersHtml = '';
+							if (item.offers && Object.keys(item.offers).length > 0) {
+								offersHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.25rem; margin-top:0.4rem;">';
+								for (const [sup, off] of Object.entries(item.offers)) {
+									const isBest = (sup === item.best_supplier);
+									const badgeClass = isBest ? 'badge-emerald' : 'badge-secondary';
+									offersHtml += `
+										<span class="badge ${badgeClass}" style="font-size:0.7rem; font-weight:600;">
+											${sup}: ${off.discount || 0}% (${off.price_after_discount || '--'} ج.م)
+										</span>
+									`;
+								}
+								offersHtml += '</div>';
+							}
+
+							let missingHtml = '';
+							if (item.missing_from_suppliers && item.missing_from_suppliers.length > 0 && Object.keys(item.offers || {}).length > 0) {
+								missingHtml = '<div style="font-size:0.7rem; color:var(--danger-text); margin-top:0.3rem;">' +
+									'❌ غير مدرج لدى: <strong>' + item.missing_from_suppliers.join('، ') + '</strong>' +
+								'</div>';
+							}
+
+							const skuHtml = item.sku ? ('<span style="font-size:0.725rem; color:var(--text-muted);" class="tabular-nums">كود: ' + item.sku + '</span>') : '';
+							html += '<div style="padding:0.75rem 0.85rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:0.25rem; transition:border-color 0.2s ease;">' +
+								'<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">' +
+									'<div>' +
+										'<div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.2rem;">' +
+											'<strong style="color:var(--text); font-size:0.875rem;">' + (item.product_name || 'صنف دوائي') + '</strong>' +
+											statusBadge +
+										'</div>' +
+										skuHtml +
+									'</div>' +
+									bestPriceHtml +
+								'</div>' +
+								offersHtml +
+								missingHtml +
+							'</div>';
+						});
+
+						resultsContainer.innerHTML = html;
+					})
+					.catch(err => {
+						resultsContainer.innerHTML = '<div style="padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--danger-text); font-size:0.85rem;">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
 					});
-				}, 300);
+				}, 250);
 			}
 
 			function openMappingModal(fileId) {

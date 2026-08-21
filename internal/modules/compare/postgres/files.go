@@ -491,3 +491,54 @@ func (r *Repository) FindCandidateProducts(ctx context.Context, orgID *int64, qu
 
 	return candidates, err
 }
+
+func (r *Repository) SearchFileRows(ctx context.Context, userID int64, orgID *int64, query string, limit int) ([]*compare.CompareFileRowWithSupplier, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	var results []*compare.CompareFileRowWithSupplier
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		sql := `
+			SELECT 
+				r.id, r.file_id, f.supplier_name, r.row_number, r.raw_name, r.normalized_name, COALESCE(r.sku, ''),
+				r.price, r.discount, r.price_after_discount, r.matched_product_id, r.match_confidence, r.match_method,
+				COALESCE(r.meta, '{}'::jsonb), r.created_at
+			FROM compare.file_rows r
+			JOIN compare.files f ON r.file_id = f.id
+			WHERE f.deleted_at IS NULL AND f.archive = false AND f.status = 'ready'
+			  AND (f.user_id = $1 OR ($2::bigint IS NOT NULL AND f.organization_id = $2))
+			  AND ($3 = '' OR r.raw_name ILIKE '%' || $3 || '%' OR r.normalized_name ILIKE '%' || $3 || '%' OR r.sku ILIKE '%' || $3 || '%' OR f.supplier_name ILIKE '%' || $3 || '%')
+			ORDER BY r.price_after_discount ASC
+			LIMIT $4;
+		`
+		rows, err := tx.Query(txCtx, sql, userID, orgID, query, limit)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var row compare.CompareFileRowWithSupplier
+			var matchMethodStr string
+			var metaBytes []byte
+			if err := rows.Scan(
+				&row.ID, &row.FileID, &row.SupplierName, &row.RowNumber,
+				&row.RawName, &row.NormalizedName, &row.SKU,
+				&row.Price, &row.Discount, &row.PriceAfterDiscount,
+				&row.MatchedProductID, &row.MatchConfidence, &matchMethodStr,
+				&metaBytes, &row.CreatedAt,
+			); err != nil {
+				return err
+			}
+			row.MatchMethod = compare.MatchMethod(matchMethodStr)
+			if len(metaBytes) > 0 {
+				_ = json.Unmarshal(metaBytes, &row.Meta)
+			}
+			results = append(results, &row)
+		}
+		return rows.Err()
+	})
+
+	return results, err
+}

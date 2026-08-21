@@ -249,3 +249,18 @@ type CompareFileRow struct {
 	Meta               map[string]any `json:"meta,omitempty"`
 	CreatedAt          time.Time      `json:"created_at"`
 }
+
+// CompareFileRowWithSupplier embeds CompareFileRow with its parent supplier name.
+type CompareFileRowWithSupplier struct {
+	CompareFileRow
+	SupplierName string `json:"supplier_name"`
+}
+
+// CatalogStatus differentiates between Master Catalog products, Supplier listings, and Supplier gaps.
+type CatalogStatus string
+
+const (
+	StatusCatalogAndSuppliers CatalogStatus = "catalog_and_suppliers" // 🟢 متوفر بالكتالوج ولدى الموردين
+	StatusCatalogOnly         CatalogStatus = "catalog_only"          // 🔵 مسجل بالكتالوج وغير متوفر بكشوف الموردين
+	StatusSupplierCustom      CatalogStatus = "supplier_custom"       // 🟡 صنف خاص بكشف المورد
+)

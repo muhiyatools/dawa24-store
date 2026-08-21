@@ -497,7 +497,49 @@ func (m *mockCompareRepo) GetSavedProductMapping(ctx context.Context, orgID *int
 }
 
 func (m *mockCompareRepo) FindCandidateProducts(ctx context.Context, orgID *int64, query, sku string, limit int) ([]*compare.CandidateProduct, error) {
-	return nil, nil
+	var candidates []*compare.CandidateProduct
+	cleanQ := strings.ToLower(strings.TrimSpace(query))
+	// Mock master catalog product
+	if cleanQ == "" || strings.Contains("panadol extra", cleanQ) || strings.Contains("بانادول اكسترا", cleanQ) {
+		candidates = append(candidates, &compare.CandidateProduct{
+			ID:             45,
+			SKU:            "1001",
+			NameAr:         "بانادول اكسترا 24 قرص",
+			NameEn:         "Panadol Extra 24 Tab",
+			ScientificName: "Paracetamol + Caffeine",
+		})
+	}
+	if cleanQ == "" || strings.Contains("congestal", cleanQ) || strings.Contains("كونجستال", cleanQ) {
+		candidates = append(candidates, &compare.CandidateProduct{
+			ID:             88,
+			SKU:            "1003",
+			NameAr:         "كونجستال 20 قرص",
+			NameEn:         "Congestal 20 Tab",
+			ScientificName: "Paracetamol + Pseudoephedrine",
+		})
+	}
+	return candidates, nil
+}
+
+func (m *mockCompareRepo) SearchFileRows(ctx context.Context, userID int64, orgID *int64, query string, limit int) ([]*compare.CompareFileRowWithSupplier, error) {
+	var results []*compare.CompareFileRowWithSupplier
+	cleanQ := strings.ToLower(strings.TrimSpace(query))
+
+	for fileID, rows := range m.fileRows {
+		file, ok := m.files[fileID]
+		if !ok || file.DeletedAt != nil || file.Status != compare.FileReady {
+			continue
+		}
+		for _, r := range rows {
+			if cleanQ == "" || strings.Contains(strings.ToLower(r.RawName), cleanQ) || strings.Contains(strings.ToLower(r.NormalizedName), cleanQ) || strings.Contains(strings.ToLower(r.SKU), cleanQ) || strings.Contains(strings.ToLower(file.SupplierName), cleanQ) {
+				results = append(results, &compare.CompareFileRowWithSupplier{
+					CompareFileRow: *r,
+					SupplierName:   file.SupplierName,
+				})
+			}
+		}
+	}
+	return results, nil
 }
 
 // ---------------------------------------------------------------------------
@@ -823,6 +865,102 @@ func TestUploadAndProcessCompareFile_TemplateXLSX(t *testing.T) {
 
 	if file.RowCount != 3 {
 		t.Fatalf("expected RowCount=3, got %d", file.RowCount)
+	}
+}
+
+func TestSearchAcrossSuppliersAndCatalog_ThreeWayDifferentiation(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := compare.NewService(repo, logger)
+
+	userID := int64(50)
+	orgID := int64(200)
+
+	// Create 2 supplier files
+	f1 := &compare.CompareFile{
+		ID:               1,
+		UserID:           userID,
+		OrganizationID:   &orgID,
+		SupplierName:     "شركة الفتح",
+		OriginalFilename: "fateh.xlsx",
+		Status:           compare.FileReady,
+	}
+	_ = repo.CreateFile(ctx, f1)
+
+	f2 := &compare.CompareFile{
+		ID:               2,
+		UserID:           userID,
+		OrganizationID:   &orgID,
+		SupplierName:     "ابن سينا فارما",
+		OriginalFilename: "ibnsina.xlsx",
+		Status:           compare.FileReady,
+	}
+	_ = repo.CreateFile(ctx, f2)
+
+	// File 1 has Panadol (matched to catalog ID 45) and a custom supplement
+	row1 := &compare.CompareFileRow{
+		FileID:             f1.ID,
+		RowNumber:          1,
+		RawName:            "بانادول اكسترا 24 قرص",
+		NormalizedName:     "بانادول اكسترا 24 قرص",
+		SKU:                "1001",
+		Price:              money.FromMajor(45),
+		Discount:           18.5,
+		PriceAfterDiscount: money.FromMinor(3668),
+		MatchedProductID:   &[]int64{45}[0],
+		MatchMethod:        compare.MatchMethodExactName,
+	}
+	row2 := &compare.CompareFileRow{
+		FileID:             f1.ID,
+		RowNumber:          2,
+		RawName:            "مكمل غذائي فيتامين سي خاص بالفتح",
+		NormalizedName:     "مكمل غذائي فيتامين سي خاص بالفتح",
+		Price:              money.FromMajor(100),
+		Discount:           10.0,
+		PriceAfterDiscount: money.FromMajor(90),
+		MatchMethod:        compare.MatchMethodNone,
+	}
+	_ = repo.InsertFileRows(ctx, []*compare.CompareFileRow{row1, row2})
+
+	// Perform Search
+	results, err := svc.SearchAcrossSuppliersAndCatalog(ctx, userID, &orgID, "بانادول")
+	if err != nil {
+		t.Fatalf("Search failed: %v", err)
+	}
+
+	if results.TotalMatches == 0 {
+		t.Fatalf("expected matches for 'بانادول', got 0")
+	}
+
+	panadolItem := results.Items[0]
+	if panadolItem.CatalogStatus != compare.StatusCatalogAndSuppliers {
+		t.Errorf("expected CatalogStatus=%s, got %s", compare.StatusCatalogAndSuppliers, panadolItem.CatalogStatus)
+	}
+	if !panadolItem.InCatalog {
+		t.Errorf("expected InCatalog=true")
+	}
+	if panadolItem.BestSupplier != "شركة الفتح" {
+		t.Errorf("expected BestSupplier='شركة الفتح', got %s", panadolItem.BestSupplier)
+	}
+	if len(panadolItem.MissingFromSuppliers) != 1 || panadolItem.MissingFromSuppliers[0] != "ابن سينا فارما" {
+		t.Errorf("expected MissingFromSuppliers=['ابن سينا فارما'], got %v", panadolItem.MissingFromSuppliers)
+	}
+
+	// Search for Congestal (in catalog candidates, but NOT in any supplier file)
+	cResults, err := svc.SearchAcrossSuppliersAndCatalog(ctx, userID, &orgID, "كونجستال")
+	if err != nil {
+		t.Fatalf("Search failed: %v", err)
+	}
+	if len(cResults.Items) == 0 {
+		t.Fatalf("expected catalog item for Congestal")
+	}
+	congestalItem := cResults.Items[0]
+	if congestalItem.CatalogStatus != compare.StatusCatalogOnly {
+		t.Errorf("expected CatalogStatus=%s for Congestal, got %s", compare.StatusCatalogOnly, congestalItem.CatalogStatus)
+	}
+	if len(congestalItem.MissingFromSuppliers) != 2 {
+		t.Errorf("expected Congestal to be missing from both 2 active suppliers, got %v", congestalItem.MissingFromSuppliers)
 	}
 }
 
