@@ -48,7 +48,18 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 		queryItems := `
 			SELECT ci.id, ci.cart_id, ci.product_id, ci.product_variant_id, ci.quantity, ci.unit_price,
 			       ci.offer_id, ci.created_at, ci.updated_at,
-			       COALESCE(po.organization_id, pv.organization_id, p.organization_id, 0),
+			       COALESCE(
+			           po.organization_id,
+			           pv.organization_id,
+			           (
+			               SELECT w.organization_id 
+			               FROM inventory.stocks s 
+			               JOIN inventory.warehouses w ON w.id = s.warehouse_id 
+			               WHERE s.product_variant_id = ci.product_variant_id AND s.deleted_at IS NULL 
+			               LIMIT 1
+			           ),
+			           0
+			       ),
 			       COALESCE(p.name, '{"ar":"","en":""}'::jsonb),
 			       COALESCE(o.name, '{"ar":"","en":""}'::jsonb),
 			       COALESCE(o.min_order_price, 10.00),
@@ -62,9 +73,19 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			LEFT JOIN catalog.products p ON p.id = ci.product_id
 			LEFT JOIN catalog.product_variants pv ON pv.id = ci.product_variant_id
 			LEFT JOIN promo.offers po ON po.id = ci.offer_id
-			LEFT JOIN org.organizations o ON o.id = COALESCE(po.organization_id, pv.organization_id, p.organization_id)
+			LEFT JOIN org.organizations o ON o.id = COALESCE(
+			    po.organization_id,
+			    pv.organization_id,
+			    (
+			        SELECT w.organization_id 
+			        FROM inventory.stocks s 
+			        JOIN inventory.warehouses w ON w.id = s.warehouse_id 
+			        WHERE s.product_variant_id = ci.product_variant_id AND s.deleted_at IS NULL 
+			        LIMIT 1
+			    )
+			)
 			WHERE ci.cart_id = $1
-			ORDER BY COALESCE(po.organization_id, pv.organization_id, p.organization_id), ci.id ASC;
+			ORDER BY ci.id ASC;
 		`
 		rows, err := tx.Query(txCtx, queryItems, cartID)
 		if err != nil {

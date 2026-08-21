@@ -258,10 +258,14 @@ func (s *Service) revalidateCheckoutLines(ctx context.Context, input CheckoutInp
 			return err
 		}
 		if !res.Allowed {
+			msg := res.MessageAr
+			if msg == "" {
+				msg = res.MessageEn
+			}
 			return apperr.Validation(
 				"checkout.line_unavailable."+string(res.Reason),
-				res.MessageEn,
-				map[string]string{"product": res.MessageAr},
+				msg,
+				map[string]string{"product": msg},
 			)
 		}
 	}
