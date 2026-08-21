@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 )
 
 // SupplierDirectoryData is the /suppliers directory view model.
@@ -16,6 +17,7 @@ type SupplierProfileData struct {
 	Products    []*catalog.Product
 	Reviews     []*org.Review
 	Policies    []*org.Policy
+	Sections    []*promo.HighlightSection
 	IsFollowing bool
 	Rating      float64
 	ReviewCount int

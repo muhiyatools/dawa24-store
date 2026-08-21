@@ -227,11 +227,16 @@ type HighlightSection struct {
 	OwnerType      string                 `json:"owner_type"`                // platform | organization (066)
 	OrganizationID *int64                 `json:"organization_id,omitempty"` // owner when organization (066)
 	Title          i18n.Text              `json:"title"`
+	Description    i18n.Text              `json:"description,omitempty"`
+	SectionType    string                 `json:"section_type,omitempty"` // vision, goals, about, why_us, features, services, achievements, certifications, stats, special_info
+	Color          string                 `json:"color,omitempty"`
 	Slug           string                 `json:"slug"`
 	DisplayOrder   int                    `json:"display_order"`
 	IsActive       bool                   `json:"is_active"`
+	ShowInHeader   bool                   `json:"show_in_header"`
 	Items          []HighlightSectionItem `json:"items,omitempty"`
 	CreatedAt      time.Time              `json:"created_at"`
+	UpdatedAt      time.Time              `json:"updated_at,omitempty"`
 }
 
 // HighlightSectionItem represents an item within a highlight section.

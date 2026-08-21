@@ -46,54 +46,16 @@ func (s *Service) SetAIMatcher(m AIMatcher) {
 	s.aiMatcher = m
 }
 
-// EntitlementFor answers "what may this user do in the compare tool right now?" (Plan V5 Phase 2 §2.1.4).
+// EntitlementFor answers "what may this user do in the compare tool right now?".
+// All subscription/plan paywalls are removed as per user directive.
 func (s *Service) EntitlementFor(ctx context.Context, userID, orgID int64) (Entitlement, error) {
-	var orgPtr *int64
-	if orgID > 0 {
-		orgPtr = &orgID
-	}
-
-	sub, err := s.repo.GetActiveSubscription(ctx, userID, orgPtr)
-	if err != nil || sub == nil || !sub.IsValid() {
-		return Entitlement{
-			Active:            false,
-			MaxActiveFiles:    0,
-			MaxSessions:       0,
-			AIMatchingEnabled: false,
-		}, nil
-	}
-
-	ent := Entitlement{
+	return Entitlement{
 		Active:            true,
-		PlanSlug:          "",
-		MaxActiveFiles:    8, // Default customer limit
-		MaxSessions:       1, // Default single device
+		PlanSlug:          "unlimited",
+		MaxActiveFiles:    100,
+		MaxSessions:       10,
 		AIMatchingEnabled: true,
-		ExpiresAt:         sub.EndsAt,
-	}
-
-	if sub.Plan != nil {
-		ent.PlanSlug = sub.Plan.Slug
-		for _, f := range sub.Plan.Features {
-			if !f.IsActive {
-				continue
-			}
-			switch f.Key {
-			case "max_active_files":
-				if v, err := strconv.Atoi(f.Value); err == nil && v > 0 {
-					ent.MaxActiveFiles = v
-				}
-			case "max_concurrent_sessions":
-				if v, err := strconv.Atoi(f.Value); err == nil && v > 0 {
-					ent.MaxSessions = v
-				}
-			case "ai_matching_enabled":
-				ent.AIMatchingEnabled = strings.EqualFold(f.Value, "true") || f.Value == "1"
-			}
-		}
-	}
-
-	return ent, nil
+	}, nil
 }
 
 // EnforceSessionCap logs the current user session and evicts oldest sessions if exceeding max allowed (Laravel parity).

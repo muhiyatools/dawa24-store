@@ -84,37 +84,28 @@ func (h *UIHandler) CompareSubscribeSubmit(w http.ResponseWriter, r *http.Reques
 	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تفعيل اشتراكك بنجاح في محرك المقارنة.")
 }
 
-// CompareToolPage renders the comparison tool or an upsell, gated by entitlement.
+// CompareToolPage renders the 3-column comparison workspace.
 func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	entitled := false
-	if actor, ok := authctx.From(ctx); ok {
-		if h.compareSvc != nil {
-			ent, err := h.compareSvc.EntitlementFor(ctx, actor.UserID, actor.OrganizationID)
-			if err == nil && ent.Active {
-				entitled = true
-				cookieSessionID := ""
-				if c, err := r.Cookie("dawa24_session"); err == nil {
-					cookieSessionID = c.Value
-				}
-				clientInfo := compare.ClientInfo{
-					SessionID: cookieSessionID,
-					UserAgent: r.UserAgent(),
-					IPAddress: r.RemoteAddr,
-				}
-				_ = h.compareSvc.EnforceSessionCap(ctx, actor.UserID, nil, ent.MaxSessions, clientInfo)
-			}
-		} else if h.billSvc != nil {
-			if has, _, err := h.billSvc.CheckEntitlement(ctx, actor.UserID, "compare"); err == nil {
-				entitled = has
-			}
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
+		return
+	}
+
+	var files []*compare.CompareFile
+	if h.compareSvc != nil {
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
 		}
+		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareToolPage(lang, dir, entitled).Render(ctx, w); err != nil {
+	if err := pages.CompareToolPage(lang, dir, files).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render compare tool", "error", err)
 	}
 }

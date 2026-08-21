@@ -199,23 +199,59 @@ func (s *Service) ListHighlightSections(ctx context.Context) ([]*HighlightSectio
 	return s.repo.ListHighlightSections(ctx)
 }
 
-// CreateOrganizationHighlightSection adds an organization-owned merchandising
-// row on its storefront (066 — org.highlight_sections merged into promo).
+// CreateOrganizationHighlightSection adds an organization-owned merchandising/featured section.
 func (s *Service) CreateOrganizationHighlightSection(ctx context.Context, orgID int64, title i18n.Text, slug string) (*HighlightSection, error) {
+	return s.CreateFeaturedSection(ctx, orgID, title, i18n.Text{}, "about", "#0284c7", slug, 0, true, true)
+}
+
+// CreateFeaturedSection creates an informational or branding section for the supplier.
+func (s *Service) CreateFeaturedSection(ctx context.Context, orgID int64, title, description i18n.Text, sectionType, color, slug string, order int, active, showInHeader bool) (*HighlightSection, error) {
 	if title.IsEmpty() {
-		return nil, apperr.Validation("highlight.title_required", "A highlight section title is required.", nil)
+		return nil, apperr.Validation("highlight.title_required", "عنوان القسم مطلوب.", nil)
+	}
+	if sectionType == "" {
+		sectionType = "about"
+	}
+	if color == "" {
+		color = "#0284c7"
 	}
 	sec := &HighlightSection{
 		OwnerType:      "organization",
 		OrganizationID: &orgID,
 		Title:          title,
+		Description:    description,
+		SectionType:    sectionType,
+		Color:          color,
 		Slug:           slug,
-		IsActive:       true,
+		DisplayOrder:   order,
+		IsActive:       active,
+		ShowInHeader:   showInHeader,
 	}
 	if err := s.repo.CreateHighlightSection(ctx, sec); err != nil {
 		return nil, err
 	}
 	return sec, nil
+}
+
+// UpdateFeaturedSection updates an existing featured section.
+func (s *Service) UpdateFeaturedSection(ctx context.Context, sec *HighlightSection) error {
+	if sec == nil || sec.ID <= 0 {
+		return apperr.Validation("highlight.id_required", "معرف القسم مطلوب.", nil)
+	}
+	if sec.Title.IsEmpty() {
+		return apperr.Validation("highlight.title_required", "عنوان القسم مطلوب.", nil)
+	}
+	return s.repo.UpdateHighlightSection(ctx, sec)
+}
+
+// DeleteFeaturedSection removes a supplier featured section.
+func (s *Service) DeleteFeaturedSection(ctx context.Context, id, orgID int64) error {
+	return s.repo.DeleteHighlightSection(ctx, id, orgID)
+}
+
+// GetFeaturedSection retrieves a featured section by ID.
+func (s *Service) GetFeaturedSection(ctx context.Context, id int64) (*HighlightSection, error) {
+	return s.repo.GetHighlightSectionByID(ctx, id)
 }
 
 // ListHighlightSectionsByOrg returns an organization's merchandising rows.

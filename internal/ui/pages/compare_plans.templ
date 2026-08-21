@@ -43,20 +43,3 @@ templ ComparePlansPage(lang, dir string, plans []*billing.Plan) {
 	}
 }
 
-templ CompareToolPage(lang, dir string, entitled bool) {
-	@layouts.PublicShell("أداة مقارنة الخصومات | Compare", lang, dir) {
-		<div style="max-width:640px;">
-			<div class="card mb-0">
-				if entitled {
-					<h2 style="font-size:1.25rem; font-weight:900; color:var(--primary-700); margin:0 0 0.75rem;">أداة مقارنة الخصومات</h2>
-					<p style="color:var(--neutral-600); line-height:1.8;">أنت مشترك في خطة المقارنة. ابحث عن منتج لمقارنة أسعاره عبر الموردين.</p>
-					<a href="/catalog" class="btn btn-primary" style="justify-content:center;">ابحث عن منتج</a>
-				} else {
-					<h2 style="font-size:1.25rem; font-weight:900; color:var(--neutral-900); margin:0 0 0.75rem;">هذه الميزة تتطلب اشتراكاً</h2>
-					<p style="color:var(--neutral-600); line-height:1.8;">أداة مقارنة الخصومات متاحة للمشتركين في إحدى خطط المقارنة.</p>
-					<a href="/compare" class="btn btn-primary" style="justify-content:center;">عرض الخطط</a>
-				}
-			</div>
-		</div>
-	}
-}

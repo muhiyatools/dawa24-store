@@ -178,6 +178,20 @@ func (m *mockPromoRepo) ListHighlightSectionsByOrg(_ context.Context, orgID int6
 	return list, nil
 }
 
+func (m *mockPromoRepo) UpdateHighlightSection(_ context.Context, s *HighlightSection) error {
+	m.sections[s.ID] = s
+	return nil
+}
+
+func (m *mockPromoRepo) DeleteHighlightSection(_ context.Context, id, orgID int64) error {
+	delete(m.sections, id)
+	return nil
+}
+
+func (m *mockPromoRepo) GetHighlightSectionByID(_ context.Context, id int64) (*HighlightSection, error) {
+	return m.sections[id], nil
+}
+
 func (m *mockPromoRepo) AddHighlightItem(_ context.Context, item *HighlightSectionItem) error {
 	item.ID = m.nextID
 	m.nextID++

@@ -22,11 +22,6 @@ func TestPhaseC_VendorContentAndPolicies(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Contains(t, rec.Body.String(), "سياسات التوريد والدفع والاسترجاع")
 
-	// GET /vendor/social-media renders
-	rec = doGET(t, r, "/vendor/social-media", vendorActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "قنوات التواصل الاجتماعي")
-
 	// POST /vendor/policies submits and obeys Law 3 (returns error notice when service is unavailable)
 	rec = doPOST(t, r, "/vendor/policies", url.Values{
 		"return_policy":   []string{"سياسة الاسترجاع"},
@@ -34,15 +29,6 @@ func TestPhaseC_VendorContentAndPolicies(t *testing.T) {
 	}, vendorActor)
 	assert.Equal(t, http.StatusSeeOther, rec.Code)
 	assert.Contains(t, rec.Header().Get("Location"), "/vendor/policies")
-	assert.Contains(t, rec.Header().Get("Location"), "notice=error")
-
-	// POST /vendor/social-media submits and obeys Law 3 (returns error notice when service is unavailable)
-	rec = doPOST(t, r, "/vendor/social-media", url.Values{
-		"facebook":  []string{"https://facebook.com/vendor"},
-		"instagram": []string{"https://instagram.com/vendor"},
-	}, vendorActor)
-	assert.Equal(t, http.StatusSeeOther, rec.Code)
-	assert.Contains(t, rec.Header().Get("Location"), "/vendor/social-media")
 	assert.Contains(t, rec.Header().Get("Location"), "notice=error")
 }
 

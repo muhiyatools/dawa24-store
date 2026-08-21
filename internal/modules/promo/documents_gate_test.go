@@ -48,6 +48,15 @@ func (s *stubPromoRepo) RecordAdClick(context.Context, int64, *int64, string, st
 func (s *stubPromoRepo) CreateHighlightSection(context.Context, *HighlightSection) error {
 	return nil
 }
+func (s *stubPromoRepo) UpdateHighlightSection(context.Context, *HighlightSection) error {
+	return nil
+}
+func (s *stubPromoRepo) DeleteHighlightSection(context.Context, int64, int64) error {
+	return nil
+}
+func (s *stubPromoRepo) GetHighlightSectionByID(context.Context, int64) (*HighlightSection, error) {
+	return nil, nil
+}
 func (s *stubPromoRepo) ListHighlightSections(context.Context) ([]*HighlightSection, error) {
 	return nil, nil
 }

@@ -210,6 +210,33 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				</div>
 			</div>
 
+			<!-- Featured Sections Quick-Access Card -->
+			if len(data.Sections) > 0 {
+				<div class="card mb-0" style="padding:1.25rem 1.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<span style="font-size:1.2rem;">🌟</span>
+							<strong style="font-size:0.95rem; color:var(--text);">نبذة وأقسام المنشأة:</strong>
+						</div>
+						<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+							for _, s := range data.Sections {
+								if s.IsActive && s.ShowInHeader {
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm"
+										data-modal-open={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
+										style="font-weight:700; display:inline-flex; align-items:center; gap:0.35rem; border-radius:var(--radius-full); padding:0.4rem 0.85rem;"
+									>
+										<span>{ sectionTypeIcon(s.SectionType) }</span>
+										<span>{ s.Title.Get(i18n.Lang(lang)) }</span>
+									</button>
+								}
+							}
+						</div>
+					</div>
+				</div>
+			}
+
 			<!-- 2. Main Content: Product Catalog (Left) & Policies/Reviews Sidebar (Right) -->
 			<div style="display:grid; grid-template-columns:1fr 340px; gap:1.5rem; align-items:start;">
 				
@@ -409,6 +436,40 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</form>
 				</div>
 			</div>
+
+			<!-- 4. Featured Section Modals -->
+			for _, s := range data.Sections {
+				<div id={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) } class="modal-overlay hidden">
+					<div class="modal-card" style="max-width:680px; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 24px 48px rgba(0,0,0,0.35);">
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+							<div style="display:flex; align-items:center; gap:0.6rem;">
+								<span style="font-size:1.5rem;">{ sectionTypeIcon(s.SectionType) }</span>
+								<div>
+									<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+										{ s.Title.Get(i18n.Lang(lang)) }
+									</h3>
+									<span class="badge badge-sky" style="font-size:0.75rem; margin-top:0.25rem; display:inline-block;">
+										{ sectionTypeLabel(s.SectionType) }
+									</span>
+								</div>
+							</div>
+							<button type="button" class="btn btn-secondary btn-icon" data-modal-close={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) } style="border:none;">
+								@components.IconClose("icon-sm")
+							</button>
+						</div>
+
+						<div style="font-size:0.95rem; color:var(--text-secondary); line-height:1.8; white-space:pre-line; margin-bottom:1.5rem; background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+							{ s.Description.Get(i18n.Lang(lang)) }
+						</div>
+
+						<div style="display:flex; justify-content:flex-end;">
+							<button type="button" class="btn btn-secondary" data-modal-close={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) } style="font-weight:700; padding:0.5rem 1.5rem;">
+								إغلاق
+							</button>
+						</div>
+					</div>
+				</div>
+			}
 
 		</div>
 	}

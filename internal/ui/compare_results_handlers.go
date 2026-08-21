@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -37,23 +38,15 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/compare/results?suppliers="+queryParam, http.StatusSeeOther)
 }
 
-// CompareResultsPage renders multi-supplier comparison results with full filtering, sorting and pagination (Plan V5 §2.5.1).
+// CompareResultsPage renders multi-supplier comparison results with full filtering, sorting and metrics.
 func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	actor, ok := authctx.From(ctx)
+	_, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/results", http.StatusSeeOther)
 		return
-	}
-
-	if h.compareSvc != nil {
-		ent, err := h.compareSvc.EntitlementFor(ctx, actor.UserID, actor.OrganizationID)
-		if err != nil || !ent.Active {
-			http.Redirect(w, r, "/compare", http.StatusSeeOther)
-			return
-		}
 	}
 
 	supParam := r.URL.Query().Get("suppliers")
@@ -69,9 +62,24 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var result *compare.ComparisonResultSet
+	if h.compareSvc != nil {
+		res, err := h.compareSvc.RunMultiSupplierComparison(ctx, fileIDs)
+		if err == nil {
+			result = res
+		} else {
+			h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر معالجة مقارنة الملفات: "+h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	filter := r.URL.Query().Get("filter")
+	if filter == "" {
+		filter = "all"
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	// Render placeholder or results templ page
-	if err := pages.CompareToolPage(lang, dir, true).Render(ctx, w); err != nil {
+	if err := pages.CompareResultsPage(lang, dir, result, filter).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render compare results", "error", err)
 	}
 }
@@ -87,21 +95,22 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	var files []*compare.CompareFile
 	if h.compareSvc != nil {
-		ent, err := h.compareSvc.EntitlementFor(ctx, actor.UserID, actor.OrganizationID)
-		if err != nil || !ent.Active {
-			http.Redirect(w, r, "/compare", http.StatusSeeOther)
-			return
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
 		}
+		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareToolPage(lang, dir, true).Render(ctx, w); err != nil {
+	if err := pages.CompareToolPage(lang, dir, files).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render head to head", "error", err)
 	}
 }
 
-// MarketDiscountsPage renders market-wide approved discounts (Plan V5 §2.5.2).
+// MarketDiscountsPage renders market-wide approved discounts.
 func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -112,16 +121,17 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	var files []*compare.CompareFile
 	if h.compareSvc != nil {
-		ent, err := h.compareSvc.EntitlementFor(ctx, actor.UserID, actor.OrganizationID)
-		if err != nil || !ent.Active {
-			http.Redirect(w, r, "/compare", http.StatusSeeOther)
-			return
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
 		}
+		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareToolPage(lang, dir, true).Render(ctx, w); err != nil {
+	if err := pages.CompareToolPage(lang, dir, files).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render market discounts", "error", err)
 	}
 }

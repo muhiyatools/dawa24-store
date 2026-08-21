@@ -397,6 +397,14 @@ func (h *UIHandler) assertCartLineAvailable(
 	if !res.Allowed {
 		h.log.InfoContext(ctx, "cart line refused", "reason", res.Reason,
 			"variant", variantID, "vendor", vendorOrgID, "branch", branchID, "qty", qty)
+		if h.isHTMX(r) && back == "/cart" {
+			cart, _ := h.commSvc.GetCart(ctx, actor.UserID)
+			lang, _ := h.localeAndDir(r)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+			return false
+		}
 		h.redirectWithNotice(w, r, back, "error", res.MessageAr)
 		return false
 	}
@@ -548,14 +556,41 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	paymentMethod := r.PostFormValue("payment_method")
-	if paymentMethod == "" {
-		paymentMethod = "cod"
-	}
+	paymentMethod := "cod"
 
 	var branchID *int64
 	if bID, err := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64); err == nil && bID > 0 {
 		branchID = &bID
+	}
+
+	var targetBranchID int64
+	if branchID != nil {
+		targetBranchID = *branchID
+	} else if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
+		targetBranchID = *buying.Active
+	} else if actor, ok := authctx.From(ctx); ok && actor.BranchID != nil {
+		targetBranchID = *actor.BranchID
+	}
+
+	if actor, ok := authctx.From(ctx); ok && targetBranchID > 0 {
+		for _, it := range cart.Items {
+			vOrgID := it.OrganizationID
+			if vOrgID <= 0 {
+				continue
+			}
+			res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
+				VariantID:        it.ProductVariantID,
+				VendorOrgID:      vOrgID,
+				CustomerOrgID:    actor.OrganizationID,
+				CustomerBranchID: targetBranchID,
+				Quantity:         it.Quantity,
+				When:             time.Now(),
+			})
+			if err == nil && !res.Allowed {
+				h.redirectWithNotice(w, r, "/checkout", "error", "فرع الصيدلية المحدد خارج نطاق التغطية الجغرافية لشركات التوريد ("+res.MessageAr+"). يرجى اختيار فرع معتمد داخل التغطية.")
+				return
+			}
+		}
 	}
 
 	input := commerce.CheckoutInput{

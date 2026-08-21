@@ -247,7 +247,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><h2 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">2. طريقة وشروط الدفع والتسوية</h2></div><div style=\"display:flex; flex-direction:column; gap:0.875rem;\"><!-- Option 1: Wallet --><label style=\"display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--accent); background:var(--accent-subtle); border-radius:var(--radius-xl); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"wallet\" checked style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div style=\"flex:1;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;\"><div style=\"font-weight:800; font-size:0.95rem; color:var(--text);\">خصم مباشر من رصيد المحفظة الإلكترونية</div><span class=\"badge badge-sky\" style=\"font-weight:700;\">تسوية فورية من المحفظة</span></div><div style=\"font-size:0.8rem; color:var(--text-secondary);\">تنفيذ فوري للطلبية مع تأكيد حجز التشغيلات لدى الموردين بدون انتظار التحصيل</div></div></label><!-- Option 2: Cash / Cheque on Delivery --><label style=\"display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--border); background:var(--surface-sunken); border-radius:var(--radius-xl); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"cod\" style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div style=\"flex:1;\"><div style=\"font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;\">الدفع عند الاستلام (نقداً / شيك مقبول الدفع)</div><div style=\"font-size:0.8rem; color:var(--text-muted);\">التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة وفحص الفاتورة</div></div></label><!-- Option 3: InstaPay / Bank Transfer --><label style=\"display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--border); background:var(--surface-sunken); border-radius:var(--radius-xl); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"instapay\" style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div style=\"flex:1;\"><div style=\"font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;\">إنستاباي / تحويل بنكي لحظي (InstaPay / Bank Transfer)</div><div style=\"font-size:0.8rem; color:var(--text-muted);\">تسوية سريعة عبر الحسابات البنكية المعتمدة للمنظومة</div></div></label><!-- Option 4: Credit Facility (30 Days) --><label style=\"display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--border); background:var(--surface-sunken); border-radius:var(--radius-xl); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"credit_30\" style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div style=\"flex:1;\"><div style=\"font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;\">تسهيلات ائتمانية آجلة (30 يوماً)</div><div style=\"font-size:0.8rem; color:var(--text-muted);\">سداد مؤجل وفقاً للحد الائتماني المعتمد لمؤسستكم الصيدلية</div></div></label></div></div><!-- 3. Cold-Chain & Delivery Notes --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><h2 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">2. طريقة وشروط الدفع والتسوية</h2></div><div style=\"display:flex; flex-direction:column; gap:0.875rem;\"><!-- Only Cash on Delivery --><label style=\"display:flex; align-items:flex-start; gap:1rem; padding:1.25rem; border:1.5px solid var(--accent); background:var(--accent-subtle); border-radius:var(--radius-xl); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"cod\" checked style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div style=\"flex:1;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem; flex-wrap:wrap; gap:0.5rem;\"><div style=\"font-weight:800; font-size:1rem; color:var(--text);\">الدفع عند الاستلام والتسليم (نقداً / شيك مقبول الدفع)</div><span class=\"badge badge-sky\" style=\"font-weight:700;\">تسوية مباشرة مع مندوب التوزيع</span></div><div style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5;\">التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة الفاتورة الضريبية الإلكترونية (ETA e-Invoice).</div></div></label></div></div><!-- 3. Cold-Chain & Delivery Notes --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -267,7 +267,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(it.ProductName.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 244, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 205, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -280,7 +280,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", it.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 245, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 206, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -293,7 +293,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(CartItemTotal(it).String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 247, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 208, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -311,7 +311,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(cart.Items)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 255, Col: 117}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 216, Col: 117}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -324,7 +324,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(CartTotal(cart).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 272, Col: 36}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 233, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {

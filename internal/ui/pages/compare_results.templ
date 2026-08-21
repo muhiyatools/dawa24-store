@@ -1,0 +1,315 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+func formatRowsCount(res *compare.ComparisonResultSet) string {
+	if res == nil {
+		return "0"
+	}
+	return fmt.Sprintf("%d", len(res.Rows))
+}
+
+templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, activeFilter string) {
+	@layouts.VendorShell("نتائج تحليل ومقارنة الخصومات", "compare", lang, dir) {
+		<div style="max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
+			
+			<!-- Header Banner -->
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
+							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+								📈
+							</div>
+							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+								تقرير تحليل ومقارنة عروض الموردين
+							</h1>
+						</div>
+						<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
+							مقارنة تفصيلية لأسعار وخصومات الأصناف بين الموردين المحددين ومتوسط أسعار السوق الدوائي.
+						</p>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.75rem;">
+						<a href="/compare/tool" class="btn btn-secondary" style="font-weight:700;">
+							@components.IconArrowLeft("icon-xs")
+							<span>العودة لمركز الملفات</span>
+						</a>
+						<button
+							type="button"
+							class="btn btn-primary"
+							onclick="exportComparisonTableToCSV()"
+							style="font-weight:800;"
+						>
+							@components.IconDownload("icon-xs")
+							<span>تصدير تقرير Excel / CSV</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- KPI Summary Metric Cards -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+				
+				<!-- Total Compared -->
+				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">إجمالي الأصناف المقارنة</span>
+						<span style="font-size:1.25rem;">📦</span>
+					</div>
+					<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">
+						if result != nil {
+							{ fmt.Sprintf("%d", result.Summary.TotalProducts) }
+						} else {
+							0
+						}
+					</div>
+					<span style="font-size:0.75rem; color:var(--text-secondary);">
+						if result != nil {
+							{ fmt.Sprintf("عبر %d موردين", result.Summary.TotalSuppliers) }
+						}
+					</span>
+				</div>
+
+				<!-- Higher Discount (Best Deals) -->
+				<div class="card" style="background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+						<span style="font-size:0.85rem; font-weight:700; color:var(--success-text);">متوسط الخصم في السوق</span>
+						<span style="font-size:1.25rem;">🔥</span>
+					</div>
+					<div style="font-size:1.75rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
+						if result != nil {
+							{ fmt.Sprintf("%.1f%%", result.Summary.AverageDiscount) }
+						} else {
+							0%
+						}
+					</div>
+					<span style="font-size:0.75rem; color:var(--text-secondary);">أفضل فرصة شراء وتوفير</span>
+				</div>
+
+				<!-- Suppliers Analyzed -->
+				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">الموردون المشمولون</span>
+						<span style="font-size:1.25rem;">🏢</span>
+					</div>
+					<div style="font-size:1.75rem; font-weight:900; color:var(--accent);" class="tabular-nums">
+						if result != nil {
+							{ fmt.Sprintf("%d", result.Summary.TotalSuppliers) }
+						} else {
+							0
+						}
+					</div>
+					<span style="font-size:0.75rem; color:var(--text-secondary);">كشوف أسعار نشطة</span>
+				</div>
+
+			</div>
+
+			<!-- 5 Filter Tabs Bar -->
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem;">
+				<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+					<button
+						type="button"
+						class="btn btn-primary btn-sm filter-tab active"
+						data-filter="all"
+						onclick="applyTableFilter('all', this)"
+						style="font-weight:700; border-radius:var(--radius-full);"
+					>
+						<span>الكل ({ formatRowsCount(result) })</span>
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-secondary btn-sm filter-tab"
+						data-filter="best-discount"
+						onclick="applyTableFilter('best-discount', this)"
+						style="font-weight:700; border-radius:var(--radius-full);"
+					>
+						<span>🔥 خصم أعلى من 15%</span>
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-secondary btn-sm filter-tab"
+						data-filter="multi-offer"
+						onclick="applyTableFilter('multi-offer', this)"
+						style="font-weight:700; border-radius:var(--radius-full);"
+					>
+						<span>⚖️ متوفر لدى أكثر من مورد</span>
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-secondary btn-sm filter-tab"
+						data-filter="single-offer"
+						onclick="applyTableFilter('single-offer', this)"
+						style="font-weight:700; border-radius:var(--radius-full);"
+					>
+						<span>⭐ أصناف حصرية لمورد واحد</span>
+					</button>
+				</div>
+
+				<!-- Comparison Table -->
+				if result == nil || len(result.Rows) == 0 {
+					<div style="padding:3rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl);">
+						<div style="font-size:2.5rem; margin-bottom:0.5rem;">📊</div>
+						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.25rem;">لا توجد نتائج مقارنة متطابقة</h3>
+						<p style="color:var(--text-muted); font-size:0.85rem; margin:0;">يرجى اختيار ملفات موردين تحتوي على أصناف مسجلة بالكتالوج.</p>
+					</div>
+				} else {
+					<div style="overflow-x:auto;">
+						<table class="table" id="comparison-results-table" style="width:100%; border-collapse:collapse;">
+							<thead>
+								<tr style="border-bottom:2px solid var(--border); text-align:start; font-size:0.85rem; color:var(--text-muted);">
+									<th style="padding:0.75rem 1rem; font-weight:800;">اسم الصنف الدوائي</th>
+									<th style="padding:0.75rem 1rem; font-weight:800;">السعر الرسمي</th>
+									<th style="padding:0.75rem 1rem; font-weight:800;">أعلى نسبة خصم</th>
+									<th style="padding:0.75rem 1rem; font-weight:800;">أفضل سعر صافي</th>
+									<th style="padding:0.75rem 1rem; font-weight:800;">المورد صاحب أفضل سعر</th>
+									<th style="padding:0.75rem 1rem; font-weight:800;">عدد العروض المتاحة</th>
+									<th style="padding:0.75rem 1rem; font-weight:800;">حالة التطابق</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, row := range result.Rows {
+									<tr
+										class="comparison-row"
+										data-discount={ fmt.Sprintf("%.2f", row.BestDiscount) }
+										data-suppliers={ fmt.Sprintf("%d", row.TotalSuppliers) }
+										style="border-bottom:1px solid var(--border); font-size:0.875rem;"
+									>
+										<!-- Product Name -->
+										<td style="padding:0.85rem 1rem;">
+											<strong style="color:var(--text); display:block;">{ row.ProductName }</strong>
+											if row.SKU != "" {
+												<span style="font-size:0.75rem; color:var(--text-muted);" class="tabular-nums">كود: { row.SKU }</span>
+											}
+										</td>
+
+										<!-- Best Price -->
+										<td style="padding:0.85rem 1rem;" class="tabular-nums">
+											if row.BestPrice.IsPositive() {
+												<span>{ row.BestPrice.String() } ج.م</span>
+											} else {
+												<span style="color:var(--text-muted);">--</span>
+											}
+										</td>
+
+										<!-- Best Discount -->
+										<td style="padding:0.85rem 1rem;">
+											if row.BestDiscount > 0 {
+												<span class="badge badge-emerald" style="font-weight:800; font-size:0.85rem;">
+													{ fmt.Sprintf("%.1f%%", row.BestDiscount) }
+												</span>
+											} else {
+												<span class="badge badge-secondary" style="font-size:0.75rem;">بدون خصم</span>
+											}
+										</td>
+
+										<!-- Net Price -->
+										<td style="padding:0.85rem 1rem; font-weight:900; color:var(--accent);" class="tabular-nums">
+											if row.BestNetPrice.IsPositive() {
+												<span>{ row.BestNetPrice.String() } ج.م</span>
+											} else {
+												<span style="color:var(--text-muted);">--</span>
+											}
+										</td>
+
+										<!-- Best Supplier -->
+										<td style="padding:0.85rem 1rem;">
+											<span class="badge badge-sky" style="font-weight:700; font-size:0.8rem;">
+												🏢 { row.BestSupplier }
+											</span>
+										</td>
+
+										<!-- Total Suppliers -->
+										<td style="padding:0.85rem 1rem;" class="tabular-nums">
+											if row.TotalSuppliers > 1 {
+												<span class="badge badge-emerald" style="font-size:0.75rem;">
+													{ fmt.Sprintf("%d موردين", row.TotalSuppliers) }
+												</span>
+											} else {
+												<span class="badge badge-secondary" style="font-size:0.75rem;">
+													مورد واحد
+												</span>
+											}
+										</td>
+
+										<!-- Match Quality -->
+										<td style="padding:0.85rem 1rem;">
+											<span class="badge badge-secondary" style="font-size:0.75rem;">
+												@components.IconCheckCircle("icon-xs")
+												<span>تطابق ذكي مؤكد</span>
+											</span>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+		</div>
+
+		<!-- Script for filter tabs and CSV export -->
+		<script>
+			function applyTableFilter(filter, button) {
+				document.querySelectorAll('.filter-tab').forEach(b => {
+					b.classList.remove('btn-primary');
+					b.classList.add('btn-secondary');
+				});
+				button.classList.remove('btn-secondary');
+				button.classList.add('btn-primary');
+
+				const rows = document.querySelectorAll('.comparison-row');
+				rows.forEach(row => {
+					const disc = parseFloat(row.getAttribute('data-discount') || '0');
+					const sups = parseInt(row.getAttribute('data-suppliers') || '1', 10);
+
+					if (filter === 'all') {
+						row.style.display = '';
+					} else if (filter === 'best-discount') {
+						row.style.display = disc >= 15.0 ? '' : 'none';
+					} else if (filter === 'multi-offer') {
+						row.style.display = sups > 1 ? '' : 'none';
+					} else if (filter === 'single-offer') {
+						row.style.display = sups === 1 ? '' : 'none';
+					}
+				});
+			}
+
+			function exportComparisonTableToCSV() {
+				const table = document.getElementById('comparison-results-table');
+				if (!table) return;
+
+				let csv = [];
+				const rows = table.querySelectorAll('tr');
+				for (let i = 0; i < rows.length; i++) {
+					if (rows[i].style.display === 'none') continue;
+					let row = [], cols = rows[i].querySelectorAll('td, th');
+					for (let j = 0; j < cols.length; j++) {
+						let text = cols[j].innerText.replace(/"/g, '""').trim();
+						row.push('"' + text + '"');
+					}
+					csv.push(row.join(','));
+				}
+
+				const csvFile = new Blob(["\uFEFF" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+				const downloadLink = document.createElement("a");
+				downloadLink.download = `dawa24-discount-comparison-${new Date().toISOString().slice(0,10)}.csv`;
+				downloadLink.href = window.URL.createObjectURL(csvFile);
+				downloadLink.style.display = "none";
+				document.body.appendChild(downloadLink);
+				downloadLink.click();
+				document.body.removeChild(downloadLink);
+			}
+		</script>
+	}
+}

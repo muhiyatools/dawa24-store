@@ -84,6 +84,18 @@ func (r stubRepo) CreateHighlightSection(context.Context, *promo.HighlightSectio
 	r.fail("CreateHighlightSection")
 	return nil
 }
+func (r stubRepo) UpdateHighlightSection(context.Context, *promo.HighlightSection) error {
+	r.fail("UpdateHighlightSection")
+	return nil
+}
+func (r stubRepo) DeleteHighlightSection(context.Context, int64, int64) error {
+	r.fail("DeleteHighlightSection")
+	return nil
+}
+func (r stubRepo) GetHighlightSectionByID(context.Context, int64) (*promo.HighlightSection, error) {
+	r.fail("GetHighlightSectionByID")
+	return nil, nil
+}
 func (r stubRepo) ListHighlightSections(context.Context) ([]*promo.HighlightSection, error) {
 	r.fail("ListHighlightSections")
 	return nil, nil
@@ -192,6 +204,15 @@ func (happyRepo) RecordAdClick(ctx context.Context, adID int64, userID *int64, i
 func (happyRepo) CreateHighlightSection(ctx context.Context, h *promo.HighlightSection) error {
 	h.ID = 1
 	return nil
+}
+func (happyRepo) UpdateHighlightSection(ctx context.Context, h *promo.HighlightSection) error {
+	return nil
+}
+func (happyRepo) DeleteHighlightSection(ctx context.Context, id, orgID int64) error {
+	return nil
+}
+func (happyRepo) GetHighlightSectionByID(ctx context.Context, id int64) (*promo.HighlightSection, error) {
+	return &promo.HighlightSection{ID: id, Title: i18n.Text{"ar": "قسم مميز"}}, nil
 }
 func (happyRepo) ListHighlightSections(ctx context.Context) ([]*promo.HighlightSection, error) {
 	return []*promo.HighlightSection{{ID: 1, Title: i18n.Text{"en": "Featured"}}}, nil

@@ -135,17 +135,6 @@ func TestVendorPhase6Routes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Vendor GET /vendor/social-media returns 200",
-			path:   "/vendor/social-media",
-			method: "GET",
-			actor: &authctx.Actor{
-				UserID:         10,
-				OrganizationID: 2,
-				OrgType:        "supplier",
-			},
-			wantStatus: http.StatusOK,
-		},
-		{
 			name:   "Vendor GET /vendor/team/import returns 200",
 			path:   "/vendor/team/import",
 			method: "GET",

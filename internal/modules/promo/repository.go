@@ -23,6 +23,9 @@ type Repository interface {
 	RecordAdClick(ctx context.Context, adID int64, userID *int64, ip, ua string) error
 
 	CreateHighlightSection(ctx context.Context, h *HighlightSection) error
+	UpdateHighlightSection(ctx context.Context, h *HighlightSection) error
+	DeleteHighlightSection(ctx context.Context, id, orgID int64) error
+	GetHighlightSectionByID(ctx context.Context, id int64) (*HighlightSection, error)
 	ListHighlightSections(ctx context.Context) ([]*HighlightSection, error)
 	ListHighlightSectionsByOrg(ctx context.Context, orgID int64) ([]*HighlightSection, error)
 	AddHighlightItem(ctx context.Context, item *HighlightSectionItem) error

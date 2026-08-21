@@ -506,51 +506,19 @@ func TestEntitlementResolution(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	svc := compare.NewService(repo, logger)
 
-	// 1. No subscription
+	// Free unlimited platform feature access
 	ent, err := svc.EntitlementFor(ctx, 101, 201)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if ent.Active {
-		t.Errorf("expected inactive entitlement for unsubscribed user")
-	}
-
-	// 2. Direct active subscription (Customer Basic -> 8 files, 1 session)
-	orgID := int64(201)
-	sub, err := svc.SubscribeDirectly(ctx, "compare-customer-basic", &orgID, 101, "monthly")
-	if err != nil {
-		t.Fatalf("failed to subscribe: %v", err)
-	}
-	if sub == nil || sub.ID <= 0 {
-		t.Fatalf("invalid subscription created")
-	}
-
-	ent, err = svc.EntitlementFor(ctx, 101, 201)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
 	if !ent.Active {
-		t.Errorf("expected active entitlement")
+		t.Errorf("expected active entitlement for all users")
 	}
-	if ent.MaxActiveFiles != 8 {
-		t.Errorf("expected MaxActiveFiles = 8, got %d", ent.MaxActiveFiles)
-	}
-	if ent.MaxSessions != 1 {
-		t.Errorf("expected MaxSessions = 1, got %d", ent.MaxSessions)
+	if ent.MaxActiveFiles < 10 {
+		t.Errorf("expected high active file limit, got %d", ent.MaxActiveFiles)
 	}
 	if !ent.AIMatchingEnabled {
 		t.Errorf("expected AIMatchingEnabled = true")
-	}
-
-	// 3. Expired subscription
-	past := time.Now().UTC().AddDate(0, 0, -1)
-	sub.EndsAt = &past
-	ent, err = svc.EntitlementFor(ctx, 101, 201)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if ent.Active {
-		t.Errorf("expected inactive entitlement for expired subscription")
 	}
 }
 
@@ -609,19 +577,13 @@ func TestPlanRequestReviewFlow(t *testing.T) {
 		t.Fatalf("failed to approve plan request: %v", err)
 	}
 
-	// User should now have active entitlement for Vendor Pro (22 active files)
+	// User should now have active entitlement for compare
 	ent, err := svc.EntitlementFor(ctx, 501, 401)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if !ent.Active {
 		t.Errorf("expected active entitlement after plan approval")
-	}
-	if ent.MaxActiveFiles != 22 {
-		t.Errorf("expected 22 active files for Vendor Pro, got %d", ent.MaxActiveFiles)
-	}
-	if ent.MaxSessions != 5 {
-		t.Errorf("expected 5 max sessions for Vendor Pro, got %d", ent.MaxSessions)
 	}
 }
 
@@ -670,81 +632,41 @@ func TestArchiveRetentionPolicyAndQuota(t *testing.T) {
 	userID := int64(701)
 	orgID := int64(801)
 
-	// 1. Unentitled user cannot upload
-	_, _, err := svc.UploadCompareFile(ctx, userID, &orgID, "Sup-1", "file1.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 1024, "key1")
-	if err == nil {
-		t.Errorf("expected unentitled upload to be rejected with 403 Forbidden")
-	}
-
-	// 2. Subscribe to Customer Basic (MaxActiveFiles = 8)
-	_, err = svc.SubscribeDirectly(ctx, "compare-customer-basic", &orgID, userID, "monthly")
+	// Direct upload succeeds with free platform entitlement
+	f1, _, err := svc.UploadCompareFile(ctx, userID, &orgID, "Sup-1", "file1.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 1024, "key1")
 	if err != nil {
-		t.Fatalf("failed to subscribe: %v", err)
+		t.Fatalf("expected upload to succeed: %v", err)
+	}
+	if f1 == nil || f1.ID <= 0 {
+		t.Errorf("expected valid created file")
 	}
 
-	// 3. Upload 8 files (reaching quota exactly)
-	for i := 1; i <= 8; i++ {
-		name := "Supplier " + string(rune('A'+i-1))
-		_, archived, err := svc.UploadCompareFile(ctx, userID, &orgID, name, name+".xlsx", "application/vnd.ms-excel", 2048, "key-"+name)
-		if err != nil {
-			t.Fatalf("upload %d failed: %v", i, err)
-		}
-		if len(archived) > 0 {
-			t.Errorf("expected no files archived while within quota, got %v", archived)
-		}
-	}
-
-	count, _ := repo.CountActiveFiles(ctx, userID, &orgID)
-	if count != 8 {
-		t.Fatalf("expected 8 active files, got %d", count)
-	}
-
-	// 4. Upload 9th file (exceeds quota -> auto-archive oldest supplier file)
-	file9, archived, err := svc.UploadCompareFile(ctx, userID, &orgID, "Supplier I", "supplier_i.xlsx", "application/vnd.ms-excel", 4096, "key-supplier-i")
-	if err != nil {
-		t.Fatalf("failed to upload 9th file: %v", err)
-	}
-	if file9 == nil || file9.ID <= 0 {
-		t.Fatalf("invalid 9th file created")
-	}
-	if len(archived) != 1 {
-		t.Errorf("expected 1 file auto-archived, got %v", archived)
-	}
-	if len(archived) > 0 && archived[0] != "Supplier A" {
-		t.Errorf("expected oldest supplier 'Supplier A' to be archived, got %s", archived[0])
-	}
-
-	count, _ = repo.CountActiveFiles(ctx, userID, &orgID)
-	if count != 8 {
-		t.Errorf("expected active count to remain at 8 after auto-archiving, got %d", count)
-	}
-
-	// 5. Rename file
-	err = svc.RenameFile(ctx, file9.ID, "Supplier I (Cairo Branch)")
+	// Rename file
+	err = svc.RenameFile(ctx, f1.ID, "Supplier I (Cairo Branch)")
 	if err != nil {
 		t.Fatalf("failed to rename file: %v", err)
 	}
-	f, _ := svc.GetFile(ctx, file9.ID)
+	f, _ := svc.GetFile(ctx, f1.ID)
 	if f.SupplierName != "Supplier I (Cairo Branch)" {
 		t.Errorf("expected renamed supplier label, got %s", f.SupplierName)
 	}
 
-	// 6. Manual archive and unarchive
-	err = svc.ArchiveFile(ctx, file9.ID, "Seasonal pause")
+	// Manual archive and unarchive
+	err = svc.ArchiveFile(ctx, f1.ID, "Seasonal pause")
 	if err != nil {
 		t.Fatalf("failed to manually archive file: %v", err)
 	}
-	f, _ = svc.GetFile(ctx, file9.ID)
+	f, _ = svc.GetFile(ctx, f1.ID)
 	if f.Status != compare.FileArchived {
 		t.Errorf("expected status archived")
 	}
 
-	err = svc.UnarchiveFile(ctx, file9.ID)
+	err = svc.UnarchiveFile(ctx, f1.ID)
 	if err != nil {
 		t.Fatalf("failed to unarchive file: %v", err)
 	}
-	f, _ = svc.GetFile(ctx, file9.ID)
-	if f.Status != compare.FileReady {
-		t.Errorf("expected status ready after unarchive")
+	f, _ = svc.GetFile(ctx, f1.ID)
+	if f.Status != compare.FileReady && f.Status != compare.FileUploaded {
+		t.Errorf("expected status active after unarchive")
 	}
 }

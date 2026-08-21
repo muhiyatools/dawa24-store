@@ -80,6 +80,9 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	if h.catSvc != nil {
 		data.Products, _ = h.catSvc.Search(ctx, catalog.SearchParams{OrganizationID: &id, Limit: 24})
 	}
+	if h.promoSvc != nil {
+		data.Sections, _ = h.promoSvc.ListHighlightSectionsByOrg(ctx, id)
+	}
 	if h.orgSvc != nil {
 		data.Reviews, _ = h.orgSvc.ListReviews(ctx, id, 20, 0)
 		data.Policies, _ = h.orgSvc.ListPolicies(ctx, id)

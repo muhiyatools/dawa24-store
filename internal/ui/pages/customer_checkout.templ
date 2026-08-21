@@ -152,57 +152,18 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 								</div>
 
 								<div style="display:flex; flex-direction:column; gap:0.875rem;">
-									<!-- Option 1: Wallet -->
-									<label style="display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--accent); background:var(--accent-subtle); border-radius:var(--radius-xl); cursor:pointer;">
-										<input type="radio" name="payment_method" value="wallet" checked style="margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);" />
+									<!-- Only Cash on Delivery -->
+									<label style="display:flex; align-items:flex-start; gap:1rem; padding:1.25rem; border:1.5px solid var(--accent); background:var(--accent-subtle); border-radius:var(--radius-xl); cursor:pointer;">
+										<input type="radio" name="payment_method" value="cod" checked style="margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);" />
 										<div style="flex:1;">
-											<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-												<div style="font-weight:800; font-size:0.95rem; color:var(--text);">
-													خصم مباشر من رصيد المحفظة الإلكترونية
+											<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem; flex-wrap:wrap; gap:0.5rem;">
+												<div style="font-weight:800; font-size:1rem; color:var(--text);">
+													الدفع عند الاستلام والتسليم (نقداً / شيك مقبول الدفع)
 												</div>
-												<span class="badge badge-sky" style="font-weight:700;">تسوية فورية من المحفظة</span>
+												<span class="badge badge-sky" style="font-weight:700;">تسوية مباشرة مع مندوب التوزيع</span>
 											</div>
-											<div style="font-size:0.8rem; color:var(--text-secondary);">
-												تنفيذ فوري للطلبية مع تأكيد حجز التشغيلات لدى الموردين بدون انتظار التحصيل
-											</div>
-										</div>
-									</label>
-
-									<!-- Option 2: Cash / Cheque on Delivery -->
-									<label style="display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--border); background:var(--surface-sunken); border-radius:var(--radius-xl); cursor:pointer;">
-										<input type="radio" name="payment_method" value="cod" style="margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);" />
-										<div style="flex:1;">
-											<div style="font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;">
-												الدفع عند الاستلام (نقداً / شيك مقبول الدفع)
-											</div>
-											<div style="font-size:0.8rem; color:var(--text-muted);">
-												التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة وفحص الفاتورة
-											</div>
-										</div>
-									</label>
-
-									<!-- Option 3: InstaPay / Bank Transfer -->
-									<label style="display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--border); background:var(--surface-sunken); border-radius:var(--radius-xl); cursor:pointer;">
-										<input type="radio" name="payment_method" value="instapay" style="margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);" />
-										<div style="flex:1;">
-											<div style="font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;">
-												إنستاباي / تحويل بنكي لحظي (InstaPay / Bank Transfer)
-											</div>
-											<div style="font-size:0.8rem; color:var(--text-muted);">
-												تسوية سريعة عبر الحسابات البنكية المعتمدة للمنظومة
-											</div>
-										</div>
-									</label>
-
-									<!-- Option 4: Credit Facility (30 Days) -->
-									<label style="display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px solid var(--border); background:var(--surface-sunken); border-radius:var(--radius-xl); cursor:pointer;">
-										<input type="radio" name="payment_method" value="credit_30" style="margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);" />
-										<div style="flex:1;">
-											<div style="font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;">
-												تسهيلات ائتمانية آجلة (30 يوماً)
-											</div>
-											<div style="font-size:0.8rem; color:var(--text-muted);">
-												سداد مؤجل وفقاً للحد الائتماني المعتمد لمؤسستكم الصيدلية
+											<div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+												التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة الفاتورة الضريبية الإلكترونية (ETA e-Invoice).
 											</div>
 										</div>
 									</label>

@@ -66,6 +66,7 @@ type CartItem struct {
 	MinOrderPrice    money.Amount `json:"min_order_price,omitempty"`
 	OfferID          *int64       `json:"offer_id,omitempty"` // offer the item was added under (064)
 	Quantity         int          `json:"quantity"`
+	AvailableStock   int          `json:"available_stock,omitempty"`
 	UnitPrice        money.Amount `json:"unit_price"`
 	CreatedAt        time.Time    `json:"created_at"`
 	UpdatedAt        time.Time    `json:"updated_at"`

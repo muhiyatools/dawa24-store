@@ -242,15 +242,24 @@ func (r *Repository) RecordAdClick(ctx context.Context, adID int64, userID *int6
 func (r *Repository) CreateHighlightSection(ctx context.Context, h *promo.HighlightSection) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO promo.highlight_sections (title, slug, display_order, is_active, owner_type, organization_id)
-			VALUES ($1, $2, $3, $4, $5, $6)
-			RETURNING id, public_id, created_at;
+			INSERT INTO promo.highlight_sections (title, description, section_type, color, slug, display_order, is_active, show_in_header, owner_type, organization_id)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+			RETURNING id, public_id, created_at, updated_at;
 		`
 		if h.OwnerType == "" {
 			h.OwnerType = "platform"
 		}
-		return tx.QueryRow(txCtx, query, h.Title, h.Slug, h.DisplayOrder, h.IsActive, h.OwnerType, h.OrganizationID).
-			Scan(&h.ID, &h.PublicID, &h.CreatedAt)
+		if h.SectionType == "" {
+			h.SectionType = "about"
+		}
+		if h.Color == "" {
+			h.Color = "#0284c7"
+		}
+		return tx.QueryRow(txCtx, query,
+			h.Title, h.Description, h.SectionType, h.Color,
+			h.Slug, h.DisplayOrder, h.IsActive, h.ShowInHeader,
+			h.OwnerType, h.OrganizationID,
+		).Scan(&h.ID, &h.PublicID, &h.CreatedAt, &h.UpdatedAt)
 	})
 }
 
