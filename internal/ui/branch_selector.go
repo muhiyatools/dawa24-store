@@ -38,6 +38,7 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 			selection.Active = active
 			actor.BranchID = active
 		} else if len(options) > 0 {
+			selection.Active = &options[0].ID
 			actor.BranchID = &options[0].ID
 		}
 

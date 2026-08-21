@@ -373,10 +373,7 @@ func (h *UIHandler) assertCartLineAvailable(
 ) bool {
 	ctx := r.Context()
 
-	branchID := int64(0)
-	if actor.BranchID != nil {
-		branchID = *actor.BranchID
-	}
+	branchID := h.pharmacyBranchID(ctx, &actor)
 
 	res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 		VariantID:        variantID,

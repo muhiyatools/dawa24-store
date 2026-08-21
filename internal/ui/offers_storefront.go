@@ -3,6 +3,7 @@ package ui
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -25,6 +26,10 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 
 	actor, hasActor := authctx.From(ctx)
 	isPharmacy := hasActor && actor.IsCustomer()
+	customerBranchID := int64(0)
+	if isPharmacy {
+		customerBranchID = h.pharmacyBranchID(ctx, &actor)
+	}
 
 	// 1. Process all direct vendor supply variants
 	for _, v := range variants {
@@ -80,27 +85,23 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		}
 
 		isCovered := true
-		canAddToCart := true
+		canAddToCart := (stockQty > 0)
 		covReason := ""
 
 		if isPharmacy {
-			branchID := int64(0)
-			if actor.BranchID != nil {
-				branchID = *actor.BranchID
-			}
-			if h.commSvc != nil {
+			if h.commSvc != nil && customerBranchID > 0 {
 				res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 					VariantID:        v.ID,
 					VendorOrgID:      v.OrganizationID,
 					CustomerOrgID:    actor.OrganizationID,
-					CustomerBranchID: branchID,
-					Quantity:         1,
+					CustomerBranchID: customerBranchID,
+					Quantity:         minQty,
 					When:             time.Now(),
 				})
 				if err == nil {
 					if res.Allowed {
 						isCovered = true
-						canAddToCart = true
+						canAddToCart = (stockQty > 0)
 					} else {
 						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
 							isCovered = false
@@ -110,13 +111,18 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 							isCovered = true
 							covReason = "نفد المخزون لدى المورد"
 							canAddToCart = false
+						} else if res.Reason == commerce.ReasonBelowMinimum {
+							isCovered = true
+							canAddToCart = (stockQty > 0)
 						} else {
 							isCovered = true
 							covReason = res.MessageAr
-							canAddToCart = false
+							canAddToCart = (stockQty > 0)
 						}
 					}
 				}
+			} else if customerBranchID <= 0 {
+				canAddToCart = (stockQty > 0)
 			}
 		} else {
 			if stockQty <= 0 {
@@ -204,7 +210,51 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		}
 	}
 
+	// Sort offers: actionable & covered first, then lowest price
+	sort.SliceStable(offers, func(i, j int) bool {
+		if offers[i].CanAddToCart != offers[j].CanAddToCart {
+			return offers[i].CanAddToCart
+		}
+		if offers[i].IsCovered != offers[j].IsCovered {
+			return offers[i].IsCovered
+		}
+		return offers[i].Price.Minor() < offers[j].Price.Minor()
+	})
+
 	return offers
+}
+
+// pharmacyBranchID resolves the branch the actor is buying for: the
+// branch chosen in the shell selector, else the member-bound branch, else
+// the main branch, else the first active one.
+func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) int64 {
+	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
+		return 0
+	}
+	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
+		return *selection.Active
+	}
+	if actor.BranchID != nil && *actor.BranchID > 0 {
+		return *actor.BranchID
+	}
+	branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+	if err != nil {
+		return 0
+	}
+	for _, b := range branches {
+		if b == nil || b.Status != "active" {
+			continue
+		}
+		if b.IsMain {
+			return b.ID
+		}
+	}
+	for _, b := range branches {
+		if b != nil && b.Status == "active" {
+			return b.ID
+		}
+	}
+	return 0
 }
 
 // orgName prefers the Arabic trade name, then the English one, then the

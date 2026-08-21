@@ -135,6 +135,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		if h.idSvc != nil {
 			pub.Use(identityHttp.OptionalAuth(h.idSvc, "dawa24_session"))
 		}
+		pub.Use(h.BuyingBranchSelector)
 		pub.Use(h.siteSettingsMiddleware)
 		pub.Use(h.visitorMiddleware)
 		RegisterStaticRoutes(pub)
