@@ -279,6 +279,25 @@ func (r *Repository) DeleteFile(ctx context.Context, id int64) error {
 
 const rowColumns = `id, file_id, organization_id, row_number, raw_name, normalized_name, sku, price, discount, price_after_discount, matched_product_id, match_confidence, match_method, meta, created_at`
 
+func toDBMatchMethod(m compare.MatchMethod) string {
+	switch string(m) {
+	case "exact", "exact_name", "direct_id":
+		return "exact"
+	case "sku", "barcode":
+		return "sku"
+	case "normalized", "partial":
+		return "normalized"
+	case "fuzzy":
+		return "fuzzy"
+	case "ai":
+		return "ai"
+	case "manual", "saved_mapping":
+		return "manual"
+	default:
+		return "none"
+	}
+}
+
 func (r *Repository) InsertFileRows(ctx context.Context, rows []*compare.CompareFileRow) error {
 	if len(rows) == 0 {
 		return nil
@@ -293,12 +312,10 @@ func (r *Repository) InsertFileRows(ctx context.Context, rows []*compare.Compare
 		`
 		for _, row := range rows {
 			metaJSON, _ := json.Marshal(row.Meta)
-			if row.MatchMethod == "" {
-				row.MatchMethod = compare.MatchMethodUnmatched
-			}
+			dbMethod := toDBMatchMethod(row.MatchMethod)
 			batch.Queue(query,
 				row.FileID, row.OrganizationID, row.RowNumber, row.RawName, row.NormalizedName, row.SKU,
-				row.Price, row.Discount, row.PriceAfterDiscount, row.MatchedProductID, row.MatchConfidence, string(row.MatchMethod), metaJSON,
+				row.Price, row.Discount, row.PriceAfterDiscount, row.MatchedProductID, row.MatchConfidence, dbMethod, metaJSON,
 			)
 		}
 
@@ -372,7 +389,8 @@ func (r *Repository) UpdateFileRowMatch(ctx context.Context, rowID int64, matche
 			    match_confidence = $3
 			WHERE id = $4;
 		`
-		_, err := tx.Exec(txCtx, query, matchedProductID, string(method), confidence, rowID)
+		dbMethod := toDBMatchMethod(method)
+		_, err := tx.Exec(txCtx, query, matchedProductID, dbMethod, confidence, rowID)
 		return err
 	})
 }

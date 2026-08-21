@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xuri/excelize/v2"
@@ -20,7 +19,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
-	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -248,31 +246,14 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		supplierName = strings.TrimSuffix(header.Filename, ext)
 	}
 
-	// 1. Upload to MinIO object storage if configured
-	var storageKey string
-	if actor.OrganizationID > 0 {
-		storageKey = storage.KeyFor(actor.OrganizationID, fmt.Sprintf("compare/%d_%s", time.Now().Unix(), filepath.Base(header.Filename)))
-	} else {
-		storageKey = fmt.Sprintf("users/%d/compare/%d_%s", actor.UserID, time.Now().Unix(), filepath.Base(header.Filename))
-	}
-	if h.storage != nil {
-		if err := h.storage.Put(ctx, storageKey, bytes.NewReader(fileBytes), int64(len(fileBytes)), header.Header.Get("Content-Type")); err != nil {
-			h.log.WarnContext(ctx, "minio put upload warning", "error", err, "key", storageKey)
-		}
-	}
-
-	// 2. Also write to local storage as guaranteed disk fallback
-	localDiskPath := filepath.Join("data", filepath.FromSlash(storageKey))
-	_ = os.MkdirAll(filepath.Dir(localDiskPath), 0755)
-	_ = os.WriteFile(localDiskPath, fileBytes, 0644)
-
+	// 1. Save directly to local uploads directory (data/uploads/compare/)
 	localURL, localErr := saveUploadedBytes(fileBytes, header.Filename, "compare")
 	if localErr != nil {
-		h.log.WarnContext(ctx, "local disk save warning", "error", localErr)
+		h.log.ErrorContext(ctx, "failed to save uploaded compare file to disk", "error", localErr)
+		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر حفظ الملف على السيرفر.")
+		return
 	}
-	if storageKey == "" || h.storage == nil {
-		storageKey = localURL
-	}
+	storageKey := localURL
 
 	var orgPtr *int64
 	if actor.OrganizationID > 0 {
@@ -445,33 +426,34 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// loadFileHeadersAndPreview extracts headers and sample preview rows from storage, local disk, or database.
+// loadFileHeadersAndPreview extracts headers and sample preview rows from local disk or database.
 func (h *UIHandler) loadFileHeadersAndPreview(ctx context.Context, file *compare.CompareFile) ([]string, [][]string) {
 	var headers []string
 	var preview [][]string
 
 	if file != nil && file.StorageKey != "" {
-		if h.storage != nil && !strings.HasPrefix(file.StorageKey, "/") && !strings.HasPrefix(file.StorageKey, "data/") {
-			reader, _, err := h.storage.Get(ctx, file.StorageKey)
-			if err == nil {
-				headers, preview, _ = h.parseFilePreview(reader, file.OriginalFilename)
-				reader.Close()
-			}
+		candidates := []string{
+			file.StorageKey,
+			filepath.Join("data", filepath.FromSlash(file.StorageKey)),
+			"data" + file.StorageKey,
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
 		}
-		if len(headers) == 0 {
-			localPath := file.StorageKey
-			if strings.HasPrefix(localPath, "/uploads/") {
-				localPath = "data" + localPath
-			}
-			f, err := os.Open(localPath)
-			if err == nil {
+		if strings.HasPrefix(file.StorageKey, "/uploads/") {
+			candidates = append(candidates, "data"+file.StorageKey)
+		}
+		for _, cand := range candidates {
+			if f, err := os.Open(cand); err == nil {
 				headers, preview, _ = h.parseFilePreview(f, file.OriginalFilename)
 				f.Close()
+				if len(headers) > 0 {
+					break
+				}
 			}
 		}
 	}
 
-	// Fallback to already extracted rows in DB if storage read didn't populate headers
+	// Fallback to already extracted rows in DB if disk read didn't populate headers
 	if len(headers) == 0 && file != nil && h.compareSvc != nil {
 		if dbRows, _ := h.compareSvc.ListFileRows(ctx, file.ID, 5, 0); len(dbRows) > 0 {
 			headers = []string{"كود الصنف", "اسم الصنف", "السعر", "الخصم"}

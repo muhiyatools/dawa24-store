@@ -216,16 +216,19 @@ type CompareFile struct {
 type MatchMethod string
 
 const (
-	MatchMethodSavedMapping MatchMethod = "saved_mapping"
-	MatchMethodManual       MatchMethod = "manual"
-	MatchMethodDirectID     MatchMethod = "direct_id"
+	MatchMethodNone         MatchMethod = "none"
+	MatchMethodExact        MatchMethod = "exact"
+	MatchMethodExactName    MatchMethod = "exact"
 	MatchMethodSKU          MatchMethod = "sku"
-	MatchMethodBarcode      MatchMethod = "barcode"
-	MatchMethodExactName    MatchMethod = "exact_name"
+	MatchMethodBarcode      MatchMethod = "sku"
+	MatchMethodNormalized   MatchMethod = "normalized"
+	MatchMethodPartial      MatchMethod = "normalized"
 	MatchMethodFuzzy        MatchMethod = "fuzzy"
-	MatchMethodPartial      MatchMethod = "partial"
 	MatchMethodAI           MatchMethod = "ai"
-	MatchMethodUnmatched    MatchMethod = "unmatched"
+	MatchMethodManual       MatchMethod = "manual"
+	MatchMethodSavedMapping MatchMethod = "manual"
+	MatchMethodDirectID     MatchMethod = "exact"
+	MatchMethodUnmatched    MatchMethod = "none"
 )
 
 // CompareFileRow represents an individual drug/product item extracted from a spreadsheet.

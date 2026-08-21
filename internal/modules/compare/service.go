@@ -789,7 +789,7 @@ func (s *Service) extractRowFromRecord(record []string, headers []string, file *
 		Price:              price,
 		Discount:           discount,
 		PriceAfterDiscount: priceAfterDiscount,
-		MatchMethod:        MatchMethodUnmatched,
+		MatchMethod:        MatchMethodNone,
 	}
 }
 
