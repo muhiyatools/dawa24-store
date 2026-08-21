@@ -974,6 +974,58 @@ a:hover {
 /* ============================================================
    MODAL & DIALOG SYSTEM
    ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(8, 12, 22, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 9999);
+  padding: 1.5rem;
+  box-sizing: border-box;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 200ms ease, visibility 200ms ease;
+}
+
+.modal-overlay.hidden,
+.modal-overlay[style*="display: none"] {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.modal-card {
+  background: var(--surface-raised, #1e293b);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-2xl, 24px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  width: min(94vw, 580px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  animation: modalPop 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 dialog.modal {
   position: fixed;
   inset: 0;

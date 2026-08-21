@@ -118,7 +118,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<h2 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">إضافة قسم مميز جديد للبروفايل</h2></div><form method=\"POST\" action=\"/vendor/storefront/section\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Row 1: Titles --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"title_ar\" required placeholder=\"مثال: رؤيتنا للتميز الدوائي\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" placeholder=\"e.g. Our Vision\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><!-- Row 2: Type, Order, Color --><div style=\"display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:1rem;\" class=\"form-grid-3\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">نوع وتصنيف القسم <span style=\"color:var(--danger-text);\">*</span></label> <select name=\"section_type\" required class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"vision\">رؤيتنا (Our Vision)</option> <option value=\"goals\">أهدافنا (Our Goals)</option> <option value=\"about\" selected>حولنا (About Us)</option> <option value=\"why_us\">لماذا نحن (Why Choose Us)</option> <option value=\"features\">الميزات (Features)</option> <option value=\"services\">الخدمات (Services)</option> <option value=\"achievements\">الإنجازات (Achievements)</option> <option value=\"certifications\">الشهادات والاعتمادات (Certifications)</option> <option value=\"stats\">إحصائيات (Stats)</option> <option value=\"special_info\">معلومات خاصة (Special Info)</option></select></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"0\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\" selected>أزرق سماوي (Sky Blue)</option> <option value=\"#10b981\">أخضر زمردي (Emerald Green)</option> <option value=\"#6366f1\">نيلي موحد (Indigo)</option> <option value=\"#8b5cf6\">بنفسجي ملكي (Purple)</option> <option value=\"#f59e0b\">كهرماني (Amber)</option> <option value=\"#ec4899\">وردي عصري (Pink)</option></select></div></div><!-- Row 3: Rich Content / Descriptions --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى والوصف التفصيلي (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required placeholder=\"اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة، أو أي معلومات تود إبرازها للصيدليات...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى والوصف التفصيلي (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" placeholder=\"Detailed content and description in English...\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div></div><!-- Row 4: Toggles --><div style=\"display:flex; align-items:center; gap:2rem; padding:0.5rem 0;\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>القسم نشط ومفعل</span></label> <label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>إظهار في رأس بروفايل المورد العام</span></label></div><button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start; padding:0.75rem 2rem; font-weight:800; font-size:0.95rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<h2 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">إضافة قسم مميز جديد للبروفايل</h2></div><form method=\"POST\" action=\"/vendor/storefront/section\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Row 1: Titles --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"title_ar\" required placeholder=\"مثال: رؤيتنا للتميز الدوائي\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" placeholder=\"e.g. Our Vision\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><!-- Row 2: Order & Color --><input type=\"hidden\" name=\"section_type\" value=\"about\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"0\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\" selected>أزرق سماوي (Sky Blue)</option> <option value=\"#10b981\">أخضر زمردي (Emerald Green)</option> <option value=\"#6366f1\">نيلي موحد (Indigo)</option> <option value=\"#8b5cf6\">بنفسجي ملكي (Purple)</option> <option value=\"#f59e0b\">كهرماني (Amber)</option> <option value=\"#ec4899\">وردي عصري (Pink)</option></select></div></div><!-- Row 3: Rich Content / Descriptions --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى والوصف التفصيلي (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required placeholder=\"اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة، أو أي معلومات تود إبرازها للصيدليات...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى والوصف التفصيلي (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" placeholder=\"Detailed content and description in English...\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div></div><!-- Row 4: Toggles --><div style=\"display:flex; align-items:center; gap:2rem; padding:0.5rem 0;\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>القسم نشط ومفعل</span></label> <label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>إظهار في رأس بروفايل المورد العام</span></label></div><button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start; padding:0.75rem 2rem; font-weight:800; font-size:0.95rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -133,7 +133,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d أقسام مسجلة", len(sections)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 188, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 173, Col: 123}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -161,7 +161,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeIcon(s.SectionType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 205, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 190, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -174,77 +174,64 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(s.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 209, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 194, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</strong> <span class=\"badge badge-sky\" style=\"font-size:0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</strong> ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if s.IsActive {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">نشط ومعروض</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">معطل</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div style=\"font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;\" class=\"tabular-nums\">الترتيب: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var6 string
-					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeLabel(s.SectionType))
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.DisplayOrder))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 212, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 203, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">نشط ومعروض</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">معطل</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div style=\"font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;\" class=\"tabular-nums\">الترتيب: ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.DisplayOrder))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 221, Col: 63}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.ShowInHeader {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>• معروض في بروفايل الصيدليات</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>• معروض في بروفايل الصيدليات</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><!-- Action Buttons --><div style=\"display:flex; align-items:center; gap:0.5rem;\"><!-- Edit Modal Trigger Button --><button type=\"button\" class=\"btn btn-secondary btn-sm\" data-modal-open=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Action Buttons --><div style=\"display:flex; align-items:center; gap:0.5rem;\"><!-- Edit Modal Trigger Button --><button type=\"button\" class=\"btn btn-secondary btn-sm\" data-modal-open=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
+					var templ_7745c5c3_Var7 string
+					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 235, Col: 71}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 217, Col: 71}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" style=\"font-weight:700;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" style=\"font-weight:700;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -252,48 +239,48 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>تعديل</span></button><!-- Toggle Status Form --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>تعديل</span></button><!-- Toggle Status Form --><form method=\"POST\" action=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var8 templ.SafeURL
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/toggle", s.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 225, Col: 111}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if s.IsActive {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>تعطيل</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>تفعيل</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</button></form><!-- Delete Form --><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 templ.SafeURL
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/toggle", s.ID)))
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 243, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 236, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>تعطيل</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>تفعيل</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</button></form><!-- Delete Form --><form method=\"POST\" action=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var10 templ.SafeURL
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 254, Col: 111}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" style=\"margin:0; display:inline;\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon\" style=\"color:var(--danger-text); border-color:var(--danger-border);\" title=\"حذف القسم\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" style=\"margin:0; display:inline;\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon\" style=\"color:var(--danger-text); border-color:var(--danger-border);\" title=\"حذف القسم\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -301,102 +288,115 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</button></form></div></div><!-- Content Snippet Preview -->")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</button></form></div></div><!-- Content Snippet Preview -->")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Description.Get(i18n.Lang(lang)) != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div style=\"font-size:0.875rem; color:var(--text-secondary); line-height:1.6; background:var(--surface-raised); padding:0.85rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div style=\"font-size:0.875rem; color:var(--text-secondary); line-height:1.6; background:var(--surface-raised); padding:0.85rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var11 string
-						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(s.Description.Get(i18n.Lang(lang)))
+						var templ_7745c5c3_Var10 string
+						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(s.Description.Get(i18n.Lang(lang)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 265, Col: 46}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 247, Col: 46}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><!-- Edit Section Modal --> <div id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><!-- Edit Section Modal --> <div id=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var11 string
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 254, Col: 55}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"modal-backdrop\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem; box-shadow:0 20px 40px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.5rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 string
-					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeIcon(s.SectionType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 272, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 261, Col: 75}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"modal-backdrop\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem; box-shadow:0 20px 40px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.5rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--text); margin:0;\">تعديل القسم: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var13 string
-					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeIcon(s.SectionType))
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(s.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 279, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 263, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--text); margin:0;\">تعديل القسم المميز: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</h3></div><button type=\"button\" data-modal-close=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
-					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(s.Title.Get(i18n.Lang(lang)))
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 281, Col: 78}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 268, Col: 72}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</h3></div><button type=\"button\" data-modal-close=\"")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var15 string
-					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 286, Col: 72}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"btn-icon\" style=\"border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:1.25rem;\">✕</button></div><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"btn-icon\" style=\"border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:1.25rem;\">✕</button></div><form method=\"POST\" action=\"")
+					var templ_7745c5c3_Var15 templ.SafeURL
+					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/update", s.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 276, Col: 110}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var16 templ.SafeURL
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/update", s.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 294, Col: 110}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><input type=\"hidden\" name=\"section_type\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"title_ar\" required value=\"")
+					var templ_7745c5c3_Var16 string
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(s.SectionType)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 277, Col: 72}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"title_ar\" required value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(s.Title.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 298, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 281, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -409,245 +409,145 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(s.Title.Get("en"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 302, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 285, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><div style=\"display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">نوع القسم <span style=\"color:var(--danger-text);\">*</span></label> <select name=\"section_type\" required class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"vision\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "vision" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, ">رؤيتنا (Our Vision)</option> <option value=\"goals\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "goals" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, ">أهدافنا (Our Goals)</option> <option value=\"about\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "about" || s.SectionType == "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, ">حولنا (About Us)</option> <option value=\"why_us\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "why_us" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, ">لماذا نحن (Why Choose Us)</option> <option value=\"features\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "features" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, ">الميزات (Features)</option> <option value=\"services\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "services" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, ">الخدمات (Services)</option> <option value=\"achievements\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "achievements" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, ">الإنجازات (Achievements)</option> <option value=\"certifications\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "certifications" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, ">الشهادات والاعتمادات (Certifications)</option> <option value=\"stats\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "stats" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, ">إحصائيات (Stats)</option> <option value=\"special_info\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if s.SectionType == "special_info" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, " selected")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, ">معلومات خاصة (Special Info)</option></select></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", s.DisplayOrder))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 325, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 292, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Color == "#0284c7" || s.Color == "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, " selected")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, ">أزرق سماوي</option> <option value=\"#10b981\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, ">أزرق سماوي</option> <option value=\"#10b981\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Color == "#10b981" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, " selected")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, ">أخضر زمردي</option> <option value=\"#6366f1\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, ">أخضر زمردي</option> <option value=\"#6366f1\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Color == "#6366f1" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, " selected")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, ">نيلي موحد</option> <option value=\"#8b5cf6\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, ">نيلي موحد</option> <option value=\"#8b5cf6\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Color == "#8b5cf6" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, " selected")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, ">بنفسجي ملكي</option> <option value=\"#f59e0b\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, ">بنفسجي ملكي</option> <option value=\"#f59e0b\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Color == "#f59e0b" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, " selected")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, ">كهرماني</option> <option value=\"#ec4899\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, ">كهرماني</option> <option value=\"#ec4899\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Color == "#ec4899" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " selected")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, ">وردي عصري</option></select></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, ">وردي عصري</option></select></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(s.Description.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 344, Col: 175}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 311, Col: 175}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</textarea></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</textarea></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(s.Description.Get("en"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 348, Col: 176}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 315, Col: 176}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</textarea></div></div><div style=\"display:flex; align-items:center; gap:2rem; padding:0.5rem 0;\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</textarea></div></div><div style=\"display:flex; align-items:center; gap:2rem; padding:0.5rem 0;\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, " checked")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, " checked")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, " style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>القسم نشط ومفعل</span></label> <label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, " style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>القسم نشط ومفعل</span></label> <label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.ShowInHeader {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, " checked")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, " checked")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, " style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>إظهار في رأس بروفايل المورد</span></label></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;\"><button type=\"button\" data-modal-close=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, " style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>إظهار في رأس بروفايل المورد</span></label></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;\"><button type=\"button\" data-modal-close=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 367, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 334, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\" class=\"btn btn-secondary\" style=\"font-weight:700;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"btn btn-secondary\" style=\"font-weight:700;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -655,17 +555,17 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<span>حفظ التعديلات</span></button></div></form></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>حفظ التعديلات</span></button></div></form></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

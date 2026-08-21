@@ -111,24 +111,9 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 						</div>
 					</div>
 
-					<!-- Row 2: Type, Order, Color -->
-					<div style="display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:1rem;" class="form-grid-3">
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" style="font-weight:700; color:var(--text);">نوع وتصنيف القسم <span style="color:var(--danger-text);">*</span></label>
-							<select name="section_type" required class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-								<option value="vision">رؤيتنا (Our Vision)</option>
-								<option value="goals">أهدافنا (Our Goals)</option>
-								<option value="about" selected>حولنا (About Us)</option>
-								<option value="why_us">لماذا نحن (Why Choose Us)</option>
-								<option value="features">الميزات (Features)</option>
-								<option value="services">الخدمات (Services)</option>
-								<option value="achievements">الإنجازات (Achievements)</option>
-								<option value="certifications">الشهادات والاعتمادات (Certifications)</option>
-								<option value="stats">إحصائيات (Stats)</option>
-								<option value="special_info">معلومات خاصة (Special Info)</option>
-							</select>
-						</div>
-
+					<!-- Row 2: Order & Color -->
+					<input type="hidden" name="section_type" value="about" />
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" class="form-grid-2">
 						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" style="font-weight:700; color:var(--text);">ترتيب العرض</label>
 							<input type="number" name="display_order" value="0" min="0" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
@@ -208,9 +193,6 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 												<strong style="font-size:1.1rem; color:var(--text);">
 													{ s.Title.Get(i18n.Lang(lang)) }
 												</strong>
-												<span class="badge badge-sky" style="font-size:0.75rem;">
-													{ sectionTypeLabel(s.SectionType) }
-												</span>
 												if s.IsActive {
 													<span class="badge badge-emerald" style="font-size:0.75rem;">نشط ومعروض</span>
 												} else {
@@ -278,7 +260,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 										<div style="display:flex; align-items:center; gap:0.6rem;">
 											<span style="font-size:1.5rem;">{ sectionTypeIcon(s.SectionType) }</span>
 											<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-												تعديل القسم المميز: { s.Title.Get(i18n.Lang(lang)) }
+												تعديل القسم: { s.Title.Get(i18n.Lang(lang)) }
 											</h3>
 										</div>
 										<button
@@ -292,6 +274,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 									</div>
 
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/update", s.ID)) } style="display:flex; flex-direction:column; gap:1.25rem;">
+										<input type="hidden" name="section_type" value={ s.SectionType } />
 										<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 											<div class="form-group" style="margin-bottom:0;">
 												<label class="form-label" style="font-weight:700; color:var(--text);">العنوان (بالعربية) <span style="color:var(--danger-text);">*</span></label>
@@ -303,23 +286,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 											</div>
 										</div>
 
-										<div style="display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:1rem;">
-											<div class="form-group" style="margin-bottom:0;">
-												<label class="form-label" style="font-weight:700; color:var(--text);">نوع القسم <span style="color:var(--danger-text);">*</span></label>
-												<select name="section_type" required class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-													<option value="vision" selected?={ s.SectionType == "vision" }>رؤيتنا (Our Vision)</option>
-													<option value="goals" selected?={ s.SectionType == "goals" }>أهدافنا (Our Goals)</option>
-													<option value="about" selected?={ s.SectionType == "about" || s.SectionType == "" }>حولنا (About Us)</option>
-													<option value="why_us" selected?={ s.SectionType == "why_us" }>لماذا نحن (Why Choose Us)</option>
-													<option value="features" selected?={ s.SectionType == "features" }>الميزات (Features)</option>
-													<option value="services" selected?={ s.SectionType == "services" }>الخدمات (Services)</option>
-													<option value="achievements" selected?={ s.SectionType == "achievements" }>الإنجازات (Achievements)</option>
-													<option value="certifications" selected?={ s.SectionType == "certifications" }>الشهادات والاعتمادات (Certifications)</option>
-													<option value="stats" selected?={ s.SectionType == "stats" }>إحصائيات (Stats)</option>
-													<option value="special_info" selected?={ s.SectionType == "special_info" }>معلومات خاصة (Special Info)</option>
-												</select>
-											</div>
-
+										<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 											<div class="form-group" style="margin-bottom:0;">
 												<label class="form-label" style="font-weight:700; color:var(--text);">ترتيب العرض</label>
 												<input type="number" name="display_order" value={ fmt.Sprintf("%d", s.DisplayOrder) } min="0" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
