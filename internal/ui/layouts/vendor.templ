@@ -34,7 +34,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							@components.IconHome("icon-sm")
 							<span>لوحة التحكم</span>
 						</a>
-						<a href="/settings/organization" class={ "sidebar-link", templ.KV("active", activeNav == "organization" || activeNav == "user_organization") }>
+						<a href="/vendor/organization" class={ "sidebar-link", templ.KV("active", activeNav == "organization" || activeNav == "user_organization") }>
 							@components.IconBuilding("icon-sm")
 							<span>بيانات المنشأة</span>
 						</a>

@@ -47,6 +47,37 @@ func (m *mockOrgRepo) GetOrganizationByID(_ context.Context, id int64) (*Organiz
 	return o, nil
 }
 
+func (m *mockOrgRepo) GetSupplierProfile(_ context.Context, id int64) (*SupplierOrgProfile, error) {
+	o, ok := m.orgs[id]
+	if !ok {
+		return nil, nil
+	}
+	return &SupplierOrgProfile{
+		ID:                 o.ID,
+		NameAr:             o.LegalName,
+		NameEn:             o.LegalName,
+		Type:               string(o.Type),
+		MinOrderPrice:      o.MinOrderPrice,
+		MaxOrderPrice:      o.MaxOrderPrice,
+		OrganizationNumber: o.OrganizationNumber,
+		TaxNumber:          o.TaxNumber,
+		Status:             string(o.Status),
+	}, nil
+}
+
+func (m *mockOrgRepo) UpdateSupplierProfile(_ context.Context, p *SupplierOrgProfile) error {
+	o, ok := m.orgs[p.ID]
+	if ok {
+		o.LegalName = p.NameAr
+		o.Type = OrganizationType(p.Type)
+		o.MinOrderPrice = p.MinOrderPrice
+		o.MaxOrderPrice = p.MaxOrderPrice
+		o.OrganizationNumber = p.OrganizationNumber
+		o.TaxNumber = p.TaxNumber
+	}
+	return nil
+}
+
 func (m *mockOrgRepo) UpdateOrganizationStatus(_ context.Context, id int64, status OrganizationStatus) error {
 	o, ok := m.orgs[id]
 	if ok {

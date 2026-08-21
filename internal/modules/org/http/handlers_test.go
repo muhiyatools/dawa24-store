@@ -36,6 +36,14 @@ func (r stubRepo) GetOrganizationByID(ctx context.Context, id int64) (*org.Organ
 	r.fail("GetOrganizationByID")
 	return nil, nil
 }
+func (r stubRepo) GetSupplierProfile(ctx context.Context, id int64) (*org.SupplierOrgProfile, error) {
+	r.fail("GetSupplierProfile")
+	return nil, nil
+}
+func (r stubRepo) UpdateSupplierProfile(ctx context.Context, p *org.SupplierOrgProfile) error {
+	r.fail("UpdateSupplierProfile")
+	return nil
+}
 func (r stubRepo) UpdateOrganizationStatus(ctx context.Context, id int64, status org.OrganizationStatus) error {
 	r.fail("UpdateOrganizationStatus")
 	return nil
@@ -259,6 +267,16 @@ func (r stubRepo) SaveSocialMedia(ctx context.Context, orgID int64, links []*org
 
 type happyRepo struct{}
 
+func (happyRepo) GetSupplierProfile(ctx context.Context, id int64) (*org.SupplierOrgProfile, error) {
+	return &org.SupplierOrgProfile{
+		ID:     id,
+		NameAr: "Happy Supplier",
+		Type:   "supplier",
+	}, nil
+}
+func (happyRepo) UpdateSupplierProfile(ctx context.Context, p *org.SupplierOrgProfile) error {
+	return nil
+}
 func (happyRepo) SavePolicies(ctx context.Context, orgID int64, policies []*org.Policy) error {
 	return nil
 }

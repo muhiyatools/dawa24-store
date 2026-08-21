@@ -111,6 +111,12 @@ func (m *institutionalMockRepo) CreateOrganization(_ context.Context, _ *org.Org
 func (m *institutionalMockRepo) GetOrganizationByID(_ context.Context, _ int64) (*org.Organization, error) {
 	return nil, nil
 }
+func (m *institutionalMockRepo) GetSupplierProfile(_ context.Context, _ int64) (*org.SupplierOrgProfile, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) UpdateSupplierProfile(_ context.Context, _ *org.SupplierOrgProfile) error {
+	return nil
+}
 func (m *institutionalMockRepo) UpdateOrganizationStatus(_ context.Context, _ int64, _ org.OrganizationStatus) error {
 	return nil
 }

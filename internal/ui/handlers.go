@@ -26,6 +26,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -306,6 +307,9 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 // RequireVendor.
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
+	r.Get("/vendor/organization", h.VendorOrganizationPage)
+	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
+	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)
 	r.Get("/vendor/products", h.VendorProductsPage)
 	r.Get("/vendor/products/new", h.VendorVariantNewPage)
 	r.Get("/vendor/variants/new", h.VendorVariantNewPage)
@@ -697,6 +701,12 @@ func acceptLanguage(header string) string {
 // its tab on the unified page.
 func redirectToSettingsTab(tab string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if tab == "organization" {
+			if actor, ok := authctx.From(r.Context()); ok && actor.OrgType == "vendor" {
+				http.Redirect(w, r, "/vendor/organization", http.StatusSeeOther)
+				return
+			}
+		}
 		http.Redirect(w, r, "/settings?tab="+tab, http.StatusMovedPermanently)
 	}
 }

@@ -1,0 +1,362 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, noticeType, noticeMsg string) {
+	@layouts.VendorShell("بيانات المنشأة والهوية التجارية | دواء 24", "organization", lang, dir) {
+		<div style="max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:1.75rem; padding-bottom:3.5rem;">
+			
+			<!-- Notice Toast -->
+			if noticeMsg != "" {
+				if noticeType == "error" {
+					<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--danger-text); font-weight:700;">
+						<span style="font-size:1.25rem;">⚠️</span>
+						<span>{ noticeMsg }</span>
+					</div>
+				} else {
+					<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--primary-700); font-weight:700;">
+						<span style="font-size:1.25rem;">✅</span>
+						<span>{ noticeMsg }</span>
+					</div>
+				}
+			}
+
+			<!-- Top Banner -->
+			<div class="card" style="padding:2rem 2.25rem; background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+				<div>
+					<div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--primary-600); margin-bottom:0.35rem; font-family:var(--font-mono, monospace);">
+						لوحة المورد المعتمد • إدارة المنشأة
+					</div>
+					<h1 style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0;">
+						بيانات المنشأة والهوية التجارية
+					</h1>
+					<p style="font-size:0.9rem; color:var(--text-secondary); margin:0.35rem 0 0; line-height:1.6;">
+						تعديل الاسم التجاري، حدود أسعار الطلبات، أرقام التواصل والتراخيص، والشعار الرسمي للمنشأة.
+					</p>
+				</div>
+				if profile.ID > 0 {
+					<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", profile.ID)) } target="_blank" class="btn btn-secondary" style="font-weight:700; border-radius:var(--radius-full); gap:0.5rem;">
+						@components.IconGlobe("icon-xs")
+						<span>عرض الصفحة العامة للمورد 🌐</span>
+					</a>
+				}
+			</div>
+
+			<!-- Main Form -->
+			<form method="POST" action="/vendor/organization" enctype="multipart/form-data" class="card" style="padding:2.25rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:2.25rem; box-shadow:0 6px 24px rgba(0,0,0,0.05);">
+				
+				<!-- 1. Identity Section -->
+				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					<div style="display:flex; align-items:center; gap:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+						<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--primary-subtle, rgba(16,185,129,0.12)); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+							🏢
+						</div>
+						<div>
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+								البيانات الأساسية والهوية
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0;">الاسم الرسمي للمؤسسة والتصنيف التجاري</p>
+						</div>
+					</div>
+
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								اسم المؤسسة بالعربية <span style="color:var(--danger-text);">*</span>
+							</label>
+							<input
+								type="text"
+								name="name_ar"
+								value={ profile.NameAr }
+								required
+								class="input-field"
+								style="height:44px; font-weight:600; border-radius:var(--radius-lg);"
+								placeholder="مثال: سمارت كودز لتوزيع الأدوية"
+							/>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								اسم المؤسسة بالإنجليزية <span style="color:var(--danger-text);">*</span>
+							</label>
+							<input
+								type="text"
+								name="name_en"
+								value={ profile.NameEn }
+								required
+								class="input-field"
+								style="height:44px; font-weight:600; border-radius:var(--radius-lg);"
+								placeholder="Example: Smart Codes Pharma Distribution"
+							/>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								النوع / التصنيف <span style="color:var(--danger-text);">*</span>
+							</label>
+							<select name="type" class="input-field" style="height:44px; font-weight:600; border-radius:var(--radius-lg);">
+								<option value="supplier" selected?={ profile.Type == "supplier" || profile.Type == "vendor" }>مورد (Supplier)</option>
+								<option value="company" selected?={ profile.Type == "company" }>شركة توزيع (Company)</option>
+								<option value="agency" selected?={ profile.Type == "agency" }>وكالة / مستورد (Agency)</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<!-- 2. Order Price Limits Section -->
+				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;">
+					<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+							💰
+						</div>
+						<div>
+							<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+								إعدادات الحد الأدنى والأقصى لسعر الطلب
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.15rem 0 0;">
+								تحديد القيود المالية لقيمة الطلبات المسموح بها لهذه المنظمة
+							</p>
+						</div>
+					</div>
+
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								الحد الأدنى لسعر الطلب <span style="color:var(--danger-text);">*</span>
+							</label>
+							<div style="position:relative; display:flex; align-items:center;">
+								<input
+									type="number"
+									step="0.01"
+									min="0"
+									name="min_order_price"
+									value={ profile.MinOrderPrice.String() }
+									required
+									class="input-field"
+									style="height:44px; font-weight:700; font-family:var(--font-mono, monospace); padding-inline-end:3.75rem; border-radius:var(--radius-lg);"
+									placeholder="10.00"
+								/>
+								<span style="position:absolute; inset-inline-end:1rem; font-size:0.8rem; font-weight:800; color:var(--text-muted);">EGP</span>
+							</div>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								الحد الأقصى لسعر الطلب <span style="color:var(--danger-text);">*</span>
+							</label>
+							<div style="position:relative; display:flex; align-items:center;">
+								<input
+									type="number"
+									step="0.01"
+									min="0"
+									name="max_order_price"
+									value={ profile.MaxOrderPrice.String() }
+									required
+									class="input-field"
+									style="height:44px; font-weight:700; font-family:var(--font-mono, monospace); padding-inline-end:3.75rem; border-radius:var(--radius-lg);"
+									placeholder="50.00"
+								/>
+								<span style="position:absolute; inset-inline-end:1rem; font-size:0.8rem; font-weight:800; color:var(--text-muted);">EGP</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 3. Contact & Location Section -->
+				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					<div style="display:flex; align-items:center; gap:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+						<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(14,165,233,0.12); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+							📞
+						</div>
+						<div>
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+								معلومات الاتصال والضرائب
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0;">بيانات التواصل الرسمي والعنوان والرقم الضريبي</p>
+						</div>
+					</div>
+
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								رقم المنظمة
+							</label>
+							<input
+								type="text"
+								name="organization_number"
+								value={ profile.OrganizationNumber }
+								class="input-field"
+								style="height:44px; font-weight:600; border-radius:var(--radius-lg);"
+								placeholder="مثال: 267244"
+							/>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								البريد الإلكتروني
+							</label>
+							<input
+								type="email"
+								name="email"
+								value={ profile.Email }
+								class="input-field"
+								style="height:44px; font-weight:600; border-radius:var(--radius-lg);"
+								placeholder="info@smartcodes.com"
+							/>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								رقم الهاتف
+							</label>
+							<input
+								type="text"
+								name="phone"
+								value={ profile.Phone }
+								class="input-field"
+								style="height:44px; font-weight:600; border-radius:var(--radius-lg);"
+								placeholder="01099887766"
+							/>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								الرقم الضريبي
+							</label>
+							<input
+								type="text"
+								name="tax_number"
+								value={ profile.TaxNumber }
+								class="input-field"
+								style="height:44px; font-weight:600; border-radius:var(--radius-lg);"
+								placeholder="TX431256"
+							/>
+						</div>
+
+						<div style="grid-column:1 / -1;">
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								العنوان الرئيسي
+							</label>
+							<input
+								type="text"
+								name="address"
+								value={ profile.Address }
+								class="input-field"
+								style="height:44px; font-weight:600; border-radius:var(--radius-lg);"
+								placeholder="الجيزة، مصر"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<!-- 4. Description, Logo & Cover Section -->
+				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					<div style="display:flex; align-items:center; gap:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+						<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(168,85,247,0.12); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+							📝
+						</div>
+						<div>
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+								الوصف والشعار وصورة الغلاف
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0;">نبذة عن المورد وصور الهوية البصرية المعروضة للعملاء</p>
+						</div>
+					</div>
+
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								الوصف (بالعربية)
+							</label>
+							<textarea
+								name="description_ar"
+								rows="3"
+								class="input-field"
+								style="padding:0.75rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem;"
+								placeholder="شركة متخصصة في توزيع وتوريد الأدوية والمستلزمات الطبية..."
+							>{ profile.DescriptionAr }</textarea>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+								الوصف (بالإنجليزية)
+							</label>
+							<textarea
+								name="description_en"
+								rows="3"
+								class="input-field"
+								style="padding:0.75rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem;"
+								placeholder="Specialized company in pharmaceutical and healthcare distribution..."
+							>{ profile.DescriptionEn }</textarea>
+						</div>
+					</div>
+
+					<!-- Logo & Cover Upload Row -->
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-top:0.5rem;">
+						
+						<!-- Logo Upload -->
+						<div class="card" style="padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:1rem;">
+							<div style="display:flex; justify-content:space-between; align-items:center;">
+								<label class="form-label" style="font-size:0.825rem; font-weight:800; margin:0; color:var(--text);">
+									شعار المنظمة (Logo)
+								</label>
+								<span style="font-size:0.75rem; color:var(--text-muted);">PNG, JPG (Max: 2MB)</span>
+							</div>
+
+							<div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+								if profile.Image != "" {
+									<div style="width:72px; height:72px; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface-raised); padding:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+										<img src={ profile.Image } alt="Logo" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-md);" />
+									</div>
+								}
+								<div style="flex:1; min-width:160px;">
+									<input type="file" name="logo_file" accept="image/*" class="input-field" style="height:44px; padding:0.35rem 0.5rem; font-size:0.8rem; border-radius:var(--radius-lg);" />
+								</div>
+							</div>
+						</div>
+
+						<!-- Coverage Image Upload -->
+						<div class="card" style="padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:1rem;">
+							<div style="display:flex; justify-content:space-between; align-items:center;">
+								<label class="form-label" style="font-size:0.825rem; font-weight:800; margin:0; color:var(--text);">
+									صورة الغلاف (Coverage Image)
+								</label>
+								<span style="font-size:0.75rem; color:var(--text-muted);">PNG, JPG (Max: 2MB)</span>
+							</div>
+
+							<div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+								if profile.CoverageImage != "" {
+									<div style="width:100px; height:60px; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface-raised); overflow:hidden; flex-shrink:0;">
+										<img src={ profile.CoverageImage } alt="Cover" style="width:100%; height:100%; object-fit:cover;" />
+									</div>
+								}
+								<div style="flex:1; min-width:160px;">
+									<input type="file" name="coverage_file" accept="image/*" class="input-field" style="height:44px; padding:0.35rem 0.5rem; font-size:0.8rem; border-radius:var(--radius-lg);" />
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<!-- Form Actions -->
+				<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1.5rem; flex-wrap:wrap; gap:1rem;">
+					<a href="/vendor/dashboard" class="btn btn-secondary" style="font-weight:700; border-radius:var(--radius-xl); padding:0.65rem 1.5rem;">
+						إلغاء والعودة
+					</a>
+					<button type="submit" class="btn btn-primary" style="font-weight:800; font-size:0.95rem; border-radius:var(--radius-xl); padding:0.75rem 2rem; box-shadow:0 4px 14px rgba(16,185,129,0.25);">
+						<span>حفظ التعديلات والتحديث الفوري 💾</span>
+					</button>
+				</div>
+
+			</form>
+
+		</div>
+	}
+}

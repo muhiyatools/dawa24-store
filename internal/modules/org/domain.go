@@ -64,6 +64,31 @@ type Organization struct {
 	UpdatedAt          time.Time          `json:"updated_at"`
 }
 
+// SupplierOrgProfile holds all fields required for managing a supplier organization's commercial identity and profile.
+type SupplierOrgProfile struct {
+	ID                 int64        `json:"id"`
+	PublicID           string       `json:"public_id"`
+	NameAr             string       `json:"name_ar"`
+	NameEn             string       `json:"name_en"`
+	Type               string       `json:"type"` // "supplier", "company", "agency"
+	MinOrderPrice      money.Amount `json:"min_order_price"`
+	MaxOrderPrice      money.Amount `json:"max_order_price"`
+	OrganizationNumber string       `json:"organization_number"`
+	Email              string       `json:"email"`
+	Phone              string       `json:"phone"`
+	TaxNumber          string       `json:"tax_number"`
+	Address            string       `json:"address"`
+	DescriptionAr      string       `json:"description_ar"`
+	DescriptionEn      string       `json:"description_en"`
+	Image              string       `json:"image"`          // Logo URL / path
+	CoverageImage      string       `json:"coverage_image"` // Cover URL / path
+	Rating             int          `json:"rating"`
+	Rank               int          `json:"rank"`
+	Status             string       `json:"status"`
+	CreatedAt          time.Time    `json:"created_at"`
+	UpdatedAt          time.Time    `json:"updated_at"`
+}
+
 // Branch represents a physical location or warehouse of an organization.
 type Branch struct {
 	ID                 int64     `json:"id"`

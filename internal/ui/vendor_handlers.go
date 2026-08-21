@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -389,50 +392,114 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	noticeType := r.URL.Query().Get("notice_type")
+	noticeMsg := r.URL.Query().Get("notice_msg")
+
 	var memberViews []*pages.TeamMemberView
+	var branchOptions []*pages.BranchOption
+
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		members, _ := h.orgSvc.ListMembers(ctx, actor.OrganizationID)
-		for _, m := range members {
-			name := "موظف"
-			email := ""
-			phone := ""
-			if h.idSvc != nil {
-				if u, err := h.idSvc.GetUserByID(ctx, m.UserID); err == nil && u != nil {
-					name = u.Name.Get(i18n.AR)
-					if name == "" {
-						name = u.Name.Get(i18n.EN)
-					}
-					email = u.Email
-					phone = u.Phone
+		// 1. Fetch employees with full profiles
+		if employees, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil && len(employees) > 0 {
+			for _, emp := range employees {
+				roleName := emp.RoleName
+				if roleName == "" {
+					roleName = "موظف مبيعات وتوريد"
 				}
+				if emp.IsManager {
+					roleName = "مدير عمليات"
+				}
+				switch emp.Member.RoleKey {
+				case "org_owner":
+					roleName = "مالك المنشأة"
+				case "org_manager":
+					roleName = "مدير عمليات"
+				case "org_warehouse":
+					roleName = "أمين مخزن"
+				case "org_accountant":
+					roleName = "محاسب مالي"
+				case "org_employee":
+					roleName = "موظف مبيعات وتوريد"
+				}
+				memberViews = append(memberViews, &pages.TeamMemberView{
+					ID:           emp.Member.ID,
+					UserID:       emp.Member.UserID,
+					Name:         emp.UserName,
+					Email:        emp.UserEmail,
+					Phone:        emp.UserPhone,
+					JobTitle:     emp.Member.JobTitle,
+					EmployeeCode: emp.Member.EmployeeCode,
+					BranchName:   emp.BranchName,
+					RoleKey:      emp.Member.RoleKey,
+					RoleName:     roleName,
+					IsActive:     emp.Member.IsActive,
+					CreatedAt:    emp.Member.CreatedAt.Format("2006-01-02"),
+				})
 			}
-			roleName := "موظف مبيعات وتوريد"
-			switch m.RoleKey {
-			case "org_owner":
-				roleName = "مالك المنشأة"
-			case "org_manager":
-				roleName = "مدير عمليات"
-			case "org_warehouse":
-				roleName = "أمين مخزن"
-			case "org_accountant":
-				roleName = "محاسب مالي"
+		} else {
+			// Fallback to ListMembers if ListEmployees returns empty
+			members, _ := h.orgSvc.ListMembers(ctx, actor.OrganizationID)
+			for _, m := range members {
+				name := "موظف"
+				email := ""
+				phone := ""
+				if h.idSvc != nil {
+					if u, err := h.idSvc.GetUserByID(ctx, m.UserID); err == nil && u != nil {
+						name = u.Name.Get(i18n.AR)
+						if name == "" {
+							name = u.Name.Get(i18n.EN)
+						}
+						email = u.Email
+						phone = u.Phone
+					}
+				}
+				roleName := "موظف مبيعات وتوريد"
+				switch m.RoleKey {
+				case "org_owner":
+					roleName = "مالك المنشأة"
+				case "org_manager":
+					roleName = "مدير عمليات"
+				case "org_warehouse":
+					roleName = "أمين مخزن"
+				case "org_accountant":
+					roleName = "محاسب مالي"
+				}
+				memberViews = append(memberViews, &pages.TeamMemberView{
+					ID:           m.ID,
+					UserID:       m.UserID,
+					Name:         name,
+					Email:        email,
+					Phone:        phone,
+					JobTitle:     m.JobTitle,
+					EmployeeCode: m.EmployeeCode,
+					RoleKey:      m.RoleKey,
+					RoleName:     roleName,
+					IsActive:     m.IsActive,
+					CreatedAt:    m.CreatedAt.Format("2006-01-02"),
+				})
 			}
-			memberViews = append(memberViews, &pages.TeamMemberView{
-				ID:        m.ID,
-				UserID:    m.UserID,
-				Name:      name,
-				Email:     email,
-				Phone:     phone,
-				RoleKey:   m.RoleKey,
-				RoleName:  roleName,
-				IsActive:  m.IsActive,
-				CreatedAt: m.CreatedAt.Format("2006-01-02"),
-			})
+		}
+
+		// 2. Fetch branches for the branch dropdown
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
+			for _, b := range branches {
+				bName := b.Name.Get(i18n.AR)
+				if bName == "" {
+					bName = b.Name.Get(i18n.EN)
+				}
+				branchOptions = append(branchOptions, &pages.BranchOption{
+					ID:   b.ID,
+					Name: bName,
+				})
+			}
 		}
 	}
 
 	data := pages.VendorTeamData{
-		Members: memberViews,
+		NoticeType: noticeType,
+		NoticeMsg:  noticeMsg,
+		Members:    memberViews,
+		Branches:   branchOptions,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -445,38 +512,91 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok {
+	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/team", http.StatusSeeOther)
 		return
 	}
 
-	name := r.PostFormValue("name")
-	email := r.PostFormValue("email")
-	phone := r.PostFormValue("phone")
-	password := r.PostFormValue("password")
-	roleKey := r.PostFormValue("role_key")
-	_ = r.PostFormValue("job_title")
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "بيانات النموذج غير صالحة.")
+		return
+	}
 
-	if h.idSvc != nil {
-		u, _, err := h.idSvc.Register(ctx, identity.RegisterInput{
+	name := strings.TrimSpace(r.PostFormValue("name"))
+	email := strings.ToLower(strings.TrimSpace(r.PostFormValue("email")))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	password := strings.TrimSpace(r.PostFormValue("password"))
+	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
+	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
+	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
+
+	if name == "" {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "يرجى إدخال اسم الموظف بالكامل.")
+		return
+	}
+	if email == "" || !strings.Contains(email, "@") {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "يرجى إدخال بريد إلكتروني صحيح للدخول.")
+		return
+	}
+	if roleKey == "" {
+		roleKey = "org_employee"
+	}
+	if password == "" || len(password) < 6 {
+		password = "Password123!"
+	}
+
+	var branchID *int64
+	if bStr := strings.TrimSpace(r.PostFormValue("branch_id")); bStr != "" {
+		if bID, err := strconv.ParseInt(bStr, 10, 64); err == nil && bID > 0 {
+			branchID = &bID
+		}
+	}
+
+	if h.idSvc == nil || h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "خدمة المنظومة غير متاحة حالياً.")
+		return
+	}
+
+	// 1. Locate existing user account or create a new one
+	var targetUserID int64
+	existingUser, err := h.idSvc.GetUserByEmail(ctx, email)
+	if err == nil && existingUser != nil {
+		targetUserID = existingUser.ID
+	} else {
+		newUser, _, regErr := h.idSvc.Register(ctx, identity.RegisterInput{
 			Email:    email,
 			Password: password,
 			NameAr:   name,
 			NameEn:   name,
 			Phone:    phone,
-			Role:     "employer",
+			Role:     "user",
 		})
-		if err != nil {
-			h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
+		if regErr != nil {
+			h.log.ErrorContext(ctx, "failed to register employee user", "email", email, "error", regErr)
+			h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل في إنشاء حساب الموظف: "+h.safeMessage(regErr, langOf(r)))
 			return
 		}
-
-		if h.orgSvc != nil && u != nil {
-			_, _ = h.orgSvc.AddMemberByRoleKey(ctx, actor.OrganizationID, u.ID, roleKey)
-		}
+		targetUserID = newUser.ID
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم إضافة الموظف وتعيين الصلاحيات بنجاح.")
+	// 2. Link member to vendor organization with all specified attributes
+	member := &org.Member{
+		OrganizationID: actor.OrganizationID,
+		UserID:         targetUserID,
+		BranchID:       branchID,
+		RoleKey:        roleKey,
+		JobTitle:       jobTitle,
+		EmployeeCode:   employeeCode,
+		IsActive:       true,
+	}
+
+	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
+		h.log.ErrorContext(ctx, "failed to add org member", "error", err, "org_id", actor.OrganizationID, "user_id", targetUserID)
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل في ربط الموظف بالمنشأة: "+err.Error())
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/team", "success", fmt.Sprintf("تمت إضافة الموظف '%s' بنجاح وتفعيل صلاحياته على المنشأة.", name))
 }
 
 // VendorTeamToggleSubmit toggles a member's active status.
@@ -502,6 +622,31 @@ func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم تحديث حالة حساب الموظف بنجاح.")
+}
+
+// VendorTeamDeleteSubmit removes an employee member from the organization.
+func (h *UIHandler) VendorTeamDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "معرف الموظف غير صالح.")
+		return
+	}
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "خدمة المؤسسات غير متوفرة.")
+		return
+	}
+	if err := h.orgSvc.RemoveMember(ctx, actor.OrganizationID, id); err != nil {
+		h.log.ErrorContext(ctx, "remove member", "error", err, "member", id, "org", actor.OrganizationID)
+		h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم حذف الموظف من المنشأة بنجاح.")
 }
 
 // VendorRolesPage renders the full roles and permissions matrix for vendor organization.
@@ -1124,4 +1269,133 @@ func (h *UIHandler) recordInitialStock(ctx context.Context, orgID int64, v *cata
 		ProductVariantID: v.ID,
 		Quantity:         qty,
 	})
+}
+
+// VendorOrganizationPage displays the supplier's commercial profile, order price limits, contact details, description, logo and cover image.
+func (h *UIHandler) VendorOrganizationPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/organization", http.StatusSeeOther)
+		return
+	}
+
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		http.Redirect(w, r, "/vendor/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	noticeType := r.URL.Query().Get("notice_type")
+	noticeMsg := r.URL.Query().Get("notice_msg")
+
+	profile, err := h.orgSvc.GetSupplierProfile(ctx, orgID)
+	if err != nil {
+		h.log.ErrorContext(ctx, "failed to get supplier organization profile", "org_id", orgID, "error", err)
+		profile = &org.SupplierOrgProfile{
+			ID:            orgID,
+			NameAr:        actor.Email,
+			Type:          "supplier",
+			MinOrderPrice: money.FromMajor(10),
+			MaxOrderPrice: money.FromMajor(50),
+		}
+	}
+
+	_ = pages.VendorOrganizationPage(lang, dir, profile, noticeType, noticeMsg).Render(ctx, w)
+}
+
+// VendorOrganizationSubmit handles updating supplier organization commercial info, limits, and file uploads.
+func (h *UIHandler) VendorOrganizationSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/organization", http.StatusSeeOther)
+		return
+	}
+
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		http.Redirect(w, r, "/vendor/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	_ = r.ParseMultipartForm(10 << 20) // 10MB
+
+	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.FormValue("name_en"))
+	orgType := strings.TrimSpace(r.FormValue("type"))
+	if orgType == "" {
+		orgType = "supplier"
+	}
+
+	minPrice, err := money.Parse(strings.TrimSpace(r.FormValue("min_order_price")))
+	if err != nil {
+		minPrice = money.FromMajor(10)
+	}
+	maxPrice, err := money.Parse(strings.TrimSpace(r.FormValue("max_order_price")))
+	if err != nil {
+		maxPrice = money.FromMajor(50)
+	}
+	if maxPrice.Minor() < minPrice.Minor() {
+		http.Redirect(w, r, "/vendor/organization?notice_type=error&notice_msg="+url.QueryEscape("الحد الأقصى لسعر الطلب يجب أن يكون أكبر من أو يساوي الحد الأدنى"), http.StatusSeeOther)
+		return
+	}
+
+	orgNumber := strings.TrimSpace(r.FormValue("organization_number"))
+	email := strings.TrimSpace(r.FormValue("email"))
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	taxNumber := strings.TrimSpace(r.FormValue("tax_number"))
+	address := strings.TrimSpace(r.FormValue("address"))
+	descAr := strings.TrimSpace(r.FormValue("description_ar"))
+	descEn := strings.TrimSpace(r.FormValue("description_en"))
+
+	var logoURL, coverURL string
+	if file, header, err := r.FormFile("logo_file"); err == nil && file != nil {
+		defer file.Close()
+		data, _ := io.ReadAll(file)
+		if len(data) > 0 {
+			if u, err := saveUploadedBytes(data, header.Filename, "org"); err == nil {
+				logoURL = u
+			}
+		}
+	}
+
+	if file, header, err := r.FormFile("coverage_file"); err == nil && file != nil {
+		defer file.Close()
+		data, _ := io.ReadAll(file)
+		if len(data) > 0 {
+			if u, err := saveUploadedBytes(data, header.Filename, "org"); err == nil {
+				coverURL = u
+			}
+		}
+	}
+
+	profile := &org.SupplierOrgProfile{
+		ID:                 orgID,
+		NameAr:             nameAr,
+		NameEn:             nameEn,
+		Type:               orgType,
+		MinOrderPrice:      minPrice,
+		MaxOrderPrice:      maxPrice,
+		OrganizationNumber: orgNumber,
+		Email:              email,
+		Phone:              phone,
+		TaxNumber:          taxNumber,
+		Address:            address,
+		DescriptionAr:      descAr,
+		DescriptionEn:      descEn,
+		Image:              logoURL,
+		CoverageImage:      coverURL,
+	}
+
+	if err := h.orgSvc.UpdateSupplierProfile(ctx, profile); err != nil {
+		h.log.ErrorContext(ctx, "failed to update supplier profile", "org_id", orgID, "error", err)
+		http.Redirect(w, r, "/vendor/organization?notice_type=error&notice_msg="+url.QueryEscape("حدث خطأ أثناء حفظ التعديلات: "+err.Error()), http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, "/vendor/organization?notice_type=success&notice_msg="+url.QueryEscape("تم حفظ وتحديث بيانات المنشأة والهوية التجارية بنجاح"), http.StatusSeeOther)
 }

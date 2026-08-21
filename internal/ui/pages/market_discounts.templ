@@ -18,25 +18,17 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 		>
 			<style>
 				.market-discounts-root {
-					--accent: #e8ff47;
-					--accent-dim: rgba(232,255,71,0.08);
-					--accent-border: rgba(232,255,71,0.25);
-					--red: #ff4757;
-					--green: #2ecc71;
-					--blue: #00b4d8;
-					--surface-card: var(--surface-raised, #131b2e);
-					--border-card: var(--border, rgba(255,255,255,0.08));
-					max-width: 1320px;
+					max-width: 1360px;
 					margin: 0 auto;
-					padding: 1.5rem 1rem 3.5rem;
+					padding: 0.5rem 0.5rem 3.5rem;
 					display: flex;
 					flex-direction: column;
 					gap: 1.5rem;
 				}
 
 				.market-banner {
-					background: radial-gradient(circle at top right, rgba(232,255,71,0.12) 0%, rgba(15,23,42,0.85) 75%), var(--surface-card);
-					border: 1px solid var(--accent-border);
+					background: linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%);
+					border: 1px solid var(--border);
 					border-radius: var(--radius-2xl, 20px);
 					padding: 2rem 2.25rem;
 					display: flex;
@@ -46,18 +38,18 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 					gap: 1.5rem;
 					position: relative;
 					overflow: hidden;
-					box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+					box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 				}
 
 				.market-filter-card {
-					background: var(--surface-card);
-					border: 1px solid var(--border-card);
+					background: var(--surface-raised);
+					border: 1px solid var(--border);
 					border-radius: var(--radius-2xl, 20px);
 					padding: 1.5rem;
 					display: flex;
 					flex-direction: column;
 					gap: 1.25rem;
-					box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+					box-shadow: 0 4px 16px rgba(0,0,0,0.04);
 				}
 
 				.market-control-bar {
@@ -69,8 +61,8 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 				}
 
 				.market-list-row {
-					background: var(--surface-card);
-					border: 1px solid var(--border-card);
+					background: var(--surface-raised);
+					border: 1px solid var(--border);
 					border-radius: var(--radius-xl, 16px);
 					padding: 1.25rem 1.75rem;
 					display: flex;
@@ -80,14 +72,14 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 					transition: all 0.2s ease;
 				}
 				.market-list-row:hover {
-					border-color: var(--accent-border);
+					border-color: var(--primary-500);
 					transform: translateY(-2px);
-					box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+					box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 				}
 
 				.market-grid-card {
-					background: var(--surface-card);
-					border: 1px solid var(--border-card);
+					background: var(--surface-raised);
+					border: 1px solid var(--border);
 					border-radius: var(--radius-xl, 16px);
 					padding: 1.5rem;
 					display: flex;
@@ -97,40 +89,15 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 					transition: all 0.2s ease;
 				}
 				.market-grid-card:hover {
-					border-color: var(--accent-border);
+					border-color: var(--primary-500);
 					transform: translateY(-3px);
-					box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-				}
-
-				.tag-pill-yellow {
-					background: rgba(232,255,71,0.1);
-					border: 1px solid rgba(232,255,71,0.25);
-					color: #e8ff47;
-					font-weight: 800;
-					font-size: 0.75rem;
-					padding: 0.25rem 0.75rem;
-					border-radius: var(--radius-full, 999px);
-					display: inline-flex;
-					align-items: center;
-					gap: 0.35rem;
-				}
-
-				.tag-pill-green {
-					background: rgba(46,204,113,0.15);
-					border: 1px solid rgba(46,204,113,0.3);
-					color: #2ecc71;
-					font-weight: 800;
-					font-size: 0.8rem;
-					padding: 0.25rem 0.65rem;
-					border-radius: var(--radius-md, 8px);
-					display: inline-flex;
-					align-items: center;
+					box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 				}
 
 				.price-huge {
-					font-size: 1.65rem;
-					font-weight: 900;
-					color: #e8ff47;
+					font-size: 1.5rem;
+					font-weight: 800;
+					color: var(--primary-600);
 					line-height: 1;
 					font-family: var(--font-mono, monospace);
 				}
@@ -138,20 +105,20 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 				.price-net {
 					font-size: 0.95rem;
 					font-weight: 700;
-					color: var(--text-secondary, #94a3b8);
+					color: var(--text-secondary);
 					font-family: var(--font-mono, monospace);
 				}
 
 				.price-saving-red {
 					font-size: 0.8rem;
 					font-weight: 700;
-					color: #ff4757;
+					color: var(--danger-text, #ef4444);
 					font-family: var(--font-mono, monospace);
 				}
 
 				.view-toggle-btn {
-					background: rgba(255,255,255,0.05);
-					border: 1px solid var(--border-card);
+					background: var(--surface);
+					border: 1px solid var(--border);
 					color: var(--text-muted);
 					padding: 0.45rem 0.75rem;
 					border-radius: var(--radius-lg, 10px);
@@ -164,29 +131,26 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 					transition: all 0.2s;
 				}
 				.view-toggle-btn.active {
-					background: rgba(232,255,71,0.15);
-					border-color: #e8ff47;
-					color: #e8ff47;
+					background: var(--primary-subtle, rgba(16,185,129,0.12));
+					border-color: var(--primary-600);
+					color: var(--primary-700);
 				}
 			</style>
 
 			<!-- 1. Header Banner -->
 			<div class="market-banner">
-				<div style="display:flex; flex-direction:column; gap:0.5rem; max-width:760px; z-index:1;">
-					<h1 style="font-size:2rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.75rem;">
+				<div style="display:flex; flex-direction:column; gap:0.4rem; max-width:760px; z-index:1;">
+					<h1 style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.75rem;">
 						<span>خصومات السوق العامة</span>
 					</h1>
-					<p style="font-size:0.95rem; color:var(--text-secondary); margin:0; line-height:1.6;">
+					<p style="font-size:0.925rem; color:var(--text-secondary); margin:0; line-height:1.6;">
 						تصفح وابحث في جميع الخصومات العامة وعروض أسعار الموزعين المرفوعة والمستحدثة من قبل إدارة المنصة.
 					</p>
 				</div>
 				<div style="display:flex; gap:0.75rem; z-index:1;">
-					<a href="/compare/tool" class="btn btn-secondary" style="font-weight:700; border-radius:var(--radius-full);">
+					<a href="/compare/tool" class="btn btn-primary" style="font-weight:700; border-radius:var(--radius-full); padding:0.65rem 1.35rem;">
 						@components.IconTrendingUp("icon-xs")
 						<span>مقارناتي الخاصة</span>
-					</a>
-					<a href="/compare/results" class="btn btn-primary" style="font-weight:700; border-radius:var(--radius-full); background:#e8ff47; color:#0f172a; border-color:#e8ff47;">
-						<span>جدول المقارنة الشامل 📊</span>
 					</a>
 				</div>
 			</div>
@@ -252,10 +216,10 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 						>
 							<span x-text="showMoreFilters ? 'إخفاء الفلاتر' : 'المزيد ⚙️'"></span>
 						</button>
-						<button type="submit" class="btn btn-primary" style="height:46px; border-radius:var(--radius-xl); font-weight:700; background:#e8ff47; color:#0f172a; border-color:#e8ff47; padding:0 1.25rem;">
+						<button type="submit" class="btn btn-primary" style="height:46px; border-radius:var(--radius-xl); font-weight:700; padding:0 1.25rem;">
 							تطبيق
 						</button>
-						<a href="/market-discounts" class="btn btn-secondary" style="height:46px; border-radius:var(--radius-xl); font-weight:700; color:var(--danger-text); border-color:rgba(255,71,87,0.3);" title="إعادة ضبط الفلاتر">
+						<a href="/market-discounts" class="btn btn-secondary" style="height:46px; border-radius:var(--radius-xl); font-weight:700; color:var(--danger-text); border-color:rgba(239,68,68,0.3);" title="إعادة ضبط الفلاتر">
 							مسح
 						</a>
 					</div>
@@ -263,7 +227,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 				</div>
 
 				<!-- Collapsible Advanced Range Filters -->
-				<div x-show="showMoreFilters" x-collapse style="padding-top:1.25rem; border-top:1px solid var(--border-card); display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
+				<div x-show="showMoreFilters" x-collapse style="padding-top:1.25rem; border-top:1px solid var(--border); display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
 					
 					<!-- Price Range -->
 					<div>
@@ -327,9 +291,9 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 			<!-- 3. Control & Stats Bar -->
 			<div class="market-control-bar">
 				<div style="display:flex; align-items:center; gap:0.75rem;">
-					<div class="badge badge-neutral" style="font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:rgba(255,255,255,0.06); border:1px solid var(--border-card);">
+					<div class="badge badge-neutral" style="font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:var(--surface-raised); border:1px solid var(--border);">
 						<span>عرض النتائج:</span>
-						<strong style="color:#e8ff47; margin-right:0.25rem;">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
+						<strong style="color:var(--primary-600); margin-right:0.25rem;">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
 					</div>
 					if filter.Query != "" {
 						<span style="font-size:0.825rem; color:var(--text-muted);">
@@ -361,7 +325,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 
 			<!-- 4. Results List / Grid -->
 			if len(result.Items) == 0 {
-				<div class="card" style="text-align:center; padding:4.5rem 1.5rem; background:var(--surface-card); border-radius:var(--radius-2xl);">
+				<div class="card" style="text-align:center; padding:4.5rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl);">
 					<div style="font-size:3rem; margin-bottom:1rem;">🔍</div>
 					<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:0.5rem;">
 						لم نجد أي نتائج مطابقة
@@ -374,7 +338,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 					</a>
 				</div>
 			} else {
-				<!-- LIST VIEW (Matches Screenshot 1 & 2) -->
+				<!-- LIST VIEW (Matches Design System) -->
 				<div x-show="currentView === 'list'" style="display:flex; flex-direction:column; gap:0.75rem;">
 					for _, item := range result.Items {
 						<div class="market-list-row">
@@ -386,7 +350,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								</h3>
 								<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
 									if item.SKU != "" {
-										<span class="mono" style="font-size:0.75rem; color:var(--text-muted); background:rgba(255,255,255,0.04); padding:0.15rem 0.5rem; border-radius:var(--radius-sm);">
+										<span class="mono" style="font-size:0.75rem; color:var(--text-muted); background:var(--surface-sunken); padding:0.15rem 0.5rem; border-radius:var(--radius-sm);">
 											كود: { item.SKU }
 										</span>
 									}
@@ -400,7 +364,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 
 							<!-- Center: Supplier & Offer Date -->
 							<div style="display:flex; flex-direction:column; align-items:center; gap:0.35rem; min-width:180px; text-align:center;">
-								<span class="tag-pill-yellow">
+								<span class="badge badge-amber" style="font-size:0.8rem; font-weight:800; padding:0.3rem 0.75rem; border-radius:var(--radius-full);">
 									<span>🏢</span>
 									<span>{ item.SupplierName }</span>
 								</span>
@@ -417,7 +381,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.2rem;">
 									<div style="display:flex; align-items:baseline; gap:0.4rem;">
 										<span class="price-huge">{ item.OriginalPrice.String() }</span>
-										<span style="font-size:0.75rem; font-weight:700; color:#e8ff47;">EGP</span>
+										<span style="font-size:0.75rem; font-weight:700; color:var(--primary-600);">EGP</span>
 									</div>
 									<div class="price-net">
 										<span>EGP </span>
@@ -428,7 +392,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								<!-- Discount & Savings Pill -->
 								if item.DiscountPercent > 0 {
 									<div style="display:flex; flex-direction:column; align-items:center; gap:0.2rem;">
-										<span class="tag-pill-green">
+										<span class="badge badge-emerald" style="font-size:0.825rem; font-weight:800; padding:0.25rem 0.65rem; border-radius:var(--radius-md);">
 											%{ fmt.Sprintf("%.0f", item.DiscountPercent) } خصم
 										</span>
 										if item.DiscountValue.IsPositive() {
@@ -451,11 +415,11 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 						<div class="market-grid-card">
 							<div>
 								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-									<span class="tag-pill-yellow">
+									<span class="badge badge-amber" style="font-size:0.8rem; font-weight:800; padding:0.25rem 0.65rem; border-radius:var(--radius-full);">
 										{ item.SupplierName }
 									</span>
 									if item.DiscountPercent > 0 {
-										<span class="tag-pill-green">
+										<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:800; padding:0.25rem 0.65rem; border-radius:var(--radius-md);">
 											%{ fmt.Sprintf("%.0f", item.DiscountPercent) } خصم
 										</span>
 									}
@@ -478,7 +442,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								}
 							</div>
 
-							<div style="border-top:1px solid var(--border-card); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.6rem;">
+							<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.6rem;">
 								<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
 									<span style="color:var(--text-muted);">السعر الأصلي:</span>
 									<span class="mono" style="font-weight:700; color:var(--text); text-decoration:line-through;">
@@ -487,13 +451,13 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								</div>
 
 								<!-- Price After Discount Highlight Box -->
-								<div style="background:rgba(232,255,71,0.08); border:1px dashed var(--accent-border); border-radius:var(--radius-lg); padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center;">
+								<div style="background:var(--primary-subtle, rgba(16,185,129,0.08)); border:1px dashed var(--primary-500); border-radius:var(--radius-lg); padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center;">
 									<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">السعر بعد الخصم:</span>
 									<div style="display:flex; align-items:baseline; gap:0.25rem;">
-										<span class="mono" style="font-size:1.4rem; font-weight:900; color:#e8ff47;">
+										<span class="mono" style="font-size:1.35rem; font-weight:900; color:var(--primary-700);">
 											{ item.PriceAfterDiscount.String() }
 										</span>
-										<span style="font-size:0.75rem; font-weight:800; color:#e8ff47;">ج.م</span>
+										<span style="font-size:0.75rem; font-weight:800; color:var(--primary-700);">ج.م</span>
 									</div>
 								</div>
 
@@ -507,7 +471,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 				</div>
 
 				<!-- 5. Pagination Footer -->
-				<div class="card" style="padding:1.25rem 1.75rem; background:var(--surface-card); border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div class="card" style="padding:1.25rem 1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
 					
 					<!-- Left: Pagination Info -->
 					<div style="font-size:0.875rem; color:var(--text-muted); font-family:var(--font-mono, monospace);">
@@ -516,7 +480,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 						<span> إلى </span>
 						<strong style="color:var(--text);">{ fmt.Sprintf("%d", calculateEndItem(result.Page, result.Limit, result.TotalCount)) }</strong>
 						<span> من إجمالي </span>
-						<strong style="color:#e8ff47;">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
+						<strong style="color:var(--primary-600);">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
 						<span> سجل</span>
 					</div>
 
@@ -544,7 +508,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 							<a
 								href={ templ.SafeURL(buildPaginationURL(filter, result.Page+1, currentView)) }
 								class="btn btn-secondary"
-								style="padding:0.45rem 1rem; border-radius:var(--radius-lg); font-weight:700; color:#e8ff47; border-color:var(--accent-border);"
+								style="padding:0.45rem 1rem; border-radius:var(--radius-lg); font-weight:700; color:var(--primary-600); border-color:var(--primary-500);"
 							>
 								التالي ←
 							</a>

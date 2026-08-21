@@ -81,6 +81,91 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 	return &o, nil
 }
 
+// GetSupplierProfile retrieves full commercial details of a supplier/vendor organization.
+func (r *Repository) GetSupplierProfile(ctx context.Context, id int64) (*org.SupplierOrgProfile, error) {
+	var p org.SupplierOrgProfile
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT 
+				id, public_id,
+				COALESCE(name->>'ar', name->>'en', ''),
+				COALESCE(name->>'en', name->>'ar', ''),
+				COALESCE(type, 'company'),
+				COALESCE(min_order_price, 10.00),
+				COALESCE(max_order_price, 50.00),
+				COALESCE(organization_number, ''),
+				COALESCE(email, ''),
+				COALESCE(phone, ''),
+				COALESCE(tax_number, ''),
+				COALESCE(address, ''),
+				COALESCE(description->>'ar', ''),
+				COALESCE(description->>'en', ''),
+				COALESCE(image, ''),
+				COALESCE(coverage_image, ''),
+				COALESCE(status, 'approved'),
+				COALESCE(rating, 5),
+				created_at, updated_at
+			FROM org.organizations
+			WHERE id = $1 AND deleted_at IS NULL;
+		`
+		return tx.QueryRow(txCtx, query, id).Scan(
+			&p.ID, &p.PublicID, &p.NameAr, &p.NameEn, &p.Type,
+			&p.MinOrderPrice, &p.MaxOrderPrice,
+			&p.OrganizationNumber, &p.Email, &p.Phone, &p.TaxNumber, &p.Address,
+			&p.DescriptionAr, &p.DescriptionEn,
+			&p.Image, &p.CoverageImage,
+			&p.Status, &p.Rating,
+			&p.CreatedAt, &p.UpdatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("organization")
+		}
+		return nil, err
+	}
+	return &p, nil
+}
+
+// UpdateSupplierProfile updates the commercial details and order price limits of a supplier/vendor organization.
+func (r *Repository) UpdateSupplierProfile(ctx context.Context, p *org.SupplierOrgProfile) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE org.organizations
+			SET 
+				name = jsonb_build_object('ar', $1::text, 'en', $2::text),
+				type = $3,
+				min_order_price = $4,
+				max_order_price = $5,
+				organization_number = $6,
+				email = $7,
+				phone = $8,
+				tax_number = $9,
+				address = $10,
+				description = jsonb_build_object('ar', $11::text, 'en', $12::text),
+				image = CASE WHEN $13::text <> '' THEN $13::text ELSE image END,
+				coverage_image = CASE WHEN $14::text <> '' THEN $14::text ELSE coverage_image END,
+				updated_at = now()
+			WHERE id = $15 AND deleted_at IS NULL;
+		`
+		tag, err := tx.Exec(txCtx, query,
+			p.NameAr, p.NameEn, p.Type,
+			p.MinOrderPrice, p.MaxOrderPrice,
+			p.OrganizationNumber, p.Email, p.Phone, p.TaxNumber, p.Address,
+			p.DescriptionAr, p.DescriptionEn,
+			p.Image, p.CoverageImage,
+			p.ID,
+		)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("organization")
+		}
+		return nil
+	})
+}
+
 // UpdateOrganizationStatus modifies organization approval state.
 func (r *Repository) UpdateOrganizationStatus(ctx context.Context, id int64, status org.OrganizationStatus) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {

@@ -97,6 +97,22 @@ func (s *Service) GetOrganization(ctx context.Context, id int64) (*Organization,
 	return s.repo.GetOrganizationByID(ctx, id)
 }
 
+// GetSupplierProfile returns full commercial profile for a supplier/vendor organization.
+func (s *Service) GetSupplierProfile(ctx context.Context, id int64) (*SupplierOrgProfile, error) {
+	return s.repo.GetSupplierProfile(ctx, id)
+}
+
+// UpdateSupplierProfile updates commercial profile and limits for a supplier/vendor organization.
+func (s *Service) UpdateSupplierProfile(ctx context.Context, p *SupplierOrgProfile) error {
+	if p.NameAr == "" && p.NameEn == "" {
+		return apperr.Validation("name", "Organization name cannot be empty", nil)
+	}
+	if p.MaxOrderPrice.Minor() < p.MinOrderPrice.Minor() {
+		return apperr.Validation("max_order_price", "Maximum order price must be greater than or equal to minimum order price", nil)
+	}
+	return s.repo.UpdateSupplierProfile(ctx, p)
+}
+
 // CountOrganizations returns the number of organizations matching a filter,
 // for dashboards that need a total rather than a page.
 func (s *Service) CountOrganizations(
