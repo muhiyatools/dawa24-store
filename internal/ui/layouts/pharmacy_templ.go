@@ -611,7 +611,7 @@ func CustomerShell(title string, activeNav string, lang string, dir string, perm
 
 // PharmacyBranchSelector is an island in the top navbar. It reads the current
 // active branch from the request context (or session), renders a dropdown of
-// the user's pharmacy branches, and POSTs to /customer/branches/active on change.
+// the user's pharmacy branches, and POSTs to /customer/set-branch on change.
 func PharmacyBranchSelector(ctx context.Context) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -634,37 +634,65 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"branch-selector\" style=\"display:inline-flex; align-items:center; gap:0.5rem; padding:0.25rem 0.75rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); font-size:0.875rem;\"><span style=\"color:var(--text-secondary); font-size:0.75rem; font-weight:600;\">فرع الاستلام:</span><form method=\"POST\" action=\"/customer/branches/active\" class=\"m-0\"><select name=\"branch_id\" class=\"form-select\" style=\"background:transparent; border:none; padding:0.15rem 0.5rem; font-size:0.875rem; font-weight:600; color:var(--text); cursor:pointer; outline:none;\" onchange=\"this.form.submit()\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if actor.BranchID != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<option value=\"")
+			if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"branch-selector\" style=\"display:inline-flex; align-items:center; gap:0.45rem; padding:0.25rem 0.65rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); font-size:0.875rem;\"><div style=\"display:flex; align-items:center; gap:0.35rem; color:var(--accent); font-size:0.75rem; font-weight:700;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var36 string
-				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", *actor.BranchID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 177, Col: 56}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
+				templ_7745c5c3_Err = components.IconMapPin("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" selected>الفرع الحالي</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span style=\"color:var(--text-secondary); font-weight:600;\">فرع التوريد:</span></div><form method=\"POST\" action=\"/customer/set-branch\" class=\"m-0\" style=\"display:inline;\"><select name=\"branch_id\" class=\"form-select\" style=\"background:transparent; border:none; padding:0.15rem 0.4rem; font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; outline:none; max-width:180px;\" onchange=\"this.form.submit()\" title=\"تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<option value=\"\" selected>الفرع الرئيسي</option>")
+				for _, b := range buying.Branches {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<option value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var36 string
+					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 183, Col: 39}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if buying.Active != nil && *buying.Active == b.ID {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, " selected")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, ">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var37 string
+					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 186, Col: 16}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</option>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</select></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></form></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
 			}
 		}
 		return nil

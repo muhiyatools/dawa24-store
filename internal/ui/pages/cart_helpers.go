@@ -79,3 +79,16 @@ func GroupCartBySupplier(cart *commerce.Cart) []CartGroup {
 	}
 	return groups
 }
+
+// HasUncoveredItems reports whether any line item in the cart is outside coverage.
+func HasUncoveredItems(cart *commerce.Cart) bool {
+	if cart == nil {
+		return false
+	}
+	for _, item := range cart.Items {
+		if item != nil && !item.IsCovered && item.CoverageReason != "" {
+			return true
+		}
+	}
+	return false
+}

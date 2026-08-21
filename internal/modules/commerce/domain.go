@@ -68,6 +68,8 @@ type CartItem struct {
 	Quantity         int          `json:"quantity"`
 	AvailableStock   int          `json:"available_stock,omitempty"`
 	UnitPrice        money.Amount `json:"unit_price"`
+	IsCovered        bool         `json:"is_covered,omitempty"`
+	CoverageReason   string       `json:"coverage_reason,omitempty"`
 	CreatedAt        time.Time    `json:"created_at"`
 	UpdatedAt        time.Time    `json:"updated_at"`
 }

@@ -161,25 +161,34 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 
 // PharmacyBranchSelector is an island in the top navbar. It reads the current
 // active branch from the request context (or session), renders a dropdown of
-// the user's pharmacy branches, and POSTs to /customer/branches/active on change.
+// the user's pharmacy branches, and POSTs to /customer/set-branch on change.
 templ PharmacyBranchSelector(ctx context.Context) {
 	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-		<div class="branch-selector" style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.25rem 0.75rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); font-size:0.875rem;">
-			<span style="color:var(--text-secondary); font-size:0.75rem; font-weight:600;">فرع الاستلام:</span>
-			<form method="POST" action="/customer/branches/active" class="m-0">
-				<select
-					name="branch_id"
-					class="form-select"
-					style="background:transparent; border:none; padding:0.15rem 0.5rem; font-size:0.875rem; font-weight:600; color:var(--text); cursor:pointer; outline:none;"
-					onchange="this.form.submit()"
-				>
-					if actor.BranchID != nil {
-						<option value={ fmt.Sprintf("%d", *actor.BranchID) } selected>الفرع الحالي</option>
-					} else {
-						<option value="" selected>الفرع الرئيسي</option>
-					}
-				</select>
-			</form>
-		</div>
+		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
+			<div class="branch-selector" style="display:inline-flex; align-items:center; gap:0.45rem; padding:0.25rem 0.65rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); font-size:0.875rem;">
+				<div style="display:flex; align-items:center; gap:0.35rem; color:var(--accent); font-size:0.75rem; font-weight:700;">
+					@components.IconMapPin("icon-xs")
+					<span style="color:var(--text-secondary); font-weight:600;">فرع التوريد:</span>
+				</div>
+				<form method="POST" action="/customer/set-branch" class="m-0" style="display:inline;">
+					<select
+						name="branch_id"
+						class="form-select"
+						style="background:transparent; border:none; padding:0.15rem 0.4rem; font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; outline:none; max-width:180px;"
+						onchange="this.form.submit()"
+						title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
+					>
+						for _, b := range buying.Branches {
+							<option
+								value={ fmt.Sprintf("%d", b.ID) }
+								selected?={ buying.Active != nil && *buying.Active == b.ID }
+							>
+								{ b.Name }
+							</option>
+						}
+					</select>
+				</form>
+			</div>
+		}
 	}
 }

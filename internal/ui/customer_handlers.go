@@ -149,6 +149,33 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if cart != nil && len(cart.Items) > 0 {
+		branchID := h.pharmacyBranchID(ctx, &actor)
+		for _, it := range cart.Items {
+			it.IsCovered = true
+			if branchID > 0 && it.ProductVariantID > 0 && it.OrganizationID > 0 {
+				res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
+					VariantID:        it.ProductVariantID,
+					VendorOrgID:      it.OrganizationID,
+					CustomerOrgID:    actor.OrganizationID,
+					CustomerBranchID: branchID,
+					Quantity:         it.Quantity,
+					When:             time.Now(),
+				})
+				if err == nil {
+					if !res.Allowed {
+						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
+							it.IsCovered = false
+							it.CoverageReason = "خارج نطاق التغطية للفرع المحدد"
+						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
+							it.CoverageReason = "نفد المخزون لدى المورد"
+						}
+					}
+				}
+			}
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.CustomerCart(cart, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render cart page", "error", err)
@@ -827,24 +854,5 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 
 // CustomerSwitchActiveBranchSubmit handles switching the active branch for customer context.
 func (h *UIHandler) CustomerSwitchActiveBranchSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok || !actor.IsCustomer() {
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-		return
-	}
-
-	_ = r.ParseForm()
-	branchIDStr := r.FormValue("branch_id")
-	if branchIDStr != "" {
-		if branchID, err := strconv.ParseInt(branchIDStr, 10, 64); err == nil && branchID > 0 {
-			h.log.InfoContext(ctx, "switched active pharmacy branch", "branch_id", branchID, "org_id", actor.OrganizationID)
-		}
-	}
-
-	ref := r.Header.Get("Referer")
-	if ref == "" {
-		ref = "/customer/dashboard"
-	}
-	http.Redirect(w, r, ref, http.StatusSeeOther)
+	h.SetBuyingBranchSubmit(w, r)
 }

@@ -115,9 +115,12 @@ func (h *UIHandler) SetBuyingBranchSubmit(w http.ResponseWriter, r *http.Request
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	target := r.Referer()
+	target := r.PostFormValue("redirect_to")
 	if target == "" {
-		target = "/customer/dashboard"
+		target = r.Referer()
+	}
+	if target == "" {
+		target = "/catalog"
 	}
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }

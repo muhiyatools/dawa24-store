@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -62,6 +63,49 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 			</a>
 		</div>
 	} else {
+		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
+			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+						@components.IconMapPin("icon-sm")
+					</div>
+					<div>
+						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">فرع استلام الشحنات وتغطية التوريد:</div>
+						<div style="font-size:0.95rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
+							<span>
+								for _, b := range buying.Branches {
+									if buying.Active != nil && *buying.Active == b.ID {
+										{ b.Name }
+									}
+								}
+							</span>
+							<span class="badge badge-emerald" style="font-size:10px;">الفرع النشط</span>
+						</div>
+					</div>
+				</div>
+				<div style="display:flex; align-items:center; gap:0.5rem;">
+					<form method="POST" action="/customer/set-branch" class="m-0" style="display:inline-flex; align-items:center; gap:0.4rem;">
+						<input type="hidden" name="redirect_to" value="/cart" />
+						<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">تغيير الفرع:</span>
+						<select
+							name="branch_id"
+							class="form-select"
+							style="font-size:0.825rem; font-weight:700; padding:0.35rem 0.6rem; border-radius:var(--radius-md);"
+							onchange="this.form.submit()"
+						>
+							for _, b := range buying.Branches {
+								<option
+									value={ fmt.Sprintf("%d", b.ID) }
+									selected?={ buying.Active != nil && *buying.Active == b.ID }
+								>
+									{ b.Name }
+								</option>
+							}
+						</select>
+					</form>
+				</div>
+			</div>
+		}
 		<div style="display:grid; grid-template-columns:1fr 340px; gap:2rem; align-items:start;">
 			<!-- Left: Items Grouped by Supplier -->
 			<div style="display:flex; flex-direction:column; gap:1.75rem;">
@@ -114,10 +158,15 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 											<h4 style="font-weight:800; font-size:0.95rem; color:var(--text); margin:0;">
 												{ item.ProductName.Get(i18n.Lang(lang)) }
 											</h4>
-											<div style="display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem;">
+											<div style="display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; flex-wrap:wrap;">
 												<span>سعر الوحدة: <strong class="tabular-nums" style="color:var(--text);">{ item.UnitPrice.String() } ج.م</strong></span>
 												if item.AvailableStock > 0 && item.Quantity >= item.AvailableStock {
 													<span class="badge badge-amber" style="font-size:10px; font-weight:700;">أقصى كمية متاحة بالمخزون</span>
+												}
+												if !item.IsCovered && item.CoverageReason != "" {
+													<span class="badge" style="background:#fee2e2; color:#b91c1c; font-size:10px; font-weight:700;">
+														⚠️ { item.CoverageReason }
+													</span>
 												}
 											</div>
 										</div>
@@ -218,10 +267,19 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 				</div>
 
 				<div style="display:flex; flex-direction:column; gap:0.75rem;">
-					<a href="/checkout" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; justify-content:center;">
-						@components.IconCheck("icon-xs")
-						<span>متابعة إتمام أمر الشراء</span>
-					</a>
+					if HasUncoveredItems(cart) {
+						<div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-lg); padding:0.75rem; font-size:0.8rem; color:var(--danger-text); line-height:1.5;">
+							<strong>تنبيه التغطية:</strong> يحتوي طلبك على أصناف خارج نطاق تغطية الفرع المحدد. يرجى حذفها أو اختيار فرع صيدلية آخر متاح في نطاق التوريد.
+						</div>
+						<button type="button" disabled class="btn btn-secondary" style="width:100%; padding:0.85rem; font-size:0.95rem; font-weight:800; justify-content:center; opacity:0.6; cursor:not-allowed;">
+							<span>غير متاح للإتمام (أصناف خارج التغطية)</span>
+						</button>
+					} else {
+						<a href="/checkout" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; justify-content:center;">
+							@components.IconCheck("icon-xs")
+							<span>متابعة إتمام أمر الشراء</span>
+						</a>
+					}
 
 					<a href="/catalog" class="btn btn-secondary" style="width:100%; padding:0.65rem; justify-content:center; font-weight:700;">
 						<span>إضافة المزيد من الأدوية</span>

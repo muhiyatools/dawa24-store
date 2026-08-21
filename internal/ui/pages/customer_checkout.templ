@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -103,7 +104,12 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 												type="radio"
 												name="branch_id"
 												value={ fmt.Sprintf("%d", b.ID) }
-												checked?={ b.IsMain || idx == 0 }
+												checked?={ func() bool {
+													if buying, has := authctx.BuyingBranchFrom(ctx); has && buying.Active != nil {
+														return b.ID == *buying.Active
+													}
+													return b.IsMain || idx == 0
+												}() }
 												style="margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);"
 											/>
 											<div style="flex:1;">
