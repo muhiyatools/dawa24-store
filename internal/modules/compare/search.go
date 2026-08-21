@@ -49,7 +49,7 @@ func (s *Service) SearchAcrossSuppliersAndCatalog(ctx context.Context, userID in
 	activeStatus := FileReady
 	files, err := s.repo.ListFiles(ctx, userID, orgID, &activeStatus)
 	if err != nil {
-		return nil, err
+		s.log.WarnContext(ctx, "list active compare files warning", "error", err)
 	}
 
 	var allActiveSuppliers []string
@@ -64,7 +64,7 @@ func (s *Service) SearchAcrossSuppliersAndCatalog(ctx context.Context, userID in
 	// 2. Search user's uploaded supplier rows
 	fileRows, err := s.repo.SearchFileRows(ctx, userID, orgID, query, 100)
 	if err != nil {
-		return nil, err
+		s.log.WarnContext(ctx, "search supplier file rows warning", "error", err, "query", query)
 	}
 
 	// 3. Search master catalog products

@@ -506,8 +506,8 @@ func (r *Repository) SearchFileRows(ctx context.Context, userID int64, orgID *in
 				COALESCE(r.meta, '{}'::jsonb), r.created_at
 			FROM compare.file_rows r
 			JOIN compare.files f ON r.file_id = f.id
-			WHERE f.deleted_at IS NULL AND f.archive = false AND f.status = 'ready'
-			  AND (f.user_id = $1 OR ($2::bigint IS NOT NULL AND f.organization_id = $2))
+			WHERE f.deleted_at IS NULL AND f.status = 'ready'
+			  AND ($1::bigint <= 0 OR f.user_id = $1 OR ($2::bigint IS NOT NULL AND f.organization_id = $2))
 			  AND ($3 = '' OR r.raw_name ILIKE '%' || $3 || '%' OR r.normalized_name ILIKE '%' || $3 || '%' OR r.sku ILIKE '%' || $3 || '%' OR f.supplier_name ILIKE '%' || $3 || '%')
 			ORDER BY r.price_after_discount ASC
 			LIMIT $4;

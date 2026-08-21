@@ -749,8 +749,10 @@ func (h *UIHandler) CompareQuickSearch(w http.ResponseWriter, r *http.Request) {
 	results, err := h.compareSvc.SearchAcrossSuppliersAndCatalog(ctx, actor.UserID, orgPtr, query)
 	if err != nil {
 		h.log.ErrorContext(ctx, "compare quick search error", "error", err, "query", query)
-		http.Error(w, `{"error":"search failed"}`, http.StatusInternalServerError)
-		return
+		results = &compare.CompareSearchResults{
+			Query: query,
+			Items: []*compare.CompareSearchResultItem{},
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
