@@ -26,9 +26,10 @@ const orderColumns = `id, public_id, order_number, customer_id, organization_id,
 func scanOrder(row pgx.Row) (*commerce.Order, error) {
 	var o commerce.Order
 	var statusStr, payStatusStr string
+	var offerID *int64
 	if err := row.Scan(
 		&o.ID, &o.PublicID, &o.OrderNumber, &o.CustomerID, &o.OrganizationID,
-		&o.OfferID, &o.BranchID, &o.VendorBranchID, &o.UserAddressID,
+		&offerID, &o.BranchID, &o.VendorBranchID, &o.UserAddressID,
 		&statusStr, &o.Subtotal, &o.DiscountAmount, &o.TotalDiscount, &o.ShippingFee,
 		&o.TaxAmount, &o.TotalAmount, &o.FinalPrice,
 		&o.PaymentMethod, &payStatusStr, &o.Notes,
@@ -36,6 +37,9 @@ func scanOrder(row pgx.Row) (*commerce.Order, error) {
 		&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
 	); err != nil {
 		return nil, err
+	}
+	if offerID != nil {
+		o.OfferID = *offerID
 	}
 	o.Status = commerce.OrderStatus(statusStr)
 	o.PaymentStatus = commerce.PaymentStatus(payStatusStr)
