@@ -10,22 +10,30 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 type TeamMemberView struct {
-	ID        int64
-	UserID    int64
-	Name      string
-	Email     string
-	Phone     string
-	JobTitle  string
-	RoleKey   string
-	RoleName  string
-	IsActive  bool
-	CreatedAt string
+	ID           int64
+	UserID       int64
+	Name         string
+	Email        string
+	Phone        string
+	JobTitle     string
+	EmployeeCode string
+	BranchName   string
+	RoleKey      string
+	RoleName     string
+	IsActive     bool
+	CreatedAt    string
+}
+
+type BranchOption struct {
+	ID   int64
+	Name string
 }
 
 type RolePermissionDef struct {
@@ -36,7 +44,10 @@ type RolePermissionDef struct {
 }
 
 type VendorTeamData struct {
+	NoticeType  string
+	NoticeMsg   string
 	Members     []*TeamMemberView
+	Branches    []*BranchOption
 	Roles       []*identity.Role
 	Permissions []RolePermissionDef
 }
@@ -74,7 +85,50 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem;\"><!-- Header Action Bar --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:48px; height:48px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;\">👥</div><div><h1 style=\"font-size:1.45rem; font-weight:800; color:var(--text); margin:0;\">فريق العمل وصلاحيات الموظفين</h1><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0.2rem 0 0 0;\">إدارة حسابات موظفي المنشأة، تعيين الأدوار، وضبط صلاحيات الوصول لكل قسم</p></div></div><div style=\"display:flex; gap:0.75rem;\"><a href=\"#roles-matrix-panel\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem; max-width:1320px; margin:0 auto; padding-bottom:3.5rem;\"><!-- Notice / Alert Banner -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.NoticeMsg != "" {
+				if data.NoticeType == "error" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"alert alert-danger\" style=\"display:flex; align-items:center; gap:0.75rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--danger-text); font-weight:700;\"><span style=\"font-size:1.35rem;\">⚠️</span> <span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var3 string
+					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 56, Col: 28}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"alert alert-success\" style=\"display:flex; align-items:center; gap:0.75rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--primary-700); font-weight:700;\"><span style=\"font-size:1.35rem;\">✅</span> <span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var4 string
+					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 61, Col: 28}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<!-- Header Action Bar --><div class=\"card\" style=\"padding:1.75rem 2rem; background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; box-shadow:0 4px 20px rgba(0,0,0,0.06);\"><div style=\"display:flex; align-items:center; gap:1.25rem;\"><div style=\"width:52px; height:52px; border-radius:var(--radius-xl); background:var(--primary-subtle, rgba(16,185,129,0.12)); border:1px solid var(--primary-500); color:var(--primary-600); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;\">👥</div><div><h1 style=\"font-size:1.6rem; font-weight:900; color:var(--text); margin:0;\">فريق العمل وصلاحيات الموظفين</h1><p style=\"color:var(--text-secondary); font-size:0.875rem; margin:0.3rem 0 0 0; line-height:1.5;\">إدارة حسابات موظفي المنشأة، تعيين الأدوار والصلاحيات، وتوزيعهم على الفروع والمستودعات.</p></div></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><a href=\"#roles-matrix-panel\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-lg);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -82,7 +136,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مصفوفة الأدوار والصلاحيات</span></a> <a href=\"#new-member-panel\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>مصفوفة الصلاحيات</span></a> <a href=\"#new-member-panel\" class=\"btn btn-primary btn-sm\" style=\"font-weight:800; border-radius:var(--radius-lg); padding:0.55rem 1.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -90,46 +144,46 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>+ إضافة موظف جديد</span></a></div></div><!-- Team Overview Metrics --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--accent);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">إجمالي الموظفين</div><div style=\"font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;\" class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Members)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 74, Col: 44}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;\">حسابات مسجلة على المنشأة</div></div><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--success);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">الحسابات النشطة</div><div style=\"font-size:1.75rem; font-weight:800; color:var(--success); margin-top:0.25rem;\" class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActiveMembers(data.Members)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 82, Col: 59}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;\">تسجيل دخول وصلاحيات مفعلة</div></div><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--secondary);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">الأدوار المعرفة</div><div style=\"font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>+ إضافة موظف جديد</span></a></div></div><!-- Team Overview Metrics --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem;\"><div class=\"card\" style=\"padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); border-inline-start:4px solid var(--primary-600);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">إجمالي الموظفين</div><div style=\"font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.25rem;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Roles)))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Members)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 90, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 99, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;\">أدوار مخصصة بصلاحيات محددة</div></div></div><!-- In-Page Embedded Form Panel: Add Employee (NO floating modal overlay) --><div id=\"new-member-panel\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 4px 24px rgba(0,0,0,0.15);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div class=\"row-center-sm\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">حسابات مسجلة على المنشأة</div></div><div class=\"card\" style=\"padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); border-inline-start:4px solid #10b981;\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">الحسابات النشطة</div><div style=\"font-size:1.85rem; font-weight:900; color:#10b981; margin-top:0.25rem;\" class=\"tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActiveMembers(data.Members)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 107, Col: 59}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">تسجيل دخول وصلاحيات مفعلة</div></div><div class=\"card\" style=\"padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); border-inline-start:4px solid #0ea5e9;\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">الفروع والمستودعات المغطاة</div><div style=\"font-size:1.85rem; font-weight:900; color:#0ea5e9; margin-top:0.25rem;\" class=\"tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 115, Col: 45}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">مواقع تشغيل تابعة للمورد</div></div></div><!-- Add Employee Form Panel --><div id=\"new-member-panel\" class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 6px 24px rgba(0,0,0,0.06);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-lg); background:var(--primary-subtle, rgba(16,185,129,0.12)); color:var(--primary-600); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -137,45 +191,43 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">إضافة موظف جديد للمنشأة</h3></div></div><form method=\"POST\" action=\"/vendor/team/new\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;\"><div><label class=\"field-label\">اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"emp-name\" name=\"name\" class=\"form-input\" placeholder=\"د. أحمد جمال\" style=\"width:100%;\" required></div><div><label class=\"field-label\">المسمى الوظيفي <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"emp-title\" name=\"job_title\" class=\"form-input\" placeholder=\"مسؤول مبيعات وتوريد\" style=\"width:100%;\" required></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;\"><div><label class=\"field-label\">البريد الإلكتروني للدخول <span class=\"text-danger\">*</span></label> <input type=\"email\" id=\"emp-email\" name=\"email\" class=\"form-input tabular-nums\" placeholder=\"ahmed@company.eg\" style=\"width:100%;\" required></div><div><label class=\"field-label\">رقم الهاتف / الواتساب <span class=\"text-danger\">*</span></label> <input type=\"tel\" id=\"emp-phone\" name=\"phone\" class=\"form-input tabular-nums\" placeholder=\"01099887766\" style=\"width:100%;\" required></div></div><div class=\"form-grid-2\"><div><label class=\"field-label\">الدور الوظيفي والصلاحيات الممنوحة <span class=\"text-danger\">*</span></label> <select id=\"emp-role\" name=\"role_key\" class=\"form-input\" style=\"width:100%;\" required><option value=\"org_manager\">مدير عمليات (كامل صلاحيات التشغيل)</option> <option value=\"org_warehouse\">أمين مخزن (الأرصدة، المخازن، والتحويلات)</option> <option value=\"org_accountant\">محاسب مالي (الفواتير، المحفظة، والمدفوعات)</option> <option value=\"org_employee\" selected>موظف مبيعات وتوريد (الأصناف والشحنات)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">إضافة وتعيين موظف جديد للمنشأة</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.15rem 0 0;\">أدخل بيانات الموظف وسيتم إنشاء حسابه وربطه فوراً بصلاحيات المورد المحددة.</p></div></div></div><form method=\"POST\" action=\"/vendor/team/new\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">اسم الموظف بالكامل <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" id=\"emp-name\" name=\"name\" class=\"input-field\" placeholder=\"مثال: د. أحمد جمال\" style=\"height:44px; border-radius:var(--radius-lg);\" required></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">المسمى الوظيفي <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" id=\"emp-title\" name=\"job_title\" class=\"input-field\" placeholder=\"مثال: مسؤول مبيعات وتوريد\" style=\"height:44px; border-radius:var(--radius-lg);\" required></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">كود الموظف (اختياري)</label> <input type=\"text\" id=\"emp-code\" name=\"employee_code\" class=\"input-field\" placeholder=\"مثال: EMP-101\" style=\"height:44px; border-radius:var(--radius-lg);\"></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">البريد الإلكتروني للدخول <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"email\" id=\"emp-email\" name=\"email\" class=\"input-field tabular-nums\" placeholder=\"ahmed@company.eg\" style=\"height:44px; border-radius:var(--radius-lg);\" required></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">رقم الهاتف / الواتساب <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"tel\" id=\"emp-phone\" name=\"phone\" class=\"input-field tabular-nums\" placeholder=\"01099887766\" style=\"height:44px; border-radius:var(--radius-lg);\" required></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">كلمة المرور المبدئية <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"password\" id=\"emp-pass\" name=\"password\" minlength=\"6\" class=\"input-field\" placeholder=\"••••••••\" value=\"Password123!\" style=\"height:44px; border-radius:var(--radius-lg);\" required></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الدور الوظيفي والصلاحيات <span style=\"color:var(--danger-text);\">*</span></label> <select id=\"emp-role\" name=\"role_key\" class=\"input-field\" style=\"height:44px; border-radius:var(--radius-lg);\" required><option value=\"org_employee\" selected>موظف مبيعات وتوريد (الأصناف والشحنات)</option> <option value=\"org_manager\">مدير عمليات (كامل صلاحيات التشغيل)</option> <option value=\"org_warehouse\">أمين مخزن (الأرصدة، المخازن، والتحويلات)</option> <option value=\"org_accountant\">محاسب مالي (الفواتير، المحفظة، والمدفوعات)</option></select></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الفرع / المستودع التابع له</label> <select id=\"emp-branch\" name=\"branch_id\" class=\"input-field\" style=\"height:44px; border-radius:var(--radius-lg);\"><option value=\"\">كل الفروع / الإدارة العامة</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, r := range data.Roles {
-				if r.Key != "org_manager" && r.Key != "org_warehouse" && r.Key != "org_accountant" && r.Key != "org_employee" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<option value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var6 string
-					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(r.Key)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 152, Col: 31}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(r.Key)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 152, Col: 41}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</option>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
+			for _, b := range data.Branches {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<option value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 206, Col: 48}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 206, Col: 59}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</option>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</select></div><div><label class=\"field-label\">كلمة المرور المبدئية للحساب <span class=\"text-danger\">*</span></label> <input type=\"password\" id=\"emp-pass\" name=\"password\" minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\" style=\"width:100%;\" required></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.7rem 1.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</select></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1.25rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; font-size:0.95rem; border-radius:var(--radius-lg); padding:0.75rem 2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -183,140 +235,217 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>إنشاء حساب الموظف وتفعيل الصلاحيات</span></button></div></form></div><!-- Team Members Table --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; overflow:hidden;\"><div style=\"padding-bottom:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">قائمة موظفي المنشأة والصلاحيات</h3></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>حفظ وإضافة الموظف فوراً 💾</span></button></div></form></div><!-- Team Members Table --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; overflow:hidden;\"><div style=\"padding-bottom:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">قائمة موظفي المنشأة (")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Members)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 225, Col: 82}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ")</h3></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Members) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"padding:3rem 2rem; text-align:center; color:var(--text-muted);\"><div style=\"font-size:2rem; margin-bottom:0.5rem;\">👥</div><div style=\"font-size:1.1rem; font-weight:700; color:var(--text);\">لا يوجد موظفون مضافون حالياً</div><p style=\"font-size:0.875rem; color:var(--text-muted); margin-top:0.25rem;\">استخدم النموذج أعلاه لإضافة أول موظف للمنشأة.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div style=\"padding:3.5rem 2rem; text-align:center; color:var(--text-muted);\"><div style=\"font-size:2.5rem; margin-bottom:0.75rem;\">👥</div><div style=\"font-size:1.15rem; font-weight:800; color:var(--text);\">لا يوجد موظفون مضافون حالياً</div><p style=\"font-size:0.875rem; color:var(--text-muted); margin-top:0.35rem;\">استخدم النموذج أعلاه لإضافة أول موظف لمنشأتك وتعيين صلاحياته.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div style=\"overflow-x:auto;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.775rem; text-transform:uppercase;\"><th style=\"padding:0.75rem 1rem;\">الموظف</th><th style=\"padding:0.75rem 1rem;\">المسمى الوظيفي</th><th style=\"padding:0.75rem 1rem;\">الدور والصلاحية</th><th style=\"padding:0.75rem 1rem;\">البريد الإلكتروني</th><th style=\"padding:0.75rem 1rem;\">الهاتف</th><th style=\"padding:0.75rem 1rem;\">الحالة</th><th style=\"padding:0.75rem 1rem; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div style=\"overflow-x:auto;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.775rem; text-transform:uppercase;\"><th style=\"padding:0.75rem 1rem;\">الموظف</th><th style=\"padding:0.75rem 1rem;\">المسمى الوظيفي</th><th style=\"padding:0.75rem 1rem;\">الدور والصلاحية</th><th style=\"padding:0.75rem 1rem;\">الفرع / المستودع</th><th style=\"padding:0.75rem 1rem;\">البريد الإلكتروني</th><th style=\"padding:0.75rem 1rem;\">الهاتف</th><th style=\"padding:0.75rem 1rem;\">الحالة</th><th style=\"padding:0.75rem 1rem; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, m := range data.Members {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<tr style=\"border-bottom:1px solid var(--border);\"><td style=\"padding:0.9rem 1rem;\"><div style=\"font-weight:800; color:var(--text);\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 207, Col: 68}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></td><td style=\"padding:0.9rem 1rem; color:var(--text-secondary);\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var9 string
-					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(m.JobTitle)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 209, Col: 84}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td style=\"padding:0.9rem 1rem;\"><span style=\"font-size:0.775rem; padding:0.25rem 0.6rem; border-radius:var(--radius-md); background:var(--surface-sunken); border:1px solid var(--border); color:var(--text); font-weight:700;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(m.RoleName)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 212, Col: 24}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><td class=\"tabular-nums\" style=\"padding:0.9rem 1rem; color:var(--text-secondary); font-size:0.825rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<tr style=\"border-bottom:1px solid var(--border);\"><td style=\"padding:0.9rem 1rem;\"><div style=\"font-weight:800; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
-					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(m.Email)
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 215, Col: 122}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 254, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td class=\"tabular-nums\" style=\"padding:0.9rem 1rem; color:var(--text-secondary); font-size:0.825rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var12 string
-					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(m.Phone)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 216, Col: 122}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</td><td style=\"padding:0.9rem 1rem;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if m.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-emerald\" style=\"font-size:0.725rem;\">نشط</span>")
+					if m.EmployeeCode != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"mono\" style=\"font-size:0.7rem; color:var(--text-muted);\">#")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-gray\" style=\"font-size:0.725rem;\">معطل</span>")
+						var templ_7745c5c3_Var12 string
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(m.EmployeeCode)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 256, Col: 99}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td style=\"padding:0.9rem 1rem; text-align:end;\"><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</td><td style=\"padding:0.9rem 1rem; color:var(--text-secondary);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var13 templ.SafeURL
-					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)))
+					var templ_7745c5c3_Var13 string
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(m.JobTitle)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 225, Col: 98}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 259, Col: 84}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs\" style=\"font-weight:700;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td style=\"padding:0.9rem 1rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.75rem; font-weight:700; padding:0.25rem 0.6rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if m.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>تعطيل الحساب</span>")
+					var templ_7745c5c3_Var14 string
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(m.RoleName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 262, Col: 24}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span></td><td style=\"padding:0.9rem 1rem; color:var(--text-secondary);\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if m.BranchName != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var15 string
+						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(m.BranchName)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 267, Col: 32}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>تفعيل الحساب</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span style=\"color:var(--text-muted); font-size:0.8rem;\">الإدارة العامة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</button></form></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</td><td class=\"tabular-nums\" style=\"padding:0.9rem 1rem; color:var(--text-secondary); font-size:0.825rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var16 string
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(m.Email)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 272, Col: 122}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</td><td class=\"tabular-nums\" style=\"padding:0.9rem 1rem; color:var(--text-secondary); font-size:0.825rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var17 string
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(m.Phone)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 273, Col: 122}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><td style=\"padding:0.9rem 1rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if m.IsActive {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-emerald\" style=\"font-size:0.725rem;\">نشط</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-neutral\" style=\"font-size:0.725rem;\">معطل</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td style=\"padding:0.9rem 1rem; text-align:end;\"><div style=\"display:inline-flex; gap:0.4rem; align-items:center;\"><form method=\"POST\" action=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var18 templ.SafeURL
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 283, Col: 99}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" style=\"margin:0;\"><button type=\"submit\" class=\"btn btn-secondary btn-xs\" style=\"font-weight:700;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if m.IsActive {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>تعطيل</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>تفعيل</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</button></form><form method=\"POST\" action=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var19 templ.SafeURL
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/team/%d/delete", m.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 293, Col: 99}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" style=\"margin:0;\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في حذف هذا الموظف من المنشأة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-xs\" style=\"font-weight:700; color:var(--danger-text); border-color:rgba(239,68,68,0.3);\"><span>حذف</span></button></form></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><!-- In-Page Embedded Section: Manage Roles & Permissions Matrix --><div id=\"roles-matrix-panel\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Roles & Permissions Matrix Panel --><div id=\"roles-matrix-panel\" class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-lg); background:var(--primary-subtle, rgba(16,185,129,0.12)); color:var(--primary-600); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -324,13 +453,13 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">مصفوفة الأدوار والصلاحيات الديناميكية</h3><p style=\"font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;\">تفاصيل الصلاحيات الممنوحة لكل دور داخل المنشأة</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--accent); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">1. مدير العمليات (Manager)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.4; display:block;\">إدارة المنتجات، المخازن، أوامر التوريد، الفروع، والموظفين.</span></div><div style=\"background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--accent); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">2. أمين المخزن (Warehouse Keeper)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.4; display:block;\">تعديل الأرصدة، جرد المخازن، والتحويلات المخزنية بين الفروع.</span></div><div style=\"background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--accent); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">3. المحاسب المالي (Accountant)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.4; display:block;\">الاطلاع على الفواتير، تسوية المحفظة المالية، وعمليات السحب والإيداع.</span></div><div style=\"background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--accent); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">4. موظف المبيعات والتوريد (Employee)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.4; display:block;\">متابعة الشحنات، تحديث حالات التوريد، والرد على طلبات التسعير.</span></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">مصفوفة الأدوار والصلاحيات</h3><p style=\"font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;\">تفاصيل الصلاحيات الممنوحة لكل دور وظيفي داخل المنشأة</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-sunken); padding:1.15rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--primary-600); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">1. مدير العمليات (Manager)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.5; display:block;\">إدارة المنتجات، المخازن، أوامر التوريد، الفروع، وإضافة وتعديل الموظفين.</span></div><div style=\"background:var(--surface-sunken); padding:1.15rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--primary-600); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">2. أمين المخزن (Warehouse Keeper)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.5; display:block;\">تعديل الأرصدة، جرد المخازن، وإجراء التحويلات المخزنية بين المستودعات.</span></div><div style=\"background:var(--surface-sunken); padding:1.15rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--primary-600); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">3. المحاسب المالي (Accountant)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.5; display:block;\">الاطلاع على الفواتير، تسوية المحفظة المالية، ومتابعة مدفوعات الطلبات.</span></div><div style=\"background:var(--surface-sunken); padding:1.15rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><strong style=\"color:var(--primary-600); display:block; margin-bottom:0.35rem; font-size:0.95rem;\">4. موظف المبيعات والتوريد (Employee)</strong> <span style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.5; display:block;\">متابعة الشحنات وتحديث حالات التوريد والرد على طلبات الشراء للعملاء.</span></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.VendorShell("إدارة الموظفين وصلاحيات فريق العمل", "team", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.VendorShell("إدارة الموظفين وصلاحيات فريق العمل | دواء 24", "team", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

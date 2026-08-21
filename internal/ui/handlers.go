@@ -329,6 +329,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/roles", h.VendorRolesPage)
 	r.Post("/vendor/team/new", h.VendorTeamNewSubmit)
 	r.Post("/vendor/team/{id}/toggle", h.VendorTeamToggleSubmit)
+	r.Post("/vendor/team/{id}/delete", h.VendorTeamDeleteSubmit)
 	r.Get("/vendor/inventory", h.VendorInventoryPage)
 	r.Post("/vendor/inventory/{id}/adjust", h.VendorStockAdjustSubmit)
 	r.Get("/vendor/warehouses", h.VendorWarehousesPage)
@@ -470,6 +471,7 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2).
 	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
 	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
+	r.Post("/settings/employees", h.SettingsEmployeeCreateSubmit)
 	r.Post("/settings/employees/create", h.SettingsEmployeeCreateSubmit)
 	r.Post("/settings/employees/add", h.SettingsEmployeeCreateSubmit)
 	r.Post("/settings/employees/{id}/delete", h.SettingsEmployeeDeleteSubmit)

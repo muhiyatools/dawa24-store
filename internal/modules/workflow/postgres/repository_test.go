@@ -91,14 +91,14 @@ func resetFixtures(t *testing.T, db *database.DB) {
 		}
 
 		if _, err := tx.Exec(txCtx,
-			`INSERT INTO org.organizations (id, name) VALUES ($1, '{"ar":"مؤسسة سير العمل","en":"Workflow Test Org"}'::jsonb)
-			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`, testOrgID); err != nil {
+			`INSERT INTO org.organizations (id, name, type) VALUES ($1, '{"ar":"مؤسسة سير العمل","en":"Workflow Test Org"}'::jsonb, 'vendor')
+			 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, type = EXCLUDED.type`, testOrgID); err != nil {
 			return fmt.Errorf("insert org: %w", err)
 		}
 		if _, err := tx.Exec(txCtx,
 			`INSERT INTO identity.users (id, email, password_hash, name, role)
-			 VALUES ($1, 'wf-test@example.com', 'hash', '{"ar":"مستخدم","en":"Workflow User"}'::jsonb, 'customer')
-			 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, testUserID); err != nil {
+			 VALUES ($1, 'wf-test@example.com', 'hash', '{"ar":"مستخدم","en":"Workflow User"}'::jsonb, 'user')
+			 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, role = EXCLUDED.role`, testUserID); err != nil {
 			return fmt.Errorf("insert user: %w", err)
 		}
 		if _, err := tx.Exec(txCtx,
