@@ -549,8 +549,18 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		pID := it.ProductID
 		vID := it.ProductVariantID
 		vOrgID := it.OrganizationID
-		if vOrgID <= 0 {
-			vOrgID = 1
+		if vOrgID <= 0 && h.catSvc != nil && pID > 0 {
+			if prod, variants, err := h.catSvc.GetProduct(ctx, pID); err == nil && prod != nil {
+				for _, v := range variants {
+					if v != nil && v.ID == vID && v.OrganizationID > 0 {
+						vOrgID = v.OrganizationID
+						break
+					}
+				}
+				if vOrgID <= 0 && prod.OrganizationID > 0 {
+					vOrgID = prod.OrganizationID
+				}
+			}
 		}
 		uPrice := it.UnitPrice
 		if uPrice.IsZero() {
@@ -585,15 +595,15 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	var branchID *int64
 	if bID, err := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64); err == nil && bID > 0 {
 		branchID = &bID
+	} else if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil && *buying.Active > 0 {
+		branchID = buying.Active
+	} else if actor, ok := authctx.From(ctx); ok && actor.BranchID != nil && *actor.BranchID > 0 {
+		branchID = actor.BranchID
 	}
 
 	var targetBranchID int64
 	if branchID != nil {
 		targetBranchID = *branchID
-	} else if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
-		targetBranchID = *buying.Active
-	} else if actor, ok := authctx.From(ctx); ok && actor.BranchID != nil {
-		targetBranchID = *actor.BranchID
 	}
 
 	if actor, ok := authctx.From(ctx); ok && targetBranchID > 0 {
@@ -640,9 +650,25 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		if input.BranchID == nil {
-			if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
-				input.BranchID = buying.Active
+	}
+
+	if input.BranchID == nil {
+		if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil {
+			input.BranchID = buying.Active
+		}
+	}
+
+	// Ensure vendor branch is resolved if vendor has branches
+	if input.VendorBranchID == nil && len(items) > 0 && items[0].VendorOrgID > 0 && h.orgSvc != nil {
+		if vBranches, err := h.orgSvc.ListBranches(ctx, items[0].VendorOrgID); err == nil && len(vBranches) > 0 {
+			for _, vb := range vBranches {
+				if vb.IsMain {
+					input.VendorBranchID = &vb.ID
+					break
+				}
+			}
+			if input.VendorBranchID == nil {
+				input.VendorBranchID = &vBranches[0].ID
 			}
 		}
 	}
