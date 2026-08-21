@@ -205,6 +205,139 @@ func (h *UIHandler) CompareFileRenameSubmit(w http.ResponseWriter, r *http.Reque
 	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تغيير اسم المورد بنجاح.")
 }
 
+// CompareFileMappingPage shows the column mapping page for a compare file.
+func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		return
+	}
+
+	var file *compare.CompareFile
+	if h.compareSvc != nil {
+		file, err = h.compareSvc.GetFile(ctx, id)
+		if err != nil {
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	// Check ownership
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+	if file.OrganizationID != orgPtr || file.UserID != actor.UserID {
+		h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بالوصول لهذا الملف.")
+		return
+	}
+
+	// Read first few rows from storage for preview
+	var headers []string
+	var preview [][]string
+	if h.storage != nil && file.StorageKey != "" {
+		reader, _, err := h.storage.Get(ctx, file.StorageKey)
+		if err == nil {
+			headers, preview, _ = h.parseFilePreview(reader, file.OriginalFilename)
+			reader.Close()
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.CompareFileMappingPage(lang, dir, file, headers, preview).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render compare file mapping", "error", err)
+	}
+}
+
+// parseFilePreview reads the first few rows of a spreadsheet for mapping preview.
+func (h *UIHandler) parseFilePreview(reader io.Reader, filename string) ([]string, [][]string, error) {
+	lower := strings.ToLower(filename)
+	if strings.HasSuffix(lower, ".xlsx") || strings.HasSuffix(lower, ".xls") {
+		return h.parseXLSXPreview(reader)
+	}
+	if strings.HasSuffix(lower, ".csv") {
+		return h.parseCSVPreview(reader)
+	}
+	return nil, nil, fmt.Errorf("unsupported file format")
+}
+
+func (h *UIHandler) parseCSVPreview(reader io.Reader) ([]string, [][]string, error) {
+	csvReader := csv.NewReader(reader)
+	csvReader.FieldsPerRecord = -1
+	csvReader.TrimLeadingSpace = true
+
+	headers, err := csvReader.Read()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var preview [][]string
+	for i := 0; i < 5; i++ {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			continue
+		}
+		preview = append(preview, record)
+	}
+	return headers, preview, nil
+}
+
+func (h *UIHandler) parseXLSXPreview(reader io.Reader) ([]string, [][]string, error) {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	f, err := excelize.OpenReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, nil, err
+	}
+	defer f.Close()
+
+	sheets := f.GetSheetList()
+	if len(sheets) == 0 {
+		return nil, nil, fmt.Errorf("no sheets")
+	}
+
+	rowsIter, err := f.Rows(sheets[0])
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rowsIter.Close()
+
+	if !rowsIter.Next() {
+		return nil, nil, fmt.Errorf("empty sheet")
+	}
+
+	headers, err := rowsIter.Columns()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var preview [][]string
+	for i := 0; i < 5 && rowsIter.Next(); i++ {
+		columns, err := rowsIter.Columns()
+		if err != nil {
+			continue
+		}
+		preview = append(preview, columns)
+	}
+
+	return headers, preview, nil
+}
+
 // CompareFileArchiveSubmit handles manually archiving a file.
 func (h *UIHandler) CompareFileArchiveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
