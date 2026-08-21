@@ -1,0 +1,615 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+	"strconv"
+
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult, filter compare.MarketDiscountsFilter, currentView string) {
+	@layouts.VendorShell("خصومات السوق العامة | دواء 24", "market-discounts", lang, dir) {
+		<div
+			class="market-discounts-root"
+			x-data={ fmt.Sprintf("{ showMoreFilters: %t, currentView: '%s', setView(v) { this.currentView = v; localStorage.setItem('d24_market_view', v); }, init() { const saved = localStorage.getItem('d24_market_view'); if (saved && (saved === 'list' || saved === 'grid')) { this.currentView = saved; } } }", (filter.MinPrice != nil || filter.MaxPrice != nil || filter.MinDiscount != nil || filter.MaxDiscount != nil), currentView) }
+		>
+			<style>
+				.market-discounts-root {
+					--accent: #e8ff47;
+					--accent-dim: rgba(232,255,71,0.08);
+					--accent-border: rgba(232,255,71,0.25);
+					--red: #ff4757;
+					--green: #2ecc71;
+					--blue: #00b4d8;
+					--surface-card: var(--surface-raised, #131b2e);
+					--border-card: var(--border, rgba(255,255,255,0.08));
+					max-width: 1320px;
+					margin: 0 auto;
+					padding: 1.5rem 1rem 3.5rem;
+					display: flex;
+					flex-direction: column;
+					gap: 1.5rem;
+				}
+
+				.market-banner {
+					background: radial-gradient(circle at top right, rgba(232,255,71,0.12) 0%, rgba(15,23,42,0.85) 75%), var(--surface-card);
+					border: 1px solid var(--accent-border);
+					border-radius: var(--radius-2xl, 20px);
+					padding: 2rem 2.25rem;
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					flex-wrap: wrap;
+					gap: 1.5rem;
+					position: relative;
+					overflow: hidden;
+					box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+				}
+
+				.market-filter-card {
+					background: var(--surface-card);
+					border: 1px solid var(--border-card);
+					border-radius: var(--radius-2xl, 20px);
+					padding: 1.5rem;
+					display: flex;
+					flex-direction: column;
+					gap: 1.25rem;
+					box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+				}
+
+				.market-control-bar {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					flex-wrap: wrap;
+					gap: 1rem;
+				}
+
+				.market-list-row {
+					background: var(--surface-card);
+					border: 1px solid var(--border-card);
+					border-radius: var(--radius-xl, 16px);
+					padding: 1.25rem 1.75rem;
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					gap: 1.5rem;
+					transition: all 0.2s ease;
+				}
+				.market-list-row:hover {
+					border-color: var(--accent-border);
+					transform: translateY(-2px);
+					box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+				}
+
+				.market-grid-card {
+					background: var(--surface-card);
+					border: 1px solid var(--border-card);
+					border-radius: var(--radius-xl, 16px);
+					padding: 1.5rem;
+					display: flex;
+					flex-direction: column;
+					justify-content: space-between;
+					gap: 1.25rem;
+					transition: all 0.2s ease;
+				}
+				.market-grid-card:hover {
+					border-color: var(--accent-border);
+					transform: translateY(-3px);
+					box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+				}
+
+				.tag-pill-yellow {
+					background: rgba(232,255,71,0.1);
+					border: 1px solid rgba(232,255,71,0.25);
+					color: #e8ff47;
+					font-weight: 800;
+					font-size: 0.75rem;
+					padding: 0.25rem 0.75rem;
+					border-radius: var(--radius-full, 999px);
+					display: inline-flex;
+					align-items: center;
+					gap: 0.35rem;
+				}
+
+				.tag-pill-green {
+					background: rgba(46,204,113,0.15);
+					border: 1px solid rgba(46,204,113,0.3);
+					color: #2ecc71;
+					font-weight: 800;
+					font-size: 0.8rem;
+					padding: 0.25rem 0.65rem;
+					border-radius: var(--radius-md, 8px);
+					display: inline-flex;
+					align-items: center;
+				}
+
+				.price-huge {
+					font-size: 1.65rem;
+					font-weight: 900;
+					color: #e8ff47;
+					line-height: 1;
+					font-family: var(--font-mono, monospace);
+				}
+
+				.price-net {
+					font-size: 0.95rem;
+					font-weight: 700;
+					color: var(--text-secondary, #94a3b8);
+					font-family: var(--font-mono, monospace);
+				}
+
+				.price-saving-red {
+					font-size: 0.8rem;
+					font-weight: 700;
+					color: #ff4757;
+					font-family: var(--font-mono, monospace);
+				}
+
+				.view-toggle-btn {
+					background: rgba(255,255,255,0.05);
+					border: 1px solid var(--border-card);
+					color: var(--text-muted);
+					padding: 0.45rem 0.75rem;
+					border-radius: var(--radius-lg, 10px);
+					cursor: pointer;
+					display: inline-flex;
+					align-items: center;
+					gap: 0.4rem;
+					font-weight: 700;
+					font-size: 0.825rem;
+					transition: all 0.2s;
+				}
+				.view-toggle-btn.active {
+					background: rgba(232,255,71,0.15);
+					border-color: #e8ff47;
+					color: #e8ff47;
+				}
+			</style>
+
+			<!-- 1. Header Banner -->
+			<div class="market-banner">
+				<div style="display:flex; flex-direction:column; gap:0.5rem; max-width:760px; z-index:1;">
+					<h1 style="font-size:2rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.75rem;">
+						<span>خصومات السوق العامة</span>
+					</h1>
+					<p style="font-size:0.95rem; color:var(--text-secondary); margin:0; line-height:1.6;">
+						تصفح وابحث في جميع الخصومات العامة وعروض أسعار الموزعين المرفوعة والمستحدثة من قبل إدارة المنصة.
+					</p>
+				</div>
+				<div style="display:flex; gap:0.75rem; z-index:1;">
+					<a href="/compare/tool" class="btn btn-secondary" style="font-weight:700; border-radius:var(--radius-full);">
+						@components.IconTrendingUp("icon-xs")
+						<span>مقارناتي الخاصة</span>
+					</a>
+					<a href="/compare/results" class="btn btn-primary" style="font-weight:700; border-radius:var(--radius-full); background:#e8ff47; color:#0f172a; border-color:#e8ff47;">
+						<span>جدول المقارنة الشامل 📊</span>
+					</a>
+				</div>
+			</div>
+
+			<!-- 2. Main Filters Form -->
+			<form method="GET" action="/market-discounts" class="market-filter-card" id="market-filter-form">
+				<input type="hidden" name="view" x-bind:value="currentView" />
+				
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; align-items:flex-end;">
+					
+					<!-- Search Input -->
+					<div style="grid-column: span 2; min-width: 280px;">
+						<label class="form-label" style="font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">
+							البحث عن صنف
+						</label>
+						<div style="position:relative;">
+							<span style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--text-muted);">🔍</span>
+							<input
+								type="text"
+								name="q"
+								value={ filter.Query }
+								class="input-field"
+								style="padding-right:2.75rem; border-radius:var(--radius-xl); height:46px; font-size:0.9rem;"
+								placeholder="اسم الدواء، المادة الفعالة، الكود..."
+							/>
+						</div>
+					</div>
+
+					<!-- Supplier Select -->
+					<div>
+						<label class="form-label" style="font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">
+							المورد / الشركة
+						</label>
+						<select name="supplier" class="input-field" style="border-radius:var(--radius-xl); height:46px; font-size:0.875rem;" onchange="this.form.submit()">
+							<option value="">كل الشركات</option>
+							for _, sup := range result.AvailableSuppliers {
+								<option value={ sup } selected?={ filter.Supplier == sup }>{ sup }</option>
+							}
+						</select>
+					</div>
+
+					<!-- Sort Order -->
+					<div>
+						<label class="form-label" style="font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">
+							ترتيب النتائج
+						</label>
+						<select name="sort" class="input-field" style="border-radius:var(--radius-xl); height:46px; font-size:0.875rem;" onchange="this.form.submit()">
+							<option value="newest" selected?={ filter.SortBy == "" || filter.SortBy == "newest" }>الأحدث</option>
+							<option value="oldest" selected?={ filter.SortBy == "oldest" }>الأقدم</option>
+							<option value="discount_desc" selected?={ filter.SortBy == "discount_desc" }>الأعلى خصماً 🔥</option>
+							<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً 💰</option>
+							<option value="price_desc" selected?={ filter.SortBy == "price_desc" }>الأعلى سعراً</option>
+						</select>
+					</div>
+
+					<!-- Action Buttons -->
+					<div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+						<button
+							type="button"
+							@click="showMoreFilters = !showMoreFilters"
+							class="btn btn-secondary"
+							style="height:46px; border-radius:var(--radius-xl); font-weight:700; flex:1; justify-content:center;"
+						>
+							<span x-text="showMoreFilters ? 'إخفاء الفلاتر' : 'المزيد ⚙️'"></span>
+						</button>
+						<button type="submit" class="btn btn-primary" style="height:46px; border-radius:var(--radius-xl); font-weight:700; background:#e8ff47; color:#0f172a; border-color:#e8ff47; padding:0 1.25rem;">
+							تطبيق
+						</button>
+						<a href="/market-discounts" class="btn btn-secondary" style="height:46px; border-radius:var(--radius-xl); font-weight:700; color:var(--danger-text); border-color:rgba(255,71,87,0.3);" title="إعادة ضبط الفلاتر">
+							مسح
+						</a>
+					</div>
+
+				</div>
+
+				<!-- Collapsible Advanced Range Filters -->
+				<div x-show="showMoreFilters" x-collapse style="padding-top:1.25rem; border-top:1px solid var(--border-card); display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
+					
+					<!-- Price Range -->
+					<div>
+						<label class="form-label" style="font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem;">
+							💰 نطاق السعر النهائي (ج.م)
+						</label>
+						<div style="display:flex; gap:0.75rem; align-items:center;">
+							<input
+								type="number"
+								step="0.1"
+								name="min_price"
+								value={ formatOptionalFloat(filter.MinPrice) }
+								class="input-field"
+								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
+								placeholder="الحد الأدنى"
+							/>
+							<span style="color:var(--text-muted);">-</span>
+							<input
+								type="number"
+								step="0.1"
+								name="max_price"
+								value={ formatOptionalFloat(filter.MaxPrice) }
+								class="input-field"
+								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
+								placeholder="الحد الأقصى"
+							/>
+						</div>
+					</div>
+
+					<!-- Discount Range -->
+					<div>
+						<label class="form-label" style="font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem;">
+							📉 نطاق نسبة الخصم %
+						</label>
+						<div style="display:flex; gap:0.75rem; align-items:center;">
+							<input
+								type="number"
+								step="0.5"
+								name="min_discount"
+								value={ formatOptionalFloat(filter.MinDiscount) }
+								class="input-field"
+								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
+								placeholder="الخصم الأدنى %"
+							/>
+							<span style="color:var(--text-muted);">-</span>
+							<input
+								type="number"
+								step="0.5"
+								name="max_discount"
+								value={ formatOptionalFloat(filter.MaxDiscount) }
+								class="input-field"
+								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
+								placeholder="الخصم الأقصى %"
+							/>
+						</div>
+					</div>
+
+				</div>
+			</form>
+
+			<!-- 3. Control & Stats Bar -->
+			<div class="market-control-bar">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div class="badge badge-neutral" style="font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:rgba(255,255,255,0.06); border:1px solid var(--border-card);">
+						<span>عرض النتائج:</span>
+						<strong style="color:#e8ff47; margin-right:0.25rem;">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
+					</div>
+					if filter.Query != "" {
+						<span style="font-size:0.825rem; color:var(--text-muted);">
+							نتائج البحث عن: <strong style="color:var(--text);">{ filter.Query }</strong>
+						</span>
+					}
+				</div>
+
+				<!-- View Mode Switches -->
+				<div style="display:flex; gap:0.4rem; align-items:center;">
+					<button
+						type="button"
+						@click="setView('list')"
+						class="view-toggle-btn"
+						x-bind:class="{ 'active': currentView === 'list' }"
+					>
+						<span>📑 القائمة</span>
+					</button>
+					<button
+						type="button"
+						@click="setView('grid')"
+						class="view-toggle-btn"
+						x-bind:class="{ 'active': currentView === 'grid' }"
+					>
+						<span>🔲 الشبكة</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- 4. Results List / Grid -->
+			if len(result.Items) == 0 {
+				<div class="card" style="text-align:center; padding:4.5rem 1.5rem; background:var(--surface-card); border-radius:var(--radius-2xl);">
+					<div style="font-size:3rem; margin-bottom:1rem;">🔍</div>
+					<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:0.5rem;">
+						لم نجد أي نتائج مطابقة
+					</h3>
+					<p style="font-size:0.9rem; color:var(--text-muted); max-width:480px; margin:0 auto 1.5rem;">
+						جرب البحث بكلمات أخرى أو تعديل خيارات التصفية ونطاقات الأسعار والخصومات.
+					</p>
+					<a href="/market-discounts" class="btn btn-secondary" style="font-weight:700; border-radius:var(--radius-full);">
+						إعادة تعيين جميع الفلاتر
+					</a>
+				</div>
+			} else {
+				<!-- LIST VIEW (Matches Screenshot 1 & 2) -->
+				<div x-show="currentView === 'list'" style="display:flex; flex-direction:column; gap:0.75rem;">
+					for _, item := range result.Items {
+						<div class="market-list-row">
+							
+							<!-- Right: Product Information -->
+							<div style="flex:1; min-width:240px; display:flex; flex-direction:column; gap:0.4rem;">
+								<h3 style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0; line-height:1.4;">
+									{ item.ProductName }
+								</h3>
+								<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+									if item.SKU != "" {
+										<span class="mono" style="font-size:0.75rem; color:var(--text-muted); background:rgba(255,255,255,0.04); padding:0.15rem 0.5rem; border-radius:var(--radius-sm);">
+											كود: { item.SKU }
+										</span>
+									}
+									if item.InCatalog {
+										<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700; padding:0.15rem 0.5rem;">
+											🔗 معتمد بالكتالوج
+										</span>
+									}
+								</div>
+							</div>
+
+							<!-- Center: Supplier & Offer Date -->
+							<div style="display:flex; flex-direction:column; align-items:center; gap:0.35rem; min-width:180px; text-align:center;">
+								<span class="tag-pill-yellow">
+									<span>🏢</span>
+									<span>{ item.SupplierName }</span>
+								</span>
+								<div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono, monospace);">
+									<span>تاريخ العرض: </span>
+									<strong>{ item.CreatedAt.Format("2006-01-02") }</strong>
+								</div>
+							</div>
+
+							<!-- Left: Price, Discount & Savings Box -->
+							<div style="display:flex; align-items:center; gap:1.25rem; min-width:220px; justify-content:flex-end;">
+								
+								<!-- Prices -->
+								<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.2rem;">
+									<div style="display:flex; align-items:baseline; gap:0.4rem;">
+										<span class="price-huge">{ item.OriginalPrice.String() }</span>
+										<span style="font-size:0.75rem; font-weight:700; color:#e8ff47;">EGP</span>
+									</div>
+									<div class="price-net">
+										<span>EGP </span>
+										<span>{ item.PriceAfterDiscount.String() }</span>
+									</div>
+								</div>
+
+								<!-- Discount & Savings Pill -->
+								if item.DiscountPercent > 0 {
+									<div style="display:flex; flex-direction:column; align-items:center; gap:0.2rem;">
+										<span class="tag-pill-green">
+											%{ fmt.Sprintf("%.0f", item.DiscountPercent) } خصم
+										</span>
+										if item.DiscountValue.IsPositive() {
+											<span class="price-saving-red">
+												-EGP { item.DiscountValue.String() }
+											</span>
+										}
+									</div>
+								}
+
+							</div>
+
+						</div>
+					}
+				</div>
+
+				<!-- GRID VIEW -->
+				<div x-show="currentView === 'grid'" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1.25rem;">
+					for _, item := range result.Items {
+						<div class="market-grid-card">
+							<div>
+								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+									<span class="tag-pill-yellow">
+										{ item.SupplierName }
+									</span>
+									if item.DiscountPercent > 0 {
+										<span class="tag-pill-green">
+											%{ fmt.Sprintf("%.0f", item.DiscountPercent) } خصم
+										</span>
+									}
+								</div>
+
+								<h4 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.5rem; line-height:1.4;">
+									{ item.ProductName }
+								</h4>
+
+								if item.SKU != "" {
+									<div class="mono" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">
+										الكود: { item.SKU }
+									</div>
+								}
+
+								if item.InCatalog {
+									<div class="badge badge-sky" style="font-size:0.7rem; font-weight:700; padding:0.15rem 0.5rem; width:fit-content;">
+										🔗 مطابق مع صنف بالنظام
+									</div>
+								}
+							</div>
+
+							<div style="border-top:1px solid var(--border-card); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.6rem;">
+								<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+									<span style="color:var(--text-muted);">السعر الأصلي:</span>
+									<span class="mono" style="font-weight:700; color:var(--text); text-decoration:line-through;">
+										{ item.OriginalPrice.String() } ج.م
+									</span>
+								</div>
+
+								<!-- Price After Discount Highlight Box -->
+								<div style="background:rgba(232,255,71,0.08); border:1px dashed var(--accent-border); border-radius:var(--radius-lg); padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center;">
+									<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">السعر بعد الخصم:</span>
+									<div style="display:flex; align-items:baseline; gap:0.25rem;">
+										<span class="mono" style="font-size:1.4rem; font-weight:900; color:#e8ff47;">
+											{ item.PriceAfterDiscount.String() }
+										</span>
+										<span style="font-size:0.75rem; font-weight:800; color:#e8ff47;">ج.م</span>
+									</div>
+								</div>
+
+								<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted);">
+									<span>تاريخ العرض:</span>
+									<span class="mono">{ item.CreatedAt.Format("2006-01-02") }</span>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+
+				<!-- 5. Pagination Footer -->
+				<div class="card" style="padding:1.25rem 1.75rem; background:var(--surface-card); border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+					
+					<!-- Left: Pagination Info -->
+					<div style="font-size:0.875rem; color:var(--text-muted); font-family:var(--font-mono, monospace);">
+						<span>عرض </span>
+						<strong style="color:var(--text);">{ fmt.Sprintf("%d", calculateStartItem(result.Page, result.Limit, result.TotalCount)) }</strong>
+						<span> إلى </span>
+						<strong style="color:var(--text);">{ fmt.Sprintf("%d", calculateEndItem(result.Page, result.Limit, result.TotalCount)) }</strong>
+						<span> من إجمالي </span>
+						<strong style="color:#e8ff47;">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
+						<span> سجل</span>
+					</div>
+
+					<!-- Right: Prev / Next Buttons -->
+					<div style="display:flex; gap:0.5rem; align-items:center;">
+						if result.HasPrev {
+							<a
+								href={ templ.SafeURL(buildPaginationURL(filter, result.Page-1, currentView)) }
+								class="btn btn-secondary"
+								style="padding:0.45rem 1rem; border-radius:var(--radius-lg); font-weight:700;"
+							>
+								السابق
+							</a>
+						} else {
+							<button class="btn btn-secondary" disabled style="opacity:0.4; padding:0.45rem 1rem; border-radius:var(--radius-lg);">
+								السابق
+							</button>
+						}
+
+						<div class="badge badge-neutral" style="padding:0.45rem 0.85rem; font-weight:800; border-radius:var(--radius-lg);">
+							صفحة { fmt.Sprintf("%d", result.Page) } من { fmt.Sprintf("%d", result.TotalPages) }
+						</div>
+
+						if result.HasNext {
+							<a
+								href={ templ.SafeURL(buildPaginationURL(filter, result.Page+1, currentView)) }
+								class="btn btn-secondary"
+								style="padding:0.45rem 1rem; border-radius:var(--radius-lg); font-weight:700; color:#e8ff47; border-color:var(--accent-border);"
+							>
+								التالي ←
+							</a>
+						} else {
+							<button class="btn btn-secondary" disabled style="opacity:0.4; padding:0.45rem 1rem; border-radius:var(--radius-lg);">
+								التالي ←
+							</button>
+						}
+					</div>
+
+				</div>
+			}
+
+		</div>
+	}
+}
+
+func formatOptionalFloat(v *float64) string {
+	if v == nil {
+		return ""
+	}
+	return fmt.Sprintf("%.2f", *v)
+}
+
+func calculateStartItem(page, limit int, total int64) int64 {
+	if total == 0 {
+		return 0
+	}
+	return int64((page-1)*limit + 1)
+}
+
+func calculateEndItem(page, limit int, total int64) int64 {
+	end := int64(page * limit)
+	if end > total {
+		return total
+	}
+	return end
+}
+
+func buildPaginationURL(filter compare.MarketDiscountsFilter, targetPage int, view string) string {
+	vals := url.Values{}
+	if filter.Query != "" {
+		vals.Set("q", filter.Query)
+	}
+	if filter.Supplier != "" {
+		vals.Set("supplier", filter.Supplier)
+	}
+	if filter.SortBy != "" {
+		vals.Set("sort", filter.SortBy)
+	}
+	if filter.MinPrice != nil {
+		vals.Set("min_price", fmt.Sprintf("%.2f", *filter.MinPrice))
+	}
+	if filter.MaxPrice != nil {
+		vals.Set("max_price", fmt.Sprintf("%.2f", *filter.MaxPrice))
+	}
+	if filter.MinDiscount != nil {
+		vals.Set("min_discount", fmt.Sprintf("%.2f", *filter.MinDiscount))
+	}
+	if filter.MaxDiscount != nil {
+		vals.Set("max_discount", fmt.Sprintf("%.2f", *filter.MaxDiscount))
+	}
+	if view != "" {
+		vals.Set("view", view)
+	}
+	vals.Set("page", strconv.Itoa(targetPage))
+	return "/market-discounts?" + vals.Encode()
+}

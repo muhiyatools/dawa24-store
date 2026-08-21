@@ -216,6 +216,37 @@ func (m *mockCompareRepoE2E) SearchFileRows(ctx context.Context, userID int64, o
 	}
 	return results, nil
 }
+func (m *mockCompareRepoE2E) ListDistinctSuppliers(ctx context.Context) ([]string, error) {
+	return []string{"شركة الفتح", "شركة النصر للأدوية"}, nil
+}
+func (m *mockCompareRepoE2E) ListMarketDiscounts(ctx context.Context, filter compare.MarketDiscountsFilter) (*compare.MarketDiscountsResult, error) {
+	var items []*compare.MarketDiscountRow
+	for fileID, rows := range m.fileRows {
+		file := m.files[fileID]
+		for _, r := range rows {
+			items = append(items, &compare.MarketDiscountRow{
+				ID:                 r.ID,
+				FileID:             r.FileID,
+				SupplierName:       file.SupplierName,
+				ProductName:        r.RawName,
+				SKU:                r.SKU,
+				OriginalPrice:      r.Price,
+				DiscountPercent:    r.Discount,
+				PriceAfterDiscount: r.PriceAfterDiscount,
+				MatchedProductID:   r.MatchedProductID,
+				InCatalog:          r.MatchedProductID != nil && *r.MatchedProductID > 0,
+			})
+		}
+	}
+	return &compare.MarketDiscountsResult{
+		Items:              items,
+		TotalCount:         int64(len(items)),
+		AvailableSuppliers: []string{"شركة الفتح", "شركة النصر للأدوية"},
+		Page:               1,
+		Limit:              24,
+		TotalPages:         1,
+	}, nil
+}
 
 func TestCompareUploadSubmit_E2E(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -456,5 +487,65 @@ func TestCompareQuickSearch_E2E(t *testing.T) {
 	}
 	if item.CatalogStatus != compare.StatusCatalogAndSuppliers {
 		t.Errorf("expected catalog status %s, got %s", compare.StatusCatalogAndSuppliers, item.CatalogStatus)
+	}
+}
+
+func TestMarketDiscountsPage_E2E(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	repo := newMockCompareRepoE2E()
+	compareSvc := compare.NewService(repo, logger)
+
+	h := ui.NewUIHandler(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+	)
+	h.SetCompareService(compareSvc)
+
+	file := &compare.CompareFile{
+		ID:               25,
+		UserID:           100,
+		OrganizationID:   &[]int64{200}[0],
+		SupplierName:     "مخزن المتحدة بلقيس",
+		OriginalFilename: "united.xlsx",
+		Status:           compare.FileReady,
+	}
+	_ = repo.CreateFile(context.Background(), file)
+
+	_ = repo.InsertFileRows(context.Background(), []*compare.CompareFileRow{
+		{
+			FileID:             file.ID,
+			SKU:                "9901",
+			RawName:            "اماريل 1مجم اقراص",
+			NormalizedName:     "اماريل 1مجم اقراص",
+			Price:              money.FromMajor(40),
+			Discount:           36.0,
+			PriceAfterDiscount: money.FromMinor(2560),
+			MatchedProductID:   &[]int64{101}[0],
+		},
+	})
+
+	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+
+	req := httptest.NewRequest("GET", "/market-discounts?q=اماريل&supplier=مخزن+المتحدة+بلقيس", nil)
+	req = req.WithContext(authctx.WithActor(req.Context(), actor))
+	rec := httptest.NewRecorder()
+
+	h.MarketDiscountsPage(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", rec.Code)
+	}
+
+	body := rec.Body.String()
+	if !strings.Contains(body, "خصومات السوق العامة") {
+		t.Errorf("expected page title 'خصومات السوق العامة'")
+	}
+	if !strings.Contains(body, "اماريل 1مجم اقراص") {
+		t.Errorf("expected body to contain product name 'اماريل 1مجم اقراص'")
+	}
+	if !strings.Contains(body, "مخزن المتحدة بلقيس") {
+		t.Errorf("expected body to contain supplier name 'مخزن المتحدة بلقيس'")
+	}
+	if !strings.Contains(body, "36% خصم") && !strings.Contains(body, "%36 خصم") {
+		t.Errorf("expected body to contain discount percentage badge")
 	}
 }

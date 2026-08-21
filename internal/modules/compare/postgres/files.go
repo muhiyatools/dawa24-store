@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 const fileColumns = `id, public_id, organization_id, user_id, supplier_name, original_filename, storage_key, mime_type, size_bytes, row_count, status, mapping_config, archived_at, archive_reason, error_message, created_at, updated_at, deleted_at`
@@ -542,3 +544,164 @@ func (r *Repository) SearchFileRows(ctx context.Context, userID int64, orgID *in
 
 	return results, err
 }
+
+func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error) {
+	var suppliers []string
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `
+			SELECT DISTINCT supplier_name 
+			FROM compare.files 
+			WHERE deleted_at IS NULL AND status = 'ready' 
+			ORDER BY supplier_name ASC;
+		`)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var sup string
+			if err := rows.Scan(&sup); err == nil && strings.TrimSpace(sup) != "" {
+				suppliers = append(suppliers, sup)
+			}
+		}
+		return rows.Err()
+	})
+	return suppliers, err
+}
+
+func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.MarketDiscountsFilter) (*compare.MarketDiscountsResult, error) {
+	limit := filter.Limit
+	if limit <= 0 {
+		limit = 24
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	page := filter.Page
+	if page <= 0 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+
+	var args []any
+	argIdx := 1
+
+	whereClauses := []string{
+		"f.deleted_at IS NULL",
+		"f.status = 'ready'",
+	}
+
+	if filter.Query != "" {
+		q := strings.TrimSpace(filter.Query)
+		whereClauses = append(whereClauses, fmt.Sprintf("(r.raw_name ILIKE $%d OR r.normalized_name ILIKE $%d OR r.sku ILIKE $%d OR f.supplier_name ILIKE $%d)", argIdx, argIdx, argIdx, argIdx))
+		args = append(args, "%"+q+"%")
+		argIdx++
+	}
+
+	if filter.Supplier != "" {
+		whereClauses = append(whereClauses, fmt.Sprintf("f.supplier_name = $%d", argIdx))
+		args = append(args, strings.TrimSpace(filter.Supplier))
+		argIdx++
+	}
+
+	if filter.MinPrice != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("r.price_after_discount >= $%d", argIdx))
+		args = append(args, int64(*filter.MinPrice*100))
+		argIdx++
+	}
+	if filter.MaxPrice != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("r.price_after_discount <= $%d", argIdx))
+		args = append(args, int64(*filter.MaxPrice*100))
+		argIdx++
+	}
+
+	if filter.MinDiscount != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("r.discount >= $%d", argIdx))
+		args = append(args, *filter.MinDiscount)
+		argIdx++
+	}
+	if filter.MaxDiscount != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("r.discount <= $%d", argIdx))
+		args = append(args, *filter.MaxDiscount)
+		argIdx++
+	}
+
+	orderBy := "r.created_at DESC"
+	switch filter.SortBy {
+	case "oldest":
+		orderBy = "r.created_at ASC"
+	case "discount_desc":
+		orderBy = "r.discount DESC, r.price_after_discount ASC"
+	case "price_asc":
+		orderBy = "r.price_after_discount ASC, r.discount DESC"
+	case "price_desc":
+		orderBy = "r.price_after_discount DESC, r.discount DESC"
+	case "newest":
+		fallthrough
+	default:
+		orderBy = "r.created_at DESC"
+	}
+
+	sql := fmt.Sprintf(`
+		SELECT 
+			r.id, r.file_id, f.supplier_name, r.raw_name, COALESCE(r.sku, ''),
+			r.price, r.discount, r.price_after_discount, r.matched_product_id, r.created_at,
+			COUNT(*) OVER() AS total_count
+		FROM compare.file_rows r
+		JOIN compare.files f ON r.file_id = f.id
+		WHERE %s
+		ORDER BY %s
+		LIMIT $%d OFFSET $%d;
+	`, strings.Join(whereClauses, " AND "), orderBy, argIdx, argIdx+1)
+
+	args = append(args, limit, offset)
+
+	result := &compare.MarketDiscountsResult{
+		Items:      make([]*compare.MarketDiscountRow, 0),
+		Page:       page,
+		Limit:      limit,
+		TotalPages: 1,
+	}
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, sql, args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var item compare.MarketDiscountRow
+			var totalCount int64
+			if err := rows.Scan(
+				&item.ID, &item.FileID, &item.SupplierName, &item.ProductName, &item.SKU,
+				&item.OriginalPrice, &item.DiscountPercent, &item.PriceAfterDiscount,
+				&item.MatchedProductID, &item.CreatedAt, &totalCount,
+			); err != nil {
+				return err
+			}
+			result.TotalCount = totalCount
+			if item.PriceAfterDiscount.IsZero() && item.OriginalPrice.IsPositive() {
+				item.PriceAfterDiscount = compare.CalculatePriceAfterDiscount(item.OriginalPrice, item.DiscountPercent)
+			}
+			if item.OriginalPrice.Minor() > item.PriceAfterDiscount.Minor() {
+				item.DiscountValue = money.FromMinor(item.OriginalPrice.Minor() - item.PriceAfterDiscount.Minor())
+			}
+			item.InCatalog = (item.MatchedProductID != nil && *item.MatchedProductID > 0)
+			result.Items = append(result.Items, &item)
+		}
+		return rows.Err()
+	})
+
+	if result.TotalCount > 0 {
+		result.TotalPages = int((result.TotalCount + int64(limit) - 1) / int64(limit))
+	}
+	result.HasPrev = page > 1
+	result.HasNext = page < result.TotalPages
+
+	suppliers, _ := r.ListDistinctSuppliers(ctx)
+	result.AvailableSuppliers = suppliers
+
+	return result, err
+}
+

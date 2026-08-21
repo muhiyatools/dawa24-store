@@ -542,6 +542,116 @@ func (m *mockCompareRepo) SearchFileRows(ctx context.Context, userID int64, orgI
 	return results, nil
 }
 
+func (m *mockCompareRepo) ListDistinctSuppliers(ctx context.Context) ([]string, error) {
+	var suppliers []string
+	seen := make(map[string]bool)
+	for _, f := range m.files {
+		if f.DeletedAt == nil && f.Status == compare.FileReady && !seen[f.SupplierName] {
+			seen[f.SupplierName] = true
+			suppliers = append(suppliers, f.SupplierName)
+		}
+	}
+	sort.Strings(suppliers)
+	return suppliers, nil
+}
+
+func (m *mockCompareRepo) ListMarketDiscounts(ctx context.Context, filter compare.MarketDiscountsFilter) (*compare.MarketDiscountsResult, error) {
+	var allItems []*compare.MarketDiscountRow
+	cleanQ := strings.ToLower(strings.TrimSpace(filter.Query))
+	supplierFilter := strings.ToLower(strings.TrimSpace(filter.Supplier))
+
+	for fileID, rows := range m.fileRows {
+		file, ok := m.files[fileID]
+		if !ok || file.DeletedAt != nil || file.Status != compare.FileReady {
+			continue
+		}
+		if supplierFilter != "" && strings.ToLower(file.SupplierName) != supplierFilter {
+			continue
+		}
+		for _, r := range rows {
+			if cleanQ != "" && !strings.Contains(strings.ToLower(r.RawName), cleanQ) && !strings.Contains(strings.ToLower(r.NormalizedName), cleanQ) && !strings.Contains(strings.ToLower(r.SKU), cleanQ) && !strings.Contains(strings.ToLower(file.SupplierName), cleanQ) {
+				continue
+			}
+
+			netPrice := r.PriceAfterDiscount
+			if netPrice.IsZero() && r.Price.IsPositive() {
+				netPrice = compare.CalculatePriceAfterDiscount(r.Price, r.Discount)
+			}
+
+			if filter.MinPrice != nil && float64(netPrice.Minor())/100.0 < *filter.MinPrice {
+				continue
+			}
+			if filter.MaxPrice != nil && float64(netPrice.Minor())/100.0 > *filter.MaxPrice {
+				continue
+			}
+			if filter.MinDiscount != nil && r.Discount < *filter.MinDiscount {
+				continue
+			}
+			if filter.MaxDiscount != nil && r.Discount > *filter.MaxDiscount {
+				continue
+			}
+
+			var discVal money.Amount
+			if r.Price.Minor() > netPrice.Minor() {
+				discVal = money.FromMinor(r.Price.Minor() - netPrice.Minor())
+			}
+
+			allItems = append(allItems, &compare.MarketDiscountRow{
+				ID:                 r.ID,
+				FileID:             r.FileID,
+				SupplierName:       file.SupplierName,
+				ProductName:        r.RawName,
+				SKU:                r.SKU,
+				OriginalPrice:      r.Price,
+				DiscountPercent:    r.Discount,
+				DiscountValue:      discVal,
+				PriceAfterDiscount: netPrice,
+				MatchedProductID:   r.MatchedProductID,
+				InCatalog:          r.MatchedProductID != nil && *r.MatchedProductID > 0,
+				CreatedAt:          r.CreatedAt,
+			})
+		}
+	}
+
+	limit := filter.Limit
+	if limit <= 0 {
+		limit = 24
+	}
+	page := filter.Page
+	if page <= 0 {
+		page = 1
+	}
+
+	total := int64(len(allItems))
+	totalPages := 1
+	if total > 0 {
+		totalPages = int((total + int64(limit) - 1) / int64(limit))
+	}
+
+	start := (page - 1) * limit
+	end := start + limit
+	if start > len(allItems) {
+		start = len(allItems)
+	}
+	if end > len(allItems) {
+		end = len(allItems)
+	}
+
+	pagedItems := allItems[start:end]
+	suppliers, _ := m.ListDistinctSuppliers(ctx)
+
+	return &compare.MarketDiscountsResult{
+		Items:              pagedItems,
+		TotalCount:         total,
+		AvailableSuppliers: suppliers,
+		Page:               page,
+		Limit:              limit,
+		TotalPages:         totalPages,
+		HasPrev:            page > 1,
+		HasNext:            page < totalPages,
+	}, nil
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------

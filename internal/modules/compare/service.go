@@ -827,3 +827,9 @@ func extractNumber(s string) (float64, error) {
 	}
 	return strconv.ParseFloat(numStr.String(), 64)
 }
+
+// ListMarketDiscounts retrieves market-wide approved discounts with full search and filtering.
+func (s *Service) ListMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (*MarketDiscountsResult, error) {
+	return s.repo.ListMarketDiscounts(ctx, filter)
+}
+

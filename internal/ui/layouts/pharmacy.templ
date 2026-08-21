@@ -77,6 +77,10 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconTrendingUp("icon-sm")
 							<span>مقارنة الخصومات</span>
 						</a>
+						<a href="/market-discounts" class={ "sidebar-link", templ.KV("active", activeNav == "market-discounts") }>
+							@components.IconChart("icon-sm")
+							<span>خصومات السوق</span>
+						</a>
 						<a href="/suppliers" class={ "sidebar-link", templ.KV("active", activeNav == "suppliers") }>
 							@components.IconBuilding("icon-sm")
 							<span>دليل الموردين</span>

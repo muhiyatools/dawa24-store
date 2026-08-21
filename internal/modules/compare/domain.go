@@ -260,7 +260,48 @@ type CompareFileRowWithSupplier struct {
 type CatalogStatus string
 
 const (
-	StatusCatalogAndSuppliers CatalogStatus = "catalog_and_suppliers" // 🟢 متوفر بالكتالوج ولدى الموردين
-	StatusCatalogOnly         CatalogStatus = "catalog_only"          // 🔵 مسجل بالكتالوج وغير متوفر بكشوف الموردين
-	StatusSupplierCustom      CatalogStatus = "supplier_custom"       // 🟡 صنف خاص بكشف المورد
+	StatusCatalogAndSuppliers CatalogStatus = "catalog_and_suppliers" // Verified in catalog and actively listed by suppliers
+	StatusCatalogOnly         CatalogStatus = "catalog_only"          // Exists in catalog but absent from supplier lists
+	StatusSupplierCustom      CatalogStatus = "supplier_custom"       // Listed by supplier but not yet mapped to catalog
 )
+
+// MarketDiscountsFilter contains filter and pagination parameters for the public market discounts page.
+type MarketDiscountsFilter struct {
+	Query       string   `json:"query"`
+	Supplier    string   `json:"supplier"`
+	MinPrice    *float64 `json:"min_price"`
+	MaxPrice    *float64 `json:"max_price"`
+	MinDiscount *float64 `json:"min_discount"`
+	MaxDiscount *float64 `json:"max_discount"`
+	SortBy      string   `json:"sort_by"` // "newest", "oldest", "discount_desc", "price_asc", "price_desc"
+	Page        int      `json:"page"`
+	Limit       int      `json:"limit"`
+}
+
+// MarketDiscountRow represents a single discount item displayed on the market discounts page.
+type MarketDiscountRow struct {
+	ID                 int64        `json:"id"`
+	FileID             int64        `json:"file_id"`
+	SupplierName       string       `json:"supplier_name"`
+	ProductName        string       `json:"product_name"`
+	SKU                string       `json:"sku,omitempty"`
+	OriginalPrice      money.Amount `json:"original_price"`
+	DiscountPercent    float64      `json:"discount_percent"`
+	DiscountValue      money.Amount `json:"discount_value"`
+	PriceAfterDiscount money.Amount `json:"price_after_discount"`
+	MatchedProductID   *int64       `json:"matched_product_id,omitempty"`
+	InCatalog          bool         `json:"in_catalog"`
+	CreatedAt          time.Time    `json:"created_at"`
+}
+
+// MarketDiscountsResult contains the paginated result of market discounts.
+type MarketDiscountsResult struct {
+	Items              []*MarketDiscountRow `json:"items"`
+	TotalCount         int64                `json:"total_count"`
+	AvailableSuppliers []string             `json:"available_suppliers"`
+	Page               int                  `json:"page"`
+	Limit              int                  `json:"limit"`
+	TotalPages         int                  `json:"total_pages"`
+	HasPrev            bool                 `json:"has_prev"`
+	HasNext            bool                 `json:"has_next"`
+}

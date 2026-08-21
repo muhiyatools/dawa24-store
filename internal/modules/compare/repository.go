@@ -73,4 +73,8 @@ type Repository interface {
 
 	// Search across files
 	SearchFileRows(ctx context.Context, userID int64, orgID *int64, query string, limit int) ([]*CompareFileRowWithSupplier, error)
+
+	// Market Discounts (Public & Platform Wide)
+	ListMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (*MarketDiscountsResult, error)
+	ListDistinctSuppliers(ctx context.Context) ([]string, error)
 }
