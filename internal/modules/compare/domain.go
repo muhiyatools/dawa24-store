@@ -180,6 +180,16 @@ type MappingConfig struct {
 	CodeCol     *int `json:"code_col,omitempty"`
 }
 
+// ColumnDetection holds auto-detected column mappings with confidence scores.
+type ColumnDetection struct {
+	NameCol      *int                    `json:"name_col,omitempty"`
+	PriceCol     *int                    `json:"price_col,omitempty"`
+	DiscountCol  *int                    `json:"discount_col,omitempty"`
+	CodeCol      *int                    `json:"code_col,omitempty"`
+	Confidence   float64                 `json:"confidence"`
+	FieldScores  map[TargetField]float64 `json:"field_scores,omitempty"`
+}
+
 // CompareFile represents an uploaded supplier price & discount spreadsheet.
 type CompareFile struct {
 	ID               int64             `json:"id"`

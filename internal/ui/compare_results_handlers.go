@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,6 +33,20 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 	if len(supplierIDs) > 10 {
 		h.redirectWithNotice(w, r, "/compare/tool", "error", "الحد الأقصى للمقارنة هو 10 موردين في المرة الواحدة.")
 		return
+	}
+
+	// Validate all selected files are ready (have mapping applied)
+	if h.compareSvc != nil {
+		for _, idStr := range supplierIDs {
+			if id, err := strconv.ParseInt(strings.TrimSpace(idStr), 10, 64); err == nil && id > 0 {
+				file, errGet := h.compareSvc.GetFile(ctx, id)
+				if errGet == nil && file != nil && file.Status != compare.FileReady {
+					h.redirectWithNotice(w, r, "/compare/tool", "error",
+						fmt.Sprintf("الملف '%s' بحاجة إلى تعيين الأعمدة أولاً. الرجاء اكتمال تعيين الأعمدة لجميع الملفات المختارة.", file.SupplierName))
+					return
+				}
+			}
+		}
 	}
 
 	queryParam := strings.Join(supplierIDs, ",")

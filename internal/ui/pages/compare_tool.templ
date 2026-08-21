@@ -9,7 +9,7 @@ import (
 )
 
 templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
-	@layouts.VendorShell("محرك مقارنة الخصومات والأسعار", "compare", lang, dir) {
+	@layouts.VendorShell("Ù…Ø­Ø±Ùƒ Ù…Ù‚Ø§Ø±Ù†Ø© Ø§Ù„Ø®ØµÙˆÙ…Ø§Øª ÙˆØ§Ù„Ø£Ø³Ø¹Ø§Ø±", "compare", lang, dir) {
 		<div style="max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
 			
 			<!-- Header Banner -->
@@ -18,21 +18,21 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 					<div>
 						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
 							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
-								📊
+								ðŸ“Š
 							</div>
 							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
-								محرك مقارنة الخصومات والأسعار
+								Ù…Ø­Ø±Ùƒ Ù…Ù‚Ø§Ø±Ù†Ø© Ø§Ù„Ø®ØµÙˆÙ…Ø§Øª ÙˆØ§Ù„Ø£Ø³Ø¹Ø§Ø±
 							</h1>
-							<span class="badge badge-emerald" style="font-weight:700; font-size:0.75rem;">مجاني ومتاح بالكامل</span>
+							<span class="badge badge-emerald" style="font-weight:700; font-size:0.75rem;">Ù…Ø¬Ø§Ù†ÙŠ ÙˆÙ…ØªØ§Ø­ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„</span>
 						</div>
 						<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
-							ارفع كشوف أسعار وخصومات الموردين وقارن أسعار الأصناف والخصومات مباشرة بدقة واحترافية.
+							Ø§Ø±ÙØ¹ ÙƒØ´ÙˆÙ Ø£Ø³Ø¹Ø§Ø± ÙˆØ®ØµÙˆÙ…Ø§Øª Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† ÙˆÙ‚Ø§Ø±Ù† Ø£Ø³Ø¹Ø§Ø± Ø§Ù„Ø£ØµÙ†Ø§Ù ÙˆØ§Ù„Ø®ØµÙˆÙ…Ø§Øª Ù…Ø¨Ø§Ø´Ø±Ø© Ø¨Ø¯Ù‚Ø© ÙˆØ§Ø­ØªØ±Ø§ÙÙŠØ©.
 						</p>
 					</div>
 
 					<div style="display:flex; align-items:center; gap:0.75rem;">
 						<span class="badge badge-secondary" style="font-size:0.85rem; padding:0.4rem 0.85rem;">
-							{ fmt.Sprintf("%d ملفات موردين نشطة", len(files)) }
+							{ fmt.Sprintf("%d Ù…Ù„ÙØ§Øª Ù…ÙˆØ±Ø¯ÙŠÙ† Ù†Ø´Ø·Ø©", len(files)) }
 						</span>
 					</div>
 				</div>
@@ -45,12 +45,12 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
 						<div style="display:flex; align-items:center; gap:0.5rem;">
-							<span style="font-size:1.2rem;">📁</span>
+							<span style="font-size:1.2rem;">ðŸ“</span>
 							<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
-								مركز ملفات الموردين
+								Ù…Ø±ÙƒØ² Ù…Ù„ÙØ§Øª Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
 							</h2>
 						</div>
-						<span class="badge badge-sky" style="font-size:0.75rem;">{ fmt.Sprintf("%d ملف", len(files)) }</span>
+						<span class="badge badge-sky" style="font-size:0.75rem;">{ fmt.Sprintf("%d Ù…Ù„Ù", len(files)) }</span>
 					</div>
 
 					<form method="POST" action="/compare/run" id="compare-run-form" style="display:flex; flex-direction:column; gap:1rem; margin:0;">
@@ -58,7 +58,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 						<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
 							<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; font-size:0.875rem; color:var(--text);">
 								<input type="checkbox" id="select-all-files" onchange="toggleSelectAll(this)" style="width:18px; height:18px; accent-color:var(--accent);" />
-								<span>تحديد الكل</span>
+								<span>ØªØ­Ø¯ÙŠØ¯ Ø§Ù„ÙƒÙ„</span>
 							</label>
 
 							<button
@@ -66,16 +66,16 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 								class="btn btn-primary"
 								style="font-weight:800; font-size:0.875rem; padding:0.5rem 1.25rem; border-radius:var(--radius-lg);"
 							>
-								<span>بدء التحليل والمقارنة 🚀</span>
+								<span>Ø¨Ø¯Ø¡ Ø§Ù„ØªØ­Ù„ÙŠÙ„ ÙˆØ§Ù„Ù…Ù‚Ø§Ø±Ù†Ø© ðŸš€</span>
 							</button>
 						</div>
 
 						<!-- Files List -->
 						if len(files) == 0 {
 							<div style="padding:2.5rem 1rem; text-align:center; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-xl);">
-								<div style="font-size:2rem; margin-bottom:0.5rem;">📂</div>
-								<strong style="color:var(--text); font-size:0.95rem; display:block; margin-bottom:0.25rem;">لا توجد ملفات مرفوعة بعد</strong>
-								<p style="color:var(--text-muted); font-size:0.8rem; margin:0;">استخدم نموذج الرفع المجاور لإضافة أول كشف أسعار للموردين.</p>
+								<div style="font-size:2rem; margin-bottom:0.5rem;">ðŸ“‚</div>
+								<strong style="color:var(--text); font-size:0.95rem; display:block; margin-bottom:0.25rem;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù„ÙØ§Øª Ù…Ø±ÙÙˆØ¹Ø© Ø¨Ø¹Ø¯</strong>
+								<p style="color:var(--text-muted); font-size:0.8rem; margin:0;">Ø§Ø³ØªØ®Ø¯Ù… Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ø±ÙØ¹ Ø§Ù„Ù…Ø¬Ø§ÙˆØ± Ù„Ø¥Ø¶Ø§ÙØ© Ø£ÙˆÙ„ ÙƒØ´Ù Ø£Ø³Ø¹Ø§Ø± Ù„Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†.</p>
 							</div>
 						} else {
 							<div style="display:flex; flex-direction:column; gap:0.75rem; max-height:480px; overflow-y:auto; padding-inline-end:0.25rem;">
@@ -87,31 +87,57 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 												name="supplier_ids"
 												value={ fmt.Sprintf("%d", f.ID) }
 												class="file-checkbox"
-												style="width:18px; height:18px; accent-color:var(--accent); flex-shrink:0;"
+												style="width:18px; height:18px; accent-color:var(--accent); flex-shrink:0;"`r`n												{ if f.Status != "ready" { disabled } }
 											/>
 											<div style="min-width:0;">
 												<div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
 													<strong style="font-size:0.95rem; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
 														{ f.SupplierName }
 													</strong>
-													if f.RowCount > 0 {
+													'<!-- Status Badge -->
+														if f.Status == "uploaded" {
+															<span style="display:inline-flex; align-items:center; gap:0.3rem; background:var(--bg-warning); color:var(--text-warning); font-size:0.7rem; padding:0.15rem 0.45rem; border-radius:var(--radius-lg); font-weight:700;">
+																🔄 يحتاج تعيين
+															</span>
+														} else if f.Status == "ready" {
+															<span style="display:inline-flex; align-items:center; gap:0.3rem; background:var(--bg-success); color:var(--text-success); font-size:0.7rem; padding:0.15rem 0.45rem; border-radius:var(--radius-lg); font-weight:700;">
+																✓ جاهز
+															</span>
+														} else if f.Status == "failed" {
+															<span style="display:inline-flex; align-items:center; gap:0.3rem; background:var(--bg-danger); color:var(--text-danger); font-size:0.7rem; padding:0.15rem 0.45rem; border-radius:var(--radius-lg); font-weight:700;">
+																✕ فشل
+															</span>
+														}
+														if f.RowCount > 0 {'
 														<span class="badge badge-secondary" style="font-size:0.7rem; padding:0.15rem 0.45rem;">
-															{ fmt.Sprintf("%d صنف", f.RowCount) }
+															{ fmt.Sprintf("%d ØµÙ†Ù", f.RowCount) }
 														</span>
 													}
 												</div>
 												<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;" class="tabular-nums">
-													{ f.OriginalFilename } • { f.CreatedAt.Format("2006-01-02") }
+													{ f.OriginalFilename } â€¢ { f.CreatedAt.Format("2006-01-02") }
 												</div>
 											</div>
 										</div>
 
-										<!-- Actions (Rename / Delete) -->
+										'<!-- Map Columns (for uploaded status) -->
+										if f.Status == "uploaded" {
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", f.ID)) }
+												class="btn btn-secondary btn-sm btn-icon"
+												title="تعيين أعمدة الملف"
+												style="color:var(--accent-text);"
+											>
+												@components.IconSettings("icon-xs")
+											</a>
+										}
+
+										<!-- Actions (Rename / Delete) -->'
 										<div style="display:flex; align-items:center; gap:0.35rem; flex-shrink:0;">
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm btn-icon"
-												title="تعديل اسم المورد"
+												title="ØªØ¹Ø¯ÙŠÙ„ Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ±Ø¯"
 												onclick={ templ.ComponentScript{Call: fmt.Sprintf("promptRenameFile(%d, '%s')", f.ID, f.SupplierName)} }
 											>
 												@components.IconEdit("icon-xs")
@@ -121,7 +147,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 												type="button"
 												class="btn btn-secondary btn-sm btn-icon"
 												style="color:var(--danger-text);"
-												title="حذف الملف"
+												title="Ø­Ø°Ù Ø§Ù„Ù…Ù„Ù"
 												onclick={ templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", f.ID)} }
 											>
 												@components.IconTrash("icon-xs")
@@ -137,22 +163,22 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 				<!-- Column 2: Upload Zone -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
 					<div style="display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-						<span style="font-size:1.2rem;">📤</span>
+						<span style="font-size:1.2rem;">ðŸ“¤</span>
 						<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
-							رفع ملف مورد جديد
+							Ø±ÙØ¹ Ù…Ù„Ù Ù…ÙˆØ±Ø¯ Ø¬Ø¯ÙŠØ¯
 						</h2>
 					</div>
 
 					<form method="POST" action="/compare/upload" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1rem;">
 						<div class="form-group" style="margin-bottom:0;">
 							<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
-								اسم المورد / الشركة <span style="color:var(--danger-text);">*</span>
+								Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ±Ø¯ / Ø§Ù„Ø´Ø±ÙƒØ© <span style="color:var(--danger-text);">*</span>
 							</label>
 							<input
 								type="text"
 								name="supplier_name"
 								required
-								placeholder="مثال: شركة ويزر فارما للتوزيع"
+								placeholder="Ù…Ø«Ø§Ù„: Ø´Ø±ÙƒØ© ÙˆÙŠØ²Ø± ÙØ§Ø±Ù…Ø§ Ù„Ù„ØªÙˆØ²ÙŠØ¹"
 								class="form-input"
 								style="width:100%; border-radius:var(--radius-lg);"
 							/>
@@ -163,12 +189,12 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 							style="border:2px dashed var(--accent); background:var(--surface-sunken); border-radius:var(--radius-xl); padding:2rem 1rem; text-align:center; cursor:pointer; position:relative;"
 							onclick="document.getElementById('file-upload-input').click()"
 						>
-							<div style="font-size:2.5rem; margin-bottom:0.5rem;">📄</div>
+							<div style="font-size:2.5rem; margin-bottom:0.5rem;">ðŸ“„</div>
 							<strong style="color:var(--text); font-size:0.95rem; display:block; margin-bottom:0.25rem;">
-								انقر هنا لاختيار الملف أو اسحبه
+								Ø§Ù†Ù‚Ø± Ù‡Ù†Ø§ Ù„Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ù„Ù Ø£Ùˆ Ø§Ø³Ø­Ø¨Ù‡
 							</strong>
 							<p style="color:var(--text-muted); font-size:0.775rem; margin:0;">
-								يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 20 ميجابايت
+								ÙŠØ¯Ø¹Ù… Ù…Ù„ÙØ§Øª Excel (.xlsx, .xls) ÙˆÙƒØ´ÙˆÙ CSV (.csv) Ø¨Ø­Ø¯ Ø£Ù‚ØµÙ‰ 20 Ù…ÙŠØ¬Ø§Ø¨Ø§ÙŠØª
 							</p>
 							<div id="file-name-preview" style="margin-top:0.75rem; font-weight:700; color:var(--accent); font-size:0.85rem;"></div>
 
@@ -189,7 +215,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 							style="width:100%; justify-content:center; font-weight:800; font-size:0.95rem; padding:0.75rem;"
 						>
 							@components.IconCheck("icon-xs")
-							<span>رفع وتحليل الملف 🚀</span>
+							<span>Ø±ÙØ¹ ÙˆØªØ­Ù„ÙŠÙ„ Ø§Ù„Ù…Ù„Ù ðŸš€</span>
 						</button>
 					</form>
 				</div>
@@ -197,9 +223,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 				<!-- Column 3: Instant Search Box -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
 					<div style="display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-						<span style="font-size:1.2rem;">🔍</span>
+						<span style="font-size:1.2rem;">ðŸ”</span>
 						<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
-							البحث السريع والفوري
+							Ø§Ù„Ø¨Ø­Ø« Ø§Ù„Ø³Ø±ÙŠØ¹ ÙˆØ§Ù„ÙÙˆØ±ÙŠ
 						</h2>
 					</div>
 
@@ -208,7 +234,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 							type="text"
 							name="q"
 							id="instant-search-input"
-							placeholder="ابحث عن دواء، مادة فعالة، كود..."
+							placeholder="Ø§Ø¨Ø­Ø« Ø¹Ù† Ø¯ÙˆØ§Ø¡ØŒ Ù…Ø§Ø¯Ø© ÙØ¹Ø§Ù„Ø©ØŒ ÙƒÙˆØ¯..."
 							class="form-input"
 							style="width:100%; border-radius:var(--radius-lg); padding-inline-start:2.5rem;"
 							oninput="filterSearchLocal(this.value)"
@@ -221,7 +247,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 					<!-- Search Results Area -->
 					<div id="instant-search-results" style="display:flex; flex-direction:column; gap:0.6rem; max-height:420px; overflow-y:auto;">
 						<div style="padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;">
-							اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.
+							Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø§Ù„ØµÙ†Ù Ù„Ù„Ø¨Ø­Ø« Ø§Ù„Ù…Ø¨Ø§Ø´Ø± Ø¹Ø¨Ø± Ø¬Ù…ÙŠØ¹ ÙƒØ´ÙˆÙ Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ø§Ù„Ù…Ø±ÙÙˆØ¹Ø© ÙˆÙ…Ù‚Ø§Ø±Ù†Ø© Ø§Ù„Ø®ØµÙˆÙ…Ø§Øª ÙÙˆØ±ÙŠØ§Ù‹.
 						</div>
 					</div>
 				</div>
@@ -240,12 +266,12 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 				if (input.files && input.files[0]) {
 					const name = input.files[0].name;
 					const size = (input.files[0].size / 1024 / 1024).toFixed(2);
-					document.getElementById('file-name-preview').textContent = `تم اختيار: ${name} (${size} MB)`;
+					document.getElementById('file-name-preview').textContent = `ØªÙ… Ø§Ø®ØªÙŠØ§Ø±: ${name} (${size} MB)`;
 				}
 			}
 
 			function promptRenameFile(id, currentName) {
-				const newName = prompt("أدخل الاسم الجديد للمورد / الملف:", currentName);
+				const newName = prompt("Ø£Ø¯Ø®Ù„ Ø§Ù„Ø§Ø³Ù… Ø§Ù„Ø¬Ø¯ÙŠØ¯ Ù„Ù„Ù…ÙˆØ±Ø¯ / Ø§Ù„Ù…Ù„Ù:", currentName);
 				if (newName && newName.trim() !== "" && newName !== currentName) {
 					const form = document.createElement('form');
 					form.method = 'POST';
@@ -261,7 +287,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 			}
 
 			function deleteFileConfirm(id) {
-				if (confirm("هل أنت متأكد من حذف هذا الملف نهائياً من مركز الملفات؟")) {
+				if (confirm("Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ù…Ù„Ù Ù†Ù‡Ø§Ø¦ÙŠØ§Ù‹ Ù…Ù† Ù…Ø±ÙƒØ² Ø§Ù„Ù…Ù„ÙØ§ØªØŸ")) {
 					const form = document.createElement('form');
 					form.method = 'POST';
 					form.action = `/compare/file/${id}/delete`;
@@ -277,7 +303,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 				if (!query || query.trim().length < 2) {
 					resultsContainer.innerHTML = `
 						<div style="padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;">
-							اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.
+							Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø§Ù„ØµÙ†Ù Ù„Ù„Ø¨Ø­Ø« Ø§Ù„Ù…Ø¨Ø§Ø´Ø± Ø¹Ø¨Ø± Ø¬Ù…ÙŠØ¹ ÙƒØ´ÙˆÙ Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ø§Ù„Ù…Ø±ÙÙˆØ¹Ø© ÙˆÙ…Ù‚Ø§Ø±Ù†Ø© Ø§Ù„Ø®ØµÙˆÙ…Ø§Øª ÙÙˆØ±ÙŠØ§Ù‹.
 						</div>
 					`;
 					return;
@@ -292,7 +318,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 						if (!data || data.length === 0) {
 							resultsContainer.innerHTML = `
 								<div style="padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;">
-									لم يتم العثور على أصناف مطابقة لـ "${query}".
+									Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø£ØµÙ†Ø§Ù Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„Ù€ "${query}".
 								</div>
 							`;
 							return;
@@ -302,11 +328,11 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 							html += `
 								<div style="padding:0.75rem 1rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; justify-content:space-between; align-items:center;">
 									<div>
-										<strong style="color:var(--text); font-size:0.875rem; display:block;">${item.name || item.name_ar || 'صنف دوائي'}</strong>
-										<span style="color:var(--text-muted); font-size:0.75rem;">${item.dosage_form || 'مستحضر صيدلي'}</span>
+										<strong style="color:var(--text); font-size:0.875rem; display:block;">${item.name || item.name_ar || 'ØµÙ†Ù Ø¯ÙˆØ§Ø¦ÙŠ'}</strong>
+										<span style="color:var(--text-muted); font-size:0.75rem;">${item.dosage_form || 'Ù…Ø³ØªØ­Ø¶Ø± ØµÙŠØ¯Ù„ÙŠ'}</span>
 									</div>
 									<div style="font-weight:800; color:var(--accent); font-size:0.9rem;" class="tabular-nums">
-										${item.price || '--'} ج.م
+										${item.price || '--'} Ø¬.Ù…
 									</div>
 								</div>
 							`;
@@ -316,7 +342,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 					.catch(() => {
 						resultsContainer.innerHTML = `
 							<div style="padding:1rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">
-								البحث متاح عبر كتالوج الأدوية
+								Ø§Ù„Ø¨Ø­Ø« Ù…ØªØ§Ø­ Ø¹Ø¨Ø± ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ø£Ø¯ÙˆÙŠØ©
 							</div>
 						`;
 					});
@@ -325,3 +351,4 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile) {
 		</script>
 	}
 }
+

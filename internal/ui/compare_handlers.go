@@ -163,7 +163,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		orgPtr = &actor.OrganizationID
 	}
 
-	_, archived, err := h.compareSvc.UploadCompareFile(
+	uploadedFile, archived, err := h.compareSvc.UploadCompareFile(
 		ctx, actor.UserID, orgPtr, supplierName, header.Filename,
 		header.Header.Get("Content-Type"), header.Size, storageKey,
 	)
@@ -172,11 +172,16 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	msg := "تم رفع ملف المورد بنجاح."
+	msg := "تم رفع ملف المورد بنجاح. يرجى تحديد الأعمدة المقابلة."
 	if len(archived) > 0 {
 		msg += " تنبيه: لقد تجاوزت الحد الأقصى للملفات النشطة، تم نقل المورد الأقدم (" + strings.Join(archived, "، ") + ") إلى الأرشيف."
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", msg)
+	// Redirect to mapping page immediately after upload
+	if uploadedFile != nil && uploadedFile.ID > 0 {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/compare/files/%d/mapping", uploadedFile.ID), "success", msg)
+	} else {
+		h.redirectWithNotice(w, r, "/compare/tool", "success", msg)
+	}
 }
 
 // CompareFileRenameSubmit handles renaming a supplier file label.
@@ -205,7 +210,7 @@ func (h *UIHandler) CompareFileRenameSubmit(w http.ResponseWriter, r *http.Reque
 	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تغيير اسم المورد بنجاح.")
 }
 
-// CompareFileMappingPage shows the column mapping page for a compare file.
+// CompareFileMappingPage shows the column mapping page for a compare file with auto-detection.
 func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -241,9 +246,11 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Read first few rows from storage for preview
+	// Read first few rows from storage for preview and column detection
 	var headers []string
 	var preview [][]string
+	var detectedMapping *compare.ColumnDetection
+
 	if h.storage != nil && file.StorageKey != "" {
 		reader, _, err := h.storage.Get(ctx, file.StorageKey)
 		if err == nil {
@@ -252,8 +259,29 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	// Auto-detect columns using bilingual matching
+	if len(headers) > 0 {
+		fieldMapping, scores, confidence := compare.DetectColumnsWithConfidence(headers)
+
+		// Convert to column indices
+		colMapping := make(map[compare.TargetField]*int)
+		for colIdx, field := range fieldMapping {
+			idx := colIdx
+			colMapping[field] = &idx
+		}
+
+		detectedMapping = &compare.ColumnDetection{
+			NameCol:         colMapping[compare.FieldProductName],
+			PriceCol:        colMapping[compare.FieldPrice],
+			DiscountCol:     colMapping[compare.FieldDiscount],
+			CodeCol:         colMapping[compare.FieldSKU],
+			Confidence:      confidence,
+			FieldScores:     scores,
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareFileMappingPage(lang, dir, file, headers, preview).Render(ctx, w); err != nil {
+	if err := pages.CompareFileMappingPage(lang, dir, file, headers, preview, detectedMapping).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render compare file mapping", "error", err)
 	}
 }

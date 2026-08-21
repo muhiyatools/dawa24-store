@@ -8,7 +8,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string) {
+templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection) {
 	@layouts.VendorShell("تعيين أعمدة الملف - "+file.SupplierName, "compare", lang, dir) {
 		<div style="max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
 
@@ -37,7 +37,7 @@ templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, header
 
 			<!-- Mapping Form -->
 			<form method="POST" action={ fmt.Sprintf("/compare/files/%d/mapping", file.ID) } style="display:flex; flex-direction:column; gap:1.5rem;">
-				
+
 				<!-- Required Fields Notice -->
 				<div class="card" style="background:var(--surface-sunken); border:1px solid var(--warning-border); border-radius:var(--radius-xl); padding:1rem;">
 					<div style="display:flex; align-items:start; gap:0.5rem;">
@@ -55,56 +55,112 @@ templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, header
 				<!-- Column Mapping Fields -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
 					<h3 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">تعيين الأعمدة</h3>
-					
+
 					<div style="display:grid; gap:1rem;">
 						<!-- Product Name (Required) -->
 						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<label style="display:block; font-weight:800; color:var(--text); margin-bottom:0.5rem; font-size:0.9rem;">
-								اسم الصنف <span style="color:var(--danger-text);">*</span>
-							</label>
+							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
+									اسم الصنف <span style="color:var(--danger-text);">*</span>
+								</label>
+								if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
+									if score, ok := detection.FieldScores[compare.FieldProductName]; ok {
+										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
+											<i class="ti ti-check" style="font-size:12px;"></i>
+											{ fmt.Sprintf("%.0f%%", score*100) }
+										</span>
+									}
+								}
+							</div>
 							<select name="name_col" required class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
 								<option value="">-- اختر عمود اسم الصنف --</option>
 								for idx, h := range headers {
-									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									if detection != nil && detection.NameCol != nil && *detection.NameCol == idx {
+										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									} else {
+										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									}
 								}
 							</select>
 						</div>
 
 						<!-- Price -->
 						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<label style="display:block; font-weight:800; color:var(--text); margin-bottom:0.5rem; font-size:0.9rem;">
-								السعر
-							</label>
+							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
+									السعر
+								</label>
+								if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
+									if score, ok := detection.FieldScores[compare.FieldPrice]; ok {
+										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
+											<i class="ti ti-check" style="font-size:12px;"></i>
+											{ fmt.Sprintf("%.0f%%", score*100) }
+										</span>
+									}
+								}
+							</div>
 							<select name="price_col" class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
 								<option value="">-- اختر عمود السعر (اختياري) --</option>
 								for idx, h := range headers {
-									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									if detection != nil && detection.PriceCol != nil && *detection.PriceCol == idx {
+										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									} else {
+										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									}
 								}
 							</select>
 						</div>
 
 						<!-- Discount -->
 						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<label style="display:block; font-weight:800; color:var(--text); margin-bottom:0.5rem; font-size:0.9rem;">
-								الخصم (%)
-							</label>
+							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
+									الخصم (%)
+								</label>
+								if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
+									if score, ok := detection.FieldScores[compare.FieldDiscount]; ok {
+										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
+											<i class="ti ti-check" style="font-size:12px;"></i>
+											{ fmt.Sprintf("%.0f%%", score*100) }
+										</span>
+									}
+								}
+							</div>
 							<select name="discount_col" class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
 								<option value="">-- اختر عمود الخصم (اختياري) --</option>
 								for idx, h := range headers {
-									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									if detection != nil && detection.DiscountCol != nil && *detection.DiscountCol == idx {
+										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									} else {
+										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									}
 								}
 							</select>
 						</div>
 
 						<!-- Code/SKU -->
 						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<label style="display:block; font-weight:800; color:var(--text); margin-bottom:0.5rem; font-size:0.9rem;">
-								الكود / SKU
-							</label>
+							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+								<label style="display:block; font-weight:800; color:var(--text); font-size:0.9rem; margin:0;">
+									الكود / SKU
+								</label>
+								if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
+									if score, ok := detection.FieldScores[compare.FieldSKU]; ok {
+										<span style="display:inline-flex; align-items:center; gap:0.35rem; background:var(--fill-success); color:var(--on-success); padding:0.3rem 0.6rem; border-radius:var(--radius-lg); font-size:0.75rem; font-weight:700;">
+											<i class="ti ti-check" style="font-size:12px;"></i>
+											{ fmt.Sprintf("%.0f%%", score*100) }
+										</span>
+									}
+								}
+							</div>
 							<select name="code_col" class="form-input" style="width:100%; padding:0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--surface);">
 								<option value="">-- اختر عمود الكود (اختياري) --</option>
 								for idx, h := range headers {
-									<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									if detection != nil && detection.CodeCol != nil && *detection.CodeCol == idx {
+										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									} else {
+										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("%d: %s", idx, h) }</option>
+									}
 								}
 							</select>
 						</div>
