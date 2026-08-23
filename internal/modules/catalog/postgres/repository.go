@@ -165,8 +165,17 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			       created_at, updated_at, deleted_at
 			FROM catalog.products
 			WHERE deleted_at IS NULL
-			  AND ($1 = '' OR platform.normalize_arabic(name->>'ar') % platform.normalize_arabic($1)
-			               OR name->>'en' ILIKE '%' || $1 || '%')
+			  AND ($1 = '' 
+			       OR platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($1) || '%'
+			       OR name->>'en' ILIKE '%' || $1 || '%'
+			       OR sku ILIKE '%' || $1 || '%'
+			       OR barcode ILIKE '%' || $1 || '%'
+			       OR COALESCE(scientific_name, '') ILIKE '%' || $1 || '%'
+			       OR COALESCE(active, '') ILIKE '%' || $1 || '%'
+			       OR COALESCE(manufacturing_companies, '') ILIKE '%' || $1 || '%'
+			       OR word_similarity(platform.normalize_arabic($1), platform.normalize_arabic(name->>'ar')) >= 0.25
+			       OR similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) >= 0.15
+			       OR regexp_replace(platform.normalize_arabic(name->>'ar'), '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%')
 			  AND ($2::bigint IS NULL OR category_id = $2)
 			  AND ($3::bigint IS NULL OR brand_id = $3)
 			  AND ($6::numeric IS NULL OR price >= $6)
@@ -176,7 +185,16 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			      OR
 			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
 			  )
-			ORDER BY ` + catalogOrderBy(params.Sort) + `
+			ORDER BY 
+			  CASE 
+			    WHEN $1 = '' THEN 0
+			    WHEN platform.normalize_arabic(name->>'ar') ILIKE platform.normalize_arabic($1) || '%' THEN 1
+			    WHEN name->>'en' ILIKE $1 || '%' THEN 2
+			    WHEN platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($1) || '%' THEN 3
+			    WHEN name->>'en' ILIKE '%' || $1 || '%' THEN 4
+			    ELSE 5
+			  END,
+			  ` + catalogOrderBy(params.Sort) + `
 			LIMIT $4 OFFSET $5;
 		`
 		limit := params.Limit

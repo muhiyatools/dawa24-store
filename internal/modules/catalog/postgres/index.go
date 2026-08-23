@@ -106,8 +106,15 @@ func (r *Repository) SearchProductIndex(ctx context.Context, params catalog.Sear
 			WHERE status = 'active'
 			  AND ($1 = '' 
 			       OR search_vector @@ plainto_tsquery('simple', $1)
-			       OR search_simple % platform.normalize_arabic($1)
-			       OR search_text ILIKE '%' || $1 || '%')
+			       OR search_text ILIKE '%' || $1 || '%'
+			       OR search_simple ILIKE '%' || platform.normalize_arabic($1) || '%'
+			       OR name_ar ILIKE '%' || $1 || '%'
+			       OR name_en ILIKE '%' || $1 || '%'
+			       OR sku ILIKE '%' || $1 || '%'
+			       OR COALESCE(scientific_name, '') ILIKE '%' || $1 || '%'
+			       OR word_similarity(platform.normalize_arabic($1), search_simple) >= 0.25
+			       OR similarity(search_simple, platform.normalize_arabic($1)) >= 0.15
+			       OR regexp_replace(search_simple, '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%')
 			  AND ($2::bigint IS NULL OR category_id = $2)
 			  AND ($3::bigint IS NULL OR brand_id = $3)
 			  AND ($6::numeric IS NULL OR price_after_discount >= $6)
@@ -117,7 +124,16 @@ func (r *Repository) SearchProductIndex(ctx context.Context, params catalog.Sear
 			      OR
 			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
 			  )
-			ORDER BY price_after_discount ASC, updated_at DESC
+			ORDER BY 
+			  CASE 
+			    WHEN $1 = '' THEN 0
+			    WHEN search_simple ILIKE platform.normalize_arabic($1) || '%' THEN 1
+			    WHEN search_en ILIKE $1 || '%' THEN 2
+			    WHEN search_simple ILIKE '%' || platform.normalize_arabic($1) || '%' THEN 3
+			    WHEN search_en ILIKE '%' || $1 || '%' THEN 4
+			    ELSE 5
+			  END,
+			  price_after_discount ASC, updated_at DESC
 			LIMIT $4 OFFSET $5;
 		`
 		limit := params.Limit
@@ -183,12 +199,12 @@ func (r *Repository) RebuildProductIndex(ctx context.Context) (int64, error) {
 				p.sku,
 				p.name->>'ar' AS name_ar,
 				p.name->>'en' AS name_en,
-				CONCAT_WS(' ', COALESCE(p.name->>'ar', ''), COALESCE(p.name->>'en', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.legal_name, ''), COALESCE(p.sku, '')) AS search_text,
-				CONCAT_WS(' ', COALESCE(p.name->>'ar', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.legal_name, '')) AS search_ar,
-				CONCAT_WS(' ', COALESCE(p.name->>'en', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.legal_name, '')) AS search_en,
+				CONCAT_WS(' ', COALESCE(p.name->>'ar', ''), COALESCE(p.name->>'en', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.name->>'ar', ''), COALESCE(p.sku, '')) AS search_text,
+				CONCAT_WS(' ', COALESCE(p.name->>'ar', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.name->>'ar', '')) AS search_ar,
+				CONCAT_WS(' ', COALESCE(p.name->>'en', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.name->>'en', '')) AS search_en,
 				CONCAT_WS(' ', platform.normalize_arabic(COALESCE(p.name->>'ar', '')), COALESCE(p.name->>'en', ''), COALESCE(p.sku, '')) AS search_simple,
-				o.legal_name AS organization_name,
-				b.city AS branch_city,
+				COALESCE(o.name->>'ar', o.name->>'en', 'دواء 24') AS organization_name,
+				COALESCE(b.name->>'ar', 'المستودع الرئيسي') AS branch_city,
 				p.scientific_name,
 				p.price,
 				p.discount,

@@ -45,12 +45,12 @@ func (a Actor) IsPlatformAdmin() bool {
 // An organization member with no resolved type is treated as a customer so a
 // pending organization cannot reach vendor surfaces by omission.
 func (a Actor) IsCustomer() bool {
-	return !a.IsStaff && a.OrgType != "vendor"
+	return !a.IsStaff && a.OrgType != "vendor" && a.OrgType != "supplier"
 }
 
 // IsVendor reports whether the actor belongs to a vendor (مورّد) tenant.
 func (a Actor) IsVendor() bool {
-	return !a.IsStaff && a.OrgType == "vendor"
+	return !a.IsStaff && (a.OrgType == "vendor" || a.OrgType == "supplier")
 }
 
 // DisplayName returns a user-friendly name to display in the navbar.

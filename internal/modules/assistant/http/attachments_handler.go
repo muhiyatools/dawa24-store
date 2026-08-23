@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -74,12 +75,14 @@ func (h *Handler) AssistantUpload(w http.ResponseWriter, r *http.Request) {
 		handle := uuid.New().String()
 		hash := assistant.ComputeContentHash(content)
 		sizeMB := float64(len(content)) / (1024 * 1024)
+		dataURL := fmt.Sprintf("data:%s;base64,%s", mime, base64.StdEncoding.EncodeToString(content))
 
 		att := assistant.Attachment{
 			Handle:      handle,
 			Filename:    safeName,
 			MIMEType:    mime,
 			SizeMB:      sizeMB,
+			DataURL:     dataURL,
 			ContentHash: hash,
 			UserID:      actor.UserID,
 			OrgID:       actor.OrgID,

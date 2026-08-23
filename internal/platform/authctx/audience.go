@@ -139,14 +139,15 @@ func requireType(log *slog.Logger, want string) func(http.Handler) http.Handler 
 				return
 			}
 			if want == "customer" {
-				if actor.OrgType == "customer" {
+				if actor.IsCustomer() {
 					next.ServeHTTP(w, r)
 					return
 				}
-			} else if actor.OrgType == "vendor" {
-
-				next.ServeHTTP(w, r)
-				return
+			} else if want == "vendor" {
+				if actor.IsVendor() {
+					next.ServeHTTP(w, r)
+					return
+				}
 			}
 			log.WarnContext(r.Context(), "audience denied",
 				"path", r.URL.Path, "user_id", actor.UserID,
