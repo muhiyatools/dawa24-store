@@ -369,9 +369,22 @@ func (s *Service) CreateSavingProduct(ctx context.Context, sp *SavingProduct) er
 	return s.repo.CreateSavingProduct(ctx, sp)
 }
 
+// UpdateSavingProduct updates an existing saving product.
+func (s *Service) UpdateSavingProduct(ctx context.Context, sp *SavingProduct) error {
+	if sp.NameProduct == "" {
+		return apperr.Validation("name_product.required", "اسم المنتج مطلوب.", nil)
+	}
+	return s.repo.UpdateSavingProduct(ctx, sp)
+}
+
 // ListSavingProducts returns saving products for an organization.
 func (s *Service) ListSavingProducts(ctx context.Context, orgID int64, limit, offset int) ([]*SavingProduct, error) {
 	return s.repo.ListSavingProductsByOrg(ctx, orgID, limit, offset)
+}
+
+// ListSavingProductsEnriched returns enriched saving products with linked details and counts.
+func (s *Service) ListSavingProductsEnriched(ctx context.Context, orgID int64, search, filter string, limit, offset int) ([]*SavingProductEnriched, *SavingProductStats, error) {
+	return s.repo.ListSavingProductsEnriched(ctx, orgID, search, filter, limit, offset)
 }
 
 // GetSavingProduct returns a single saving product by ID.
@@ -382,4 +395,14 @@ func (s *Service) GetSavingProduct(ctx context.Context, id int64) (*SavingProduc
 // DeleteSavingProduct removes a saving product record.
 func (s *Service) DeleteSavingProduct(ctx context.Context, id, orgID int64) error {
 	return s.repo.DeleteSavingProduct(ctx, id, orgID)
+}
+
+// GetProductProviders returns all suppliers and variants selling a master catalog product.
+func (s *Service) GetProductProviders(ctx context.Context, productID int64) ([]*ProductProviderInfo, error) {
+	return s.repo.GetProductProviders(ctx, productID)
+}
+
+// BatchUpsertSavingProducts inserts or updates saving products in bulk for an organization.
+func (s *Service) BatchUpsertSavingProducts(ctx context.Context, orgID int64, userID *int64, items []*SavingProduct) (added, updated int, err error) {
+	return s.repo.BatchUpsertSavingProducts(ctx, orgID, userID, items)
 }

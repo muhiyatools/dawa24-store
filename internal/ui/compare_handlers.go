@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -204,7 +205,7 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 	_ = f.Write(w)
 }
 
-// CompareUploadSubmit handles uploading a supplier spreadsheet file and automatically parses rows.
+// CompareUploadSubmit handles uploading one or multiple supplier spreadsheet files and automatically parses rows.
 func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -219,64 +220,99 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر قراءة الملف المرفوع.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر قراءة الملفات المرفوعة.")
 		return
 	}
 
-	file, header, err := r.FormFile("compare_file")
-	if err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "يرجى اختيار ملف Excel أو CSV.")
-		return
-	}
-	defer file.Close()
-
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	if ext != ".xlsx" && ext != ".xls" && ext != ".csv" {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "صيغة الملف غير مدعومة. يرجى رفع ملف بصيغة xlsx أو xls أو csv.")
-		return
+	var fileHeaders []*multipart.FileHeader
+	if fhs, ok := r.MultipartForm.File["compare_files"]; ok && len(fhs) > 0 {
+		fileHeaders = fhs
+	} else if fhs, ok := r.MultipartForm.File["compare_file"]; ok && len(fhs) > 0 {
+		fileHeaders = fhs
 	}
 
-	fileBytes, err := io.ReadAll(file)
-	if err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر قراءة محتوى الملف.")
+	if len(fileHeaders) == 0 {
+		h.redirectWithNotice(w, r, "/compare/tool", "error", "يرجى اختيار ملف Excel أو CSV واحد على الأقل.")
 		return
 	}
-
-	supplierName := strings.TrimSpace(r.FormValue("supplier_name"))
-	if supplierName == "" {
-		supplierName = strings.TrimSuffix(header.Filename, ext)
-	}
-
-	// 1. Save directly to local uploads directory (data/uploads/compare/)
-	localURL, localErr := saveUploadedBytes(fileBytes, header.Filename, "compare")
-	if localErr != nil {
-		h.log.ErrorContext(ctx, "failed to save uploaded compare file to disk", "error", localErr)
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر حفظ الملف على السيرفر.")
-		return
-	}
-	storageKey := localURL
 
 	var orgPtr *int64
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
 
-	uploadedFile, archived, err := h.compareSvc.UploadAndProcessCompareFile(
-		ctx, actor.UserID, orgPtr, supplierName, header.Filename,
-		header.Header.Get("Content-Type"), header.Size, storageKey, fileBytes,
-	)
-	if err != nil {
-		h.log.ErrorContext(ctx, "failed to upload and process compare file", "error", err, "supplier", supplierName)
-		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+	var processedCount int
+	var totalRows int
+	var errorFiles []string
+	var allArchived []string
+
+	for _, header := range fileHeaders {
+		ext := strings.ToLower(filepath.Ext(header.Filename))
+		if ext != ".xlsx" && ext != ".xls" && ext != ".csv" {
+			errorFiles = append(errorFiles, header.Filename+" (صيغة غير مدعومة)")
+			continue
+		}
+
+		file, err := header.Open()
+		if err != nil {
+			errorFiles = append(errorFiles, header.Filename+" (تعذر الفتح)")
+			continue
+		}
+
+		fileBytes, err := io.ReadAll(file)
+		file.Close()
+		if err != nil || len(fileBytes) == 0 {
+			errorFiles = append(errorFiles, header.Filename+" (ملف فارغ أو تعذر قراءته)")
+			continue
+		}
+
+		// Determine supplier name: use explicit form value if single file and provided, otherwise derive from filename
+		supplierName := strings.TrimSpace(r.FormValue("supplier_name"))
+		if supplierName == "" || len(fileHeaders) > 1 {
+			supplierName = strings.TrimSpace(strings.TrimSuffix(header.Filename, ext))
+			supplierName = strings.ReplaceAll(supplierName, "_", " ")
+			supplierName = strings.ReplaceAll(supplierName, "-", " ")
+		}
+		if supplierName == "" {
+			supplierName = header.Filename
+		}
+
+		localURL, localErr := saveUploadedBytes(fileBytes, header.Filename, "compare")
+		if localErr != nil {
+			h.log.ErrorContext(ctx, "failed to save uploaded compare file to disk", "error", localErr, "file", header.Filename)
+			errorFiles = append(errorFiles, header.Filename+" (تعذر الحفظ)")
+			continue
+		}
+
+		uploadedFile, archived, err := h.compareSvc.UploadAndProcessCompareFile(
+			ctx, actor.UserID, orgPtr, supplierName, header.Filename,
+			header.Header.Get("Content-Type"), header.Size, localURL, fileBytes,
+		)
+		if err != nil {
+			h.log.ErrorContext(ctx, "failed to upload and process compare file", "error", err, "supplier", supplierName)
+			errorFiles = append(errorFiles, header.Filename+" ("+h.safeMessage(err, langOf(r))+")")
+			continue
+		}
+
+		processedCount++
+		totalRows += uploadedFile.RowCount
+		allArchived = append(allArchived, archived...)
+	}
+
+	if processedCount == 0 {
+		errMsg := "تعذر معالجة أي من الملفات المرفوعة: " + strings.Join(errorFiles, "، ")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", errMsg)
 		return
 	}
 
-	h.log.InfoContext(ctx, "compare file uploaded and processed successfully", "file_id", uploadedFile.ID, "rows", uploadedFile.RowCount, "supplier", uploadedFile.SupplierName)
-
-	msg := fmt.Sprintf("تم رفع ومعالجة كشف المورد '%s' بنجاح (تم استخراج %d صنف جاهزة للمقارنة).", uploadedFile.SupplierName, uploadedFile.RowCount)
-	if len(archived) > 0 {
-		msg += " تنبيه: لقد تجاوزت الحد الأقصى للملفات النشطة، تم نقل المورد الأقدم (" + strings.Join(archived, "، ") + ") إلى الأرشيف."
+	msg := fmt.Sprintf("تم رفع ومعالجة %d كشوف موردين بنجاح (إجمالي %d صنف جاهزة للمقارنة).", processedCount, totalRows)
+	if len(errorFiles) > 0 {
+		msg += " تعذر رفع: " + strings.Join(errorFiles, "، ") + "."
 	}
+	if len(allArchived) > 0 {
+		msg += " تنبيه: تم أرشفة الموردين الأقدم (" + strings.Join(allArchived, "، ") + ") لتجاوز الحد الأقصى."
+	}
+
 	h.redirectWithNotice(w, r, "/compare/tool", "success", msg)
 }
 
@@ -433,15 +469,15 @@ func (h *UIHandler) loadFileHeadersAndPreview(ctx context.Context, file *compare
 	var preview [][]string
 
 	if file != nil && file.StorageKey != "" {
+		cleanKey := strings.TrimPrefix(filepath.FromSlash(file.StorageKey), string(filepath.Separator))
 		candidates := []string{
 			file.StorageKey,
-			filepath.Join("data", filepath.FromSlash(file.StorageKey)),
-			"data" + file.StorageKey,
-			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
+			filepath.Join("data", cleanKey),
+			filepath.Join(UploadBaseDir, "compare", filepath.Base(file.StorageKey)),
 			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
-		}
-		if strings.HasPrefix(file.StorageKey, "/uploads/") {
-			candidates = append(candidates, "data"+file.StorageKey)
+			filepath.Join(UploadBaseDir, "compare", filepath.Base(file.OriginalFilename)),
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
+			"data" + file.StorageKey,
 		}
 		for _, cand := range candidates {
 			if f, err := os.Open(cand); err == nil {

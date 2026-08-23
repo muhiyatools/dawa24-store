@@ -273,8 +273,16 @@ func (m *mockCatalogRepo) CreateSavingProduct(_ context.Context, sp *SavingProdu
 	return nil
 }
 
+func (m *mockCatalogRepo) UpdateSavingProduct(_ context.Context, sp *SavingProduct) error {
+	return nil
+}
+
 func (m *mockCatalogRepo) ListSavingProductsByOrg(_ context.Context, _ int64, _, _ int) ([]*SavingProduct, error) {
 	return nil, nil
+}
+
+func (m *mockCatalogRepo) ListSavingProductsEnriched(_ context.Context, orgID int64, search, filter string, limit, offset int) ([]*SavingProductEnriched, *SavingProductStats, error) {
+	return nil, &SavingProductStats{}, nil
 }
 
 func (m *mockCatalogRepo) GetSavingProductByID(_ context.Context, _ int64) (*SavingProduct, error) {
@@ -283,6 +291,14 @@ func (m *mockCatalogRepo) GetSavingProductByID(_ context.Context, _ int64) (*Sav
 
 func (m *mockCatalogRepo) DeleteSavingProduct(_ context.Context, _, _ int64) error {
 	return nil
+}
+
+func (m *mockCatalogRepo) GetProductProviders(_ context.Context, productID int64) ([]*ProductProviderInfo, error) {
+	return nil, nil
+}
+
+func (m *mockCatalogRepo) BatchUpsertSavingProducts(_ context.Context, orgID int64, userID *int64, items []*SavingProduct) (int, int, error) {
+	return len(items), 0, nil
 }
 
 func TestProductEffectivePrice(t *testing.T) {

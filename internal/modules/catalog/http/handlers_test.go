@@ -219,6 +219,22 @@ func (r stubRepo) DeleteSavingProduct(ctx context.Context, id, orgID int64) erro
 	r.fail("DeleteSavingProduct")
 	return nil
 }
+func (r stubRepo) UpdateSavingProduct(ctx context.Context, sp *catalog.SavingProduct) error {
+	r.fail("UpdateSavingProduct")
+	return nil
+}
+func (r stubRepo) ListSavingProductsEnriched(ctx context.Context, orgID int64, search, filter string, limit, offset int) ([]*catalog.SavingProductEnriched, *catalog.SavingProductStats, error) {
+	r.fail("ListSavingProductsEnriched")
+	return nil, nil, nil
+}
+func (r stubRepo) GetProductProviders(ctx context.Context, productID int64) ([]*catalog.ProductProviderInfo, error) {
+	r.fail("GetProductProviders")
+	return nil, nil
+}
+func (r stubRepo) BatchUpsertSavingProducts(ctx context.Context, orgID int64, userID *int64, items []*catalog.SavingProduct) (int, int, error) {
+	r.fail("BatchUpsertSavingProducts")
+	return 0, 0, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

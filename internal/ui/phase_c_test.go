@@ -41,12 +41,12 @@ func TestPhaseC_VendorSavingProducts(t *testing.T) {
 	// GET /vendor/saving-products renders
 	rec := doGET(t, r, "/vendor/saving-products", vendorActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "منتجات التوفير (Saving Products)")
+	assert.Contains(t, rec.Body.String(), "منتجات مساعدة الخاصة بي")
 
-	// GET /vendor/saving-products/import renders
+	// GET /vendor/saving-products/import redirects to /vendor/saving-products
 	rec = doGET(t, r, "/vendor/saving-products/import", vendorActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "استيراد ملف منتجات التوفير")
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
+	assert.Equal(t, "/vendor/saving-products", rec.Header().Get("Location"))
 }
 
 // TestPhaseC_VendorInstitutionalWork verifies Task C.12: Institutional work and pharmacy coverage screens.

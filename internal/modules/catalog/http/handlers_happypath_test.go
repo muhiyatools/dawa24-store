@@ -158,6 +158,18 @@ func (happyRepo) GetSavingProductByID(ctx context.Context, id int64) (*catalog.S
 func (happyRepo) DeleteSavingProduct(ctx context.Context, id, orgID int64) error {
 	return nil
 }
+func (happyRepo) UpdateSavingProduct(ctx context.Context, sp *catalog.SavingProduct) error {
+	return nil
+}
+func (happyRepo) ListSavingProductsEnriched(ctx context.Context, orgID int64, search, filter string, limit, offset int) ([]*catalog.SavingProductEnriched, *catalog.SavingProductStats, error) {
+	return nil, &catalog.SavingProductStats{}, nil
+}
+func (happyRepo) GetProductProviders(ctx context.Context, productID int64) ([]*catalog.ProductProviderInfo, error) {
+	return nil, nil
+}
+func (happyRepo) BatchUpsertSavingProducts(ctx context.Context, orgID int64, userID *int64, items []*catalog.SavingProduct) (int, int, error) {
+	return len(items), 0, nil
+}
 
 func newAuthedRouter(repo catalog.Repository) http.Handler {
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))

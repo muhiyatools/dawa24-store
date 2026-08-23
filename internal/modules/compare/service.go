@@ -558,15 +558,13 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 
 	// 2. Try exact storage key on local disk
 	if reader == nil && file.StorageKey != "" {
+		cleanKey := strings.TrimPrefix(filepath.FromSlash(file.StorageKey), string(filepath.Separator))
 		candidates := []string{
 			file.StorageKey,
-			filepath.Join("data", filepath.FromSlash(file.StorageKey)),
-			"data/" + file.StorageKey,
-			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
+			filepath.Join("data", cleanKey),
 			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
-		}
-		if strings.HasPrefix(file.StorageKey, "/uploads/") {
-			candidates = append(candidates, "data"+file.StorageKey)
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
+			"data" + file.StorageKey,
 		}
 		for _, cand := range candidates {
 			if f, err := os.Open(cand); err == nil {
