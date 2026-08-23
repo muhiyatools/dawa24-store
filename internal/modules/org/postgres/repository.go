@@ -539,17 +539,21 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 
 		for rows.Next() {
 			var m org.Member
+			var roleID *int64
 			var userName, userEmail, userPhone, userStatus, roleName, branchName string
 			var isManager bool
 
 			if err := rows.Scan(
-				&m.ID, &m.OrganizationID, &m.UserID, &m.BranchID, &m.RoleID, &m.RoleKey,
+				&m.ID, &m.OrganizationID, &m.UserID, &m.BranchID, &roleID, &m.RoleKey,
 				&m.OrgRoleID, &m.EmployeeCode, &m.JobTitle,
 				&m.BaseSalary, &m.VariableSalary, &m.IsActive, &m.CreatedAt, &m.UpdatedAt,
 				&userName, &userEmail, &userPhone, &userStatus,
 				&roleName, &branchName, &isManager,
 			); err != nil {
 				return err
+			}
+			if roleID != nil {
+				m.RoleID = *roleID
 			}
 
 			list = append(list, &org.EmployeeView{
@@ -603,7 +607,7 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 
 // ToggleMemberStatus toggles a member's active state.
 func (r *Repository) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE org.members SET is_active = NOT is_active, updated_at = now() WHERE id = $1 AND organization_id = $2;`
 		tag, err := tx.Exec(txCtx, query, memberID, orgID)
 		if err != nil {
@@ -619,8 +623,8 @@ func (r *Repository) ToggleMemberStatus(ctx context.Context, orgID, memberID int
 // ListMembersByOrg returns members of an organization.
 func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.Member, error) {
 	var list []*org.Member
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, organization_id, user_id, role_id, role_key, is_active, created_at, updated_at FROM org.members WHERE organization_id = $1;`
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT id, organization_id, user_id, role_id, role_key, is_active, created_at, updated_at FROM org.members WHERE organization_id = $1 ORDER BY id DESC;`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {
 			return err
@@ -628,8 +632,12 @@ func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.
 		defer rows.Close()
 		for rows.Next() {
 			var m org.Member
-			if err := rows.Scan(&m.ID, &m.OrganizationID, &m.UserID, &m.RoleID, &m.RoleKey, &m.IsActive, &m.CreatedAt, &m.UpdatedAt); err != nil {
+			var roleID *int64
+			if err := rows.Scan(&m.ID, &m.OrganizationID, &m.UserID, &roleID, &m.RoleKey, &m.IsActive, &m.CreatedAt, &m.UpdatedAt); err != nil {
 				return err
+			}
+			if roleID != nil {
+				m.RoleID = *roleID
 			}
 			list = append(list, &m)
 		}
@@ -640,7 +648,7 @@ func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.
 
 // RemoveMember removes a user from an organization.
 func (r *Repository) RemoveMember(ctx context.Context, orgID, userID int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `DELETE FROM org.members WHERE organization_id = $1 AND user_id = $2;`
 		_, err := tx.Exec(txCtx, query, orgID, userID)
 		return err

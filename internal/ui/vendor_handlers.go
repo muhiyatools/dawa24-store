@@ -475,12 +475,6 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 		if employees, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil && len(employees) > 0 {
 			for _, emp := range employees {
 				roleName := emp.RoleName
-				if roleName == "" {
-					roleName = "موظف مبيعات وتوريد"
-				}
-				if emp.IsManager {
-					roleName = "مدير عمليات"
-				}
 				switch emp.Member.RoleKey {
 				case "org_owner":
 					roleName = "مالك المنشأة"
@@ -492,11 +486,24 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					roleName = "محاسب مالي"
 				case "org_employee":
 					roleName = "موظف مبيعات وتوريد"
+				default:
+					if roleName == "" {
+						roleName = "عضو فريق العمل"
+					}
 				}
+				if emp.IsManager && emp.Member.RoleKey != "org_owner" {
+					roleName = "مدير فرع / عمليات"
+				}
+
+				name := emp.UserName
+				if name == "" {
+					name = emp.UserEmail
+				}
+
 				memberViews = append(memberViews, &pages.TeamMemberView{
 					ID:           emp.Member.ID,
 					UserID:       emp.Member.UserID,
-					Name:         emp.UserName,
+					Name:         name,
 					Email:        emp.UserEmail,
 					Phone:        emp.UserPhone,
 					JobTitle:     emp.Member.JobTitle,
@@ -521,6 +528,9 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 						if name == "" {
 							name = u.Name.Get(i18n.EN)
 						}
+						if name == "" {
+							name = u.Email
+						}
 						email = u.Email
 						phone = u.Phone
 					}
@@ -535,6 +545,8 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					roleName = "أمين مخزن"
 				case "org_accountant":
 					roleName = "محاسب مالي"
+				case "org_employee":
+					roleName = "موظف مبيعات وتوريد"
 				}
 				memberViews = append(memberViews, &pages.TeamMemberView{
 					ID:           m.ID,
