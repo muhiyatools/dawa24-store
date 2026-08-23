@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -58,8 +59,24 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		}
 
 		price := v.Price
-		if !price.IsPositive() && product.EffectivePrice().IsPositive() {
+		oldPrice := v.Price
+		discountAmt := money.Zero
+		var discountBPS int64 = 0
+
+		if v.Discount.IsPositive() && v.Price.IsPositive() && v.Price.Minor() > v.Discount.Minor() {
+			oldPrice = v.Price
+			price = money.FromMinor(v.Price.Minor() - v.Discount.Minor())
+			discountAmt = v.Discount
+			discountBPS = int64(v.Discount.Minor()) * 10000 / int64(v.Price.Minor())
+		} else if product != nil && product.Price.IsPositive() && v.Price.IsPositive() && product.Price.Minor() > v.Price.Minor() {
+			oldPrice = product.Price
+			price = v.Price
+			diff := product.Price.Minor() - v.Price.Minor()
+			discountAmt = money.FromMinor(diff)
+			discountBPS = diff * 10000 / int64(product.Price.Minor())
+		} else if !price.IsPositive() && product != nil && product.EffectivePrice().IsPositive() {
 			price = product.EffectivePrice()
+			oldPrice = price
 		}
 
 		// Resolve actual stock from inventory.stocks
@@ -84,8 +101,8 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			}
 		}
 
-		isCovered := true
-		canAddToCart := (stockQty > 0)
+		isCovered := false
+		canAddToCart := false
 		covReason := ""
 
 		if isPharmacy {
@@ -103,30 +120,36 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 						isCovered = true
 						canAddToCart = (stockQty > 0)
 					} else {
+						covReason = res.MessageAr
 						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
 							isCovered = false
-							covReason = "مفيش فرع بيوصل لموقعك للمنتج ده"
 							canAddToCart = false
 						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
 							isCovered = true
-							covReason = "نفد المخزون لدى المورد"
 							canAddToCart = false
 						} else if res.Reason == commerce.ReasonBelowMinimum {
 							isCovered = true
 							canAddToCart = (stockQty > 0)
 						} else {
-							isCovered = true
-							covReason = res.MessageAr
-							canAddToCart = (stockQty > 0)
+							isCovered = false
+							canAddToCart = false
 						}
 					}
+				} else {
+					isCovered = false
+					covReason = "تعذر التحقق من التغطية الجغرافية"
+					canAddToCart = false
 				}
 			} else if customerBranchID <= 0 {
-				canAddToCart = (stockQty > 0)
+				isCovered = false
+				covReason = "يرجى تحديد فرع الاستلام للتحقق من التغطية"
+				canAddToCart = false
 			}
 		} else {
-			if stockQty <= 0 {
-				canAddToCart = false
+			isCovered = true
+			if stockQty > 0 {
+				canAddToCart = true
+			} else {
 				covReason = "نفد المخزون لدى المورد"
 			}
 		}
@@ -137,7 +160,9 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			SupplierName:     supplierName,
 			IsVerified:       orgn == nil || orgn.Status == org.StatusApproved,
 			Price:            price,
-			OldPrice:         price,
+			OldPrice:         oldPrice,
+			DiscountAmount:   discountAmt,
+			DiscountBPS:      discountBPS,
 			AvailableStock:   stockQty,
 			MinOrderQty:      minQty,
 			BatchNumber:      v.BatchNumber,

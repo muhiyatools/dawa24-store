@@ -92,7 +92,7 @@ func (p *availabilityProbe) Vendor(ctx context.Context, orgID int64) (commerce.V
 	}
 	return commerce.VendorAvailability{
 		ID:       o.ID,
-		IsVendor: string(o.Type) == "vendor",
+		IsVendor: string(o.Type) == "vendor" || string(o.Type) == "supplier" || string(o.Type) == "company" || string(o.Type) == "agency",
 		Approved: string(o.Status) == "approved",
 	}, nil
 }

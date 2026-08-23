@@ -29,11 +29,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 					</div>
 
 					<div style="display:flex; align-items:center; gap:0.75rem;">
-						<a href="/compare/tool" class="btn btn-secondary" style="font-weight:700; border-radius:var(--radius-full); font-size:0.85rem; gap:0.4rem;">
-							<span>⚖️</span>
-							<span>أداة مقارنة عروض الأسعار</span>
-						</a>
-						<a href="/cart" class="btn btn-primary" style="font-weight:800; border-radius:var(--radius-full); font-size:0.85rem; gap:0.4rem;">
+						<a href="/cart" class="btn btn-primary" style="font-weight:800; border-radius:var(--radius-full); font-size:0.85rem; gap:0.4rem; padding:0.6rem 1.4rem;">
 							<span>🛒</span>
 							<span>سلة المشتريات</span>
 						</a>
@@ -225,61 +221,67 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 			ActionLabel: "عرض كافة عروض التوريد",
 		})
 	} else {
-		<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:1.25rem;">
+		<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(310px, 1fr)); gap:1.25rem;">
 			for _, v := range variants {
-				<div class="card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); transition:transform 0.15s ease, box-shadow 0.15s ease; box-shadow:0 4px 16px rgba(0,0,0,0.04); position:relative;">
+				<div
+					class="card variant-clickable-card"
+					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigateToVariant(%d, %d)", v.VariantID, v.ProductID)} }
+					style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); transition:all 0.2s ease; box-shadow:0 4px 16px rgba(0,0,0,0.03); cursor:pointer; position:relative; overflow:hidden;"
+				>
 					
 					<div>
-						<!-- Top Pills: Unit/Form + Favorite -->
-						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+						<!-- Top Strip: Badges & Favorite -->
+						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; gap:0.5rem;">
 							<div style="display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center;">
 								if v.DosageForm != "" {
-									<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700;">
+									<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem;">
 										{ v.DosageForm }
 									</span>
 								}
 								if v.VariantName != "" {
-									<span class="badge badge-indigo" style="font-size:0.7rem; font-weight:700;">
+									<span class="badge badge-indigo" style="font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem;">
 										{ v.VariantName }
 									</span>
 								}
 								if v.DiscountPercent > 0 {
-									<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800;">
+									<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.5rem;">
 										{ fmt.Sprintf("خصم %d%%", v.DiscountPercent) }
 									</span>
 								}
 							</div>
 
-							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } style="margin:0;">
-								<button type="submit" class="btn btn-secondary btn-icon" style="width:30px; height:30px; color:var(--text-muted); border-radius:var(--radius-full);" title="حفظ في المفضلة">
-									@components.IconHeart("icon-xs")
-								</button>
-							</form>
+							<div onclick="event.stopPropagation();" style="margin:0;">
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } style="margin:0;">
+									<button type="submit" class="btn btn-secondary btn-icon" style="width:30px; height:30px; color:var(--text-muted); border-radius:var(--radius-full);" title="حفظ في المفضلة">
+										@components.IconHeart("icon-xs")
+									</button>
+								</form>
+							</div>
 						</div>
 
-						<!-- Product Title & Details Link -->
-						<h3 style="font-size:1.05rem; font-weight:900; margin:0 0 0.25rem 0; color:var(--text); line-height:1.4;">
-							<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.VariantID)) } style="color:inherit; text-decoration:none;">
+						<!-- Product Title & English Subtitle -->
+						<div style="margin-bottom:0.6rem;">
+							<h3 style="font-size:1.05rem; font-weight:900; margin:0; color:var(--text); line-height:1.4;">
 								if v.ProductNameAr != "" {
 									{ v.ProductNameAr }
 								} else {
 									{ v.ProductNameEn }
 								}
-							</a>
-						</h3>
+							</h3>
 
-						if v.ProductNameEn != "" && v.ProductNameEn != v.ProductNameAr {
-							<div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.6rem; font-weight:600;" dir="ltr">
-								{ v.ProductNameEn }
-							</div>
-						}
+							if v.ProductNameEn != "" && v.ProductNameEn != v.ProductNameAr {
+								<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-top:2px;" dir="ltr">
+									{ v.ProductNameEn }
+								</div>
+							}
+						</div>
 
-						<!-- Scientific Info -->
+						<!-- Scientific Info & Manufacturer -->
 						if v.ScientificName != "" || v.Manufacturer != "" {
-							<div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; flex-direction:column; gap:2px; background:var(--surface-sunken); padding:0.5rem 0.65rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+							<div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; flex-direction:column; gap:2px; background:var(--surface-sunken); padding:0.5rem 0.75rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
 								if v.ScientificName != "" {
 									<div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-										<span style="color:var(--text-muted);">المادة:</span> <strong>{ v.ScientificName }</strong>
+										<span style="color:var(--text-muted);">المادة:</span> <strong style="color:var(--text);">{ v.ScientificName }</strong>
 									</div>
 								}
 								if v.Manufacturer != "" {
@@ -293,14 +295,12 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 						<!-- Supplier Info Box -->
 						<div style="border-top:1px dashed var(--border); border-bottom:1px dashed var(--border); padding:0.65rem 0; margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
 							<div style="display:flex; align-items:center; gap:0.5rem;">
-								<div style="width:30px; height:30px; border-radius:var(--radius-md); background:rgba(16,185,129,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:800;">
+								<div style="width:30px; height:30px; border-radius:var(--radius-md); background:rgba(16,185,129,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; font-size:0.9rem;">
 									🏢
 								</div>
 								<div>
 									<div style="font-size:0.825rem; font-weight:800; color:var(--text);">
-										<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", v.SupplierID)) } style="color:inherit; text-decoration:none;">
-											{ v.SupplierName }
-										</a>
+										{ v.SupplierName }
 									</div>
 									if v.BranchName != "" {
 										<div style="font-size:0.7rem; color:var(--text-muted);">
@@ -322,11 +322,11 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 							<div>
 								if v.AvailableStock > 0 {
 									<span style="color:var(--primary-600); font-weight:700;">
-										🟢 متاح بالمستودع ({ fmt.Sprintf("%d", v.AvailableStock) } عبوة)
+										🟢 متاح ({ fmt.Sprintf("%d", v.AvailableStock) } عبوة)
 									</span>
 								} else {
 									<span style="color:var(--danger-text); font-weight:700;">
-										⚪ غير متوفر حالياً
+										🔴 نفد المخزون
 									</span>
 								}
 							</div>
@@ -351,7 +351,7 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 										if v.CoverageReason != "" {
 											{ v.CoverageReason }
 										} else {
-											خارج نطاق التغطية لفرعك الحالي
+											خارج نطاق التغطية لفرعك في هذا اليوم
 										}
 									</span>
 								</div>
@@ -382,29 +382,34 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 
 						<!-- Add to Cart / Order Action -->
 						if v.CanAddToCart {
-							<form method="POST" action="/cart/add" style="display:flex; gap:0.5rem; margin:0;">
-								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
-								<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
-								
-								<input
-									type="number"
-									name="qty"
-									value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-									min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-									max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
-									class="input-field tabular-nums"
-									style="width:65px; height:40px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
-									title="الكمية المطلوبة"
-								/>
+							<div onclick="event.stopPropagation();">
+								<form method="POST" action="/cart/add" style="display:flex; gap:0.5rem; margin:0;">
+									<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
+									<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
+									<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+									<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+									<input type="hidden" name="offer_price" value={ v.Price.String() } />
+									
+									<input
+										type="number"
+										name="qty"
+										value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+										min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+										max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
+										class="input-field tabular-nums"
+										style="width:65px; height:40px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
+										title="الكمية المطلوبة"
+									/>
 
-								<button type="submit" class="btn btn-primary btn-sm" style="flex:1; font-weight:800; justify-content:center; height:40px; border-radius:var(--radius-lg); font-size:0.85rem;">
-									@components.IconPlus("icon-xs")
-									<span>أضف للسلة</span>
-								</button>
-							</form>
+									<button type="submit" class="btn btn-primary btn-sm" style="flex:1; font-weight:800; justify-content:center; height:40px; border-radius:var(--radius-lg); font-size:0.85rem;">
+										@components.IconPlus("icon-xs")
+										<span>أضف للسلة</span>
+									</button>
+								</form>
+							</div>
 						} else {
 							<div style="display:flex; gap:0.5rem;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.VariantID)) } class="btn btn-secondary btn-sm" style="width:100%; font-weight:700; justify-content:center; height:40px; border-radius:var(--radius-lg); font-size:0.825rem;">
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm" style="width:100%; font-weight:700; justify-content:center; height:40px; border-radius:var(--radius-lg); font-size:0.825rem;">
 									<span>تفاصيل الصنف والموردين</span>
 									@components.IconArrowLeft("icon-xs")
 								</a>
@@ -416,7 +421,23 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 				</div>
 			}
 		</div>
+
+		<script>
+			function navigateToVariant(variantId, productId) {
+				const id = (variantId && variantId > 0) ? variantId : productId;
+				if (id > 0) {
+					window.location.href = `/catalog/${id}`;
+				}
+			}
+		</script>
 	}
+}
+
+func resolveTargetID(variantID, productID int64) int64 {
+	if variantID > 0 {
+		return variantID
+	}
+	return productID
 }
 
 func max(a, b int) int {

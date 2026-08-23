@@ -36,10 +36,10 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 	err := cs.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT wc.distance_meters,
-			       platform.distance_meters(wc.latitude, wc.longitude, $2, $3) AS actual_meters
+			       platform.distance_meters(wc.latitude::numeric, wc.longitude::numeric, $2::numeric, $3::numeric)::integer AS actual_meters
 			FROM workflow.weekly_coverages wc
-			WHERE wc.organization_id = $1
-			  AND wc.day_of_week = $4
+			WHERE wc.organization_id = $1::bigint
+			  AND wc.day_of_week = $4::integer
 			  AND wc.is_active = true
 			  AND wc.latitude IS NOT NULL
 			  AND wc.longitude IS NOT NULL

@@ -146,7 +146,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 				})
 			}
 		} else {
-			// Fallback: master product without variant offer yet
+			// Fallback: master product without active supplier offer
 			if !inStock {
 				variantCards = append(variantCards, &pages.SupplierVariantCard{
 					ProductID:      p.ID,
@@ -159,7 +159,8 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 					PublicPrice:    p.Price,
 					Price:          p.Price,
 					SupplierName:   "طلب توريد خاص",
-					IsCovered:      true,
+					IsCovered:      false,
+					CoverageReason: "لا تتوفر عروض توريد نشطة لهذا الصنف حالياً",
 					CanAddToCart:   false,
 				})
 			}
@@ -456,9 +457,28 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
 	productID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
 	vendorOrgID, _ := strconv.ParseInt(r.PostFormValue("vendor_org_id"), 10, 64)
+	if vendorOrgID <= 0 {
+		vendorOrgID, _ = strconv.ParseInt(r.PostFormValue("organization_id"), 10, 64)
+	}
+
 	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
 	if qty <= 0 {
+		qty, _ = strconv.Atoi(r.PostFormValue("qty"))
+	}
+	if qty <= 0 {
 		qty = 1
+	}
+
+	// Auto-resolve missing product/vendor info from variant
+	if h.catSvc != nil && variantID > 0 && (productID <= 0 || vendorOrgID <= 0) {
+		if v, err := h.catSvc.GetVariant(ctx, variantID); err == nil && v != nil {
+			if productID <= 0 {
+				productID = v.ProductID
+			}
+			if vendorOrgID <= 0 {
+				vendorOrgID = v.OrganizationID
+			}
+		}
 	}
 
 	// Stock, supplier approval, branch ownership and weekly coverage are all
@@ -482,8 +502,6 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Keep the offer identity so checkout can carry it into the order
-	// (migration 064). Parsed defensively; a bogus id degrades to a
-	// non-offer cart line.
 	if offerID, err := strconv.ParseInt(r.PostFormValue("offer_id"), 10, 64); err == nil && offerID > 0 {
 		item.OfferID = &offerID
 	}

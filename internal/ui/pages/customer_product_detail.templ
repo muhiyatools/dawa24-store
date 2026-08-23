@@ -222,7 +222,10 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						if offers[0].CanAddToCart {
 							<form method="POST" action="/cart/add" style="display:flex; flex-direction:column; gap:0.75rem; margin:0;">
 								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", offers[0].VariantID) } />
+								<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 								<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
+								<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
+								<input type="hidden" name="offer_price" value={ offers[0].Price.String() } />
 								
 								<div style="display:flex; align-items:center; gap:0.5rem;">
 									<label style="font-size:0.8rem; font-weight:700; color:var(--text);">الكمية:</label>
@@ -337,7 +340,10 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 											if off.CanAddToCart {
 												<form method="POST" action="/cart/add" style="display:inline-flex; gap:0.35rem; margin:0;">
 													<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", off.VariantID) } />
+													<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 													<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
+													<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
+													<input type="hidden" name="offer_price" value={ off.Price.String() } />
 													<input type="hidden" name="qty" value={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) } />
 													<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg); font-size:0.8rem;">
 														<span>أضف للسلة</span>
