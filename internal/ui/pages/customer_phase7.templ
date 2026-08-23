@@ -3,63 +3,778 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-
-// CustomerSavingProductsPage renders customer saving products list.
-templ CustomerSavingProductsPage(search string, lang, dir string) {
-	@layouts.CustomerShell("منتجات التوفير وتتبع فروق الأسعار", "saving_products", lang, dir, nil) {
-		<div class="card mb-0">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h2 class="card-title" style="margin:0;">تتبع فروق الأسعار والخصومات الحية</h2>
-					<p class="subtitle">مقارنة مستمرة بين أسعار مشترياتك السابقة وعروض الموردين الحالية في السوق.</p>
-				</div>
-				<a href="/customer/saving-products/import" class="btn btn-secondary btn-sm">استيراد قائمة أدوية</a>
-			</div>
-
-			<form method="GET" action="/customer/saving-products" style="margin-bottom:1.5rem;">
-				<div style="display:flex; gap:0.5rem; max-width:500px;">
-					<input type="text" name="q" value={ search } placeholder="ابحث في قائمة أدوية التوفير..." class="form-input" style="flex:1;" />
-					<button type="submit" class="btn btn-secondary">بحث</button>
-				</div>
-			</form>
-
-			@components.EmptyState(components.EmptyStateProps{Title: "قائمة التوفير فارغة", Message: "قم برفع ملف بأدويتك الأكثر استهلاكاً لتنبيهك عند توفر عروض بخصومات أعلى لدى الموردين."})
-		</div>
-	}
+type CustomerSavingPageData struct {
+	Items        []*catalog.SavingProductEnriched
+	Stats        *catalog.SavingProductStats
+	SearchQuery  string
+	FilterStatus string
+	NoticeType   string
+	NoticeMsg    string
 }
 
-// CustomerSavingProductsImportPage renders bulk spreadsheet upload.
-templ CustomerSavingProductsImportPage(lang, dir string) {
-	@layouts.CustomerShell("استيراد أدوية التوفير", "saving_products", lang, dir, nil) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">استيراد قائمة الأدوية للتوفير</h2>
-				</div>
-				<a href="/customer/saving-products" class="btn btn-secondary btn-sm">العودة</a>
-			</div>
-			@components.EmptyState(components.EmptyStateProps{Title: "معالج الرفع الذكي", Message: "ارفع شيت الأدوية وسيتم مطابقتها تلقائياً وتتبع أسعارها."})
-		</div>
-	}
-}
+// CustomerSavingProductsPage renders customer saving products workspace and best supplier price delta tracker.
+templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) {
+	@layouts.CustomerShell("منتجات التوفير وتتبع فروق الأسعار للصيدلية", "saving_products", lang, dir, nil) {
+		<div style="max-width:1440px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
 
-// CustomerSavingProductDetailPage renders single product delta details.
-templ CustomerSavingProductDetailPage(id int64, lang, dir string) {
-	@layouts.CustomerShell(fmt.Sprintf("صنف توفير #%d", id), "saving_products", lang, dir, nil) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">تفاصيل الصنف #{ fmt.Sprintf("%d", id) }</h2>
+			<!-- Notice / Toast Banner -->
+			if data.NoticeMsg != "" {
+				if data.NoticeType == "error" {
+					<div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
+							<span style="font-size:1.4rem;">⚠️</span>
+							<span>{ data.NoticeMsg }</span>
+						</div>
+					</div>
+				} else {
+					<div class="alert alert-success" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
+							<span style="font-size:1.4rem;">✅</span>
+							<span>{ data.NoticeMsg }</span>
+						</div>
+					</div>
+				}
+			}
+
+			<!-- Top Header Banner -->
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; margin-bottom:0;">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+					<div style="display:flex; align-items:center; gap:1rem;">
+						<div style="width:54px; height:54px; border-radius:var(--radius-xl); background:linear-gradient(135deg, #10b981 0%, #06b6d4 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.75rem; box-shadow:0 8px 20px rgba(16,185,129,0.25);">
+							💊
+						</div>
+						<div>
+							<h1 style="font-size:1.65rem; font-weight:900; color:var(--text); margin:0;">
+								منتجات وأدوية التوفير للصيدلية
+							</h1>
+							<p style="color:var(--text-muted); font-size:0.875rem; margin:0.25rem 0 0 0;">
+								تتبع أدوية الصيدلية ومقارنة عروض وخصومات الموردين المتاحة بالكتالوج بالأسعار الحية
+							</p>
+						</div>
+					</div>
+
+					<!-- Top Action Buttons -->
+					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+						<button
+							type="button"
+							class="btn btn-primary"
+							data-modal-open="pharmacy-saving-product-modal"
+							style="background:#10b981; border-color:#10b981; color:#fff; font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
+							onclick="openPharmacyCreateModal()"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إضافة صنف توفير جديد</span>
+						</button>
+
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-modal-open="pharmacy-saving-import-modal"
+							style="font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
+							onclick="openPharmacyImportModal()"
+						>
+							@components.IconUpload("icon-xs")
+							<span>استيراد قائمة الأدوية (Excel / CSV)</span>
+						</button>
+
+						<a
+							href="/customer/saving-products/export"
+							class="btn btn-secondary"
+							style="background:#0f766e; border-color:#0f766e; color:#fff; font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); text-decoration:none;"
+							download
+						>
+							@components.IconDownload("icon-xs")
+							<span>تصدير Excel 📊</span>
+						</a>
+					</div>
 				</div>
-				<a href="/customer/saving-products" class="btn btn-secondary btn-sm">العودة</a>
+			</div>
+
+			<!-- 3 Status Metric Cards -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
+				<a
+					href="/customer/saving-products?filter=all"
+					class="card"
+					style={ fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "all")) }
+				>
+					<div>
+						<div style="font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
+							جميع الأصناف المسجلة
+						</div>
+						<div style="font-size:2.2rem; font-weight:900; color:var(--text);" class="tabular-nums">
+							if data.Stats != nil {
+								{ fmt.Sprintf("%d", data.Stats.CountAll) }
+							} else {
+								0
+							}
+						</div>
+					</div>
+					<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+						📋
+					</div>
+				</a>
+
+				<a
+					href="/customer/saving-products?filter=linked"
+					class="card"
+					style={ fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "linked")) }
+				>
+					<div>
+						<div style="font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
+							أصناف مرتبطة بالكتالوج
+						</div>
+						<div style="font-size:2.2rem; font-weight:900; color:#38bdf8;" class="tabular-nums">
+							if data.Stats != nil {
+								{ fmt.Sprintf("%d", data.Stats.CountLinked) }
+							} else {
+								0
+							}
+						</div>
+					</div>
+					<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(56, 189, 248, 0.12); color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+						🔗
+					</div>
+				</a>
+
+				<a
+					href="/customer/saving-products?filter=unlinked"
+					class="card"
+					style={ fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "unlinked")) }
+				>
+					<div>
+						<div style="font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
+							أصناف بحاجة إلى ربط
+						</div>
+						<div style="font-size:2.2rem; font-weight:900; color:#f59e0b;" class="tabular-nums">
+							if data.Stats != nil {
+								{ fmt.Sprintf("%d", data.Stats.CountUnlinked) }
+							} else {
+								0
+							}
+						</div>
+					</div>
+					<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(245, 158, 11, 0.12); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+						⚠️
+					</div>
+				</a>
+			</div>
+
+			<!-- Search Filter Bar -->
+			<div class="card" style="padding:1rem 1.5rem; margin-bottom:0; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div style="flex:1; min-width:280px; max-width:500px; position:relative;">
+					<input
+						type="text"
+						id="pharmacy-saving-search-input"
+						value={ data.SearchQuery }
+						placeholder="ابحث باسم الدواء، الكود SKU، أو اسم الصنف بالكتالوج..."
+						class="form-input"
+						style="padding-inline-start:2.5rem; width:100%; border-radius:var(--radius-lg);"
+						oninput="filterPharmacySavingTable(this.value)"
+					/>
+					<div style="position:absolute; inset-inline-start:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+						@components.IconSearch("icon-xs")
+					</div>
+				</div>
+
+				<div style="display:flex; align-items:center; gap:0.5rem;">
+					<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">
+						عرض: { fmt.Sprintf("%d", len(data.Items)) } صنف
+					</span>
+				</div>
+			</div>
+
+			<!-- Saving Products Table Card -->
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:0; overflow:hidden;">
+				if len(data.Items) == 0 {
+					<div style="padding:4rem 2rem; text-align:center;">
+						<div style="font-size:3.5rem; margin-bottom:1rem;">📦</div>
+						<h3 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
+							لا توجد أصناف مسجلة في قائمة التوفير حالياً
+						</h3>
+						<p style="color:var(--text-muted); max-width:520px; margin:0 auto 1.5rem auto; font-size:0.9rem; line-height:1.6;">
+							أضف أدويتك الأكثر استهلاكاً أو ارفع ملف Excel لمتابعة خصومات الموردين واقتناص أفضل الأسعار.
+						</p>
+						<div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
+							<button type="button" class="btn btn-primary" onclick="openPharmacyCreateModal()" style="font-weight:800;">
+								@components.IconPlus("icon-xs")
+								<span>إضافة صنف جديد</span>
+							</button>
+							<button type="button" class="btn btn-secondary" onclick="openPharmacyImportModal()" style="font-weight:800;">
+								@components.IconUpload("icon-xs")
+								<span>استيراد ملف Excel</span>
+							</button>
+						</div>
+					</div>
+				} else {
+					<div class="table-container" style="margin:0; overflow-x:auto;">
+						<table class="data-table" style="width:100%; border-collapse:collapse;">
+							<thead>
+								<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
+									<th style="padding:1rem 1.25rem;">اسم الصنف للصيدلية</th>
+									<th style="padding:1rem;">الربط بالكتالوج العام</th>
+									<th style="padding:1rem; text-align:center;">الكمية</th>
+									<th style="padding:1rem; text-align:center;">سعر الشراء</th>
+									<th style="padding:1rem; text-align:center;">عروض الموردين</th>
+									<th style="padding:1rem 1.25rem; text-align:center;">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, it := range data.Items {
+									<tr
+										class="pharmacy-saving-row"
+										data-id={ fmt.Sprintf("%d", it.ID) }
+										data-name={ it.NameProduct }
+										data-sku={ it.SKU }
+										data-qty={ fmt.Sprintf("%v", it.Quantity) }
+										data-price={ it.Price.String() }
+										data-product-id={ savingProductIDStr(it.ProductID) }
+										data-product-name={ it.LinkedProductName.Get(i18n.AR) }
+										style="border-bottom:1px solid var(--border); transition:background 0.15s;"
+									>
+										<!-- Name & SKU -->
+										<td style="padding:1rem 1.25rem;">
+											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+												{ it.NameProduct }
+											</div>
+											if it.SKU != "" {
+												<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+													<code>{ it.SKU }</code>
+												</div>
+											}
+										</td>
+
+										<!-- Linked Product -->
+										<td style="padding:1rem;">
+											if it.ProductID != nil && *it.ProductID > 0 {
+												<div style="display:flex; align-items:center; gap:0.5rem;">
+													<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800;">
+														🔗 { it.LinkedProductName.Get(i18n.AR) }
+													</span>
+													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID)) } target="_blank" class="btn btn-secondary btn-icon" style="width:26px; height:26px;" title="عرض بالكتالوج">
+														@components.IconEye("icon-xs")
+													</a>
+												</div>
+											} else {
+												<span class="badge badge-amber" style="font-size:0.75rem; font-weight:700;">
+													⚠️ غير مرتبط
+												</span>
+											}
+										</td>
+
+										<!-- Quantity -->
+										<td style="padding:1rem; text-align:center;" class="tabular-nums">
+											<strong>{ fmt.Sprintf("%v", it.Quantity) }</strong>
+										</td>
+
+										<!-- Price -->
+										<td style="padding:1rem; text-align:center;" class="tabular-nums">
+											<strong style="color:var(--text);">{ it.Price.String() } ج.م</strong>
+										</td>
+
+										<!-- Providers & Market Offers -->
+										<td style="padding:1rem; text-align:center;">
+											if it.ProductID != nil && *it.ProductID > 0 {
+												<button
+													type="button"
+													class="btn btn-secondary btn-sm"
+													style="font-size:0.78rem; font-weight:800; gap:0.35rem; color:var(--accent);"
+													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyProvidersModal(%d, %q)", *it.ProductID, it.NameProduct)} }
+												>
+													<span>🏢 { fmt.Sprintf("%d موردين", it.ProvidingOrgsCount) }</span>
+												</button>
+											} else {
+												<span style="font-size:0.75rem; color:var(--text-muted);">-</span>
+											}
+										</td>
+
+										<!-- Actions -->
+										<td style="padding:1rem 1.25rem; text-align:center;">
+											<div style="display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+												<button
+													type="button"
+													class="btn btn-secondary btn-icon"
+													style="width:32px; height:32px;"
+													title="تعديل الصنف والربط"
+													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)} }
+												>
+													@components.IconEdit("icon-xs")
+												</button>
+												<button
+													type="button"
+													class="btn btn-secondary btn-icon"
+													style="width:32px; height:32px; color:var(--danger-text);"
+													title="حذف من قائمة التوفير"
+													onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmPharmacyDeleteSavingProduct(%d)", it.ID)} }
+												>
+													@components.IconTrash("icon-xs")
+												</button>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+		</div>
+
+		<!-- MODAL 1: Create / Edit Saving Product Modal -->
+		<div id="pharmacy-saving-product-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+			<div class="card" style="max-width:620px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+					<h3 id="pharmacy-modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+						إضافة صنف توفير جديد
+					</h3>
+					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closePharmacyCreateModal()">
+						@components.IconClose("icon-xs")
+					</button>
+				</div>
+
+				<form method="POST" id="pharmacy-saving-product-form" action="/customer/saving-products">
+					<input type="hidden" id="pharmacy-form-saving-id" name="id" value="" />
+					
+					<div style="display:flex; flex-direction:column; gap:1rem;">
+						<div>
+							<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+								اسم الصنف الدوائي بالصيدلية <span style="color:var(--danger-text);">*</span>
+							</label>
+							<input
+								type="text"
+								id="pharmacy-form-name-product"
+								name="name_product"
+								required
+								placeholder="مثال: أوجمنتين 1 جم 14 قرص"
+								class="form-input"
+								style="width:100%; border-radius:var(--radius-lg);"
+							/>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div>
+								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+									رمز SKU (اختياري)
+								</label>
+								<input
+									type="text"
+									id="pharmacy-form-sku"
+									name="sku"
+									placeholder="كود الصنف..."
+									class="form-input"
+									style="width:100%; border-radius:var(--radius-lg);"
+								/>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+									الكمية المطلوبة
+								</label>
+								<input
+									type="number"
+									step="any"
+									id="pharmacy-form-qty"
+									name="qty"
+									placeholder="0"
+									class="form-input"
+									style="width:100%; border-radius:var(--radius-lg);"
+								/>
+							</div>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+								سعر الشراء الحالي / المستهدف (ج.م)
+							</label>
+							<input
+								type="number"
+								step="0.01"
+								id="pharmacy-form-price"
+								name="price"
+								placeholder="0.00"
+								class="form-input"
+								style="width:100%; border-radius:var(--radius-lg);"
+							/>
+						</div>
+
+						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+							<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								🔗 ربط الصنف بالكتالوج المركزي العام
+							</label>
+							
+							<input type="hidden" id="pharmacy-form-product-id" name="product_id" value="" />
+							
+							<div id="pharmacy-selected-product-box" style="display:none; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+								<span id="pharmacy-selected-product-label" style="font-weight:800; color:var(--accent); font-size:0.9rem;"></span>
+								<button type="button" class="btn btn-secondary btn-sm" onclick="clearPharmacySelectedProduct()" style="font-size:0.75rem; color:var(--danger-text);">
+									إلغاء الربط ✕
+								</button>
+							</div>
+
+							<div id="pharmacy-search-product-container" style="position:relative;">
+								<input
+									type="text"
+									id="pharmacy-product-search-input"
+									placeholder="ابحث بالاسم أو SKU لربط الصنف بالكتالوج..."
+									class="form-input"
+									style="width:100%; border-radius:var(--radius-lg); font-size:0.85rem;"
+									oninput="searchPharmacyCatalogProductsLive(this.value)"
+								/>
+								<div id="pharmacy-product-search-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:200px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.3); margin-top:0.25rem;"></div>
+							</div>
+						</div>
+					</div>
+
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<button type="button" class="btn btn-secondary" onclick="closePharmacyCreateModal()">
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+							حفظ وتثبيت البيانات
+						</button>
+					</div>
+				</form>
 			</div>
 		</div>
+
+		<!-- MODAL 2: Bulk Import Modal -->
+		<div id="pharmacy-saving-import-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+			<div class="card" style="max-width:600px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+					<div style="display:flex; align-items:center; gap:0.5rem;">
+						<span style="font-size:1.4rem;">📥</span>
+						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+							استيراد ملف أدوية التوفير (Excel / CSV)
+						</h3>
+					</div>
+					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closePharmacyImportModal()">
+						@components.IconClose("icon-xs")
+					</button>
+				</div>
+
+				<form method="POST" action="/customer/saving-products/import" enctype="multipart/form-data" onsubmit="return handlePharmacyImportSubmit(event)">
+					<div style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div
+							id="pharmacy-import-dropzone"
+							style="border:2px dashed var(--accent); background:var(--surface-sunken); border-radius:var(--radius-xl); padding:2rem 1rem; text-align:center; cursor:pointer;"
+							onclick="document.getElementById('pharmacy-import-file-input').click()"
+						>
+							<div style="font-size:2.8rem; margin-bottom:0.5rem;">📊</div>
+							<strong style="color:var(--text); font-size:1rem; display:block; margin-bottom:0.25rem;">
+								انقر هنا لاختيار الملف أو اسحبه هنا
+							</strong>
+							<p style="color:var(--text-muted); font-size:0.8rem; margin:0;">
+								يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 10 ميجابايت
+							</p>
+							<div id="pharmacy-import-filename-preview" style="margin-top:0.75rem; font-weight:800; color:var(--accent); font-size:0.85rem;"></div>
+
+							<input
+								type="file"
+								id="pharmacy-import-file-input"
+								name="file"
+								accept=".xlsx,.xls,.csv"
+								required
+								style="display:none;"
+								onchange="handlePharmacyImportFileSelect(this)"
+							/>
+						</div>
+
+						<div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5; background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:0.75rem 1rem; border-radius:var(--radius-lg);">
+							ℹ️ <strong>المطابقة الذكية:</strong> سيتم مطابقة الأدوية تلقائياً مع الكتالوج المركزي لتوفير مقارنة أسعار فورية مع عروض الموردين.
+						</div>
+					</div>
+
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<button type="button" class="btn btn-secondary" onclick="closePharmacyImportModal()">
+							إلغاء
+						</button>
+						<button type="submit" id="pharmacy-import-btn" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+							بدء الاستيراد الذكي 🚀
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- MODAL 3: Providing Organizations & Offers Modal -->
+		<div id="pharmacy-providers-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+			<div class="card" style="max-width:860px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+					<div>
+						<h3 id="pharmacy-providers-modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+							عروض الموردين المتاحة بالكتالوج
+						</h3>
+						<p id="pharmacy-providers-modal-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;"></p>
+					</div>
+					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closePharmacyProvidersModal()">
+						@components.IconClose("icon-xs")
+					</button>
+				</div>
+
+				<div id="pharmacy-providers-modal-content">
+					<div style="padding:2rem; text-align:center; color:var(--text-muted);">
+						⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			function openPharmacyCreateModal() {
+				document.getElementById('pharmacy-modal-title').textContent = 'إضافة صنف توفير جديد';
+				document.getElementById('pharmacy-saving-product-form').action = '/customer/saving-products';
+				document.getElementById('pharmacy-form-saving-id').value = '';
+				document.getElementById('pharmacy-form-name-product').value = '';
+				document.getElementById('pharmacy-form-sku').value = '';
+				document.getElementById('pharmacy-form-qty').value = '';
+				document.getElementById('pharmacy-form-price').value = '';
+				clearPharmacySelectedProduct();
+				if (window.openModal) {
+					window.openModal('pharmacy-saving-product-modal');
+				} else {
+					const el = document.getElementById('pharmacy-saving-product-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
+			}
+
+			function openPharmacyEditModalFromRow(id) {
+				const row = document.querySelector(`.pharmacy-saving-row[data-id="${id}"]`);
+				if (!row) return;
+
+				document.getElementById('pharmacy-modal-title').textContent = 'تعديل صنف التوفير وتعيين الربط';
+				document.getElementById('pharmacy-saving-product-form').action = `/customer/saving-products/${id}/update`;
+				document.getElementById('pharmacy-form-saving-id').value = id;
+				document.getElementById('pharmacy-form-name-product').value = row.dataset.name || '';
+				document.getElementById('pharmacy-form-sku').value = row.dataset.sku || '';
+				document.getElementById('pharmacy-form-qty').value = row.dataset.qty || '';
+				document.getElementById('pharmacy-form-price').value = row.dataset.price || '';
+
+				const prodId = row.dataset.productId;
+				const prodName = row.dataset.productName;
+				if (prodId && prodId !== '') {
+					selectPharmacyCatalogProduct(prodId, prodName);
+				} else {
+					clearPharmacySelectedProduct();
+				}
+
+				if (window.openModal) {
+					window.openModal('pharmacy-saving-product-modal');
+				} else {
+					const el = document.getElementById('pharmacy-saving-product-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
+			}
+
+			function closePharmacyCreateModal() {
+				if (window.closeModal) {
+					window.closeModal('pharmacy-saving-product-modal');
+				} else {
+					const el = document.getElementById('pharmacy-saving-product-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
+			}
+
+			function selectPharmacyCatalogProduct(id, name) {
+				document.getElementById('pharmacy-form-product-id').value = id;
+				document.getElementById('pharmacy-selected-product-label').textContent = `🔗 ${name}`;
+				document.getElementById('pharmacy-selected-product-box').style.display = 'flex';
+				document.getElementById('pharmacy-search-product-container').style.display = 'none';
+				document.getElementById('pharmacy-product-search-dropdown').style.display = 'none';
+				document.getElementById('pharmacy-product-search-input').value = '';
+			}
+
+			function clearPharmacySelectedProduct() {
+				document.getElementById('pharmacy-form-product-id').value = '';
+				document.getElementById('pharmacy-selected-product-label').textContent = '';
+				document.getElementById('pharmacy-selected-product-box').style.display = 'none';
+				document.getElementById('pharmacy-search-product-container').style.display = 'block';
+			}
+
+			let pharmacySearchDebounce = null;
+			function searchPharmacyCatalogProductsLive(query) {
+				clearTimeout(pharmacySearchDebounce);
+				const dropdown = document.getElementById('pharmacy-product-search-dropdown');
+				if (!query || query.trim().length < 2) {
+					dropdown.style.display = 'none';
+					return;
+				}
+
+				pharmacySearchDebounce = setTimeout(() => {
+					fetch('/customer/saving-products/search-products?q=' + encodeURIComponent(query.trim()))
+						.then(r => r.json())
+						.then(items => {
+							if (!items || items.length === 0) {
+								dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">لم يتم العثور على نتائج بالكتالوج</div>';
+								dropdown.style.display = 'block';
+								return;
+							}
+
+							let html = '';
+							items.forEach(it => {
+								const skuText = it.sku ? ('<span style="font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.5rem;">(' + it.sku + ')</span>') : '';
+								const safeName = (it.name || '').replace(/'/g, "\\'");
+								html += '<div style="padding:0.6rem 0.85rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;" ' +
+									'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
+									'onclick="selectPharmacyCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
+									'<div><strong style="color:var(--text); font-size:0.85rem;">' + it.name + '</strong>' + skuText + '</div>' +
+									'<span class="badge badge-emerald" style="font-size:0.7rem;">اختيار</span></div>';
+							});
+							dropdown.innerHTML = html;
+							dropdown.style.display = 'block';
+						})
+						.catch(() => {
+							dropdown.style.display = 'none';
+						});
+				}, 200);
+			}
+
+			function confirmPharmacyDeleteSavingProduct(id) {
+				if (confirm("هل أنت متأكد من حذف هذا الصنف من قائمة أدوية التوفير؟")) {
+					const form = document.createElement('form');
+					form.method = 'POST';
+					form.action = '/customer/saving-products/' + id + '/delete';
+					document.body.appendChild(form);
+					form.submit();
+				}
+			}
+
+			function openPharmacyImportModal() {
+				document.getElementById('pharmacy-import-filename-preview').innerHTML = '';
+				document.getElementById('pharmacy-import-file-input').value = '';
+				if (window.openModal) {
+					window.openModal('pharmacy-saving-import-modal');
+				} else {
+					const el = document.getElementById('pharmacy-saving-import-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
+			}
+
+			function closePharmacyImportModal() {
+				if (window.closeModal) {
+					window.closeModal('pharmacy-saving-import-modal');
+				} else {
+					const el = document.getElementById('pharmacy-saving-import-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
+			}
+
+			function handlePharmacyImportFileSelect(input) {
+				if (input.files && input.files[0]) {
+					const f = input.files[0];
+					const size = (f.size / 1024 / 1024).toFixed(2);
+					document.getElementById('pharmacy-import-filename-preview').innerHTML = '✓ تم اختيار: ' + f.name + ' (' + size + ' MB)';
+				}
+			}
+
+			function handlePharmacyImportSubmit(e) {
+				const input = document.getElementById('pharmacy-import-file-input');
+				if (!input.files || input.files.length === 0) {
+					alert("يرجى اختيار ملف Excel أو CSV أولاً.");
+					e.preventDefault();
+					return false;
+				}
+				const btn = document.getElementById('pharmacy-import-btn');
+				btn.disabled = true;
+				btn.textContent = '⏳ جاري قراءة الملف والمطابقة الذكية...';
+				return true;
+			}
+
+			function openPharmacyProvidersModal(productId, productName) {
+				document.getElementById('pharmacy-providers-modal-subtitle').textContent = 'الصنف: ' + productName;
+				document.getElementById('pharmacy-providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+				
+				if (window.openModal) {
+					window.openModal('pharmacy-providers-modal');
+				} else {
+					const el = document.getElementById('pharmacy-providers-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
+
+				fetch('/customer/saving-products/providers/' + productId)
+					.then(r => r.json())
+					.then(providers => {
+						if (!providers || providers.length === 0) {
+							document.getElementById('pharmacy-providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted); font-size:0.9rem;">لا توجد عروض موردين مسجلة لهذا الصنف حالياً في الكتالوج.</div>';
+							return;
+						}
+
+						let html = '<table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th style="padding:0.75rem;">المورد / المستودع</th><th style="padding:0.75rem;">العبوة / المواصفات</th><th style="padding:0.75rem; text-align:center;">المخزون المتاح</th><th style="padding:0.75rem; text-align:center;">السعر الأساسي</th><th style="padding:0.75rem; text-align:center;">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th></tr></thead><tbody>';
+
+						providers.forEach(p => {
+							const branchText = p.branch_name ? ('<div style="font-size:0.75rem; color:var(--text-muted);">' + p.branch_name + '</div>') : '';
+							const skuText = p.sku ? ('<code style="font-size:0.75rem;">' + p.sku + '</code>') : '';
+							const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
+							html += '<tr style="border-bottom:1px solid var(--border);">' +
+								'<td style="padding:0.75rem;"><strong style="color:var(--text);">' + (p.org_name || 'مورد معتمد') + '</strong>' + branchText + '</td>' +
+								'<td style="padding:0.75rem;"><div>' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
+								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums">' + p.price + ' ج.م</td>' +
+								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
+								'<td style="padding:0.75rem; text-align:end;" class="tabular-nums"><strong style="color:var(--accent); font-size:0.95rem;">' + p.price_after_discount + ' ج.م</strong></td>' +
+								'</tr>';
+						});
+
+						html += '</tbody></table>';
+						document.getElementById('pharmacy-providers-modal-content').innerHTML = html;
+					})
+					.catch(() => {
+						document.getElementById('pharmacy-providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--danger-text);">حدث خطأ أثناء تحميل عروض الموردين.</div>';
+					});
+			}
+
+			function closePharmacyProvidersModal() {
+				if (window.closeModal) {
+					window.closeModal('pharmacy-providers-modal');
+				} else {
+					const el = document.getElementById('pharmacy-providers-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
+			}
+
+			function filterPharmacySavingTable(query) {
+				const term = (query || '').trim().toLowerCase();
+				const rows = document.querySelectorAll('.pharmacy-saving-row');
+				rows.forEach(row => {
+					const name = (row.dataset.name || '').toLowerCase();
+					const sku = (row.dataset.sku || '').toLowerCase();
+					const pName = (row.dataset.productName || '').toLowerCase();
+					if (term === '' || name.includes(term) || sku.includes(term) || pName.includes(term)) {
+						row.style.display = '';
+					} else {
+						row.style.display = 'none';
+					}
+				});
+			}
+		</script>
 	}
 }
 

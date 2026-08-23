@@ -56,7 +56,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						نشر الوظائف الشاغرة لمنشأتك، متابعة المتقدمين واستعراض السير الذاتية وإدارة الشواغر بكل سهولة.
 					</p>
 				</div>
-				<button type="button" class="btn btn-primary" onclick="openAddJobModal()" style="font-weight:800; border-radius:var(--radius-full); padding:0.75rem 1.75rem; font-size:0.95rem; gap:0.5rem; box-shadow:0 6px 18px rgba(16,185,129,0.25);">
+				<button type="button" class="btn btn-primary" data-modal-open="add-job-modal" onclick="openAddJobModal()" style="font-weight:800; border-radius:var(--radius-full); padding:0.75rem 1.75rem; font-size:0.95rem; gap:0.5rem; box-shadow:0 6px 18px rgba(16,185,129,0.25);">
 					@components.IconPlus("icon-sm")
 					<span>نشر وظيفة جديدة</span>
 				</button>
@@ -441,19 +441,51 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 		<script>
 			function openAddJobModal() {
-				document.getElementById('add-job-modal').style.display = 'flex';
+				if (window.openModal) {
+					window.openModal('add-job-modal');
+				} else {
+					const el = document.getElementById('add-job-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
 			}
 
 			function closeAddJobModal() {
-				document.getElementById('add-job-modal').style.display = 'none';
+				if (window.closeModal) {
+					window.closeModal('add-job-modal');
+				} else {
+					const el = document.getElementById('add-job-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
 			}
 
 			function openApplicantsModal() {
-				document.getElementById('job-applicants-modal').style.display = 'flex';
+				if (window.openModal) {
+					window.openModal('job-applicants-modal');
+				} else {
+					const el = document.getElementById('job-applicants-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
 			}
 
 			function closeApplicantsModal() {
-				document.getElementById('job-applicants-modal').style.display = 'none';
+				if (window.closeModal) {
+					window.closeModal('job-applicants-modal');
+				} else {
+					const el = document.getElementById('job-applicants-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
 			}
 
 			async function viewApplicants(jobId, jobTitle) {

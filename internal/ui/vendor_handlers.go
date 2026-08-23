@@ -40,22 +40,78 @@ func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var branchOptions []pages.VendorBranchOption
+	branchMap := make(map[int64]string)
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+		if err == nil {
+			for _, b := range branches {
+				bName := b.Name.Get(i18n.AR)
+				if bName == "" {
+					bName = b.Name.Get(i18n.EN)
+				}
+				branchOptions = append(branchOptions, pages.VendorBranchOption{
+					ID:   b.ID,
+					Name: bName,
+				})
+				branchMap[b.ID] = bName
+			}
+		}
+	}
+
 	var variantViews []*pages.VendorVariantView
 	if h.catSvc != nil {
-		products, err := h.catSvc.Search(ctx, catalog.SearchParams{
-			Limit: 100,
+		variants, _, err := h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{
+			Limit: 500,
 		})
-		if err != nil {
-			h.log.WarnContext(ctx, "vendor products: search catalog", "error", err)
+		if err == nil && len(variants) > 0 {
+			productCache := make(map[int64]*catalog.Product)
+			for _, v := range variants {
+				var mp *catalog.Product
+				if v.ProductID > 0 {
+					if cached, found := productCache[v.ProductID]; found {
+						mp = cached
+					} else {
+						p, _, pErr := h.catSvc.GetProduct(database.AsSystem(ctx), v.ProductID)
+						if pErr == nil && p != nil {
+							productCache[v.ProductID] = p
+							mp = p
+						}
+					}
+				}
+
+				bName := "المستودع الرئيسي"
+				if v.BranchID != nil && *v.BranchID > 0 {
+					if name, ok := branchMap[*v.BranchID]; ok {
+						bName = name
+					}
+				}
+
+				variantViews = append(variantViews, &pages.VendorVariantView{
+					Variant:       v,
+					MasterProduct: mp,
+					BranchName:    bName,
+					StockQuantity: v.StockQty,
+				})
+			}
 		} else {
+			// Fallback: search products and check variants
+			products, _ := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 100})
 			for _, p := range products {
-				variants, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
-				for _, v := range variants {
+				pVars, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
+				for _, v := range pVars {
 					if v.OrganizationID == actor.OrganizationID || v.OrganizationID == 0 {
+						bName := "المستودع الرئيسي"
+						if v.BranchID != nil && *v.BranchID > 0 {
+							if name, ok := branchMap[*v.BranchID]; ok {
+								bName = name
+							}
+						}
 						variantViews = append(variantViews, &pages.VendorVariantView{
 							Variant:       v,
 							MasterProduct: p,
-							BranchName:    "المستودع الرئيسي",
+							BranchName:    bName,
+							StockQuantity: v.StockQty,
 						})
 					}
 				}
@@ -63,8 +119,18 @@ func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	noticeType := r.URL.Query().Get("notice_type")
+	noticeMsg := r.URL.Query().Get("notice")
+
+	pageData := pages.VendorVariantsData{
+		Variants:   variantViews,
+		Branches:   branchOptions,
+		NoticeType: noticeType,
+		NoticeMsg:  noticeMsg,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorProducts(pages.VendorVariantsData{Variants: variantViews}, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.VendorProducts(pageData, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor products page", "error", err)
 	}
 }
@@ -1249,13 +1315,15 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 		_, err := h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, notes)
 		if err != nil {
 			h.log.ErrorContext(ctx, "vendor transition shipment status failed", "error", err, "shipment", shipmentID, "to", toStatus)
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر تحديث حالة الشحنة: "+h.safeMessage(err, langOf(r)))
+			return
 		}
 		if carrier := r.PostFormValue("carrier"); carrier != "" || r.PostFormValue("tracking") != "" {
 			_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, r.PostFormValue("tracking"))
 		}
 	}
 
-	http.Redirect(w, r, "/vendor/orders", http.StatusSeeOther)
+	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم تحديث حالة الشحنة بنجاح.")
 }
 
 // VendorStockAdjustSubmit adjusts a stock level with a reason.

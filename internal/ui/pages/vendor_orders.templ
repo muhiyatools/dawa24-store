@@ -301,11 +301,23 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 									<input type="hidden" name="notes" value="تمت مراجعة الأصناف والموافقة على أمر التوريد والتجهيز بالمستودع" />
 									<button
 										type="submit"
-										class="btn btn-primary"
+										class="btn btn-secondary"
 										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem;"
 									>
 										@components.IconCheck("icon-xs")
-										<span>تأكيد الطلب وبدء التجهيز المخزني</span>
+										<span>تأكيد الطلب والتجهيز</span>
+									</button>
+								</form>
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+									<input type="hidden" name="status" value="delivered" />
+									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
+									<button
+										type="submit"
+										class="btn btn-primary"
+										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem; background:#10b981; border-color:#10b981;"
+									>
+										@components.IconCheckCircle("icon-xs")
+										<span>تأكيد وإتمام التسليم للصيدلية</span>
 									</button>
 								</form>
 							} else if sh.Status == commerce.StatusConfirmed {
@@ -316,28 +328,40 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 										name="tracking"
 										placeholder="رقم البوليصة / المندوب (اختياري)..."
 										class="form-input"
-										style="font-size:0.85rem; padding:0.45rem 0.75rem; width:200px; border-radius:var(--radius-md);"
+										style="font-size:0.85rem; padding:0.45rem 0.75rem; width:180px; border-radius:var(--radius-md);"
 									/>
 									<button
 										type="submit"
-										class="btn btn-primary"
-										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem;"
+										class="btn btn-secondary"
+										style="font-weight:800; padding:0.6rem 1.15rem; font-size:0.9rem;"
 									>
 										@components.IconTruck("icon-xs")
-										<span>إصدار إشعار الشحن وبدء التوصيل</span>
+										<span>إرسال للشحن</span>
 									</button>
 								</form>
-							} else if sh.Status == commerce.StatusShipped {
 								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
 									<input type="hidden" name="status" value="delivered" />
-									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية واستلام إيصال الاستلام" />
+									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
 									<button
 										type="submit"
 										class="btn btn-primary"
 										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem; background:#10b981; border-color:#10b981;"
 									>
 										@components.IconCheckCircle("icon-xs")
-										<span>تأكيد إتمام التسليم للصيدلية</span>
+										<span>تأكيد وإتمام التسليم للصيدلية</span>
+									</button>
+								</form>
+							} else if sh.Status == commerce.StatusShipped {
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+									<input type="hidden" name="status" value="delivered" />
+									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
+									<button
+										type="submit"
+										class="btn btn-primary"
+										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem; background:#10b981; border-color:#10b981;"
+									>
+										@components.IconCheckCircle("icon-xs")
+										<span>تأكيد وإتمام التسليم للصيدلية</span>
 									</button>
 								</form>
 							} else {

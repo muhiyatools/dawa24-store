@@ -100,6 +100,20 @@ func (r *Repository) UpdateShipmentStatus(
 		); err != nil {
 			return fmt.Errorf("commerce postgres: insert shipment history: %w", err)
 		}
+
+		// Synchronize parent order status if appropriate
+		if to == commerce.StatusDelivered {
+			var nonDeliveredCount int
+			_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_shipments WHERE order_id = $1 AND status != 'delivered';`, history.OrderID).Scan(&nonDeliveredCount)
+			if nonDeliveredCount == 0 {
+				_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'delivered', delivered_at = now(), updated_at = now() WHERE id = $1;`, history.OrderID)
+			}
+		} else if to == commerce.StatusShipped {
+			_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'shipped', updated_at = now() WHERE id = $1 AND status NOT IN ('delivered', 'completed');`, history.OrderID)
+		} else if to == commerce.StatusConfirmed {
+			_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'confirmed', updated_at = now() WHERE id = $1 AND status = 'pending';`, history.OrderID)
+		}
+
 		return nil
 	})
 }

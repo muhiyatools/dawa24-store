@@ -41,7 +41,7 @@ func TestPhaseC_VendorSavingProducts(t *testing.T) {
 	// GET /vendor/saving-products renders
 	rec := doGET(t, r, "/vendor/saving-products", vendorActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "منتجات مساعدة الخاصة بي")
+	assert.Contains(t, rec.Body.String(), "منتجات التوفير")
 
 	// GET /vendor/saving-products/import redirects to /vendor/saving-products
 	rec = doGET(t, r, "/vendor/saving-products/import", vendorActor)

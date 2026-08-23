@@ -377,6 +377,10 @@ func TestIsValidStatusTransition(t *testing.T) {
 		{StatusConfirmed, StatusOnHold},
 		{StatusConfirmed, StatusCancelled},
 		{StatusConfirmed, StatusFailed},
+		{StatusPending, StatusDelivered},
+		{StatusConfirmed, StatusDelivered},
+		{StatusShipped, StatusDelivered},
+		{StatusShipped, StatusCompleted},
 		{StatusOnHold, StatusProcessing},
 		{StatusOnHold, StatusConfirmed},
 		{StatusOnHold, StatusCancelled},
@@ -403,8 +407,6 @@ func TestIsValidStatusTransition(t *testing.T) {
 	}
 
 	invalid := []struct{ from, to OrderStatus }{
-		{StatusPending, StatusShipped},                   // jump forward
-		{StatusShipped, StatusDelivered},                 // bypass in_transit/out_for_delivery
 		{StatusCancelled, StatusPending},                 // terminal
 		{StatusFailed, StatusRefunded},                   // terminal
 		{StatusReturned, StatusRefunded},                 // terminal

@@ -34,7 +34,7 @@ func savingProductIDStr(pid *int64) string {
 
 // VendorSavingProductsPage renders the comprehensive all-in-one saving products workspace.
 templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
-	@layouts.VendorShell("منتجات مساعدة وتوفير الخاصة بي | Org Saving Products", "saving_products", lang, dir) {
+	@layouts.VendorShell("منتجات التوفير والمساعدة للمنشأة | Saving Products", "saving_products", lang, dir) {
 		<div style="max-width:1440px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
 
 			<!-- Notice / Toast Banner -->
@@ -65,7 +65,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						</div>
 						<div>
 							<h1 style="font-size:1.65rem; font-weight:900; color:var(--text); margin:0;">
-								منتجات مساعدة الخاصة بي
+								منتجات التوفير والمساعدة للمنشأة
 							</h1>
 							<p style="color:var(--text-muted); font-size:0.875rem; margin:0.25rem 0 0 0;">
 								إدارة واستيراد ومطابقة منتجات التوفير مع الكتالوج ومتابعة عروض الموردين والأسعار
@@ -78,21 +78,23 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						<button
 							type="button"
 							class="btn btn-primary"
+							data-modal-open="saving-product-modal"
 							style="background:#f59e0b; border-color:#f59e0b; color:#000; font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
 							onclick="openCreateModal()"
 						>
 							@components.IconPlus("icon-xs")
-							<span>Add new saving product org</span>
+							<span>إضافة منتج توفير جديد</span>
 						</button>
 
 						<button
 							type="button"
 							class="btn btn-secondary"
+							data-modal-open="saving-import-modal"
 							style="font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
 							onclick="openImportModal()"
 						>
 							@components.IconUpload("icon-xs")
-							<span>Import from file org</span>
+							<span>استيراد من ملف (Excel / CSV)</span>
 						</button>
 
 						<a
@@ -612,7 +614,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		<!-- JavaScript for all-in-one Saving Products operations -->
 		<script>
 			function openCreateModal() {
-				document.getElementById('modal-title').textContent = 'إضافة منتج مساعدة جديد';
+				document.getElementById('modal-title').textContent = 'إضافة منتج توفير جديد';
 				document.getElementById('saving-product-form').action = '/vendor/saving-products';
 				document.getElementById('form-saving-id').value = '';
 				document.getElementById('form-name-product').value = '';
@@ -620,14 +622,22 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				document.getElementById('form-qty').value = '';
 				document.getElementById('form-price').value = '';
 				clearSelectedProduct();
-				document.getElementById('saving-product-modal').style.display = 'flex';
+				if (window.openModal) {
+					window.openModal('saving-product-modal');
+				} else {
+					const el = document.getElementById('saving-product-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
 			}
 
 			function openEditModalFromRow(id) {
 				const row = document.querySelector(`.saving-row[data-id="${id}"]`);
 				if (!row) return;
 
-				document.getElementById('modal-title').textContent = 'تعديل منتج المساعدة وتعيين الربط';
+				document.getElementById('modal-title').textContent = 'تعديل منتج التوفير وتعيين الربط';
 				document.getElementById('saving-product-form').action = `/vendor/saving-products/${id}/update`;
 				document.getElementById('form-saving-id').value = id;
 				document.getElementById('form-name-product').value = row.dataset.name || '';
@@ -643,11 +653,27 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					clearSelectedProduct();
 				}
 
-				document.getElementById('saving-product-modal').style.display = 'flex';
+				if (window.openModal) {
+					window.openModal('saving-product-modal');
+				} else {
+					const el = document.getElementById('saving-product-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
 			}
 
 			function closeCreateModal() {
-				document.getElementById('saving-product-modal').style.display = 'none';
+				if (window.closeModal) {
+					window.closeModal('saving-product-modal');
+				} else {
+					const el = document.getElementById('saving-product-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
 			}
 
 			function selectCatalogProduct(id, name) {
@@ -717,11 +743,27 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 			function openImportModal() {
 				document.getElementById('import-filename-preview').innerHTML = '';
 				document.getElementById('import-file-input').value = '';
-				document.getElementById('saving-import-modal').style.display = 'flex';
+				if (window.openModal) {
+					window.openModal('saving-import-modal');
+				} else {
+					const el = document.getElementById('saving-import-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
 			}
 
 			function closeImportModal() {
-				document.getElementById('saving-import-modal').style.display = 'none';
+				if (window.closeModal) {
+					window.closeModal('saving-import-modal');
+				} else {
+					const el = document.getElementById('saving-import-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
 			}
 
 			function handleImportFileSelect(input) {
@@ -748,7 +790,16 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 			function openProvidersModal(productId, productName) {
 				document.getElementById('providers-modal-subtitle').textContent = 'الصنف: ' + productName;
 				document.getElementById('providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
-				document.getElementById('providers-modal').style.display = 'flex';
+				
+				if (window.openModal) {
+					window.openModal('providers-modal');
+				} else {
+					const el = document.getElementById('providers-modal');
+					if (el) {
+						el.classList.remove('hidden');
+						el.style.display = 'flex';
+					}
+				}
 
 				fetch('/vendor/saving-products/providers/' + productId)
 					.then(r => r.json())
@@ -783,7 +834,15 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 			}
 
 			function closeProvidersModal() {
-				document.getElementById('providers-modal').style.display = 'none';
+				if (window.closeModal) {
+					window.closeModal('providers-modal');
+				} else {
+					const el = document.getElementById('providers-modal');
+					if (el) {
+						el.classList.add('hidden');
+						el.style.display = 'none';
+					}
+				}
 			}
 
 			function filterSavingProductsTable(query) {

@@ -69,10 +69,6 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							@components.IconPackage("icon-sm")
 							<span>أصناف المورد</span>
 						</a>
-						<a href="/vendor/catalog/select" class={ "sidebar-link", templ.KV("active", activeNav == "catalog_select") }>
-							@components.IconCheckCircle("icon-sm")
-							<span>اختيار من الكتالوج العام</span>
-						</a>
 						<a href="/vendor/ingest" class={ "sidebar-link", templ.KV("active", activeNav == "ingest") }>
 							@components.IconUpload("icon-sm")
 							<span>استيراد الكتالوج الذكي</span>

@@ -2,6 +2,8 @@ package pages
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -12,43 +14,89 @@ type VendorVariantView struct {
 	Variant        *catalog.ProductVariant
 	MasterProduct  *catalog.Product
 	BranchName     string
+	StockQuantity  int
+}
+
+type VendorBranchOption struct {
+	ID   int64
+	Name string
 }
 
 type VendorVariantsData struct {
-	Variants []*VendorVariantView
+	Variants   []*VendorVariantView
+	Branches   []VendorBranchOption
+	NoticeType string
+	NoticeMsg  string
 }
 
 templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@VendorVariantsTable(data.Variants, lang)
 	} else {
-		@layouts.VendorShell("عروض وأصناف التوريد المتاحة", "products", lang, dir) {
-			<div style="display:flex; flex-direction:column; gap:1.75rem;" x-data="{ searchQuery: '', statusFilter: 'all' }">
+		@layouts.VendorShell("أصناف وعروض التوريد", "products", lang, dir) {
+			<div style="display:flex; flex-direction:column; gap:1.5rem;" x-data="{ searchQuery: '', statusFilter: 'all' }">
 				
+				<!-- Notice / Toast Banner -->
+				if data.NoticeMsg != "" {
+					if data.NoticeType == "error" {
+						<div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+							<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
+								<span style="font-size:1.4rem;">⚠️</span>
+								<span>{ data.NoticeMsg }</span>
+							</div>
+						</div>
+					} else {
+						<div class="alert alert-success" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+							<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
+								<span style="font-size:1.4rem;">✅</span>
+								<span>{ data.NoticeMsg }</span>
+							</div>
+						</div>
+					}
+				}
+
 				<!-- Header Bar -->
 				<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-							<div style="width:38px; height:38px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-xl); background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color:#ffffff; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(59,130,246,0.3);">
 								@components.IconPackage("icon-sm")
 							</div>
-							<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0;">
-								قائمة أصناف وعروض التوريد
+							<h1 style="font-size:1.75rem; font-weight:900; color:var(--text); margin:0;">
+								أصناف التوريد والمخزون
 							</h1>
 						</div>
-						<p style="color:var(--text-secondary); font-size:0.925rem; margin:0;">
-							إدارة أسعار الجملة، العبوات، أرقام التشغيلات، تواريخ الصلاحية، والأرصدة المتاحة للطلب الفوري
+						<p style="color:var(--text-muted); font-size:0.9rem; margin:0;">
+							إدارة عروض أسعار الجملة، أرقام التشغيلات، تواريخ الصلاحية والربط السلس مع الكتالوج المركزي
 						</p>
 					</div>
 
 					<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-						<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:700;">
-							@components.IconUpload("icon-xs")
-							<span>استيراد وتحديث الكتالوج (Excel / CSV)</span>
-						</a>
-						<a href="/vendor/variants/new" class="btn btn-primary" style="font-weight:800; padding:0.7rem 1.5rem;">
+						<button
+							type="button"
+							class="btn btn-primary"
+							data-modal-open="add-from-catalog-modal"
+							style="background:#2563eb; border-color:#2563eb; color:#ffffff; font-weight:800; padding:0.65rem 1.35rem; border-radius:var(--radius-lg);"
+							onclick="openAddFromCatalogModal()"
+						>
 							@components.IconPlus("icon-xs")
-							<span>إضافة عرض توريد لصنف</span>
+							<span>إضافة من الكتالوج العام 🌐</span>
+						</button>
+
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-modal-open="add-custom-variant-modal"
+							style="font-weight:800; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
+							onclick="openAddCustomVariantModal()"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إضافة صنف مخصص ➕</span>
+						</button>
+
+						<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:800; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);">
+							@components.IconUpload("icon-xs")
+							<span>استيراد الكتالوج (Excel) 📥</span>
 						</a>
 					</div>
 				</div>
@@ -57,21 +105,27 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				if len(data.Variants) > 0 {
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
 						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; margin-bottom:0.25rem;">إجمالي الأصناف المعروضة</div>
-							<div style="font-size:1.6rem; font-weight:800; color:var(--text);" class="tabular-nums">
+							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">إجمالي أصناف التوريد</div>
+							<div style="font-size:1.8rem; font-weight:900; color:var(--text);" class="tabular-nums">
 								{ fmt.Sprintf("%d", len(data.Variants)) }
 							</div>
 						</div>
 						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; margin-bottom:0.25rem;">إجمالي الرصيد والعبوات</div>
-							<div style="font-size:1.6rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">إجمالي الرصيد والعبوات</div>
+							<div style="font-size:1.8rem; font-weight:900; color:var(--accent);" class="tabular-nums">
 								{ fmt.Sprintf("%d", calculateTotalStock(data.Variants)) }
 							</div>
 						</div>
 						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; margin-bottom:0.25rem;">الأصناف الجاهزة للتوريد</div>
-							<div style="font-size:1.6rem; font-weight:800; color:var(--success-text);" class="tabular-nums">
+							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">الأصناف الجاهزة للتوريد</div>
+							<div style="font-size:1.8rem; font-weight:900; color:#10b981;" class="tabular-nums">
 								{ fmt.Sprintf("%d", calculateActiveCount(data.Variants)) }
+							</div>
+						</div>
+						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">أصناف نفدت أو منخفضة</div>
+							<div style="font-size:1.8rem; font-weight:900; color:#f59e0b;" class="tabular-nums">
+								{ fmt.Sprintf("%d", calculateLowStockCount(data.Variants)) }
 							</div>
 						</div>
 					</div>
@@ -80,24 +134,24 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				<!-- Search & Filter Bar -->
 				if len(data.Variants) > 0 {
 					<div class="card" style="margin-bottom:0; padding:1rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-						<div style="flex:1; min-width:260px; max-width:420px; position:relative;">
+						<div style="flex:1; min-width:280px; max-width:480px; position:relative;">
 							<input
 								type="text"
 								x-model="searchQuery"
 								placeholder="ابحث باسم الدواء، المادة الفعالة، رقم التشغيلة، أو SKU..."
 								class="form-input"
-								style="padding-inline-start:2.25rem; font-size:0.875rem;"
+								style="padding-inline-start:2.5rem; font-size:0.875rem; border-radius:var(--radius-lg);"
 							/>
-							<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+							<div style="position:absolute; inset-inline-start:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
 								@components.IconSearch("icon-xs")
 							</div>
 						</div>
 
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
 							<button
 								type="button"
 								@click="statusFilter = 'all'"
-								:style="statusFilter === 'all' ? 'background:var(--accent); color:#ffffff; font-weight:700;' : 'background:var(--surface-sunken); color:var(--text-secondary);'"
+								:style="statusFilter === 'all' ? 'background:var(--accent); color:#ffffff; font-weight:800;' : 'background:var(--surface-sunken); color:var(--text-secondary);'"
 								class="btn btn-sm"
 								style="border:1px solid var(--border); border-radius:var(--radius-md);"
 							>
@@ -106,21 +160,693 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							<button
 								type="button"
 								@click="statusFilter = 'in_stock'"
-								:style="statusFilter === 'in_stock' ? 'background:var(--accent); color:#ffffff; font-weight:700;' : 'background:var(--surface-sunken); color:var(--text-secondary);'"
+								:style="statusFilter === 'in_stock' ? 'background:#10b981; color:#ffffff; font-weight:800;' : 'background:var(--surface-sunken); color:var(--text-secondary);'"
 								class="btn btn-sm"
 								style="border:1px solid var(--border); border-radius:var(--radius-md);"
 							>
 								المتوفر بالمخزن
 							</button>
+							<button
+								type="button"
+								@click="statusFilter = 'low_stock'"
+								:style="statusFilter === 'low_stock' ? 'background:#f59e0b; color:#ffffff; font-weight:800;' : 'background:var(--surface-sunken); color:var(--text-secondary);'"
+								class="btn btn-sm"
+								style="border:1px solid var(--border); border-radius:var(--radius-md);"
+							>
+								منخفض / نفد
+							</button>
 						</div>
 					</div>
 				}
 
-				<!-- Variants Content -->
+				<!-- Variants Table -->
 				<div id="vendor-products-content">
 					@VendorVariantsTable(data.Variants, lang)
 				</div>
+
 			</div>
+
+			<!-- MODAL 1: Master Catalog Selection Modal -->
+			<div id="add-from-catalog-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+				<div class="card" style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<span style="font-size:1.4rem;">🌐</span>
+							<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+								إضافة صنف من الكتالوج المركزي العام
+							</h3>
+						</div>
+						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddFromCatalogModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form method="POST" action="/vendor/products/add-from-catalog" id="add-from-catalog-form">
+						<input type="hidden" id="cat-select-product-id" name="product_id" value="" />
+						<input type="hidden" id="cat-select-name-ar" name="name_ar" value="" />
+						<input type="hidden" id="cat-select-name-en" name="name_en" value="" />
+						<input type="hidden" id="cat-select-sku" name="sku" value="" />
+						<input type="hidden" id="cat-select-barcode" name="barcode" value="" />
+						<input type="hidden" id="cat-select-unit" name="unit" value="" />
+
+						<div style="display:flex; flex-direction:column; gap:1.25rem;">
+							
+							<!-- Search Input for General Catalog -->
+							<div style="position:relative;">
+								<label class="form-label" style="font-weight:800; color:var(--text); font-size:0.875rem; margin-bottom:0.4rem;">
+									1. ابحث في الكتالوج المركزي العام <span style="color:var(--danger-text);">*</span>
+								</label>
+								<input
+									type="text"
+									id="cat-search-input"
+									placeholder="اكتب اسم الدواء، المادة الفعالة، أو كود SKU..."
+									class="form-input"
+									style="width:100%; border-radius:var(--radius-lg); padding-inline-start:2.5rem;"
+									oninput="searchMasterCatalogLive(this.value)"
+								/>
+								<div style="position:absolute; inset-inline-start:0.85rem; top:38px; color:var(--text-muted); pointer-events:none;">
+									@components.IconSearch("icon-xs")
+								</div>
+
+								<!-- Dropdown Results -->
+								<div id="cat-search-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:220px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.3); margin-top:0.25rem;"></div>
+							</div>
+
+							<!-- Selected Product Info Card Preview -->
+							<div id="cat-selected-preview" style="display:none; background:var(--surface-sunken); border:1px solid var(--accent); border-radius:var(--radius-xl); padding:1.25rem;">
+								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+									<div>
+										<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800; margin-bottom:0.35rem; display:inline-block;">صنف معتمد تم اختياره</span>
+										<h4 id="cat-preview-name" style="font-size:1.1rem; font-weight:900; color:var(--text); margin:0;"></h4>
+										<div id="cat-preview-scientific" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"></div>
+									</div>
+									<button type="button" class="btn btn-secondary btn-sm" onclick="resetSelectedMasterProduct()" style="font-size:0.75rem; color:var(--danger-text);">
+										تغيير الصنف ✕
+									</button>
+								</div>
+								
+								<div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:0.75rem; color:var(--text-secondary);">
+									<span id="cat-preview-dosage" class="badge badge-slate"></span>
+									<span id="cat-preview-sku" class="badge badge-slate"></span>
+									<span id="cat-preview-price" class="badge badge-sky"></span>
+								</div>
+							</div>
+
+							<!-- Vendor Customization Fields -->
+							<div id="cat-vendor-fields" style="display:none; flex-direction:column; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+								<div style="font-weight:800; font-size:0.95rem; color:var(--text);">
+									2. حدد شروط وسعر التوريد الخاص بك:
+								</div>
+
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											سعر التوريد للجملة (ج.م) <span style="color:var(--danger-text);">*</span>
+										</label>
+										<input
+											type="number"
+											step="0.01"
+											id="cat-field-price"
+											name="price"
+											required
+											placeholder="0.00"
+											class="form-input"
+											style="width:100%; border-radius:var(--radius-lg);"
+										/>
+									</div>
+
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											قيمة الخصم للصيدليات (ج.م)
+										</label>
+										<input
+											type="number"
+											step="0.01"
+											id="cat-field-discount"
+											name="discount"
+											placeholder="0.00"
+											class="form-input"
+											style="width:100%; border-radius:var(--radius-lg);"
+										/>
+									</div>
+								</div>
+
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											الرصيد المتاح حالياً (الكمية الافتتاحية)
+										</label>
+										<input
+											type="number"
+											id="cat-field-stock"
+											name="stock_qty"
+											placeholder="50"
+											class="form-input"
+											style="width:100%; border-radius:var(--radius-lg);"
+										/>
+									</div>
+
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											الحد الأدنى للطلب (عبوة)
+										</label>
+										<input
+											type="number"
+											id="cat-field-min-qty"
+											name="min_order_qty"
+											value="1"
+											min="1"
+											class="form-input"
+											style="width:100%; border-radius:var(--radius-lg);"
+										/>
+									</div>
+								</div>
+
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											رقم التشغيلة (Batch Number)
+										</label>
+										<input
+											type="text"
+											id="cat-field-batch"
+											name="batch_number"
+											placeholder="مثال: B202604"
+											class="form-input"
+											style="width:100%; border-radius:var(--radius-lg);"
+										/>
+									</div>
+
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											تاريخ انتهاء الصلاحية
+										</label>
+										<input
+											type="date"
+											id="cat-field-expiry"
+											name="expiry_date"
+											class="form-input"
+											style="width:100%; border-radius:var(--radius-lg);"
+										/>
+									</div>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										مستودع / فرع الشحن
+									</label>
+									<select name="branch_id" id="cat-field-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+										<option value="">المستودع الرئيسي الافتراضي</option>
+										for _, b := range data.Branches {
+											<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
+										}
+									</select>
+								</div>
+
+								<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
+									<button type="button" class="btn btn-secondary" onclick="closeAddFromCatalogModal()">
+										إلغاء
+									</button>
+									<button type="submit" class="btn btn-primary" style="background:#2563eb; border-color:#2563eb; color:#fff; font-weight:800; padding:0.6rem 1.5rem;">
+										حفظ وإضافة الصنف للتوريد 🚀
+									</button>
+								</div>
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- MODAL 2: Quick Edit Variant Modal -->
+			<div id="edit-variant-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+						<h3 id="edit-modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+							تعديل بيانات وسعر صنف التوريد
+						</h3>
+						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditVariantModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
+						<div style="display:flex; flex-direction:column; gap:1rem;">
+							
+							<div>
+								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									اسم العرض / التعبئة (عربي)
+								</label>
+								<input
+									type="text"
+									id="edit-form-name-ar"
+									name="name_ar"
+									required
+									class="form-input"
+									style="width:100%; border-radius:var(--radius-lg);"
+								/>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										سعر التوريد (ج.م) <span style="color:var(--danger-text);">*</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										id="edit-form-price"
+										name="price"
+										required
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										قيمة الخصم (ج.م)
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										id="edit-form-discount"
+										name="discount"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										تحديث الرصيد بالمخزن (عبوة)
+									</label>
+									<input
+										type="number"
+										id="edit-form-stock"
+										name="stock_qty"
+										placeholder="الكمية الحالية..."
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										الحد الأدنى للطلب
+									</label>
+									<input
+										type="number"
+										id="edit-form-min-qty"
+										name="min_order_qty"
+										min="1"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										رقم التشغيلة (Batch Number)
+									</label>
+									<input
+										type="text"
+										id="edit-form-batch"
+										name="batch_number"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										تاريخ الصلاحية
+									</label>
+									<input
+										type="date"
+										id="edit-form-expiry"
+										name="expiry_date"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										مستودع / فرع الشحن
+									</label>
+									<select name="branch_id" id="edit-form-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+										<option value="">المستودع الرئيسي الافتراضي</option>
+										for _, b := range data.Branches {
+											<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
+										}
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										حالة العرض
+									</label>
+									<select name="status" id="edit-form-status" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+										<option value="active">نشط ومتاح للطلب</option>
+										<option value="inactive">معطل مؤقتاً</option>
+									</select>
+								</div>
+							</div>
+
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" class="btn btn-secondary" onclick="closeEditVariantModal()">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+								حفظ التعديلات
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- MODAL 3: Add Custom Variant Modal -->
+			<div id="add-custom-variant-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+							إضافة صنف أو تنويعة توريد مخصصة
+						</h3>
+						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddCustomVariantModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form method="POST" action="/vendor/variants/new">
+						<div style="display:flex; flex-direction:column; gap:1rem;">
+							
+							<div>
+								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									اسم الصنف / العرض (عربي) <span style="color:var(--danger-text);">*</span>
+								</label>
+								<input
+									type="text"
+									name="name_ar"
+									required
+									placeholder="مثال: بانادول إكسترا 24 قرص"
+									class="form-input"
+									style="width:100%; border-radius:var(--radius-lg);"
+								/>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										كود SKU (اختياري)
+									</label>
+									<input
+										type="text"
+										name="sku"
+										placeholder="PAN-EXT-24"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										سعر التوريد (ج.م) <span style="color:var(--danger-text);">*</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										name="price"
+										required
+										placeholder="0.00"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										قيمة الخصم (ج.م)
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										name="discount"
+										placeholder="0.00"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										الرصيد المتاح (الكمية الافتتاحية)
+									</label>
+									<input
+										type="number"
+										name="stock_qty"
+										placeholder="50"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										رقم التشغيلة (Batch Number)
+									</label>
+									<input
+										type="text"
+										name="batch_number"
+										placeholder="B12345"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										تاريخ الصلاحية
+									</label>
+									<input
+										type="date"
+										name="expiry_date"
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg);"
+									/>
+								</div>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									مستودع / فرع الشحن
+								</label>
+								<select name="branch_id" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+									<option value="">المستودع الرئيسي الافتراضي</option>
+									for _, b := range data.Branches {
+										<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
+									}
+								</select>
+							</div>
+
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" class="btn btn-secondary" onclick="closeAddCustomVariantModal()">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+								نشر الصنف في الكتالوج 🚀
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Live JS Logic for all Modals and Autocomplete -->
+			<script>
+				function openAddFromCatalogModal() {
+					resetSelectedMasterProduct();
+					document.getElementById('cat-search-input').value = '';
+					if (window.openModal) {
+						window.openModal('add-from-catalog-modal');
+					} else {
+						const el = document.getElementById('add-from-catalog-modal');
+						if (el) {
+							el.classList.remove('hidden');
+							el.style.display = 'flex';
+						}
+					}
+				}
+
+				function closeAddFromCatalogModal() {
+					if (window.closeModal) {
+						window.closeModal('add-from-catalog-modal');
+					} else {
+						const el = document.getElementById('add-from-catalog-modal');
+						if (el) {
+							el.classList.add('hidden');
+							el.style.display = 'none';
+						}
+					}
+				}
+
+				function openAddCustomVariantModal() {
+					if (window.openModal) {
+						window.openModal('add-custom-variant-modal');
+					} else {
+						const el = document.getElementById('add-custom-variant-modal');
+						if (el) {
+							el.classList.remove('hidden');
+							el.style.display = 'flex';
+						}
+					}
+				}
+
+				function closeAddCustomVariantModal() {
+					if (window.closeModal) {
+						window.closeModal('add-custom-variant-modal');
+					} else {
+						const el = document.getElementById('add-custom-variant-modal');
+						if (el) {
+							el.classList.add('hidden');
+							el.style.display = 'none';
+						}
+					}
+				}
+
+				function openEditVariantModal(id) {
+					const row = document.querySelector(`.vendor-variant-row[data-id="${id}"]`);
+					if (!row) return;
+
+					document.getElementById('edit-variant-form').action = `/vendor/variants/${id}/update`;
+					document.getElementById('edit-form-name-ar').value = row.dataset.name || '';
+					document.getElementById('edit-form-price').value = row.dataset.price || '';
+					document.getElementById('edit-form-discount').value = row.dataset.discount || '';
+					document.getElementById('edit-form-stock').value = row.dataset.stock || '';
+					document.getElementById('edit-form-min-qty').value = row.dataset.minQty || '1';
+					document.getElementById('edit-form-batch').value = row.dataset.batch || '';
+					document.getElementById('edit-form-expiry').value = row.dataset.expiry || '';
+					
+					const branchSelect = document.getElementById('edit-form-branch');
+					if (branchSelect) {
+						branchSelect.value = row.dataset.branchId || '';
+					}
+
+					if (window.openModal) {
+						window.openModal('edit-variant-modal');
+					} else {
+						const el = document.getElementById('edit-variant-modal');
+						if (el) {
+							el.classList.remove('hidden');
+							el.style.display = 'flex';
+						}
+					}
+				}
+
+				function closeEditVariantModal() {
+					if (window.closeModal) {
+						window.closeModal('edit-variant-modal');
+					} else {
+						const el = document.getElementById('edit-variant-modal');
+						if (el) {
+							el.classList.add('hidden');
+							el.style.display = 'none';
+						}
+					}
+				}
+
+				let catSearchDebounce = null;
+				function searchMasterCatalogLive(query) {
+					clearTimeout(catSearchDebounce);
+					const dropdown = document.getElementById('cat-search-dropdown');
+					if (!query || query.trim().length < 2) {
+						dropdown.style.display = 'none';
+						return;
+					}
+
+					catSearchDebounce = setTimeout(() => {
+						fetch('/vendor/catalog/search-json?q=' + encodeURIComponent(query.trim()))
+							.then(r => r.json())
+							.then(items => {
+								if (!items || items.length === 0) {
+									dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">لم يتم العثور على أدوية مطابقة بالكتالوج</div>';
+									dropdown.style.display = 'block';
+									return;
+								}
+
+								let html = '';
+								items.forEach(it => {
+									const dosage = it.dosage_form ? ('<span class="badge badge-slate" style="font-size:0.7rem;">' + it.dosage_form + '</span>') : '';
+									const priceBadge = it.price ? ('<span class="badge badge-sky" style="font-size:0.7rem;">' + it.price + ' ج.م</span>') : '';
+									const safeName = (it.name_ar || it.name_en || '').replace(/'/g, "\\'");
+									const safeSci = (it.scientific_name || '').replace(/'/g, "\\'");
+									const safeSku = (it.sku || '').replace(/'/g, "\\'");
+									const safeUnit = (it.unit || '').replace(/'/g, "\\'");
+									
+									html += '<div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;" ' +
+										'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
+										'onclick="selectMasterProductForStaging(' + it.id + ', \'' + safeName + '\', \'' + safeSci + '\', \'' + (it.dosage_form || '') + '\', \'' + safeSku + '\', \'' + (it.price || '') + '\', \'' + safeUnit + '\')">' +
+										'<div>' +
+											'<div style="font-weight:800; color:var(--text); font-size:0.875rem;">' + (it.name_ar || it.name_en) + '</div>' +
+											'<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">' + (it.scientific_name || '') + '</div>' +
+										'</div>' +
+										'<div style="display:flex; align-items:center; gap:0.5rem;">' +
+											dosage + priceBadge +
+											'<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800;">اختيار</span>' +
+										'</div>' +
+									'</div>';
+								});
+								dropdown.innerHTML = html;
+								dropdown.style.display = 'block';
+							})
+							.catch(() => {
+								dropdown.style.display = 'none';
+							});
+					}, 200);
+				}
+
+				function selectMasterProductForStaging(id, name, scientific, dosage, sku, price, unit) {
+					document.getElementById('cat-select-product-id').value = id;
+					document.getElementById('cat-select-name-ar').value = name;
+					document.getElementById('cat-select-sku').value = sku;
+					document.getElementById('cat-select-unit').value = unit;
+
+					document.getElementById('cat-preview-name').textContent = name;
+					document.getElementById('cat-preview-scientific').textContent = scientific ? ('المادة الفعالة: ' + scientific) : '';
+					document.getElementById('cat-preview-dosage').textContent = dosage ? ('الشكل: ' + dosage) : 'شكل دوائي قياسي';
+					document.getElementById('cat-preview-sku').textContent = sku ? ('SKU: ' + sku) : '';
+					document.getElementById('cat-preview-price').textContent = price ? ('السعر بالكتالوج: ' + price + ' ج.م') : '';
+
+					if (price && price !== '') {
+						document.getElementById('cat-field-price').value = price;
+					}
+
+					document.getElementById('cat-search-dropdown').style.display = 'none';
+					document.getElementById('cat-selected-preview').style.display = 'block';
+					document.getElementById('cat-vendor-fields').style.display = 'flex';
+				}
+
+				function resetSelectedMasterProduct() {
+					document.getElementById('cat-select-product-id').value = '';
+					document.getElementById('cat-select-name-ar').value = '';
+					document.getElementById('cat-select-sku').value = '';
+					document.getElementById('cat-selected-preview').style.display = 'none';
+					document.getElementById('cat-vendor-fields').style.display = 'none';
+				}
+			</script>
 		}
 	}
 }
@@ -129,37 +855,49 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 	if len(variants) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
 			Title:       "لا توجد أصناف توريد مسجلة حالياً",
-			Message:     "قم باختيار الأدوية من الكتالوج المعتمد وإضافة عروض الأسعار والكميات المتاحة لديك لبدء استقبال الطلبيات.",
-			ActionLabel: "+ إضافة عرض توريد جديد",
-			ActionURL:   "/vendor/variants/new",
+			Message:     "قم باختيار الأدوية من الكتالوج العام وإضافة عروض الأسعار والكميات المتاحة لديك لبدء استقبال طلبيات الصيدليات.",
+			ActionLabel: "+ إضافة صنف من الكتالوج العام",
+			ActionURL:   "#",
 		})
 	} else {
-		<div class="table-container">
-			<table class="data-table" style="min-width:1050px;">
+		<div class="table-container" style="border-radius:var(--radius-xl); overflow-x:auto;">
+			<table class="data-table" style="min-width:1050px; width:100%; border-collapse:collapse;">
 				<thead>
-					<tr>
-						<th style="width:26%;">الصنف الدوائي المعتمد</th>
-						<th style="width:16%;">المواصفات و SKU</th>
-						<th style="width:11%;">رقم التشغيلة</th>
-						<th style="width:12%;">سعر التوريد</th>
-						<th style="width:10%;">الرصيد المتاح</th>
-						<th style="width:10%;">تاريخ الصلاحية</th>
-						<th style="width:10%;">مستودع الشحن</th>
-						<th style="width:5%; text-align:center;">الإجراءات</th>
+					<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
+						<th style="width:26%; padding:1rem 1.25rem;">الصنف الدوائي المعتمد</th>
+						<th style="width:16%; padding:1rem;">المواصفات و SKU</th>
+						<th style="width:11%; padding:1rem;">رقم التشغيلة</th>
+						<th style="width:13%; padding:1rem;">سعر التوريد والخصم</th>
+						<th style="width:11%; padding:1rem; text-align:center;">الرصيد المتاح</th>
+						<th style="width:10%; padding:1rem;">تاريخ الصلاحية</th>
+						<th style="width:10%; padding:1rem;">مستودع الشحن</th>
+						<th style="width:8%; padding:1rem 1.25rem; text-align:center;">الإجراءات</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, v := range variants {
 						<tr
+							class="vendor-variant-row"
+							data-id={ fmt.Sprintf("%d", v.Variant.ID) }
+							data-name={ v.Variant.Name.Get(i18n.AR) }
+							data-price={ v.Variant.Price.String() }
+							data-discount={ v.Variant.Discount.String() }
+							data-stock={ fmt.Sprintf("%d", v.Variant.StockQty) }
+							data-min-qty={ fmt.Sprintf("%d", v.Variant.MinOrderQty) }
+							data-batch={ v.Variant.BatchNumber }
+							data-expiry={ formatExpiryDate(v.Variant.ExpiryDate) }
+							data-branch-id={ branchIDStr(v.Variant.BranchID) }
 							id={ fmt.Sprintf("variant-row-%d", v.Variant.ID) }
-							x-show={ fmt.Sprintf("(!searchQuery || '%s %s %s'.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || (statusFilter === 'in_stock' && %d > 0))",
+							x-show={ fmt.Sprintf("(!searchQuery || '%s %s %s'.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || (statusFilter === 'in_stock' && %d > 0) || (statusFilter === 'low_stock' && %d <= 5))",
 								escapeJS(getProductName(v)),
 								escapeJS(v.Variant.Name.Get(i18n.Lang(lang))),
 								escapeJS(v.Variant.BatchNumber),
+								v.Variant.StockQty,
 								v.Variant.StockQty) }
+							style="border-bottom:1px solid var(--border); transition:background 0.15s;"
 						>
 							<!-- Product Info & Avatar -->
-							<td>
+							<td style="padding:1rem 1.25rem;">
 								<div style="display:flex; align-items:center; gap:0.85rem;">
 									<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
 										if v.MasterProduct != nil && v.MasterProduct.Image != "" {
@@ -175,7 +913,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 											if v.MasterProduct != nil {
 												{ v.MasterProduct.Name.Get(i18n.Lang(lang)) }
 											} else {
-												صنف دوائي
+												{ v.Variant.Name.Get(i18n.Lang(lang)) }
 											}
 										</div>
 										<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-muted);">
@@ -191,19 +929,19 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Variant Name & SKU -->
-							<td>
+							<td style="padding:1rem;">
 								<div style="font-weight:700; color:var(--text); font-size:0.875rem;">
 									{ v.Variant.Name.Get(i18n.Lang(lang)) }
 								</div>
 								if v.Variant.SKU != "" {
-									<span class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted); display:inline-block; margin-top:2px;">
-										SKU: { v.Variant.SKU }
-									</span>
+									<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+										<code>SKU: { v.Variant.SKU }</code>
+									</div>
 								}
 							</td>
 
 							<!-- Batch Number -->
-							<td>
+							<td style="padding:1rem;">
 								if v.Variant.BatchNumber != "" {
 									<span class="badge badge-slate tabular-nums" style="font-weight:700; font-size:0.8rem;">
 										{ v.Variant.BatchNumber }
@@ -213,11 +951,16 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 								}
 							</td>
 
-							<!-- Wholesale Price -->
-							<td>
-								<div class="tabular-nums" style="font-weight:800; color:var(--accent); font-size:1.1rem; line-height:1.2;">
+							<!-- Wholesale Price & Discount -->
+							<td style="padding:1rem;">
+								<div class="tabular-nums" style="font-weight:900; color:var(--accent); font-size:1.05rem; line-height:1.2;">
 									{ v.Variant.Price.String() } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
 								</div>
+								if v.Variant.Discount.IsPositive() {
+									<div style="font-size:0.725rem; color:#10b981; font-weight:700; margin-top:2px;">
+										خصم: { v.Variant.Discount.String() } ج.م
+									</div>
+								}
 								if v.Variant.MinOrderQty > 1 {
 									<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">
 										الحد الأدنى: { fmt.Sprintf("%d", v.Variant.MinOrderQty) }
@@ -226,7 +969,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Stock Quantity -->
-							<td>
+							<td style="padding:1rem; text-align:center;">
 								if v.Variant.StockQty > 10 {
 									<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.825rem;">
 										{ fmt.Sprintf("%d عبوة", v.Variant.StockQty) }
@@ -236,14 +979,14 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 										{ fmt.Sprintf("%d متبقي", v.Variant.StockQty) }
 									</span>
 								} else {
-									<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem; color:var(--danger);">
+									<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem; color:var(--danger-text);">
 										نفد الرصيد
 									</span>
 								}
 							</td>
 
 							<!-- Expiry Date -->
-							<td>
+							<td style="padding:1rem;">
 								if v.Variant.ExpiryDate != nil {
 									<div class="tabular-nums" style="font-weight:700; color:var(--text-secondary); font-size:0.85rem;">
 										{ v.Variant.ExpiryDate.Format("2006-01-02") }
@@ -254,7 +997,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Shipping Branch / Warehouse -->
-							<td>
+							<td style="padding:1rem;">
 								if v.BranchName != "" {
 									<span class="badge badge-sky" style="font-weight:700; font-size:0.775rem;">
 										{ v.BranchName }
@@ -265,24 +1008,35 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Actions -->
-							<td style="text-align:center;">
+							<td style="padding:1rem 1.25rem; text-align:center;">
 								<div style="display:flex; align-items:center; justify-content:center; gap:0.35rem;">
+									<button
+										type="button"
+										class="btn btn-secondary btn-icon"
+										style="width:32px; height:32px; color:var(--accent);"
+										title="تعديل بيانات وسعر الصنف"
+										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditVariantModal(%d)", v.Variant.ID)} }
+									>
+										@components.IconEdit("icon-xs")
+									</button>
+
 									if v.Variant.ProductID > 0 {
 										<a
 											href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.Variant.ProductID)) }
 											target="_blank"
 											class="btn btn-secondary btn-icon"
-											style="width:32px; height:32px; color:var(--accent);"
-											title="معاينة في صفحة الكتالوج والمتجر"
+											style="width:32px; height:32px; color:var(--text-muted);"
+											title="معاينة في المتجر"
 										>
 											@components.IconEye("icon-xs")
 										</a>
 									}
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض؟');">
+
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض من قائمة التوريد؟');">
 										<button
 											type="submit"
 											class="btn btn-secondary btn-icon"
-											style="width:32px; height:32px; color:var(--danger);"
+											style="width:32px; height:32px; color:var(--danger-text);"
 											title="حذف العرض"
 										>
 											@components.IconTrash("icon-xs")
@@ -318,11 +1072,41 @@ func calculateActiveCount(variants []*VendorVariantView) int {
 	return count
 }
 
+func calculateLowStockCount(variants []*VendorVariantView) int {
+	count := 0
+	for _, v := range variants {
+		if v != nil && v.Variant != nil && v.Variant.StockQty <= 5 {
+			count++
+		}
+	}
+	return count
+}
+
 func getProductName(v *VendorVariantView) string {
-	if v == nil || v.MasterProduct == nil {
+	if v == nil {
 		return ""
 	}
-	return v.MasterProduct.Name.Get(i18n.AR) + " " + v.MasterProduct.Name.Get(i18n.EN)
+	if v.MasterProduct != nil {
+		return v.MasterProduct.Name.Get(i18n.AR) + " " + v.MasterProduct.Name.Get(i18n.EN)
+	}
+	if v.Variant != nil {
+		return v.Variant.Name.Get(i18n.AR) + " " + v.Variant.Name.Get(i18n.EN)
+	}
+	return ""
+}
+
+func formatExpiryDate(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.Format("2006-01-02")
+}
+
+func branchIDStr(id *int64) string {
+	if id != nil && *id > 0 {
+		return fmt.Sprintf("%d", *id)
+	}
+	return ""
 }
 
 func escapeJS(s string) string {
@@ -338,3 +1122,4 @@ func escapeJS(s string) string {
 	}
 	return res
 }
+

@@ -211,19 +211,19 @@ func IsValidStatusTransition(from, to OrderStatus) bool {
 	}
 	switch from {
 	case StatusPending:
-		return to == StatusProcessing || to == StatusConfirmed || to == StatusCancelled || to == StatusOnHold
+		return to == StatusProcessing || to == StatusConfirmed || to == StatusShipped || to == StatusDelivered || to == StatusCancelled || to == StatusOnHold
 	case StatusProcessing:
-		return to == StatusConfirmed || to == StatusOnHold || to == StatusCancelled || to == StatusFailed
+		return to == StatusConfirmed || to == StatusShipped || to == StatusDelivered || to == StatusOnHold || to == StatusCancelled || to == StatusFailed
 	case StatusConfirmed:
-		return to == StatusShipped || to == StatusOnHold || to == StatusCancelled || to == StatusFailed
+		return to == StatusShipped || to == StatusInTransit || to == StatusOutForDelivery || to == StatusDelivered || to == StatusOnHold || to == StatusCancelled || to == StatusFailed
 	case StatusOnHold:
-		return to == StatusProcessing || to == StatusConfirmed || to == StatusCancelled || to == StatusFailed
+		return to == StatusProcessing || to == StatusConfirmed || to == StatusShipped || to == StatusCancelled || to == StatusFailed
 	case StatusShipped:
-		return to == StatusInTransit || to == StatusOutForDelivery || to == StatusReturned || to == StatusFailed
+		return to == StatusInTransit || to == StatusOutForDelivery || to == StatusDelivered || to == StatusCompleted || to == StatusReturned || to == StatusFailed
 	case StatusInTransit:
-		return to == StatusOutForDelivery || to == StatusReturned || to == StatusFailed
+		return to == StatusOutForDelivery || to == StatusDelivered || to == StatusCompleted || to == StatusReturned || to == StatusFailed
 	case StatusOutForDelivery:
-		return to == StatusDelivered || to == StatusReturned || to == StatusFailed
+		return to == StatusDelivered || to == StatusCompleted || to == StatusReturned || to == StatusFailed
 	case StatusDelivered:
 		return to == StatusCompleted || to == StatusReturned || to == StatusRefunded
 	case StatusCompleted:
