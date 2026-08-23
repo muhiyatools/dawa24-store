@@ -247,6 +247,40 @@ type SavingProductStats struct {
 	TotalValue    money.Amount `json:"total_value"`
 }
 
+// SavingProductAdminView represents a saving product with associated user, org, and master product details.
+type SavingProductAdminView struct {
+	ID                int64        `json:"id"`
+	PublicID          string       `json:"public_id"`
+	UserID            *int64       `json:"user_id,omitempty"`
+	UserName          string       `json:"user_name"`
+	UserEmail         string       `json:"user_email"`
+	UserPhone         string       `json:"user_phone"`
+	OrganizationID    int64        `json:"organization_id"`
+	OrganizationName  string       `json:"organization_name"`
+	OrganizationType  string       `json:"organization_type"`
+	ProductID         *int64       `json:"product_id,omitempty"`
+	MasterProductName string       `json:"master_product_name"`
+	MasterProductSKU  string       `json:"master_product_sku"`
+	NameProduct       string       `json:"name_product"`
+	SKU               string       `json:"sku,omitempty"`
+	Quantity          float64      `json:"quantity"`
+	Price             money.Amount `json:"price"`
+	TotalValue        money.Amount `json:"total_value"`
+	CreatedAt         time.Time    `json:"created_at"`
+	UpdatedAt         time.Time    `json:"updated_at"`
+}
+
+// SavingProductAdminStats holds aggregate counts for platform administration.
+type SavingProductAdminStats struct {
+	TotalProducts      int          `json:"total_products"`
+	TotalUsers         int          `json:"total_users"`
+	TotalOrganizations int          `json:"total_organizations"`
+	TotalQuantity      float64      `json:"total_quantity"`
+	TotalValue         money.Amount `json:"total_value"`
+	CountLinked        int          `json:"count_linked"`
+	CountUnlinked      int          `json:"count_unlinked"`
+}
+
 // ProductAlert represents user notification triggers for price drops and restocks.
 type ProductAlert struct {
 	ID          int64        `json:"id"`

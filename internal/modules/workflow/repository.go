@@ -35,8 +35,4 @@ type Repository interface {
 	GetRequestByID(ctx context.Context, id int64) (*Request, error)
 	ListRequestsByOrg(ctx context.Context, orgID int64, status string, limit, offset int) ([]*Request, error)
 	UpdateRequestStatus(ctx context.Context, id int64, status RequestStatus) error
-
-	CreateService(ctx context.Context, s *InstitutionalService) error
-	GetServiceByID(ctx context.Context, id int64) (*InstitutionalService, error)
-	ListServices(ctx context.Context, parentID *int64) ([]*InstitutionalService, error)
 }

@@ -125,15 +125,6 @@ func (m *mockCoverageRepo) ListRequestsByOrg(_ context.Context, _ int64, _ strin
 func (m *mockCoverageRepo) UpdateRequestStatus(_ context.Context, _ int64, _ workflow.RequestStatus) error {
 	return nil
 }
-func (m *mockCoverageRepo) CreateService(_ context.Context, _ *workflow.InstitutionalService) error {
-	return nil
-}
-func (m *mockCoverageRepo) GetServiceByID(_ context.Context, _ int64) (*workflow.InstitutionalService, error) {
-	return nil, nil
-}
-func (m *mockCoverageRepo) ListServices(_ context.Context, _ *int64) ([]*workflow.InstitutionalService, error) {
-	return nil, nil
-}
 func (m *mockCoverageRepo) ListPriorityRequestsByUser(_ context.Context, _ int64, _, _ int) ([]*workflow.PurchasePriorityRequest, error) {
 	return nil, nil
 }

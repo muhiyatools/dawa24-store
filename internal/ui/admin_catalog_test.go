@@ -101,17 +101,6 @@ func TestAdminCatalogAndInventoryRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusOK,
 		},
-		{
-			name:   "Super admin GET /admin/apis-products returns 200",
-			path:   "/admin/apis-products",
-			method: "GET",
-			actor: &authctx.Actor{
-				UserID:  1,
-				IsStaff: true,
-				Role:    "super_admin",
-			},
-			wantStatus: http.StatusOK,
-		},
 	}
 
 	for _, tt := range tests {

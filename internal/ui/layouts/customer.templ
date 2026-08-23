@@ -30,9 +30,6 @@ templ PublicShell(title string, lang string, dir string) {
 						if features.Enabled(ctx, "jobs.enabled") {
 							<a href="/jobs" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">وظائف وصيادلة</a>
 						}
-						if features.Enabled(ctx, "services.enabled") {
-							<a href="/services" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">الخدمات المؤسسية</a>
-						}
 					</nav>
 				</div>
 
@@ -308,9 +305,6 @@ templ PublicShell(title string, lang string, dir string) {
 							<li><a href="/suppliers">دليل الموردين المعتمدين</a></li>
 							if features.Enabled(ctx, "jobs.enabled") {
 								<li><a href="/jobs">وظائف التوظيف الصيدلي والمهني</a></li>
-							}
-							if features.Enabled(ctx, "services.enabled") {
-								<li><a href="/services">الخدمات المؤسسية</a></li>
 							}
 							<li><a href="/about">من نحن (عن دواء 24)</a></li>
 							<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>

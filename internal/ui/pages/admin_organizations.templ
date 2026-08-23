@@ -327,142 +327,159 @@ templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
 	}
 }
 
-// AdminWeeklyCoveragesPage renders weekly coverage rules across all vendors.
-templ AdminWeeklyCoveragesPage(coverages []*workflow.CoverageView, lang, dir string) {
-	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "coverage", lang, dir) {
-		<div class="card mb-0">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h2 class="card-title" style="margin:0;">نطاقات التغطية الأسبوعية لكافة الموردين ({ fmt.Sprintf("%d", len(coverages)) })</h2>
-					<p class="subtitle">مراقبة وضبط جدول أيام التوصيل ونطاق المسافات بالكيلومتر للموردين.</p>
-				</div>
-				<a href="/admin/weekly-coverages/add" class="btn btn-primary btn-sm">
-					@components.IconPlus("icon-xs")
-					<span>إضافة نطاق تغطية جديد</span>
-				</a>
-			</div>
-
-			if len(coverages) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد نطاقات تغطية", Message: "لم يتم تسجيل جداول تغطية أسبوعية بعد."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>المورد والمنشأة</th>
-								<th>الفرع / المستودع</th>
-								<th>يوم التوصيل</th>
-								<th>أقصى نطاق توصيل</th>
-								<th>ساعات التوصيل</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, c := range coverages {
-								<tr>
-									<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
-									<td>مورد #{ fmt.Sprintf("%d", c.OrganizationID) }</td>
-									<td>
-										if c.BranchName != "" {
-											<strong>{ c.BranchName }</strong>
-										} else {
-											<span>فرع #{ fmt.Sprintf("%d", c.BranchID) }</span>
-										}
-										if c.CityName != "" {
-											<span class="badge badge-secondary" style="margin-inline-start:0.35rem; font-size:0.75rem;">{ c.CityName }</span>
-										}
-									</td>
-									<td><strong>{ dayNameArabic(c.DayOfWeek) }</strong></td>
-									<td class="tabular-nums">{ fmt.Sprintf("%.1f كم (%d م)", float64(c.DistanceMeters)/1000.0, c.DistanceMeters) }</td>
-									<td>
-										if c.CoverageFrom != nil && c.CoverageTo != nil {
-											<span class="tabular-nums">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
-										} else {
-											<span style="color:var(--text-muted);">طوال اليوم</span>
-										}
-									</td>
-									<td>
-										if c.IsActive {
-											<span class="badge badge-success">مفعل</span>
-										} else {
-											<span class="badge badge-danger">معطل</span>
-										}
-									</td>
-									<td class="text-end">
-										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
-											<a href={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/edit/%d", c.ID)) } class="btn btn-secondary btn-sm">تعديل</a>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا النطاق؟');">
-												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">حذف</button>
-											</form>
-										</div>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
-		</div>
-	}
+// AdminWeeklyCoveragesData carries view models for weekly coverages admin inspection.
+type AdminWeeklyCoveragesData struct {
+	Coverages     []*workflow.CoverageView
+	Organizations []*org.Organization
+	SelectedOrgID int64
 }
 
-// AdminWeeklyCoverageForm renders create or edit form for a weekly coverage rule.
-templ AdminWeeklyCoverageForm(cov *workflow.WeeklyCoverage, branches []*org.Branch, lang, dir string) {
-	@layouts.AdminShell("نموذج نطاق التغطية والتوصيل الأسبوعي", "coverage", lang, dir) {
-		<div class="card" style="max-width:640px; margin:0 auto;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">
-				if cov == nil {
-					إضافة نطاق تغطية أسبوعي جديد
+// AdminWeeklyCoveragesPage renders weekly coverage rules filtered by selected organization.
+templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) {
+	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "coverage", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.25rem; max-width:1400px; margin:0 auto 3rem auto;">
+			
+			<!-- Header Card -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:1.75rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconTruck("icon-md")
+							</div>
+							<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">نطاقات وجداول التغطية الأسبوعية</h1>
+						</div>
+						<p style="font-size:0.9rem; color:var(--text-secondary); margin:0;">
+							استعراض ومتابعة جدول أيام التوصيل ونطاق المسافات المسجلة لمستودعات وفروع كل منشأة.
+						</p>
+					</div>
+					<div style="display:flex; gap:0.5rem;">
+						<a href="/admin/weekly-coverages" class="btn btn-secondary btn-sm" style="display:flex; align-items:center; gap:0.4rem;">
+							@components.IconRefresh("icon-xs")
+							<span>تحديث</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Organization Selector Dropdown Card -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; background:var(--surface);">
+				<form method="GET" action="/admin/weekly-coverages" style="display:flex; align-items:flex-end; gap:1rem; flex-wrap:wrap;">
+					<div class="form-group" style="margin-bottom:0; flex:1; min-width:280px;">
+						<label class="form-label" style="font-size:0.875rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							اختر المنشأة / المورد لعرض نطاقات التغطية التابعة لها:
+						</label>
+						<select name="org_id" class="form-input" onchange="this.form.submit()" style="height:42px; font-size:0.9rem;">
+							if len(data.Organizations) == 0 {
+								<option value="">لا توجد منشآت مسجلة</option>
+							}
+							for _, o := range data.Organizations {
+								<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>
+									if o.LegalName != "" {
+										{ o.LegalName }
+									} else {
+										{ o.TradeName.Get("ar") }
+									}
+									({ string(o.Type) }) — #{ fmt.Sprintf("%d", o.ID) }
+								</option>
+							}
+						</select>
+					</div>
+					<button type="submit" class="btn btn-primary btn-sm" style="height:42px; padding:0 1.5rem; display:flex; align-items:center; gap:0.4rem;">
+						@components.IconSearch("icon-xs")
+						<span>عرض نطاقات المنشأة</span>
+					</button>
+				</form>
+			</div>
+
+			<!-- Coverages Table Card -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:0; overflow:hidden; background:var(--surface);">
+				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+					<div style="font-weight:700; font-size:1rem; color:var(--text);">
+						سجلات نطاق التغطية ({ fmt.Sprintf("%d", len(data.Coverages)) })
+					</div>
+				</div>
+
+				if len(data.Coverages) == 0 {
+					<div style="padding:4rem 2rem; text-align:center;">
+						<div style="width:54px; height:54px; border-radius:var(--radius-full); background:var(--surface-raised); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
+							@components.IconTruck("icon-md")
+						</div>
+						<h3 style="font-size:1.1rem; font-weight:700; color:var(--text); margin:0 0 0.5rem 0;">لا توجد نطاقات تغطية مسجلة لهذه المنشأة</h3>
+						<p style="font-size:0.875rem; color:var(--text-secondary); max-width:420px; margin:0 auto;">
+							تقوم المنشأة بضبط وإدارة نطاقات التغطية الأسبوعية لفروعها مباشرة من خلال لوحة تحكم المورد الخاصة بها.
+						</p>
+					</div>
 				} else {
-					تعديل نطاق التغطية #{ fmt.Sprintf("%d", cov.ID) }
+					<div class="table-container">
+						<table class="data-table" style="margin:0;">
+							<thead>
+								<tr>
+									<th style="width:60px;">#</th>
+									<th>الفرع / المستودع</th>
+									<th>يوم التوصيل الأسبوعي</th>
+									<th>أقصى نطاق تغطية</th>
+									<th>ساعات العمل / التوصيل</th>
+									<th>العنوان / خط السير</th>
+									<th>الحالة</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, c := range data.Coverages {
+									<tr>
+										<td class="tabular-nums" style="color:var(--text-muted); font-size:0.8rem;">
+											#{ fmt.Sprintf("%d", c.ID) }
+										</td>
+										<td>
+											if c.BranchName != "" {
+												<strong style="color:var(--text);">{ c.BranchName }</strong>
+											} else {
+												<span>فرع #{ fmt.Sprintf("%d", c.BranchID) }</span>
+											}
+											if c.CityName != "" {
+												<span class="badge badge-secondary" style="margin-inline-start:0.35rem; font-size:0.75rem;">
+													{ c.CityName }
+												</span>
+											}
+										</td>
+										<td>
+											<span class="badge badge-sky" style="font-size:0.825rem; font-weight:700; padding:3px 10px;">
+												{ dayNameArabic(c.DayOfWeek) }
+											</span>
+										</td>
+										<td class="tabular-nums" style="font-weight:700; color:var(--text);">
+											{ fmt.Sprintf("%.1f كم", float64(c.DistanceMeters)/1000.0) }
+											<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">({ fmt.Sprintf("%d م", c.DistanceMeters) })</span>
+										</td>
+										<td>
+											if c.CoverageFrom != nil && c.CoverageTo != nil {
+												<span class="tabular-nums" style="font-weight:600; color:var(--text);">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
+											} else {
+												<span style="color:var(--text-muted);">طوال اليوم</span>
+											}
+										</td>
+										<td style="font-size:0.85rem; color:var(--text-secondary); max-width:260px;">
+											if c.Address != "" {
+												{ c.Address }
+											} else {
+												<span style="color:var(--text-muted); font-style:italic;">غير محدد</span>
+											}
+										</td>
+										<td>
+											if c.IsActive {
+												<span class="badge badge-success">مفعل ونشط</span>
+											} else {
+												<span class="badge badge-danger">معطل</span>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
 				}
-			</h2>
+			</div>
 
-			<form method="POST" action={ templ.SafeURL(func() string {
-				if cov == nil {
-					return "/admin/weekly-coverages"
-				}
-				return fmt.Sprintf("/admin/weekly-coverages/%d", cov.ID)
-			}()) }>
-				<div class="form-group" style="margin-bottom:1.25rem;">
-					<label class="form-label">الفرع أو المستودع المورد</label>
-					<select name="branch_id" class="form-control" required>
-						for _, b := range branches {
-							<option value={ fmt.Sprintf("%d", b.ID) } selected?={ cov != nil && cov.BranchID == b.ID }>{ b.Name.Get("ar") } (#{ fmt.Sprintf("%d", b.OrganizationID) })</option>
-						}
-					</select>
-				</div>
-
-				<div class="form-group" style="margin-bottom:1.25rem;">
-					<label class="form-label">يوم التوصيل الأسبوعي</label>
-					<select name="day_of_week" class="form-control" required>
-						<option value="0" selected?={ cov != nil && cov.DayOfWeek == 0 }>الأحد (Sunday)</option>
-						<option value="1" selected?={ cov != nil && cov.DayOfWeek == 1 }>الاثنين (Monday)</option>
-						<option value="2" selected?={ cov != nil && cov.DayOfWeek == 2 }>الثلاثاء (Tuesday)</option>
-						<option value="3" selected?={ cov != nil && cov.DayOfWeek == 3 }>الأربعاء (Wednesday)</option>
-						<option value="4" selected?={ cov != nil && cov.DayOfWeek == 4 }>الخميس (Thursday)</option>
-						<option value="5" selected?={ cov != nil && cov.DayOfWeek == 5 }>الجمعة (Friday)</option>
-						<option value="6" selected?={ cov != nil && cov.DayOfWeek == 6 }>السبت (Saturday)</option>
-					</select>
-				</div>
-
-				<div class="form-group" style="margin-bottom:1.5rem;">
-					<label class="form-label">أقصى مسافة تغطية (بالمتر، مثلاً 25000 = 25 كم)</label>
-					<input type="number" name="distance_meters" min="500" max="500000" step="500" required class="form-control" value={ func() string {
-						if cov != nil {
-							return fmt.Sprintf("%d", cov.DistanceMeters)
-						}
-						return "25000"
-					}() } />
-				</div>
-
-				<div style="display:flex; justify-content:space-between;">
-					<a href="/admin/weekly-coverages" class="btn btn-secondary">إلغاء</a>
-					<button type="submit" class="btn btn-primary">حفظ وتفعيل التغطية</button>
-				</div>
-			</form>
 		</div>
 	}
 }

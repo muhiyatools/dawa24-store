@@ -406,3 +406,9 @@ func (s *Service) GetProductProviders(ctx context.Context, productID int64) ([]*
 func (s *Service) BatchUpsertSavingProducts(ctx context.Context, orgID int64, userID *int64, items []*SavingProduct) (added, updated int, err error) {
 	return s.repo.BatchUpsertSavingProducts(ctx, orgID, userID, items)
 }
+
+// ListAllSavingProductsAdmin returns all saving products across all users and organizations for platform administration.
+func (s *Service) ListAllSavingProductsAdmin(ctx context.Context, userID *int64, orgID *int64, search string, filter string, limit, offset int) ([]*SavingProductAdminView, *SavingProductAdminStats, error) {
+	return s.repo.ListAllSavingProductsAdmin(ctx, userID, orgID, search, filter, limit, offset)
+}
+

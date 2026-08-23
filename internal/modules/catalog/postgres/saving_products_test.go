@@ -48,4 +48,11 @@ func TestSavingProductsIntegration(t *testing.T) {
 	sp.Quantity = 75
 	err = repo.UpdateSavingProduct(ctx, &sp.SavingProduct)
 	require.NoError(t, err)
+
+	// 4. Admin List Across Platform
+	adminList, adminStats, err := repo.ListAllSavingProductsAdmin(ctx, nil, nil, "", "all", 50, 0)
+	require.NoError(t, err)
+	assert.NotEmpty(t, adminList)
+	assert.NotNil(t, adminStats)
+	assert.True(t, adminStats.TotalProducts > 0)
 }

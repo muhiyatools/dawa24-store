@@ -202,148 +202,40 @@ func (h *UIHandler) AdminBranchUsersPage(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// AdminWeeklyCoveragesPage renders all weekly delivery coverages across all vendors.
+// AdminWeeklyCoveragesPage renders weekly delivery coverages filtered by organization dropdown.
 func (h *UIHandler) AdminWeeklyCoveragesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	var orgs []*org.Organization
+	if h.orgSvc != nil {
+		orgs, _ = h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 200, 0)
+	}
+
+	var selectedOrgID int64
+	if orgIDStr := r.URL.Query().Get("org_id"); orgIDStr != "" {
+		selectedOrgID, _ = strconv.ParseInt(orgIDStr, 10, 64)
+	}
+
+	// Default to first org if none selected and orgs exist
+	if selectedOrgID <= 0 && len(orgs) > 0 {
+		selectedOrgID = orgs[0].ID
+	}
+
 	var coverages []*workflow.CoverageView
-	if h.wfSvc != nil {
-		// AsSystem justified: platform admin viewing weekly coverages across all vendors
-		coverages, _ = h.wfSvc.ListCoverageForOrganization(database.AsSystem(ctx), 0)
+	if h.wfSvc != nil && selectedOrgID > 0 {
+		// AsSystem justified: platform admin viewing weekly coverages for selected organization
+		coverages, _ = h.wfSvc.ListCoverageForOrganization(database.AsSystem(ctx), selectedOrgID)
+	}
+
+	data := pages.AdminWeeklyCoveragesData{
+		Coverages:     coverages,
+		Organizations: orgs,
+		SelectedOrgID: selectedOrgID,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminWeeklyCoveragesPage(coverages, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminWeeklyCoveragesPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin weekly coverages", "error", err)
 	}
-}
-
-// AdminWeeklyCoverageNewPage renders coverage creation form.
-func (h *UIHandler) AdminWeeklyCoverageNewPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var branches []*org.Branch
-	if h.orgSvc != nil {
-		branches, _ = h.orgSvc.ListBranches(database.AsSystem(ctx), 0)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminWeeklyCoverageForm(nil, branches, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin weekly coverage new", "error", err)
-	}
-}
-
-// AdminWeeklyCoverageCreateSubmit handles creating weekly coverage rule.
-func (h *UIHandler) AdminWeeklyCoverageCreateSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	_ = r.ParseForm()
-
-	branchID, _ := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64)
-	dayOfWeek, _ := strconv.Atoi(r.PostFormValue("day_of_week"))
-	distMeters, _ := strconv.Atoi(r.PostFormValue("distance_meters"))
-
-	var orgID int64
-	if h.orgSvc != nil && branchID > 0 {
-		if b, err := h.orgSvc.GetBranch(database.AsSystem(ctx), branchID); err == nil && b != nil {
-			orgID = b.OrganizationID
-		}
-	}
-
-	if h.wfSvc != nil && orgID > 0 && branchID > 0 {
-		cov := &workflow.WeeklyCoverage{
-			OrganizationID: orgID,
-			BranchID:       branchID,
-			DayOfWeek:      dayOfWeek,
-			DistanceMeters: distMeters,
-			IsActive:       true,
-		}
-		_ = h.wfSvc.CreateWeeklyCoverage(database.AsSystem(ctx), cov)
-	}
-
-	http.Redirect(w, r, "/admin/weekly-coverages", http.StatusSeeOther)
-}
-
-// AdminWeeklyCoverageEditPage renders edit form for a weekly coverage rule.
-func (h *UIHandler) AdminWeeklyCoverageEditPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	idStr := chi.URLParam(r, "id")
-	covID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	var cov *workflow.WeeklyCoverage
-	var branches []*org.Branch
-	if h.wfSvc != nil {
-		cov, _ = h.wfSvc.GetWeeklyCoverage(database.AsSystem(ctx), covID)
-	}
-	if h.orgSvc != nil {
-		branches, _ = h.orgSvc.ListBranches(database.AsSystem(ctx), 0)
-	}
-
-	if cov == nil {
-		http.Redirect(w, r, "/admin/weekly-coverages", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminWeeklyCoverageForm(cov, branches, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin weekly coverage edit", "error", err)
-	}
-}
-
-// AdminWeeklyCoverageDetailPage renders detail & map view for coverage.
-func (h *UIHandler) AdminWeeklyCoverageDetailPage(w http.ResponseWriter, r *http.Request) {
-	h.AdminWeeklyCoverageEditPage(w, r)
-}
-
-// AdminWeeklyCoverageUpdateSubmit updates an existing coverage rule.
-func (h *UIHandler) AdminWeeklyCoverageUpdateSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	covID, _ := strconv.ParseInt(idStr, 10, 64)
-	_ = r.ParseForm()
-
-	dayOfWeek, _ := strconv.Atoi(r.PostFormValue("day_of_week"))
-	distMeters, _ := strconv.Atoi(r.PostFormValue("distance_meters"))
-
-	if h.wfSvc != nil && covID > 0 {
-		cov, err := h.wfSvc.GetWeeklyCoverage(database.AsSystem(ctx), covID)
-		if err == nil && cov != nil {
-			cov.DayOfWeek = dayOfWeek
-			cov.DistanceMeters = distMeters
-			_ = h.wfSvc.UpdateWeeklyCoverage(database.AsSystem(ctx), cov)
-		}
-	}
-
-	http.Redirect(w, r, "/admin/weekly-coverages", http.StatusSeeOther)
-}
-
-// AdminWeeklyCoverageDeleteSubmit removes a coverage rule.
-func (h *UIHandler) AdminWeeklyCoverageDeleteSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	covID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	if h.wfSvc != nil && covID > 0 {
-		_ = h.wfSvc.DeleteWeeklyCoverage(database.AsSystem(ctx), covID)
-	}
-
-	http.Redirect(w, r, "/admin/weekly-coverages", http.StatusSeeOther)
-}
-
-// AdminWeeklyCoverageToggleSubmit toggles active status of a coverage rule.
-func (h *UIHandler) AdminWeeklyCoverageToggleSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	covID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	if h.wfSvc != nil && covID > 0 {
-		cov, err := h.wfSvc.GetWeeklyCoverage(database.AsSystem(ctx), covID)
-		if err == nil && cov != nil {
-			_ = h.wfSvc.ToggleWeeklyCoverage(database.AsSystem(ctx), covID, !cov.IsActive)
-		}
-	}
-
-	http.Redirect(w, r, "/admin/weekly-coverages", http.StatusSeeOther)
 }

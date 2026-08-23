@@ -235,6 +235,10 @@ func (r stubRepo) BatchUpsertSavingProducts(ctx context.Context, orgID int64, us
 	r.fail("BatchUpsertSavingProducts")
 	return 0, 0, nil
 }
+func (r stubRepo) ListAllSavingProductsAdmin(ctx context.Context, _ *int64, _ *int64, _ string, _ string, _, _ int) ([]*catalog.SavingProductAdminView, *catalog.SavingProductAdminStats, error) {
+	r.fail("ListAllSavingProductsAdmin")
+	return nil, nil, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

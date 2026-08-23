@@ -156,19 +156,6 @@ func (m *mockWorkflowRepo) UpdateRequestStatus(_ context.Context, _ int64, _ Req
 	return nil
 }
 
-func (m *mockWorkflowRepo) CreateService(_ context.Context, s *InstitutionalService) error {
-	s.ID = 1
-	return nil
-}
-
-func (m *mockWorkflowRepo) GetServiceByID(_ context.Context, _ int64) (*InstitutionalService, error) {
-	return nil, nil
-}
-
-func (m *mockWorkflowRepo) ListServices(_ context.Context, _ *int64) ([]*InstitutionalService, error) {
-	return nil, nil
-}
-
 func (m *mockWorkflowRepo) ListPriorityRequestsByUser(_ context.Context, userID int64, limit, offset int) ([]*PurchasePriorityRequest, error) {
 	var list []*PurchasePriorityRequest
 	for _, req := range m.requests {

@@ -67,17 +67,6 @@ func (h *UIHandler) AdminAdvProductsPage(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// AdminApisProductsPage renders external API inventory connector.
-func (h *UIHandler) AdminApisProductsPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminApisProductsPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin apis products", "error", err)
-	}
-}
-
 // AdminStocksPage renders inventory stocks across all warehouses.
 func (h *UIHandler) AdminStocksPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -153,12 +142,106 @@ func (h *UIHandler) AdminTempWarehousesPage(w http.ResponseWriter, r *http.Reque
 }
 
 // AdminSavingProductsPage renders saving products (منتجات التوفير).
+// AdminSavingProductsPage renders saving products (منتجات التوفير) across all users and organizations.
 func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	var userID *int64
+	var orgID *int64
+	var selectedUserID, selectedOrgID int64
+
+	if uStr := chi.URLParam(r, "userId"); uStr != "" {
+		if uid, err := strconv.ParseInt(uStr, 10, 64); err == nil && uid > 0 {
+			userID = &uid
+			selectedUserID = uid
+		}
+	}
+	if oStr := chi.URLParam(r, "organizationId"); oStr != "" {
+		if oid, err := strconv.ParseInt(oStr, 10, 64); err == nil && oid > 0 {
+			orgID = &oid
+			selectedOrgID = oid
+		}
+	}
+
+	if qUID := r.URL.Query().Get("user_id"); qUID != "" {
+		if uid, err := strconv.ParseInt(qUID, 10, 64); err == nil && uid > 0 {
+			userID = &uid
+			selectedUserID = uid
+		}
+	}
+	if qOID := r.URL.Query().Get("org_id"); qOID != "" {
+		if oid, err := strconv.ParseInt(qOID, 10, 64); err == nil && oid > 0 {
+			orgID = &oid
+			selectedOrgID = oid
+		}
+	}
+
+	search := r.URL.Query().Get("q")
+	filter := r.URL.Query().Get("filter")
+	if filter == "" {
+		filter = "all"
+	}
+
+	var items []*catalog.SavingProductAdminView
+	var stats *catalog.SavingProductAdminStats
+	if h.catSvc != nil {
+		items, stats, _ = h.catSvc.ListAllSavingProductsAdmin(database.AsSystem(ctx), userID, orgID, search, filter, 500, 0)
+	}
+	if stats == nil {
+		stats = &catalog.SavingProductAdminStats{}
+	}
+
+	var orgOptions []*pages.SavingUserOrgOption
+	if h.orgSvc != nil {
+		if orgs, err := h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 200, 0); err == nil {
+			for _, o := range orgs {
+				name := o.LegalName
+				if name == "" {
+					name = o.TradeName.Get("ar")
+				}
+				orgOptions = append(orgOptions, &pages.SavingUserOrgOption{
+					ID:   o.ID,
+					Name: name,
+					Type: string(o.Type),
+				})
+			}
+		}
+	}
+
+	var userOptions []*pages.SavingUserOrgOption
+	if h.idSvc != nil {
+		if users, err := h.idSvc.AdminListUsers(database.AsSystem(ctx), "", ""); err == nil {
+			for _, u := range users {
+				name := u.Name.Get("ar")
+				if name == "" {
+					name = u.Name.Get("en")
+				}
+				if name == "" {
+					name = u.Email
+				}
+				userOptions = append(userOptions, &pages.SavingUserOrgOption{
+					ID:   u.ID,
+					Name: name,
+					Type: u.Email,
+				})
+			}
+		}
+	}
+
+	data := pages.AdminSavingProductsData{
+		Items:          items,
+		Stats:          stats,
+		Organizations:  orgOptions,
+		Users:          userOptions,
+		SelectedOrgID:  selectedOrgID,
+		SelectedUserID: selectedUserID,
+		SearchQuery:    search,
+		ActiveFilter:   filter,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminSavingProductsPage(nil, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminSavingProductsPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render saving products", "error", err)
 	}
 }

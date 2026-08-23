@@ -44,17 +44,10 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Get("/admin/branches/{id}/users", h.AdminBranchUsersPage)
 	})
 
-	// Weekly Coverages Oversight
+	// Weekly Coverages Oversight (Read-only organization coverage inspection)
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("workflow.coverage.manage", h.log))
 		g.Get("/admin/weekly-coverages", h.AdminWeeklyCoveragesPage)
-		g.Get("/admin/weekly-coverages/add", h.AdminWeeklyCoverageNewPage)
-		g.Post("/admin/weekly-coverages", h.AdminWeeklyCoverageCreateSubmit)
-		g.Get("/admin/weekly-coverages/edit/{id}", h.AdminWeeklyCoverageEditPage)
-		g.Get("/admin/weekly-coverages/{id}", h.AdminWeeklyCoverageDetailPage)
-		g.Post("/admin/weekly-coverages/{id}", h.AdminWeeklyCoverageUpdateSubmit)
-		g.Post("/admin/weekly-coverages/{id}/delete", h.AdminWeeklyCoverageDeleteSubmit)
-		g.Post("/admin/weekly-coverages/{id}/toggle", h.AdminWeeklyCoverageToggleSubmit)
 	})
 
 	// Institutional Works

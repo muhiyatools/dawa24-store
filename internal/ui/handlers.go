@@ -166,8 +166,6 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/offers/{id}", h.OfferDetailPage)
 		pub.Get("/jobs", h.JobsPage)
 		pub.Get("/jobs/{id}", h.JobDetailPage)
-		pub.Get("/services", h.ServicesPage)
-		pub.Get("/services/{id}", h.ServiceDetailPage)
 		pub.Get("/finder", h.FinderPage)
 		pub.Get("/finder/{id}", h.FinderQuestionByIDPage)
 		pub.Get("/finder/result/{id}", h.FinderResultByIDPage)
@@ -211,7 +209,6 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Post("/contact", h.ContactSubmit)
 		pub.Post("/upload", h.UploadAPISubmit)
 		pub.Post("/offers/{id}/click", h.OfferClickSubmit)
-		pub.Post("/services/{id}/request", h.ServiceRequestSubmit)
 		pub.Post("/jobs/{id}/apply", h.JobApplySubmit)
 	})
 }

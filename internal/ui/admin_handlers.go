@@ -26,7 +26,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
-	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
@@ -1687,41 +1686,6 @@ func (h *UIHandler) AdminFinderOptionSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	h.redirectWithNotice(w, r, "/admin/finder", "success", "تمت إضافة الخيار.")
-}
-
-// AdminServicesPage renders the institutional-services catalogue editor.
-func (h *UIHandler) AdminServicesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var services []*workflow.InstitutionalService
-	if h.wfSvc != nil {
-		services, _ = h.wfSvc.ListServices(ctx, nil)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminServices(lang, dir, services).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin services", "error", err)
-	}
-}
-
-// AdminServiceSubmit adds an institutional service.
-func (h *UIHandler) AdminServiceSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	if h.wfSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/services", "error", "الخدمة غير متاحة حالياً.")
-		return
-	}
-	svc := &workflow.InstitutionalService{
-		Title:       i18n.New(r.PostFormValue("title_ar"), r.PostFormValue("title_en")),
-		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
-		PricingType: workflow.PricingType(r.PostFormValue("pricing_type")),
-	}
-	if _, err := h.wfSvc.CreateService(ctx, svc); err != nil {
-		h.redirectWithNotice(w, r, "/admin/services", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/admin/services", "success", "تمت إضافة الخدمة.")
 }
 
 // AdminPlansPage renders the subscription plan editor and active subscribers tab.

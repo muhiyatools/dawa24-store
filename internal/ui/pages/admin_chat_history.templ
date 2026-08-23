@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
@@ -236,6 +237,31 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 											<span>{ m.CreatedAt.Format("15:04:05") }</span>
 										</div>
 										<div style="font-size:0.9rem; line-height:1.6; color:var(--text); white-space:pre-wrap;" dir="auto">{ m.Content }</div>
+										if len(m.Attachments) > 0 {
+											<div style="margin-top:0.75rem; display:flex; flex-wrap:wrap; gap:0.6rem;">
+												for _, att := range m.Attachments {
+													<div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:var(--surface); max-width:260px;">
+														if strings.HasPrefix(att.MIMEType, "image/") || strings.HasPrefix(att.DataURL, "data:image/") {
+															<a href={ templ.SafeURL(att.DataURL) } target="_blank" title="عرض الصورة بالحجم الكامل">
+																<img 
+																	src={ att.DataURL } 
+																	alt={ att.Filename } 
+																	style="width:100%; max-height:160px; object-fit:cover; display:block; cursor:pointer; background:var(--surface-sunken);" 
+																/>
+															</a>
+														}
+														<div style="padding:0.35rem 0.55rem; font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
+															<span style="font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" title={ att.Filename }>
+																📎 { att.Filename }
+															</span>
+															if att.SizeMB > 0 {
+																<span style="color:var(--text-muted); font-size:0.7rem;" class="tabular-nums">{ fmt.Sprintf("%.2f MB", att.SizeMB) }</span>
+															}
+														</div>
+													</div>
+												}
+											</div>
+										}
 									</div>
 								</div>
 							} else if m.Role == "assistant" {

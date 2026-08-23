@@ -211,27 +211,3 @@ func (r *Request) Validate() error {
 	}
 	return nil
 }
-
-// PricingType classifies an institutional service.
-type PricingType string
-
-const (
-	PricingFree         PricingType = "free"
-	PricingPaid         PricingType = "paid"
-	PricingSubscription PricingType = "subscription"
-)
-
-// InstitutionalService is a hierarchical institutional service (legacy
-// institutional_works).
-type InstitutionalService struct {
-	ID          int64       `json:"id"`
-	PublicID    string      `json:"public_id"`
-	Title       i18n.Text   `json:"title"`
-	Description i18n.Text   `json:"description"`
-	Icon        string      `json:"icon,omitempty"`
-	PricingType PricingType `json:"pricing_type"`
-	ParentID    *int64      `json:"parent_id,omitempty"`
-	IsActive    bool        `json:"is_active"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
-}

@@ -18,7 +18,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -96,19 +95,6 @@ func (r stubRepo) ListRequestsByOrg(context.Context, int64, string, int, int) ([
 func (r stubRepo) UpdateRequestStatus(context.Context, int64, workflow.RequestStatus) error {
 	r.fail("UpdateRequestStatus")
 	return nil
-}
-
-func (r stubRepo) CreateService(context.Context, *workflow.InstitutionalService) error {
-	r.fail("CreateService")
-	return nil
-}
-func (r stubRepo) GetServiceByID(context.Context, int64) (*workflow.InstitutionalService, error) {
-	r.fail("GetServiceByID")
-	return nil, nil
-}
-func (r stubRepo) ListServices(context.Context, *int64) ([]*workflow.InstitutionalService, error) {
-	r.fail("ListServices")
-	return nil, nil
 }
 func (r stubRepo) ListPriorityRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.PurchasePriorityRequest, error) {
 	r.fail("ListPriorityRequestsByUser")
@@ -201,17 +187,6 @@ func (happyRepo) ListRequestsByOrg(ctx context.Context, orgID int64, status stri
 
 func (happyRepo) UpdateRequestStatus(ctx context.Context, id int64, status workflow.RequestStatus) error {
 	return nil
-}
-
-func (happyRepo) CreateService(ctx context.Context, s *workflow.InstitutionalService) error {
-	s.ID = 1
-	return nil
-}
-func (happyRepo) GetServiceByID(ctx context.Context, id int64) (*workflow.InstitutionalService, error) {
-	return &workflow.InstitutionalService{ID: id, Title: i18n.Text{"ar": "خدمة"}, PricingType: workflow.PricingFree, IsActive: true}, nil
-}
-func (happyRepo) ListServices(ctx context.Context, parentID *int64) ([]*workflow.InstitutionalService, error) {
-	return []*workflow.InstitutionalService{{ID: 1, Title: i18n.Text{"ar": "خدمة"}, PricingType: workflow.PricingFree, IsActive: true}}, nil
 }
 func (happyRepo) ListPriorityRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.PurchasePriorityRequest, error) {
 	return []*workflow.PurchasePriorityRequest{{ID: 1, UserID: userID, Status: "completed"}}, nil

@@ -163,12 +163,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>دليل اختيار الدواء</span>
 								</a>
 							}
-							if canAccessAdmin(ctx, "platform.content.view") {
-							<a href="/admin/services" class={ "sidebar-link", templ.KV("active", activeNav == "services") }>
-									@components.IconLayers("icon-sm")
-									<span>الخدمات المنشورة</span>
-								</a>
-							}
 						</div>
 
 						<!-- Group 4: إدارة المنتجات والمخزون (inventory_management) -->
@@ -208,12 +202,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							<a href="/admin/adv-products" class={ "sidebar-link", templ.KV("active", activeNav == "adv_products") }>
 									@components.IconStar("icon-sm")
 									<span>المنتجات المروَّجة</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "catalog.product.view") {
-							<a href="/admin/apis-products" class={ "sidebar-link", templ.KV("active", activeNav == "apis_products") }>
-									@components.IconPaperclip("icon-sm")
-									<span>منتجات التكاملات</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "catalog.product.view") {

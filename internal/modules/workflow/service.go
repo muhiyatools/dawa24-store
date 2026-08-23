@@ -164,29 +164,3 @@ func (s *Service) RespondRequest(ctx context.Context, id int64, status RequestSt
 	}
 	return s.repo.UpdateRequestStatus(ctx, id, status)
 }
-
-// CreateService adds an institutional service to the catalogue.
-func (s *Service) CreateService(ctx context.Context, svc *InstitutionalService) (*InstitutionalService, error) {
-	if svc.Title.IsEmpty() {
-		return nil, apperr.Validation("service.title_required", "A service title is required.", nil)
-	}
-	if svc.PricingType == "" {
-		svc.PricingType = PricingFree
-	}
-	svc.IsActive = true
-	if err := s.repo.CreateService(ctx, svc); err != nil {
-		return nil, err
-	}
-	return svc, nil
-}
-
-// ListServices returns services at a level of the hierarchy (top-level when
-// parentID is nil).
-func (s *Service) ListServices(ctx context.Context, parentID *int64) ([]*InstitutionalService, error) {
-	return s.repo.ListServices(ctx, parentID)
-}
-
-// GetService returns one institutional service.
-func (s *Service) GetService(ctx context.Context, id int64) (*InstitutionalService, error) {
-	return s.repo.GetServiceByID(ctx, id)
-}

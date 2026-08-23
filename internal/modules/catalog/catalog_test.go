@@ -301,6 +301,10 @@ func (m *mockCatalogRepo) BatchUpsertSavingProducts(_ context.Context, orgID int
 	return len(items), 0, nil
 }
 
+func (m *mockCatalogRepo) ListAllSavingProductsAdmin(_ context.Context, _ *int64, _ *int64, _ string, _ string, _, _ int) ([]*SavingProductAdminView, *SavingProductAdminStats, error) {
+	return nil, &SavingProductAdminStats{}, nil
+}
+
 func TestProductEffectivePrice(t *testing.T) {
 	p := &Product{
 		Price:    money.MustParse("100.00"),
