@@ -182,7 +182,7 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 
 	// 1. Hydrate customer branch & organization info
 	queryCustomer := `
-		SELECT COALESCE(org.trade_name, org.legal_name, '{"ar":"","en":""}'::jsonb),
+		SELECT COALESCE(org.name, '{"ar":"","en":""}'::jsonb),
 		       COALESCE(b.name, '{"ar":"","en":""}'::jsonb),
 		       COALESCE(b.address, ''),
 		       COALESCE(b.phone, ''),
@@ -205,7 +205,7 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 		SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
 		       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
 		       s.carrier_name, s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
-		       COALESCE(org.trade_name, org.legal_name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name
+		       COALESCE(org.name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name
 		FROM commerce.order_shipments s
 		LEFT JOIN org.organizations org ON org.id = s.organization_id
 		WHERE s.order_id = $1
@@ -405,7 +405,7 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 			       COALESCE(ord.payment_method, 'cod'),
 			       COALESCE(ord.payment_status, 'unpaid'),
 			       COALESCE(ord.notes, ''),
-			       COALESCE(org.trade_name, org.legal_name, '{"ar":"صيدلية معتمدة","en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
+			       COALESCE(org.name, '{"ar":"صيدلية معتمدة","en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
 			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name,
 			       COALESCE(b.address, '') AS branch_address,
 			       COALESCE(b.phone, '') AS branch_phone,

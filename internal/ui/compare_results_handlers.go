@@ -14,8 +14,13 @@ import (
 // CompareRunSubmit processes selection of suppliers and redirects to results view (Plan V5 Phase 2 §2.5.1).
 func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if _, ok := authctx.From(ctx); !ok {
+	actor, ok := authctx.From(ctx)
+	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
+		return
+	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الأداة مخصصة لحسابات الموردين فقط.")
 		return
 	}
 
@@ -58,9 +63,13 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	_, ok := authctx.From(ctx)
+	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/results", http.StatusSeeOther)
+		return
+	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
 		return
 	}
 
@@ -109,6 +118,10 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
 		return
 	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
+		return
+	}
 
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
@@ -131,9 +144,13 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	lang, dir := h.localeAndDir(r)
 
 	// Authentication check (same as other pharmacy/customer tools)
-	_, ok := authctx.From(ctx)
+	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/market-discounts", http.StatusSeeOther)
+		return
+	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
 		return
 	}
 

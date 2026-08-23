@@ -50,7 +50,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							<tbody>
 								for _, o := range data.Orders {
 									<tr>
-										<td><a href={ fmt.Sprintf("/orders/%d", o.ID) }>{ o.OrderNumber }</a></td>
+										<td><a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) }>{ o.OrderNumber }</a></td>
 										<td><span class="badge badge-emerald">{ o.Status }</span></td>
 										<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: o.TotalAmount })</td>
 									</tr>

@@ -39,6 +39,10 @@ func (h *UIHandler) checkFileOwnership(actor authctx.Actor, file *compare.Compar
 // ComparePlansPage renders the pricing page for the discount-comparison plans.
 func (h *UIHandler) ComparePlansPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
+		return
+	}
 	if !features.Enabled(ctx, "compare.enabled") {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
@@ -79,6 +83,10 @@ func (h *UIHandler) CompareSubscribeSubmit(w http.ResponseWriter, r *http.Reques
 		http.Redirect(w, r, "/auth/login?redirect=/compare", http.StatusSeeOther)
 		return
 	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
+		return
+	}
 
 	slug := r.URL.Query().Get("plan")
 	if slug == "" {
@@ -113,6 +121,10 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
+		return
+	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
 		return
 	}
 

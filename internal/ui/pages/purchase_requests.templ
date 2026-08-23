@@ -3,445 +3,69 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-func getOrgDisplayName(o *org.Organization) string {
-	if o == nil {
-		return ""
-	}
-	if name := o.TradeName.Get(i18n.AR); name != "" {
-		return name
-	}
-	if o.LegalName != "" {
-		return o.LegalName
-	}
-	return fmt.Sprintf("مورد #%d", o.ID)
-}
-
-// CustomerPurchaseRequestWizardPage renders the initial step/option chooser (Plan V5 §3.1.4).
+// CustomerPurchaseRequestWizardPage renders the clean gateway to catalog and suppliers.
 templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string) {
-	@layouts.CustomerShell("طلب شراء جديد", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1100px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem;">
-				<div>
-					<h1 style="font-size:1.75rem; font-weight:700; color:var(--text); margin:0 0 0.5rem 0;">طلب شراء مباشر (Purchase Request)</h1>
-					<p style="color:var(--text-secondary); margin:0; font-size:0.95rem;">اختر طريقة إنشاء الطلب: تصفح أصناف مورد محدد أو اختيار المنتجات عبر الموردين.</p>
-				</div>
-				<a href="/customer/purchase-request/previous" class="btn btn-secondary" style="display:flex; align-items:center; gap:0.5rem;">
-					@components.IconFile("icon-xs")
-					<span>سجل طلبات الشراء السابقة</span>
-				</a>
+	@layouts.CustomerShell("طلبات الشراء والتوريد", "purchase-request", lang, dir, nil) {
+		<div class="container-fluid" style="max-width:1000px; margin:0 auto; padding:1.5rem 1rem;">
+			<div style="margin-bottom:2rem;">
+				<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">طلبات الشراء والتوريد</h1>
+				<p style="color:var(--text-secondary); margin:0; font-size:0.95rem; line-height:1.6;">
+					اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج أصناف وسوق الجملة الدوائي.
+				</p>
 			</div>
 
-			<div class="card" style="padding:2.5rem; border-radius:var(--radius-lg); background:var(--surface-raised); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem;">
+			<div class="card" style="padding:2.5rem; border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem;">
+					
 					<!-- Option 1: By Supplier -->
-					<div class="card" style="padding:2rem; border:2px solid var(--border); border-radius:var(--radius-md); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;"
-						onclick="window.location='/customer/purchase-request/supplier'">
+					<div
+						class="card"
+						style="padding:2rem; border:2px solid var(--border); border-radius:var(--radius-xl); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-sunken);"
+						onclick="window.location='/suppliers'"
+					>
 						<div>
-							<div style="width:64px; height:64px; border-radius:50%; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+							<div style="width:64px; height:64px; border-radius:50%; background:rgba(16,185,129,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
 								@components.IconBuilding("icon-lg")
 							</div>
-							<h3 style="font-size:1.35rem; font-weight:700; margin-bottom:0.75rem; color:var(--text);">البدء باختيار المورد</h3>
-							<p style="color:var(--text-secondary); font-size:0.95rem; line-height:1.6; margin-bottom:1.5rem;">
-								تصفح قائمة الموردين المعتمدين والمتاحين لمنطقتك ومجموعات العمل المؤسسية، ثم حدد الأصناف من قائمة المورد مباشرة.
+							<h3 style="font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);">البدء باختيار المورد</h3>
+							<p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;">
+								تصفح قائمة الموردين والشركات المعتمدة، وتعرف على الفروع ونطاق التغطية وتفاصيل المستودعات المتاحة.
 							</p>
 						</div>
-						<a href="/customer/purchase-request/supplier" class="btn btn-primary" style="width:100%; justify-content:center;">
-							<span>تصفح الموردين</span>
+						<a href="/suppliers" class="btn btn-primary" style="width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);">
+							<span>تصفح دليل الموردين</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 
 					<!-- Option 2: By Products -->
-					<div class="card" style="padding:2rem; border:2px solid var(--border); border-radius:var(--radius-md); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;"
-						onclick="window.location='/customer/purchase-request/products'">
+					<div
+						class="card"
+						style="padding:2rem; border:2px solid var(--border); border-radius:var(--radius-xl); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-sunken);"
+						onclick="window.location='/catalog'"
+					>
 						<div>
-							<div style="width:64px; height:64px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+							<div style="width:64px; height:64px; border-radius:50%; background:rgba(59,130,246,0.12); color:var(--info); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
 								@components.IconPackage("icon-lg")
 							</div>
-							<h3 style="font-size:1.35rem; font-weight:700; margin-bottom:0.75rem; color:var(--text);">البدء بالبحث عن الأصناف</h3>
-							<p style="color:var(--text-secondary); font-size:0.95rem; line-height:1.6; margin-bottom:1.5rem;">
-								ابحث في كتالوج المنتجات المتاح لك عبر جميع الموردين، وحدد الكميات والأسعار المستهدفة لكل صنف.
+							<h3 style="font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);">البحث في كتالوج الأصناف</h3>
+							<p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;">
+								ابحث في كتالوج المنتجات والأصناف المتاحة عبر جميع الموردين، وقارن الأسعار والخصومات وأضف مشترياتك للسلة مباشرة.
 							</p>
 						</div>
-						<a href="/customer/purchase-request/products" class="btn btn-secondary" style="width:100%; justify-content:center;">
-							<span>البحث في الأصناف</span>
+						<a href="/catalog" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);">
+							<span>البحث في كتالوج الأصناف</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
+
 				</div>
 			</div>
-		</div>
-	}
-}
-
-// CustomerPurchaseRequestSupplierListPage lists suppliers filtered by WithConnections mode (Plan V5 §3.1.3).
-templ CustomerPurchaseRequestSupplierListPage(lang, dir string, suppliers []*org.Organization, query string) {
-	@layouts.CustomerShell("اختيار المورد لطلب الشراء", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-				<div>
-					<h1 style="font-size:1.5rem; font-weight:700; color:var(--text); margin:0 0 0.25rem 0;">الموردون المتاحون لطلب الشراء</h1>
-					<p style="color:var(--text-secondary); margin:0; font-size:0.875rem;">تمت تصفية القائمة وفقاً لمجموعات العمل المؤسسية المعتمدة (WithConnections).</p>
-				</div>
-				<a href="/customer/purchase-request" class="btn btn-secondary btn-sm">
-					@components.IconArrowRight("icon-xs")
-					<span>رجوع للخلف</span>
-				</a>
-			</div>
-
-			<!-- Search filter -->
-			<div class="card" style="padding:1rem 1.25rem; margin-bottom:1.5rem; background:var(--surface-raised); border:1px solid var(--border);">
-				<form method="GET" action="/customer/purchase-request/supplier" style="display:flex; gap:0.75rem;">
-					<input type="text" name="q" value={ query } placeholder="ابحث باسم المورد أو الشركة..." class="form-control" style="flex:1;" />
-					<button type="submit" class="btn btn-primary">
-						@components.IconSearch("icon-xs")
-						<span>بحث</span>
-					</button>
-				</form>
-			</div>
-
-			<!-- Supplier grid -->
-			if len(suppliers) == 0 {
-				<div class="card" style="padding:3rem; text-align:center; color:var(--text-secondary); background:var(--surface-raised); border:1px solid var(--border);">
-					@components.IconBuilding("icon-lg")
-					<h4 style="margin-top:1rem; color:var(--text);">لا يوجد موردون متاحون</h4>
-					<p class="m-0">لم يتم العثور على موردين يطابقون خيارات البحث أو مجموعات العمل المؤسسية الحالية.</p>
-				</div>
-			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
-					for _, sup := range suppliers {
-						<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); display:flex; flex-direction:column; justify-content:space-between;">
-							<div>
-								<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
-									<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.2rem;">
-										@components.IconBuilding("icon-sm")
-									</div>
-									<div>
-										<h4 style="margin:0; font-size:1.1rem; color:var(--text); font-weight:700;">{ getOrgDisplayName(sup) }</h4>
-										<span class="badge badge-primary" style="font-size:0.75rem;">مورد معتمد</span>
-									</div>
-								</div>
-								if sup.TaxNumber != "" {
-									<p style="color:var(--text-secondary); font-size:0.875rem; line-height:1.5; margin:0 0 1rem 0;">السجل الضريبي: { sup.TaxNumber }</p>
-								}
-							</div>
-							<a href={ templ.SafeURL(fmt.Sprintf("/customer/purchase-request/supplier/%d", sup.ID)) } class="btn btn-primary btn-sm" style="width:100%; justify-content:center; margin-top:1rem;">
-								<span>عرض الأصناف وإنشاء طلب</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
-					}
-				</div>
-			}
-		</div>
-	}
-}
-
-// CustomerShowPurchaseRequestSupplierPage displays one supplier's products with WithConnections filter.
-templ CustomerShowPurchaseRequestSupplierPage(lang, dir string, supplier *org.Organization, products []*catalog.Product) {
-	@layouts.CustomerShell(fmt.Sprintf("طلب شراء من %s", getOrgDisplayName(supplier)), "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-				<div>
-					<h1 style="font-size:1.5rem; font-weight:700; color:var(--text); margin:0 0 0.25rem 0;">أصناف المورد: { getOrgDisplayName(supplier) }</h1>
-					<p style="color:var(--text-secondary); margin:0; font-size:0.875rem;">أضف الأصناف المطلوبة وحدد الكمية والأسعار المستهدفة.</p>
-				</div>
-				<a href="/customer/purchase-request/supplier" class="btn btn-secondary btn-sm">
-					@components.IconArrowRight("icon-xs")
-					<span>قائمة الموردين</span>
-				</a>
-			</div>
-
-			<form method="POST" action="/customer/purchase-request/submit">
-				<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", supplier.ID) } />
-
-				<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); margin-bottom:1.5rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-						<h3 style="font-size:1.15rem; font-weight:700; margin:0;">الأصناف المتاحة للطلب</h3>
-						<span style="font-size:0.875rem; color:var(--text-secondary);">عدد الأصناف: { fmt.Sprintf("%d", len(products)) }</span>
-					</div>
-
-					<div class="table-responsive">
-						<table class="table" style="width:100%;">
-							<thead>
-								<tr>
-									<th style="width:40px;">#</th>
-									<th>اسم الصنف</th>
-									<th>الكود / SKU</th>
-									<th>السعر المرجعي</th>
-									<th style="width:120px;">الكمية</th>
-									<th style="width:140px;">السعر المستهدف</th>
-									<th style="width:140px;">الخصم المطلوب %</th>
-								</tr>
-							</thead>
-							<tbody>
-								if len(products) == 0 {
-									<tr>
-										<td colspan="7" style="text-align:center; padding:2rem; color:var(--text-secondary);">
-											لا توجد أصناف متاحة لهذا المورد تحت مجموعات العمل المؤسسية الحالية.
-										</td>
-									</tr>
-								}
-								for idx, p := range products {
-									<tr>
-										<td>{ fmt.Sprintf("%d", idx+1) }</td>
-										<td>
-											<strong>{ p.Name.Get(i18n.AR) }</strong>
-											<input type="hidden" name="product_name[]" value={ p.Name.Get(i18n.AR) } />
-											<input type="hidden" name="product_id[]" value={ fmt.Sprintf("%d", p.ID) } />
-										</td>
-										<td>
-											<span class="badge badge-secondary">{ p.SKU }</span>
-											<input type="hidden" name="sku[]" value={ p.SKU } />
-										</td>
-										<td>{ p.Price.String() } ج.م</td>
-										<td>
-											<input type="number" name="quantity[]" value="0" min="0" class="form-control form-control-sm" style="width:90px;" />
-										</td>
-										<td>
-											<input type="text" name="target_price[]" placeholder={ p.Price.String() } class="form-control form-control-sm" style="width:110px;" />
-										</td>
-										<td>
-											<input type="number" step="0.5" name="target_discount[]" placeholder="0" class="form-control form-control-sm" style="width:90px;" />
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				</div>
-
-				<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); margin-bottom:1.5rem;">
-					<label class="form-label" style="font-weight:600;">ملاحظات وتعليمات التوريد للمورد</label>
-					<textarea name="buyer_notes" rows="3" class="form-control" placeholder="أية ملاحظات بخصوص شروط الدفع، موعد التسليم، أو مكان الاستلام..."></textarea>
-				</div>
-
-				<div style="display:flex; justify-content:flex-end; gap:1rem;">
-					<a href="/customer/purchase-request/supplier" class="btn btn-secondary">إلغاء</a>
-					<button type="submit" class="btn btn-primary btn-lg">
-						@components.IconCheckCircle("icon-xs")
-						<span>إرسال طلب الشراء للمورد</span>
-					</button>
-				</div>
-			</form>
-		</div>
-	}
-}
-
-// CustomerPurchaseRequestProductsPage cross-supplier product picker.
-templ CustomerPurchaseRequestProductsPage(lang, dir string, products []*catalog.Product, query string) {
-	@layouts.CustomerShell("البحث عن أصناف لطلب الشراء", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-				<div>
-					<h1 style="font-size:1.5rem; font-weight:700; color:var(--text); margin:0 0 0.25rem 0;">كتالوج الأصناف لطلب الشراء</h1>
-					<p style="color:var(--text-secondary); margin:0; font-size:0.875rem;">ابحث عن الأصناف المطلوبة وحدد الكميات لإنشاء طلب الشراء.</p>
-				</div>
-				<a href="/customer/purchase-request" class="btn btn-secondary btn-sm">
-					@components.IconArrowRight("icon-xs")
-					<span>رجوع للخيارات</span>
-				</a>
-			</div>
-
-			<div class="card" style="padding:1rem 1.25rem; margin-bottom:1.5rem; background:var(--surface-raised); border:1px solid var(--border);">
-				<form method="GET" action="/customer/purchase-request/products" style="display:flex; gap:0.75rem;">
-					<input type="text" name="q" value={ query } placeholder="ابحث باسم الدواء أو المادة الفعالة..." class="form-control" style="flex:1;" />
-					<button type="submit" class="btn btn-primary">
-						@components.IconSearch("icon-xs")
-						<span>بحث</span>
-					</button>
-				</form>
-			</div>
-
-			<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border);">
-				<div class="table-responsive">
-					<table class="table" style="width:100%;">
-						<thead>
-							<tr>
-								<th>اسم الدواء</th>
-								<th>الاسم الإنجليزي</th>
-								<th>الكود</th>
-								<th>السعر الرسمي</th>
-								<th>الإجراء</th>
-							</tr>
-						</thead>
-						<tbody>
-							if len(products) == 0 {
-								<tr>
-									<td colspan="5" style="text-align:center; padding:2rem; color:var(--text-secondary);">
-										لم يتم العثور على أدوية مطابقة للبحث.
-									</td>
-								</tr>
-							}
-							for _, p := range products {
-								<tr>
-									<td><strong>{ p.Name.Get(i18n.AR) }</strong></td>
-									<td style="direction:ltr; text-align:right;">{ p.Name.Get(i18n.EN) }</td>
-									<td><span class="badge badge-secondary">{ p.SKU }</span></td>
-									<td>{ p.Price.String() } ج.م</td>
-									<td>
-										if p.OrganizationID > 0 {
-											<a href={ templ.SafeURL(fmt.Sprintf("/customer/purchase-request/supplier/%d", p.OrganizationID)) } class="btn btn-primary btn-sm">
-												<span>طلب من المورد</span>
-											</a>
-										} else {
-											<a href="/customer/purchase-request/supplier" class="btn btn-secondary btn-sm">
-												<span>تصفح الموردين</span>
-											</a>
-										}
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	}
-}
-
-// CustomerPurchaseRequestPreviousPage history and status overview.
-templ CustomerPurchaseRequestPreviousPage(lang, dir string, requests []*commerce.PurchaseRequest, counts map[string]int, activeStatus string) {
-	@layouts.CustomerShell("سجل طلبات الشراء", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-				<div>
-					<h1 style="font-size:1.5rem; font-weight:700; color:var(--text); margin:0 0 0.25rem 0;">طلبات الشراء السابقة</h1>
-					<p style="color:var(--text-secondary); margin:0; font-size:0.875rem;">متابعة حالة طلبات الشراء الموجهة للموردين وعروض الأسعار والردود.</p>
-				</div>
-				<a href="/customer/purchase-request" class="btn btn-primary">
-					@components.IconPlus("icon-xs")
-					<span>إنشاء طلب شراء جديد</span>
-				</a>
-			</div>
-
-			<!-- Status Filter Tabs -->
-			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:0.5rem;">
-				<a href="/customer/purchase-request/previous?status=all" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "all"), templ.KV("btn-secondary", activeStatus != "all") }>
-					الكل ({ fmt.Sprintf("%d", counts["all"]) })
-				</a>
-				<a href="/customer/purchase-request/previous?status=pending" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "pending"), templ.KV("btn-secondary", activeStatus != "pending") }>
-					قيد الانتظار ({ fmt.Sprintf("%d", counts["pending"]) })
-				</a>
-				<a href="/customer/purchase-request/previous?status=approved" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "approved"), templ.KV("btn-secondary", activeStatus != "approved") }>
-					تمت الموافقة ({ fmt.Sprintf("%d", counts["approved"]) })
-				</a>
-				<a href="/customer/purchase-request/previous?status=processing" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "processing"), templ.KV("btn-secondary", activeStatus != "processing") }>
-					قيد التجهيز ({ fmt.Sprintf("%d", counts["processing"]) })
-				</a>
-				<a href="/customer/purchase-request/previous?status=completed" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "completed"), templ.KV("btn-secondary", activeStatus != "completed") }>
-					مكتمل ({ fmt.Sprintf("%d", counts["completed"]) })
-				</a>
-				<a href="/customer/purchase-request/previous?status=cancelled" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "cancelled"), templ.KV("btn-secondary", activeStatus != "cancelled") }>
-					ملغي ({ fmt.Sprintf("%d", counts["cancelled"]) })
-				</a>
-			</div>
-
-			<!-- Requests List -->
-			if len(requests) == 0 {
-				<div class="card" style="padding:3rem; text-align:center; color:var(--text-secondary); background:var(--surface-raised); border:1px solid var(--border);">
-					@components.IconFile("icon-lg")
-					<h4 style="margin-top:1rem; color:var(--text);">لا توجد طلبات شراء مسجلة</h4>
-					<p class="m-0">لم يتم إنشاء طلبات شراء في هذا القسم حتى الآن.</p>
-				</div>
-			} else {
-				<div style="display:flex; flex-direction:column; gap:1.25rem;">
-					for _, req := range requests {
-						<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md);">
-							<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-								<div>
-									<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.25rem;">
-										<h3 style="margin:0; font-size:1.15rem; color:var(--text); font-weight:700;">طلب #{ req.RequestNumber }</h3>
-										if req.Status == commerce.PurchaseRequestPending {
-											<span class="badge badge-warning">قيد الانتظار</span>
-										} else if req.Status == commerce.PurchaseRequestApproved {
-											<span class="badge badge-success">تمت الموافقة</span>
-										} else if req.Status == commerce.PurchaseRequestProcessing {
-											<span class="badge badge-primary">قيد التجهيز</span>
-										} else if req.Status == commerce.PurchaseRequestCompleted {
-											<span class="badge badge-emerald">مكتمل</span>
-										} else {
-											<span class="badge badge-danger">ملغي</span>
-										}
-									</div>
-									<div style="font-size:0.875rem; color:var(--text-secondary);">
-										المورد: <strong>{ req.VendorName }</strong> | تاريخ الإنشاء: { req.CreatedAt.Format("2006-01-02 15:04") }
-									</div>
-								</div>
-								<div style="text-align:left;">
-									<div style="font-size:1.1rem; font-weight:700; color:var(--text);">{ req.EstimatedTotal.String() } ج.م</div>
-									<div style="font-size:0.8rem; color:var(--text-secondary);">{ fmt.Sprintf("%d", req.TotalItems) } أصناف</div>
-								</div>
-							</div>
-
-							if req.VendorNotes != "" {
-								<div style="background:var(--primary-subtle); padding:0.75rem 1rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.9rem; color:var(--text);">
-									<strong>رد وملاحظات المورد:</strong> { req.VendorNotes }
-								</div>
-							}
-
-							if len(req.Lines) > 0 {
-								<div class="table-responsive" style="margin-top:0.75rem;">
-									<table class="table" style="width:100%; font-size:0.875rem;">
-										<thead>
-											<tr>
-												<th>الصنف</th>
-												<th>الكمية</th>
-												<th>السعر المستهدف</th>
-												<th>الخصم المطلوب</th>
-												<th>السعر المعروض من المورد</th>
-												<th>الخصم المعروض</th>
-												<th>الحالة</th>
-											</tr>
-										</thead>
-										<tbody>
-											for _, line := range req.Lines {
-												<tr>
-													<td><strong>{ line.ProductName }</strong></td>
-													<td>{ fmt.Sprintf("%d", line.Quantity) }</td>
-													<td>{ line.TargetPrice.String() } ج.م</td>
-													<td>{ fmt.Sprintf("%.1f%%", line.TargetDiscount) }</td>
-													<td>
-														if line.OfferedPrice.IsPositive() {
-															<span style="color:var(--emerald-600); font-weight:600;">{ line.OfferedPrice.String() } ج.م</span>
-														} else {
-															<span style="color:var(--text-secondary);">-</span>
-														}
-													</td>
-													<td>
-														if line.OfferedDiscount > 0 {
-															<span style="color:var(--emerald-600); font-weight:600;">{ fmt.Sprintf("%.1f%%", line.OfferedDiscount) }</span>
-														} else {
-															<span style="color:var(--text-secondary);">-</span>
-														}
-													</td>
-													<td>
-														if line.Status == "approved" {
-															<span class="badge badge-success">مقبول</span>
-														} else if line.Status == "rejected" {
-															<span class="badge badge-danger">مرفوض</span>
-														} else {
-															<span class="badge badge-secondary">قيد المراجعة</span>
-														}
-													</td>
-												</tr>
-											}
-										</tbody>
-									</table>
-								</div>
-							}
-						</div>
-					}
-				</div>
-			}
 		</div>
 	}
 }

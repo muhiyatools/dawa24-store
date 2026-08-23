@@ -274,11 +274,11 @@ func TestCompareUploadSubmit_E2E(t *testing.T) {
 	req := httptest.NewRequest("POST", "/compare/upload", &body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
-	// Attach authenticated actor
+	// Attach authenticated vendor actor
 	actor := authctx.Actor{
 		UserID:         100,
 		OrganizationID: 200,
-		OrgType:        "customer",
+		OrgType:        "vendor",
 	}
 	req = req.WithContext(authctx.WithActor(req.Context(), actor))
 
@@ -523,7 +523,7 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 		},
 	})
 
-	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "vendor"}
 
 	req := httptest.NewRequest("GET", "/market-discounts?q=اماريل&supplier=مخزن+المتحدة+بلقيس", nil)
 	req = req.WithContext(authctx.WithActor(req.Context(), actor))
@@ -547,5 +547,32 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 	}
 	if !strings.Contains(body, "36% خصم") && !strings.Contains(body, "%36 خصم") {
 		t.Errorf("expected body to contain discount percentage badge")
+	}
+}
+
+func TestCompare_PharmacyRestricted(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	h := ui.NewUIHandler(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+	)
+
+	pharmacyActor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+
+	// 1. Compare Tool Page should redirect pharmacy
+	reqTool := httptest.NewRequest("GET", "/compare/tool", nil)
+	reqTool = reqTool.WithContext(authctx.WithActor(reqTool.Context(), pharmacyActor))
+	recTool := httptest.NewRecorder()
+	h.CompareToolPage(recTool, reqTool)
+	if recTool.Code != http.StatusSeeOther {
+		t.Errorf("expected redirect for pharmacy on compare tool, got %d", recTool.Code)
+	}
+
+	// 2. Market Discounts Page should redirect pharmacy
+	reqMarket := httptest.NewRequest("GET", "/market-discounts", nil)
+	reqMarket = reqMarket.WithContext(authctx.WithActor(reqMarket.Context(), pharmacyActor))
+	recMarket := httptest.NewRecorder()
+	h.MarketDiscountsPage(recMarket, reqMarket)
+	if recMarket.Code != http.StatusSeeOther {
+		t.Errorf("expected redirect for pharmacy on market discounts, got %d", recMarket.Code)
 	}
 }

@@ -54,10 +54,6 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconFile("icon-sm")
 							<span>طلبات الشراء</span>
 						</a>
-						<a href="/customer/purchase-request/products" class={ "sidebar-link", templ.KV("active", activeNav == "purchase-request-products") }>
-							@components.IconPackage("icon-sm")
-							<span>منتجات طلبات الشراء</span>
-						</a>
 					</div>
 
 					<!-- Group 2: العروض والموردون -->
@@ -72,14 +68,6 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 						<a href="/customer/saving-products" class={ "sidebar-link", templ.KV("active", activeNav == "saving_products") }>
 							@components.IconPackage("icon-sm")
 							<span>منتجات التوفير</span>
-						</a>
-						<a href="/compare/tool" class={ "sidebar-link", templ.KV("active", activeNav == "compare") }>
-							@components.IconTrendingUp("icon-sm")
-							<span>مقارنة الخصومات</span>
-						</a>
-						<a href="/market-discounts" class={ "sidebar-link", templ.KV("active", activeNav == "market-discounts") }>
-							@components.IconChart("icon-sm")
-							<span>خصومات السوق</span>
 						</a>
 						<a href="/suppliers" class={ "sidebar-link", templ.KV("active", activeNav == "suppliers") }>
 							@components.IconBuilding("icon-sm")
