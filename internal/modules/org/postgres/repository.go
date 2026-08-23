@@ -570,7 +570,7 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 
 // AddMember adds a user to an organization with full employee attributes.
 func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO org.members (
 				organization_id, user_id, branch_id, role_id, role_key,
@@ -590,8 +590,12 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 			    updated_at = now()
 			RETURNING id, created_at, updated_at;
 		`
+		var roleID *int64
+		if m.RoleID > 0 {
+			roleID = &m.RoleID
+		}
 		return tx.QueryRow(txCtx, query,
-			m.OrganizationID, m.UserID, m.BranchID, m.RoleID, m.RoleKey,
+			m.OrganizationID, m.UserID, m.BranchID, roleID, m.RoleKey,
 			m.EmployeeCode, m.JobTitle, m.BaseSalary, m.VariableSalary, m.IsActive,
 		).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 	})

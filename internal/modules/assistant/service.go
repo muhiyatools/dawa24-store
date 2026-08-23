@@ -188,7 +188,11 @@ func (s *Service) BuildTurn(
 		userContent.WriteString(d.RenderBlock())
 		userContent.WriteString("\n\n")
 	}
-	userContent.WriteString(userText)
+	prompt := strings.TrimSpace(userText)
+	if prompt == "" && (len(plan.DirectParts) > 0 || len(prePassDigests) > 0) {
+		prompt = "يرجى فحص وتحليل هذه الصورة/المرفق واستخراج الأدوية والأصناف والبيانات الصيدلانية بدقة."
+	}
+	userContent.WriteString(prompt)
 
 	var messages []gateway.ChatMessage
 	messages = append(messages, gateway.ChatMessage{

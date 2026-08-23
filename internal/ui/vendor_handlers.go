@@ -459,7 +459,13 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	noticeType := r.URL.Query().Get("notice_type")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice")
+	}
 	noticeMsg := r.URL.Query().Get("notice_msg")
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("msg")
+	}
 
 	var memberViews []*pages.TeamMemberView
 	var branchOptions []*pages.BranchOption

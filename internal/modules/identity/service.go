@@ -67,7 +67,7 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*User, *Se
 	}
 
 	role := input.Role
-	if role == "" || role == "customer" || role == "vendor" || role == "supplier" || role == "pharmacy" || role == "individual" {
+	if role != "support" && role != "admin" && role != "super_admin" && role != "developer" {
 		role = "user"
 	}
 

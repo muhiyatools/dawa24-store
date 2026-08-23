@@ -578,8 +578,9 @@ func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 			Email:    email,
 			Password: "Password123!",
 			NameAr:   name,
+			NameEn:   name,
 			Phone:    phone,
-			Role:     "employee",
+			Role:     "user",
 		})
 		if err != nil {
 			h.redirectWithNotice(w, r, "/settings/employees", "error", h.safeMessage(err, langOf(r)))
@@ -593,7 +594,6 @@ func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		OrganizationID: actor.OrganizationID,
 		UserID:         targetUserID,
 		BranchID:       branchID,
-		RoleID:         1,
 		RoleKey:        roleKey,
 		EmployeeCode:   employeeCode,
 		JobTitle:       jobTitle,

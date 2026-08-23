@@ -1027,11 +1027,15 @@ templ CapsuleAssistant() {
 						const q = this.inputQuery.trim();
 						if (this.isStreaming || (!q && this.attachedFiles.length === 0)) return;
 
-						// Check if any file is still uploading
-						const stillUploading = this.attachedFiles.some(f => f.uploading);
-						if (stillUploading) {
-							this.statusMessage = 'يرجى الانتظار حتى اكتمال رفع المرفقات...';
-							return;
+						// If any file is still uploading, wait asynchronously up to 8s for completion
+						if (this.attachedFiles.some(f => f.uploading)) {
+							this.statusMessage = 'جاري رفع المرفقات...';
+							let waited = 0;
+							while (this.attachedFiles.some(f => f.uploading) && waited < 32) {
+								await new Promise(r => setTimeout(r, 250));
+								waited++;
+							}
+							this.statusMessage = '';
 						}
 
 						const handles = this.attachedFiles.filter(f => f.handle && !f.error).map(f => f.handle);
