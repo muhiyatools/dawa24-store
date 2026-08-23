@@ -62,6 +62,18 @@ func (r stubRepo) CreateJobOffer(context.Context, *hr.JobOffer) error {
 	r.fail("CreateJobOffer")
 	return nil
 }
+func (r stubRepo) UpdateJobOffer(context.Context, *hr.JobOffer) error {
+	r.fail("UpdateJobOffer")
+	return nil
+}
+func (r stubRepo) DeleteJobOffer(context.Context, int64, int64) error {
+	r.fail("DeleteJobOffer")
+	return nil
+}
+func (r stubRepo) ToggleJobOfferStatus(context.Context, int64, int64) error {
+	r.fail("ToggleJobOfferStatus")
+	return nil
+}
 func (r stubRepo) ListJobsByOrg(context.Context, int64, int, int) ([]*hr.JobOffer, error) {
 	r.fail("ListJobsByOrg")
 	return nil, nil
@@ -73,6 +85,10 @@ func (r stubRepo) CreateJobApplication(context.Context, *hr.JobApplication) erro
 func (r stubRepo) ListApplicationsByOffer(context.Context, int64, int, int) ([]*hr.JobApplication, error) {
 	r.fail("ListApplicationsByOffer")
 	return nil, nil
+}
+func (r stubRepo) CountApplicationsByOffer(context.Context, int64) (int, error) {
+	r.fail("CountApplicationsByOffer")
+	return 0, nil
 }
 func (r stubRepo) ListApplicationsByUser(context.Context, int64) ([]*hr.JobApplication, error) {
 	r.fail("ListApplicationsByUser")
@@ -120,6 +136,15 @@ func (happyRepo) CreateJobOffer(ctx context.Context, j *hr.JobOffer) error {
 	j.ID = 1
 	return nil
 }
+func (happyRepo) UpdateJobOffer(ctx context.Context, j *hr.JobOffer) error {
+	return nil
+}
+func (happyRepo) DeleteJobOffer(ctx context.Context, orgID, jobID int64) error {
+	return nil
+}
+func (happyRepo) ToggleJobOfferStatus(ctx context.Context, orgID, jobID int64) error {
+	return nil
+}
 func (happyRepo) ListJobsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*hr.JobOffer, error) {
 	return []*hr.JobOffer{{ID: 1, OrganizationID: orgID, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, nil
 }
@@ -129,6 +154,9 @@ func (happyRepo) CreateJobApplication(ctx context.Context, a *hr.JobApplication)
 }
 func (happyRepo) ListApplicationsByOffer(ctx context.Context, offerID int64, limit, offset int) ([]*hr.JobApplication, error) {
 	return []*hr.JobApplication{{ID: 1, JobOfferID: offerID, ApplicantName: "أحمد", ApplicantEmail: "a@example.com"}}, nil
+}
+func (happyRepo) CountApplicationsByOffer(ctx context.Context, offerID int64) (int, error) {
+	return 1, nil
 }
 func (happyRepo) ListApplicationsByUser(ctx context.Context, userID int64) ([]*hr.JobApplication, error) {
 	return []*hr.JobApplication{{ID: 1, ApplicantName: "أحمد", ApplicantEmail: "a@example.com"}}, nil

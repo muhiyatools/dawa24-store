@@ -20,6 +20,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
 )
 
 // ClientInfo captures client environment details for session device cap tracking.
@@ -427,32 +428,9 @@ func (s *Service) UploadAndProcessCompareFile(
 		return file, archived, nil
 	}
 
-	// 1. Read all rows from file (using GetRows for Excel or ReadAll for CSV)
-	var allRows [][]string
-	lowerName := strings.ToLower(originalFilename)
-	if strings.HasSuffix(lowerName, ".xlsx") || strings.HasSuffix(lowerName, ".xls") {
-		f, err := excelize.OpenReader(bytes.NewReader(fileBytes))
-		if err == nil {
-			defer f.Close()
-			sheets := f.GetSheetList()
-			if len(sheets) > 0 {
-				rows, err := f.GetRows(sheets[0])
-				if err == nil {
-					allRows = rows
-				}
-			}
-		}
-	} else if strings.HasSuffix(lowerName, ".csv") {
-		r := csv.NewReader(bytes.NewReader(fileBytes))
-		r.FieldsPerRecord = -1
-		r.TrimLeadingSpace = true
-		rows, err := r.ReadAll()
-		if err == nil {
-			allRows = rows
-		}
-	}
-
-	if len(allRows) == 0 {
+	// 1. Read all rows from file using universal spreadsheet reader
+	allRows, err := spreadsheet.ReadRows(fileBytes)
+	if err != nil || len(allRows) == 0 {
 		file.Status = FileFailed
 		file.ErrorMessage = "الملف فارغ أو تعذر قراءة الجداول بداخله"
 		_ = s.repo.UpdateFile(ctx, file)

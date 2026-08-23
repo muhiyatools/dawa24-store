@@ -2,11 +2,44 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
+// SupplierVariantCard represents an enriched product variant supplied by a specific vendor.
+// This is the core storefront item for the pharmacy catalog (Rebuild V2).
+type SupplierVariantCard struct {
+	VariantID       int64
+	ProductID       int64
+	ProductNameAr   string
+	ProductNameEn   string
+	ProductImage    string
+	VariantName     string
+	SKU             string
+	DosageForm      string
+	Manufacturer    string
+	ScientificName  string
+	PublicPrice     money.Amount // Suggested consumer retail price
+	SupplierID      int64
+	SupplierName    string
+	SupplierLogo    string
+	SupplierRating  float64
+	IsVerified      bool
+	BranchName      string
+	CityName        string
+	Price           money.Amount // Net pharmacy price
+	OriginalPrice   money.Amount // Original list price before offer
+	DiscountPercent int          // 15 = 15%
+	AvailableStock  int
+	MinOrderQty     int
+	BatchNumber     string
+	ExpiryDate      string
+	IsCovered       bool
+	CoverageReason  string
+	CanAddToCart    bool
+}
+
 // SupplierOffer represents one real vendor offer line shown on the storefront.
-// Every price here is resolved through promo.EffectivePrice by the handler.
 type SupplierOffer struct {
 	OfferID          int64
 	VariantID        int64
@@ -33,6 +66,22 @@ type SupplierOffer struct {
 	CanAddToCart     bool
 }
 
+// VariantDetailPageData contains full data for the dedicated Product Variant Details page.
+type VariantDetailPageData struct {
+	Variant        *catalog.ProductVariant
+	Product        *catalog.Product
+	SupplierOrg    *org.Organization
+	SupplierBranch *org.Branch
+	CurrentOffer   SupplierOffer
+	OtherOffers    []SupplierOffer
+	AllVariants    []*catalog.ProductVariant
+	StockQty       int
+	IsCovered      bool
+	CoverageReason string
+	Rating         float64
+	ReviewCount    int
+}
+
 // ProductDetailViewData encapsulates complete B2B pharmaceutical presentation.
 type ProductDetailViewData struct {
 	Product        *catalog.Product
@@ -41,6 +90,19 @@ type ProductDetailViewData struct {
 	Rating         float64
 	ReviewCount    int
 	LowestPrice    money.Amount
+}
+
+// CatalogPageData encapsulates filter inputs and variant card results for the catalog page.
+type CatalogPageData struct {
+	Variants   []*SupplierVariantCard
+	Categories []*catalog.Category
+	Query      string
+	CategoryID *int64
+	MinPrice   string
+	MaxPrice   string
+	DosageForm string
+	Sort       string
+	InStock    bool
 }
 
 // CatalogFilterParams encapsulates filter inputs for the catalog page.

@@ -99,6 +99,21 @@ func (s *Service) ListOrgJobs(ctx context.Context, orgID int64, limit, offset in
 	return s.repo.ListJobsByOrg(ctx, orgID, limit, offset)
 }
 
+// DeleteJobOffer removes a job vacancy.
+func (s *Service) DeleteJobOffer(ctx context.Context, orgID, jobID int64) error {
+	return s.repo.DeleteJobOffer(ctx, orgID, jobID)
+}
+
+// ToggleJobOfferStatus toggles a job vacancy status between published and closed.
+func (s *Service) ToggleJobOfferStatus(ctx context.Context, orgID, jobID int64) error {
+	return s.repo.ToggleJobOfferStatus(ctx, orgID, jobID)
+}
+
+// CountApplications returns application count for a vacancy.
+func (s *Service) CountApplications(ctx context.Context, offerID int64) (int, error) {
+	return s.repo.CountApplicationsByOffer(ctx, offerID)
+}
+
 // ApplyToJob records an application for a vacancy.
 func (s *Service) ApplyToJob(ctx context.Context, a *JobApplication) error {
 	if a.ApplicantName == "" || a.ApplicantEmail == "" {

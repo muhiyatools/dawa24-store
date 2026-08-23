@@ -70,6 +70,18 @@ func (m *mockHRRepo) CreateJobOffer(_ context.Context, j *hr.JobOffer) error {
 	return nil
 }
 
+func (m *mockHRRepo) UpdateJobOffer(_ context.Context, _ *hr.JobOffer) error {
+	return nil
+}
+
+func (m *mockHRRepo) DeleteJobOffer(_ context.Context, _, _ int64) error {
+	return nil
+}
+
+func (m *mockHRRepo) ToggleJobOfferStatus(_ context.Context, _, _ int64) error {
+	return nil
+}
+
 func (m *mockHRRepo) ListJobsByOrg(_ context.Context, _ int64, _, _ int) ([]*hr.JobOffer, error) {
 	return nil, nil
 }
@@ -81,6 +93,10 @@ func (m *mockHRRepo) CreateJobApplication(_ context.Context, a *hr.JobApplicatio
 
 func (m *mockHRRepo) ListApplicationsByOffer(_ context.Context, _ int64, _, _ int) ([]*hr.JobApplication, error) {
 	return nil, nil
+}
+
+func (m *mockHRRepo) CountApplicationsByOffer(_ context.Context, _ int64) (int, error) {
+	return 0, nil
 }
 
 func (m *mockHRRepo) ListApplicationsByUser(_ context.Context, _ int64) ([]*hr.JobApplication, error) {

@@ -101,7 +101,7 @@ func (r *Repository) GetPurchaseRequestByID(ctx context.Context, id int64) (*com
 			SELECT pr.id, pr.public_id, pr.request_number, pr.customer_id, pr.organization_id, pr.branch_id,
 			       pr.vendor_org_id, pr.vendor_branch_id, pr.status, pr.total_items, pr.estimated_total,
 			       pr.buyer_notes, pr.vendor_notes, pr.created_at, pr.updated_at, pr.responded_at, pr.responded_by,
-			       COALESCE(vo.name, '') as vendor_name, COALESCE(co.name, '') as customer_name
+			       COALESCE(vo.name->>'ar', vo.name->>'en', '') as vendor_name, COALESCE(co.name->>'ar', co.name->>'en', '') as customer_name
 			FROM commerce.purchase_requests pr
 			LEFT JOIN org.organizations vo ON vo.id = pr.vendor_org_id
 			LEFT JOIN org.organizations co ON co.id = pr.organization_id
@@ -168,7 +168,7 @@ func (r *Repository) ListPurchaseRequestsByCustomer(ctx context.Context, custome
 			SELECT pr.id, pr.public_id, pr.request_number, pr.customer_id, pr.organization_id, pr.branch_id,
 			       pr.vendor_org_id, pr.vendor_branch_id, pr.status, pr.total_items, pr.estimated_total,
 			       pr.buyer_notes, pr.vendor_notes, pr.created_at, pr.updated_at, pr.responded_at, pr.responded_by,
-			       COALESCE(vo.name, '') as vendor_name, COALESCE(co.name, '') as customer_name
+			       COALESCE(vo.name->>'ar', vo.name->>'en', '') as vendor_name, COALESCE(co.name->>'ar', co.name->>'en', '') as customer_name
 			FROM commerce.purchase_requests pr
 			LEFT JOIN org.organizations vo ON vo.id = pr.vendor_org_id
 			LEFT JOIN org.organizations co ON co.id = pr.organization_id
@@ -222,7 +222,7 @@ func (r *Repository) ListPurchaseRequestsByVendor(ctx context.Context, vendorOrg
 			SELECT pr.id, pr.public_id, pr.request_number, pr.customer_id, pr.organization_id, pr.branch_id,
 			       pr.vendor_org_id, pr.vendor_branch_id, pr.status, pr.total_items, pr.estimated_total,
 			       pr.buyer_notes, pr.vendor_notes, pr.created_at, pr.updated_at, pr.responded_at, pr.responded_by,
-			       COALESCE(vo.name, '') as vendor_name, COALESCE(co.name, '') as customer_name
+			       COALESCE(vo.name->>'ar', vo.name->>'en', '') as vendor_name, COALESCE(co.name->>'ar', co.name->>'en', '') as customer_name
 			FROM commerce.purchase_requests pr
 			LEFT JOIN org.organizations vo ON vo.id = pr.vendor_org_id
 			LEFT JOIN org.organizations co ON co.id = pr.organization_id

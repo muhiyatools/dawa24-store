@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -63,8 +64,8 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		Sort:       sort,
 		MinPrice:   minPrice,
 		MaxPrice:   maxPrice,
-		Limit:      h.pageLimit(r),
-		Offset:     h.pageOffset(r),
+		Limit:      100,
+		Offset:     0,
 	})
 	if err != nil {
 		h.renderError(w, r, err)
@@ -73,8 +74,100 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	categories, _ := h.catSvc.ListCategories(ctx)
 
+	var variantCards []*pages.SupplierVariantCard
+
+	for _, p := range products {
+		if p == nil {
+			continue
+		}
+
+		if dosageForm != "" && !strings.EqualFold(p.DosageForm, dosageForm) {
+			continue
+		}
+
+		variants, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
+		offers := h.offersForProduct(ctx, p, variants)
+
+		if len(offers) > 0 {
+			for _, off := range offers {
+				if inStock && off.AvailableStock <= 0 {
+					continue
+				}
+				if minPrice != nil && off.Price.Minor() < minPrice.Minor() {
+					continue
+				}
+				if maxPrice != nil && off.Price.Minor() > maxPrice.Minor() {
+					continue
+				}
+
+				// Find variant unit name
+				varUnitName := ""
+				varSKU := ""
+				for _, v := range variants {
+					if v != nil && v.ID == off.VariantID {
+						varUnitName = v.Name["ar"]
+						if varUnitName == "" {
+							varUnitName = v.Name["en"]
+						}
+						varSKU = v.SKU
+						break
+					}
+				}
+
+				discPct := int(off.DiscountBPS / 100)
+
+				variantCards = append(variantCards, &pages.SupplierVariantCard{
+					VariantID:       off.VariantID,
+					ProductID:       p.ID,
+					ProductNameAr:   p.Name.Get(i18n.AR),
+					ProductNameEn:   p.Name.Get(i18n.EN),
+					ProductImage:    p.Image,
+					VariantName:     varUnitName,
+					SKU:             varSKU,
+					DosageForm:      p.DosageForm,
+					Manufacturer:    p.ManufacturingCompanies,
+					ScientificName:  p.ScientificName,
+					PublicPrice:     p.Price,
+					SupplierID:      off.SupplierID,
+					SupplierName:    off.SupplierName,
+					SupplierRating:  off.SupplierRating,
+					IsVerified:      off.IsVerified,
+					BranchName:      off.BranchName,
+					CityName:        off.CityName,
+					Price:           off.Price,
+					OriginalPrice:   off.OldPrice,
+					DiscountPercent: discPct,
+					AvailableStock:  off.AvailableStock,
+					MinOrderQty:     off.MinOrderQty,
+					ExpiryDate:      off.ExpiryDate,
+					IsCovered:       off.IsCovered,
+					CoverageReason:  off.CoverageReason,
+					CanAddToCart:    off.CanAddToCart,
+				})
+			}
+		} else {
+			// Fallback: master product without variant offer yet
+			if !inStock {
+				variantCards = append(variantCards, &pages.SupplierVariantCard{
+					ProductID:      p.ID,
+					ProductNameAr:  p.Name.Get(i18n.AR),
+					ProductNameEn:  p.Name.Get(i18n.EN),
+					ProductImage:   p.Image,
+					DosageForm:     p.DosageForm,
+					Manufacturer:   p.ManufacturingCompanies,
+					ScientificName: p.ScientificName,
+					PublicPrice:    p.Price,
+					Price:          p.Price,
+					SupplierName:   "طلب توريد خاص",
+					IsCovered:      true,
+					CanAddToCart:   false,
+				})
+			}
+		}
+	}
+
 	viewData := pages.CatalogPageData{
-		Products:   products,
+		Variants:   variantCards,
 		Categories: categories,
 		Query:      query,
 		CategoryID: categoryID,
@@ -106,13 +199,35 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	product, variants, err := h.catSvc.GetProduct(ctx, id)
+	// Try lookup as variant first, then fallback to product
+	var targetProductID int64
+	var targetVariantID int64
+
+	if variant, err := h.catSvc.GetVariant(ctx, id); err == nil && variant != nil {
+		targetProductID = variant.ProductID
+		targetVariantID = variant.ID
+	} else {
+		targetProductID = id
+	}
+
+	product, variants, err := h.catSvc.GetProduct(ctx, targetProductID)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
 	offers := h.offersForProduct(ctx, product, variants)
+
+	// If target variant was specified, prioritize its offer to the top
+	if targetVariantID > 0 && len(offers) > 1 {
+		for i, off := range offers {
+			if off.VariantID == targetVariantID && i > 0 {
+				targetOffer := offers[i]
+				offers = append([]pages.SupplierOffer{targetOffer}, append(offers[:i], offers[i+1:]...)...)
+				break
+			}
+		}
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.CustomerProductDetail(product, variants, offers, lang, dir).Render(ctx, w); err != nil {

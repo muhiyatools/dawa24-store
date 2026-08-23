@@ -1,9 +1,7 @@
 package ui
 
 import (
-	"bytes"
 	"context"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -21,6 +19,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
+	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -511,64 +510,13 @@ func (h *UIHandler) loadFileHeadersAndPreview(ctx context.Context, file *compare
 
 // parseFilePreview reads the first few rows of a spreadsheet for mapping preview.
 func (h *UIHandler) parseFilePreview(reader io.Reader, filename string) ([]string, [][]string, error) {
-	lower := strings.ToLower(filename)
-	if strings.HasSuffix(lower, ".xlsx") || strings.HasSuffix(lower, ".xls") {
-		return h.parseXLSXPreview(reader)
-	}
-	if strings.HasSuffix(lower, ".csv") {
-		return h.parseCSVPreview(reader)
-	}
-	return nil, nil, fmt.Errorf("unsupported file format")
-}
-
-func (h *UIHandler) parseCSVPreview(reader io.Reader) ([]string, [][]string, error) {
-	csvReader := csv.NewReader(reader)
-	csvReader.FieldsPerRecord = -1
-	csvReader.TrimLeadingSpace = true
-
-	allRows, err := csvReader.ReadAll()
-	if err != nil {
-		return nil, nil, err
-	}
-	if len(allRows) == 0 {
-		return nil, nil, fmt.Errorf("empty csv")
-	}
-
-	headerRowIdx, _, _ := compare.FindBestHeaderRow(allRows)
-	headers := allRows[headerRowIdx]
-
-	var preview [][]string
-	for i := headerRowIdx + 1; i < len(allRows) && len(preview) < 5; i++ {
-		if len(allRows[i]) > 0 {
-			preview = append(preview, allRows[i])
-		}
-	}
-	return headers, preview, nil
-}
-
-func (h *UIHandler) parseXLSXPreview(reader io.Reader) ([]string, [][]string, error) {
 	data, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	f, err := excelize.OpenReader(bytes.NewReader(data))
-	if err != nil {
-		return nil, nil, err
-	}
-	defer f.Close()
-
-	sheets := f.GetSheetList()
-	if len(sheets) == 0 {
-		return nil, nil, fmt.Errorf("no sheets")
-	}
-
-	allRows, err := f.GetRows(sheets[0])
-	if err != nil {
-		return nil, nil, err
-	}
-	if len(allRows) == 0 {
-		return nil, nil, fmt.Errorf("empty sheet")
+	allRows, err := spreadsheet.ReadRows(data)
+	if err != nil || len(allRows) == 0 {
+		return nil, nil, fmt.Errorf("empty or unparseable spreadsheet: %w", err)
 	}
 
 	headerRowIdx, _, _ := compare.FindBestHeaderRow(allRows)
@@ -580,7 +528,6 @@ func (h *UIHandler) parseXLSXPreview(reader io.Reader) ([]string, [][]string, er
 			preview = append(preview, allRows[i])
 		}
 	}
-
 	return headers, preview, nil
 }
 

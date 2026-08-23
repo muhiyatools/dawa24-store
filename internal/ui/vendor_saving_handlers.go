@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"bytes"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -240,31 +239,10 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
-	var rawRows [][]string
-	if ext == ".csv" {
-		csvReader := csv.NewReader(bytes.NewReader(fileBytes))
-		csvReader.FieldsPerRecord = -1
-		rawRows, err = csvReader.ReadAll()
-	} else {
-		xlFile, xlErr := excelize.OpenReader(bytes.NewReader(fileBytes))
-		if xlErr != nil {
-			h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "تعذر قراءة ملف Excel: "+xlErr.Error())
-			return
-		}
-		defer xlFile.Close()
-
-		sheetName := xlFile.GetSheetName(0)
-		if sheetName == "" {
-			sheets := xlFile.GetSheetList()
-			if len(sheets) > 0 {
-				sheetName = sheets[0]
-			}
-		}
-		rawRows, err = xlFile.GetRows(sheetName)
-	}
-
+	rawRows, err := spreadsheet.ReadRows(fileBytes)
 	if err != nil || len(rawRows) < 2 {
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "الملف لا يحتوي على صفوف بيانات صالحة.")
+		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", header.Filename)
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات صالحة.")
 		return
 	}
 
