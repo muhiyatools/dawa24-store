@@ -286,264 +286,72 @@ templ AdminAdvProductsPage(lang, dir string) {
 	@AdminProductsImportPage(lang, dir)
 }
 
-// AdminProductsImportPage renders the comprehensive bulk catalog import wizard.
+// AdminProductsImportPage renders the simple and robust bulk catalog import page.
 templ AdminProductsImportPage(lang, dir string) {
-	@layouts.AdminShell("معالج الاستيراد الشامل للأدوية والكتالوج العام", "import", lang, dir) {
-		<div style="max-width:1100px; margin:0 auto 3rem auto; display:flex; flex-direction:column; gap:1.5rem;">
+	@layouts.AdminShell("استيراد الأصناف إلى الكتالوج العام", "import", lang, dir) {
+		<div style="max-width:800px; margin:0 auto 3rem auto; display:flex; flex-direction:column; gap:1.5rem;">
 			
-			<!-- Header Banner -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
-					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-								@components.IconUpload("icon-sm")
-							</div>
-							<div>
-								<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">
-									معالج الاستيراد الشامل والذكي للكتالوج العام
-								</h1>
-								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Intelligent Enterprise Catalog Ingestion Engine</span>
-							</div>
-						</div>
-						<p style="font-size:0.9rem; color:var(--text-secondary); margin:0.35rem 0 0 0;">
-							استيراد وتحديث آلاف الأصناف الدوائية والمستحضرات المعتمدة دفعة واحدة مع كشف الترويسات التلقائي، فلترة تكرار الطباعة، واستخراج الأشكال والتركيزات الصيدلانية آلياً.
-						</p>
-					</div>
+			<!-- Header Card -->
+			<div class="card mb-0" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding:1.5rem;">
+				<div>
+					<h1 style="font-size:1.4rem; font-weight:800; color:var(--text); margin:0 0 0.25rem 0;">
+						استيراد الأصناف إلى الكتالوج المعتمد
+					</h1>
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">
+						رفع وتحديث قوائم الأدوية والمستحضرات الطبية بدفعات سريعة من ملفات Excel أو CSV.
+					</p>
+				</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-						<a href="/admin/products/sample.xlsx" class="btn btn-secondary" style="font-weight:700; font-size:0.875rem;">
-							@components.IconDownload("icon-xs")
-							<span>تحميل قالب Excel (.xlsx)</span>
-						</a>
-						<a href="/admin/products/sample.csv" class="btn btn-secondary" style="font-weight:700; font-size:0.875rem;">
-							@components.IconDownload("icon-xs")
-							<span>تحميل قالب CSV (.csv)</span>
-						</a>
-					</div>
+				<div style="display:flex; gap:0.5rem;">
+					<a href="/admin/products/sample.xlsx" class="btn btn-secondary btn-sm" style="font-weight:700;">
+						@components.IconDownload("icon-xs")
+						<span>تحميل قالب (.xlsx)</span>
+					</a>
 				</div>
 			</div>
 
-			<!-- Features Highlights Grid -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
-					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(16, 185, 129, 0.1); color:var(--emerald-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
-						⚡
-					</div>
-					<div>
-						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">كشف الترويسات الذكي</div>
-						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">يتعرف تلقائياً على سطر العناوين ويتجاوز الأسطر الفارغة</div>
-					</div>
-				</div>
-
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
-					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(99, 102, 241, 0.1); color:var(--indigo-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
-						🧹
-					</div>
-					<div>
-						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">فلترة تكرار الصفحات</div>
-						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">تنظيف ترويسات الطباعة المتكررة في تقارير ERP دورياً</div>
-					</div>
-				</div>
-
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
-					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(236, 72, 153, 0.1); color:var(--pink-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
-						💊
-					</div>
-					<div>
-						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">استخراج صيدلاني آلي</div>
-						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">يستخرج الشكل الصيدلي والتركيزات والحجم من اسم الدواء</div>
-					</div>
-				</div>
-
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
-					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(245, 158, 11, 0.1); color:var(--amber-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
-						🏢
-					</div>
-					<div>
-						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">ربط الشركات آلياً</div>
-						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">ربط العلامات التجارية والمصنعين المسجلين أو إنشائها فوراً</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Main Upload Wizard Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:2rem;"
-				x-data="{ fileName: '', isDragging: false, isSubmitting: false }"
-			>
-				<h2 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0 0 1.25rem 0;">
-					رفع ملف الأصناف ومزامنة البيانات
-				</h2>
-
+			<!-- Upload Form Card -->
+			<div class="card mb-0" style="padding:2rem;">
 				<form
 					method="POST"
 					action="/admin/products/import"
 					enctype="multipart/form-data"
 					style="display:flex; flex-direction:column; gap:1.5rem;"
-					@submit="isSubmitting = true"
+					onsubmit="const btn = document.getElementById('submit-import-btn'); if(btn){ btn.disabled = true; btn.innerHTML = '<span>جاري فحص وحفظ الأصناف...</span>'; }"
 				>
-					<!-- Drag & Drop Zone -->
-					<div
-						@dragover.prevent="isDragging = true"
-						@dragleave.prevent="isDragging = false"
-						@drop.prevent="isDragging = false; if ($event.dataTransfer.files.length) { $refs.fileInput.files = $event.dataTransfer.files; fileName = $event.dataTransfer.files[0].name; }"
-						:style="isDragging ? 'border-color:var(--accent); background:var(--accent-subtle);' : 'border-color:var(--border); background:var(--surface-sunken);'"
-						style="border:2px dashed var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; transition:all 0.2s ease; cursor:pointer;"
-						@click="$refs.fileInput.click()"
-					>
+					<div class="form-group mb-0">
+						<label for="import-file-input" class="form-label" style="font-weight:700; margin-bottom:0.5rem; display:block;">
+							اختر ملف الأصناف (Excel أو CSV)
+						</label>
 						<input
 							type="file"
+							id="import-file-input"
 							name="import_file"
-							x-ref="fileInput"
 							accept=".xlsx, .xls, .csv"
 							required
-							style="display:none;"
-							@change="if ($refs.fileInput.files.length) fileName = $refs.fileInput.files[0].name"
+							class="form-input"
+							style="width:100%; padding:0.75rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface-sunken); cursor:pointer;"
 						/>
-
-						<div style="width:56px; height:56px; margin:0 auto 1rem auto; border-radius:var(--radius-xl); background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--accent);">
-							@components.IconUpload("icon-md")
+						<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
+							يدعم صيغ .xlsx و .xls و .csv (يتعرف النظام تلقائياً على الأعمدة وتكرار الطباعة والأشكال الصيدلانية).
 						</div>
-
-						<template x-if="!fileName">
-							<div>
-								<div style="font-weight:800; font-size:1.1rem; color:var(--text); margin-bottom:0.35rem;">
-									اسحب وأفلت ملف البيانات هنا، أو انقر للاختيار من جهازك
-								</div>
-								<div style="font-size:0.85rem; color:var(--text-secondary);">
-									يدعم ملفات Excel الحديثة (.xlsx) والقديمة (.xls) وملفات CSV المشفرة (الحد الأقصى 64 ميجابايت)
-								</div>
-							</div>
-						</template>
-
-						<template x-if="fileName">
-							<div style="display:flex; align-items:center; justify-content:center; gap:0.5rem; color:var(--success-text); font-weight:800; font-size:1.05rem;">
-								@components.IconCheckCircle("icon-sm")
-								<span x-text="'تم اختيار الملف: ' + fileName"></span>
-							</div>
-						</template>
 					</div>
 
-					<!-- Options & Submit Button -->
-					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-secondary); font-size:0.85rem;">
-							@components.IconInfo("icon-xs")
-							<span>سيتم فحص البيانات، تنظيف الترويسات المتكررة، وحفظ الأصناف بدفعات سريعة.</span>
-						</div>
-
-						<button type="submit" class="btn btn-primary" :disabled="isSubmitting" style="font-weight:800; padding:0.75rem 2rem; font-size:1rem; min-width:200px;">
-							<template x-if="!isSubmitting">
-								<span style="display:inline-flex; align-items:center; gap:0.5rem;">
-									@components.IconCheckCircle("icon-xs")
-									<span>بدء المعالجة والاستيراد</span>
-								</span>
-							</template>
-							<template x-if="isSubmitting">
-								<span style="display:inline-flex; align-items:center; gap:0.5rem;">
-									<span style="display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span>
-									<span>جاري فحص وحفظ الأصناف...</span>
-								</span>
-							</template>
+					<div style="display:flex; justify-content:flex-end; align-items:center; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+						<a href="/admin/products" class="btn btn-ghost" style="font-weight:700;">إلغاء</a>
+						<button
+							type="submit"
+							id="submit-import-btn"
+							class="btn btn-primary"
+							style="font-weight:800; padding:0.65rem 1.75rem; font-size:0.95rem;"
+						>
+							@components.IconUpload("icon-xs")
+							<span>بدء الاستيراد والمعالجة</span>
 						</button>
 					</div>
 				</form>
 			</div>
 
-			<!-- Column Mapping & Schema Reference Table -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:1.75rem;">
-				<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
-					هيكل الأعمدة والبيانات المدعومة في ملف الاستيراد
-				</h3>
-				<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1.25rem 0;">
-					يقوم المحرك الذكي بالتعرف تلقائياً على الأعمدة بمسمياتها المختلفة سواء كانت ملفات ERP أو قوائم أسعار أو نماذج قياسية:
-				</p>
-
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>اسم العمود في الملف</th>
-								<th>المعرّف الإنجليزي</th>
-								<th>نوع البيانات</th>
-								<th>حالة الحقل</th>
-								<th>مثال توضيحي</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td><strong>اسم الصنف بالعربي</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>name_ar</code></td>
-								<td>نص عربي</td>
-								<td><span class="badge badge-emerald">إلزامي</span></td>
-								<td>كونجستال أقراص</td>
-							</tr>
-							<tr>
-								<td><strong>اسم الصنف بالإنجليزي</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>name_en</code></td>
-								<td>نص إنجليزي</td>
-								<td><span class="badge badge-emerald">إلزامي</span></td>
-								<td>Congestal Tablets</td>
-							</tr>
-							<tr>
-								<td><strong>سعر الجمهور القياسي</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>price</code></td>
-								<td>رقم عشري (EGP)</td>
-								<td><span class="badge badge-emerald">إلزامي</span></td>
-								<td>25.00</td>
-							</tr>
-							<tr>
-								<td><strong>المادة الفعالة</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>active_ingredient</code></td>
-								<td>نص</td>
-								<td><span class="badge badge-secondary">اختياري</span></td>
-								<td>Paracetamol 500mg</td>
-							</tr>
-							<tr>
-								<td><strong>الاسم العلمي</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>generic_name</code></td>
-								<td>نص</td>
-								<td><span class="badge badge-secondary">اختياري</span></td>
-								<td>Paracetamol + Pseudoephedrine</td>
-							</tr>
-							<tr>
-								<td><strong>الشكل الصيدلي</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>dosage_form</code></td>
-								<td>نص (أقراص، كبسولات...)</td>
-								<td><span class="badge badge-secondary">اختياري</span></td>
-								<td>أقراص</td>
-							</tr>
-							<tr>
-								<td><strong>الشركة المصنعة</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>manufacturer</code></td>
-								<td>نص</td>
-								<td><span class="badge badge-secondary">اختياري</span></td>
-								<td>Eva Pharma</td>
-							</tr>
-							<tr>
-								<td><strong>رقم التسجيل EDA</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>eda_reg_number</code></td>
-								<td>نص / كود</td>
-								<td><span class="badge badge-secondary">اختياري</span></td>
-								<td>EDA-10293</td>
-							</tr>
-							<tr>
-								<td><strong>الوصف بالعربي</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>description_ar</code></td>
-								<td>نص طويل</td>
-								<td><span class="badge badge-secondary">اختياري</span></td>
-								<td>لعلاج أعراض نزلات البرد والإنفلونزا</td>
-							</tr>
-							<tr>
-								<td><strong>الوصف بالإنجليزي</strong></td>
-								<td dir="ltr" class="tabular-nums"><code>description_en</code></td>
-								<td>نص طويل</td>
-								<td><span class="badge badge-secondary">اختياري</span></td>
-								<td>For cold and flu relief</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
 		</div>
 	}
 }

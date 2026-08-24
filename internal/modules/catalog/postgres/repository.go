@@ -65,8 +65,19 @@ func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Pr
 			rows.Close()
 		}
 
-		// 3. Process products in chunks of 300
-		chunkSize := 300
+		// 3. Process products in pipelined batches of 200
+		chunkSize := 200
+		insertQuery := `
+			INSERT INTO catalog.products (
+				organization_id, category_id, brand_id, branch_id, name, description,
+				sku, barcode, price, discount, old_price, image, image_link, status,
+				is_featured, dosage_form, scientific_name, pharmacology, active,
+				concentration, unit, manufacturing_companies, institutional_work_ids
+			) VALUES (
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+			) RETURNING id;
+		`
+
 		for i := 0; i < len(prods); i += chunkSize {
 			end := i + chunkSize
 			if end > len(prods) {
@@ -74,6 +85,7 @@ func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Pr
 			}
 			chunk := prods[i:end]
 
+			batch := &pgx.Batch{}
 			for _, p := range chunk {
 				if p.OrganizationID <= 0 {
 					p.OrganizationID = defaultOrgID
@@ -104,29 +116,25 @@ func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Pr
 					}
 				}
 
-				query := `
-					INSERT INTO catalog.products (
-						organization_id, category_id, brand_id, branch_id, name, description,
-						sku, barcode, price, discount, old_price, image, image_link, status,
-						is_featured, dosage_form, scientific_name, pharmacology, active,
-						concentration, unit, manufacturing_companies, institutional_work_ids
-					) VALUES (
-						$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
-					) RETURNING id;
-				`
-				var newID int64
-				err := tx.QueryRow(txCtx, query,
+				batch.Queue(insertQuery,
 					p.OrganizationID, p.CategoryID, p.BrandID, p.BranchID, p.Name, p.Description,
 					p.SKU, p.Barcode, p.Price, p.Discount, p.OldPrice, p.Image, p.ImageLink,
 					string(p.Status), p.IsFeatured, p.DosageForm, p.ScientificName,
 					p.Pharmacology, p.Active, p.Concentration, p.Unit, p.ManufacturingCompanies,
 					p.InstitutionalWorkIDs,
-				).Scan(&newID)
+				)
+			}
 
-				if err == nil {
+			br := tx.SendBatch(txCtx, batch)
+			for _, p := range chunk {
+				var newID int64
+				if err := br.QueryRow().Scan(&newID); err == nil {
 					insertedCount++
 					p.ID = newID
 				}
+			}
+			if err := br.Close(); err != nil {
+				return fmt.Errorf("bulk batch close failed: %w", err)
 			}
 		}
 
