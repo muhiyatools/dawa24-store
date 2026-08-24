@@ -56,6 +56,7 @@ import (
 	workflowHttp "github.com/muhiya/dawa24-store/internal/modules/workflow/http"
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
@@ -339,7 +340,34 @@ func mountAuthenticatedModules(
 	// 13. Assistant (كبسولة)
 	assistantRepo := assistantPostgres.NewRepository(db)
 	assistantSvc := assistant.NewService(assistantRepo, ai, log)
-	assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log).RegisterRoutes(r)
+	assistantHandler := assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log)
+	assistantHandler.SetKeyResolver(func(ctx context.Context, orgID int64) (string, error) {
+		sysCtx := database.AsSystem(ctx)
+		o, err := orgSvc.GetOrganization(sysCtx, orgID)
+		if err != nil || o == nil {
+			return "", err
+		}
+		if o.AIVirtualKey != "" {
+			return o.AIVirtualKey, nil
+		}
+		// Auto-provision if missing on the Gateway
+		if gw, _ := paSvc.GetGatewaySettings(sysCtx); gw != nil && gw.EndpointURL != "" && gw.APIKey != "" {
+			adminClient := gateway.NewAdminClient(gw.EndpointURL, "", gw.APIKey)
+			aiPlanID := "plan-pos-free"
+			if sub, _ := billSvc.GetActiveSubscriptionByOrg(sysCtx, orgID); sub != nil {
+				if plan, err := billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
+					aiPlanID = plan.AIPlanID
+				}
+			}
+			userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
+			if provErr == nil && vkey != "" {
+				_ = orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
+				return vkey, nil
+			}
+		}
+		return "", nil
+	})
+	assistantHandler.RegisterRoutes(r)
 
 	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))

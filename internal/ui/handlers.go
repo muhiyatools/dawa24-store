@@ -298,12 +298,19 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/customer/automation/upload", h.CustomerAutomationUploadSubmit)
 	r.Get("/customer/automation/previous", h.CustomerAutomationPreviousPage)
 	r.Get("/customer/automation/{id}", h.CustomerAutomationDetailPage)
+
+	// Subscription & Membership
+	r.Get("/customer/subscription", h.TenantSubscriptionPage)
+	r.Get("/pharmacy/subscription", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
+	})
 }
 
 // RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
 // RequireVendor.
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
+	r.Get("/vendor/subscription", h.TenantSubscriptionPage)
 	r.Get("/vendor/organization", h.VendorOrganizationPage)
 	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
 	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)

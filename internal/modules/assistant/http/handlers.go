@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -15,15 +16,19 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 )
 
+// KeyResolver resolves tenant virtual key by organization ID.
+type KeyResolver func(ctx context.Context, orgID int64) (string, error)
+
 // Handler serves HTTP and SSE assistant endpoints.
 type Handler struct {
-	svc      *assistant.Service
-	gwClient gateway.Client
-	repo     assistant.Repository
-	limiter  *RateLimiter
-	log      *slog.Logger
-	handleMu sync.RWMutex
-	handles  map[string]assistant.Attachment
+	svc         *assistant.Service
+	gwClient    gateway.Client
+	repo        assistant.Repository
+	limiter     *RateLimiter
+	keyResolver KeyResolver
+	log         *slog.Logger
+	handleMu    sync.RWMutex
+	handles     map[string]assistant.Attachment
 }
 
 // NewHandler constructs an assistant HTTP handler.
@@ -39,6 +44,11 @@ func NewHandler(svc *assistant.Service, gw gateway.Client, repo assistant.Reposi
 		log:      log.With("handler", "assistant_http"),
 		handles:  make(map[string]assistant.Attachment),
 	}
+}
+
+// SetKeyResolver sets the tenant key resolver for gateway authorization.
+func (h *Handler) SetKeyResolver(r KeyResolver) {
+	h.keyResolver = r
 }
 
 // RegisterRoutes mounts assistant endpoints on the router.
@@ -126,6 +136,17 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var virtualKey string
+	if h.keyResolver != nil && (actor.OrgID > 0 || actor.OrganizationID > 0) {
+		oid := actor.OrgID
+		if oid <= 0 {
+			oid = actor.OrganizationID
+		}
+		if vk, err := h.keyResolver(ctx, oid); err == nil && vk != "" {
+			virtualKey = vk
+		}
+	}
+
 	chatReq := gateway.ChatRequest{
 		Role:        gateway.RolePrimary,
 		Messages:    chatMsgs,
@@ -133,6 +154,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 		Temperature: 0.7,
 		OrgID:       actor.OrgID,
 		UserID:      actor.UserID,
+		VirtualKey:  virtualKey,
 	}
 
 	events, err := h.gwClient.Stream(ctx, chatReq)

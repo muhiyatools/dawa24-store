@@ -1,0 +1,214 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ TenantSubscriptionPage(data TenantSubscriptionPageData, orgType string, lang string, dir string) {
+	if orgType == "vendor" || orgType == "supplier" {
+		@layouts.VendorShell("الاشتراك والعضوية", "subscription", lang, dir) {
+			@tenantSubscriptionBody(data, orgType, lang, dir)
+		}
+	} else {
+		@layouts.CustomerShell("الاشتراك والعضوية", "subscription", lang, dir, nil) {
+			@tenantSubscriptionBody(data, orgType, lang, dir)
+		}
+	}
+}
+
+templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lang string, dir string) {
+	<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1300px; margin:0 auto; padding-bottom:3rem;">
+		
+		<!-- Header -->
+		<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+			<div>
+				<h2 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.6rem;">
+					<span>💎</span>
+					<span>الاشتراك وإدارة العضوية</span>
+				</h2>
+				<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0;">
+					متابعة باقة المنشأة المعتمدة، استهلاك ميزانية الذكاء الاصطناعي (AI Gateway USD Budget)، وحدود الجلسات والأجهزة.
+				</p>
+			</div>
+		</div>
+
+		<!-- Current Active Subscription & AI Quotas -->
+		if data.Subscription != nil {
+			<div class="card" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; box-shadow:var(--shadow-sm); margin:0;">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						<span style="font-size:1.35rem;">🏢</span>
+						<div>
+							<h3 style="margin:0; font-size:1.1rem; font-weight:800; color:var(--text);">
+								تفاصيل باقة المنشأة الحالية
+							</h3>
+							<p style="margin:0.15rem 0 0; font-size:0.8rem; color:var(--text-secondary);">
+								الحدود والكوتا المطبقة على حساب منشأتك بالكامل
+							</p>
+						</div>
+					</div>
+					<div style="display:flex; align-items:center; gap:0.5rem;">
+						<span class="badge badge-emerald" style="font-weight:700; font-size:0.85rem;">{ data.Subscription.Status }</span>
+						if data.Subscription.IsDefaultPlan {
+							<span class="badge badge-primary" style="font-size:0.75rem;">باقة افتراضية</span>
+						}
+					</div>
+				</div>
+
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
+					<!-- Plan Name & Duration -->
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.15rem;">
+						<span style="font-size:0.775rem; color:var(--text-secondary); font-weight:600; display:block;">خطة الاشتراك المعتمدة</span>
+						<strong style="font-size:1.15rem; color:var(--text); display:block; margin-top:0.35rem;">{ data.Subscription.PlanName }</strong>
+						<span style="font-size:0.775rem; color:var(--text-muted); margin-top:0.35rem; display:block;">الصلاحية: { data.Subscription.ExpiresAt }</span>
+					</div>
+
+					<!-- Concurrent Login Sessions -->
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.15rem;">
+						<span style="font-size:0.775rem; color:var(--text-secondary); font-weight:600; display:block;">الجلسات المتزامنة (إجمالي المنشأة)</span>
+						<strong style="font-size:1.3rem; color:var(--primary); display:block; margin-top:0.35rem;" class="tabular-nums">
+							{ fmt.Sprintf("%d جلسات", data.Subscription.MaxLoginSessions) }
+						</strong>
+						<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;">مشتركة لكافة مستخدمي وفروع المنشأة</span>
+					</div>
+
+					<!-- Max Devices -->
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.15rem;">
+						<span style="font-size:0.775rem; color:var(--text-secondary); font-weight:600; display:block;">حد الأجهزة المفتوحة</span>
+						<strong style="font-size:1.3rem; color:var(--text); display:block; margin-top:0.35rem;" class="tabular-nums">
+							{ fmt.Sprintf("%d أجهزة", data.Subscription.MaxDevices) }
+						</strong>
+						<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;">الحد الأقصى للأجهزة المصرح بها</span>
+					</div>
+
+					<!-- AI Gateway Budget & Window -->
+					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.25); border-radius:var(--radius-lg); padding:1rem 1.15rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<span style="font-size:0.775rem; color:var(--primary); font-weight:800;">بوابة الذكاء الاصطناعي</span>
+							<span class="badge badge-info" dir="ltr" style="font-size:0.75rem; font-weight:800;">{ data.Subscription.AIPlanID }</span>
+						</div>
+						<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
+							<span>المعرّف: </span><code dir="ltr" style="font-size:0.75rem;">{ data.Subscription.AIUserID }</code>
+						</div>
+						if data.Subscription.HasAIUsage && data.Subscription.AIBudgetLimitUSD > 0 {
+							<div style="margin-top:0.45rem;">
+								<div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:0.25rem;">
+									<span style="color:var(--text-secondary); font-weight:600;">استهلاك الميزانية:</span>
+									<strong class="tabular-nums" dir="ltr" style="color:var(--text);">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
+								</div>
+								<div style="width:100%; height:6px; background:var(--border); border-radius:3px; overflow:hidden;">
+									<div style={ fmt.Sprintf("height:100%%; background:var(--primary); width:%.1f%%; transition:width 300ms;", (data.Subscription.AIBudgetSpentUSD / data.Subscription.AIBudgetLimitUSD) * 100.0) }></div>
+								</div>
+							</div>
+							if data.Subscription.AIBudgetResetTime != "" {
+								<div style="margin-top:0.35rem; font-size:0.725rem; color:var(--text-muted);">
+									موعد التجديد: <span class="tabular-nums">{ data.Subscription.AIBudgetResetTime }</span>
+								</div>
+							}
+						} else {
+							<div style="margin-top:0.45rem; font-size:0.75rem; color:var(--emerald); font-weight:600;">
+								✓ المفتاح الافتراضي (Virtual Key) مفعل وجاهز
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		}
+
+		<!-- All Available System Plans -->
+		<div>
+			<div style="margin-bottom:1rem;">
+				<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+					باقات وعضويات المنظومة المتاحة
+				</h3>
+				<p style="font-size:0.825rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+					يمكنك استعراض مميزات وحدود كل باقة والترقية مباشرة
+				</p>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem;">
+				for _, p := range data.Plans {
+					<div class="card" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; position:relative; box-shadow:var(--shadow-sm); margin:0;">
+						
+						<div>
+							<!-- Plan Header -->
+							<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+								<div>
+									<h4 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+										{ p.Name.Get("ar") }
+									</h4>
+									<span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; display:block; margin-top:0.15rem;">
+										{ p.Slug }
+									</span>
+								</div>
+								if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {
+									<span class="badge badge-emerald" style="font-weight:700;">✓ باقتك الحالية</span>
+								} else if p.IsDefault {
+									<span class="badge badge-slate" style="font-size:0.75rem;">الافتراضية</span>
+								}
+							</div>
+
+							<!-- Description -->
+							<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1.25rem 0; min-height:40px;">
+								{ p.Description.Get("ar") }
+							</p>
+
+							<!-- Pricing -->
+							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; margin-bottom:1.25rem;">
+								<div style="display:flex; justify-content:space-between; align-items:baseline;">
+									<div>
+										<span style="font-size:1.35rem; font-weight:900; color:var(--text);" class="tabular-nums">
+											@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })
+										</span>
+										<span style="font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.25rem;">/ شهرياً</span>
+									</div>
+									<div style="font-size:0.8rem; color:var(--text-secondary);">
+										<span class="tabular-nums font-bold">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })</span>
+										<span style="font-size:0.7rem; color:var(--text-muted);">/ سنوياً</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- Enterprise Limits -->
+							<div style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem; font-size:0.85rem;">
+								<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text);">
+									<span style="color:var(--primary); font-weight:700;">👥</span>
+									<span>الجلسات المتزامنة للمنشأة:</span>
+									<strong style="color:var(--primary);" class="tabular-nums">{ fmt.Sprintf("%d جلسات", p.MaxLoginSessions) }</strong>
+								</div>
+								<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text);">
+									<span style="color:var(--primary); font-weight:700;">💻</span>
+									<span>حد الأجهزة المصرح بها:</span>
+									<strong class="tabular-nums">{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }</strong>
+								</div>
+								<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text);">
+									<span style="color:var(--accent); font-weight:700;">🤖</span>
+									<span>باقة بوابة الذكاء الاصطناعي:</span>
+									<code dir="ltr" style="font-size:0.75rem; font-weight:700;">{ p.AIPlanID }</code>
+								</div>
+							</div>
+						</div>
+
+						<!-- Action -->
+						<div style="border-top:1px solid var(--border); padding-top:1rem;">
+							if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {
+								<button type="button" class="btn btn-secondary" style="width:100%; font-weight:700; opacity:0.8; cursor:default;" disabled>
+									باقتك المفعلة حالياً
+								</button>
+							} else {
+								<a href="https://wa.me/201000000000" target="_blank" rel="noopener" class="btn btn-primary" style="width:100%; font-weight:700; justify-content:center; gap:0.4rem;">
+									@components.IconSparkles("icon-xs")
+									<span>طلب الترقية لهذه الباقة ↗</span>
+								</a>
+							}
+						</div>
+
+					</div>
+				}
+			</div>
+		</div>
+
+	</div>
+}

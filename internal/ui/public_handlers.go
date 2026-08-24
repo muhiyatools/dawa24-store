@@ -192,6 +192,11 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   86400 * 30,
 		})
+
+		if res.Session.ActiveOrgID > 0 {
+			orgID := res.Session.ActiveOrgID
+			go h.EnsureOrgAIGatewayProvisioned(context.Background(), orgID)
+		}
 	}
 
 	// An explicit redirect (from a protected page the user was heading to)

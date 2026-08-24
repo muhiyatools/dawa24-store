@@ -85,25 +85,32 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 							<span style="font-size:0.75rem; color:var(--primary); font-weight:700;">بوابة الذكاء الاصطناعي</span>
 							<span class="badge badge-info" dir="ltr" style="font-size:0.7rem; font-weight:700;">{ data.Subscription.AIPlanID }</span>
 						</div>
-						<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
-							<span>المعرّف: </span><code dir="ltr" style="font-size:0.75rem;">{ data.Subscription.AIUserID }</code>
-						</div>
-						if data.Subscription.HasAIUsage {
-							<div style="margin-top:0.35rem; display:flex; gap:0.75rem; font-size:0.725rem; color:var(--text-secondary);">
-								<span>الطلبات: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", data.Subscription.AIRequestsCount) }</strong></span>
-								<span>التوكنات: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", data.Subscription.AITokensUsed) }</strong></span>
+						if data.Subscription.HasAIUsage && data.Subscription.AIBudgetLimitUSD > 0 {
+							<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
+								<span>الميزانية: </span><strong class="tabular-nums" dir="ltr" style="color:var(--primary); font-weight:800;">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
 							</div>
-							if data.Subscription.AIBudgetLimitUSD > 0 {
-								<div style="margin-top:0.2rem; font-size:0.725rem; color:var(--text-muted);">
-									الميزانية: <strong class="tabular-nums" dir="ltr">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
-								</div>
-							}
+							<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--text-muted);">
+								if data.Subscription.AIBudgetResetTime != "" {
+									<span>تجديد: <strong class="tabular-nums">{ data.Subscription.AIBudgetResetTime }</strong></span>
+								} else {
+									<span>تجديد دوري مستمر</span>
+								}
+							</div>
 						} else {
+							<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
+								<span>المعرّف: </span><code dir="ltr" style="font-size:0.75rem;">{ data.Subscription.AIUserID }</code>
+							</div>
 							<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--emerald); font-weight:600;">
-								✓ المفتاح الافتراضي (Virtual Key) مفعل وجاهز
+								✓ المفتاح الافتراضي مفعل وجاهز
 							</div>
 						}
 					</div>
+				</div>
+
+				<div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end;">
+					<a href="/vendor/subscription" style="font-size:0.8rem; font-weight:700; color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+						<span>عرض تفاصيل الاشتراك والترقية ↗</span>
+					</a>
 				</div>
 			</div>
 		}

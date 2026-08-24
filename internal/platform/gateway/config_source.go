@@ -83,7 +83,7 @@ func (c *HTTPClient) resolve(ctx context.Context) Settings {
 
 	if c.source != nil {
 		if s, err := c.source.GatewaySettings(ctx); err == nil {
-			if s.Enabled && s.VirtualKey != "" {
+			if s.Enabled {
 				if s.ClientApp == "" {
 					s.ClientApp = c.cfg.ClientApp
 				}

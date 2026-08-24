@@ -72,6 +72,7 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 
 	// Fetch Org AI credentials & Live Consumption
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		h.EnsureOrgAIGatewayProvisioned(ctx, actor.OrganizationID)
 		if o, err := h.orgSvc.GetOrganization(sysCtx, actor.OrganizationID); err == nil && o != nil {
 			subView.AIUserID = o.AIUserID
 			if subView.AIUserID == "" {
@@ -97,6 +98,9 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 						subView.AIBudgetName = bw.Name
 						subView.AIBudgetLimitUSD = bw.BudgetUSD
 						subView.AIBudgetSpentUSD = bw.CurrentSpent
+						if !bw.ResetTime.IsZero() {
+							subView.AIBudgetResetTime = bw.ResetTime.Format("2006-01-02 15:04")
+						}
 						subView.HasAIUsage = true
 					}
 				}
@@ -105,6 +109,45 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 	}
 
 	return subView
+}
+
+// TenantSubscriptionPage renders the dedicated subscription and membership page for pharmacies and vendors.
+func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || (actor.OrganizationID <= 0 && actor.UserID <= 0) {
+		http.Redirect(w, r, "/auth/login?redirect="+r.URL.Path, http.StatusSeeOther)
+		return
+	}
+
+	lang, dir := h.localeAndDir(r)
+	subView := h.loadOrgSubscriptionView(ctx, actor, lang)
+
+	var allPlans []*billing.Plan
+	var currentPlanID int64
+	sysCtx := database.AsSystem(ctx)
+
+	if h.billSvc != nil {
+		if plans, err := h.billSvc.ListPlans(sysCtx); err == nil {
+			allPlans = plans
+		}
+		if actor.OrganizationID > 0 {
+			if sub, _ := h.billSvc.GetActiveSubscriptionByOrg(sysCtx, actor.OrganizationID); sub != nil {
+				currentPlanID = sub.PlanID
+			}
+		}
+	}
+
+	data := pages.TenantSubscriptionPageData{
+		Subscription:  subView,
+		Plans:         allPlans,
+		CurrentPlanID: currentPlanID,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.TenantSubscriptionPage(data, actor.OrgType, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render subscription page", "error", err)
+	}
 }
 
 // VendorDashboardPage renders the supplier dashboard.
@@ -299,4 +342,41 @@ func (h *UIHandler) OnboardingPendingPage(w http.ResponseWriter, r *http.Request
 	if err := pages.OnboardingPending(lang, dir, rejected).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render onboarding pending", "error", err)
 	}
+}
+
+// EnsureOrgAIGatewayProvisioned verifies that an organization has an active gateway user and virtual key, provisioning one if absent.
+func (h *UIHandler) EnsureOrgAIGatewayProvisioned(ctx context.Context, orgID int64) (string, string) {
+	if orgID <= 0 || h.orgSvc == nil {
+		return "", ""
+	}
+	sysCtx := database.AsSystem(ctx)
+	o, err := h.orgSvc.GetOrganization(sysCtx, orgID)
+	if err != nil || o == nil {
+		return "", ""
+	}
+	if o.AIVirtualKey != "" && o.AIUserID != "" {
+		return o.AIUserID, o.AIVirtualKey
+	}
+
+	aiPlanID := "plan-pos-free"
+	if h.billSvc != nil {
+		if sub, _ := h.billSvc.GetActiveSubscriptionByOrg(sysCtx, orgID); sub != nil {
+			if plan, err := h.billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
+				aiPlanID = plan.AIPlanID
+			}
+		} else if defPlan, err := h.billSvc.GetDefaultPlan(sysCtx); err == nil && defPlan != nil && defPlan.AIPlanID != "" {
+			aiPlanID = defPlan.AIPlanID
+		}
+	}
+
+	adminClient, _, _ := h.getGatewayAdminClient(sysCtx)
+	if adminClient != nil {
+		userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
+		if provErr == nil && (vkey != "" || userID != "") {
+			_ = h.orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
+			h.log.InfoContext(ctx, "ai gateway organization auto-provisioned", "org_id", orgID, "user_id", userID, "plan_id", aiPlanID)
+			return userID, vkey
+		}
+	}
+	return o.AIUserID, o.AIVirtualKey
 }

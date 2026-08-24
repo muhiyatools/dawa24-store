@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -26,7 +27,15 @@ type OrgSubscriptionView struct {
 	AIBudgetLimitUSD   float64
 	AIBudgetSpentUSD   float64
 	AIBudgetName       string
+	AIBudgetResetTime  string
 	HasAIUsage         bool
+}
+
+// TenantSubscriptionPageData represents the full subscription management view model.
+type TenantSubscriptionPageData struct {
+	Subscription  *OrgSubscriptionView
+	Plans         []*billing.Plan
+	CurrentPlanID int64
 }
 
 // VendorDashboardData is the supplier dashboard view model.

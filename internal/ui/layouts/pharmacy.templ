@@ -88,6 +88,10 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconFile("icon-sm")
 							<span>المستندات والتراخيص</span>
 						</a>
+						<a href="/customer/subscription" class={ "sidebar-link", templ.KV("active", activeNav == "subscription") }>
+							@components.IconSparkles("icon-sm")
+							<span>الاشتراك والعضوية</span>
+						</a>
 						<a href="/jobs" class={ "sidebar-link", templ.KV("active", activeNav == "jobs") }>
 							@components.IconBriefcase("icon-sm")
 							<span>فرص العمل والتوظيف</span>

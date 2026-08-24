@@ -58,6 +58,10 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							@components.IconUsers("icon-sm")
 							<span>تغطية الصيدليات</span>
 						</a>
+						<a href="/vendor/subscription" class={ "sidebar-link", templ.KV("active", activeNav == "subscription") }>
+							@components.IconSparkles("icon-sm")
+							<span>الاشتراك والعضوية</span>
+						</a>
 					</div>
 
 					<!-- Group 2: الكتالوج والمخزون -->
