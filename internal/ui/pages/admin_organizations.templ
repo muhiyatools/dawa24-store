@@ -7,6 +7,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -862,80 +864,184 @@ templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
 type AdminWeeklyCoveragesData struct {
 	Coverages     []*workflow.CoverageView
 	Organizations []*org.Organization
+	Branches      []*org.Branch
+	Cities        []*platformadmin.City
 	SelectedOrgID int64
 }
 
-// AdminWeeklyCoveragesPage renders weekly coverage rules filtered by selected organization.
+func countActiveCoverages(coverages []*workflow.CoverageView) int {
+	c := 0
+	for _, cov := range coverages {
+		if cov.IsActive {
+			c++
+		}
+	}
+	return c
+}
+
+func countCoveredCities(coverages []*workflow.CoverageView) int {
+	cities := make(map[string]bool)
+	for _, cov := range coverages {
+		if cov.CityName != "" {
+			cities[cov.CityName] = true
+		}
+	}
+	return len(cities)
+}
+
+// AdminWeeklyCoveragesPage renders weekly coverage rules filtered by selected organization with full controls.
 templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) {
 	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "weekly_coverages", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.25rem; max-width:1400px; margin:0 auto 3rem auto;">
+		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;" x-data="{ addModalOpen: false, editModalOpen: false, currentItem: {} }">
 			
 			<!-- Header Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:1.75rem;">
+			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-								@components.IconTruck("icon-md")
+							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+								🚚
 							</div>
-							<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">نطاقات وجداول التغطية الأسبوعية</h1>
+							<div>
+								<h1 style="font-size:1.4rem; font-weight:900; color:var(--text); margin:0;">نطاقات وجداول التغطية الأسبوعية</h1>
+								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Weekly Delivery Schedules & Routes</span>
+							</div>
 						</div>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">استعراض وتدقيق أيام ومناطق تسليم الموردين للصيدليات في مختلف المحافظات.</p>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p>
 					</div>
 
-					<form method="GET" action="/admin/weekly-coverages" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
-						<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">اختيار المنشأة:</label>
-						<select name="org_id" class="form-select" onchange="this.form.submit()" style="font-size:0.85rem; padding:0.4rem 0.85rem; min-width:220px;">
-							for _, o := range data.Organizations {
-								<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
-									{ o.LegalName }
-								</option>
-							}
-						</select>
-					</form>
+					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+						<form method="GET" action="/admin/weekly-coverages" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+							<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); white-space:nowrap;">تصفية المنشأة:</label>
+							<select name="org_id" class="form-select" onchange="this.form.submit()" style="font-size:0.85rem; padding:0.45rem 0.85rem; min-width:240px; border-radius:var(--radius-lg); font-weight:700;">
+								<option value="0" selected?={ data.SelectedOrgID == 0 }>🏢 كافة المنشآت والموردين</option>
+								for _, o := range data.Organizations {
+									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
+										{ o.LegalName }
+									</option>
+								}
+							</select>
+						</form>
+
+						<button type="button" class="btn btn-primary" @click="addModalOpen = true" style="font-weight:800; font-size:0.85rem; padding:0.55rem 1.1rem; border-radius:var(--radius-lg); gap:0.4rem;">
+							<span>➕</span>
+							<span>إضافة جدول تغطية جديد</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Stats KPI Strip -->
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+					<div style="background:var(--surface-raised); padding:0.85rem 1.1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">إجمالي جداول التغطية</div>
+						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--text); margin-top:2px;">{ fmt.Sprintf("%d", len(data.Coverages)) }</div>
+					</div>
+					<div style="background:var(--surface-raised); padding:0.85rem 1.1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">الجداول النشطة للتوصيل</div>
+						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--primary-600); margin-top:2px;">{ fmt.Sprintf("%d", countActiveCoverages(data.Coverages)) }</div>
+					</div>
+					<div style="background:var(--surface-raised); padding:0.85rem 1.1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">المدن والمحافظات المشمولة</div>
+						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--text); margin-top:2px;">{ fmt.Sprintf("%d", countCoveredCities(data.Coverages)) }</div>
+					</div>
 				</div>
 			</div>
 
-			<!-- Coverages List -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl);">
+			<!-- Coverages List Table -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
 				if len(data.Coverages) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد جداول تغطية أسبوعية",
-						Message: "لم يتم ضبط جداول تغطية أسبوعية لهذه المنشأة بعد.",
-					})
+					<div style="padding:3rem 1.5rem;">
+						@components.EmptyState(components.EmptyStateProps{
+							Title:   "لا توجد جداول تغطية أسبوعية",
+							Message: "لم يتم ضبط أي جداول تغطية أسبوعية تطابق معايير الاختيار الحالية. يمكنك إضافة جدول تغطية جديد عبر الزر أعلاه.",
+						})
+					</div>
 				} else {
 					<div class="table-container">
 						<table class="data-table">
 							<thead>
 								<tr>
 									<th>يوم التوصيل</th>
+									<th>المنشأة / المورد</th>
 									<th>المدينة / المحافظة</th>
 									<th>الفرع أو المستودع المنفذ</th>
 									<th>نطاق التغطية</th>
 									<th>مواعيد التوصيل</th>
 									<th>حالة التغطية</th>
+									<th class="text-end">الإجراءات والتحكم</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, c := range data.Coverages {
 									<tr>
-										<td><strong style="color:var(--accent);">{ dayOfWeekAr(c.DayOfWeek) }</strong></td>
-										<td><strong>{ c.CityName }</strong></td>
-										<td>{ c.BranchName }</td>
-										<td class="tabular-nums"><strong>{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong></td>
+										<td>
+											<span class="badge badge-sky" style="font-weight:800; font-size:0.825rem; padding:0.3rem 0.75rem;">
+												📅 { dayOfWeekAr(c.DayOfWeek) }
+											</span>
+										</td>
+										<td>
+											if c.OrgName != "" {
+												<strong>{ c.OrgName }</strong>
+											} else {
+												<span style="color:var(--text-muted);">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</span>
+											}
+										</td>
+										<td>
+											if c.CityName != "" {
+												<strong style="color:var(--text);">{ c.CityName }</strong>
+											} else {
+												<span style="color:var(--text-muted);">كافة المناطق</span>
+											}
+										</td>
+										<td>
+											if c.BranchName != "" {
+												<span>{ c.BranchName }</span>
+											} else {
+												<span style="color:var(--text-muted);">المقر الرئيسي</span>
+											}
+										</td>
+										<td class="tabular-nums">
+											<strong style="color:var(--accent);">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong>
+										</td>
 										<td class="tabular-nums">
 											if c.CoverageFrom != nil && c.CoverageTo != nil {
-												<span>{ *c.CoverageFrom } - { *c.CoverageTo }</span>
+												<span style="font-weight:700;">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
 											} else {
-												<span style="color:var(--text-secondary);">طوال اليوم</span>
+												<span class="badge badge-slate" style="font-size:0.75rem;">طوال اليوم</span>
 											}
 										</td>
 										<td>
 											if c.IsActive {
-												<span class="badge badge-success">نشط</span>
+												<span class="badge badge-success" style="font-weight:800;">✓ نشط ومتاح</span>
 											} else {
-												<span class="badge badge-danger">معطل</span>
+												<span class="badge badge-danger" style="font-weight:800;">✕ معطل</span>
 											}
+										</td>
+										<td class="text-end">
+											<div style="display:inline-flex; align-items:center; gap:0.4rem;">
+												<!-- Toggle Button Form -->
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/toggle", c.ID)) } style="margin:0;">
+													<input type="hidden" name="is_active" value={ fmt.Sprintf("%t", !c.IsActive) } />
+													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
+													if c.IsActive {
+														<button type="submit" class="btn btn-secondary btn-sm" title="تعطيل هذا الجدول" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
+															تعطيل
+														</button>
+													} else {
+														<button type="submit" class="btn btn-primary btn-sm" title="تفعيل هذا الجدول" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
+															تفعيل
+														</button>
+													}
+												</form>
+
+												<!-- Delete Button Form -->
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف جدول التغطية هذا؟');" style="margin:0;">
+													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
+													<button type="submit" class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.25rem 0.5rem;" title="حذف">
+														🗑️
+													</button>
+												</form>
+											</div>
 										</td>
 									</tr>
 								}
@@ -943,6 +1049,105 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 						</table>
 					</div>
 				}
+			</div>
+
+			<!-- Add Schedule Modal -->
+			<div x-show="addModalOpen" x-cloak style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;">
+				<div @click.away="addModalOpen = false" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;">
+					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<span style="font-size:1.2rem;">🚚</span>
+							<h3 style="font-size:1.1rem; font-weight:800; margin:0; color:var(--text);">إضافة جدول تغطية أسبوعية جديد</h3>
+						</div>
+						<button type="button" @click="addModalOpen = false" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);">✕</button>
+					</div>
+
+					<form method="POST" action="/admin/weekly-coverages/new" style="padding:1.5rem; display:flex; flex-direction:column; gap:1rem; margin:0;">
+						<input type="hidden" name="redirect_org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
+
+						<div>
+							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">المنشأة / المورد المعتمد *</label>
+							<select name="organization_id" class="form-select" required style="width:100%; font-size:0.85rem;">
+								for _, o := range data.Organizations {
+									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
+										{ o.LegalName }
+									</option>
+								}
+							</select>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div>
+								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">الفرع أو المستودع المنفذ *</label>
+								<select name="branch_id" class="form-select" required style="width:100%; font-size:0.85rem;">
+									for _, b := range data.Branches {
+										<option value={ fmt.Sprintf("%d", b.ID) }>
+											if b.Name["ar"] != "" {
+												{ b.Name["ar"] }
+											} else {
+												{ b.Name["en"] }
+											}
+										</option>
+									}
+								</select>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">المدينة / المحافظة المشمولة</label>
+								<select name="city_id" class="form-select" style="width:100%; font-size:0.85rem;">
+									<option value="0">كافة مدن النطاق</option>
+									for _, ct := range data.Cities {
+										<option value={ fmt.Sprintf("%d", ct.ID) }>
+											{ ct.Name.Get(i18n.AR) }
+										</option>
+									}
+								</select>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div>
+								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">يوم التوصيل *</label>
+								<select name="day_of_week" class="form-select" required style="width:100%; font-size:0.85rem; font-weight:700;">
+									<option value="0">الأحد (Sunday)</option>
+									<option value="1">الاثنين (Monday)</option>
+									<option value="2">الثلاثاء (Tuesday)</option>
+									<option value="3">الأربعاء (Wednesday)</option>
+									<option value="4">الخميس (Thursday)</option>
+									<option value="5">الجمعة (Friday)</option>
+									<option value="6">السبت (Saturday)</option>
+								</select>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">نصف قطر التغطية (كم) *</label>
+								<input type="number" name="distance_km" value="50" min="1" max="500" required class="input-field tabular-nums" style="width:100%; font-size:0.85rem; font-weight:700;" />
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div>
+								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">من الساعة (اختياري)</label>
+								<input type="text" name="coverage_from" placeholder="مثال: 08:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="input-field tabular-nums" style="width:100%; font-size:0.85rem;" />
+							</div>
+
+							<div>
+								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">إلى الساعة (اختياري)</label>
+								<input type="text" name="coverage_to" placeholder="مثال: 18:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="input-field tabular-nums" style="width:100%; font-size:0.85rem;" />
+							</div>
+						</div>
+
+						<div>
+							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">ملاحظات العنوان أو خط السير</label>
+							<input type="text" name="address" placeholder="مثال: خط سير الصيدليات المركزية والمستشفيات" class="input-field" style="width:100%; font-size:0.85rem;" />
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<button type="button" @click="addModalOpen = false" class="btn btn-secondary" style="font-weight:700;">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.5rem 1.5rem;">حفظ الجدول</button>
+						</div>
+					</form>
+				</div>
 			</div>
 
 		</div>

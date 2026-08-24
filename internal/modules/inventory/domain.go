@@ -108,3 +108,24 @@ func (t *WarehouseTransfer) Validate() error {
 	}
 	return nil
 }
+
+// DetailedWarehouseStockView provides comprehensive product, batch, and inventory view for warehouse modals.
+type DetailedWarehouseStockView struct {
+	StockID          int64     `json:"stock_id"`
+	WarehouseID      int64     `json:"warehouse_id"`
+	OrganizationID   int64     `json:"organization_id"`
+	ProductID        int64     `json:"product_id"`
+	ProductVariantID int64     `json:"product_variant_id"`
+	ProductName      string    `json:"product_name"`
+	VariantName      string    `json:"variant_name"`
+	SKU              string    `json:"sku"`
+	Barcode          string    `json:"barcode"`
+	BatchNumber      string    `json:"batch_number"`
+	ExpiryDate       *time.Time `json:"expiry_date,omitempty"`
+	PriceStr         string    `json:"price_str"`
+	DiscountStr      string    `json:"discount_str"`
+	Quantity         int       `json:"quantity"`
+	MinThreshold     int       `json:"min_threshold"`
+	IsNegotiable     bool      `json:"is_negotiable"`
+	Status           string    `json:"status"`
+}

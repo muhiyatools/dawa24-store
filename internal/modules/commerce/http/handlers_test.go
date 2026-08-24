@@ -161,6 +161,14 @@ func (r stubRepo) UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int
 	r.fail("UpdatePurchaseRequestLineOffer")
 	return nil
 }
+func (r stubRepo) AcceptNegotiation(ctx context.Context, orderID int64, actorID int64) error {
+	r.fail("AcceptNegotiation")
+	return nil
+}
+func (r stubRepo) RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error {
+	r.fail("RejectNegotiation")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -263,6 +271,12 @@ func (happyRepo) UpdatePurchaseRequestStatus(ctx context.Context, id int64, stat
 	return nil
 }
 func (happyRepo) UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error {
+	return nil
+}
+func (happyRepo) AcceptNegotiation(ctx context.Context, orderID int64, actorID int64) error {
+	return nil
+}
+func (happyRepo) RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error {
 	return nil
 }
 

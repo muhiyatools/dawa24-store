@@ -40,6 +40,7 @@ type SupplierVariantCard struct {
 	IsCovered       bool
 	CoverageReason  string
 	CanAddToCart    bool
+	IsNegotiable    bool
 }
 
 // SupplierOffer represents one real vendor offer line shown on the storefront.
@@ -67,6 +68,7 @@ type SupplierOffer struct {
 	IsCovered        bool
 	CoverageReason   string // e.g. "مفيش فرع بيوصل لموقعك للمنتج ده"
 	CanAddToCart     bool
+	IsNegotiable     bool
 }
 
 // VariantDetailPageData contains full data for the dedicated Product Variant Details page.

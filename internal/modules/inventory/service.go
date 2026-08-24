@@ -140,6 +140,11 @@ func (s *Service) ListStocksByWarehouse(ctx context.Context, warehouseID int64) 
 	return s.repo.ListStocksByWarehouse(ctx, warehouseID)
 }
 
+// ListDetailedStocksByWarehouse retrieves detailed stock and variant rows for a warehouse.
+func (s *Service) ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*DetailedWarehouseStockView, error) {
+	return s.repo.ListDetailedStocksByWarehouse(ctx, warehouseID)
+}
+
 // ListStocksByOrg retrieves all stock rows for an organization across all its warehouses.
 func (s *Service) ListStocksByOrg(ctx context.Context, orgID int64) ([]*Stock, error) {
 	if orgID <= 0 {

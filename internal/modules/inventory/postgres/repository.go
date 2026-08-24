@@ -241,6 +241,53 @@ func (r *Repository) ListStocksByWarehouse(ctx context.Context, warehouseID int6
 	return list, err
 }
 
+// ListDetailedStocksByWarehouse retrieves joined variant, product, and stock information for a warehouse.
+func (r *Repository) ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.DetailedWarehouseStockView, error) {
+	var list []*inventory.DetailedWarehouseStockView
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT s.id, s.warehouse_id, s.organization_id, s.product_id, s.product_variant_id,
+			       COALESCE(p.name->>'ar', p.name->>'en', ''),
+			       COALESCE(v.name->>'ar', v.name->>'en', ''),
+			       COALESCE(v.sku, p.sku, ''),
+			       COALESCE(v.barcode, p.barcode, ''),
+			       COALESCE(v.batch_number, ''),
+			       v.expiry_date,
+			       COALESCE(v.price::text, p.price::text, '0.00'),
+			       COALESCE(v.discount::text, p.discount::text, '0.00'),
+			       s.quantity,
+			       s.min_threshold,
+			       COALESCE(v.is_negotiable, false),
+			       COALESCE(v.status, 'active')
+			FROM inventory.stocks s
+			LEFT JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			LEFT JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			WHERE s.warehouse_id = $1 AND s.deleted_at IS NULL
+			ORDER BY s.id ASC;
+		`
+		rows, err := tx.Query(txCtx, query, warehouseID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var v inventory.DetailedWarehouseStockView
+			if err := rows.Scan(
+				&v.StockID, &v.WarehouseID, &v.OrganizationID, &v.ProductID, &v.ProductVariantID,
+				&v.ProductName, &v.VariantName, &v.SKU, &v.Barcode, &v.BatchNumber,
+				&v.ExpiryDate, &v.PriceStr, &v.DiscountStr, &v.Quantity, &v.MinThreshold,
+				&v.IsNegotiable, &v.Status,
+			); err != nil {
+				return err
+			}
+			list = append(list, &v)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
 // ListStocksByOrg retrieves all stocks belonging to an organization across warehouses.
 func (r *Repository) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inventory.Stock, error) {
 	var list []*inventory.Stock

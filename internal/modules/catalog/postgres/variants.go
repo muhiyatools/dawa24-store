@@ -18,10 +18,10 @@ func (r *Repository) CreateVariant(ctx context.Context, v *catalog.ProductVarian
 		query := `
 			INSERT INTO catalog.product_variants (
 				organization_id, product_id, name, sku, barcode, price, cost_price,
-				discount, unit, image, status, is_featured, batch_number, expiry_date,
+				discount, unit, image, status, is_featured, is_negotiable, batch_number, expiry_date,
 				min_order_qty, branch_id
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
 			) RETURNING id, public_id, created_at, updated_at;
 		`
 		minQty := v.MinOrderQty
@@ -30,7 +30,7 @@ func (r *Repository) CreateVariant(ctx context.Context, v *catalog.ProductVarian
 		}
 		err := tx.QueryRow(txCtx, query,
 			v.OrganizationID, v.ProductID, v.Name, v.SKU, v.Barcode, v.Price,
-			v.CostPrice, v.Discount, v.Unit, v.Image, string(v.Status), v.IsFeatured,
+			v.CostPrice, v.Discount, v.Unit, v.Image, string(v.Status), v.IsFeatured, v.IsNegotiable,
 			v.BatchNumber, v.ExpiryDate, minQty, v.BranchID,
 		).Scan(&v.ID, &v.PublicID, &v.CreatedAt, &v.UpdatedAt)
 
@@ -47,7 +47,7 @@ func (r *Repository) GetVariantByID(ctx context.Context, id int64) (*catalog.Pro
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, product_id, name, sku, barcode,
-			       price, cost_price, discount, unit, image, status, is_featured,
+			       price, cost_price, discount, unit, image, status, is_featured, is_negotiable,
 			       batch_number, expiry_date, min_order_qty, branch_id,
 			       created_at, updated_at, deleted_at
 			FROM catalog.product_variants
@@ -57,7 +57,7 @@ func (r *Repository) GetVariantByID(ctx context.Context, id int64) (*catalog.Pro
 		err := tx.QueryRow(txCtx, query, id).Scan(
 			&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 			&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
-			&statusStr, &v.IsFeatured, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+			&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
 			&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 		)
 		if err != nil {
@@ -81,7 +81,7 @@ func (r *Repository) ListVariantsByProduct(ctx context.Context, productID int64)
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, product_id, name, sku, barcode,
-			       price, cost_price, discount, unit, image, status, is_featured,
+			       price, cost_price, discount, unit, image, status, is_featured, is_negotiable,
 			       batch_number, expiry_date, min_order_qty, branch_id,
 			       created_at, updated_at, deleted_at
 			FROM catalog.product_variants
@@ -100,7 +100,7 @@ func (r *Repository) ListVariantsByProduct(ctx context.Context, productID int64)
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 				&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
-				&statusStr, &v.IsFeatured, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
 				&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 			); err != nil {
 				return err
@@ -158,7 +158,7 @@ func (r *Repository) ListVariantsByOrganization(ctx context.Context, orgID int64
 		// 2. Data query
 		dataQuery := fmt.Sprintf(`
 			SELECT v.id, v.public_id, v.organization_id, v.product_id, v.name, v.sku, v.barcode,
-			       v.price, v.cost_price, v.discount, v.unit, v.image, v.status, v.is_featured,
+			       v.price, v.cost_price, v.discount, v.unit, v.image, v.status, v.is_featured, v.is_negotiable,
 			       v.batch_number, v.expiry_date, v.min_order_qty, v.branch_id,
 			       v.created_at, v.updated_at, v.deleted_at
 			FROM catalog.product_variants v
@@ -180,7 +180,7 @@ func (r *Repository) ListVariantsByOrganization(ctx context.Context, orgID int64
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 				&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
-				&statusStr, &v.IsFeatured, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
 				&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 			); err != nil {
 				return err
@@ -239,7 +239,7 @@ func (r *Repository) ListAllVariants(ctx context.Context, params catalog.Variant
 		// 2. Data query with aggregated stock quantity
 		dataQuery := fmt.Sprintf(`
 			SELECT v.id, v.public_id, v.organization_id, v.product_id, v.name, v.sku, v.barcode,
-			       v.price, v.cost_price, v.discount, v.unit, v.image, v.status, v.is_featured,
+			       v.price, v.cost_price, v.discount, v.unit, v.image, v.status, v.is_featured, v.is_negotiable,
 			       v.batch_number, v.expiry_date, v.min_order_qty, v.branch_id,
 			       COALESCE(SUM(s.quantity), 0) as stock_qty,
 			       v.created_at, v.updated_at, v.deleted_at
@@ -264,7 +264,7 @@ func (r *Repository) ListAllVariants(ctx context.Context, params catalog.Variant
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 				&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
-				&statusStr, &v.IsFeatured, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
 				&v.BranchID, &v.StockQty, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 			); err != nil {
 				return err
@@ -288,8 +288,8 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 			UPDATE catalog.product_variants
 			SET name = $2, sku = $3, barcode = $4, price = $5, cost_price = $6,
 			    discount = $7, unit = $8, image = $9, status = $10,
-			    is_featured = $11, batch_number = $12, expiry_date = $13,
-			    min_order_qty = $14, branch_id = $15, updated_at = now()
+			    is_featured = $11, is_negotiable = $12, batch_number = $13, expiry_date = $14,
+			    min_order_qty = $15, branch_id = $16, updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		minQty := v.MinOrderQty
@@ -298,7 +298,7 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 		}
 		res, err := tx.Exec(txCtx, query,
 			v.ID, v.Name, v.SKU, v.Barcode, v.Price, v.CostPrice, v.Discount,
-			v.Unit, v.Image, string(v.Status), v.IsFeatured, v.BatchNumber,
+			v.Unit, v.Image, string(v.Status), v.IsFeatured, v.IsNegotiable, v.BatchNumber,
 			v.ExpiryDate, minQty, v.BranchID,
 		)
 		if err != nil {

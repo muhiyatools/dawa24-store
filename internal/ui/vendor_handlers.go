@@ -210,6 +210,7 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	price, _ := money.Parse(priceStr)
 	cost, _ := money.Parse(costStr)
 	discount, _ := money.Parse(discountStr)
+	isNegotiable := r.PostFormValue("is_negotiable") == "true" || r.PostFormValue("is_negotiable") == "1"
 
 	variant := &catalog.ProductVariant{
 		OrganizationID: actor.OrganizationID,
@@ -224,6 +225,7 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 		MinOrderQty:    minQty,
 		BranchID:       branchID,
 		SKU:            sku,
+		IsNegotiable:   isNegotiable,
 		Status:         catalog.StatusActive,
 	}
 
@@ -1342,6 +1344,54 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم تحديث حالة الشحنة بنجاح.")
+}
+
+// VendorNegotiationAcceptSubmit accepts a customer's proposed negotiated price and confirms the order.
+func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/orders", http.StatusSeeOther)
+		return
+	}
+
+	orderID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if h.commSvc != nil && orderID > 0 {
+		if err := h.commSvc.AcceptNegotiation(ctx, orderID, actor.UserID); err != nil {
+			h.log.ErrorContext(ctx, "vendor accept negotiation failed", "error", err, "order_id", orderID)
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر قبول التفاوض: "+h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم قبول السعر المتفاوض عليه واعتماد الطلب بنجاح.")
+}
+
+// VendorNegotiationRejectSubmit rejects a customer's proposed negotiated price and cancels the order.
+func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/orders", http.StatusSeeOther)
+		return
+	}
+
+	orderID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	_ = r.ParseForm()
+	reason := r.PostFormValue("reason")
+	if reason == "" {
+		reason = "تم رفض السعر المقترح من قبل إدارة المبيعات"
+	}
+
+	if h.commSvc != nil && orderID > 0 {
+		if err := h.commSvc.RejectNegotiation(ctx, orderID, reason, actor.UserID); err != nil {
+			h.log.ErrorContext(ctx, "vendor reject negotiation failed", "error", err, "order_id", orderID)
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر رفض التفاوض: "+h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم رفض طلب التفاوض وإلغاء الطلب.")
 }
 
 // VendorStockAdjustSubmit adjusts a stock level with a reason.

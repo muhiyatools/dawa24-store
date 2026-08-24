@@ -46,10 +46,6 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconTruck("icon-sm")
 							<span>الطلبات والشحنات</span>
 						</a>
-						<a href="/orders/offers" class={ "sidebar-link", templ.KV("active", activeNav == "orders_offers") }>
-							@components.IconFile("icon-sm")
-							<span>طلبات العروض والصفقات</span>
-						</a>
 						<a href="/customer/purchase-request" class={ "sidebar-link", templ.KV("active", activeNav == "purchase-request") }>
 							@components.IconFile("icon-sm")
 							<span>طلبات الشراء</span>

@@ -168,7 +168,7 @@ func TestVendorPhase6Routes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Vendor GET /vendor/orders/offers returns 200",
+			name:   "Vendor GET /vendor/orders/offers 301 redirects to /vendor/orders",
 			path:   "/vendor/orders/offers",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -176,7 +176,7 @@ func TestVendorPhase6Routes(t *testing.T) {
 				OrganizationID: 2,
 				OrgType:        "supplier",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 	}
 

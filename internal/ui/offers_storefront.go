@@ -173,6 +173,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			IsCovered:        isCovered,
 			CanAddToCart:     canAddToCart,
 			CoverageReason:   covReason,
+			IsNegotiable:     v.IsNegotiable,
 		}
 
 		seenSuppliers[v.OrganizationID] = len(offers)

@@ -19,6 +19,7 @@ const orderColumns = `id, public_id, order_number, customer_id, organization_id,
 	offer_id, branch_id, vendor_branch_id, user_address_id, status,
 	subtotal, discount_amount, total_discount, shipping_fee, tax_amount,
 	total_amount, final_price, payment_method, payment_status, notes,
+	is_negotiation, negotiation_status, COALESCE(negotiation_notes, '') AS negotiation_notes,
 	rating, review, rated_at, delivered_at,
 	created_at, updated_at, deleted_at`
 
@@ -33,6 +34,7 @@ func scanOrder(row pgx.Row) (*commerce.Order, error) {
 		&statusStr, &o.Subtotal, &o.DiscountAmount, &o.TotalDiscount, &o.ShippingFee,
 		&o.TaxAmount, &o.TotalAmount, &o.FinalPrice,
 		&o.PaymentMethod, &payStatusStr, &o.Notes,
+		&o.IsNegotiation, &o.NegotiationStatus, &o.NegotiationNotes,
 		&o.Rating, &o.Review, &o.RatedAt, &o.DeliveredAt,
 		&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
 	); err != nil {
@@ -60,8 +62,9 @@ func (r *Repository) CreateOrder(
 				order_number, customer_id, organization_id, offer_id, branch_id,
 				vendor_branch_id, user_address_id, status, subtotal,
 				discount_amount, total_discount, shipping_fee, tax_amount, total_amount,
-				final_price, payment_method, payment_status, notes
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+				final_price, payment_method, payment_status, notes,
+				is_negotiation, negotiation_status, negotiation_notes
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		var offerID *int64
@@ -91,6 +94,7 @@ func (r *Repository) CreateOrder(
 			order.Subtotal, order.DiscountAmount, order.TotalDiscount, order.ShippingFee,
 			order.TaxAmount, order.TotalAmount, order.FinalPrice,
 			order.PaymentMethod, string(order.PaymentStatus), order.Notes,
+			order.IsNegotiation, order.NegotiationStatus, order.NegotiationNotes,
 		).Scan(&order.ID, &order.PublicID, &order.CreatedAt, &order.UpdatedAt)
 		if err != nil {
 			return fmt.Errorf("commerce postgres: insert order: %w", err)
@@ -150,8 +154,9 @@ func (r *Repository) CreateOrder(
 					order_id, shipment_id, organization_id, product_id,
 					product_variant_id, product_name, variant_name, sku,
 					offer_product_id, unit_price, quantity, discount_amount,
-					total_price, list_price, original_price, original_discount
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+					total_price, list_price, original_price, original_discount,
+					is_negotiated, proposed_unit_price
+				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 				RETURNING id, created_at;
 			`
 			err := tx.QueryRow(txCtx, queryLine,
@@ -159,6 +164,7 @@ func (r *Repository) CreateOrder(
 				pvID, line.ProductName, line.VariantName, line.SKU,
 				opID, line.UnitPrice, line.Quantity, line.DiscountAmount,
 				line.TotalPrice, line.ListPrice, line.OriginalPrice, line.OriginalDiscount,
+				line.IsNegotiated, line.ProposedUnitPrice,
 			).Scan(&line.ID, &line.CreatedAt)
 			if err != nil {
 				return fmt.Errorf("commerce postgres: insert order line: %w", err)
@@ -246,7 +252,8 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 			SELECT l.id, l.order_id, l.shipment_id, l.organization_id, l.product_id,
 			       l.product_variant_id, l.product_name, l.variant_name, l.sku,
 			       l.offer_product_id, l.unit_price, l.quantity, l.discount_amount,
-			       l.total_price, l.list_price, l.original_price, l.original_discount, l.rating
+			       l.total_price, l.list_price, l.original_price, l.original_discount,
+			       l.is_negotiated, COALESCE(l.proposed_unit_price, 0) as proposed_unit_price, l.rating
 			FROM commerce.order_lines l
 			WHERE l.order_id = $1
 			ORDER BY l.id ASC;
@@ -260,7 +267,8 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 					&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID,
 					&l.ProductVariantID, &l.ProductName, &l.VariantName, &l.SKU,
 					&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
-					&l.TotalPrice, &l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &l.Rating,
+					&l.TotalPrice, &l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount,
+					&l.IsNegotiated, &l.ProposedUnitPrice, &l.Rating,
 				); err == nil {
 					o.Lines = append(o.Lines, &l)
 					if sh, ok := shipmentMap[l.ShipmentID]; ok {
@@ -496,4 +504,70 @@ func (r *Repository) CountOrders(ctx context.Context) (int, error) {
 		return tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.orders;`).Scan(&total)
 	})
 	return total, err
+}
+
+// AcceptNegotiation confirms a negotiated order and sets its status to confirmed.
+func (r *Repository) AcceptNegotiation(ctx context.Context, orderID int64, actorID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE commerce.orders
+			SET negotiation_status = 'accepted',
+			    status = 'confirmed',
+			    updated_at = now()
+			WHERE id = $1;
+		`
+		ct, err := tx.Exec(txCtx, query, orderID)
+		if err != nil {
+			return err
+		}
+		if ct.RowsAffected() == 0 {
+			return apperr.NotFound("order")
+		}
+
+		// Also update shipments
+		_, _ = tx.Exec(txCtx, `UPDATE commerce.order_shipments SET status = 'confirmed', updated_at = now() WHERE order_id = $1;`, orderID)
+
+		// Record in history
+		_, _ = tx.Exec(txCtx, `
+			INSERT INTO commerce.order_status_history (order_id, to_status, notes, changed_by_user_id)
+			VALUES ($1, 'confirmed', 'تم قبول السعر المتفاوض عليه واعتماد الطلب من قبل المورد', $2);
+		`, orderID, actorID)
+
+		return nil
+	})
+}
+
+// RejectNegotiation rejects a negotiated order and sets its status to cancelled.
+func (r *Repository) RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if reason == "" {
+			reason = "تم رفض السعر المقترح من قبل المورد"
+		}
+		query := `
+			UPDATE commerce.orders
+			SET negotiation_status = 'rejected',
+			    status = 'cancelled',
+			    negotiation_notes = $2,
+			    updated_at = now()
+			WHERE id = $1;
+		`
+		ct, err := tx.Exec(txCtx, query, orderID, reason)
+		if err != nil {
+			return err
+		}
+		if ct.RowsAffected() == 0 {
+			return apperr.NotFound("order")
+		}
+
+		// Also update shipments
+		_, _ = tx.Exec(txCtx, `UPDATE commerce.order_shipments SET status = 'cancelled', updated_at = now() WHERE order_id = $1;`, orderID)
+
+		// Record in history
+		_, _ = tx.Exec(txCtx, `
+			INSERT INTO commerce.order_status_history (order_id, to_status, notes, changed_by_user_id)
+			VALUES ($1, 'cancelled', $2, $3);
+		`, orderID, reason, actorID)
+
+		return nil
+	})
 }

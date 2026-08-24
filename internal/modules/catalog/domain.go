@@ -111,6 +111,7 @@ type ProductVariant struct {
 	StockQty             int           `json:"stock_qty"`
 	Status               ProductStatus `json:"status"`
 	IsFeatured           bool          `json:"is_featured"`
+	IsNegotiable         bool          `json:"is_negotiable"`
 	InstitutionalWorkIDs []int64       `json:"institutional_work_ids,omitempty"`
 	CreatedAt            time.Time     `json:"created_at"`
 	UpdatedAt            time.Time     `json:"updated_at"`

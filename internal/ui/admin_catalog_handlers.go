@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -187,41 +189,55 @@ func (h *UIHandler) AdminWarehousesPage(w http.ResponseWriter, r *http.Request) 
 		warehouses, _ = h.invSvc.ListWarehouses(database.AsSystem(ctx))
 	}
 
+	var orgs []*org.Organization
+	if h.orgSvc != nil {
+		orgs, _ = h.orgSvc.ListOrganizations(database.AsSystem(ctx), nil, nil, 500, 0)
+	}
+	orgMap := make(map[int64]string)
+	for _, o := range orgs {
+		if o != nil {
+			orgMap[o.ID] = o.LegalName
+		}
+	}
+
+	var rows []*pages.AdminWarehouseRowView
+	for _, wh := range warehouses {
+		if wh != nil {
+			rows = append(rows, &pages.AdminWarehouseRowView{
+				Warehouse: wh,
+				OrgName:   orgMap[wh.OrganizationID],
+			})
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminWarehousesPage(warehouses, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminWarehousesPage(rows, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin warehouses page", "error", err)
 	}
 }
 
-// AdminWarehouseDetailPage renders single warehouse details and current stock list.
+// AdminWarehouseDetailPage redirects to the main warehouses hub.
 func (h *UIHandler) AdminWarehouseDetailPage(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/admin/warehouses", http.StatusMovedPermanently)
+}
+
+// AdminWarehouseStocksJSON provides detailed stock rows for interactive modal inspection.
+func (h *UIHandler) AdminWarehouseStocksJSON(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
 	idStr := chi.URLParam(r, "id")
 	whID, _ := strconv.ParseInt(idStr, 10, 64)
 
-	var wh *inventory.Warehouse
-	var stocks []*inventory.Stock
+	var stocks []*inventory.DetailedWarehouseStockView
 	if h.invSvc != nil && whID > 0 {
-		whs, _ := h.invSvc.ListWarehouses(database.AsSystem(ctx))
-		for _, wCandidate := range whs {
-			if wCandidate.ID == whID {
-				wh = wCandidate
-				break
-			}
-		}
-		stocks, _ = h.invSvc.ListStocksByWarehouse(database.AsSystem(ctx), whID)
+		stocks, _ = h.invSvc.ListDetailedStocksByWarehouse(database.AsSystem(ctx), whID)
 	}
 
-	if wh == nil {
-		http.Redirect(w, r, "/admin/warehouses", http.StatusSeeOther)
-		return
+	if stocks == nil {
+		stocks = []*inventory.DetailedWarehouseStockView{}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminWarehouseDetailPage(wh, stocks, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin warehouse detail", "error", err)
-	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(stocks)
 }
 
 // AdminTempWarehousesPage renders temporary warehouses staging directory.

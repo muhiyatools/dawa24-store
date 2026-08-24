@@ -171,6 +171,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 					IsCovered:       off.IsCovered,
 					CoverageReason:  off.CoverageReason,
 					CanAddToCart:    off.CanAddToCart,
+					IsNegotiable:    off.IsNegotiable,
 				})
 			}
 		} else {
@@ -1045,4 +1046,116 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 // CustomerSwitchActiveBranchSubmit handles switching the active branch for customer context.
 func (h *UIHandler) CustomerSwitchActiveBranchSubmit(w http.ResponseWriter, r *http.Request) {
 	h.SetBuyingBranchSubmit(w, r)
+}
+
+// CustomerNegotiateOrderSubmit initiates a price negotiation order with a supplier.
+func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/catalog", http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/catalog", "error", "بيانات النموذج غير صالحة.")
+		return
+	}
+
+	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
+	vendorOrgID, _ := strconv.ParseInt(r.PostFormValue("vendor_org_id"), 10, 64)
+	qty, _ := strconv.Atoi(r.PostFormValue("qty"))
+	if qty <= 0 {
+		qty = 1
+	}
+
+	proposedPriceStr := r.PostFormValue("proposed_price")
+	proposedPrice, err := money.Parse(proposedPriceStr)
+	if err != nil || proposedPrice.IsZero() || proposedPrice.IsNegative() {
+		h.redirectWithNotice(w, r, "/catalog", "error", "يرجى إدخال سعر تفاوضي صالح وموجب.")
+		return
+	}
+
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	if notes == "" {
+		notes = fmt.Sprintf("طلب تفاوض على سعر الصنف: %s ج.م للعبوة (كمية: %d)", proposedPrice.String(), qty)
+	}
+
+	var branchID *int64
+	if bStr := r.PostFormValue("branch_id"); bStr != "" {
+		if bID, err := strconv.ParseInt(bStr, 10, 64); err == nil && bID > 0 {
+			branchID = &bID
+		}
+	}
+	if branchID == nil {
+		if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil && *buying.Active > 0 {
+			branchID = buying.Active
+		} else if actor.BranchID != nil && *actor.BranchID > 0 {
+			branchID = actor.BranchID
+		}
+	}
+
+	var productID int64
+	prodName := i18n.Text{"ar": "صنف دوائي للتفاوض", "en": "Negotiated Medicine"}
+	if h.catSvc != nil && variantID > 0 {
+		if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil {
+			productID = v.ProductID
+			if vendorOrgID <= 0 {
+				vendorOrgID = v.OrganizationID
+			}
+			if len(v.Name) > 0 {
+				prodName = v.Name
+			}
+		}
+	}
+
+	paymentMethod := r.PostFormValue("payment_method")
+	if paymentMethod == "" {
+		paymentMethod = "cod"
+	}
+
+	var pIDPtr *int64
+	if productID > 0 {
+		pIDPtr = &productID
+	}
+	var vIDPtr *int64
+	if variantID > 0 {
+		vIDPtr = &variantID
+	}
+
+	input := commerce.CheckoutInput{
+		CustomerID:       actor.UserID,
+		CustomerOrgID:    actor.OrganizationID,
+		BranchID:         branchID,
+		PaymentMethod:    paymentMethod,
+		Notes:            notes,
+		IsNegotiation:    true,
+		NegotiationNotes: notes,
+		Items: []commerce.CheckoutLineItem{
+			{
+				ProductVariantID:  vIDPtr,
+				ProductID:         pIDPtr,
+				VendorOrgID:       vendorOrgID,
+				ProductName:       prodName,
+				Quantity:          qty,
+				UnitPrice:         proposedPrice,
+				ProposedUnitPrice: proposedPrice,
+				IsNegotiated:      true,
+			},
+		},
+	}
+
+	if h.commSvc == nil {
+		h.redirectWithNotice(w, r, "/catalog", "error", "خدمة المبيعات غير متاحة حالياً.")
+		return
+	}
+
+	order, err := h.commSvc.Checkout(ctx, input)
+	if err != nil {
+		h.log.ErrorContext(ctx, "failed to submit negotiation order", "error", err, "variant_id", variantID)
+		h.redirectWithNotice(w, r, "/catalog", "error", "تعذر إرسال طلب التفاوض: "+h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", order.ID), "success", "تم إرسال طلب التفاوض على السعر إلى المورد بنجاح وهو الآن قيد المراجعة.")
 }

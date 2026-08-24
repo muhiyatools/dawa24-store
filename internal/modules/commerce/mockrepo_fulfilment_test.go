@@ -78,3 +78,24 @@ func (m *mockCommerceRepo) CountOrders(_ context.Context) (int, error) { return 
 func (m *mockCommerceRepo) CountVendorShipmentsByStatus(_ context.Context, _ int64, _ []string) (int, error) {
 	return 0, nil
 }
+
+func (m *mockCommerceRepo) AcceptNegotiation(_ context.Context, orderID, actorID int64) error {
+	o, ok := m.orders[orderID]
+	if !ok {
+		return apperr.NotFound("order")
+	}
+	o.NegotiationStatus = "accepted"
+	o.Status = StatusConfirmed
+	return nil
+}
+
+func (m *mockCommerceRepo) RejectNegotiation(_ context.Context, orderID int64, reason string, actorID int64) error {
+	o, ok := m.orders[orderID]
+	if !ok {
+		return apperr.NotFound("order")
+	}
+	o.NegotiationStatus = "rejected"
+	o.Status = StatusCancelled
+	o.NegotiationNotes = reason
+	return nil
+}

@@ -27,6 +27,7 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Get("/admin/stocks", h.AdminStocksPage)
 		g.Get("/admin/warehouses", h.AdminWarehousesPage)
 		g.Get("/admin/warehouses/{id}", h.AdminWarehouseDetailPage)
+		g.Get("/admin/warehouses/{id}/stocks-json", h.AdminWarehouseStocksJSON)
 
 		// Temp Warehouses
 		g.Get("/admin/user/temparte-warehouses", h.AdminTempWarehousesPage)

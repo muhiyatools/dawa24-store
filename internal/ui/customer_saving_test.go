@@ -54,7 +54,7 @@ func TestCustomerPhase7Routes(t *testing.T) {
 			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Customer GET /orders/offers returns 200",
+			name:   "Customer GET /orders/offers 301 redirects to /orders",
 			path:   "/orders/offers",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -62,7 +62,7 @@ func TestCustomerPhase7Routes(t *testing.T) {
 				OrganizationID: 5,
 				OrgType:        "customer",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Customer GET /customer/add-order returns 200",

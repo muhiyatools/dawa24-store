@@ -68,14 +68,35 @@ func (m *mockInventoryRepo) ListTransfers(_ context.Context, status string, limi
 	return pageSlice(list, limit, offset), nil
 }
 
-// pageSlice applies limit and offset without panicking on out-of-range values.
-func pageSlice[T any](in []T, limit, offset int) []T {
-	if offset >= len(in) {
-		return nil
+func (m *mockInventoryRepo) ListDetailedStocksByWarehouse(_ context.Context, warehouseID int64) ([]*inventory.DetailedWarehouseStockView, error) {
+	var list []*inventory.DetailedWarehouseStockView
+	for _, s := range m.stocksByID {
+		if s.WarehouseID == warehouseID {
+			list = append(list, &inventory.DetailedWarehouseStockView{
+				StockID:          s.ID,
+				WarehouseID:      s.WarehouseID,
+				OrganizationID:   s.OrganizationID,
+				ProductID:        s.ProductID,
+				ProductVariantID: s.ProductVariantID,
+				Quantity:         s.Quantity,
+				MinThreshold:     s.MinThreshold,
+				Status:           "active",
+			})
+		}
+	}
+	return list, nil
+}
+
+func pageSlice[T any](s []T, limit, offset int) []T {
+	if offset < 0 {
+		offset = 0
+	}
+	if offset >= len(s) {
+		return []T{}
 	}
 	end := offset + limit
-	if limit <= 0 || end > len(in) {
-		end = len(in)
+	if limit <= 0 || end > len(s) {
+		end = len(s)
 	}
-	return in[offset:end]
+	return s[offset:end]
 }

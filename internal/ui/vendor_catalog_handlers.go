@@ -185,6 +185,7 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 	price, _ := money.Parse(priceStr)
 	cost, _ := money.Parse(costStr)
 	discount, _ := money.Parse(discountStr)
+	isNegotiable := r.FormValue("is_negotiable") == "true" || r.FormValue("is_negotiable") == "1"
 
 	variant := &catalog.ProductVariant{
 		OrganizationID: actor.OrganizationID,
@@ -201,6 +202,7 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 		SKU:            sku,
 		Barcode:        barcode,
 		Unit:           unit,
+		IsNegotiable:   isNegotiable,
 		Status:         catalog.StatusActive,
 	}
 
@@ -303,6 +305,10 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 
 	if st := strings.TrimSpace(r.FormValue("status")); st != "" {
 		existing.Status = catalog.ProductStatus(st)
+	}
+
+	if negStr := strings.TrimSpace(r.FormValue("is_negotiable")); negStr != "" {
+		existing.IsNegotiable = (negStr == "true" || negStr == "1")
 	}
 
 	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {

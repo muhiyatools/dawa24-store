@@ -119,10 +119,6 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							@components.IconTruck("icon-sm")
 							<span>أوامر التوريد والشحنات</span>
 						</a>
-						<a href="/vendor/orders/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offer_orders") }>
-							@components.IconFile("icon-sm")
-							<span>طلبات عروض الأسعار</span>
-						</a>
 						<a href="/invoices" class={ "sidebar-link", templ.KV("active", activeNav == "invoices") }>
 							@components.IconFile("icon-sm")
 							<span>الفواتير والمستحقات</span>

@@ -57,11 +57,12 @@ type WeeklyCoverage struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-// CoverageView extends WeeklyCoverage with denormalized branch and city names for display.
+// CoverageView extends WeeklyCoverage with denormalized branch, city, and organization names for display.
 type CoverageView struct {
 	WeeklyCoverage
 	BranchName string `json:"branch_name"`
 	CityName   string `json:"city_name,omitempty"`
+	OrgName    string `json:"org_name,omitempty"`
 }
 
 // Validate ensures weekly coverage fields are valid.

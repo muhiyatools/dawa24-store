@@ -538,54 +538,292 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 	}
 }
 
-// AdminWarehousesPage renders permanent warehouses.
-templ AdminWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) {
+// AdminWarehouseRowView wraps a warehouse with owner organization metadata.
+type AdminWarehouseRowView struct {
+	Warehouse *inventory.Warehouse
+	OrgName   string
+}
+
+// AdminWarehousesPage renders permanent warehouses with live in-page inventory modals.
+templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) {
 	@layouts.AdminShell("إدارة المستودعات ومراكز التوزيع", "warehouses", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">دليل المستودعات المسجلة ({ fmt.Sprintf("%d", len(warehouses)) })</h2>
-			if len(warehouses) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مستودعات", Message: "لم يتم تسجيل مستودعات بالمنصة بعد."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>اسم المستودع</th>
-								<th>المنشأة التابع لها</th>
-								<th>العنوان</th>
-								<th>الهاتف</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, w := range warehouses {
-								<tr>
-									<td><strong>{ w.Name }</strong></td>
-									<td>منشأة #{ fmt.Sprintf("%d", w.OrganizationID) }</td>
-									<td>{ w.Address }</td>
-									<td class="tabular-nums">{ w.Phone }</td>
-									<td>
-										if w.IsActive {
-											<span class="badge badge-success">نشط</span>
-										} else {
-											<span class="badge badge-danger">معطل</span>
-										}
-									</td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm">عرض المخزون</a>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
+		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;"
+			x-data="{
+				modalOpen: false,
+				loading: false,
+				error: '',
+				activeWh: {},
+				stocks: [],
+				searchQuery: '',
+				get filteredStocks() {
+					if (!this.searchQuery) return this.stocks;
+					const q = this.searchQuery.toLowerCase();
+					return this.stocks.filter(s =>
+						(s.product_name && s.product_name.toLowerCase().includes(q)) ||
+						(s.variant_name && s.variant_name.toLowerCase().includes(q)) ||
+						(s.sku && s.sku.toLowerCase().includes(q)) ||
+						(s.batch_number && s.batch_number.toLowerCase().includes(q))
+					);
+				},
+				openStocks(wh) {
+					this.activeWh = wh;
+					this.stocks = [];
+					this.error = '';
+					this.searchQuery = '';
+					this.loading = true;
+					this.modalOpen = true;
+					fetch('/admin/warehouses/' + wh.id + '/stocks-json')
+						.then(res => {
+							if (!res.ok) throw new Error('فشل جلب بيانات المخزون من الخادم');
+							return res.json();
+						})
+						.then(data => {
+							this.stocks = data || [];
+							this.loading = false;
+						})
+						.catch(err => {
+							this.error = err.message || 'تعذر تحميل بيانات المخزون';
+							this.loading = false;
+						});
+				}
+			}"
+		>
+			<!-- Header Banner -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
+							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+								🏬
+							</div>
+							<div>
+								<h1 style="font-size:1.4rem; font-weight:900; color:var(--text); margin:0;">دليل المستودعات ومراكز التوزيع</h1>
+								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Central Distribution & Storage Facilities</span>
+							</div>
+						</div>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض المستودعات التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر النافذة التفاعلية المباشرة.</p>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="badge badge-sky" style="font-size:0.85rem; font-weight:800; padding:0.4rem 0.85rem;">
+							{ fmt.Sprintf("إجمالي %d مستودع معتمد", len(warehouses)) }
+						</div>
+					</div>
 				</div>
-			}
+			</div>
+
+			<!-- Warehouses Table Card -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+				if len(warehouses) == 0 {
+					<div style="padding:3rem 1.5rem;">
+						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مستودعات", Message: "لم يتم تسجيل مستودعات بالمنصة بعد."})
+					</div>
+				} else {
+					<div class="table-container">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>اسم المستودع</th>
+									<th>المنشأة التابع لها</th>
+									<th>العنوان وموقع التوزيع</th>
+									<th>الهاتف</th>
+									<th>الحالة</th>
+									<th class="text-end">مخزون المستودع</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, row := range warehouses {
+									<tr>
+										<td>
+											<div style="display:flex; align-items:center; gap:0.5rem;">
+												<span style="font-size:1.1rem;">🏬</span>
+												<div>
+													<strong style="color:var(--text); font-size:0.925rem;">{ row.Warehouse.Name }</strong>
+													if row.Warehouse.Code != "" {
+														<div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono, monospace);">كود: { row.Warehouse.Code }</div>
+													}
+												</div>
+											</div>
+										</td>
+										<td>
+											if row.OrgName != "" {
+												<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem;">
+													🏢 { row.OrgName }
+												</span>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.8rem;">منشأة #{ fmt.Sprintf("%d", row.Warehouse.OrganizationID) }</span>
+											}
+										</td>
+										<td>
+											if row.Warehouse.Address != "" {
+												<span style="font-size:0.85rem; color:var(--text);">{ row.Warehouse.Address }</span>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.8rem;">غير محدد</span>
+											}
+										</td>
+										<td class="tabular-nums">
+											if row.Warehouse.Phone != "" {
+												<span style="font-weight:600; font-size:0.85rem;">{ row.Warehouse.Phone }</span>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+											}
+										</td>
+										<td>
+											if row.Warehouse.IsActive {
+												<span class="badge badge-success" style="font-weight:800;">✓ نشط</span>
+											} else {
+												<span class="badge badge-danger" style="font-weight:800;">✕ معطل</span>
+											}
+										</td>
+										<td class="text-end">
+											<button
+												type="button"
+												class="btn btn-secondary btn-sm"
+												@click={ fmt.Sprintf("openStocks({ id: %d, name: '%s', org_name: '%s', address: '%s', phone: '%s' })", row.Warehouse.ID, row.Warehouse.Name, row.OrgName, row.Warehouse.Address, row.Warehouse.Phone) }
+												style="font-weight:800; font-size:0.8rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); gap:0.4rem;"
+											>
+												<span>📦</span>
+												<span>عرض المخزون للمستودع</span>
+											</button>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<!-- Live Stock Inspection Modal -->
+			<div x-show="modalOpen" x-cloak style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.5rem;">
+				<div @click.away="modalOpen = false" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:1050px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 25px 60px rgba(0,0,0,0.25); overflow:hidden;">
+					
+					<!-- Modal Header -->
+					<div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+								📦
+							</div>
+							<div>
+								<div style="display:flex; align-items:center; gap:0.5rem;">
+									<h3 style="font-size:1.15rem; font-weight:900; margin:0; color:var(--text);" x-text="'مخزون مستودع: ' + activeWh.name"></h3>
+									<span class="badge badge-sky" x-show="activeWh.org_name" x-text="activeWh.org_name" style="font-size:0.75rem; font-weight:700;"></span>
+								</div>
+								<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;" x-text="activeWh.address ? ('العنوان: ' + activeWh.address) : 'تفاصيل المخزون المسجل بالمنظومة'"></div>
+							</div>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<button type="button" @click="modalOpen = false" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center;">✕</button>
+						</div>
+					</div>
+
+					<!-- Modal Search & Stats Filter Bar -->
+					<div style="padding:1rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-raised); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+						<div style="position:relative; flex:1; min-width:260px;">
+							<input
+								type="text"
+								x-model="searchQuery"
+								placeholder="بحث باسم الدواء، الصنف، كود SKU، أو رقم التشغيلة…"
+								class="input-field"
+								style="width:100%; font-size:0.85rem; padding:0.45rem 1rem; border-radius:var(--radius-lg);"
+							/>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem;">
+							<span class="badge badge-slate" x-text="'الأصناف المعروضة: ' + filteredStocks.length" style="font-weight:700; padding:0.35rem 0.75rem;"></span>
+						</div>
+					</div>
+
+					<!-- Modal Body Table Content -->
+					<div style="flex:1; overflow-y:auto; padding:1.25rem 1.75rem;">
+						
+						<!-- Loading Spinner -->
+						<div x-show="loading" style="padding:3rem 1rem; text-align:center;">
+							<div style="display:inline-block; font-size:2rem; animation:spin 1s linear infinite;">⏳</div>
+							<p style="font-size:0.875rem; color:var(--text-secondary); font-weight:700; margin-top:0.75rem;">جاري جلب أرصدة المخزون وتفاصيل الأصناف من قاعدة البيانات…</p>
+						</div>
+
+						<!-- Error Message -->
+						<div x-show="!loading && error" style="padding:2rem 1rem; text-align:center; color:var(--danger-text);">
+							<p x-text="error" style="font-weight:700; font-size:0.9rem;"></p>
+						</div>
+
+						<!-- Empty State inside modal -->
+						<div x-show="!loading && !error && filteredStocks.length === 0" style="padding:3rem 1rem; text-align:center;">
+							<div style="font-size:2.5rem; margin-bottom:0.5rem;">📭</div>
+							<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">لا توجد أصناف مخزنة مطابقة</h4>
+							<p style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem;">لم يتم تسجيل أي رصيد مخزني لهذا المستودع يطابق معايير البحث.</p>
+						</div>
+
+						<!-- Live Table -->
+						<div x-show="!loading && !error && filteredStocks.length > 0" class="table-container" style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+							<table class="data-table" style="margin:0;">
+								<thead>
+									<tr>
+										<th>اسم الدواء والصنف</th>
+										<th>كود SKU والباركود</th>
+										<th>رقم التشغيلة والصلاحية</th>
+										<th>سعر التوريد</th>
+										<th>قابل للتفاوض</th>
+										<th>الرصيد المتاح</th>
+										<th>حد الأمان</th>
+										<th>الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									<template x-for="st in filteredStocks" :key="st.stock_id">
+										<tr>
+											<td>
+												<div>
+													<strong style="color:var(--text); font-size:0.9rem;" x-text="st.product_name || 'صنف دوائي'"></strong>
+													<div style="font-size:0.75rem; color:var(--text-muted);" x-show="st.variant_name" x-text="st.variant_name"></div>
+												</div>
+											</td>
+											<td class="tabular-nums" style="font-family:var(--font-mono, monospace); font-size:0.8rem;">
+												<span x-text="st.sku || st.barcode || '-'"></span>
+											</td>
+											<td class="tabular-nums">
+												<div style="font-size:0.8rem; font-weight:700;" x-text="st.batch_number ? ('تشغيلة: ' + st.batch_number) : '-'"></div>
+												<div style="font-size:0.725rem; color:var(--text-muted);" x-show="st.expiry_date" x-text="'صلاحية: ' + (st.expiry_date ? st.expiry_date.substring(0,10) : '')"></div>
+											</td>
+											<td class="tabular-nums" style="font-weight:700; color:var(--primary-600);">
+												<span x-text="st.price_str ? (st.price_str + ' ج.م') : '-'"></span>
+											</td>
+											<td>
+												<span class="badge badge-amber" x-show="st.is_negotiable" style="font-size:0.725rem; font-weight:800;">🤝 نعم</span>
+												<span class="badge badge-slate" x-show="!st.is_negotiable" style="font-size:0.725rem;">لا (ثابت)</span>
+											</td>
+											<td class="tabular-nums">
+												<strong style="font-size:1rem;" :style="st.quantity > st.min_threshold ? 'color:var(--primary-600);' : 'color:var(--danger-text);'" x-text="st.quantity"></strong>
+											</td>
+											<td class="tabular-nums" style="color:var(--text-muted); font-size:0.85rem;" x-text="st.min_threshold"></td>
+											<td>
+												<span class="badge badge-success" x-show="st.quantity > st.min_threshold">متوفر</span>
+												<span class="badge badge-amber" x-show="st.quantity > 0 && st.quantity <= st.min_threshold">منخفض</span>
+												<span class="badge badge-danger" x-show="st.quantity <= 0">نفد المخزون</span>
+											</td>
+										</tr>
+									</template>
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+
+					<!-- Modal Footer -->
+					<div style="padding:1rem 1.75rem; border-top:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:flex-end;">
+						<button type="button" @click="modalOpen = false" class="btn btn-secondary" style="font-weight:700; font-size:0.85rem; padding:0.45rem 1.5rem;">إغلاق</button>
+					</div>
+
+				</div>
+			</div>
+
 		</div>
 	}
 }
 
-// AdminWarehouseDetailPage renders warehouse detail.
+// AdminWarehouseDetailPage renders warehouse detail fallback.
 templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("مستودع: %s", wh.Name), "warehouses", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto 1.5rem auto;">
@@ -596,34 +834,6 @@ templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stoc
 				</div>
 				<a href="/admin/warehouses" class="btn btn-secondary btn-sm">العودة للمستودعات</a>
 			</div>
-		</div>
-
-		<div class="card" style="max-width:800px; margin:0 auto;">
-			<h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">أرصدة هذا المستودع ({ fmt.Sprintf("%d", len(stocks)) })</h3>
-			if len(stocks) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أرصدة", Message: "المستودع لا يحتوي على منتجات مسجلة حالياً."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>الكمية</th>
-								<th>حد الأمان</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, s := range stocks {
-								<tr>
-									<td class="tabular-nums">#{ fmt.Sprintf("%d", s.ID) }</td>
-									<td class="tabular-nums"><strong>{ fmt.Sprintf("%d", s.Quantity) }</strong></td>
-									<td class="tabular-nums">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
 		</div>
 	}
 }

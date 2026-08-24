@@ -233,7 +233,7 @@ func (r *Repository) ListWeeklyCoverage(ctx context.Context, branchID int64) ([]
 	return list, err
 }
 
-// ListCoverageForOrganization retrieves all weekly coverage records for an organization with joined branch names.
+// ListCoverageForOrganization retrieves all weekly coverage records for an organization with joined branch and org names.
 func (r *Repository) ListCoverageForOrganization(ctx context.Context, orgID int64) ([]*workflow.CoverageView, error) {
 	var list []*workflow.CoverageView
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
@@ -246,9 +246,11 @@ func (r *Repository) ListCoverageForOrganization(ctx context.Context, orgID int6
 			       wc.latitude, wc.longitude, wc.distance_meters, wc.is_active,
 			       wc.created_at, wc.updated_at,
 			       COALESCE(b.name->>'ar', b.name->>'en', b.name::text, '') AS branch_name,
-			       COALESCE(c.name->>'ar', c.name->>'en', '') AS city_name
+			       COALESCE(c.name->>'ar', c.name->>'en', '') AS city_name,
+			       COALESCE(o.legal_name, o.name->>'ar', o.name->>'en', '') AS org_name
 			FROM workflow.weekly_coverages wc
-			JOIN org.branches b ON b.id = wc.branch_id AND b.deleted_at IS NULL
+			LEFT JOIN org.organizations o ON o.id = wc.organization_id
+			LEFT JOIN org.branches b ON b.id = wc.branch_id AND b.deleted_at IS NULL
 			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
 			WHERE ($1 = 0 OR wc.organization_id = $1)
 			ORDER BY wc.day_of_week ASC, branch_name ASC;
@@ -266,7 +268,7 @@ func (r *Repository) ListCoverageForOrganization(ctx context.Context, orgID int6
 				&v.DayOfWeek, &v.CoverageFrom, &v.CoverageTo, &v.Address,
 				&v.Latitude, &v.Longitude, &v.DistanceMeters, &v.IsActive,
 				&v.CreatedAt, &v.UpdatedAt,
-				&v.BranchName, &v.CityName,
+				&v.BranchName, &v.CityName, &v.OrgName,
 			); err != nil {
 				return err
 			}

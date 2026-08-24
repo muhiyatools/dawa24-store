@@ -59,4 +59,6 @@ type Repository interface {
 	UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error
 
 	AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*Order, error)
+	AcceptNegotiation(ctx context.Context, orderID int64, actorID int64) error
+	RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error
 }

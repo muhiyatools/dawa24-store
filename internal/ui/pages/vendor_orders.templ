@@ -256,8 +256,11 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 									for _, line := range sh.Lines {
 										<tr>
 											<td>
-												<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
-													{ line.ProductName.Get(i18n.Lang(lang)) }
+												<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+													<strong style="color:var(--text); font-size:0.95rem;">{ line.ProductName.Get(i18n.Lang(lang)) }</strong>
+													if line.IsNegotiated {
+														<span class="badge badge-amber" style="font-size:0.7rem; font-weight:800;">🤝 سعر تفاوضي</span>
+													}
 												</div>
 												if line.VariantName.Get(i18n.Lang(lang)) != "" {
 													<div style="font-size:0.775rem; color:var(--text-muted);">
@@ -298,14 +301,25 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 							if sh.Status == commerce.StatusPending {
 								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
 									<input type="hidden" name="status" value="confirmed" />
-									<input type="hidden" name="notes" value="تمت مراجعة الأصناف والموافقة على أمر التوريد والتجهيز بالمستودع" />
+									<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد والتجهيز بالمستودع" />
 									<button
 										type="submit"
 										class="btn btn-secondary"
 										style="font-weight:800; padding:0.6rem 1.25rem; font-size:0.9rem;"
 									>
 										@components.IconCheck("icon-xs")
-										<span>تأكيد الطلب والتجهيز</span>
+										<span>قبول وتأكيد الطلب</span>
+									</button>
+								</form>
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من رفض هذا الطلب؟');">
+									<input type="hidden" name="status" value="cancelled" />
+									<input type="hidden" name="notes" value="تم رفض الطلب أو السعر المقترح من قبل المورد" />
+									<button
+										type="submit"
+										class="btn btn-danger"
+										style="font-weight:800; padding:0.6rem 1.1rem; font-size:0.9rem;"
+									>
+										<span>✕ رفض الطلب</span>
 									</button>
 								</form>
 								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">

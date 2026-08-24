@@ -68,6 +68,10 @@ func (r stubRepo) ListStocksByWarehouse(ctx context.Context, warehouseID int64) 
 	r.fail("ListStocksByWarehouse")
 	return nil, nil
 }
+func (r stubRepo) ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.DetailedWarehouseStockView, error) {
+	r.fail("ListDetailedStocksByWarehouse")
+	return nil, nil
+}
 func (r stubRepo) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inventory.Stock, error) {
 	r.fail("ListStocksByOrg")
 	return nil, nil
@@ -135,6 +139,9 @@ func (happyRepo) AdjustStock(ctx context.Context, stockID int64, delta int, move
 }
 func (happyRepo) ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.Stock, error) {
 	return []*inventory.Stock{{ID: 1, OrganizationID: 1, WarehouseID: warehouseID, ProductVariantID: 1, Quantity: 100}}, nil
+}
+func (happyRepo) ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.DetailedWarehouseStockView, error) {
+	return []*inventory.DetailedWarehouseStockView{{StockID: 1, WarehouseID: warehouseID, ProductName: "Test Med", Quantity: 100}}, nil
 }
 func (happyRepo) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inventory.Stock, error) {
 	return []*inventory.Stock{{ID: 1, OrganizationID: orgID, WarehouseID: 1, ProductVariantID: 1, Quantity: 100}}, nil

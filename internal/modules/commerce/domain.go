@@ -97,6 +97,9 @@ type Order struct {
 	PaymentMethod  string           `json:"payment_method"`
 	PaymentStatus  PaymentStatus    `json:"payment_status"`
 	Notes          string           `json:"notes,omitempty"`
+	IsNegotiation     bool          `json:"is_negotiation"`
+	NegotiationStatus string        `json:"negotiation_status"` // "none", "pending", "accepted", "rejected"
+	NegotiationNotes  string        `json:"negotiation_notes,omitempty"`
 	Rating                *float64         `json:"rating,omitempty"`
 	Review                *string          `json:"review,omitempty"`
 	RatedAt               *time.Time       `json:"rated_at,omitempty"`
@@ -167,6 +170,8 @@ type OrderLine struct {
 	ListPrice        money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
 	OriginalPrice    money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
 	OriginalDiscount money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
+	IsNegotiated      bool         `json:"is_negotiated"`
+	ProposedUnitPrice money.Amount `json:"proposed_unit_price,omitempty"`
 	Rating           *float64     `json:"rating,omitempty"`            // per-line rating (Laravel adv_orders.rating parity)
 	CreatedAt        time.Time    `json:"created_at"`
 }

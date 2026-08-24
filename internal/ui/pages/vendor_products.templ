@@ -351,16 +351,28 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 								</div>
 
-								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
-										مستودع / فرع الشحن
-									</label>
-									<select name="branch_id" id="cat-field-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-										<option value="">المستودع الرئيسي الافتراضي</option>
-										for _, b := range data.Branches {
-											<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
-										}
-									</select>
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											مستودع / فرع الشحن
+										</label>
+										<select name="branch_id" id="cat-field-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+											<option value="">المستودع الرئيسي الافتراضي</option>
+											for _, b := range data.Branches {
+												<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
+											}
+										</select>
+									</div>
+
+									<div>
+										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+											قابل للتفاوض على السعر؟
+										</label>
+										<select name="is_negotiable" id="cat-field-negotiable" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+											<option value="false">لا (سعر توريد ثابت)</option>
+											<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
+										</select>
+									</div>
 								</div>
 
 								<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
@@ -516,6 +528,16 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									<select name="status" id="edit-form-status" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
 										<option value="active">نشط ومتاح للطلب</option>
 										<option value="inactive">معطل مؤقتاً</option>
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										قابل للتفاوض على السعر؟
+									</label>
+									<select name="is_negotiable" id="edit-form-negotiable" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+										<option value="false">لا (سعر توريد ثابت)</option>
+										<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
 									</select>
 								</div>
 							</div>

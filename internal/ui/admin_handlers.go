@@ -1280,17 +1280,25 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var orders []*commerce.Order
-	var offerOrders []*commerce.Order
+	var directOrders []*commerce.Order
+	var negOrders []*commerce.Order
 	if h.commSvc != nil {
-		orders, _ = h.commSvc.AdminSearchOrders(ctx, query, 100, 0)
-		offerOrders, _ = h.commSvc.ListCustomerOrders(database.AsSystem(ctx), 0, 100, 0)
+		orders, _ = h.commSvc.AdminSearchOrders(ctx, query, 200, 0)
+		for _, o := range orders {
+			if o.IsNegotiation {
+				negOrders = append(negOrders, o)
+			} else {
+				directOrders = append(directOrders, o)
+			}
+		}
 	}
 
 	data := pages.AdminOrdersData{
-		ActiveTab:   tab,
-		Query:       query,
-		Orders:      orders,
-		OfferOrders: offerOrders,
+		ActiveTab:         tab,
+		Query:             query,
+		Orders:            orders,
+		DirectOrders:      directOrders,
+		NegotiationOrders: negOrders,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
