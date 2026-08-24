@@ -9,6 +9,7 @@ import (
 // SupplierDirectoryData is the /suppliers directory view model.
 type SupplierDirectoryData struct {
 	Suppliers []*org.Organization
+	Query     string
 }
 
 // SupplierProfileData is the /suppliers/{id} profile view model.

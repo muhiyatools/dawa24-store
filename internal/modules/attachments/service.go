@@ -270,6 +270,24 @@ func (s *Service) VerifyDocument(ctx context.Context, actor authctx.Actor, id in
 	return s.repo.UpdateStatus(ctx, id, status, notes, reviewerID)
 }
 
+// VerifyDocumentWithType allows platform admins to assign category and approve or reject submitted documents.
+func (s *Service) VerifyDocumentWithType(ctx context.Context, actor authctx.Actor, id int64, docType DocumentType, status DocumentStatus, notes string) error {
+	if !actor.IsPlatformAdmin() {
+		return apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام للتحقق من المستندات")
+	}
+
+	var reviewerID *int64
+	if actor.UserID > 0 {
+		v := actor.UserID
+		reviewerID = &v
+	}
+
+	if docType != "" {
+		return s.repo.UpdateTypeAndStatus(ctx, id, docType, status, notes, reviewerID)
+	}
+	return s.repo.UpdateStatus(ctx, id, status, notes, reviewerID)
+}
+
 // Delete soft-deletes a document record.
 func (s *Service) Delete(ctx context.Context, actor authctx.Actor, id int64) error {
 	doc, err := s.repo.GetByID(ctx, id)

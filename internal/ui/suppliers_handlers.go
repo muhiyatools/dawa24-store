@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -12,6 +13,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -19,12 +22,45 @@ import (
 func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
 
-	data := pages.SupplierDirectoryData{}
+	data := pages.SupplierDirectoryData{
+		Query: q,
+	}
 	if h.orgSvc != nil {
+		sysCtx := database.AsSystem(ctx)
 		typ := org.TypeVendor
-		status := org.StatusApproved
-		data.Suppliers, _ = h.orgSvc.ListOrganizations(ctx, &typ, &status, 50, 0)
+		orgs, _ := h.orgSvc.ListOrganizations(sysCtx, &typ, nil, 100, 0)
+		if len(orgs) == 0 {
+			allOrgs, _ := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 200, 0)
+			for _, o := range allOrgs {
+				if o != nil && (o.Type == org.TypeVendor || string(o.Type) == "supplier" || string(o.Type) == "distributor") {
+					orgs = append(orgs, o)
+				}
+			}
+		}
+
+		var filtered []*org.Organization
+		for _, o := range orgs {
+			if o == nil {
+				continue
+			}
+			// Only show approved or active suppliers, exclude rejected/suspended
+			if o.Status == org.StatusRejected || o.Status == org.StatusSuspended {
+				continue
+			}
+			if q != "" {
+				nameAr := strings.ToLower(o.TradeName.Get(i18n.AR))
+				nameEn := strings.ToLower(o.TradeName.Get(i18n.EN))
+				legal := strings.ToLower(o.LegalName)
+				cr := strings.ToLower(o.CommercialRegister)
+				if !strings.Contains(nameAr, q) && !strings.Contains(nameEn, q) && !strings.Contains(legal, q) && !strings.Contains(cr, q) {
+					continue
+				}
+			}
+			filtered = append(filtered, o)
+		}
+		data.Suppliers = filtered
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -67,14 +103,15 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	o, err := h.orgSvc.GetOrganization(ctx, id)
+	sysCtx := database.AsSystem(ctx)
+	o, err := h.orgSvc.GetOrganization(sysCtx, id)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
-	// Only approved suppliers are publicly listed.
-	if o.Status != org.StatusApproved {
-		h.renderError(w, r, http.ErrNotSupported)
+	// Allow approved or active suppliers
+	if o.Status == org.StatusRejected || o.Status == org.StatusSuspended {
+		h.renderError(w, r, fmt.Errorf("المورد غير متاح حالياً"))
 		return
 	}
 

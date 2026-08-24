@@ -45,6 +45,31 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				</a>
 			</div>
 
+			<!-- Search Toolbar -->
+			<form method="GET" action="/suppliers" style="margin-bottom:var(--space-6); display:flex; gap:0.75rem; max-width:600px;">
+				<div style="flex:1; position:relative;">
+					<input
+						type="text"
+						name="q"
+						value={ data.Query }
+						placeholder="ابحث باسم شركة الأدوية، الموزع، أو رقم السجل..."
+						class="input-field"
+						style="width:100%; padding-inline-start:2.5rem; height:44px; border-radius:var(--radius-lg);"
+					/>
+					<div style="position:absolute; inset-inline-start:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+						@components.IconSearch("icon-sm")
+					</div>
+				</div>
+				<button type="submit" class="btn btn-primary" style="font-weight:700; height:44px; padding:0 1.25rem; border-radius:var(--radius-lg);">
+					<span>بحث</span>
+				</button>
+				if data.Query != "" {
+					<a href="/suppliers" class="btn btn-secondary" style="height:44px; padding:0 1rem; border-radius:var(--radius-lg);">
+						<span>إلغاء</span>
+					</a>
+				}
+			</form>
+
 			if len(data.Suppliers) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
 					Title:       "لا يوجد موردون معتمدون حالياً",

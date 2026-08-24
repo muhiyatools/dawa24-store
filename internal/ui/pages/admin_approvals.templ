@@ -2,12 +2,13 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminApprovals(organizations []*org.Organization, currentFilter, lang, dir string) {
+templ AdminApprovals(organizations []*org.Organization, orgDocs map[int64][]*attachments.Document, currentFilter, lang, dir string) {
 	@layouts.AdminShell("اعتماد ومراجعة تراخيص المنشآت", "approvals", lang, dir) {
 		<div class="card" style="margin-bottom:0; overflow:visible;">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
@@ -18,7 +19,7 @@ templ AdminApprovals(organizations []*org.Organization, currentFilter, lang, dir
 							اعتماد وتدقيق طلبات المنشآت الطبية والتوريد
 						</h2>
 						<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
-							فحص مستندات التراخيص، السجل التجاري، والبطاقات الضريبية لكافة الشركات والصيدليات المسجلة.
+							فحص مستندات التراخيص، السجل التجاري، وتصنيف وتوثيق المستندات الرسمية لكافة المنشآت.
 						</p>
 					</div>
 				</div>
@@ -37,13 +38,13 @@ templ AdminApprovals(organizations []*org.Organization, currentFilter, lang, dir
 			</div>
 
 			<div id="admin-approvals-content">
-				@AdminApprovalsTable(organizations)
+				@AdminApprovalsTable(organizations, orgDocs)
 			</div>
 		</div>
 	}
 }
 
-templ AdminApprovalsTable(orgs []*org.Organization) {
+templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachments.Document) {
 	if len(orgs) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
 			Title:   "لا توجد منشآت مطابقة للفلتر المحدد",
@@ -58,7 +59,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 						<th>النوع</th>
 						<th>السجل والبطاقة الضريبية</th>
 						<th>ترخيص هيئة الدواء</th>
-						<th>ملف الترخيص الرسمي</th>
+						<th>المستندات المرفقة</th>
 						<th>الحالة الحالية</th>
 						<th class="text-end">الإجراء والتدقيق</th>
 					</tr>
@@ -96,12 +97,20 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 									<span style="color:var(--neutral-400); font-size:0.8rem;">غير محدد</span>
 								}
 							</td>
-<td>
-										<a href="/admin/documents" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--primary-700); gap:0.35rem;">
-											@components.IconFile("icon-xs")
-											<span>معاينة الترخيص عبر مركز المستندات</span>
-										</a>
-									</td>
+							<td>
+								if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
+									<div style="display:flex; flex-direction:column; gap:0.25rem;">
+										for _, doc := range orgDocs[o.ID] {
+											<a href={ templ.SafeURL(fmt.Sprintf("/api/v1/attachments/%d", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem; font-weight:700; color:var(--primary-700); gap:0.35rem; padding:0.25rem 0.55rem;">
+												@components.IconFile("icon-xs")
+												<span>{ docTypeLabelAr(string(doc.DocumentType)) }</span>
+											</a>
+										}
+									</div>
+								} else {
+									<span style="font-size:0.775rem; color:var(--neutral-400);">لا يوجد ملف</span>
+								}
+							</td>
 							<td>
 								if string(o.Status) == "approved" {
 									<span class="badge badge-emerald">معتمد ونشط</span>
@@ -199,7 +208,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 										</div>
 									}
 
-									<!-- Full Review Modal -->
+									<!-- Full Review Modal with Document Classification -->
 									@components.Modal(components.ModalProps{
 										ID:    fmt.Sprintf("review-modal-%d", o.ID),
 										Title: fmt.Sprintf("تدقيق واعتماد ترخيص: %s", o.LegalName),
@@ -213,12 +222,51 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 													<div><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
 													<div><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
 												</div>
+												
+												<!-- Document Preview Strip -->
 												<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
-													<a href="/admin/documents" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
-														@components.IconFile("icon-xs")
-														<span>فتح ملف الترخيص والمرفقات الرسمية عبر مركز المستندات (PDF/صورة)</span>
-													</a>
+													if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
+														<div style="font-size:0.8rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">المستند المرفوع عند التسجيل:</div>
+														for _, doc := range orgDocs[o.ID] {
+															<a href={ templ.SafeURL(fmt.Sprintf("/api/v1/attachments/%d", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent); margin-bottom:0.25rem;">
+																@components.IconFile("icon-xs")
+																<span>معاينة المستند المرفوع ({ docTypeLabelAr(string(doc.DocumentType)) }) في نافذة جديدة ↗</span>
+															</a>
+														}
+													} else {
+														<span style="font-size:0.8rem; color:var(--text-muted);">لم يتم رفع ملف مستند إلكتروني أثناء التسجيل</span>
+													}
 												</div>
+											</div>
+
+											<!-- Document Category Assignment -->
+											<div class="form-group" style="margin:0;">
+												<label class="form-label" for={ fmt.Sprintf("doc-type-select-%d", o.ID) }>
+													تصنيف فئة المستند المرفوع (لتوثيقه واعتماده تلقائياً في ملف المنشأة) *
+												</label>
+												<select id={ fmt.Sprintf("doc-type-select-%d", o.ID) } name="document_type" required class="form-select" style="font-weight:700; background:var(--surface-sunken); border-color:var(--accent);">
+													if string(o.Type) == "vendor" {
+														<option value="commercial_register" selected>السجل التجاري (Commercial Register)</option>
+														<option value="tax_card">البطاقة الضريبية (Tax Card)</option>
+														<option value="pharmacy_license">ترخيص المستودع / المنشأة (Warehouse License)</option>
+														<option value="pharmacist_license">ترخيص المدير الفني / الصيدلي (Technical Director License)</option>
+														<option value="authorization_letter">خطاب تفويض رسمي (Authorization Letter)</option>
+														<option value="national_id">بطاقة الرقم القومي للمفوض (National ID)</option>
+														<option value="other">مستند رسمي آخر (Other)</option>
+													} else {
+														<option value="pharmacy_license" selected>ترخيص الصيدلية / المنشأة الطبية (Pharmacy License)</option>
+														<option value="pharmacist_license">ترخيص مزاولة المهنة للصيدلي (Pharmacist License)</option>
+														<option value="commercial_register">السجل التجاري (Commercial Register)</option>
+														<option value="tax_card">البطاقة الضريبية (Tax Card)</option>
+														<option value="syndicate_card">كارنيه نقابة الصيادلة (Syndicate Card)</option>
+														<option value="national_id">بطاقة الرقم القومي (National ID)</option>
+														<option value="authorization_letter">خطاب تفويض رسمي (Authorization Letter)</option>
+														<option value="other">مستند رسمي آخر (Other)</option>
+													}
+												</select>
+												<span style="font-size:0.75rem; color:var(--text-muted); margin-top:3px; display:block;">
+													عند الاعتماد، سيتم حفظ المستند كـ "معتمد وموثق" تحت هذه الفئة وسيظهر فوراً في لوحة تحكم المنشأة.
+												</span>
 											</div>
 
 											<div class="form-group" style="margin:0;">
@@ -233,7 +281,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 
 											<div class="form-group" style="margin:0;">
 												<label class="form-label" for={ fmt.Sprintf("notes-%d", o.ID) }>ملاحظات الإدارة الداخلية</label>
-												<input type="text" id={ fmt.Sprintf("notes-%d", o.ID) } name="verification_notes" class="form-input" value={ o.VerificationNotes } placeholder="مثال: تم التأكد من السجل عبر بوابة هيئة الدواء" />
+												<input type="text" id={ fmt.Sprintf("notes-%d", o.ID) } name="verification_notes" class="form-input" value={ o.VerificationNotes } placeholder="مثال: تم التأكد من صحة الترخيص وتصنيفه عبر هيئة الدواء" />
 											</div>
 
 											<div class="form-group" style="margin:0;">
@@ -251,7 +299,7 @@ templ AdminApprovalsTable(orgs []*org.Organization) {
 												</button>
 												<button type="submit" class="btn btn-primary" style="font-weight:800;">
 													@components.IconCheck("icon-xs")
-													<span>حفظ واعتماد القرار</span>
+													<span>حفظ وتوثيق القرار</span>
 												</button>
 											</div>
 										</form>
@@ -276,5 +324,31 @@ func orgTypeAr(t string) string {
 		return "صيدلية / منشأة طبية"
 	default:
 		return t
+	}
+}
+
+func docTypeLabelAr(t string) string {
+	switch t {
+	case "commercial_register":
+		return "السجل التجاري"
+	case "tax_card":
+		return "البطاقة الضريبية"
+	case "pharmacist_license":
+		return "ترخيص مزاولة المهنة"
+	case "pharmacy_license":
+		return "ترخيص الصيدلية / المنشأة"
+	case "national_id":
+		return "بطاقة الرقم القومي"
+	case "syndicate_card":
+		return "كارنيه النقابة"
+	case "authorization_letter":
+		return "خطاب التفويض الرسمي"
+	case "cv":
+		return "السيرة الذاتية"
+	default:
+		if t != "" {
+			return t
+		}
+		return "مستند رسمي"
 	}
 }

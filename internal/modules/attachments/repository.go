@@ -15,6 +15,7 @@ type Repository interface {
 	ListByUser(ctx context.Context, userID int64) ([]*Document, error)
 	ListAll(ctx context.Context, filter DocumentFilter) ([]*Document, int, error)
 	UpdateStatus(ctx context.Context, id int64, status DocumentStatus, notes string, reviewedBy *int64) error
+	UpdateTypeAndStatus(ctx context.Context, id int64, docType DocumentType, status DocumentStatus, notes string, reviewedBy *int64) error
 	SoftDelete(ctx context.Context, id int64) error
 	HardDelete(ctx context.Context, id int64) error
 }

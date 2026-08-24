@@ -221,38 +221,45 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 			ActionLabel: "عرض كافة عروض التوريد",
 		})
 	} else {
-		<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(310px, 1fr)); gap:1.25rem;">
+		<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.35rem;">
 			for _, v := range variants {
 				<div
 					class="card variant-clickable-card"
 					onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigateToVariant(%d, %d)", v.VariantID, v.ProductID)} }
-					style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); transition:all 0.2s ease; box-shadow:0 4px 16px rgba(0,0,0,0.03); cursor:pointer; position:relative; overflow:hidden;"
+					style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); transition:all 0.22s cubic-bezier(0.16, 1, 0.3, 1); box-shadow:0 4px 16px rgba(0,0,0,0.03); cursor:pointer; position:relative; overflow:hidden;"
+					onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 28px -6px rgba(0,0,0,0.12)'; this.style.borderColor='var(--accent)';"
+					onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.03)'; this.style.borderColor='var(--border)';"
 				>
 					
 					<div>
-						<!-- Top Strip: Badges & Favorite -->
-						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; gap:0.5rem;">
-							<div style="display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center;">
-								if v.DosageForm != "" {
-									<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem;">
-										{ v.DosageForm }
-									</span>
-								}
-								if v.VariantName != "" {
-									<span class="badge badge-indigo" style="font-size:0.7rem; font-weight:700; padding:0.2rem 0.5rem;">
-										{ v.VariantName }
-									</span>
-								}
+						<!-- Top Product Visual Media Box -->
+						<div style="position:relative; width:100%; height:130px; border-radius:var(--radius-xl); background:linear-gradient(135deg, var(--surface-sunken) 0%, rgba(16,185,129,0.06) 100%); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--border); margin-bottom:0.85rem;">
+							if v.ProductImage != "" {
+								<img src={ v.ProductImage } alt={ v.ProductNameAr } style="max-height:110px; max-width:90%; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.08));" loading="lazy" />
+							} else {
+								<div style="font-size:3.2rem; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.12));">
+									💊
+								</div>
+							}
+
+							<!-- Floating Discount & Dosage Badges -->
+							<div style="position:absolute; top:8px; inset-inline-start:8px; display:flex; flex-direction:column; gap:4px; align-items:flex-start;">
 								if v.DiscountPercent > 0 {
-									<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.5rem;">
-										{ fmt.Sprintf("خصم %d%%", v.DiscountPercent) }
+									<span class="badge" style="background:#10b981; color:#ffffff; font-weight:900; font-size:0.75rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); box-shadow:0 2px 8px rgba(16,185,129,0.4); letter-spacing:0.02em;">
+										خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
+									</span>
+								}
+								if v.DosageForm != "" {
+									<span class="badge badge-sky" style="font-size:0.7rem; font-weight:800; padding:0.2rem 0.55rem; backdrop-filter:blur(6px); border-radius:var(--radius-full);">
+										{ v.DosageForm }
 									</span>
 								}
 							</div>
 
-							<div onclick="event.stopPropagation();" style="margin:0;">
+							<!-- Floating Favorite Action -->
+							<div onclick="event.stopPropagation();" style="position:absolute; top:8px; inset-inline-end:8px; margin:0;">
 								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } style="margin:0;">
-									<button type="submit" class="btn btn-secondary btn-icon" style="width:30px; height:30px; color:var(--text-muted); border-radius:var(--radius-full);" title="حفظ في المفضلة">
+									<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; background:var(--surface-raised); border-radius:var(--radius-full); box-shadow:0 2px 8px rgba(0,0,0,0.12); color:var(--text-muted);" title="حفظ في المفضلة">
 										@components.IconHeart("icon-xs")
 									</button>
 								</form>
@@ -261,7 +268,7 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 
 						<!-- Product Title & English Subtitle -->
 						<div style="margin-bottom:0.6rem;">
-							<h3 style="font-size:1.05rem; font-weight:900; margin:0; color:var(--text); line-height:1.4;">
+							<h3 style="font-size:1.1rem; font-weight:900; margin:0; color:var(--text); line-height:1.4;">
 								if v.ProductNameAr != "" {
 									{ v.ProductNameAr }
 								} else {
@@ -270,32 +277,43 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 							</h3>
 
 							if v.ProductNameEn != "" && v.ProductNameEn != v.ProductNameAr {
-								<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-top:2px;" dir="ltr">
+								<div style="font-size:0.775rem; color:var(--text-muted); font-weight:600; margin-top:2px;" dir="ltr">
 									{ v.ProductNameEn }
 								</div>
 							}
 						</div>
 
-						<!-- Scientific Info & Manufacturer -->
-						if v.ScientificName != "" || v.Manufacturer != "" {
-							<div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; flex-direction:column; gap:2px; background:var(--surface-sunken); padding:0.5rem 0.75rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-								if v.ScientificName != "" {
-									<div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-										<span style="color:var(--text-muted);">المادة:</span> <strong style="color:var(--text);">{ v.ScientificName }</strong>
-									</div>
+						<!-- Brand & Manufacturer Badge -->
+						if v.BrandName != "" || v.Manufacturer != "" {
+							<div style="display:flex; align-items:center; gap:0.45rem; margin-bottom:0.6rem; background:rgba(56, 189, 248, 0.07); border:1px solid rgba(56, 189, 248, 0.2); padding:0.35rem 0.65rem; border-radius:var(--radius-md); font-size:0.75rem;">
+								if v.BrandLogo != "" {
+									<img src={ v.BrandLogo } alt="brand" style="width:20px; height:20px; object-fit:contain; border-radius:3px; background:#fff; padding:1px;" />
+								} else {
+									<span style="font-size:0.9rem;">🏭</span>
 								}
-								if v.Manufacturer != "" {
-									<div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-										<span style="color:var(--text-muted);">الشركة:</span> { v.Manufacturer }
-									</div>
-								}
+								<span style="color:var(--text-muted); font-weight:600; flex-shrink:0;">الشركة المصنعة:</span>
+								<strong style="color:var(--text); font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+									if v.BrandName != "" {
+										{ v.BrandName }
+									} else {
+										{ v.Manufacturer }
+									}
+								</strong>
+							</div>
+						}
+
+						<!-- Active Scientific Ingredient Line -->
+						if v.ScientificName != "" {
+							<div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.35rem; background:var(--surface-sunken); padding:0.35rem 0.65rem; border-radius:var(--radius-md); border:1px solid var(--border); overflow:hidden;">
+								<span style="color:var(--text-muted); flex-shrink:0;">المادة:</span>
+								<strong style="color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{ v.ScientificName }</strong>
 							</div>
 						}
 
 						<!-- Supplier Info Box -->
 						<div style="border-top:1px dashed var(--border); border-bottom:1px dashed var(--border); padding:0.65rem 0; margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
 							<div style="display:flex; align-items:center; gap:0.5rem;">
-								<div style="width:30px; height:30px; border-radius:var(--radius-md); background:rgba(16,185,129,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; font-size:0.9rem;">
+								<div style="width:32px; height:32px; border-radius:var(--radius-md); background:rgba(16,185,129,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; font-size:0.95rem;">
 									🏢
 								</div>
 								<div>
@@ -311,27 +329,27 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 							</div>
 
 							if v.IsVerified {
-								<span class="badge badge-emerald" style="font-size:0.65rem; padding:0.2rem 0.45rem; font-weight:700;">
+								<span class="badge badge-emerald" style="font-size:0.65rem; padding:0.2rem 0.5rem; font-weight:800;">
 									معتمد ✓
 								</span>
 							}
 						</div>
 
 						<!-- Stock & Expiry Row -->
-						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.65rem;">
 							<div>
 								if v.AvailableStock > 0 {
-									<span style="color:var(--primary-600); font-weight:700;">
+									<span style="color:var(--primary-600); font-weight:800;">
 										🟢 متاح ({ fmt.Sprintf("%d", v.AvailableStock) } عبوة)
 									</span>
 								} else {
-									<span style="color:var(--danger-text); font-weight:700;">
+									<span style="color:var(--danger-text); font-weight:800;">
 										🔴 نفد المخزون
 									</span>
 								}
 							</div>
 							if v.ExpiryDate != "" {
-								<div style="color:var(--text-muted); font-family:var(--font-mono, monospace);">
+								<div style="color:var(--text-muted); font-family:var(--font-mono, monospace); font-size:0.725rem;">
 									صلاحية: { v.ExpiryDate }
 								</div>
 							}
@@ -340,12 +358,12 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 						<!-- Delivery Coverage Status Banner -->
 						<div style="margin-bottom:0.75rem;">
 							if v.IsCovered {
-								<div style="padding:0.45rem 0.65rem; border-radius:var(--radius-md); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); color:var(--primary-700); font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:0.35rem;">
+								<div style="padding:0.4rem 0.65rem; border-radius:var(--radius-md); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); color:var(--primary-700); font-size:0.725rem; font-weight:700; display:flex; align-items:center; gap:0.35rem;">
 									<span>🚚</span>
 									<span>مشمول بالتغطية والتوصيل لفرعك</span>
 								</div>
 							} else {
-								<div style="padding:0.45rem 0.65rem; border-radius:var(--radius-md); background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); color:var(--danger-text); font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:0.35rem;">
+								<div style="padding:0.4rem 0.65rem; border-radius:var(--radius-md); background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); color:var(--danger-text); font-size:0.725rem; font-weight:700; display:flex; align-items:center; gap:0.35rem;">
 									<span>⚠️</span>
 									<span>
 										if v.CoverageReason != "" {
@@ -364,16 +382,20 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 					<div style="border-top:1px solid var(--border); padding-top:0.85rem; margin-top:0.25rem;">
 						<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem;">
 							<div>
-								<span style="font-size:0.725rem; color:var(--text-muted); font-weight:700; display:block;">سعر الصيدلية:</span>
+								<span style="font-size:0.725rem; color:var(--text-muted); font-weight:700; display:block;">سعر التوريد:</span>
 								if v.OriginalPrice.IsPositive() && v.OriginalPrice.Minor() > v.Price.Minor() {
 									<span style="font-size:0.75rem; color:var(--text-muted); text-decoration:line-through; font-family:var(--font-mono, monospace);">
 										{ v.OriginalPrice.String() } ج.م
 									</span>
+								} else if v.PublicPrice.IsPositive() && v.PublicPrice.Minor() > v.Price.Minor() {
+									<span style="font-size:0.75rem; color:var(--text-muted); text-decoration:line-through; font-family:var(--font-mono, monospace);" title="سعر الجمهور الرسمي">
+										{ v.PublicPrice.String() } ج.م
+									</span>
 								}
 							</div>
-							<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--primary-600); font-family:var(--font-mono, monospace);">
+							<div class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:var(--primary-600); font-family:var(--font-mono, monospace);">
 								if v.Price.IsPositive() {
-									{ v.Price.String() } <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">ج.م</span>
+									{ v.Price.String() } <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">ج.م</span>
 								} else {
 									<span style="font-size:0.85rem; color:var(--text-muted);">حسب الكمية</span>
 								}
@@ -397,11 +419,11 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 										min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
 										max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
 										class="input-field tabular-nums"
-										style="width:65px; height:40px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
+										style="width:68px; height:42px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg); border:1px solid var(--border);"
 										title="الكمية المطلوبة"
 									/>
 
-									<button type="submit" class="btn btn-primary btn-sm" style="flex:1; font-weight:800; justify-content:center; height:40px; border-radius:var(--radius-lg); font-size:0.85rem;">
+									<button type="submit" class="btn btn-primary btn-sm" style="flex:1; font-weight:800; justify-content:center; height:42px; border-radius:var(--radius-lg); font-size:0.875rem; gap:0.4rem;">
 										@components.IconPlus("icon-xs")
 										<span>أضف للسلة</span>
 									</button>
@@ -409,7 +431,7 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 							</div>
 						} else {
 							<div style="display:flex; gap:0.5rem;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm" style="width:100%; font-weight:700; justify-content:center; height:40px; border-radius:var(--radius-lg); font-size:0.825rem;">
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm" style="width:100%; font-weight:700; justify-content:center; height:42px; border-radius:var(--radius-lg); font-size:0.85rem;">
 									<span>تفاصيل الصنف والموردين</span>
 									@components.IconArrowLeft("icon-xs")
 								</a>

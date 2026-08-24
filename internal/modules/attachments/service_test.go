@@ -32,6 +32,9 @@ func (s *stubRepo) ListAll(context.Context, DocumentFilter) ([]*Document, int, e
 func (s *stubRepo) UpdateStatus(context.Context, int64, DocumentStatus, string, *int64) error {
 	return nil
 }
+func (s *stubRepo) UpdateTypeAndStatus(context.Context, int64, DocumentType, DocumentStatus, string, *int64) error {
+	return nil
+}
 func (s *stubRepo) SoftDelete(context.Context, int64) error { return nil }
 func (s *stubRepo) HardDelete(context.Context, int64) error { return nil }
 

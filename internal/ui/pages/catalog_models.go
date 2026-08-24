@@ -18,6 +18,9 @@ type SupplierVariantCard struct {
 	SKU             string
 	DosageForm      string
 	Manufacturer    string
+	BrandID         *int64
+	BrandName       string
+	BrandLogo       string
 	ScientificName  string
 	PublicPrice     money.Amount // Suggested consumer retail price
 	SupplierID      int64

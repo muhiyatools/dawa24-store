@@ -308,6 +308,24 @@ func (r *Repository) UpdateStatus(ctx context.Context, id int64, status attachme
 	})
 }
 
+func (r *Repository) UpdateTypeAndStatus(ctx context.Context, id int64, docType attachments.DocumentType, status attachments.DocumentStatus, notes string, reviewedBy *int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE platform_admin.documents
+			SET document_type = $1, status = $2, review_notes = $3, reviewed_by = $4, reviewed_at = now(), updated_at = now()
+			WHERE id = $5 AND deleted_at IS NULL;
+		`
+		tag, err := tx.Exec(txCtx, query, string(docType), string(status), notes, reviewedBy, id)
+		if err != nil {
+			return fmt.Errorf("documents.UpdateTypeAndStatus: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("document")
+		}
+		return nil
+	})
+}
+
 func (r *Repository) SoftDelete(ctx context.Context, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE platform_admin.documents SET deleted_at = now(), updated_at = now() WHERE id = $1;`

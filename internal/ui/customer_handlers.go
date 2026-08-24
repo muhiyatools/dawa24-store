@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -73,6 +74,13 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	categories, _ := h.catSvc.ListCategories(ctx)
+	brands, _ := h.catSvc.ListBrands(database.AsSystem(ctx))
+	brandMap := make(map[int64]*catalog.Brand)
+	for _, b := range brands {
+		if b != nil {
+			brandMap[b.ID] = b
+		}
+	}
 
 	var variantCards []*pages.SupplierVariantCard
 
@@ -83,6 +91,23 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 		if dosageForm != "" && !strings.EqualFold(p.DosageForm, dosageForm) {
 			continue
+		}
+
+		var brandID *int64
+		var brandName string
+		var brandLogo string
+		if p.BrandID != nil {
+			brandID = p.BrandID
+			if b, found := brandMap[*p.BrandID]; found && b != nil {
+				brandName = b.Name.Get(i18n.AR)
+				if brandName == "" {
+					brandName = b.Name.Get(i18n.EN)
+				}
+				brandLogo = b.Image
+			}
+		}
+		if brandName == "" && p.ManufacturingCompanies != "" {
+			brandName = p.ManufacturingCompanies
 		}
 
 		variants, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
@@ -126,6 +151,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 					SKU:             varSKU,
 					DosageForm:      p.DosageForm,
 					Manufacturer:    p.ManufacturingCompanies,
+					BrandID:         brandID,
+					BrandName:       brandName,
+					BrandLogo:       brandLogo,
 					ScientificName:  p.ScientificName,
 					PublicPrice:     p.Price,
 					SupplierID:      off.SupplierID,
@@ -155,6 +183,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 					ProductImage:   p.Image,
 					DosageForm:     p.DosageForm,
 					Manufacturer:   p.ManufacturingCompanies,
+					BrandID:        brandID,
+					BrandName:      brandName,
+					BrandLogo:      brandLogo,
 					ScientificName: p.ScientificName,
 					PublicPrice:    p.Price,
 					Price:          p.Price,

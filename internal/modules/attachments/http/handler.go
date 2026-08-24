@@ -182,8 +182,9 @@ func (h *Handler) adminList(w http.ResponseWriter, r *http.Request) {
 }
 
 type verifyRequest struct {
-	Status string `json:"status"`
-	Notes  string `json:"notes"`
+	DocumentType string `json:"document_type"`
+	Status       string `json:"status"`
+	Notes        string `json:"notes"`
 }
 
 func (h *Handler) adminVerify(w http.ResponseWriter, r *http.Request) {
@@ -207,9 +208,16 @@ func (h *Handler) adminVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.svc.VerifyDocument(r.Context(), actor, id, status, req.Notes); err != nil {
-		httpx.Error(w, r, h.log, err)
-		return
+	if req.DocumentType != "" {
+		if err := h.svc.VerifyDocumentWithType(r.Context(), actor, id, attachments.DocumentType(req.DocumentType), status, req.Notes); err != nil {
+			httpx.Error(w, r, h.log, err)
+			return
+		}
+	} else {
+		if err := h.svc.VerifyDocument(r.Context(), actor, id, status, req.Notes); err != nil {
+			httpx.Error(w, r, h.log, err)
+			return
+		}
 	}
 
 	httpx.JSON(w, http.StatusOK, map[string]string{

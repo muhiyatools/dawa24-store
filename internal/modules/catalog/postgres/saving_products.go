@@ -216,7 +216,7 @@ func (r *Repository) GetProductProviders(ctx context.Context, productID int64) (
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT pv.id, pv.organization_id,
-			       COALESCE(org.name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS org_name,
+			       COALESCE(org.trade_name, jsonb_build_object('ar', org.legal_name, 'en', org.legal_name), '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS org_name,
 			       COALESCE(pv.name, '{"ar":"العبوة القياسية","en":"Standard Pack"}'::jsonb) AS variant_name,
 			       COALESCE(pv.sku, '') AS sku,
 			       COALESCE(pv.unit, 'عبوة') AS unit,

@@ -116,7 +116,10 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 	statusParam := r.URL.Query().Get("status")
 
 	var orgs []*org.Organization
+	orgDocs := make(map[int64][]*attachments.Document)
+
 	if h.orgSvc != nil {
+		sysCtx := database.AsSystem(ctx)
 		var filterStatus *org.OrganizationStatus
 		if statusParam != "" {
 			st := org.OrganizationStatus(statusParam)
@@ -125,7 +128,7 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 			st := org.StatusPending
 			filterStatus = &st
 		}
-		list, err := h.orgSvc.ListOrganizations(ctx, nil, filterStatus, 100, 0)
+		list, err := h.orgSvc.ListOrganizations(sysCtx, nil, filterStatus, 100, 0)
 		if err != nil {
 			h.log.WarnContext(ctx, "admin approvals: list organizations", "error", err)
 		} else {
@@ -133,13 +136,25 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if h.attSvc != nil && len(orgs) > 0 {
+		sysCtx := database.AsSystem(ctx)
+		for _, o := range orgs {
+			if o != nil {
+				docs, _ := h.attSvc.ListByOrganization(sysCtx, o.ID)
+				if len(docs) > 0 {
+					orgDocs[o.ID] = docs
+				}
+			}
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminApprovals(orgs, statusParam, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminApprovals(orgs, orgDocs, statusParam, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin approvals page", "error", err)
 	}
 }
 
-// AdminOrgReviewSubmit handles full administrative approval/rejection with custom reason.
+// AdminOrgReviewSubmit handles full administrative approval/rejection with custom reason and document categorization.
 func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, _ := authctx.From(ctx)
@@ -158,13 +173,34 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 	status := org.OrganizationStatus(r.PostFormValue("status"))
 	notes := r.PostFormValue("verification_notes")
 	rejectionReason := r.PostFormValue("rejection_reason")
+	docTypeVal := attachments.DocumentType(strings.TrimSpace(r.PostFormValue("document_type")))
 
 	if err := h.orgSvc.ReviewOrganization(ctx, id, status, notes, rejectionReason, actor.UserID); err != nil {
 		h.redirectWithNotice(w, r, "/admin/approvals", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	msg := "تم اعتماد وتفعيل ترخيص المنشأة بنجاح."
+	// When approved, classify and verify the organization's registration documents
+	if status == org.StatusApproved && h.attSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		o, _ := h.orgSvc.GetOrganization(sysCtx, id)
+		if docTypeVal == "" {
+			if o != nil && o.Type == org.TypeCustomer {
+				docTypeVal = attachments.DocPharmacyLicense
+			} else {
+				docTypeVal = attachments.DocCommercialRegister
+			}
+		}
+
+		docs, _ := h.attSvc.ListByOrganization(sysCtx, id)
+		for _, d := range docs {
+			if d != nil {
+				_ = h.attSvc.VerifyDocumentWithType(sysCtx, actor, d.ID, docTypeVal, attachments.StatusVerified, notes)
+			}
+		}
+	}
+
+	msg := "تم اعتماد وتفعيل ترخيص المنشأة وتوثيق المستندات المرفقة بنجاح."
 	if status == org.StatusRejected {
 		msg = "تم رفض طلب المنشأة وحفظ سبب الرفض."
 	} else if status == org.StatusSuspended {
@@ -826,8 +862,21 @@ func (h *UIHandler) adminApprovalAction(
 		return
 	}
 
+	orgDocs := make(map[int64][]*attachments.Document)
+	if h.attSvc != nil && len(pending) > 0 {
+		sysCtx := database.AsSystem(ctx)
+		for _, o := range pending {
+			if o != nil {
+				docs, _ := h.attSvc.ListByOrganization(sysCtx, o.ID)
+				if len(docs) > 0 {
+					orgDocs[o.ID] = docs
+				}
+			}
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminApprovalsTable(pending).Render(ctx, w); err != nil {
+	if err := pages.AdminApprovalsTable(pending, orgDocs).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render approvals table after action", "error", err)
 	}
 }

@@ -285,7 +285,9 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm"
-													style="font-size:0.78rem; font-weight:800; gap:0.35rem; color:var(--accent);"
+													style="font-size:0.78rem; font-weight:800; gap:0.35rem; color:var(--accent); cursor:pointer;"
+													data-open-providers-id={ fmt.Sprintf("%d", *it.ProductID) }
+													data-open-providers-name={ it.NameProduct }
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyProvidersModal(%d, %q)", *it.ProductID, it.NameProduct)} }
 												>
 													<span>🏢 { fmt.Sprintf("%d موردين", it.ProvidingOrgsCount) }</span>
@@ -703,62 +705,89 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 			}
 
 			function openPharmacyProvidersModal(productId, productName) {
-				document.getElementById('pharmacy-providers-modal-subtitle').textContent = 'الصنف: ' + productName;
-				document.getElementById('pharmacy-providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+				const subtitleEl = document.getElementById('pharmacy-providers-modal-subtitle');
+				if (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;
+				const contentEl = document.getElementById('pharmacy-providers-modal-content');
+				if (contentEl) contentEl.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
 				
+				const modalEl = document.getElementById('pharmacy-providers-modal');
+				if (modalEl) {
+					modalEl.classList.remove('hidden');
+					modalEl.style.display = 'flex';
+				}
 				if (window.openModal) {
 					window.openModal('pharmacy-providers-modal');
-				} else {
-					const el = document.getElementById('pharmacy-providers-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
 				}
 
 				fetch('/customer/saving-products/providers/' + productId)
 					.then(r => r.json())
 					.then(providers => {
 						if (!providers || providers.length === 0) {
-							document.getElementById('pharmacy-providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted); font-size:0.9rem;">لا توجد عروض موردين مسجلة لهذا الصنف حالياً في الكتالوج.</div>';
+							if (contentEl) contentEl.innerHTML = '<div style="padding:2.5rem; text-align:center; color:var(--text-muted); font-size:0.9rem;">لا توجد عروض موردين مسجلة لهذا الصنف حالياً في الكتالوج.<br><a href="/catalog" class="btn btn-secondary btn-sm" style="margin-top:1rem;">تصفح كتالوج الأدوية العام</a></div>';
 							return;
 						}
 
-						let html = '<table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th style="padding:0.75rem;">المورد / المستودع</th><th style="padding:0.75rem;">العبوة / المواصفات</th><th style="padding:0.75rem; text-align:center;">المخزون المتاح</th><th style="padding:0.75rem; text-align:center;">السعر الأساسي</th><th style="padding:0.75rem; text-align:center;">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th></tr></thead><tbody>';
+						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th style="padding:0.75rem;">المورد / المستودع</th><th style="padding:0.75rem;">العبوة / المواصفات</th><th style="padding:0.75rem; text-align:center;">المخزون</th><th style="padding:0.75rem; text-align:center;">السعر الأساسي</th><th style="padding:0.75rem; text-align:center;">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th><th style="padding:0.75rem; text-align:center;">طلب توريد</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
-							const branchText = p.branch_name ? ('<div style="font-size:0.75rem; color:var(--text-muted);">' + p.branch_name + '</div>') : '';
-							const skuText = p.sku ? ('<code style="font-size:0.75rem;">' + p.sku + '</code>') : '';
+							const branchText = p.branch_name ? ('<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">' + p.branch_name + '</div>') : '';
+							const skuText = p.sku ? ('<code style="font-size:0.725rem;">' + p.sku + '</code>') : '';
 							const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
+							const orgDisplayName = (typeof p.org_name === 'object' && p.org_name) ? (p.org_name.ar || p.org_name.en || 'مورد معتمد') : (p.org_name || 'مورد معتمد');
+							const varDisplayName = (typeof p.variant_name === 'object' && p.variant_name) ? (p.variant_name.ar || p.variant_name.en || 'العبوة القياسية') : (p.variant_name || 'العبوة القياسية');
+							
+							const addCartAction = (p.stock_quantity > 0 && p.variant_id) ?
+								('<form method="POST" action="/cart/add" style="margin:0; display:inline-flex; gap:0.25rem;">' +
+									'<input type="hidden" name="variant_id" value="' + p.variant_id + '" />' +
+									'<input type="hidden" name="product_id" value="' + productId + '" />' +
+									'<input type="hidden" name="organization_id" value="' + (p.organization_id || '') + '" />' +
+									'<input type="hidden" name="vendor_org_id" value="' + (p.organization_id || '') + '" />' +
+									'<input type="hidden" name="offer_price" value="' + (p.price_after_discount || p.price) + '" />' +
+									'<input type="hidden" name="qty" value="1" />' +
+									'<button type="submit" class="btn btn-primary btn-sm" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;">+ أضف للسلة</button>' +
+								'</form>') :
+								'<span style="font-size:0.75rem; color:var(--text-muted);">غير متوفر</span>';
+
 							html += '<tr style="border-bottom:1px solid var(--border);">' +
-								'<td style="padding:0.75rem;"><strong style="color:var(--text);">' + (p.org_name || 'مورد معتمد') + '</strong>' + branchText + '</td>' +
-								'<td style="padding:0.75rem;"><div>' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+								'<td style="padding:0.75rem;"><strong style="color:var(--text); font-size:0.875rem;">' + orgDisplayName + '</strong>' + branchText + '</td>' +
+								'<td style="padding:0.75rem;"><div>' + varDisplayName + '</div>' + skuText + '</td>' +
 								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
 								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums">' + p.price + ' ج.م</td>' +
 								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
 								'<td style="padding:0.75rem; text-align:end;" class="tabular-nums"><strong style="color:var(--accent); font-size:0.95rem;">' + p.price_after_discount + ' ج.م</strong></td>' +
+								'<td style="padding:0.75rem; text-align:center;">' + addCartAction + '</td>' +
 								'</tr>';
 						});
 
-						html += '</tbody></table>';
-						document.getElementById('pharmacy-providers-modal-content').innerHTML = html;
+						html += '</tbody></table></div>';
+						if (contentEl) contentEl.innerHTML = html;
 					})
 					.catch(() => {
-						document.getElementById('pharmacy-providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--danger-text);">حدث خطأ أثناء تحميل عروض الموردين.</div>';
+						if (contentEl) contentEl.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--danger-text);">حدث خطأ أثناء تحميل عروض الموردين.</div>';
 					});
 			}
 
 			function closePharmacyProvidersModal() {
+				const el = document.getElementById('pharmacy-providers-modal');
+				if (el) {
+					el.classList.add('hidden');
+					el.style.display = 'none';
+				}
 				if (window.closeModal) {
 					window.closeModal('pharmacy-providers-modal');
-				} else {
-					const el = document.getElementById('pharmacy-providers-modal');
-					if (el) {
-						el.classList.add('hidden');
-						el.style.display = 'none';
-					}
 				}
 			}
+
+			// Delegated click handler for providers modal trigger
+			document.addEventListener('click', function(e) {
+				const btn = e.target.closest('[data-open-providers-id]');
+				if (btn) {
+					e.preventDefault();
+					const pId = btn.getAttribute('data-open-providers-id');
+					const pName = btn.getAttribute('data-open-providers-name') || '';
+					openPharmacyProvidersModal(pId, pName);
+				}
+			});
 
 			function filterPharmacySavingTable(query) {
 				const term = (query || '').trim().toLowerCase();
