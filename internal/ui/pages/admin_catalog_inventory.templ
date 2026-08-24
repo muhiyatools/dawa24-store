@@ -316,8 +316,8 @@ templ AdminProductsImportPage(lang, dir string) {
 					method="POST"
 					action="/admin/products/import"
 					enctype="multipart/form-data"
+					hx-boost="false"
 					style="display:flex; flex-direction:column; gap:1.5rem;"
-					onsubmit="const btn = document.getElementById('submit-import-btn'); if(btn){ btn.disabled = true; btn.innerHTML = '<span>جاري فحص وحفظ الأصناف...</span>'; }"
 				>
 					<div class="form-group mb-0">
 						<label for="import-file-input" class="form-label" style="font-weight:700; margin-bottom:0.5rem; display:block;">
@@ -341,7 +341,6 @@ templ AdminProductsImportPage(lang, dir string) {
 						<a href="/admin/products" class="btn btn-ghost" style="font-weight:700;">إلغاء</a>
 						<button
 							type="submit"
-							id="submit-import-btn"
 							class="btn btn-primary"
 							style="font-weight:800; padding:0.65rem 1.75rem; font-size:0.95rem;"
 						>
