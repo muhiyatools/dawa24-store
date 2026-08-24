@@ -55,6 +55,21 @@ BEGIN
     ELSE
         RAISE NOTICE 'products_org_sku_uniq not created: % duplicate (organization_id, sku) groups exist and need reconciling first', dup_sku;
     END IF;
+
+    SELECT count(*) INTO dup_barcode FROM (
+        SELECT 1 FROM catalog.products
+        WHERE deleted_at IS NULL AND btrim(barcode) <> ''
+        GROUP BY organization_id, lower(btrim(barcode))
+        HAVING count(*) > 1
+    ) d;
+
+    IF dup_barcode = 0 THEN
+        CREATE UNIQUE INDEX IF NOT EXISTS products_org_barcode_uniq
+            ON catalog.products (organization_id, lower(btrim(barcode)))
+            WHERE deleted_at IS NULL AND btrim(barcode) <> '';
+    ELSE
+        RAISE NOTICE 'products_org_barcode_uniq not created: % duplicate (organization_id, barcode) groups exist and need reconciling first', dup_barcode;
+    END IF;
 END $$;
 
 COMMENT ON INDEX catalog.products_org_sku_lookup IS
