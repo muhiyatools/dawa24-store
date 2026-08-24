@@ -17,6 +17,11 @@ type Service struct {
 	repo     Repository
 	log      *slog.Logger
 	instGate InstitutionalGate
+	// imports and enricher back the reviewed catalogue import. Both are
+	// optional: without a store the wizard is unavailable, and without an
+	// enricher the AI switch is simply not offered.
+	imports  ImportSessionStore
+	enricher Enricher
 }
 
 // SetInstitutionalGate installs the institutional work filter gate.

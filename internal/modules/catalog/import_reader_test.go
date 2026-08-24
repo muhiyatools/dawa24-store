@@ -127,3 +127,21 @@ func TestReadSpreadsheetDecodesUTF16(t *testing.T) {
 		t.Errorf("UTF-16 not decoded: %q", data.Rows[0][0])
 	}
 }
+
+func TestReadSpreadsheetKeepsBlankLinesAtTheirRowNumbers(t *testing.T) {
+	// encoding/csv drops blank lines, which silently shifts every later row
+	// number away from the gutter in the admin's own spreadsheet — and the
+	// import report promises those numbers match.
+	csv := "اسم الصنف,السعر\n\n\nبانادول,25.00\n"
+
+	data, err := catalog.ReadSpreadsheet([]byte(csv), "f.csv")
+	if err != nil {
+		t.Fatalf("read failed: %v", err)
+	}
+	if len(data.Rows) != 4 {
+		t.Fatalf("got %d rows, want 4 with the two blanks preserved", len(data.Rows))
+	}
+	if got := catalog.CleanCellString(data.Rows[3][0]); got != "بانادول" {
+		t.Errorf("row 4 holds %q, want بانادول — the product moved up by the dropped blanks", got)
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
@@ -172,18 +173,7 @@ func readDelimited(content []byte, filename string) (*SheetData, error) {
 		return nil, err
 	}
 
-	reader := csv.NewReader(bytes.NewReader(content))
-	reader.Comma = delimiter
-	reader.LazyQuotes = true
-	reader.TrimLeadingSpace = true
-	// Without this, encoding/csv locks the field count to whatever the first
-	// row had and rejects the whole file at the first row that differs. Supplier
-	// CSVs are ragged constantly — a trailing note, a short subtotal line — and
-	// the previous importer failed the entire upload with "record on line 3:
-	// wrong number of fields" rather than importing the other 9,000 rows.
-	reader.FieldsPerRecord = -1
-
-	rows, err := reader.ReadAll()
+	rows, err := readCSVRows(content, delimiter)
 	if err != nil {
 		return nil, fmt.Errorf("تعذر قراءة ملف CSV: %s", csvErrorHint(err, filename))
 	}
@@ -194,6 +184,50 @@ func readDelimited(content []byte, filename string) (*SheetData, error) {
 	data := &SheetData{Rows: rows, Format: "csv", Delimiter: string(delimiter)}
 	normalizeWidth(data)
 	return data, nil
+}
+
+// readCSVRows parses CSV while keeping every row at its true line number.
+//
+// encoding/csv drops blank lines entirely, so ReadAll returns a slice whose
+// indices drift from the file's line numbers the moment a supplier leaves a gap
+// between sections — and gaps are exactly what paginated exports are full of.
+// The import report promises that its row numbers match the gutter in the
+// admin's own spreadsheet, so the blanks are restored here from the line number
+// the reader itself reports.
+func readCSVRows(content []byte, delimiter rune) ([][]string, error) {
+	reader := csv.NewReader(bytes.NewReader(content))
+	reader.Comma = delimiter
+	reader.LazyQuotes = true
+	reader.TrimLeadingSpace = true
+	// Without this, encoding/csv locks the field count to whatever the first row
+	// had and rejects the whole file at the first row that differs. Supplier
+	// CSVs are ragged constantly — a trailing note, a short subtotal line — and
+	// the previous importer failed the entire upload with "record on line 3:
+	// wrong number of fields" rather than importing the other 9,000 rows.
+	reader.FieldsPerRecord = -1
+
+	var rows [][]string
+	for {
+		record, err := reader.Read()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		// FieldPos reports where this record began. Padding to it restores the
+		// blank lines the reader swallowed. A record that legitimately spans
+		// several lines through a quoted newline leaves blank rows behind it,
+		// which parse as empty and keep every later row number honest.
+		if line, _ := reader.FieldPos(0); line > 0 {
+			for len(rows) < line-1 {
+				rows = append(rows, nil)
+			}
+		}
+		rows = append(rows, record)
+	}
+	return rows, nil
 }
 
 // csvErrorHint turns encoding/csv's terse errors into something an admin can

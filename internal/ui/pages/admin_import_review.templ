@@ -1,0 +1,424 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminProductsImportReview is step two: what the file was read as, what each
+// row would do, and the confirmation that performs it.
+//
+// Nothing on this screen has touched the catalogue yet. The admin can rebind a
+// column, change the strategy, deselect rows, and re-run as often as they like;
+// only the confirm button writes.
+templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
+	@layouts.AdminShell("مراجعة نتائج الاستيراد", "import", lang, dir) {
+		<div class="wizard">
+			@wizardRail(reviewStep(view))
+			@importReviewBanner(view)
+			@importReviewStats(view)
+			if view.Session.IsReviewable() {
+				@importStructureCard(view)
+				@importRowsCard(view)
+				@importConfirmCard(view)
+			}
+		</div>
+	}
+}
+
+// reviewStep shows the third node as reached once the session has committed.
+func reviewStep(view ImportReviewView) ImportStep {
+	if view.Session != nil && view.Session.Status == catalog.SessionCommitted {
+		return StepDone
+	}
+	return StepReview
+}
+
+templ importReviewBanner(view ImportReviewView) {
+	<div
+		class={ "import-banner",
+			templ.KV("import-banner--ok", view.Session.Status != catalog.SessionFailed),
+			templ.KV("import-banner--error", view.Session.Status == catalog.SessionFailed) }
+	>
+		<h1 class="import-banner-title">
+			switch view.Session.Status {
+				case catalog.SessionCommitted:
+					{ "✅ تم حفظ الأصناف في الكتالوج المعتمد" }
+				case catalog.SessionFailed:
+					{ "⚠️ فشل حفظ الأصناف" }
+				default:
+					{ "🔍 مراجعة ما سيتم تنفيذه" }
+			}
+		</h1>
+		<p class="import-banner-text">{ view.SourceSummary() }</p>
+		if view.Session.Status == catalog.SessionReady {
+			<p class="import-banner-detail">
+				{ fmt.Sprintf("الطريقة المختارة: %s — لم يتم حفظ أي صنف بعد.", view.Session.Mode.Label()) }
+			</p>
+		}
+		if view.Session.ErrorMessage != "" {
+			<p class="import-banner-detail">{ view.Session.ErrorMessage }</p>
+		}
+		if summary := view.AISummary(); summary != "" {
+			<p class="import-banner-detail">🤖 { summary }</p>
+		}
+		if view.Notice != "" {
+			<p class="import-banner-detail">{ view.Notice }</p>
+		}
+	</div>
+}
+
+templ importReviewStats(view ImportReviewView) {
+	<div class="wiz-stats">
+		@wizStat(FormatCount(view.Counts.Insert), "صنف جديد", "add")
+		@wizStat(FormatCount(view.Counts.Update), "صنف سيتم تحديثه", "update")
+		@wizStat(FormatCount(view.Counts.Skip), "صنف متخطى", "")
+		@wizStat(FormatCount(view.Session.TotalRows), "صف في الملف", "")
+		if view.Session.BlockCount > 1 {
+			@wizStat(FormatCount(view.Session.BlockCount), "كتلة بيانات", "")
+		}
+		if view.Counts.Warnings > 0 {
+			@wizStat(FormatCount(view.Counts.Warnings), "تنبيه", "warn")
+		}
+		if view.Counts.Errors > 0 {
+			@wizStat(FormatCount(view.Counts.Errors), "صف مرفوض", "error")
+		}
+		if view.Counts.AIChanged > 0 {
+			@wizStat(FormatCount(view.Counts.AIChanged), "استكمله الذكاء الاصطناعي", "ai")
+		}
+		if len(view.Session.NewBrands) > 0 {
+			@wizStat(FormatCount(len(view.Session.NewBrands)), "شركة مصنعة جديدة", "")
+		}
+	</div>
+}
+
+templ wizStat(value, label, tone string) {
+	<div
+		class={ "wiz-stat",
+			templ.KV("wiz-stat--add", tone == "add"),
+			templ.KV("wiz-stat--update", tone == "update"),
+			templ.KV("wiz-stat--warn", tone == "warn"),
+			templ.KV("wiz-stat--error", tone == "error"),
+			templ.KV("wiz-stat--ai", tone == "ai") }
+	>
+		<span class="wiz-stat-value">{ value }</span>
+		<span class="wiz-stat-label">{ label }</span>
+	</div>
+}
+
+// importStructureCard lets the admin correct the reading and run it again.
+templ importStructureCard(view ImportReviewView) {
+	<form method="POST" action={ importAction(view, "prepare") } hx-boost="false">
+		<div class="card mb-0">
+			<h2 class="wiz-head">🧭 كيف تمت قراءة الملف</h2>
+			<p class="wiz-sub">
+				راجع ربط الأعمدة. إذا كان أي عمود غير صحيح، صحّحه هنا وأعد المعالجة — لن يتأثر الكتالوج.
+			</p>
+			if len(view.Bindings) > 0 {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>العمود</th>
+								<th>عنوانه في الملف</th>
+								<th>الحقل المرتبط</th>
+								<th>الثقة</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, binding := range view.Bindings {
+								<tr>
+									<td class="tabular-nums">{ binding.Column }</td>
+									<td>{ binding.Header }</td>
+									<td>{ binding.Field }</td>
+									<td>
+										<span class={ "badge", importConfidenceBadge(binding.Confidence) }>
+											{ binding.Confidence }
+										</span>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+			if len(view.Unmapped) > 0 {
+				<p class="wiz-sub" style="margin-top:0.75rem;">أعمدة لم تُربط بأي حقل:</p>
+				<div class="import-chip-list">
+					for _, header := range view.Unmapped {
+						<span class="badge badge-slate">{ header }</span>
+					}
+				</div>
+			}
+			<h3 class="wiz-head" style="margin-top:1.25rem;">تعديل ربط الأعمدة</h3>
+			<p class="wiz-sub">اكتب رقم العمود كما يظهر في Excel (1 = العمود الأول). اتركه فارغاً للاكتشاف التلقائي، أو 0 لتجاهل الحقل.</p>
+			<div class="wiz-map">
+				@wizMapNumber("header_row", "صف العناوين", "رقم الصف الذي يحتوي على أسماء الأعمدة", view.Session.Overrides.HeaderRow)
+				@wizMapNumber("first_data_row", "أول صف بيانات", "", view.Session.Overrides.FirstDataRow)
+				@wizMapNumber("last_data_row", "آخر صف بيانات", "لتجاهل صفوف الإجماليات في نهاية الملف", view.Session.Overrides.LastDataRow)
+				for _, column := range view.Columns {
+					@wizMapColumn(column)
+				}
+			</div>
+		</div>
+		<div class="card mb-0">
+			@importModeCardInner(view)
+			<div class="wiz-actions">
+				<span class="wiz-actions-note">إعادة المعالجة لا تحفظ شيئاً — تعيد قراءة الملف بالإعدادات الجديدة فقط.</span>
+				<button type="submit" class="btn btn-secondary">🔄 إعادة المعالجة بالإعدادات الجديدة</button>
+			</div>
+		</div>
+	</form>
+}
+
+// importModeCardInner reuses the strategy and switch controls inside the review
+// form, so the admin changes their mind in place rather than starting over.
+templ importModeCardInner(view ImportReviewView) {
+	<h2 class="wiz-head">⚡ طريقة المعالجة</h2>
+	<p class="wiz-sub">حدد سلوك الاستيراد للأصناف المستخرجة</p>
+	<div class="wiz-choices">
+		for _, mode := range view.Modes {
+			<label class="wiz-choice">
+				<input
+					type="radio"
+					name="import_mode"
+					value={ string(mode.Mode) }
+					checked?={ mode.Mode == view.Session.Mode }
+				/>
+				<span class="wiz-choice-body">
+					<span class="wiz-choice-icon" aria-hidden="true">{ mode.Icon }</span>
+					<span>
+						<span class="wiz-choice-title">{ mode.Title }</span>
+						<p class="wiz-choice-text">{ mode.Description }</p>
+						if mode.Destructive {
+							<span class="wiz-choice-warn">⚠ يؤثر على كل الأصناف الحالية</span>
+						}
+					</span>
+				</span>
+			</label>
+		}
+	</div>
+	<h2 class="wiz-head" style="margin-top:1.25rem;">🧩 استكمال بيانات الأصناف</h2>
+	<div class="wiz-switches">
+		for _, toggle := range view.Toggles {
+			@importSwitch(toggle)
+		}
+	</div>
+	if len(view.Categories) > 0 {
+		<div class="wiz-map-item" style="margin-top:0.75rem;">
+			<label class="wiz-map-label" for="review-default-category">الفئة الافتراضية عند تعذّر التحديد</label>
+			<select id="review-default-category" name="default_category_id" class="wiz-map-input">
+				<option value="0">بدون فئة</option>
+				for _, category := range view.Categories {
+					<option
+						value={ fmt.Sprintf("%d", category.ID) }
+						selected?={ category.ID == view.Session.Options.DefaultCategoryID }
+					>{ category.Name }</option>
+				}
+			</select>
+		</div>
+	}
+}
+
+templ wizMapNumber(name, label, hint string, value int) {
+	<div class="wiz-map-item">
+		<label class="wiz-map-label" for={ "map-" + name }>{ label }</label>
+		<input
+			id={ "map-" + name }
+			class="wiz-map-input"
+			type="number"
+			min="0"
+			name={ name }
+			if value > 0 {
+				value={ fmt.Sprintf("%d", value) }
+			}
+		/>
+		if hint != "" {
+			<span class="wiz-map-hint">{ hint }</span>
+		}
+	</div>
+}
+
+templ wizMapColumn(column ImportColumnChoice) {
+	<div class="wiz-map-item">
+		<label class="wiz-map-label" for={ "map-col-" + column.Field }>{ column.Label }</label>
+		<input
+			id={ "map-col-" + column.Field }
+			class="wiz-map-input"
+			type="number"
+			min="0"
+			name={ "col_" + column.Field }
+			if column.Column > 0 {
+				value={ fmt.Sprintf("%d", column.Column) }
+			}
+		/>
+		<span class="wiz-map-hint">
+			if column.Detected != "" {
+				{ fmt.Sprintf("تم اكتشافه في العمود %s", column.Detected) }
+			} else {
+				لم يُكتشف في الملف
+			}
+		</span>
+	</div>
+}
+
+templ importRowsCard(view ImportReviewView) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">
+			{ fmt.Sprintf("📋 الأصناف المستخرجة (%s)", FormatCount(view.Total)) }
+		</h2>
+		<p class="wiz-sub">
+			أرقام الصفوف مطابقة لأرقام الصفوف في ملف Excel. يمكنك استبعاد أي صنف من الاستيراد.
+		</p>
+		<div class="wiz-toolbar">
+			@rowFilterChip(view, "", "الكل")
+			@rowFilterChip(view, string(catalog.ActionInsert), "➕ الجديدة")
+			@rowFilterChip(view, string(catalog.ActionUpdate), "🔄 التحديثات")
+			@rowFilterChip(view, "issues", "⚠ الملاحظات")
+			@rowFilterChip(view, "ai", "🤖 استكمال ذكي")
+			<span class="wiz-toolbar-spacer"></span>
+			<form method="GET" class="wiz-toolbar" style="margin:0;">
+				<input
+					class="wiz-map-input"
+					type="search"
+					name="q"
+					value={ view.Filter.Search }
+					placeholder="بحث بالاسم أو الكود"
+					style="width:14rem;"
+				/>
+				<button type="submit" class="wiz-chip">بحث</button>
+			</form>
+		</div>
+		<div class="table-container wiz-scroll">
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>الصف</th>
+						<th>الإجراء</th>
+						<th>الصنف</th>
+						<th>التفاصيل</th>
+						<th>الحالة</th>
+						<th>تضمين</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, row := range view.Rows {
+						@importRowLine(view, row)
+					}
+				</tbody>
+			</table>
+		</div>
+		if view.Pages > 1 {
+			@importRowsPager(view)
+		}
+	</div>
+}
+
+templ importRowLine(view ImportReviewView, row *catalog.StagingRow) {
+	<tr class={ templ.KV("wiz-row--excluded", !row.Included) }>
+		<td class="tabular-nums">{ fmt.Sprintf("%d", row.SourceRow) }</td>
+		<td>
+			<span class={ "badge", RowActionBadge(row.Action) }>{ row.Action.Label() }</span>
+		</td>
+		<td>
+			<div class="wiz-row-name">{ row.DisplayName() }</div>
+			if row.MatchReason != "" {
+				<div class="wiz-row-meta">{ catalog.MatchLabels[row.MatchReason] }</div>
+			}
+		</td>
+		<td>
+			<div class="wiz-row-meta">{ ProductSummaryLine(row) }</div>
+			for _, change := range row.AIChanges {
+				<div class="wiz-row-ai">🤖 { change.Label }: { change.Value }</div>
+			}
+		</td>
+		<td>
+			for _, issue := range row.Issues {
+				if issue.Severity == catalog.SeverityError {
+					<div><span class="badge badge-rose">خطأ</span> <span class="wiz-row-meta">{ issue.Message }</span></div>
+				} else {
+					<div><span class="badge badge-amber">تنبيه</span> <span class="wiz-row-meta">{ issue.Message }</span></div>
+				}
+			}
+		</td>
+		<td>
+			<form method="POST" action={ importRowAction(view, row) } hx-boost="false">
+				<input type="hidden" name="included" value={ includedToggleValue(row) }/>
+				<button type="submit" class={ "wiz-chip", templ.KV("is-on", row.Included) }>
+					if row.Included {
+						✓ مضمّن
+					} else {
+						مستبعد
+					}
+				</button>
+			</form>
+		</td>
+	</tr>
+}
+
+templ importRowsPager(view ImportReviewView) {
+	<div class="wiz-toolbar" style="margin-top:0.9rem;">
+		<span class="wiz-row-meta">
+			{ fmt.Sprintf("صفحة %d من %d", view.Page, view.Pages) }
+		</span>
+		<span class="wiz-toolbar-spacer"></span>
+		if view.Page > 1 {
+			<a class="wiz-chip" href={ importPageURL(view, view.Page-1) }>السابق</a>
+		}
+		if view.Page < view.Pages {
+			<a class="wiz-chip" href={ importPageURL(view, view.Page+1) }>التالي</a>
+		}
+	</div>
+}
+
+templ importConfirmCard(view ImportReviewView) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">✅ تأكيد الحفظ في الكتالوج</h2>
+		<p class="wiz-sub">
+			{ fmt.Sprintf("سيتم إضافة %s صنف وتحديث %s صنف. العملية تتم بالكامل أو لا تتم إطلاقاً.",
+				FormatCount(view.Counts.Insert), FormatCount(view.Counts.Update)) }
+		</p>
+		if view.ModeIsDestructive() {
+			<div class="import-banner import-banner--error" style="margin-bottom:1rem;">
+				<p class="import-banner-text">
+					⚠️ سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع،
+					لكنها ستختفي من الكتالوج والبحث فوراً.
+				</p>
+			</div>
+		}
+		<div class="wiz-actions">
+			<form method="POST" action={ importAction(view, "cancel") } hx-boost="false" class="wiz-actions-note">
+				<button type="submit" class="btn btn-ghost">إلغاء العملية</button>
+			</form>
+			<form method="POST" action={ importAction(view, "commit") } hx-boost="false">
+				if view.ModeIsDestructive() {
+					<label class="wiz-switch" style="margin-bottom:0.75rem;">
+						<span class="wiz-switch-icon" aria-hidden="true">🗑️</span>
+						<span class="wiz-switch-main">
+							<span class="wiz-switch-title">أؤكد أرشفة الكتالوج الحالي</span>
+							<span class="wiz-switch-text">مطلوب لتنفيذ هذه الطريقة</span>
+						</span>
+						<input type="checkbox" name="confirm_destructive" value="1" required/>
+						<span class="wiz-track" aria-hidden="true"></span>
+					</label>
+				}
+				<button
+					type="submit"
+					class="btn btn-primary"
+					disabled?={ !view.CanCommit() }
+				>
+					{ fmt.Sprintf("حفظ %s صنف في الكتالوج", FormatCount(view.Counts.Affected())) }
+				</button>
+			</form>
+		</div>
+	</div>
+}
+
+templ rowFilterChip(view ImportReviewView, key, label string) {
+	<a
+		class={ "wiz-chip", templ.KV("is-on", view.FilterIsActive(key)) }
+		href={ importFilterURL(view, key) }
+	>{ label }</a>
+}

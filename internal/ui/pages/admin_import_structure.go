@@ -1,0 +1,88 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+)
+
+// Shared rendering helpers for the catalogue import screens.
+//
+// These describe how a file was read — which column became which field, and how
+// sure the mapper was — and are used by the review step of the import wizard.
+
+// ImportBindingRow is one column-to-field decision as rendered.
+type ImportBindingRow struct {
+	Column     string
+	Header     string
+	Field      string
+	Confidence string
+}
+
+// describeSource says which worksheet or delimiter the rows came from, so an
+// admin whose workbook has five tabs can confirm the right one was read.
+func describeSource(stats catalog.ImportStats) string {
+	switch stats.Format {
+	case "xlsx":
+		if stats.SheetName != "" {
+			return fmt.Sprintf("ملف Excel — ورقة العمل «%s»", stats.SheetName)
+		}
+		return "ملف Excel"
+	case "csv":
+		return fmt.Sprintf("ملف نصي — الفاصل «%s»", delimiterLabel(stats.Delimiter))
+	default:
+		return ""
+	}
+}
+
+func delimiterLabel(d string) string {
+	switch d {
+	case "	":
+		return "Tab"
+	case "":
+		return ","
+	default:
+		return d
+	}
+}
+
+// confidenceLabel translates a match score into something an admin can judge.
+// A "منخفضة" binding is the one worth checking before trusting the import.
+func confidenceLabel(score int) string {
+	switch {
+	case score >= 100:
+		return "مؤكدة"
+	case score >= 60:
+		return "عالية"
+	default:
+		return "منخفضة"
+	}
+}
+
+// importConfidenceBadge picks the badge colour for a mapping confidence.
+func importConfidenceBadge(confidence string) string {
+	switch confidence {
+	case "مؤكدة":
+		return "badge-emerald"
+	case "عالية":
+		return "badge-sky"
+	default:
+		return "badge-amber"
+	}
+}
+
+// columnLetter renders a zero-based column index the way Excel labels it, so a
+// finding can be found in the file without counting columns by hand.
+func columnLetter(idx int) string {
+	if idx < 0 {
+		return "—"
+	}
+	name := ""
+	for n := idx; ; n = n/26 - 1 {
+		name = string(rune('A'+n%26)) + name
+		if n < 26 {
+			break
+		}
+	}
+	return name
+}

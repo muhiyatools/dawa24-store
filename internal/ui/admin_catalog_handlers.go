@@ -152,15 +152,13 @@ func (h *UIHandler) AdminProductChildStatusSubmit(w http.ResponseWriter, r *http
 	h.redirectWithNotice(w, r, "/admin/product-child", "success", "تم تحديث حالة صنف المورد بنجاح.")
 }
 
-// AdminAdvProductsPage renders advanced spreadsheet column mapping uploader.
+// AdminAdvProductsPage is the legacy advanced-uploader route.
+//
+// The import wizard now covers what it offered — column mapping, a strategy, and
+// a review before writing — so the two screens have merged and this stays only
+// so bookmarks and the sidebar links that point here keep working.
 func (h *UIHandler) AdminAdvProductsPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminAdvProductsPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin adv products", "error", err)
-	}
+	h.AdminProductsImportPage(w, r)
 }
 
 // AdminStocksPage renders inventory stocks across all warehouses.

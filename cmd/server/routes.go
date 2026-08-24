@@ -31,6 +31,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingHttp "github.com/muhiya/dawa24-store/internal/modules/billing/http"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	cataloggw "github.com/muhiya/dawa24-store/internal/modules/catalog/gateway"
 	catalogHttp "github.com/muhiya/dawa24-store/internal/modules/catalog/http"
 	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -155,6 +156,10 @@ func mountModuleRoutes(
 
 	catSvcUI := catalog.NewService(catRepoUI, log)
 	catSvcUI.SetInstitutionalGate(instGate)
+	// The staged catalogue import: the admin reviews a parsed file before any of
+	// it is written. Without a store the wizard reports itself unavailable
+	// rather than falling back to writing blind.
+	catSvcUI.SetImportStore(catRepoUI)
 
 	commSvcUI := commerce.NewService(commRepoUI, log)
 	commSvcUI.SetRequiredDocsChecker(docsGate)
@@ -243,6 +248,14 @@ func mountModuleRoutes(
 		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 		ingSvcUI.SetAIMatcher(aiCapabilitiesSvc)
+
+		// Catalogue enrichment fills the category, form, generic name and
+		// manufacturer that a supplier file leaves out. It bills against the
+		// importing organisation's own virtual key, and every field it fills
+		// has a deterministic answer underneath it.
+		enricher := cataloggw.NewEnricher(ai, log)
+		enricher.SetKeyResolver(cataloggw.KeyResolver(keyResolverUI))
+		catSvcUI.SetEnricher(enricher)
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)

@@ -18,6 +18,15 @@ import (
 // what was created and nothing else.
 const bulkTestSKU = "BULKTEST"
 
+// bulkTestName namespaces product names too.
+//
+// Name matching is one of the behaviours under test, and it runs against
+// whatever catalogue the test database holds — which on a shared database is a
+// real one with thousands of products. A fixture named "بانادول اكسترا" matches
+// a real row and turns an insert into an update, so the names carry a marker no
+// real product has.
+func bulkTestName(name string) string { return "BULKTEST " + name }
+
 func newBulkRepo(t *testing.T) (*postgres.Repository, *database.DB) {
 	t.Helper()
 	db := getTestDB(t)
@@ -65,8 +74,8 @@ func TestBulkUpsertProductsInsertsAgainstRealColumnTypes(t *testing.T) {
 	ctx := database.AsSystem(context.Background())
 
 	res, err := repo.BulkUpsertProducts(ctx, []*catalog.Product{
-		bulkProduct("بانادول اكسترا", bulkTestSKU+"-1", money.MustParse("55.00")),
-		bulkProduct("كتافلام أقراص", bulkTestSKU+"-2", money.MustParse("42.00")),
+		bulkProduct(bulkTestName("بانادول اكسترا"), bulkTestSKU+"-1", money.MustParse("55.00")),
+		bulkProduct(bulkTestName("كتافلام أقراص"), bulkTestSKU+"-2", money.MustParse("42.00")),
 	})
 	if err != nil {
 		t.Fatalf("bulk upsert failed: %v", err)
@@ -83,12 +92,12 @@ func TestBulkUpsertProductsMatchesExistingBySKU(t *testing.T) {
 	repo, db := newBulkRepo(t)
 	ctx := database.AsSystem(context.Background())
 
-	first := []*catalog.Product{bulkProduct("بانادول اكسترا", bulkTestSKU+"-1", money.MustParse("55.00"))}
+	first := []*catalog.Product{bulkProduct(bulkTestName("بانادول اكسترا"), bulkTestSKU+"-1", money.MustParse("55.00"))}
 	if _, err := repo.BulkUpsertProducts(ctx, first); err != nil {
 		t.Fatalf("first write failed: %v", err)
 	}
 
-	second := []*catalog.Product{bulkProduct("بانادول اكسترا", bulkTestSKU+"-1", money.MustParse("60.00"))}
+	second := []*catalog.Product{bulkProduct(bulkTestName("بانادول اكسترا"), bulkTestSKU+"-1", money.MustParse("60.00"))}
 	res, err := repo.BulkUpsertProducts(ctx, second)
 	if err != nil {
 		t.Fatalf("second write failed: %v", err)
@@ -111,13 +120,13 @@ func TestBulkUpsertProductsMatchesExistingByFoldedName(t *testing.T) {
 	// No SKU on either write, and the names differ only by hamza and
 	// ta-marbuta. Folding on both sides is what keeps this one product.
 	if _, err := repo.BulkUpsertProducts(ctx, []*catalog.Product{
-		{Name: i18n.New("أوجمنتين حقنة", ""), SKU: bulkTestSKU + "-N1", InstitutionalWorkIDs: []int64{}},
+		{Name: i18n.New(bulkTestName("أوجمنتين حقنة"), ""), SKU: bulkTestSKU + "-N1", InstitutionalWorkIDs: []int64{}},
 	}); err != nil {
 		t.Fatalf("first write failed: %v", err)
 	}
 
 	res, err := repo.BulkUpsertProducts(ctx, []*catalog.Product{
-		{Name: i18n.New("اوجمنتين حقنه", ""), InstitutionalWorkIDs: []int64{}},
+		{Name: i18n.New(bulkTestName("اوجمنتين حقنه"), ""), InstitutionalWorkIDs: []int64{}},
 	})
 	if err != nil {
 		t.Fatalf("second write failed: %v", err)
@@ -143,9 +152,9 @@ func TestBulkUpsertProductsNamesTheRowThatFailed(t *testing.T) {
 	// Beyond NUMERIC(12,2). The service rejects this at parse time in normal
 	// operation; here it exercises the repository's diagnosis directly.
 	res, err := repo.BulkUpsertProducts(ctx, []*catalog.Product{
-		bulkProduct("صنف سليم أول", bulkTestSKU+"-1", money.MustParse("10.00")),
-		bulkProduct("صنف بسعر خارج النطاق", bulkTestSKU+"-2", money.FromMinor(99999999999999)),
-		bulkProduct("صنف سليم ثانٍ", bulkTestSKU+"-3", money.MustParse("30.00")),
+		bulkProduct(bulkTestName("صنف سليم أول"), bulkTestSKU+"-1", money.MustParse("10.00")),
+		bulkProduct(bulkTestName("صنف بسعر خارج النطاق"), bulkTestSKU+"-2", money.FromMinor(99999999999999)),
+		bulkProduct(bulkTestName("صنف سليم ثالث"), bulkTestSKU+"-3", money.MustParse("30.00")),
 	})
 
 	if err == nil {
@@ -178,8 +187,8 @@ func TestBulkUpsertProductsRegistersNewManufacturers(t *testing.T) {
 	ctx := database.AsSystem(context.Background())
 
 	prods := []*catalog.Product{
-		bulkProduct("بانادول اكسترا", bulkTestSKU+"-1", money.MustParse("55.00")),
-		bulkProduct("بانادول نايت", bulkTestSKU+"-2", money.MustParse("65.00")),
+		bulkProduct(bulkTestName("بانادول اكسترا"), bulkTestSKU+"-1", money.MustParse("55.00")),
+		bulkProduct(bulkTestName("بانادول نايت"), bulkTestSKU+"-2", money.MustParse("65.00")),
 	}
 	prods[0].ManufacturingCompanies = "BulkTest Pharma"
 	// Same company, spelled with different casing and spacing: one brand, not two.

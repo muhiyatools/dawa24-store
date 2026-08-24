@@ -166,6 +166,28 @@ func applyWriteDefaults(p *catalog.Product, defaultOrgID int64) {
 // resolveDefaultOrg finds the organisation that owns the master catalogue,
 // creating it only when the instance genuinely has none.
 func resolveDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
+	orgID, err := lookupDefaultOrg(ctx, tx)
+	if err != nil {
+		return 0, err
+	}
+	if orgID > 0 {
+		return orgID, nil
+	}
+
+	err = tx.QueryRow(ctx, `
+		INSERT INTO org.organizations (name, type, status)
+		VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
+		RETURNING id
+	`).Scan(&orgID)
+	if err != nil {
+		return 0, fmt.Errorf("catalog postgres: create master catalog organization: %w", err)
+	}
+	return orgID, nil
+}
+
+// lookupDefaultOrg finds the organisation that owns the master catalogue without
+// creating one, so it is safe inside a read-only transaction.
+func lookupDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
 	var orgID int64
 	err := tx.QueryRow(ctx,
 		`SELECT id FROM org.organizations WHERE status = 'approved' ORDER BY id ASC LIMIT 1`).Scan(&orgID)
@@ -179,18 +201,6 @@ func resolveDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
 	err = tx.QueryRow(ctx, `SELECT id FROM org.organizations ORDER BY id ASC LIMIT 1`).Scan(&orgID)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return 0, fmt.Errorf("catalog postgres: resolve any organization: %w", err)
-	}
-	if orgID > 0 {
-		return orgID, nil
-	}
-
-	err = tx.QueryRow(ctx, `
-		INSERT INTO org.organizations (name, type, status)
-		VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
-		RETURNING id
-	`).Scan(&orgID)
-	if err != nil {
-		return 0, fmt.Errorf("catalog postgres: create master catalog organization: %w", err)
 	}
 	return orgID, nil
 }
@@ -655,4 +665,71 @@ func explainWriteError(err error) string {
 	default:
 		return fmt.Sprintf("%s (رمز الخطأ %s)", pgErr.Message, pgErr.Code)
 	}
+}
+
+// MatchExistingProducts resolves which catalogue products the incoming rows
+// correspond to, without writing anything.
+//
+// The review screen needs the same answer the commit will reach — "this row
+// updates product 4,812" — before the admin approves it. Sharing the resolver
+// rather than reimplementing it is what keeps the preview honest: a row shown as
+// an update cannot turn into an insert at commit time.
+func (r *Repository) MatchExistingProducts(
+	ctx context.Context, prods []*catalog.Product,
+) (map[int]catalog.ExistingMatch, error) {
+	out := map[int]catalog.ExistingMatch{}
+	if len(prods) == 0 {
+		return out, nil
+	}
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// Matching is scoped per organisation, and a freshly parsed product has
+		// none yet — the write path assigns it. The same assignment has to
+		// happen here or the preview would match every row against organisation
+		// zero, find nothing, and promise an insert for rows the commit would
+		// then update.
+		defaultOrgID, err := lookupDefaultOrg(txCtx, tx)
+		if err != nil {
+			return err
+		}
+		if defaultOrgID <= 0 {
+			// No organisation means an empty catalogue: nothing to match.
+			return nil
+		}
+		for _, p := range prods {
+			if p.OrganizationID <= 0 {
+				p.OrganizationID = defaultOrgID
+			}
+		}
+
+		matches, err := resolveExistingProducts(txCtx, tx, prods)
+		if err != nil {
+			return err
+		}
+		for idx, m := range matches {
+			out[idx] = catalog.ExistingMatch{ProductID: m.id, Reason: m.reason}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DefaultCatalogOrg returns the organisation that owns the master catalogue,
+// creating it on a fresh deployment that has none.
+//
+// The import session is tied to it at creation, so a staged row and the product
+// it eventually writes are scoped to the same organisation — matching a preview
+// against one organisation and committing into another would show the admin one
+// answer and perform a different one.
+func (r *Repository) DefaultCatalogOrg(ctx context.Context) (int64, error) {
+	var orgID int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var err error
+		orgID, err = resolveDefaultOrg(txCtx, tx)
+		return err
+	})
+	return orgID, err
 }

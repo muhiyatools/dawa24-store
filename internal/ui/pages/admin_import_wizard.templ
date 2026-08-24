@@ -1,0 +1,230 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// The catalogue import wizard.
+//
+// Step one asks what to do, step two shows what will happen, step three does it.
+// The screen this replaced put an explanation next to every control and then
+// redirected with the outcome in the query string; here the controls carry their
+// own meaning and the outcome is a page the admin can read and act on.
+
+// AdminProductsImportPage is step one: the file, the strategy, and the switches.
+templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
+	@layouts.AdminShell("استيراد الأصناف إلى الكتالوج المعتمد", "import", lang, dir) {
+		<div class="wizard">
+			@wizardRail(StepConfigure)
+			if view.Fatal != "" {
+				@wizardFatal(view.Fatal, view.FatalDetail)
+			}
+			<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false">
+				@importUploadCard()
+				@importModeCard(view.Modes, view.SelectedMode)
+				@importOptionsCard(view.Toggles, view.Categories, 0)
+				<div class="card mb-0">
+					<div class="wiz-actions">
+						<span class="wiz-actions-note">
+							لن يتم حفظ أي صنف الآن — ستظهر لك نتيجة التحليل لمراجعتها قبل التأكيد.
+						</span>
+						<a href="/admin/products" class="btn btn-ghost">إلغاء</a>
+						<button type="submit" class="btn btn-primary">
+							@components.IconUpload("icon-xs")
+							<span>تحليل الملف ومعاينة النتائج</span>
+						</button>
+					</div>
+				</div>
+			</form>
+			if len(view.Recent) > 0 {
+				@importHistoryCard(view.Recent)
+			}
+		</div>
+	}
+}
+
+templ wizardRail(current ImportStep) {
+	<nav class="wiz-rail" aria-label="مراحل الاستيراد">
+		for i, step := range ImportSteps(current) {
+			if i > 0 {
+				<span class="wiz-sep" aria-hidden="true"></span>
+			}
+			<span
+				class={ "wiz-node", templ.KV("is-active", step.Active), templ.KV("is-done", step.Done) }
+				if step.Active {
+					aria-current="step"
+				}
+			>
+				<span class="wiz-bubble" aria-hidden="true">
+					if step.Done {
+						✓
+					} else {
+						{ step.Icon }
+					}
+				</span>
+				<span>{ fmt.Sprintf("%d. %s", step.Number, step.Title) }</span>
+			</span>
+		}
+	</nav>
+}
+
+templ wizardFatal(message, detail string) {
+	<div class="import-banner import-banner--error">
+		<h2 class="import-banner-title">تعذر قراءة الملف</h2>
+		<p class="import-banner-text">{ message }</p>
+		if detail != "" {
+			<p class="import-banner-detail">{ detail }</p>
+		}
+	</div>
+}
+
+templ importUploadCard() {
+	<div class="card mb-0">
+		<h2 class="wiz-head">📤 ملف الأصناف</h2>
+		<p class="wiz-sub">
+			Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة
+			التي يتكرر فيها صف العناوين.
+		</p>
+		<label class="wiz-drop" id="import-drop">
+			<input
+				type="file"
+				id="import-file-input"
+				name="import_file"
+				accept=".xlsx,.xlsm,.csv,.tsv,.txt"
+				required
+			/>
+			<div class="wiz-drop-icon" aria-hidden="true">📁</div>
+			<div class="wiz-drop-title" id="import-drop-title">اختر الملف أو اسحبه إلى هنا</div>
+			<div class="wiz-drop-text">الحد الأقصى 32 ميجابايت · لا تدعم صيغة Excel 97-2003 القديمة (.xls)</div>
+		</label>
+		<div class="import-chip-list" style="margin-top:0.75rem;">
+			<a href="/admin/products/sample.xlsx" class="wiz-chip">⬇ قالب Excel</a>
+			<a href="/admin/products/sample.csv" class="wiz-chip">⬇ قالب CSV</a>
+		</div>
+	</div>
+}
+
+templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMode) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">⚡ طريقة وخطة معالجة الاستيراد</h2>
+		<p class="wiz-sub">حدد سلوك الاستيراد للأصناف المستخرجة</p>
+		<div class="wiz-choices">
+			for _, mode := range modes {
+				<label class="wiz-choice">
+					<input
+						type="radio"
+						name="import_mode"
+						value={ string(mode.Mode) }
+						checked?={ mode.Mode == selected }
+					/>
+					<span class="wiz-choice-body">
+						<span class="wiz-choice-icon" aria-hidden="true">{ mode.Icon }</span>
+						<span>
+							<span class="wiz-choice-title">{ mode.Title }</span>
+							<p class="wiz-choice-text">{ mode.Description }</p>
+							if mode.Destructive {
+								<span class="wiz-choice-warn">⚠ يؤثر على كل الأصناف الحالية</span>
+							}
+						</span>
+					</span>
+				</label>
+			}
+		</div>
+	</div>
+}
+
+templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOption, defaultCategory int64) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">🧩 استكمال بيانات الأصناف</h2>
+		<p class="wiz-sub">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p>
+		<div class="wiz-switches">
+			for _, toggle := range toggles {
+				@importSwitch(toggle)
+			}
+		</div>
+		if len(categories) > 0 {
+			<div class="wiz-map-item" style="margin-top:0.75rem;">
+				<label class="wiz-map-label" for="default-category">الفئة الافتراضية عند تعذّر التحديد</label>
+				<select id="default-category" name="default_category_id" class="wiz-map-input">
+					<option value="0">بدون فئة</option>
+					for _, category := range categories {
+						<option
+							value={ fmt.Sprintf("%d", category.ID) }
+							selected?={ category.ID == defaultCategory }
+						>{ category.Name }</option>
+					}
+				</select>
+			</div>
+		}
+	</div>
+}
+
+templ importSwitch(toggle ImportToggle) {
+	<label class={ "wiz-switch", templ.KV("is-disabled", toggle.Disabled) }>
+		<span class="wiz-switch-icon" aria-hidden="true">{ toggle.Icon }</span>
+		<span class="wiz-switch-main">
+			<span class="wiz-switch-title">{ toggle.Title }</span>
+			<span class="wiz-switch-text">
+				if toggle.Disabled && toggle.Note != "" {
+					{ toggle.Note }
+				} else {
+					{ toggle.Description }
+				}
+			</span>
+		</span>
+		<input
+			type="checkbox"
+			name={ toggle.Name }
+			value="1"
+			checked?={ toggle.Checked }
+			disabled?={ toggle.Disabled }
+		/>
+		<span class="wiz-track" aria-hidden="true"></span>
+	</label>
+}
+
+templ importHistoryCard(sessions []*catalog.ImportSession) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">🕘 آخر عمليات الاستيراد</h2>
+		<div class="table-container">
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>الملف</th>
+						<th>الطريقة</th>
+						<th>إضافة</th>
+						<th>تحديث</th>
+						<th>الحالة</th>
+						<th>التاريخ</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, session := range sessions {
+						<tr>
+							<td>
+								if session.IsReviewable() {
+									<a href={ templ.SafeURL("/admin/products/import/" + session.PublicID) }>{ session.Filename }</a>
+								} else {
+									{ session.Filename }
+								}
+							</td>
+							<td>{ session.Mode.Label() }</td>
+							<td class="tabular-nums">{ FormatCount(session.InsertRows) }</td>
+							<td class="tabular-nums">{ FormatCount(session.UpdateRows) }</td>
+							<td>
+								<span class={ "badge", SessionStatusBadge(session.Status) }>
+									{ SessionStatusLabel(session.Status) }
+								</span>
+							</td>
+							<td class="tabular-nums">{ session.CreatedAt.Format("2006-01-02 15:04") }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}

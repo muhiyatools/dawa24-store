@@ -124,6 +124,10 @@ func newRealUIHandler(t *testing.T, db *database.DB) http.Handler {
 
 	orgSvc := org.NewService(orgRepo, logger)
 	catSvc := catalog.NewService(catRepo, logger)
+	// The import wizard stages a parsed file for review before writing it; the
+	// handler reports itself unavailable without a store, so the harness has to
+	// wire the same one the composition root does.
+	catSvc.SetImportStore(catRepo)
 	ingSvc := ingest.NewService(ingRepo, logger)
 	commSvc := commerce.NewService(commRepo, logger)
 	invSvc := inventory.NewService(invRepo, logger)

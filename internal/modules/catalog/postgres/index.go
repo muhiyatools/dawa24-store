@@ -175,10 +175,33 @@ func (r *Repository) SearchProductIndex(ctx context.Context, params catalog.Sear
 	return items, nil
 }
 
+// rebuildIndexLockKey serialises index rebuilds across every process. Any
+// constant works; this one is arbitrary and unique to this operation.
+const rebuildIndexLockKey int64 = 0x6361_7461_6c6f_6701
+
 // RebuildProductIndex truncates and fully repopulates catalog.product_index from master tables.
+//
+// Two protections wrap the rebuild, both learned from it deadlocking against an
+// ordinary product write:
+//
+//   - An advisory lock, so two rebuilds — an import finishing while a scheduled
+//     sweep runs — cannot pile up on the same TRUNCATE.
+//   - A lock timeout, because this transaction takes ACCESS EXCLUSIVE on
+//     product_index and then reads catalog.products, while a DELETE on
+//     catalog.products locks them in the opposite order through the index's
+//     ON DELETE SET NULL. That inversion is a deadlock waiting for traffic. The
+//     timeout makes the rebuild the side that gives way: it is a derived table
+//     that the next import or sweep will rebuild anyway, whereas the write it
+//     would otherwise kill is somebody's catalogue edit.
 func (r *Repository) RebuildProductIndex(ctx context.Context) (int64, error) {
 	var count int64
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx, `SET LOCAL lock_timeout = '5s'`); err != nil {
+			return fmt.Errorf("set rebuild lock timeout: %w", err)
+		}
+		if _, err := tx.Exec(txCtx, `SELECT pg_advisory_xact_lock($1)`, rebuildIndexLockKey); err != nil {
+			return fmt.Errorf("acquire rebuild lock: %w", err)
+		}
 		if _, err := tx.Exec(txCtx, `TRUNCATE TABLE catalog.product_index;`); err != nil {
 			return fmt.Errorf("truncate product_index: %w", err)
 		}

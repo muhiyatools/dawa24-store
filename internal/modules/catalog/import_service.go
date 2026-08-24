@@ -1,0 +1,676 @@
+package catalog
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+)
+
+// The reviewed import.
+//
+// Three steps, each with its own transaction and its own failure mode:
+//
+//	Analyse   read the file, work out its shape, keep it. Writes nothing to the
+//	          catalogue and nothing the admin has to undo.
+//	Prepare   parse it under the admin's corrections, match every row against the
+//	          catalogue, fill gaps, and stage the result for review. Still writes
+//	          nothing to the catalogue — re-runnable as often as the admin likes.
+//	Commit    apply the staged rows under the chosen mode, all or nothing.
+//
+// Keeping the first two free of catalogue writes is the whole point: an admin
+// can upload a nine-thousand-row file, discover the price column was misread,
+// fix the mapping, and run it again without ever having touched the catalogue.
+
+// ImportSessionStore is the persistence the reviewed import needs. It is
+// declared here, beside its only consumer, rather than beside the PostgreSQL
+// implementation that satisfies it.
+type ImportSessionStore interface {
+	CreateImportSession(ctx context.Context, s *ImportSession, sourceFile []byte) error
+	GetImportSession(ctx context.Context, publicID string) (*ImportSession, error)
+	UpdateImportSession(ctx context.Context, s *ImportSession) error
+	ImportSourceFile(ctx context.Context, sessionID int64) ([]byte, error)
+	ReleaseImportSourceFile(ctx context.Context, sessionID int64) error
+	ListRecentImportSessions(ctx context.Context, orgID int64, limit int) ([]*ImportSession, error)
+
+	ReplaceStagingRows(ctx context.Context, sessionID int64, rows []*StagingRow) error
+	ListStagingRows(ctx context.Context, sessionID int64, filter StagingFilter) ([]*StagingRow, int, error)
+	LoadCommittableRows(ctx context.Context, sessionID int64) ([]*StagingRow, error)
+	SetRowIncluded(ctx context.Context, sessionID, rowID int64, included bool) error
+	SetRowsIncludedByAction(ctx context.Context, sessionID int64, action RowAction, included bool) (int64, error)
+	CountStagingActions(ctx context.Context, sessionID int64) (StagingCounts, error)
+
+	DefaultCatalogOrg(ctx context.Context) (int64, error)
+	MatchExistingProducts(ctx context.Context, prods []*Product) (map[int]ExistingMatch, error)
+	ImportVocabulary(ctx context.Context, orgID int64) (EnrichVocabulary, error)
+	ArchiveAllProducts(ctx context.Context, orgID int64) (int64, error)
+}
+
+// SetImportStore installs the staging persistence.
+func (s *Service) SetImportStore(store ImportSessionStore) { s.imports = store }
+
+// SetEnricher installs the AI enrichment port. Leaving it unset disables the AI
+// switch in the wizard rather than failing an import that asked for it.
+func (s *Service) SetEnricher(e Enricher) { s.enricher = e }
+
+// EnricherAvailable reports whether AI can be offered on the upload screen.
+func (s *Service) EnricherAvailable(ctx context.Context) bool {
+	return s.enricher != nil && s.enricher.Available(ctx)
+}
+
+// ErrImportUnavailable means the staging store was never wired.
+var ErrImportUnavailable = errors.New("catalog: import sessions are not configured")
+
+// AnalyzeImport reads an uploaded file and opens a review session for it.
+//
+// It parses the file once with no overrides purely to learn its shape — how many
+// blocks, which columns, how many rows survive — so the review screen can show
+// the admin what was found before asking them to confirm or correct it.
+func (s *Service) AnalyzeImport(
+	ctx context.Context, content []byte, filename string, actorID int64,
+) (*ImportSession, *ParseResult, error) {
+	if s.imports == nil {
+		return nil, nil, ErrImportUnavailable
+	}
+
+	sheet, err := ReadSpreadsheet(content, filename)
+	if err != nil {
+		return nil, nil, err
+	}
+	parsed := ParseProducts(sheet)
+
+	// The session is scoped to the organisation that owns the master catalogue,
+	// so the rows it matches against during review are the same rows the commit
+	// will write into.
+	orgID, err := s.imports.DefaultCatalogOrg(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	session := &ImportSession{
+		OrganizationID: orgID,
+		Filename:       filename,
+		FileSizeBytes:  int64(len(content)),
+		SourceFormat:   sheet.Format,
+		SheetName:      sheet.Sheet,
+		Delimiter:      sheet.Delimiter,
+		Status:         SessionDraft,
+		Mode:           ModeUpdateAndAdd,
+		Options:        DefaultImportOptions(),
+	}
+	if actorID > 0 {
+		session.CreatedBy = &actorID
+	}
+	applyParseStats(session, parsed)
+
+	if err := s.imports.CreateImportSession(ctx, session, content); err != nil {
+		return nil, nil, err
+	}
+	s.log.InfoContext(ctx, "catalogue import session opened",
+		"session", session.PublicID, "file", filename,
+		"rows", parsed.Stats.TotalRowsRead, "products", len(parsed.Products),
+		"blocks", len(parsed.Layout.Blocks))
+
+	return session, parsed, nil
+}
+
+// PrepareImport re-reads the session's file under the admin's settings, decides
+// what each row would do, enriches what it can, and stages the result.
+//
+// It is idempotent by construction: staging rows are replaced wholesale, so the
+// admin can adjust the column mapping and run it again as many times as they
+// need without accumulating anything.
+func (s *Service) PrepareImport(ctx context.Context, publicID string, settings ImportSettings) (*ImportSession, error) {
+	if s.imports == nil {
+		return nil, ErrImportUnavailable
+	}
+
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return nil, err
+	}
+	if !session.IsReviewable() {
+		return nil, apperr.Validation("catalog.import_not_reviewable",
+			"لا يمكن تعديل هذه الجلسة لأنها اكتملت أو أُلغيت. يرجى بدء عملية استيراد جديدة.", nil)
+	}
+
+	content, err := s.imports.ImportSourceFile(ctx, session.ID)
+	if err != nil {
+		return nil, err
+	}
+	if len(content) == 0 {
+		return nil, apperr.Validation("catalog.import_file_expired",
+			"انتهت صلاحية الملف المرفوع لهذه الجلسة. يرجى رفع الملف من جديد.", nil)
+	}
+
+	sheet, err := ReadSpreadsheet(content, session.Filename)
+	if err != nil {
+		return nil, err
+	}
+
+	session.Mode = settings.Mode
+	session.Options = settings.Options
+	session.Overrides = settings.Overrides
+
+	parsed := ParseProductsWithOverrides(sheet, settings.Overrides)
+	applyParseStats(session, parsed)
+	session.SheetName = sheet.Sheet
+	session.SourceFormat = sheet.Format
+	session.Delimiter = sheet.Delimiter
+
+	aiChanges := s.enrich(ctx, session, parsed)
+	matches, err := s.imports.MatchExistingProducts(ctx, parsed.Products)
+	if err != nil {
+		return nil, err
+	}
+
+	rows := buildStagingRows(parsed, matches, aiChanges, session.Mode)
+	applyRowStats(session, rows)
+	session.NewBrands = collectNewBrands(parsed.Products, matches)
+	session.Status = SessionReady
+
+	if err := s.imports.ReplaceStagingRows(ctx, session.ID, rows); err != nil {
+		return nil, err
+	}
+	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "catalogue import prepared",
+		"session", session.PublicID, "mode", session.Mode,
+		"insert", session.InsertRows, "update", session.UpdateRows,
+		"skip", session.SkipRows, "errors", session.ErrorRows,
+		"ai_calls", session.AICalls, "ai_applied", session.AIApplied)
+	return session, nil
+}
+
+// ImportSettings are the choices the admin makes before processing.
+type ImportSettings struct {
+	Mode      ImportMode
+	Options   ImportOptions
+	Overrides LayoutOverrides
+}
+
+// enrich fills what the file did not carry, and records what it cost.
+//
+// Failure here is never fatal. A Gateway that is disabled, out of budget, or
+// simply slow leaves the deterministic values in place and marks the session so
+// the review screen can say so plainly, rather than failing an import the admin
+// has already waited on.
+func (s *Service) enrich(ctx context.Context, session *ImportSession, parsed *ParseResult) map[int][]AIChange {
+	applyDefaultCategory(parsed.Products, session.Options)
+
+	session.AICalls, session.AIApplied, session.AIFallback, session.AINote = 0, 0, false, ""
+	if !session.Options.UseAI || s.enricher == nil {
+		return nil
+	}
+
+	plan := PlanEnrichment(parsed.Products, session.Options)
+	if plan.Empty() {
+		session.AINote = "لم تكن هناك حقول ناقصة تحتاج إلى الذكاء الاصطناعي؛ الملف مكتمل البيانات."
+		return nil
+	}
+
+	vocab, err := s.imports.ImportVocabulary(ctx, session.OrganizationID)
+	if err != nil {
+		s.log.WarnContext(ctx, "import vocabulary unavailable, skipping enrichment", "error", err)
+		session.AIFallback = true
+		session.AINote = "تعذر تحميل التصنيفات والشركات المصنعة، فتم تخطي مرحلة الذكاء الاصطناعي."
+		return nil
+	}
+
+	changes := map[int][]AIChange{}
+	var failures int
+
+	for _, batch := range plan.Batches() {
+		req := BuildEnrichRequest(parsed.Products, batch, plan, vocab)
+		req.OrganizationID = session.OrganizationID
+		if session.CreatedBy != nil {
+			req.UserID = *session.CreatedBy
+		}
+
+		session.AICalls++
+		resp, err := s.enricher.Enrich(ctx, req)
+		if err != nil {
+			failures++
+			// One bad batch is survivable; a run of them means the Gateway is
+			// down and the remaining calls are just latency the admin pays for
+			// nothing.
+			if failures >= 3 {
+				session.AIFallback = true
+				session.AINote = "تعذر الوصول إلى خدمة الذكاء الاصطناعي، وتم استكمال الاستيراد بالقواعد التلقائية فقط."
+				break
+			}
+			continue
+		}
+
+		for ref, applied := range ApplyEnrichment(parsed.Products, resp.Results, session.Options, vocab) {
+			changes[ref] = append(changes[ref], applied...)
+			session.AIApplied++
+		}
+	}
+
+	if session.AINote == "" {
+		session.AINote = fmt.Sprintf(
+			"تمت مراجعة %d صنف عبر الذكاء الاصطناعي في %d دفعة، وتم استكمال بيانات %d صنف.",
+			len(plan.Indices), session.AICalls, session.AIApplied)
+	}
+	return changes
+}
+
+// applyDefaultCategory fills the fallback category the admin chose, for every
+// product that ends without one. It runs whether or not AI is on, so a file with
+// no category column still lands somewhere sensible.
+func applyDefaultCategory(prods []*Product, opts ImportOptions) {
+	if !opts.AssignCategory || opts.DefaultCategoryID <= 0 {
+		return
+	}
+	for _, p := range prods {
+		if p != nil && (p.CategoryID == nil || *p.CategoryID <= 0) {
+			id := opts.DefaultCategoryID
+			p.CategoryID = &id
+		}
+	}
+}
+
+// buildStagingRows decides what each parsed product would do under the chosen
+// mode, and packages it for review.
+func buildStagingRows(
+	parsed *ParseResult, matches map[int]ExistingMatch,
+	aiChanges map[int][]AIChange, mode ImportMode,
+) []*StagingRow {
+	issuesByRow := groupIssuesByRow(parsed.Issues)
+	rows := make([]*StagingRow, 0, len(parsed.Products))
+
+	for i, product := range parsed.Products {
+		sourceRow := 0
+		if i < len(parsed.SourceRows) {
+			sourceRow = parsed.SourceRows[i]
+		}
+
+		row := &StagingRow{
+			SourceRow: sourceRow,
+			Product:   product,
+			Included:  true,
+			Issues:    issuesByRow[sourceRow],
+			AIChanges: aiChanges[i],
+		}
+		if match, matched := matches[i]; matched {
+			id := match.ProductID
+			row.MatchedProductID = &id
+			row.MatchReason = match.Reason
+		}
+		row.Action = actionFor(mode, row.MatchedProductID != nil)
+
+		// A row carrying a blocking finding is never silently committed, whatever
+		// the mode says. The admin sees it in the review table as excluded.
+		if row.HasErrors() {
+			row.Action = ActionSkip
+			row.Included = false
+		}
+		rows = append(rows, row)
+	}
+	return rows
+}
+
+// actionFor applies the chosen strategy to one row.
+func actionFor(mode ImportMode, matched bool) RowAction {
+	switch mode {
+	case ModeAddNewOnly:
+		if matched {
+			return ActionSkip
+		}
+		return ActionInsert
+
+	case ModeUpdateExistingOnly:
+		if matched {
+			return ActionUpdate
+		}
+		return ActionSkip
+
+	case ModeClearAndAdd:
+		// The catalogue is archived first, so every row is new by definition —
+		// including the ones that match something about to be retired.
+		return ActionInsert
+
+	default: // ModeUpdateAndAdd
+		if matched {
+			return ActionUpdate
+		}
+		return ActionInsert
+	}
+}
+
+// groupIssuesByRow indexes findings so each staged row carries its own.
+func groupIssuesByRow(issues []RowIssue) map[int][]RowIssue {
+	out := map[int][]RowIssue{}
+	for _, issue := range issues {
+		out[issue.Row] = append(out[issue.Row], issue)
+	}
+	return out
+}
+
+// collectNewBrands lists manufacturers the catalogue has never seen, so the
+// review screen can show what the import would add to the brand list.
+func collectNewBrands(prods []*Product, matches map[int]ExistingMatch) []string {
+	seen := map[string]bool{}
+	var out []string
+
+	for i, p := range prods {
+		if p == nil || p.ManufacturingCompanies == "" {
+			continue
+		}
+		// A matched product already has whatever brand it has; only a new
+		// product can introduce a new manufacturer.
+		if _, matched := matches[i]; matched {
+			continue
+		}
+		key := NormalizeKey(p.ManufacturingCompanies)
+		if key == "" || seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, p.ManufacturingCompanies)
+		if len(out) >= 200 {
+			break
+		}
+	}
+	return out
+}
+
+func applyParseStats(session *ImportSession, parsed *ParseResult) {
+	session.TotalRows = parsed.Stats.TotalRowsRead
+	session.ParsedRows = len(parsed.Products)
+	session.BlockCount = len(parsed.Layout.Blocks)
+}
+
+func applyRowStats(session *ImportSession, rows []*StagingRow) {
+	session.InsertRows, session.UpdateRows, session.SkipRows = 0, 0, 0
+	session.ErrorRows, session.WarningRows = 0, 0
+
+	for _, row := range rows {
+		switch row.Action {
+		case ActionInsert:
+			session.InsertRows++
+		case ActionUpdate:
+			session.UpdateRows++
+		default:
+			session.SkipRows++
+		}
+		if row.HasErrors() {
+			session.ErrorRows++
+		} else if len(row.Issues) > 0 {
+			session.WarningRows++
+		}
+	}
+}
+
+// CommitImport applies a reviewed session to the catalogue.
+//
+// What commits is exactly what the review screen showed: the rows are read back
+// from staging with their recorded action, not recomputed. A row the admin
+// deselected does not come back, and a row shown as an update cannot arrive as
+// an insert.
+func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSession, BulkWriteResult, error) {
+	empty := BulkWriteResult{Matches: map[int]MatchReason{}}
+	if s.imports == nil {
+		return nil, empty, ErrImportUnavailable
+	}
+
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return nil, empty, err
+	}
+	if session.Status == SessionCommitted {
+		return session, empty, apperr.Conflict("catalog.import_already_committed",
+			"تم تنفيذ هذه العملية بالفعل. يرجى بدء عملية استيراد جديدة.")
+	}
+	if !session.IsReviewable() {
+		return session, empty, apperr.Validation("catalog.import_not_reviewable",
+			"لا يمكن تنفيذ هذه الجلسة لأنها أُلغيت أو انتهت صلاحيتها.", nil)
+	}
+
+	rows, err := s.imports.LoadCommittableRows(ctx, session.ID)
+	if err != nil {
+		return session, empty, err
+	}
+	if len(rows) == 0 {
+		return session, empty, apperr.Validation("catalog.import_nothing_selected",
+			"لم يتم تحديد أي صنف للاستيراد. يرجى مراجعة الصفوف واختيار ما تريد حفظه.", nil)
+	}
+
+	if session.Mode == ModeClearAndAdd {
+		archived, err := s.imports.ArchiveAllProducts(ctx, session.OrganizationID)
+		if err != nil {
+			return session, empty, err
+		}
+		s.log.WarnContext(ctx, "catalogue archived before import",
+			"session", session.PublicID, "archived", archived)
+	}
+
+	prods := make([]*Product, 0, len(rows))
+	for _, row := range rows {
+		product := row.Product
+		if product == nil {
+			continue
+		}
+		// Carry the resolved identity forward so the write updates the row the
+		// preview named, rather than matching again against a catalogue the
+		// archive step may have just changed underneath it.
+		if row.Action == ActionUpdate && row.MatchedProductID != nil {
+			product.ID = *row.MatchedProductID
+		}
+		if !session.Options.AutoCreateBrands {
+			// The manufacturer stays on the product as text either way; without
+			// the switch it simply does not become a brand row.
+			product.BrandID = nil
+		}
+		prods = append(prods, product)
+	}
+
+	written, issues, err := s.BulkImportProducts(ctx, prods)
+	if err != nil {
+		session.Status = SessionFailed
+		session.ErrorMessage = err.Error()
+		if updateErr := s.imports.UpdateImportSession(ctx, session); updateErr != nil {
+			s.log.ErrorContext(ctx, "could not record import failure", "error", updateErr)
+		}
+		return session, written, err
+	}
+
+	now := time.Now()
+	session.Status = SessionCommitted
+	session.CommittedAt = &now
+	session.InsertRows = written.Inserted
+	session.UpdateRows = written.Updated
+	session.ErrorMessage = ""
+	if len(issues) > 0 {
+		session.ErrorRows += len(issues)
+	}
+
+	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
+		return session, written, err
+	}
+	// The file has done its job; keeping a copy of the admin's workbook past the
+	// commit serves nothing.
+	if err := s.imports.ReleaseImportSourceFile(ctx, session.ID); err != nil {
+		s.log.WarnContext(ctx, "could not release import source file",
+			"session", session.PublicID, "error", err)
+	}
+
+	s.log.InfoContext(ctx, "catalogue import committed",
+		"session", session.PublicID, "mode", session.Mode,
+		"inserted", written.Inserted, "updated", written.Updated,
+		"brands_created", written.BrandsCreated)
+	return session, written, nil
+}
+
+// CancelImport discards a session without touching the catalogue.
+func (s *Service) CancelImport(ctx context.Context, publicID string) error {
+	if s.imports == nil {
+		return ErrImportUnavailable
+	}
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return err
+	}
+	if !session.IsReviewable() {
+		return nil
+	}
+	session.Status = SessionCancelled
+	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
+		return err
+	}
+	return s.imports.ReleaseImportSourceFile(ctx, session.ID)
+}
+
+// GetImportSession loads a session for the review screen.
+func (s *Service) GetImportSession(ctx context.Context, publicID string) (*ImportSession, error) {
+	if s.imports == nil {
+		return nil, ErrImportUnavailable
+	}
+	return s.imports.GetImportSession(ctx, publicID)
+}
+
+// ListStagingRows reads a page of the review table.
+func (s *Service) ListStagingRows(
+	ctx context.Context, publicID string, filter StagingFilter,
+) (*ImportSession, []*StagingRow, int, error) {
+	if s.imports == nil {
+		return nil, nil, 0, ErrImportUnavailable
+	}
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+	rows, total, err := s.imports.ListStagingRows(ctx, session.ID, filter)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+	return session, rows, total, nil
+}
+
+// SetRowIncluded flips one row's inclusion switch in the review table.
+func (s *Service) SetRowIncluded(ctx context.Context, publicID string, rowID int64, included bool) error {
+	if s.imports == nil {
+		return ErrImportUnavailable
+	}
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return err
+	}
+	return s.imports.SetRowIncluded(ctx, session.ID, rowID, included)
+}
+
+// SetRowsIncludedByAction flips every row sharing an action.
+func (s *Service) SetRowsIncludedByAction(
+	ctx context.Context, publicID string, action RowAction, included bool,
+) (int64, error) {
+	if s.imports == nil {
+		return 0, ErrImportUnavailable
+	}
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return 0, err
+	}
+	return s.imports.SetRowsIncludedByAction(ctx, session.ID, action, included)
+}
+
+// StagingCounts tallies what the admin has left selected.
+func (s *Service) StagingCounts(ctx context.Context, sessionID int64) (StagingCounts, error) {
+	if s.imports == nil {
+		return StagingCounts{}, ErrImportUnavailable
+	}
+	return s.imports.CountStagingActions(ctx, sessionID)
+}
+
+// ImportVocabulary is the taxonomy offered in the wizard's category chooser.
+//
+// An organisation of zero means "the master catalogue", which the wizard uses
+// before a session exists and therefore before it knows which organisation owns
+// it.
+func (s *Service) ImportVocabulary(ctx context.Context, orgID int64) (EnrichVocabulary, error) {
+	if s.imports == nil {
+		return EnrichVocabulary{}, ErrImportUnavailable
+	}
+	if orgID <= 0 {
+		resolved, err := s.imports.DefaultCatalogOrg(ctx)
+		if err != nil {
+			return EnrichVocabulary{}, err
+		}
+		orgID = resolved
+	}
+	return s.imports.ImportVocabulary(ctx, orgID)
+}
+
+// RecentImportSessions backs the history panel on the upload screen.
+func (s *Service) RecentImportSessions(ctx context.Context, orgID int64, limit int) ([]*ImportSession, error) {
+	if s.imports == nil {
+		return nil, nil
+	}
+	if orgID <= 0 {
+		resolved, err := s.imports.DefaultCatalogOrg(ctx)
+		if err != nil {
+			return nil, err
+		}
+		orgID = resolved
+	}
+	return s.imports.ListRecentImportSessions(ctx, orgID, limit)
+}
+
+// SummarizeProduct renders a staged product as one readable line for the review
+// table's detail column.
+func SummarizeProduct(p *Product) string {
+	if p == nil {
+		return ""
+	}
+	var parts []string
+	if p.SKU != "" {
+		parts = append(parts, "كود: "+p.SKU)
+	}
+	if p.Price.IsPositive() {
+		parts = append(parts, "سعر: "+p.Price.String())
+	}
+	if p.DosageForm != "" {
+		parts = append(parts, p.DosageForm)
+	}
+	if p.ManufacturingCompanies != "" {
+		parts = append(parts, p.ManufacturingCompanies)
+	}
+	if en := p.Name.Get(i18n.EN); en != "" && en != p.Name.Get(i18n.AR) {
+		parts = append(parts, en)
+	}
+	return strings.Join(parts, " · ")
+}
+
+// ImportStructure re-reads a session's file and reports how its columns map.
+//
+// The review screen needs this to draw the mapping panel. It re-parses rather
+// than storing the plan because the admin's overrides change it, and a stored
+// copy would drift from what the next run actually does.
+func (s *Service) ImportStructure(ctx context.Context, publicID string) (ColumnPlan, error) {
+	if s.imports == nil {
+		return ColumnPlan{}, ErrImportUnavailable
+	}
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return ColumnPlan{}, err
+	}
+	content, err := s.imports.ImportSourceFile(ctx, session.ID)
+	if err != nil {
+		return ColumnPlan{}, err
+	}
+	if len(content) == 0 {
+		return ColumnPlan{}, apperr.NotFound("import_source_file")
+	}
+
+	sheet, err := ReadSpreadsheet(content, session.Filename)
+	if err != nil {
+		return ColumnPlan{}, err
+	}
+	return AnalyzeLayout(sheet).Apply(sheet, session.Overrides).Primary, nil
+}

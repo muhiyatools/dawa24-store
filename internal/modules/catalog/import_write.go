@@ -81,3 +81,9 @@ func (r BulkWriteResult) Error() string {
 	}
 	return msg
 }
+
+// ExistingMatch ties an incoming row to a product already in the catalogue.
+type ExistingMatch struct {
+	ProductID int64       `json:"product_id"`
+	Reason    MatchReason `json:"reason"`
+}

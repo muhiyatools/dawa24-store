@@ -51,6 +51,7 @@ type ImportStats struct {
 	Inserted       int
 	Updated        int
 	HeaderRow      int
+	HeaderBlocks   int
 	SheetName      string
 	Format         string
 	Delimiter      string
@@ -66,6 +67,12 @@ type ParseResult struct {
 	MissingFields []string
 	// SheetsSkipped names other worksheets that held data and were not read.
 	SheetsSkipped []string
+	// Layout is the block structure the sheet was read as.
+	Layout SheetLayout
+	// SourceRows holds the spreadsheet row number each product came from,
+	// parallel to Products. The staging table records it so a finding raised
+	// after the write still points at a row in the admin's own file.
+	SourceRows []int
 }
 
 // HasErrors reports whether any row was rejected.
@@ -209,6 +216,12 @@ func scoreHeaderCandidate(row []string) int {
 // ParseProducts converts a decoded sheet into products, with a full account of
 // what was skipped, assumed, and rejected.
 func ParseProducts(data *SheetData) *ParseResult {
+	return ParseProductsWithOverrides(data, LayoutOverrides{})
+}
+
+// ParseProductsWithOverrides reads a sheet after applying the admin's
+// corrections to the detected structure.
+func ParseProductsWithOverrides(data *SheetData, overrides LayoutOverrides) *ParseResult {
 	res := &ParseResult{Stats: ImportStats{HeaderRow: -1}}
 	if data == nil || len(data.Rows) == 0 {
 		return res
@@ -220,44 +233,55 @@ func ParseProducts(data *SheetData) *ParseResult {
 	res.Stats.Delimiter = data.Delimiter
 	res.SheetsSkipped = data.SheetsSkipped
 
-	headerIdx := res.resolveColumnPlan(data)
-	var headerKeys map[string]bool
-	startRow := 0
-	if headerIdx >= 0 {
-		headerKeys = normalizedKeySet(data.Rows[headerIdx])
-		startRow = headerIdx + 1
+	res.Layout = AnalyzeLayout(data).Apply(data, overrides)
+	res.Plan = res.Layout.Primary
+	if len(res.Layout.HeaderRows) > 0 {
+		res.Stats.HeaderRow = res.Layout.HeaderRows[0]
 	}
+	res.Stats.HeaderBlocks = len(res.Layout.Blocks)
+	// Every header after the first is a reprint from a paginated export. They
+	// are block boundaries rather than rows inside a block, so nothing skips
+	// them row by row — but they must still be counted, or the admin's row
+	// arithmetic silently fails to add up to the file's length.
+	if n := len(res.Layout.HeaderRows); n > 1 {
+		res.Stats.RepeatedHeader = n - 1
+	}
+	res.reportStructure()
 
-	res.Products = res.collectProducts(data.Rows, startRow, headerKeys)
+	res.Products = res.collectProducts(data.Rows)
 	res.Stats.ValidProducts = len(res.Products)
 	sort.SliceStable(res.Issues, func(i, j int) bool { return res.Issues[i].Row < res.Issues[j].Row })
 	return res
 }
 
-// resolveColumnPlan decides how the file's columns map to product fields and
-// returns the header row index, or -1 when the file has no recognisable header.
-func (r *ParseResult) resolveColumnPlan(data *SheetData) int {
-	headerIdx := DetectHeaderRow(data.Rows)
-
-	if headerIdx >= 0 {
-		r.Plan = PlanColumns(data.Rows[headerIdx])
-		r.Stats.HeaderRow = headerIdx
-	} else {
-		// No recognisable header. Fall back to the layout every Egyptian
-		// distributor export shares — code, description, vendor — and say so,
-		// because a wrong guess here mislabels the entire catalogue.
-		r.Plan = ColumnPlan{
-			Columns:    map[string]int{FieldSKU: 0, FieldNameAR: 1, FieldManufacturer: 2},
-			Positional: true,
-		}
-		if data.Width == 1 {
-			r.Plan.Columns = map[string]int{FieldNameAR: 0}
-		}
+// reportStructure tells the admin what shape the file was read as, before any
+// row is interpreted. A wrong reading here mislabels the entire catalogue, so it
+// is surfaced rather than left implicit.
+func (r *ParseResult) reportStructure() {
+	if r.Layout.Positional {
 		r.addIssue(RowIssue{
 			Row:      1,
 			Severity: SeverityWarning,
 			Message: "تعذر التعرف على صف العناوين في الملف، وتمت قراءة الأعمدة بالترتيب " +
-				"(كود الصنف، اسم الصنف، الشركة المصنعة). يُنصح بإضافة صف عناوين واضح وإعادة الرفع للتأكد من صحة البيانات.",
+				"(كود الصنف، اسم الصنف، الشركة المصنعة). يمكنك تصحيح ذلك من خطوة مراجعة الأعمدة.",
+		})
+	}
+	if n := len(r.Layout.HeaderRows); n > 1 {
+		r.addIssue(RowIssue{
+			Row:      1,
+			Severity: SeverityWarning,
+			Message: fmt.Sprintf(
+				"الملف مقسّم إلى %d كتلة بيانات يتكرر فيها صف العناوين (تصدير مُقسّم للطباعة). "+
+					"تمت قراءة جميع الكتل، وتم تجاهل صفوف العناوين المتكررة.", n),
+		})
+	}
+	if r.Layout.VariantBlocks > 0 {
+		r.addIssue(RowIssue{
+			Row:      1,
+			Severity: SeverityWarning,
+			Message: fmt.Sprintf(
+				"يحتوي الملف على %d قسم بترتيب أعمدة مختلف عن القسم الأول؛ تمت قراءة كل قسم وفق عناوينه الخاصة.",
+				r.Layout.VariantBlocks),
 		})
 	}
 
@@ -271,49 +295,60 @@ func (r *ParseResult) resolveColumnPlan(data *SheetData) int {
 				"لم يتم العثور على عمود «%s» في الملف. سيتم استيراد الأصناف بدون هذه البيانات.", label),
 		})
 	}
-	return headerIdx
 }
 
-// collectProducts walks the data rows, skipping the noise and folding in-file
+// collectProducts walks every block, skipping the noise and folding in-file
 // duplicates together.
-func (r *ParseResult) collectProducts(records [][]string, startRow int, headerKeys map[string]bool) []*Product {
+//
+// Reading block by block is what lets a sheet whose second section adds a price
+// column be read correctly: each block is interpreted through its own header
+// rather than through the first block's mapping.
+func (r *ParseResult) collectProducts(records [][]string) []*Product {
 	// seen keys a product by the strongest identifier its row carried, so two
 	// rows sharing a SKU merge even when their names differ by a typo.
-	seen := make(map[string]*Product, len(records))
+	seen := make(map[string]*Product, r.Layout.DataRows)
 	var products []*Product
 
-	for rIdx := startRow; rIdx < len(records); rIdx++ {
-		row := records[rIdx]
-
-		if isBlankRow(row) {
-			r.Stats.EmptyRows++
-			continue
-		}
-		if isRepeatedHeader(row, headerKeys) {
-			r.Stats.RepeatedHeader++
-			continue
+	for _, block := range r.Layout.Blocks {
+		headerKeys := map[string]bool{}
+		if block.HeaderRow >= 0 && block.HeaderRow < len(records) {
+			headerKeys = normalizedKeySet(records[block.HeaderRow])
 		}
 
-		// Spreadsheet row numbers are 1-based and this is what the admin sees in
-		// Excel's row gutter, so every issue is reported against it.
-		cursor := rowCursor{result: r, row: row, number: rIdx + 1}
-		prod, ok := cursor.parse()
-		if !ok {
-			r.Stats.RejectedRows++
-			continue
-		}
+		for rIdx := block.FirstRow; rIdx <= block.LastRow && rIdx < len(records); rIdx++ {
+			row := records[rIdx]
 
-		key := dedupeKey(prod)
-		if existing, isDuplicate := seen[key]; isDuplicate {
-			mergeProduct(existing, prod)
-			r.Stats.DuplicateRows++
-			cursor.warn("", prod.Name.Get(i18n.AR),
-				"صنف مكرر داخل الملف نفسه؛ تم دمج بياناته مع الصف السابق بدلاً من تكراره في الكتالوج.")
-			continue
-		}
+			if isBlankRow(row) {
+				r.Stats.EmptyRows++
+				continue
+			}
+			if isRepeatedHeader(row, headerKeys) {
+				r.Stats.RepeatedHeader++
+				continue
+			}
 
-		seen[key] = prod
-		products = append(products, prod)
+			// Spreadsheet row numbers are 1-based and this is what the admin
+			// sees in Excel's row gutter, so every issue is reported against it.
+			cursor := rowCursor{result: r, plan: block.Plan, row: row, number: rIdx + 1, block: block.Index}
+			prod, ok := cursor.parse()
+			if !ok {
+				r.Stats.RejectedRows++
+				continue
+			}
+
+			key := dedupeKey(prod)
+			if existing, isDuplicate := seen[key]; isDuplicate {
+				mergeProduct(existing, prod)
+				r.Stats.DuplicateRows++
+				cursor.warn("", prod.Name.Get(i18n.AR),
+					"صنف مكرر داخل الملف نفسه؛ تم دمج بياناته مع الصف السابق بدلاً من تكراره في الكتالوج.")
+				continue
+			}
+
+			seen[key] = prod
+			products = append(products, prod)
+			r.SourceRows = append(r.SourceRows, rIdx+1)
+		}
 	}
 
 	crossFillIdentifiers(products)
@@ -328,14 +363,18 @@ func (r *ParseResult) collectProducts(records [][]string, startRow int, headerKe
 // along unused because the accessors already close over it.
 type rowCursor struct {
 	result *ParseResult
+	// plan is the owning block's column mapping, which is not necessarily the
+	// primary one: a sheet may stack sections of different shapes.
+	plan   ColumnPlan
 	row    []string
 	number int
+	block  int
 }
 
 // value returns a field's cell for this row, or empty when the field is unmapped
 // or the row is short.
 func (c rowCursor) value(field string) string {
-	idx, ok := c.result.Plan.Columns[field]
+	idx, ok := c.plan.Columns[field]
 	if !ok || idx < 0 || idx >= len(c.row) {
 		return ""
 	}
@@ -345,7 +384,7 @@ func (c rowCursor) value(field string) string {
 // label names a field the way the admin's own file names it, falling back to the
 // canonical Arabic label when the file supplied no header for it.
 func (c rowCursor) label(field string) string {
-	for _, b := range c.result.Plan.Bindings {
+	for _, b := range c.plan.Bindings {
 		if b.Field == field {
 			return b.Header
 		}
@@ -424,7 +463,7 @@ func (c rowCursor) resolveNames() (nameAR, nameEN string, ok bool) {
 
 	// A file whose name column is mapped wrongly, or missing entirely, still
 	// usually carries the name somewhere.
-	if guess := guessNameCell(c.row, c.result.Plan); guess != "" {
+	if guess := guessNameCell(c.row, c.plan); guess != "" {
 		c.warn("", guess, "لم يتم العثور على اسم الصنف في العمود المتوقع؛ تم استنتاجه من محتوى الصف.")
 		return guess, "", true
 	}
