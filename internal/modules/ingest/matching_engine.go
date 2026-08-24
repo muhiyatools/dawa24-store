@@ -304,9 +304,9 @@ func (idx *CatalogMatchIndex) Match(
 
 		if len(poolCandidates) > 0 {
 			shouldCallAI := false
-			if topCand == nil || topCand.score < 0.85 {
+			if topCand == nil || topCand.score < 0.95 {
 				shouldCallAI = true
-			} else if len(poolCandidates) >= 2 && (poolCandidates[0].score-poolCandidates[1].score) < 0.05 {
+			} else if len(poolCandidates) >= 2 && (poolCandidates[0].score-poolCandidates[1].score) < 0.08 {
 				shouldCallAI = true
 			}
 
@@ -316,9 +316,14 @@ func (idx *CatalogMatchIndex) Match(
 					candNames = append(candNames, poolCandidates[i].product.NameAR)
 				}
 				bestName, aiScore := aiMatcher.MatchCandidate(ctx, rawName, candNames)
-				if aiScore >= 0.65 && bestName != "" {
+				if aiScore >= 0.50 && bestName != "" {
+					normBest := normalizePharmaceutical(bestName)
 					for _, c := range poolCandidates {
-						if c.product.NameAR == bestName || c.product.NameEN == bestName {
+						if c.product.NameAR == bestName || c.product.NameEN == bestName ||
+							normalizePharmaceutical(c.product.NameAR) == normBest ||
+							normalizePharmaceutical(c.product.NameEN) == normBest ||
+							strings.Contains(bestName, c.product.NameAR) ||
+							strings.Contains(c.product.NameAR, bestName) {
 							pID := c.product.ID
 							confLvl := ConfidenceHigh
 							if aiScore < 0.85 {

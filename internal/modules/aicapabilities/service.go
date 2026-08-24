@@ -31,17 +31,34 @@ func (s *Service) MatchProduct(ctx context.Context, req MatchRequest) MatchRespo
 		if err == nil {
 			gwReq := gateway.Request{
 				Capability: gateway.CapProductMatch,
+				System:     "You are an expert pharmaceutical matching AI. You will be given a query medicine name and a list of candidate medicines from the official catalog. Identify the single best matching medicine from the candidate list, taking into account brand names, generic/scientific names, dosage forms (tablets, syrup, capsules), and concentrations (mg, ml, etc.).\n\nReturn ONLY a JSON object with this exact format:\n{\"matched_candidate\":\"<exact candidate name or empty string if no match>\",\"confidence_score\":<number between 0.0 and 1.0>,\"reason\":\"<brief Arabic explanation>\"}",
 				Input:      string(inputBytes),
 			}
 			resp, err := s.gw.Invoke(ctx, gwReq)
 			if err == nil && resp != nil && resp.Content != "" {
+				cleanContent := strings.TrimSpace(resp.Content)
+				cleanContent = strings.TrimPrefix(cleanContent, "```json")
+				cleanContent = strings.TrimPrefix(cleanContent, "```")
+				cleanContent = strings.TrimSuffix(cleanContent, "```")
+				cleanContent = strings.TrimSpace(cleanContent)
+
 				var matchResp MatchResponse
-				if err := json.Unmarshal([]byte(resp.Content), &matchResp); err == nil {
+				if err := json.Unmarshal([]byte(cleanContent), &matchResp); err == nil {
 					matchResp.Source = "ai_gateway"
+					s.log.InfoContext(ctx, "ai gateway product match succeeded",
+						"query", req.QueryName,
+						"matched", matchResp.MatchedCandidate,
+						"score", matchResp.ConfidenceScore,
+						"req_id", resp.RequestID,
+						"model", resp.Model,
+					)
 					return matchResp
+				} else {
+					s.log.WarnContext(ctx, "failed to unmarshal gateway match response", "content", resp.Content, "err", err)
 				}
+			} else {
+				s.log.WarnContext(ctx, "gateway capability execution failed, falling back to deterministic", "capability", gateway.CapProductMatch, "err", err)
 			}
-			s.log.WarnContext(ctx, "gateway capability execution failed, falling back to deterministic", "capability", gateway.CapProductMatch, "err", err)
 		}
 	}
 

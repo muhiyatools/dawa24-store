@@ -206,11 +206,9 @@ func mountModuleRoutes(
 	compareSvcUI := compare.NewService(compareRepoUI, log)
 	if ai != nil {
 		uiHandler.SetGatewayClient(ai)
-		if ai.Enabled() {
-			aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
-			compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
-			ingSvcUI.SetAIMatcher(aiCapabilitiesSvc)
-		}
+		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
+		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
+		ingSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)

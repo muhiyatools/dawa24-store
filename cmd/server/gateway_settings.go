@@ -26,15 +26,37 @@ func (a *adminGatewaySettings) GatewaySettings(ctx context.Context) (gateway.Set
 	// database.AsSystem is justified: Gateway settings are platform-wide,
 	// not scoped to any single organization tenant.
 	sysCtx := database.AsSystem(ctx)
-	gw, err := a.svc.GetGatewaySettings(sysCtx)
-	if err != nil || gw == nil {
-		return gateway.Settings{}, err
+
+	// 1. Check Gateway Settings
+	gw, _ := a.svc.GetGatewaySettings(sysCtx)
+	if gw != nil && gw.APIKey != "" {
+		return gateway.Settings{
+			BaseURL:    gw.EndpointURL,
+			VirtualKey: gw.APIKey,
+			ClientApp:  "Dawa24Store",
+			Enabled:    gw.IsActive,
+		}, nil
 	}
 
-	return gateway.Settings{
-		BaseURL:    gw.EndpointURL,
-		VirtualKey: gw.APIKey,
-		ClientApp:  "Dawa24Store",
-		Enabled:    gw.IsActive,
-	}, nil
+	// 2. Fallback to AI Settings if configured there
+	ai, _ := a.svc.GetAISettings(sysCtx)
+	if ai != nil && ai.APIKey != "" {
+		return gateway.Settings{
+			BaseURL:    ai.EndpointURL,
+			VirtualKey: ai.APIKey,
+			ClientApp:  "Dawa24Store",
+			Enabled:    ai.IsActive,
+		}, nil
+	}
+
+	if gw != nil {
+		return gateway.Settings{
+			BaseURL:    gw.EndpointURL,
+			VirtualKey: gw.APIKey,
+			ClientApp:  "Dawa24Store",
+			Enabled:    gw.IsActive,
+		}, nil
+	}
+
+	return gateway.Settings{}, nil
 }
