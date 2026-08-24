@@ -210,19 +210,43 @@ function initSidebarScrollPreservation() {
   if (!nav) return;
 
   const storageKey = 'dawa_sidebar_scroll_top';
+  const currentPath = window.location.pathname;
 
-  // Restore scroll position immediately
-  const savedScroll = sessionStorage.getItem(storageKey);
-  if (savedScroll !== null) {
-    nav.scrollTop = parseInt(savedScroll, 10);
-  } else {
-    const activeLink = nav.querySelector('.sidebar-link.active');
-    if (activeLink) {
-      activeLink.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  // 1. Fallback URL path matching if server did not render an active class
+  const links = Array.from(nav.querySelectorAll('.sidebar-link'));
+  let activeLink = nav.querySelector('.sidebar-link.active');
+
+  if (!activeLink && links.length > 0) {
+    // Sort links by href length descending to match most specific sub-path first
+    const sortedLinks = [...links].sort((a, b) => (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length);
+    for (const l of sortedLinks) {
+      const href = l.getAttribute('href');
+      if (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.startsWith(href)))) {
+        l.classList.add('active');
+        activeLink = l;
+        break;
+      }
     }
   }
 
-  // Save on scroll
+  // 2. Restore scroll position or scroll active item into view
+  const savedScroll = sessionStorage.getItem(storageKey);
+  if (savedScroll !== null) {
+    nav.scrollTop = parseInt(savedScroll, 10);
+  } else if (activeLink) {
+    activeLink.scrollIntoView({ block: 'center', behavior: 'instant' });
+  }
+
+  // If active link is not visible even after savedScroll, adjust
+  if (activeLink) {
+    const rect = activeLink.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
+    if (rect.top < navRect.top || rect.bottom > navRect.bottom) {
+      activeLink.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    }
+  }
+
+  // 3. Save on scroll
   let scrollTimeout;
   nav.addEventListener('scroll', () => {
     clearTimeout(scrollTimeout);
@@ -231,7 +255,7 @@ function initSidebarScrollPreservation() {
     }, 40);
   }, { passive: true });
 
-  // Save on click of any sidebar link
+  // 4. Save on click of any sidebar link
   document.addEventListener('click', (e) => {
     const link = e.target.closest('.sidebar-link, .sidebar a');
     if (link) {
@@ -242,7 +266,7 @@ function initSidebarScrollPreservation() {
     }
   });
 
-  // Save before unload
+  // 5. Save before unload
   window.addEventListener('beforeunload', () => {
     const currentNav = document.querySelector('.sidebar-nav') || document.querySelector('.sidebar');
     if (currentNav) {
@@ -250,7 +274,7 @@ function initSidebarScrollPreservation() {
     }
   });
 
-  // Handle HTMX partial swaps if triggered
+  // 6. Handle HTMX partial swaps if triggered
   document.body.addEventListener('htmx:afterSwap', () => {
     const currentNav = document.querySelector('.sidebar-nav') || document.querySelector('.sidebar');
     const scrollPos = sessionStorage.getItem(storageKey);

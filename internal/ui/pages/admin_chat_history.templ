@@ -18,7 +18,7 @@ type AdminChatHistoryData struct {
 
 // AdminChatHistoryPage renders conversation threads list for AI Assistant and user-to-user chat.
 templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
-	@layouts.AdminShell("سجلات محادثات المنصة والرقابة", "audit", lang, dir) {
+	@layouts.AdminShell("سجلات محادثات المنصة والرقابة", "chat_history", lang, dir) {
 		<div class="card mb-0">
 			
 			<!-- Header -->
@@ -170,7 +170,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 
 // AdminAIChatDetailPage renders full messages transcript for an AI assistant conversation.
 templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assistant.Message, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("محادثة ذكاء اصطناعي #%d", summary.ID), "audit", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("محادثة ذكاء اصطناعي #%d", summary.ID), "chat_history", lang, dir) {
 		<div style="max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:1.25rem;">
 			
 			<!-- Header Card -->
@@ -293,7 +293,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 
 // AdminChatHistoryDetailPage renders conversation transcript for peer chat.
 templ AdminChatHistoryDetailPage(convID int64, msgs []*chat.Message, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("محادثة #%d", convID), "audit", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("محادثة #%d", convID), "chat_history", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
 			<div class="header-row">
 				<div>

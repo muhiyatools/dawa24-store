@@ -17,8 +17,8 @@ type ReferenceItem struct {
 }
 
 // AdminReferenceCRUDPage renders a reusable, high-craft CRUD table and toolbar for reference data.
-templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, items []ReferenceItem, lang, dir string) {
-	@layouts.AdminShell(title, "content", lang, dir) {
+templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, items []ReferenceItem, activeNav string, lang, dir string) {
+	@layouts.AdminShell(title, activeNav, lang, dir) {
 		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>

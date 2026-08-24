@@ -45,7 +45,9 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		})
 		g.Get("/admin/saving-products/user/{userId}", h.AdminSavingProductsPage)
 		g.Get("/admin/saving-products/org/{organizationId}", h.AdminSavingProductsPage)
-		g.Get("/admin/products-saving/import", h.AdminAdvProductsPage)
+		// Brands & Categories
+		g.Get("/admin/brands", h.AdminBrandsPage)
+		g.Get("/admin/categories", h.AdminCategoriesPage)
 	})
 
 	r.Group(func(g chi.Router) {
@@ -55,10 +57,14 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Post("/admin/products/{id}/status", h.AdminProductStatusSubmit)
 		g.Post("/admin/products/import", h.AdminProductsImportSubmit)
 		g.Post("/admin/upload-warehouse-file", h.AdminProductsImportSubmit)
+		g.Post("/admin/brands/new", h.AdminBrandCreateSubmit)
+		g.Post("/admin/brands/{id}/edit", h.AdminBrandEditSubmit)
+		g.Post("/admin/brands/{id}/status", h.AdminBrandStatusSubmit)
 	})
 
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("catalog.product.delete", h.log))
 		g.Post("/admin/products/{id}/delete", h.AdminProductDeleteSubmit)
+		g.Post("/admin/brands/{id}/delete", h.AdminBrandDeleteSubmit)
 	})
 }

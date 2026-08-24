@@ -10,7 +10,7 @@ import (
 
 // AdminFullErrorLogsPage renders error logs directory.
 templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeStatus, activeSeverity string, lang, dir string) {
-	@layouts.AdminShell("سجلات الأخطاء والتشخيص (Full Error Logs)", "audit", lang, dir) {
+	@layouts.AdminShell("سجلات الأخطاء والتشخيص (Full Error Logs)", "developers", lang, dir) {
 		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
@@ -65,7 +65,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 
 // AdminFullErrorLogDetailPage renders single error log details and transition action.
 templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("تفاصيل الخطأ #%d", l.ID), "audit", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل الخطأ #%d", l.ID), "developers", lang, dir) {
 		<div class="card" style="max-width:900px; margin:0 auto;">
 			<div class="header-row">
 				<div>
@@ -91,7 +91,7 @@ templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 
 // AdminNotificationsPage renders platform notifications oversight.
 templ AdminNotificationsPage(lang, dir string) {
-	@layouts.AdminShell("إدارة الإشعارات المركزية للمنصة", "audit", lang, dir) {
+	@layouts.AdminShell("إدارة الإشعارات المركزية للمنصة", "notifications", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">الإشعارات العامة والتنبيهات الموجهة</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد تنبيهات عامة", Message: "يتم بث الإشعارات المركزية للمستخدمين والتطبيقات عند الأحداث الهامة."})
@@ -101,7 +101,7 @@ templ AdminNotificationsPage(lang, dir string) {
 
 // AdminSystemResourcesPage renders system health & resource availability.
 templ AdminSystemResourcesPage(systemName string, lang, dir string) {
-	@layouts.AdminShell("حالة موارد النظام والخدمات", "developer", lang, dir) {
+	@layouts.AdminShell("حالة موارد النظام والخدمات", "developers", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">موارد النظام وقدرات المنصة ({ systemName })</h2>
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">

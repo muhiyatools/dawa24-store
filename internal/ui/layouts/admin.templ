@@ -370,6 +370,37 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 					</div>
 				</aside>
 
+				<script>
+					(function() {
+						try {
+							var nav = document.querySelector('.sidebar-nav');
+							if (!nav) return;
+							var currentPath = window.location.pathname;
+							var links = Array.from(nav.querySelectorAll('.sidebar-link'));
+							var hasActive = links.some(function(l) { return l.classList.contains('active'); });
+							if (!hasActive && links.length > 0) {
+								var sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });
+								for (var i = 0; i < sorted.length; i++) {
+									var href = sorted[i].getAttribute('href');
+									if (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {
+										sorted[i].classList.add('active');
+										break;
+									}
+								}
+							}
+							var saved = sessionStorage.getItem('dawa_sidebar_scroll_top');
+							if (saved !== null) {
+								nav.scrollTop = parseInt(saved, 10);
+							} else {
+								var act = nav.querySelector('.sidebar-link.active');
+								if (act) {
+									act.scrollIntoView({ block: 'nearest' });
+								}
+							}
+						} catch (e) {}
+					})();
+				</script>
+
 				<!-- Main Admin Content Area -->
 				<main class="main-content">
 					<!-- Top Admin Header -->

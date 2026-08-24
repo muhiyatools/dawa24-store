@@ -9,7 +9,7 @@ import (
 
 // AdminOffersPackagesHubPage renders monetization hub.
 templ AdminOffersPackagesHubPage(lang, dir string) {
-	@layouts.AdminShell("باقات العروض والرعايات الترويجية (Offers Packages)", "monetization", lang, dir) {
+	@layouts.AdminShell("باقات العروض والرعايات الترويجية (Offers Packages)", "offers_packages", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -41,7 +41,7 @@ templ AdminOffersPackagesHubPage(lang, dir string) {
 
 // AdminOfferPackagesListPage renders packages list.
 templ AdminOfferPackagesListPage(lang, dir string) {
-	@layouts.AdminShell("باقات العروض", "monetization", lang, dir) {
+	@layouts.AdminShell("باقات العروض", "offers_packages", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -56,7 +56,7 @@ templ AdminOfferPackagesListPage(lang, dir string) {
 
 // AdminOfferPackageDetailPage renders package detail.
 templ AdminOfferPackageDetailPage(pkgID int64, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("تفاصيل الباقة #%d", pkgID), "monetization", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل الباقة #%d", pkgID), "offers_packages", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
 			<div class="header-row">
 				<div>
@@ -70,7 +70,7 @@ templ AdminOfferPackageDetailPage(pkgID int64, lang, dir string) {
 
 // AdminOfferSponsorshipsPage renders sponsorships.
 templ AdminOfferSponsorshipsPage(lang, dir string) {
-	@layouts.AdminShell("الرعايات الرسمية للعروض", "monetization", lang, dir) {
+	@layouts.AdminShell("الرعايات الرسمية للعروض", "offers_packages", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -85,7 +85,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string) {
 
 // AdminOfferPromotionsPage renders promotional campaigns.
 templ AdminOfferPromotionsPage(lang, dir string) {
-	@layouts.AdminShell("الحملات الترويجية", "monetization", lang, dir) {
+	@layouts.AdminShell("الحملات الترويجية", "offers_packages", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -100,7 +100,7 @@ templ AdminOfferPromotionsPage(lang, dir string) {
 
 // AdminAdsListPage renders advertisements table.
 templ AdminAdsListPage(lang, dir string) {
-	@layouts.AdminShell("إدارة الإعلانات والبنرات (Ads)", "monetization", lang, dir) {
+	@layouts.AdminShell("إدارة الإعلانات والبنرات (Ads)", "ads", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -116,7 +116,7 @@ templ AdminAdsListPage(lang, dir string) {
 
 // AdminAdPlansPage renders ad plans.
 templ AdminAdPlansPage(lang, dir string) {
-	@layouts.AdminShell("خطط وباقات الإعلانات (Ad Plans)", "monetization", lang, dir) {
+	@layouts.AdminShell("خطط وباقات الإعلانات (Ad Plans)", "ad_plans", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -131,7 +131,7 @@ templ AdminAdPlansPage(lang, dir string) {
 
 // AdminOfferAnalyticsViewsPage renders views analytics.
 templ AdminOfferAnalyticsViewsPage(lang, dir string) {
-	@layouts.AdminShell("إحصائيات مشاهدات العروض (Views Analytics)", "monetization", lang, dir) {
+	@layouts.AdminShell("إحصائيات مشاهدات العروض (Views Analytics)", "analytics", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير مشاهدات وزيارات العروض الترويجية</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "إحصائيات المشاهدات", Message: "تتبع معدل المشاهدات اليومية والأسبوعية لكل عرض ترويجي."})
@@ -141,7 +141,7 @@ templ AdminOfferAnalyticsViewsPage(lang, dir string) {
 
 // AdminOfferAnalyticsClicksPage renders clicks analytics.
 templ AdminOfferAnalyticsClicksPage(lang, dir string) {
-	@layouts.AdminShell("إحصائيات النقرات والتحويل (Clicks & CTR)", "monetization", lang, dir) {
+	@layouts.AdminShell("إحصائيات النقرات والتحويل (Clicks & CTR)", "analytics", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "إحصائيات النقرات", Message: "تحليل كفاءة العروض والبنرات ونسبة النقر للشراء."})
@@ -151,7 +151,7 @@ templ AdminOfferAnalyticsClicksPage(lang, dir string) {
 
 // AdminOfferLocationsPage renders geographic distribution.
 templ AdminOfferLocationsPage(lang, dir string) {
-	@layouts.AdminShell("التوزيع الجغرافي للعروض (Offer Locations)", "monetization", lang, dir) {
+	@layouts.AdminShell("التوزيع الجغرافي للعروض (Offer Locations)", "offer_locations", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">نطاق التغطية الجغرافية للعروض والصفقات</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "التغطية الجغرافية", Message: "استعراض المحافظات والمناطق المشمولة في العروض الحالية."})

@@ -91,15 +91,37 @@ func TestAdminReferenceRoutes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Super admin GET /admin/api-integrations returns 301",
-			path:   "/admin/api-integrations",
-			method: "GET",
+			name:   "Super admin POST /admin/brands/new returns redirect",
+			path:   "/admin/brands/new",
+			method: "POST",
 			actor: &authctx.Actor{
 				UserID:  1,
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusMovedPermanently,
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/brands/1/status returns redirect",
+			path:   "/admin/brands/1/status",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/brands/1/delete returns redirect",
+			path:   "/admin/brands/1/delete",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
 		},
 	}
 

@@ -336,7 +336,7 @@ type AdminWeeklyCoveragesData struct {
 
 // AdminWeeklyCoveragesPage renders weekly coverage rules filtered by selected organization.
 templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) {
-	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "coverage", lang, dir) {
+	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "weekly_coverages", lang, dir) {
 		<div style="display:flex; flex-direction:column; gap:1.25rem; max-width:1400px; margin:0 auto 3rem auto;">
 			
 			<!-- Header Card -->

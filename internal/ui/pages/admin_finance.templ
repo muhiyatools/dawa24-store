@@ -357,7 +357,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 // Backward-compatible individual template pages
 templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
-	@layouts.AdminShell("طلبات عروض الأسعار والمشتريات (Offer Orders)", "procurement", lang, dir) {
+	@layouts.AdminShell("طلبات عروض الأسعار والمشتريات (Offer Orders)", "orders", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -409,7 +409,7 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 }
 
 templ AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("طلب عروض: %s", o.OrderNumber), "procurement", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("طلب عروض: %s", o.OrderNumber), "orders", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
 			<div class="header-row">
 				<div>

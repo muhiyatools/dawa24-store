@@ -9,7 +9,7 @@ import (
 
 // AdminSessionPlansPage renders session plan management.
 templ AdminSessionPlansPage(lang, dir string) {
-	@layouts.AdminShell("خطط الجلسات والأجهزة (Session Plans)", "security", lang, dir) {
+	@layouts.AdminShell("خطط الجلسات والأجهزة (Session Plans)", "session_plans", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -25,7 +25,7 @@ templ AdminSessionPlansPage(lang, dir string) {
 
 // AdminSessionPlanRequestsPage renders session seat requests.
 templ AdminSessionPlanRequestsPage(lang, dir string) {
-	@layouts.AdminShell("طلبات زيادة الجلسات والأجهزة", "security", lang, dir) {
+	@layouts.AdminShell("طلبات زيادة الجلسات والأجهزة", "session_plans", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -69,7 +69,7 @@ templ CustomerReportIssuePage(lang, dir string) {
 
 // AdminReportIssuesPage renders admin issues review queue.
 templ AdminReportIssuesPage(lang, dir string) {
-	@layouts.AdminShell("بلاغات المستخدمين والدعم الفني (Report Issues)", "support", lang, dir) {
+	@layouts.AdminShell("بلاغات المستخدمين والدعم الفني (Report Issues)", "report_issues", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>

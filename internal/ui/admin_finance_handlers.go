@@ -139,7 +139,7 @@ func (h *UIHandler) AdminPlanTypesPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReferenceCRUDPage("أنواع وتصنيفات خطط الاشتراك", "plan-types", "نوع خطة", items, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminReferenceCRUDPage("أنواع وتصنيفات خطط الاشتراك", "plan-types", "نوع خطة", items, "plans", lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin plan types", "error", err)
 	}
 }
@@ -166,7 +166,7 @@ func (h *UIHandler) AdminPlanFeaturesPage(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReferenceCRUDPage("ميزات ومحددات باقات الاشتراك", "plan-features", "ميزة", items, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminReferenceCRUDPage("ميزات ومحددات باقات الاشتراك", "plan-features", "ميزة", items, "plans", lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin plan features", "error", err)
 	}
 }

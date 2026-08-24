@@ -9,7 +9,31 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminProducts(lang, dir string, products []*catalog.Product) {
+func derefBrandID(bid *int64) int64 {
+	if bid != nil {
+		return *bid
+	}
+	return 0
+}
+
+func getBrandLabel(bid *int64, brands []*catalog.Brand, fallback string) string {
+	if bid != nil && *bid > 0 {
+		for _, b := range brands {
+			if b.ID == *bid {
+				name := b.Name.Get("ar")
+				if name == "" {
+					name = b.Name.Get("en")
+				}
+				if name != "" {
+					return name
+				}
+			}
+		}
+	}
+	return fallback
+}
+
+templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
 		<div
 			class="card"
@@ -28,6 +52,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					generic_name: '',
 					active_ingredient: '',
 					dosage_form: 'أقراص',
+					brand_id: 0,
 					manufacturer: '',
 					eda_reg_number: '',
 					price: '0.00',
@@ -36,7 +61,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 					description_en: '',
 					status: 'active'
 				},
-				openEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, manufacturer, edaReg, price, image, descAr, descEn, status) {
+				openEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, brandId, manufacturer, edaReg, price, image, descAr, descEn, status) {
 					this.editData = {
 						id: id,
 						name_ar: nameAr || '',
@@ -44,6 +69,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 						generic_name: genericName || '',
 						active_ingredient: activeIng || '',
 						dosage_form: dosageForm || 'أقراص',
+						brand_id: brandId || 0,
 						manufacturer: manufacturer || '',
 						eda_reg_number: edaReg || '',
 						price: price || '0.00',
@@ -181,7 +207,15 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 										<span class="badge badge-slate" style="font-weight:700;">{ p.DosageForm }</span>
 									</td>
 									<td>
-										<span style="font-size:0.875rem; color:var(--text-secondary);">{ p.ManufacturingCompanies }</span>
+										if p.BrandID != nil && *p.BrandID > 0 {
+											<a href="/admin/brands" class="badge badge-sky" style="font-weight:700; text-decoration:none;" title="عرض تفاصيل الشركة المصنعة">
+												{ getBrandLabel(p.BrandID, brands, p.ManufacturingCompanies) }
+											</a>
+										} else if p.ManufacturingCompanies != "" {
+											<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">{ p.ManufacturingCompanies }</span>
+										} else {
+											<span style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">غير محدد</span>
+										}
 									</td>
 									<td>
 										if p.Status == "active" {
@@ -201,7 +235,21 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 												class="btn btn-secondary btn-icon"
 												style="width:32px; height:32px; color:var(--accent);"
 												title="تعديل بيانات الدواء"
-												@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q, %q)", p.ID, p.Name.Get("ar"), p.Name.Get("en"), p.ScientificName, p.Active, p.DosageForm, p.ManufacturingCompanies, p.Barcode, p.Price.String(), p.Image, p.Description.Get("ar"), p.Description.Get("en"), string(p.Status)) }
+												@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %q, %q, %q, %q, %q, %q, %q)",
+													p.ID,
+													p.Name.Get("ar"),
+													p.Name.Get("en"),
+													p.ScientificName,
+													p.Active,
+													p.DosageForm,
+													derefBrandID(p.BrandID),
+													p.ManufacturingCompanies,
+													p.Barcode,
+													p.Price.String(),
+													p.Image,
+													p.Description.Get("ar"),
+													p.Description.Get("en"),
+													string(p.Status)) }
 											>
 												@components.IconEdit("icon-xs")
 											</button>
@@ -288,7 +336,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">الشكل الصيدلي (Dosage Form) *</label>
 								<select name="dosage_form" required class="form-select">
@@ -303,12 +351,29 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 								</select>
 							</div>
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">الشركة المصنعة / المنتجة *</label>
-								<input type="text" name="manufacturer" required class="form-input" placeholder="Eva Pharma" />
-							</div>
-							<div class="form-group" style="margin:0;">
 								<label class="form-label">رقم التسجيل بهيئة الدواء (EDA)</label>
 								<input type="text" name="eda_reg_number" class="form-input tabular-nums" placeholder="EDA-10293" />
+							</div>
+						</div>
+
+						<div class="form-grid-2">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الشركة المصنعة من الدليل المعتمد (Brand)</label>
+								<select name="brand_id" class="form-select">
+									<option value="">-- اختر من الشركات المصنعة المعتمدة --</option>
+									for _, b := range brands {
+										<option value={ fmt.Sprintf("%d", b.ID) }>
+											{ b.Name.Get("ar") }
+											if b.Name.Get("en") != "" {
+												({ b.Name.Get("en") })
+											}
+										</option>
+									}
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">أو كتابة اسم الشركة المصنعة يدوياً</label>
+								<input type="text" name="manufacturer" class="form-input" placeholder="Eva Pharma" />
 							</div>
 						</div>
 
@@ -394,7 +459,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">الشكل الصيدلي (Dosage Form) *</label>
 								<select name="dosage_form" x-model="editData.dosage_form" required class="form-select">
@@ -409,12 +474,29 @@ templ AdminProducts(lang, dir string, products []*catalog.Product) {
 								</select>
 							</div>
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">الشركة المصنعة / المنتجة *</label>
-								<input type="text" name="manufacturer" x-model="editData.manufacturer" required class="form-input" />
-							</div>
-							<div class="form-group" style="margin:0;">
 								<label class="form-label">رقم التسجيل بهيئة الدواء (EDA)</label>
 								<input type="text" name="eda_reg_number" x-model="editData.eda_reg_number" class="form-input tabular-nums" />
+							</div>
+						</div>
+
+						<div class="form-grid-2">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الشركة المصنعة من الدليل المعتمد (Brand)</label>
+								<select name="brand_id" x-model="editData.brand_id" class="form-select">
+									<option value="0">-- اختر من الشركات المصنعة المعتمدة --</option>
+									for _, b := range brands {
+										<option value={ fmt.Sprintf("%d", b.ID) }>
+											{ b.Name.Get("ar") }
+											if b.Name.Get("en") != "" {
+												({ b.Name.Get("en") })
+											}
+										</option>
+									}
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">أو تعديل اسم الشركة المصنعة يدوياً</label>
+								<input type="text" name="manufacturer" x-model="editData.manufacturer" class="form-input" />
 							</div>
 						</div>
 

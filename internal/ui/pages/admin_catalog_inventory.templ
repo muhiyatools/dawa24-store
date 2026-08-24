@@ -11,7 +11,7 @@ import (
 
 // AdminProductDetailPage renders master product view.
 templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("تفاصيل المنتج: %s", p.Name.Get("ar")), "catalog", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل المنتج: %s", p.Name.Get("ar")), "products", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto;">
 			<div class="header-row">
 				<div>
@@ -25,6 +25,16 @@ templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 				<div>
 					<div style="font-size:0.8rem; color:var(--text-secondary);">الاسم العلمي</div>
 					<div style="font-weight:700; margin-top:0.25rem;">{ p.ScientificName }</div>
+				</div>
+				<div>
+					<div style="font-size:0.8rem; color:var(--text-secondary);">الشركة المصنعة / الماركة</div>
+					<div style="font-weight:700; margin-top:0.25rem; color:var(--accent);">
+						if p.ManufacturingCompanies != "" {
+							{ p.ManufacturingCompanies }
+						} else {
+							<span style="color:var(--text-muted);">غير محدد</span>
+						}
+					</div>
 				</div>
 				<div>
 					<div style="font-size:0.8rem; color:var(--text-secondary);">سعر الجمهور القياسي</div>
@@ -47,7 +57,7 @@ templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 
 // AdminProductChildrenPage renders vendor variant listings.
 templ AdminProductChildrenPage(products []*catalog.Product, lang, dir string) {
-	@layouts.AdminShell("إدارة عروض وفروع المنتجات (Product Children)", "catalog", lang, dir) {
+	@layouts.AdminShell("إدارة عروض وفروع المنتجات (Product Children)", "product_child", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -318,7 +328,7 @@ templ AdminApisProductsPage(lang, dir string) {
 
 // AdminStocksPage renders inventory stocks across warehouses.
 templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
-	@layouts.AdminShell("إدارة الأرصدة والمخزون الحي", "inventory", lang, dir) {
+	@layouts.AdminShell("إدارة الأرصدة والمخزون الحي", "stocks", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">أرصدة المخزون بالمنشآت والمستودعات ({ fmt.Sprintf("%d", len(stocks)) })</h2>
 			if len(stocks) == 0 {
@@ -355,7 +365,7 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 
 // AdminWarehousesPage renders permanent warehouses.
 templ AdminWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) {
-	@layouts.AdminShell("إدارة المستودعات ومراكز التوزيع", "inventory", lang, dir) {
+	@layouts.AdminShell("إدارة المستودعات ومراكز التوزيع", "warehouses", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">دليل المستودعات المسجلة ({ fmt.Sprintf("%d", len(warehouses)) })</h2>
 			if len(warehouses) == 0 {
@@ -402,7 +412,7 @@ templ AdminWarehousesPage(warehouses []*inventory.Warehouse, lang, dir string) {
 
 // AdminWarehouseDetailPage renders warehouse detail.
 templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("مستودع: %s", wh.Name), "inventory", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("مستودع: %s", wh.Name), "warehouses", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto 1.5rem auto;">
 			<div style="display:flex; justify-content:space-between; align-items:center;">
 				<div>
@@ -445,7 +455,7 @@ templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stoc
 
 // AdminTempWarehousesPage renders temp warehouses list.
 templ AdminTempWarehousesPage(items []any, lang, dir string) {
-	@layouts.AdminShell("إدارة المستودعات المؤقتة وملفات التوريد", "inventory", lang, dir) {
+	@layouts.AdminShell("إدارة المستودعات المؤقتة وملفات التوريد", "temp_warehouses", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -480,7 +490,7 @@ type AdminSavingProductsData struct {
 
 // AdminSavingProductsPage renders the full platform-wide saving products manager for admins.
 templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
-	@layouts.AdminShell("إدارة منتجات التوفير للمستخدمين (Saving Products)", "catalog", lang, dir) {
+	@layouts.AdminShell("إدارة منتجات التوفير للمستخدمين (Saving Products)", "saving_products", lang, dir) {
 		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;">
 			
 			<!-- Header Banner -->

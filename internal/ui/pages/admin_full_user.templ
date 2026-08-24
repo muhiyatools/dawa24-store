@@ -157,7 +157,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 
 // AdminEmployeeActivitiesPage renders employee activity logs.
 templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
-	@layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "audit", lang, dir) {
+	@layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "employee_activities", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل نشاطات الموظفين بالمنشآت</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "سجل العمليات فارغ", Message: "يتم تسجيل عمليات الموظفين والموردين تلقائياً عند إجراء التعديلات على المنتجات والأسعار."})

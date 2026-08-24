@@ -624,7 +624,7 @@ func AdminEmployeeActivitiesPage(activities []any, lang, dir string) templ.Compo
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "audit", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "employee_activities", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

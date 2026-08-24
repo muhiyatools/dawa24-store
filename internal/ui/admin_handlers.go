@@ -1123,12 +1123,14 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 
 	var products []*catalog.Product
+	var brands []*catalog.Brand
 	if h.catSvc != nil {
 		products, _ = h.catSvc.Search(database.AsSystem(ctx), catalog.SearchParams{Limit: 200})
+		brands, _ = h.catSvc.ListBrands(database.AsSystem(ctx))
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProducts(lang, dir, products).Render(ctx, w); err != nil {
+	if err := pages.AdminProducts(lang, dir, products, brands).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin products", "error", err)
 	}
 }
@@ -1171,13 +1173,31 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 		imgURL = r.FormValue("image_url")
 	}
 
+	var brandIDPtr *int64
+	if brandIDStr := strings.TrimSpace(r.FormValue("brand_id")); brandIDStr != "" {
+		if bid, err := strconv.ParseInt(brandIDStr, 10, 64); err == nil && bid > 0 {
+			brandIDPtr = &bid
+		}
+	}
+
+	manufacturer := strings.TrimSpace(r.FormValue("manufacturer"))
+	if manufacturer == "" && brandIDPtr != nil {
+		if b, err := h.catSvc.GetBrand(database.AsSystem(ctx), *brandIDPtr); err == nil && b != nil {
+			manufacturer = b.Name.Get("ar")
+			if manufacturer == "" {
+				manufacturer = b.Name.Get("en")
+			}
+		}
+	}
+
 	prod := &catalog.Product{
 		Name:                   i18n.New(nameAr, nameEn),
 		Description:            i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
 		ScientificName:         r.FormValue("generic_name"),
 		Active:                 r.FormValue("active_ingredient"),
 		DosageForm:             r.FormValue("dosage_form"),
-		ManufacturingCompanies: r.FormValue("manufacturer"),
+		BrandID:                brandIDPtr,
+		ManufacturingCompanies: manufacturer,
 		SKU:                    r.FormValue("eda_reg_number"),
 		Barcode:                r.FormValue("eda_reg_number"),
 		Image:                  imgURL,
@@ -1238,12 +1258,30 @@ func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Reques
 
 	priceVal, _ := money.Parse(r.FormValue("price"))
 
+	var brandIDPtr *int64
+	if brandIDStr := strings.TrimSpace(r.FormValue("brand_id")); brandIDStr != "" {
+		if bid, err := strconv.ParseInt(brandIDStr, 10, 64); err == nil && bid > 0 {
+			brandIDPtr = &bid
+		}
+	}
+
+	manufacturer := strings.TrimSpace(r.FormValue("manufacturer"))
+	if manufacturer == "" && brandIDPtr != nil {
+		if b, err := h.catSvc.GetBrand(database.AsSystem(ctx), *brandIDPtr); err == nil && b != nil {
+			manufacturer = b.Name.Get("ar")
+			if manufacturer == "" {
+				manufacturer = b.Name.Get("en")
+			}
+		}
+	}
+
 	prod.Name = i18n.New(nameAr, nameEn)
 	prod.Description = i18n.New(r.FormValue("description_ar"), r.FormValue("description_en"))
 	prod.ScientificName = r.FormValue("generic_name")
 	prod.Active = r.FormValue("active_ingredient")
 	prod.DosageForm = r.FormValue("dosage_form")
-	prod.ManufacturingCompanies = r.FormValue("manufacturer")
+	prod.BrandID = brandIDPtr
+	prod.ManufacturingCompanies = manufacturer
 	prod.SKU = r.FormValue("eda_reg_number")
 	prod.Barcode = r.FormValue("eda_reg_number")
 	prod.Image = imgURL
@@ -1258,7 +1296,7 @@ func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/products", "success", "تم تحديث بيانات الصنف الدوائي والصورة بنجاح في الكتالوج.")
+	h.redirectWithNotice(w, r, "/admin/products", "success", "تم تحديث بيانات الصنف الدوائي بنجاح.")
 }
 
 // AdminProductDeleteSubmit deletes a master medicine from the catalog.

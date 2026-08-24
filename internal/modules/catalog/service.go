@@ -281,6 +281,11 @@ func (s *Service) UpdateBrand(ctx context.Context, b *Brand) error {
 	return s.repo.UpdateBrand(ctx, b)
 }
 
+// CountProductsInBrand returns the number of active products linked to a brand.
+func (s *Service) CountProductsInBrand(ctx context.Context, brandID int64) (int, error) {
+	return s.repo.CountProductsInBrand(ctx, brandID)
+}
+
 // SetCustomerPricing stores customer-specific custom price or discount terms.
 func (s *Service) SetCustomerPricing(ctx context.Context, m *CustomerProductMapping) error {
 	if m.OrganizationID <= 0 || m.CustomerOrgID == nil || *m.CustomerOrgID <= 0 || m.ProductID <= 0 {

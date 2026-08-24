@@ -21,7 +21,7 @@ type ModelMetaEntry struct {
 
 // AdminTrashListPage renders trash overview across models.
 templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
-	@layouts.AdminShell("سلة المحذوفات المركزية (Trash List)", "audit", lang, dir) {
+	@layouts.AdminShell("سلة المحذوفات المركزية (Trash List)", "trash", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
@@ -74,7 +74,7 @@ type TrashRowView struct {
 // AdminTrashListModelPage lists the deleted rows of one table, with restore and
 // purge actions that reach the database.
 templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("سلة محذوفات %s", modelKey), "audit", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("سلة محذوفات %s", modelKey), "trash", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
