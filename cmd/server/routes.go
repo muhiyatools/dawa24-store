@@ -180,10 +180,15 @@ func mountModuleRoutes(
 		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
 	}))
 
+	ingSvcUI := ingest.NewService(ingRepoUI, log)
+	if storageClient != nil {
+		ingSvcUI.SetStorage(storageClient)
+	}
+
 	uiHandler := ui.NewUIHandler(
 		catSvcUI,
 		orgSvcUI,
-		ingest.NewService(ingRepoUI, log),
+		ingSvcUI,
 		commSvcUI,
 		inventory.NewService(invRepoUI, log),
 		idSvc,
@@ -204,6 +209,7 @@ func mountModuleRoutes(
 		if ai.Enabled() {
 			aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
 			compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
+			ingSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 		}
 	}
 	if storageClient != nil {

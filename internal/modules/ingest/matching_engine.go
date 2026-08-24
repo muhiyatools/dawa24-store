@@ -289,38 +289,50 @@ func (idx *CatalogMatchIndex) Match(
 		})
 	}
 
-	// Stage 5: AI-Assisted Resolution (if enabled and ambiguous or score between 0.50 and 0.85)
-	if input.EnableAI && aiMatcher != nil && len(candidates) > 0 {
-		shouldCallAI := false
-		if topCand != nil && topCand.score < 0.85 {
-			shouldCallAI = true
-		} else if len(candidates) >= 2 && (candidates[0].score-candidates[1].score) < 0.05 {
-			// Competing ambiguous candidates
-			shouldCallAI = true
+	// Stage 5: AI-Assisted Resolution (if enabled and ambiguous or score < 0.85)
+	if input.EnableAI && aiMatcher != nil {
+		poolCandidates := candidates
+		if len(poolCandidates) == 0 && len(idx.allProducts) > 0 {
+			maxPool := min(8, len(idx.allProducts))
+			for i := 0; i < maxPool; i++ {
+				poolCandidates = append(poolCandidates, candidateScore{
+					product: idx.allProducts[i],
+					score:   0.30,
+				})
+			}
 		}
 
-		if shouldCallAI {
-			candNames := make([]string, 0, min(5, len(candidates)))
-			for i := 0; i < len(candidates) && i < 5; i++ {
-				candNames = append(candNames, candidates[i].product.NameAR)
+		if len(poolCandidates) > 0 {
+			shouldCallAI := false
+			if topCand == nil || topCand.score < 0.85 {
+				shouldCallAI = true
+			} else if len(poolCandidates) >= 2 && (poolCandidates[0].score-poolCandidates[1].score) < 0.05 {
+				shouldCallAI = true
 			}
-			bestName, aiScore := aiMatcher.MatchCandidate(ctx, rawName, candNames)
-			if aiScore >= 0.70 && bestName != "" {
-				for _, c := range candidates {
-					if c.product.NameAR == bestName || c.product.NameEN == bestName {
-						pID := c.product.ID
-						confLvl := ConfidenceHigh
-						if aiScore < 0.85 {
-							confLvl = ConfidenceReview
-						}
-						return MatchRowResult{
-							MatchedProductID: &pID,
-							MatchedProduct:   c.product,
-							ConfidenceScore:  aiScore,
-							ConfidenceLevel:  confLvl,
-							MatchReason:      fmt.Sprintf("مطابقة ذكية عبر محرك الذكاء الاصطناعي AI (%d%%)", int(aiScore*100)),
-							CandidateMatches: candidateMatchDTOs,
-							Status:           "matched",
+
+			if shouldCallAI {
+				candNames := make([]string, 0, min(8, len(poolCandidates)))
+				for i := 0; i < len(poolCandidates) && i < 8; i++ {
+					candNames = append(candNames, poolCandidates[i].product.NameAR)
+				}
+				bestName, aiScore := aiMatcher.MatchCandidate(ctx, rawName, candNames)
+				if aiScore >= 0.65 && bestName != "" {
+					for _, c := range poolCandidates {
+						if c.product.NameAR == bestName || c.product.NameEN == bestName {
+							pID := c.product.ID
+							confLvl := ConfidenceHigh
+							if aiScore < 0.85 {
+								confLvl = ConfidenceReview
+							}
+							return MatchRowResult{
+								MatchedProductID: &pID,
+								MatchedProduct:   c.product,
+								ConfidenceScore:  aiScore,
+								ConfidenceLevel:  confLvl,
+								MatchReason:      fmt.Sprintf("مطابقة ذكية عبر محرك الذكاء الاصطناعي AI (%d%%)", int(aiScore*100)),
+								CandidateMatches: candidateMatchDTOs,
+								Status:           "matched",
+							}
 						}
 					}
 				}

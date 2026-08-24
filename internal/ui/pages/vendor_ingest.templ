@@ -15,6 +15,37 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 	@layouts.VendorShell("استيراد وتحديث كتالوج الأدوية والمخزون", "ingest", lang, dir) {
 		<div style="max-width:1200px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:1.75rem;">
 			
+			<!-- AI Processing Loading Modal -->
+			<div id="ai-loading-modal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:1.75rem; text-align:center; padding:2rem;">
+				<div style="width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); display:flex; align-items:center; justify-content:center; box-shadow:0 0 40px rgba(124, 58, 237, 0.6); animation:ai-pulse 1.8s infinite ease-in-out;">
+					<span style="font-size:3rem; line-height:1;">🤖</span>
+				</div>
+				<div>
+					<h2 style="color:#ffffff; font-size:1.6rem; font-weight:900; margin:0 0 0.5rem 0;">
+						جاري تحليل ومطابقة الأصناف عبر محرك الذكاء الاصطناعي...
+					</h2>
+					<p style="color:#94a3b8; font-size:0.95rem; margin:0; max-width:480px; line-height:1.6;">
+						يتم فحص الباركود، الكود الداخلي، المعايرة اللغوية للأدوية، واستدعاء الذكاء الاصطناعي لربط الأصناف بالكتالوج العام المعتمد.
+					</p>
+				</div>
+				<div style="width:280px; height:8px; background:#1e293b; border-radius:999px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.1);">
+					<div style="width:50%; height:100%; background:linear-gradient(90deg, #2563eb, #a855f7); border-radius:999px; animation:indeterminate-progress 1.5s infinite ease-in-out;"></div>
+				</div>
+			</div>
+
+			<style>
+			@keyframes ai-pulse {
+				0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }
+				50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(124, 58, 237, 0.8); }
+				100% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }
+			}
+			@keyframes indeterminate-progress {
+				0% { transform: translateX(-100%); width: 30%; }
+				50% { width: 70%; }
+				100% { transform: translateX(250%); width: 30%; }
+			}
+			</style>
+
 			<!-- Header & Title Bar -->
 			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
 				<div>
@@ -69,7 +100,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 			<!-- STEP 1: Upload, Target Warehouse & Import Mode -->
 			if data.Step == 1 {
 				<div class="card" style="padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-					<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data">
+					<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" onsubmit="document.getElementById('ai-loading-modal').style.display='flex'">
 						
 						<!-- Target Warehouse Selection -->
 						<div style="margin-bottom:2rem;">
@@ -250,7 +281,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 						</p>
 					</div>
 
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/mapping", data.Session.ID)) }>
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/mapping", data.Session.ID)) } onsubmit="document.getElementById('ai-loading-modal').style.display='flex'">
 						
 						<div class="table-container" style="margin-bottom:2rem;">
 							<table class="data-table">
@@ -575,9 +606,17 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 						<!-- Header & Actions -->
 						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);">
 							<div>
-								<h2 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">
-									مراجعة وتأكيد نتائج المطابقة
-								</h2>
+								<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
+									<h2 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">
+										مراجعة وتأكيد نتائج المطابقة
+									</h2>
+									if data.Session.EnableAIMatching {
+										<span class="badge" style="background:linear-gradient(135deg, rgba(37,99,235,0.15), rgba(124,58,237,0.15)); color:#7c3aed; border:1px solid rgba(124,58,237,0.3); font-size:0.75rem; font-weight:800; display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem;">
+											<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+											<span>محرك AI نشط 🤖</span>
+										</span>
+									}
+								</div>
 								<div style="font-size:0.85rem; color:var(--text-secondary);">
 									المستودع: 
 									<strong>
@@ -722,7 +761,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 												<!-- Confidence Level & Match Reason -->
 												<td>
 													<div style="margin-bottom:0.25rem;">
-														if row.ConfidenceLevel == ingest.ConfidenceHigh {
+														if strings.Contains(row.MatchReason, "الذكاء الاصطناعي") || strings.Contains(row.MatchReason, "AI") {
+															<span class="badge" style="background:linear-gradient(135deg, #7c3aed, #2563eb); color:#ffffff; font-size:0.775rem; font-weight:800;">
+																🤖 مطابقة ذكية (AI)
+															</span>
+														} else if row.ConfidenceLevel == ingest.ConfidenceHigh {
 															<span class="badge badge-success" style="font-size:0.775rem; font-weight:800;">
 																✓ مطابقة مؤكدة
 															</span>
