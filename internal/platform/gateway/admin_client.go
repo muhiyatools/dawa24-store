@@ -30,14 +30,55 @@ type GatewayUser struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
+// GatewayBudgetUsage tracks windowed consumption in the Gateway.
+type GatewayBudgetUsage struct {
+	WindowID        string    `json:"window_id"`
+	Name            string    `json:"name"`
+	DurationSeconds int       `json:"duration_seconds"`
+	BudgetUSD       float64   `json:"budget_usd"`
+	CurrentSpent    float64   `json:"current_spent"`
+	ResetTime       time.Time `json:"reset_time"`
+}
+
+// GatewayUserDetail provides full user information including budget windows and extra credits.
+type GatewayUserDetail struct {
+	ID                    string               `json:"id"`
+	Name                  string               `json:"name"`
+	Email                 string               `json:"email"`
+	PlanID                string               `json:"plan_id"`
+	Status                string               `json:"status"`
+	BudgetUsage           []GatewayBudgetUsage `json:"budget_usage"`
+	RemainingExtraCredits float64              `json:"remaining_extra_credits"`
+}
+
+// GatewayUserSummary aggregates total lifetime requests, tokens, and cost.
+type GatewayUserSummary struct {
+	Requests        int     `json:"requests"`
+	Successful      int     `json:"successful"`
+	Failed          int     `json:"failed"`
+	InputTokens     int     `json:"input_tokens"`
+	OutputTokens    int     `json:"output_tokens"`
+	CreditsConsumed float64 `json:"credits_consumed"`
+	CostUSD         float64 `json:"cost_usd"`
+}
+
 // GatewayVirtualKey represents an API Key generated for a Gateway user.
 type GatewayVirtualKey struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	UserID    string    `json:"user_id"`
 	Token     string    `json:"token,omitempty"`
+	Key       string    `json:"key,omitempty"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
+}
+
+// Secret returns the plaintext token from either Key or Token field.
+func (k GatewayVirtualKey) Secret() string {
+	if k.Key != "" {
+		return k.Key
+	}
+	return k.Token
 }
 
 // AdminClient interacts with the AI Gateway's REST Admin management API.
@@ -49,7 +90,7 @@ type AdminClient struct {
 }
 
 // NewAdminClient creates a client targeting the AI Gateway Admin API.
-// username and password can be explicit or passed as single API key in password.
+// username and password can be explicit or passed as single API key / basic credential in password.
 func NewAdminClient(baseURL, username, password string) *AdminClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	if baseURL == "" {
@@ -63,6 +104,9 @@ func NewAdminClient(baseURL, username, password string) *AdminClient {
 		} else {
 			username = "admin"
 		}
+	}
+	if username == "" {
+		username = "admin"
 	}
 	return &AdminClient{
 		baseURL:    baseURL,
@@ -96,18 +140,72 @@ func (c *AdminClient) ListPlans(ctx context.Context) ([]GatewayPlan, error) {
 	return plans, nil
 }
 
+// GetUser queries a specific user's details and active budget allocations.
+func (c *AdminClient) GetUser(ctx context.Context, userID string) (*GatewayUserDetail, error) {
+	if strings.TrimSpace(userID) == "" {
+		return nil, fmt.Errorf("empty user ID")
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/api/users?id=%s", c.baseURL, userID), nil)
+	if err != nil {
+		return nil, err
+	}
+	c.setAuth(req)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("gateway error (%d): %s", resp.StatusCode, string(body))
+	}
+	var u GatewayUserDetail
+	if err := json.NewDecoder(resp.Body).Decode(&u); err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+// GetUserUsageSummary fetches total consumption counters for a user.
+func (c *AdminClient) GetUserUsageSummary(ctx context.Context, userID string) (*GatewayUserSummary, error) {
+	if strings.TrimSpace(userID) == "" {
+		return nil, fmt.Errorf("empty user ID")
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/api/logs/summary?user_id=%s", c.baseURL, userID), nil)
+	if err != nil {
+		return nil, err
+	}
+	c.setAuth(req)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("gateway error (%d): %s", resp.StatusCode, string(body))
+	}
+	var s GatewayUserSummary
+	if err := json.NewDecoder(resp.Body).Decode(&s); err != nil {
+		return nil, err
+	}
+	return &s, nil
+}
+
 // ProvisionOrganization registers or synchronizes an organization with the AI Gateway,
 // creating a dedicated user and issuing a virtual API key with the plan's quota.
 func (c *AdminClient) ProvisionOrganization(ctx context.Context, orgID int64, name, email, planID string) (userID, virtualKey string, err error) {
 	targetUserID := fmt.Sprintf("org-%d", orgID)
 	if planID == "" {
-		planID = "plan-basic"
+		planID = "plan-pos-free"
 	}
 	if name == "" {
 		name = fmt.Sprintf("Organization %d", orgID)
 	}
 	if email == "" {
-		email = fmt.Sprintf("org%d@dawa24.local", orgID)
+		email = fmt.Sprintf("org-%d@dawa24.app", orgID)
 	}
 
 	// 1. Create or update user in AI Gateway
@@ -152,8 +250,8 @@ func (c *AdminClient) ProvisionOrganization(ctx context.Context, orgID int64, na
 
 	if keyResp.StatusCode == http.StatusCreated || keyResp.StatusCode == http.StatusOK {
 		var createdKey GatewayVirtualKey
-		if err := json.NewDecoder(keyResp.Body).Decode(&createdKey); err == nil && createdKey.Token != "" {
-			return targetUserID, createdKey.Token, nil
+		if err := json.NewDecoder(keyResp.Body).Decode(&createdKey); err == nil && createdKey.Secret() != "" {
+			return targetUserID, createdKey.Secret(), nil
 		}
 	}
 
@@ -164,13 +262,13 @@ func (c *AdminClient) ProvisionOrganization(ctx context.Context, orgID int64, na
 func (c *AdminClient) UpdateOrganizationPlan(ctx context.Context, orgID int64, name, email, planID string) error {
 	targetUserID := fmt.Sprintf("org-%d", orgID)
 	if planID == "" {
-		planID = "plan-basic"
+		planID = "plan-pos-free"
 	}
 	if name == "" {
 		name = fmt.Sprintf("Organization %d", orgID)
 	}
 	if email == "" {
-		email = fmt.Sprintf("org%d@dawa24.local", orgID)
+		email = fmt.Sprintf("org-%d@dawa24.app", orgID)
 	}
 	u := GatewayUser{
 		ID:     targetUserID,

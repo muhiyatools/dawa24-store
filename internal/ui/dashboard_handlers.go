@@ -70,7 +70,7 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 		}
 	}
 
-	// Fetch Org AI credentials
+	// Fetch Org AI credentials & Live Consumption
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		if o, err := h.orgSvc.GetOrganization(sysCtx, actor.OrganizationID); err == nil && o != nil {
 			subView.AIUserID = o.AIUserID
@@ -81,6 +81,25 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 				subView.AIVirtualKeyMasked = o.AIVirtualKey[:4] + "••••••••" + o.AIVirtualKey[len(o.AIVirtualKey)-4:]
 			} else if o.AIVirtualKey != "" {
 				subView.AIVirtualKeyMasked = "••••••••"
+			}
+
+			// Query Gateway live consumption for this tenant
+			adminClient, _, _ := h.getGatewayAdminClient(ctx)
+			if adminClient != nil {
+				if summary, err := adminClient.GetUserUsageSummary(ctx, subView.AIUserID); err == nil && summary != nil {
+					subView.AIRequestsCount = summary.Requests
+					subView.AITokensUsed = summary.InputTokens + summary.OutputTokens
+					subView.HasAIUsage = true
+				}
+				if userDetail, err := adminClient.GetUser(ctx, subView.AIUserID); err == nil && userDetail != nil {
+					if len(userDetail.BudgetUsage) > 0 {
+						bw := userDetail.BudgetUsage[0]
+						subView.AIBudgetName = bw.Name
+						subView.AIBudgetLimitUSD = bw.BudgetUSD
+						subView.AIBudgetSpentUSD = bw.CurrentSpent
+						subView.HasAIUsage = true
+					}
+				}
 			}
 		}
 	}

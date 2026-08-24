@@ -21,6 +21,12 @@ type OrgSubscriptionView struct {
 	AIUserID           string
 	AIVirtualKeyMasked string
 	IsDefaultPlan      bool
+	AIRequestsCount    int
+	AITokensUsed       int
+	AIBudgetLimitUSD   float64
+	AIBudgetSpentUSD   float64
+	AIBudgetName       string
+	HasAIUsage         bool
 }
 
 // VendorDashboardData is the supplier dashboard view model.

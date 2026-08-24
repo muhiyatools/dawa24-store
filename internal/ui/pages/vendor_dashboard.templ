@@ -79,7 +79,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						<span style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem; display:block;">حد الأجهزة المفتوحة</span>
 					</div>
 
-					<!-- AI Gateway Quota -->
+					<!-- AI Gateway & Live Consumption -->
 					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
 						<div style="display:flex; justify-content:space-between; align-items:center;">
 							<span style="font-size:0.75rem; color:var(--primary); font-weight:700;">بوابة الذكاء الاصطناعي</span>
@@ -88,9 +88,21 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
 							<span>المعرّف: </span><code dir="ltr" style="font-size:0.75rem;">{ data.Subscription.AIUserID }</code>
 						</div>
-						<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--emerald); font-weight:600;">
-							✓ المفتاح الافتراضي (Virtual Key) مفعل تلقائياً
-						</div>
+						if data.Subscription.HasAIUsage {
+							<div style="margin-top:0.35rem; display:flex; gap:0.75rem; font-size:0.725rem; color:var(--text-secondary);">
+								<span>الطلبات: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", data.Subscription.AIRequestsCount) }</strong></span>
+								<span>التوكنات: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", data.Subscription.AITokensUsed) }</strong></span>
+							</div>
+							if data.Subscription.AIBudgetLimitUSD > 0 {
+								<div style="margin-top:0.2rem; font-size:0.725rem; color:var(--text-muted);">
+									الميزانية: <strong class="tabular-nums" dir="ltr">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
+								</div>
+							}
+						} else {
+							<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--emerald); font-weight:600;">
+								✓ المفتاح الافتراضي (Virtual Key) مفعل وجاهز
+							</div>
+						}
 					</div>
 				</div>
 			</div>
