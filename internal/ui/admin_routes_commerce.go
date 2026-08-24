@@ -48,6 +48,7 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/wallets", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
 		})
+		g.Post("/admin/finance/wallets/{id}/adjust", h.AdminWalletAdjustSubmit)
 	})
 
 	// Plans & Subscriptions Hub

@@ -171,6 +171,30 @@ func (r stubRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*
 	r.fail("AdminListPayments")
 	return nil, nil
 }
+func (r stubRepo) EnsureAllOrgWallets(ctx context.Context) error {
+	r.fail("EnsureAllOrgWallets")
+	return nil
+}
+func (r stubRepo) AdminListDetailedWallets(ctx context.Context, filter billing.WalletFilter) ([]*billing.AdminWalletView, int, error) {
+	r.fail("AdminListDetailedWallets")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminListDetailedTransactions(ctx context.Context, filter billing.TransactionFilter) ([]*billing.AdminWalletTransactionView, int, error) {
+	r.fail("AdminListDetailedTransactions")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminListDetailedInvoices(ctx context.Context, filter billing.InvoiceFilter) ([]*billing.AdminInvoiceView, int, error) {
+	r.fail("AdminListDetailedInvoices")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminListDetailedPayments(ctx context.Context, filter billing.PaymentFilter) ([]*billing.AdminPaymentView, int, error) {
+	r.fail("AdminListDetailedPayments")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType billing.TransactionType, reason string, actorID int64) error {
+	r.fail("AdminPerformWalletAdjustment")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -281,6 +305,24 @@ func (happyRepo) AdminListWallets(ctx context.Context, limit, offset int) ([]*bi
 }
 func (happyRepo) AdminListPayments(ctx context.Context, limit, offset int) ([]*billing.Payment, error) {
 	return []*billing.Payment{{ID: 1, UserID: 1}}, nil
+}
+func (happyRepo) EnsureAllOrgWallets(ctx context.Context) error {
+	return nil
+}
+func (happyRepo) AdminListDetailedWallets(ctx context.Context, filter billing.WalletFilter) ([]*billing.AdminWalletView, int, error) {
+	return []*billing.AdminWalletView{{ID: 1, UserID: 1, UserName: "Test User"}}, 1, nil
+}
+func (happyRepo) AdminListDetailedTransactions(ctx context.Context, filter billing.TransactionFilter) ([]*billing.AdminWalletTransactionView, int, error) {
+	return []*billing.AdminWalletTransactionView{{ID: 1, WalletID: 1, Type: billing.TxDeposit}}, 1, nil
+}
+func (happyRepo) AdminListDetailedInvoices(ctx context.Context, filter billing.InvoiceFilter) ([]*billing.AdminInvoiceView, int, error) {
+	return []*billing.AdminInvoiceView{{ID: 1, InvoiceNumber: "INV-1"}}, 1, nil
+}
+func (happyRepo) AdminListDetailedPayments(ctx context.Context, filter billing.PaymentFilter) ([]*billing.AdminPaymentView, int, error) {
+	return []*billing.AdminPaymentView{{ID: 1, UserID: 1}}, 1, nil
+}
+func (happyRepo) AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType billing.TransactionType, reason string, actorID int64) error {
+	return nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {

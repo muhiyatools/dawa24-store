@@ -1,13 +1,16 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -23,15 +26,47 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	if tab == "" {
 		tab = "invoices"
 	}
+	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+	typeFilter := strings.TrimSpace(r.URL.Query().Get("type"))
+	methodFilter := strings.TrimSpace(r.URL.Query().Get("method"))
+	walletIDStr := strings.TrimSpace(r.URL.Query().Get("wallet_id"))
+	walletID, _ := strconv.ParseInt(walletIDStr, 10, 64)
 
-	var invoices []*billing.Invoice
-	var payments []*billing.Payment
-	var wallets []*billing.Wallet
+	var (
+		invoices          []*billing.AdminInvoiceView
+		payments          []*billing.AdminPaymentView
+		wallets           []*billing.AdminWalletView
+		transactions      []*billing.AdminWalletTransactionView
+		totalInvoices     int
+		totalPayments     int
+		totalWallets      int
+		totalTransactions int
+	)
 
 	if h.billSvc != nil {
-		invoices, _ = h.billSvc.AdminListInvoices(ctx, 100, 0)
-		payments, _ = h.billSvc.AdminListPayments(ctx, 100, 0)
-		wallets, _ = h.billSvc.AdminListWallets(ctx, 100, 0)
+		invoices, totalInvoices, _ = h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
+			Search: searchQuery,
+			Status: statusFilter,
+			Limit:  100,
+		})
+		payments, totalPayments, _ = h.billSvc.AdminListDetailedPayments(ctx, billing.PaymentFilter{
+			Search: searchQuery,
+			Status: statusFilter,
+			Method: methodFilter,
+			Limit:  100,
+		})
+		wallets, totalWallets, _ = h.billSvc.AdminListDetailedWallets(ctx, billing.WalletFilter{
+			Search: searchQuery,
+			Type:   typeFilter,
+			Limit:  100,
+		})
+		transactions, totalTransactions, _ = h.billSvc.AdminListDetailedTransactions(ctx, billing.TransactionFilter{
+			WalletID: walletID,
+			Search:   searchQuery,
+			Type:     typeFilter,
+			Limit:    100,
+		})
 	}
 
 	var totalRevenueMinor int64
@@ -52,8 +87,6 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 
 	totalPaid := money.FromMinor(totalPaidMinor)
 	totalRevenue := money.FromMinor(totalRevenueMinor)
-
-	// Platform commission: 5% of gross volume
 	commission := money.FromMinor(totalRevenueMinor * 5 / 100)
 
 	var totalHeldMinor int64
@@ -63,21 +96,80 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	totalHeld := money.FromMinor(totalHeldMinor)
 
 	data := pages.AdminFinanceData{
-		ActiveTab:       tab,
-		Invoices:        invoices,
-		Payments:        payments,
-		Wallets:         wallets,
-		TotalRevenue:    totalRevenue,
-		TotalCommission: commission,
-		TotalPaid:       totalPaid,
-		TotalHeld:       totalHeld,
-		Query:           r.URL.Query().Get("q"),
+		ActiveTab:         tab,
+		Invoices:          invoices,
+		Payments:          payments,
+		Wallets:           wallets,
+		Transactions:      transactions,
+		TotalInvoices:     totalInvoices,
+		TotalPayments:     totalPayments,
+		TotalWallets:      totalWallets,
+		TotalTransactions: totalTransactions,
+		TotalRevenue:      totalRevenue,
+		TotalCommission:   commission,
+		TotalPaid:         totalPaid,
+		TotalHeld:         totalHeld,
+		Query:             searchQuery,
+		StatusFilter:      statusFilter,
+		TypeFilter:        typeFilter,
+		MethodFilter:      methodFilter,
+		SelectedWalletID:  walletID,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminFinance(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin finance hub", "error", err)
 	}
+}
+
+// AdminWalletAdjustSubmit handles manual balance adjustment/credit/debit for a wallet.
+func (h *UIHandler) AdminWalletAdjustSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor := authctx.FromContext(ctx)
+	actorID := actor.UserID
+
+	walletID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || walletID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/finance?tab=wallets", "error", "معرف المحفظة غير صحيح.")
+		return
+	}
+
+	actionType := strings.TrimSpace(r.FormValue("action_type")) // "deposit", "withdrawal", "adjustment"
+	amountStr := strings.TrimSpace(r.FormValue("amount"))
+	reason := strings.TrimSpace(r.FormValue("reason"))
+
+	amt, parseErr := money.Parse(amountStr)
+	if parseErr != nil || amt.IsZero() || amt.IsNegative() {
+		h.redirectWithNotice(w, r, "/admin/finance?tab=wallets", "error", "يرجى تحديد مبلغ صالح أكبر من الصفر.")
+		return
+	}
+	if reason == "" {
+		reason = "تعديل إداري مباشر للرصيد"
+	}
+
+	var txType billing.TransactionType
+
+	switch actionType {
+	case "deposit":
+		txType = billing.TxDeposit
+	case "withdrawal":
+		txType = billing.TxWithdrawal
+		amt = money.FromMinor(-amt.Minor())
+	default:
+		txType = billing.TxAdjustment
+		if r.FormValue("is_deduct") == "true" {
+			amt = money.FromMinor(-amt.Minor())
+		}
+	}
+
+	if h.billSvc != nil {
+		if err := h.billSvc.AdminPerformWalletAdjustment(ctx, walletID, amt, txType, reason, actorID); err != nil {
+			h.redirectWithNotice(w, r, "/admin/finance?tab=wallets", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", walletID), "success", "تم قيد وتحديث رصيد المحفظة بنجاح وتسجيل المعاملة في السجل.")
 }
 
 // AdminOfferOrderDetailPage renders single offer order details.

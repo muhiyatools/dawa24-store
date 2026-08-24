@@ -208,3 +208,115 @@ type PlatformPaymentMethod struct {
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
 }
+
+// AdminWalletView represents an enriched wallet view for administration.
+type AdminWalletView struct {
+	ID                int64        `json:"id"`
+	PublicID          string       `json:"public_id"`
+	UserID            int64        `json:"user_id"`
+	UserName          string       `json:"user_name"`
+	UserEmail         string       `json:"user_email"`
+	UserPhone         string       `json:"user_phone"`
+	OrganizationID    *int64       `json:"organization_id,omitempty"`
+	OrganizationName  string       `json:"organization_name"`
+	OrganizationType  string       `json:"organization_type"` // "customer" | "vendor" | "supplier"
+	Currency          string       `json:"currency"`
+	Balance           money.Amount `json:"balance"`
+	CreatedAt         time.Time    `json:"created_at"`
+	TransactionsCount int          `json:"transactions_count"`
+}
+
+// AdminWalletTransactionView represents an enriched ledger entry.
+type AdminWalletTransactionView struct {
+	ID               int64           `json:"id"`
+	WalletID         int64           `json:"wallet_id"`
+	Type             TransactionType `json:"type"`
+	Amount           money.Amount    `json:"amount"`
+	BalanceAfter     money.Amount    `json:"balance_after"`
+	ReferenceType    string          `json:"reference_type,omitempty"`
+	ReferenceID      *int64          `json:"reference_id,omitempty"`
+	Description      string          `json:"description,omitempty"`
+	CreatedAt        time.Time       `json:"created_at"`
+	UserID           int64           `json:"user_id"`
+	UserName         string          `json:"user_name"`
+	UserEmail        string          `json:"user_email"`
+	OrganizationName string          `json:"organization_name"`
+	OrganizationType string          `json:"organization_type"`
+}
+
+// AdminInvoiceView represents an enriched B2B invoice view for administration.
+type AdminInvoiceView struct {
+	ID             int64         `json:"id"`
+	PublicID       string        `json:"public_id"`
+	OrganizationID int64         `json:"organization_id"`
+	VendorName     string        `json:"vendor_name"`
+	CustomerOrgID  *int64        `json:"customer_org_id,omitempty"`
+	CustomerName   string        `json:"customer_name"`
+	OrderID        *int64        `json:"order_id,omitempty"`
+	OrderNumber    string        `json:"order_number,omitempty"`
+	InvoiceNumber  string        `json:"invoice_number"`
+	IssueDate      time.Time     `json:"issue_date"`
+	DueDate        time.Time     `json:"due_date"`
+	Subtotal       money.Amount  `json:"subtotal"`
+	TaxAmount      money.Amount  `json:"tax_amount"`
+	DiscountAmount money.Amount  `json:"discount_amount"`
+	TotalAmount    money.Amount  `json:"total_amount"`
+	Status         InvoiceStatus `json:"status"`
+	PaymentMethod  string        `json:"payment_method"`
+	Notes          string        `json:"notes,omitempty"`
+	CreatedAt      time.Time     `json:"created_at"`
+}
+
+// AdminPaymentView represents an enriched payment record for administration.
+type AdminPaymentView struct {
+	ID                   int64        `json:"id"`
+	PublicID             string       `json:"public_id"`
+	PaymentIntegrationID *int64       `json:"payment_integration_id,omitempty"`
+	OrderID              *int64       `json:"order_id,omitempty"`
+	OrderNumber          string       `json:"order_number,omitempty"`
+	UserID               int64        `json:"user_id"`
+	UserName             string       `json:"user_name"`
+	OrganizationID       *int64       `json:"organization_id,omitempty"`
+	OrganizationName     string       `json:"organization_name"`
+	Amount               money.Amount `json:"amount"`
+	Method               string       `json:"method"`
+	Status               string       `json:"status"`
+	TransactionID        string       `json:"transaction_id,omitempty"`
+	ReferenceNumber      string       `json:"reference_number,omitempty"`
+	PaidAt               *time.Time   `json:"paid_at,omitempty"`
+	CreatedAt            time.Time    `json:"created_at"`
+}
+
+// WalletFilter specifies parameters for querying wallets.
+type WalletFilter struct {
+	Search string
+	Type   string // "customer", "vendor", ""
+	Limit  int
+	Offset int
+}
+
+// TransactionFilter specifies parameters for querying wallet ledger records.
+type TransactionFilter struct {
+	WalletID int64
+	Type     string
+	Search   string
+	Limit    int
+	Offset   int
+}
+
+// InvoiceFilter specifies parameters for querying invoices.
+type InvoiceFilter struct {
+	Search string
+	Status string
+	Limit  int
+	Offset int
+}
+
+// PaymentFilter specifies parameters for querying payments.
+type PaymentFilter struct {
+	Search string
+	Method string
+	Status string
+	Limit  int
+	Offset int
+}

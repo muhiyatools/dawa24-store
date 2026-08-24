@@ -12,10 +12,15 @@ import (
 
 // AdminFinanceData contains aggregated financial datasets from the database.
 type AdminFinanceData struct {
-	ActiveTab         string // "invoices", "payments", "wallets", "earnings"
-	Invoices          []*billing.Invoice
-	Payments          []*billing.Payment
-	Wallets           []*billing.Wallet
+	ActiveTab         string // "invoices", "payments", "wallets", "transactions", "earnings"
+	Invoices          []*billing.AdminInvoiceView
+	Payments          []*billing.AdminPaymentView
+	Wallets           []*billing.AdminWalletView
+	Transactions      []*billing.AdminWalletTransactionView
+	TotalInvoices     int
+	TotalPayments     int
+	TotalWallets      int
+	TotalTransactions int
 	TotalRevenue      money.Amount
 	TotalCommission   money.Amount
 	TotalPaid         money.Amount
@@ -23,180 +28,214 @@ type AdminFinanceData struct {
 	DirectCommissions money.Amount
 	OfferCommissions  money.Amount
 	Query             string
+	StatusFilter      string
+	TypeFilter        string
+	MethodFilter      string
+	SelectedWalletID  int64
 }
 
 // AdminFinance renders the unified financial management hub.
 templ AdminFinance(data AdminFinanceData, lang, dir string) {
 	@layouts.AdminShell("الإدارة المالية والمحافظ والتحصيل", "finance", lang, dir) {
-		<div class="admin-finance-hub">
-			<!-- Header Title & Action Row -->
-			<div class="card mb-3" style="border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+		<div class="admin-finance-hub space-y-6">
+			<!-- Header Title & Quick Export Row -->
+			<div class="card mb-4" style="border:1px solid var(--border); box-shadow:var(--shadow-sm); border-radius:18px; padding:1.5rem 1.75rem;">
 				<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
 					<div>
-						<h1 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800; color:var(--text);">المركز المالي والمحافظ والتحصيل</h1>
-						<p class="subtitle" style="margin:0.25rem 0 0; color:var(--text-secondary); font-size:0.9rem;">
-							متابعة الفواتير الضريبية، بوابات الدفع الإلكتروني، أرصدة المحافظ الرقمية، وحساب عمولات المنصة الحية.
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+							<span class="badge badge-emerald" style="font-size:0.72rem; padding:0.2rem 0.6rem;">المركز المالي الموحد</span>
+							<span style="font-size:0.75rem; color:var(--text-muted);">نظام القيود المزدوجة والمحافظ</span>
+						</div>
+						<h1 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800; color:var(--text);">المركز المالي والمحافظ والتحصيل</h1>
+						<p class="subtitle" style="margin:0.25rem 0 0; color:var(--text-secondary); font-size:0.88rem;">
+							إدارة ومتابعة فواتير التوريد، تسويات بوابات الدفع، محافظ الصيدليات والموردين الحية، وسجل حركات الأرصدة.
 						</p>
 					</div>
-					<div style="display:flex; gap:0.5rem; align-items:center;">
-						<a href="/admin/finance?tab=invoices" class="btn btn-secondary btn-sm">
+					<div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+						<button onclick="window.print()" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem;">
 							@components.IconFile("icon-sm")
-							<span>الفواتير</span>
-						</a>
-						<a href="/admin/finance?tab=payments" class="btn btn-secondary btn-sm">
+							<span>طباعة تقرير</span>
+						</button>
+						<a href="/admin/finance?tab=wallets" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem;">
 							@components.IconWallet("icon-sm")
-							<span>المدفوعات</span>
-						</a>
-						<a href="/admin/finance?tab=wallets" class="btn btn-secondary btn-sm">
-							@components.IconLayers("icon-sm")
-							<span>المحافظ</span>
-						</a>
-						<a href="/admin/finance?tab=earnings" class="btn btn-secondary btn-sm">
-							@components.IconChart("icon-sm")
-							<span>الإيرادات</span>
+							<span>محافظ المنشآت</span>
 						</a>
 					</div>
 				</div>
 			</div>
 
-			<!-- Live Financial KPIs Bar (Connected directly to DB) -->
+			<!-- Live Financial KPIs Bar -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--primary);">
+				<a href="/admin/finance?tab=payments" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #10b981; border-radius:14px; transition:transform 0.2s;">
 					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">إجمالي التحصيلات والمدفوعات</span>
-						@components.IconWallet("icon-sm")
+						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">إجمالي التحصيلات والمدفوعات</span>
+						<span style="color:#10b981;">@components.IconWallet("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.6rem;">
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.5rem;">
 						{ fmt.Sprintf("%s ج.م", data.TotalPaid.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-						{ fmt.Sprintf("%d عملية دفع ناجحة", len(data.Payments)) }
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+						{ fmt.Sprintf("%d عملية دفع مسجلة", data.TotalPayments) }
 					</div>
-				</div>
+				</a>
 
-				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--accent);">
+				<a href="/admin/finance?tab=invoices" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--primary); border-radius:14px; transition:transform 0.2s;">
 					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">إجمالي الفواتير الصادرة</span>
-						@components.IconFile("icon-sm")
+						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">إجمالي الفواتير الصادرة</span>
+						<span style="color:var(--primary);">@components.IconFile("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.6rem;">
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.5rem;">
 						{ fmt.Sprintf("%s ج.م", data.TotalRevenue.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-						{ fmt.Sprintf("%d فاتورة مسجلة", len(data.Invoices)) }
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+						{ fmt.Sprintf("%d فاتورة ضريبية", data.TotalInvoices) }
 					</div>
-				</div>
+				</a>
 
-				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #10b981;">
+				<a href="/admin/finance?tab=wallets" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #6366f1; border-radius:14px; transition:transform 0.2s;">
 					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">أرصدة المحافظ المحتجزة</span>
-						@components.IconLayers("icon-sm")
+						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">أرصدة المحافظ المحتجزة</span>
+						<span style="color:#6366f1;">@components.IconLayers("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#10b981; margin-top:0.6rem;">
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#6366f1; margin-top:0.5rem;">
 						{ fmt.Sprintf("%s ج.م", data.TotalHeld.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-						{ fmt.Sprintf("%d محفظة رقمية نشطة", len(data.Wallets)) }
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+						{ fmt.Sprintf("%d محفظة نشطة في النظام", data.TotalWallets) }
 					</div>
-				</div>
+				</a>
 
-				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #8b5cf6;">
+				<a href="/admin/finance?tab=earnings" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #f59e0b; border-radius:14px; transition:transform 0.2s;">
 					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">عمولة المنصة المقدرة</span>
-						@components.IconChart("icon-sm")
+						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">عمولة المنصة المقدرة</span>
+						<span style="color:#f59e0b;">@components.IconChart("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#8b5cf6; margin-top:0.6rem;">
+					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#f59e0b; margin-top:0.5rem;">
 						{ fmt.Sprintf("%s ج.م", data.TotalCommission.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-						محسوبة تلقائياً من إجمالي حجم التداول
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+						نسبة 5% من حجم المعاملات المكتملة
 					</div>
-				</div>
+				</a>
 			</div>
 
 			<!-- Unified Tabs Navigation -->
-			<div class="card mb-0" style="border:1px solid var(--border); padding:0; overflow:hidden;">
-				<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto;">
-					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices" || data.ActiveTab == "") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:18px; padding:0; overflow:hidden; box-shadow:var(--shadow-sm);">
+				<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto; gap:0.25rem;">
+					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices" || data.ActiveTab == "") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconFile("icon-sm")
 						<span>الفواتير الضريبية والمطالبات</span>
-						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Invoices)) }</span>
+						<span class="badge badge-secondary" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
 					</a>
-					<a href="/admin/finance?tab=payments" class={ "tab-btn", templ.KV("active", data.ActiveTab == "payments") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					<a href="/admin/finance?tab=payments" class={ "tab-btn", templ.KV("active", data.ActiveTab == "payments") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconWallet("icon-sm")
-						<span>سجل المدفوعات والتحويلات</span>
-						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Payments)) }</span>
+						<span>سجل المدفوعات والتحصيلات</span>
+						<span class="badge badge-secondary" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalPayments) }</span>
 					</a>
-					<a href="/admin/finance?tab=wallets" class={ "tab-btn", templ.KV("active", data.ActiveTab == "wallets") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					<a href="/admin/finance?tab=wallets" class={ "tab-btn", templ.KV("active", data.ActiveTab == "wallets") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconLayers("icon-sm")
 						<span>محافظ المنشآت والأرصدة</span>
-						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Wallets)) }</span>
+						<span class="badge badge-emerald" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalWallets) }</span>
 					</a>
-					<a href="/admin/finance?tab=earnings" class={ "tab-btn", templ.KV("active", data.ActiveTab == "earnings") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
+					<a href="/admin/finance?tab=transactions" class={ "tab-btn", templ.KV("active", data.ActiveTab == "transactions") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
+						@components.IconLayers("icon-sm")
+						<span>سجل حركات ومعاملات المحافظ</span>
+						<span class="badge badge-secondary" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalTransactions) }</span>
+					</a>
+					<a href="/admin/finance?tab=earnings" class={ "tab-btn", templ.KV("active", data.ActiveTab == "earnings") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconChart("icon-sm")
 						<span>تقرير الأرباح والعمولات</span>
 					</a>
 				</div>
 
 				<div style="padding:1.5rem;">
-					<!-- TAB 1: INVOICES -->
+					<!-- ══════════════════════════════════════════
+					     TAB 1: INVOICES
+					══════════════════════════════════════════ -->
 					if data.ActiveTab == "invoices" || data.ActiveTab == "" {
-						<div class="tab-content-pane">
-							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+						<div class="tab-content-pane space-y-4">
+							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
 								<div>
-									<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">الفواتير والمطالبات الضريبية</h2>
-									<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">سجل فواتير أوامر التوريد واشتراكات المنشآت المصدرة في النظام.</p>
+									<h2 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text);">الفواتير والمطالبات الضريبية</h2>
+									<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;">سجل الفواتير الضريبية لأوامر التوريد والاشتراكات الصادرة في المنظومة.</p>
 								</div>
+								<!-- Search & Filter Form -->
+								<form method="GET" action="/admin/finance" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+									<input type="hidden" name="tab" value="invoices"/>
+									<input type="text" name="q" value={ data.Query } placeholder="ابحث برقم الفاتورة أو اسم المنشأة..." class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; min-width:240px; border-radius:8px;"/>
+									<select name="status" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+										<option value="">كل الحالات</option>
+										<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة</option>
+										<option value="issued" selected?={ data.StatusFilter == "issued" }>صادرة (غير مدفوعة)</option>
+										<option value="draft" selected?={ data.StatusFilter == "draft" }>مسودة</option>
+										<option value="overdue" selected?={ data.StatusFilter == "overdue" }>متأخرة</option>
+										<option value="cancelled" selected?={ data.StatusFilter == "cancelled" }>ملغاة</option>
+									</select>
+									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
+									if data.Query != "" || data.StatusFilter != "" {
+										<a href="/admin/finance?tab=invoices" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء</a>
+									}
+								</form>
 							</div>
 
 							if len(data.Invoices) == 0 {
-								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مسجلة", Message: "يتم إصدار الفواتير الضريبية تلقائياً عند تسوية الطلبات والاشتراكات."})
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مطابقة", Message: "لم يتم إصدار فواتير ضريبية أو لم يتم العثور على نتائج تطابق معايير البحث."})
 							} else {
-								<div class="table-container">
+								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
 									<table class="data-table">
 										<thead>
 											<tr>
 												<th>رقم الفاتورة</th>
-												<th>المنشأة المصدرة</th>
-												<th>العميل / الصيدلية</th>
+												<th>المورّد (البائع)</th>
+												<th>الصيدلية (المشتري)</th>
+												<th>أمر التوريد</th>
 												<th>المبلغ الإجمالي</th>
+												<th>طريقة الدفع</th>
 												<th>الحالة</th>
 												<th>تاريخ الإصدار</th>
-												<th>تاريخ الاستحقاق</th>
 											</tr>
 										</thead>
 										<tbody>
 											for _, inv := range data.Invoices {
 												<tr>
-													<td class="tabular-nums"><strong>{ inv.InvoiceNumber }</strong></td>
-													<td>
-														if inv.OrganizationID > 0 {
-															منشأة #{ fmt.Sprintf("%d", inv.OrganizationID) }
-														} else {
-															المنصة
-														}
+													<td class="tabular-nums">
+														<span style="font-weight:800; color:var(--text);">{ inv.InvoiceNumber }</span>
 													</td>
 													<td>
+														<div style="font-weight:700; color:var(--text);">{ inv.VendorName }</div>
+														<div style="font-size:0.75rem; color:var(--text-muted);">مورّد #{ fmt.Sprintf("%d", inv.OrganizationID) }</div>
+													</td>
+													<td>
+														<div style="font-weight:600; color:var(--text);">{ inv.CustomerName }</div>
 														if inv.CustomerOrgID != nil {
-															منشأة #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }
-														} else {
-															عميل عام
+															<div style="font-size:0.75rem; color:var(--text-muted);">صيدلية #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }</div>
 														}
 													</td>
-													<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", inv.TotalAmount.String()) }</td>
+													<td class="tabular-nums">
+														if inv.OrderNumber != "" {
+															<span class="badge badge-secondary">{ inv.OrderNumber }</span>
+														} else {
+															<span style="color:var(--text-muted);">-</span>
+														}
+													</td>
+													<td class="tabular-nums" style="font-weight:800; color:var(--text);">
+														{ fmt.Sprintf("%s ج.م", inv.TotalAmount.String()) }
+													</td>
+													<td><span class="badge badge-secondary">{ inv.PaymentMethod }</span></td>
 													<td>
 														if inv.Status == "paid" {
 															<span class="badge badge-emerald">مدفوعة</span>
-														} else if inv.Status == "pending" {
-															<span class="badge badge-amber">قيد التحصيل</span>
+														} else if inv.Status == "issued" {
+															<span class="badge badge-sky">صادرة</span>
 														} else if inv.Status == "overdue" {
-															<span class="badge badge-danger">متأخرة</span>
+															<span class="badge badge-amber">متأخرة</span>
+														} else if inv.Status == "cancelled" {
+															<span class="badge badge-rose">ملغاة</span>
 														} else {
 															<span class="badge badge-secondary">{ string(inv.Status) }</span>
 														}
 													</td>
-													<td class="tabular-nums">{ inv.IssueDate.Format("2006-01-02") }</td>
-													<td class="tabular-nums">{ inv.DueDate.Format("2006-01-02") }</td>
+													<td class="tabular-nums" style="font-size:0.82rem; color:var(--text-muted);">{ inv.IssueDate.Format("2006-01-02") }</td>
 												</tr>
 											}
 										</tbody>
@@ -206,51 +245,78 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						</div>
 					}
 
-					<!-- TAB 2: PAYMENTS -->
+					<!-- ══════════════════════════════════════════
+					     TAB 2: PAYMENTS
+					══════════════════════════════════════════ -->
 					if data.ActiveTab == "payments" {
-						<div class="tab-content-pane">
-							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+						<div class="tab-content-pane space-y-4">
+							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
 								<div>
-									<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">سجل التحصيلات والمدفوعات البنكية</h2>
-									<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">متابعة عمليات الدفع الإلكتروني، المحافظ، والتحويلات البنكية المعتمدة.</p>
+									<h2 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text);">سجل المدفوعات والتحصيلات الإلكترونية</h2>
+									<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;">تدقيق عمليات الدفع المحصلة عبر بوابات الدفع الإلكتروني والتحويلات البنكية.</p>
 								</div>
+								<!-- Search & Filter Form -->
+								<form method="GET" action="/admin/finance" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+									<input type="hidden" name="tab" value="payments"/>
+									<input type="text" name="q" value={ data.Query } placeholder="ابحث برقم المعاملة أو المرجع أو الاسم..." class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; min-width:240px; border-radius:8px;"/>
+									<select name="status" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+										<option value="">كل الحالات</option>
+										<option value="paid" selected?={ data.StatusFilter == "paid" }>ناجحة (مكتملة)</option>
+										<option value="pending" selected?={ data.StatusFilter == "pending" }>قيد المراجعة</option>
+										<option value="failed" selected?={ data.StatusFilter == "failed" }>فاشلة</option>
+									</select>
+									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
+									if data.Query != "" || data.StatusFilter != "" {
+										<a href="/admin/finance?tab=payments" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء</a>
+									}
+								</form>
 							</div>
 
 							if len(data.Payments) == 0 {
-								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "يتم توثيق عمليات الدفع الإلكتروني فور تأكيدها من بوابات الدفع."})
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "تظهر عمليات التحصيل فور إتمام العميل للدفع الإلكتروني أو تأكيد التحويل."})
 							} else {
-								<div class="table-container">
+								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
 									<table class="data-table">
 										<thead>
 											<tr>
-												<th>رقم المرجع / العملية</th>
-												<th>المستخدم / المنشأة</th>
+												<th>رقم المعاملة / المرجع</th>
+												<th>أمر التوريد</th>
+												<th>المستخدم والمنشأة</th>
 												<th>المبلغ</th>
 												<th>طريقة الدفع</th>
 												<th>الحالة</th>
-												<th>تاريخ العملية</th>
+												<th>تاريخ وتوقيت الدفع</th>
 											</tr>
 										</thead>
 										<tbody>
 											for _, p := range data.Payments {
 												<tr>
 													<td class="tabular-nums">
-														if p.ReferenceNumber != "" {
-															<strong>{ p.ReferenceNumber }</strong>
-														} else if p.TransactionID != "" {
-															<strong>{ p.TransactionID }</strong>
+														if p.TransactionID != "" {
+															<div style="font-weight:700; color:var(--text);">{ p.TransactionID }</div>
 														} else {
-															<strong>{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
+															<div style="font-weight:700; color:var(--text);">{ fmt.Sprintf("PAY-%d", p.ID) }</div>
+														}
+														if p.ReferenceNumber != "" {
+															<div style="font-size:0.75rem; color:var(--text-muted);">مرجع: { p.ReferenceNumber }</div>
+														}
+													</td>
+													<td class="tabular-nums">
+														if p.OrderNumber != "" {
+															<span class="badge badge-secondary">{ p.OrderNumber }</span>
+														} else {
+															<span style="color:var(--text-muted);">-</span>
 														}
 													</td>
 													<td>
-														if p.OrganizationID != nil {
-															منشأة #{ fmt.Sprintf("%d", *p.OrganizationID) }
-														} else {
-															مستخدم #{ fmt.Sprintf("%d", p.UserID) }
+														<div style="font-weight:700; color:var(--text);">{ p.UserName }</div>
+														if p.OrganizationName != "" {
+															<div style="font-size:0.75rem; color:var(--text-secondary);">{ p.OrganizationName }</div>
 														}
 													</td>
-													<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
+													<td class="tabular-nums" style="font-weight:800; color:#10b981; font-size:1rem;">
+														{ fmt.Sprintf("%s ج.م", p.Amount.String()) }
+													</td>
 													<td><span class="badge badge-secondary">{ p.Method }</span></td>
 													<td>
 														if p.Status == "paid" || p.Status == "completed" || p.Status == "success" {
@@ -258,10 +324,10 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														} else if p.Status == "pending" {
 															<span class="badge badge-amber">قيد المراجعة</span>
 														} else {
-															<span class="badge badge-secondary">{ string(p.Status) }</span>
+															<span class="badge badge-rose">{ string(p.Status) }</span>
 														}
 													</td>
-													<td class="tabular-nums">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
+													<td class="tabular-nums" style="font-size:0.82rem; color:var(--text-muted);">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
 												</tr>
 											}
 										</tbody>
@@ -271,44 +337,108 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						</div>
 					}
 
-					<!-- TAB 3: WALLETS -->
+					<!-- ══════════════════════════════════════════
+					     TAB 3: WALLETS (محافظ المنشآت والأرصدة)
+					══════════════════════════════════════════ -->
 					if data.ActiveTab == "wallets" {
-						<div class="tab-content-pane">
-							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+						<div class="tab-content-pane space-y-4">
+							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
 								<div>
-									<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">محافظ المنشآت والأرصدة الحالية</h2>
-									<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">تدقيق الأرصدة المتوفرة في محافظ الصيدليات والموردين المحسوبة مباشرة من قيود السجل المالي.</p>
+									<h2 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text);">محافظ الصيدليات والموردين والأرصدة</h2>
+									<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;">تدقيق وإدارة محافظ المنشآت الرقمية وإجراء الشحن والتسويات المحاسبية المباشرة.</p>
 								</div>
+								<!-- Search & Filter Form -->
+								<form method="GET" action="/admin/finance" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+									<input type="hidden" name="tab" value="wallets"/>
+									<input type="text" name="q" value={ data.Query } placeholder="ابحث باسم المنشأة، المالك، الهاتف، الإيميل..." class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; min-width:260px; border-radius:8px;"/>
+									<select name="type" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+										<option value="">كل المنشآت</option>
+										<option value="customer" selected?={ data.TypeFilter == "customer" }>صيدليات</option>
+										<option value="vendor" selected?={ data.TypeFilter == "vendor" }>موردون ومخازن</option>
+									</select>
+									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
+									if data.Query != "" || data.TypeFilter != "" {
+										<a href="/admin/finance?tab=wallets" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء</a>
+									}
+								</form>
 							</div>
 
 							if len(data.Wallets) == 0 {
-								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مسجلة", Message: "تنشأ المحافظ الرقمية تلقائياً عند تسجيل المنشأة وبدء معاملاتها المالية."})
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مطابقة", Message: "تنشأ المحافظ الرقمية تلقائياً لجميع المنشآت والمستخدمين عند التسجيل في المنصة."})
 							} else {
-								<div class="table-container">
+								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
 									<table class="data-table">
 										<thead>
 											<tr>
 												<th>رقم المحفظة</th>
-												<th>المستخدم / المنشأة</th>
+												<th>المنشأة والمالك</th>
+												<th>نوع النشاط</th>
+												<th>الرصيد المتاح</th>
 												<th>العملة</th>
-												<th>الرصيد المتاح حالياً</th>
+												<th>إجمالي الحركات</th>
 												<th>تاريخ الإنشاء</th>
+												<th style="text-align:center;">إجراءات إدارية</th>
 											</tr>
 										</thead>
 										<tbody>
 											for _, w := range data.Wallets {
 												<tr>
-													<td class="tabular-nums"><strong>{ fmt.Sprintf("WLT-%d", w.ID) }</strong></td>
+													<td class="tabular-nums">
+														<span class="badge badge-secondary" style="font-weight:800; font-family:monospace;">{ fmt.Sprintf("WLT-%d", w.ID) }</span>
+													</td>
 													<td>
-														if w.OrganizationID != nil {
-															منشأة #{ fmt.Sprintf("%d", *w.OrganizationID) }
+														<div style="display:flex; align-items:center; gap:0.6rem;">
+															<div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); display:flex; align-items:center; justify-content:center; font-weight:800; color:#10b981; flex-shrink:0;">
+																if w.OrganizationName != "" {
+																	{ string([]rune(w.OrganizationName)[0:1]) }
+																} else {
+																	{ string([]rune(w.UserName)[0:1]) }
+																}
+															</div>
+															<div>
+																if w.OrganizationName != "" {
+																	<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ w.OrganizationName }</div>
+																	<div style="font-size:0.76rem; color:var(--text-secondary);">المالك: { w.UserName } • { w.UserEmail }</div>
+																} else {
+																	<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ w.UserName }</div>
+																	<div style="font-size:0.76rem; color:var(--text-secondary);">{ w.UserEmail }</div>
+																}
+																if w.UserPhone != "" {
+																	<div style="font-size:0.72rem; color:var(--text-muted);">{ w.UserPhone }</div>
+																}
+															</div>
+														</div>
+													</td>
+													<td>
+														if w.OrganizationType == "customer" {
+															<span class="badge badge-emerald">صيدلية</span>
+														} else if w.OrganizationType == "vendor" || w.OrganizationType == "supplier" {
+															<span class="badge badge-indigo">مورّد معتمد</span>
 														} else {
-															مستخدم #{ fmt.Sprintf("%d", w.UserID) }
+															<span class="badge badge-secondary">حساب فردي</span>
 														}
 													</td>
+													<td class="tabular-nums" style="font-weight:900; font-size:1.15rem; color:#10b981;">
+														{ fmt.Sprintf("%s", w.Balance.String()) }
+														<span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-right:2px;">{ w.Currency }</span>
+													</td>
 													<td><span class="badge badge-secondary">{ w.Currency }</span></td>
-													<td class="tabular-nums" style="font-weight:800; font-size:1.05rem; color:var(--success-text);">{ fmt.Sprintf("%s %s", w.Balance.String(), w.Currency) }</td>
-													<td class="tabular-nums">{ w.CreatedAt.Format("2006-01-02") }</td>
+													<td class="tabular-nums">
+														<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)) } class="badge badge-sky" style="text-decoration:none;" title="عرض سجل الحركات">
+															{ fmt.Sprintf("%d حركة", w.TransactionsCount) } ↗
+														</a>
+													</td>
+													<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">{ w.CreatedAt.Format("2006-01-02") }</td>
+													<td style="text-align:center;">
+														<div style="display:inline-flex; gap:0.4rem; align-items:center;">
+															<button type="button" onclick={ templ.JSFuncCall("openWalletAdjustModal", w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency) } class="btn btn-primary btn-sm" style="padding:0.35rem 0.65rem; font-size:0.78rem; font-weight:700;">
+																<span>💳 تعديل الرصيد</span>
+															</button>
+															<a href={ templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)) } class="btn btn-secondary btn-sm" style="padding:0.35rem 0.65rem; font-size:0.78rem;" title="كشف الحساب">
+																<span>📜 كشف الحساب</span>
+															</a>
+														</div>
+													</td>
 												</tr>
 											}
 										</tbody>
@@ -318,18 +448,149 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						</div>
 					}
 
-					<!-- TAB 4: EARNINGS & COMMISSIONS -->
-					if data.ActiveTab == "earnings" {
-						<div class="tab-content-pane">
-							<div style="margin-bottom:1.5rem;">
-								<h2 style="font-size:1.15rem; font-weight:700; margin:0; color:var(--text);">تقرير أرباح وعمولات المنظومة</h2>
-								<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.2rem 0 0;">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد.</p>
+					<!-- ══════════════════════════════════════════
+					     TAB 4: TRANSACTIONS (سجل حركات ومعاملات المحافظ)
+					══════════════════════════════════════════ -->
+					if data.ActiveTab == "transactions" {
+						<div class="tab-content-pane space-y-4">
+							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+								<div>
+									<h2 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text);">سجل حركات ومعاملات المحافظ التفصيلي</h2>
+									<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;">كشف الحركات المالية المزدوجة (إيداع، سحب، مشتريات، استرداد، تسوية).</p>
+								</div>
+								<!-- Search & Filter Form -->
+								<form method="GET" action="/admin/finance" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+									<input type="hidden" name="tab" value="transactions"/>
+									if data.SelectedWalletID > 0 {
+										<input type="hidden" name="wallet_id" value={ fmt.Sprintf("%d", data.SelectedWalletID) }/>
+									}
+									<input type="text" name="q" value={ data.Query } placeholder="ابحث بالوصف أو المنشأة..." class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; min-width:220px; border-radius:8px;"/>
+									<select name="type" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+										<option value="">كل أنواع الحركات</option>
+										<option value="deposit" selected?={ data.TypeFilter == "deposit" }>إيداع / شحن (Deposit)</option>
+										<option value="withdrawal" selected?={ data.TypeFilter == "withdrawal" }>سحب رصيد (Withdrawal)</option>
+										<option value="purchase" selected?={ data.TypeFilter == "purchase" }>مشتريات توريد (Purchase)</option>
+										<option value="refund" selected?={ data.TypeFilter == "refund" }>استرداد أموال (Refund)</option>
+										<option value="adjustment" selected?={ data.TypeFilter == "adjustment" }>تسوية إدارية (Adjustment)</option>
+										<option value="bonus" selected?={ data.TypeFilter == "bonus" }>مكافأة / بونص (Bonus)</option>
+										<option value="penalty" selected?={ data.TypeFilter == "penalty" }>خصم / غرامة (Penalty)</option>
+									</select>
+									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
+									if data.SelectedWalletID > 0 || data.Query != "" || data.TypeFilter != "" {
+										<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء الفلاتر</a>
+									}
+								</form>
 							</div>
 
-							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem;">
-									<div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">إجمالي مبيعات أوامر التوريد</div>
-									<div class="tabular-nums" style="font-size:1.75rem; font-weight:800; margin-top:0.5rem; color:var(--text);">
+							if data.SelectedWalletID > 0 {
+								<div class="alert alert-info" style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.25rem; border-radius:10px; background:rgba(14,165,233,0.1); border:1px solid rgba(14,165,233,0.25); color:var(--text);">
+									<div style="font-size:0.88rem; font-weight:700;">
+										🔍 عرض كشف حساب المحفظة: <span class="badge badge-sky">WLT-{ fmt.Sprintf("%d", data.SelectedWalletID) }</span>
+									</div>
+									<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm" style="font-size:0.75rem;">عرض كل معاملات النظام</a>
+								</div>
+							}
+
+							if len(data.Transactions) == 0 {
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد معاملات مسجلة", Message: "تظهر جميع قيود الخصم والإيداع والتسويات في هذا السجل فور حدوثها."})
+							} else {
+								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+									<table class="data-table">
+										<thead>
+											<tr>
+												<th>رقم الحركة</th>
+												<th>المحفظة والمنشأة</th>
+												<th>نوع الحركة</th>
+												<th>المبلغ</th>
+												<th>الرصيد بعد الحركة</th>
+												<th>المرجع والبيان</th>
+												<th>التاريخ والتوقيت</th>
+											</tr>
+										</thead>
+										<tbody>
+											for _, tx := range data.Transactions {
+												<tr>
+													<td class="tabular-nums">
+														<span style="font-weight:800; font-family:monospace; color:var(--text);">{ fmt.Sprintf("#TX-%d", tx.ID) }</span>
+													</td>
+													<td>
+														<div style="font-weight:700; color:var(--text);">
+															if tx.OrganizationName != "" {
+																{ tx.OrganizationName }
+															} else {
+																{ tx.UserName }
+															}
+														</div>
+														<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">
+															محفظة WLT-{ fmt.Sprintf("%d", tx.WalletID) } • { tx.UserEmail }
+														</div>
+													</td>
+													<td>
+														if tx.Type == "deposit" {
+															<span class="badge badge-emerald">إيداع رصيد</span>
+														} else if tx.Type == "withdrawal" {
+															<span class="badge badge-rose">سحب رصيد</span>
+														} else if tx.Type == "purchase" {
+															<span class="badge badge-amber">مشتريات توريد</span>
+														} else if tx.Type == "refund" {
+															<span class="badge badge-sky">استرداد</span>
+														} else if tx.Type == "bonus" {
+															<span class="badge badge-emerald">مكافأة / بونص</span>
+														} else if tx.Type == "penalty" {
+															<span class="badge badge-rose">خصم / غرامة</span>
+														} else {
+															<span class="badge badge-indigo">تسوية إدارية</span>
+														}
+													</td>
+													<td class="tabular-nums" style="font-size:1.05rem; font-weight:900;">
+														if tx.Amount.Minor() >= 0 {
+															<span style="color:#10b981;">+{ tx.Amount.String() } ج.م</span>
+														} else {
+															<span style="color:#f43f5e;">{ tx.Amount.String() } ج.م</span>
+														}
+													</td>
+													<td class="tabular-nums" style="font-weight:800; color:var(--text);">
+														{ fmt.Sprintf("%s ج.م", tx.BalanceAfter.String()) }
+													</td>
+													<td>
+														<div style="font-size:0.85rem; color:var(--text); max-width:280px; word-break:break-word;">
+															if tx.Description != "" {
+																{ tx.Description }
+															} else {
+																<span style="color:var(--text-muted);">-</span>
+															}
+														</div>
+														if tx.ReferenceType != "" {
+															<div style="font-size:0.72rem; color:var(--text-muted);">مرجع: { tx.ReferenceType } { fmt.Sprintf("#%v", tx.ReferenceID) }</div>
+														}
+													</td>
+													<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">{ tx.CreatedAt.Format("2006-01-02 15:04:05") }</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							}
+						</div>
+					}
+
+					<!-- ══════════════════════════════════════════
+					     TAB 5: EARNINGS & COMMISSIONS
+					══════════════════════════════════════════ -->
+					if data.ActiveTab == "earnings" {
+						<div class="tab-content-pane space-y-6">
+							<div>
+								<h2 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text);">تقرير أرباح وعمولات المنظومة</h2>
+								<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد المكتملة.</p>
+							</div>
+
+							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;">
+									<div style="display:flex; justify-content:space-between; align-items:center;">
+										<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">إجمالي مبيعات أوامر التوريد</span>
+										@components.IconFile("icon-sm")
+									</div>
+									<div class="tabular-nums" style="font-size:1.8rem; font-weight:900; margin-top:0.6rem; color:var(--text);">
 										{ fmt.Sprintf("%s ج.م", data.TotalRevenue.String()) }
 									</div>
 									<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
@@ -337,13 +598,29 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 									</div>
 								</div>
 
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem;">
-									<div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">عمولة المنصة الإجمالية المحصلة</div>
-									<div class="tabular-nums" style="font-size:1.75rem; font-weight:800; color:#10b981; margin-top:0.5rem;">
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;">
+									<div style="display:flex; justify-content:space-between; align-items:center;">
+										<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">عمولة المنصة الإجمالية (5%)</span>
+										<span style="color:#10b981;">@components.IconChart("icon-sm")</span>
+									</div>
+									<div class="tabular-nums" style="font-size:1.8rem; font-weight:900; color:#10b981; margin-top:0.6rem;">
 										{ fmt.Sprintf("%s ج.م", data.TotalCommission.String()) }
 									</div>
 									<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
 										نسبة المنصة من إجمالي المعاملات المالية المكتملة
+									</div>
+								</div>
+
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;">
+									<div style="display:flex; justify-content:space-between; align-items:center;">
+										<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">أرصدة المحافظ المحتجزة للمستخدمين</span>
+										<span style="color:#6366f1;">@components.IconLayers("icon-sm")</span>
+									</div>
+									<div class="tabular-nums" style="font-size:1.8rem; font-weight:900; color:#6366f1; margin-top:0.6rem;">
+										{ fmt.Sprintf("%s ج.م", data.TotalHeld.String()) }
+									</div>
+									<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
+										إجمالي السيولة النقدية المودعة داخل محافظ المنشآت
 									</div>
 								</div>
 							</div>
@@ -351,6 +628,79 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					}
 				</div>
 			</div>
+
+			<!-- ══════════════════════════════════════════
+			     WALLET ADJUSTMENT MODAL
+			══════════════════════════════════════════ -->
+			<div id="walletAdjustModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
+				<div class="card" style="width:100%; max-width:480px; background:var(--surface); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; animation:scaleIn 0.2s ease;">
+					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface-sunken);">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<span style="font-size:1.3rem;">💳</span>
+							<h3 style="margin:0; font-size:1.1rem; font-weight:800; color:var(--text);">تعديل وشحن رصيد المحفظة</h3>
+						</div>
+						<button type="button" onclick="closeWalletAdjustModal()" class="btn btn-secondary btn-sm" style="border:none; padding:0.25rem 0.5rem;">✕</button>
+					</div>
+					<form id="walletAdjustForm" method="POST" action="/admin/finance/wallets/0/adjust" style="padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
+						<input type="hidden" name="_csrf" value=""/>
+						<!-- Target Entity Info Banner -->
+						<div style="padding:0.75rem 1rem; border-radius:10px; background:var(--surface-sunken); border:1px solid var(--border);">
+							<div style="font-size:0.75rem; color:var(--text-muted);">المنشأة المستهدفة:</div>
+							<div id="modalTargetName" style="font-weight:800; color:var(--text); font-size:1rem; margin-top:2px;">-</div>
+							<div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">
+								الرصيد الحالي: <span id="modalCurrentBalance" style="font-weight:800; color:#10b981;">0.00</span>
+							</div>
+						</div>
+
+						<!-- Action Type -->
+						<div>
+							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">نوع العملية المحاسبية *</label>
+							<select name="action_type" id="modalActionType" class="form-input" style="width:100%; border-radius:8px; padding:0.6rem 0.85rem;" required>
+								<option value="deposit">➕ إيداع رصيد (شحن مباشر / تحويل)</option>
+								<option value="withdrawal">➖ خصم من الرصيد (سحب / تسوية مدينة)</option>
+								<option value="adjustment">⚖️ تسوية محاسبية يدوية (Adjustment)</option>
+							</select>
+						</div>
+
+						<!-- Amount -->
+						<div>
+							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">المبلغ بالجنيه المصري (EGP) *</label>
+							<input type="number" step="0.01" min="0.01" name="amount" class="form-input" placeholder="0.00" style="width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:1.1rem; font-weight:800;" required/>
+						</div>
+
+						<!-- Reason / Notes -->
+						<div>
+							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">سبب العملية والملاحظات المحاسبية *</label>
+							<textarea name="reason" rows="2" class="form-input" placeholder="اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)..." style="width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:0.85rem;" required></textarea>
+						</div>
+
+						<div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;">
+							<button type="button" onclick="closeWalletAdjustModal()" class="btn btn-secondary" style="flex:1;">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="flex:1; font-weight:800;">تأكيد وقيد المعاملة</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<script>
+				function openWalletAdjustModal(walletId, orgName, userName, balance, currency) {
+					var modal = document.getElementById('walletAdjustModal');
+					var form = document.getElementById('walletAdjustForm');
+					var targetName = document.getElementById('modalTargetName');
+					var currentBal = document.getElementById('modalCurrentBalance');
+
+					form.action = '/admin/finance/wallets/' + walletId + '/adjust';
+					targetName.textContent = (orgName && orgName !== '') ? orgName + ' (' + userName + ')' : userName;
+					currentBal.textContent = balance + ' ' + currency;
+
+					modal.style.display = 'flex';
+				}
+
+				function closeWalletAdjustModal() {
+					var modal = document.getElementById('walletAdjustModal');
+					modal.style.display = 'none';
+				}
+			</script>
 		</div>
 	}
 }
@@ -430,15 +780,15 @@ templ AdminEarningsOffersPage(revenue, commission money.Amount, lang, dir string
 	@AdminFinance(AdminFinanceData{ActiveTab: "earnings", TotalRevenue: revenue, TotalCommission: commission}, lang, dir)
 }
 
-templ AdminInvoicesPage(invoices []*billing.Invoice, lang, dir string) {
+templ AdminInvoicesPage(invoices []*billing.AdminInvoiceView, lang, dir string) {
 	@AdminFinance(AdminFinanceData{ActiveTab: "invoices", Invoices: invoices}, lang, dir)
 }
 
-templ AdminPaymentsPage(payments []*billing.Payment, lang, dir string) {
+templ AdminPaymentsPage(payments []*billing.AdminPaymentView, lang, dir string) {
 	@AdminFinance(AdminFinanceData{ActiveTab: "payments", Payments: payments}, lang, dir)
 }
 
-templ AdminWalletsPage(wallets []*billing.Wallet, lang, dir string) {
+templ AdminWalletsPage(wallets []*billing.AdminWalletView, lang, dir string) {
 	@AdminFinance(AdminFinanceData{ActiveTab: "wallets", Wallets: wallets}, lang, dir)
 }
 
@@ -448,50 +798,32 @@ templ AdminPlansInfoPage(plans []*billing.Plan, lang, dir string) {
 
 templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string) {
 	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "plans", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">سجل المشتركين الفعلي والترقيات ({ fmt.Sprintf("%d", len(subs)) })</h2>
-					<p class="subtitle">متابعة تجديدات الاشتراكات، الترقيات، وحالات الإلغاء لجميع العملاء.</p>
-				</div>
-			</div>
-
-			if len(subs) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد اشتراكات مسجلة", Message: "ستظهر هنا اشتراكات المنشآت الفعالة والمنتهية فور تفعيلها."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
+		<div class="card">
+			<h2 class="card-title">الاشتراكات النشطة</h2>
+			<div class="table-container">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>المستخدم</th>
+							<th>الخطة</th>
+							<th>الحالة</th>
+							<th>تاريخ الانتهاء</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, s := range subs {
 							<tr>
-								<th>رقم الاشتراك</th>
-								<th>المستخدم / المنشأة</th>
-								<th>معرف الخطة</th>
-								<th>الحالة</th>
-								<th>تاريخ البدء</th>
-								<th>تاريخ الانتهاء</th>
+								<td>{ fmt.Sprintf("%d", s.ID) }</td>
+								<td>مستخدم #{ fmt.Sprintf("%d", s.UserID) }</td>
+								<td>خطة #{ fmt.Sprintf("%d", s.PlanID) }</td>
+								<td><span class="badge badge-emerald">{ string(s.Status) }</span></td>
+								<td>{ s.ExpiresAt.Format("2006-01-02") }</td>
 							</tr>
-						</thead>
-						<tbody>
-							for _, s := range subs {
-								<tr>
-									<td class="tabular-nums"><strong>{ fmt.Sprintf("SUB-%d", s.ID) }</strong></td>
-									<td>
-										if s.OrganizationID != nil {
-											منشأة #{ fmt.Sprintf("%d", *s.OrganizationID) }
-										} else {
-											مستخدم #{ fmt.Sprintf("%d", s.UserID) }
-										}
-									</td>
-									<td class="tabular-nums">خطة #{ fmt.Sprintf("%d", s.PlanID) }</td>
-									<td><span class="badge badge-emerald">{ string(s.Status) }</span></td>
-									<td class="tabular-nums">{ s.StartsAt.Format("2006-01-02") }</td>
-									<td class="tabular-nums">{ s.ExpiresAt.Format("2006-01-02") }</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+						}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	}
 }

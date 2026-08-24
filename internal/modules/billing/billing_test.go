@@ -291,6 +291,30 @@ func (m *mockBillingRepo) AdminListWallets(_ context.Context, limit, offset int)
 	return nil, nil
 }
 
+func (m *mockBillingRepo) EnsureAllOrgWallets(_ context.Context) error {
+	return nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedWallets(_ context.Context, _ WalletFilter) ([]*AdminWalletView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedTransactions(_ context.Context, _ TransactionFilter) ([]*AdminWalletTransactionView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedInvoices(_ context.Context, _ InvoiceFilter) ([]*AdminInvoiceView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedPayments(_ context.Context, _ PaymentFilter) ([]*AdminPaymentView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminPerformWalletAdjustment(_ context.Context, _ int64, _ money.Amount, _ TransactionType, _ string, _ int64) error {
+	return nil
+}
+
 func TestWalletDepositAndWithdraw(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockBillingRepo()

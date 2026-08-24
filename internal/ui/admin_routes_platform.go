@@ -127,7 +127,9 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/session-plan/requests", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/plans?tab=subscriptions", http.StatusMovedPermanently)
 		})
-		g.Get("/admin/report-issues", h.AdminReportIssuesPage)
+		g.Get("/admin/report-issues", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/dashboard", http.StatusMovedPermanently)
+		})
 	})
 
 	// Developers Section (SQL Console, AI Gateway, Errors)
