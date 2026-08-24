@@ -49,10 +49,20 @@ type AdminClient struct {
 }
 
 // NewAdminClient creates a client targeting the AI Gateway Admin API.
+// username and password can be explicit or passed as single API key in password.
 func NewAdminClient(baseURL, username, password string) *AdminClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	if baseURL == "" {
-		baseURL = "http://localhost:8080"
+		baseURL = "https://api.muhiya.com"
+	}
+	if username == "" && password != "" {
+		if strings.Contains(password, ":") {
+			parts := strings.SplitN(password, ":", 2)
+			username = parts[0]
+			password = parts[1]
+		} else {
+			username = "admin"
+		}
 	}
 	return &AdminClient{
 		baseURL:    baseURL,

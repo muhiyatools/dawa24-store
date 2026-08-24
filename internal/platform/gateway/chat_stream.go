@@ -28,7 +28,11 @@ func (c *HTTPClient) Stream(ctx context.Context, req ChatRequest) (<-chan Stream
 	}
 
 	settings := c.resolve(ctx)
-	if !settings.Enabled || settings.VirtualKey == "" {
+	authKey := settings.VirtualKey
+	if req.VirtualKey != "" {
+		authKey = req.VirtualKey
+	}
+	if !settings.Enabled || authKey == "" {
 		return nil, ErrDisabled
 	}
 
@@ -56,7 +60,7 @@ func (c *HTTPClient) Stream(ctx context.Context, req ChatRequest) (<-chan Stream
 
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Accept", "text/event-stream")
-	httpReq.Header.Set("Authorization", "Bearer "+settings.VirtualKey)
+	httpReq.Header.Set("Authorization", "Bearer "+authKey)
 	httpReq.Header.Set("X-Client-App", settings.ClientApp)
 	httpReq.Header.Set("X-Dawa-Org-ID", strconv.FormatInt(req.OrgID, 10))
 	httpReq.Header.Set("X-Dawa-User-ID", strconv.FormatInt(req.UserID, 10))

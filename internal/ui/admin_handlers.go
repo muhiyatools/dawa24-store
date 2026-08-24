@@ -1179,6 +1179,35 @@ func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
 }
 
+func (h *UIHandler) getGatewayAdminClient(ctx context.Context) (*gateway.AdminClient, string, bool) {
+	var endpointURL, secretKey string
+	if h.adminSvc != nil {
+		if aiSets, err := h.adminSvc.GetAISettings(ctx); err == nil && aiSets != nil {
+			if aiSets.EndpointURL != "" {
+				endpointURL = aiSets.EndpointURL
+			}
+			if aiSets.APIKey != "" {
+				secretKey = aiSets.APIKey
+			}
+		}
+		if endpointURL == "" || secretKey == "" {
+			if gwSets, err := h.adminSvc.GetGatewaySettings(ctx); err == nil && gwSets != nil {
+				if endpointURL == "" && gwSets.EndpointURL != "" {
+					endpointURL = gwSets.EndpointURL
+				}
+				if secretKey == "" && gwSets.APIKey != "" {
+					secretKey = gwSets.APIKey
+				}
+			}
+		}
+	}
+	if endpointURL == "" {
+		endpointURL = "https://api.muhiya.com"
+	}
+	client := gateway.NewAdminClient(endpointURL, "", secretKey)
+	return client, endpointURL, secretKey != ""
+}
+
 func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int64) {
 	if orgID <= 0 {
 		return
@@ -1201,29 +1230,21 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 	}
 
 	// Determine AI plan ID from subscription
-	aiPlanID := "plan-basic"
+	aiPlanID := "plan-dev"
 	if sub != nil && h.billSvc != nil {
 		if plan, err := h.billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
 			aiPlanID = plan.AIPlanID
 		}
 	}
 
-	// 3. If AI Gateway client is configured, provision in AI Gateway
-	var gatewayURL, gatewayUser, gatewayPass string
-	if h.adminSvc != nil {
-		if aiSets, err := h.adminSvc.GetAISettings(sysCtx); err == nil && aiSets != nil && aiSets.EndpointURL != "" {
-			gatewayURL = aiSets.EndpointURL
-		}
-	}
-	if gatewayURL == "" {
-		gatewayURL = "http://localhost:8080"
-	}
-
-	adminClient := gateway.NewAdminClient(gatewayURL, gatewayUser, gatewayPass)
+	// 3. Provision user and virtual key in AI Gateway
+	adminClient, _, _ := h.getGatewayAdminClient(sysCtx)
 	userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
 	if provErr == nil && (vkey != "" || userID != "") {
 		_ = h.orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
 		h.log.InfoContext(ctx, "ai gateway organization provisioned", "org_id", orgID, "user_id", userID, "plan_id", aiPlanID)
+	} else if provErr != nil {
+		h.log.WarnContext(ctx, "ai gateway organization provisioning failed", "org_id", orgID, "error", provErr)
 	}
 }
 
@@ -1843,26 +1864,19 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 		subs, _ = h.billSvc.AdminListSubscriptions(ctx, 100, 0)
 	}
 
-	// Retrieve gateway plans for dropdown
+	// Retrieve gateway plans for dropdown dynamically from endpoint
 	var gwPlans []gateway.GatewayPlan
-	var gatewayURL, gatewayUser, gatewayPass string
-	if h.adminSvc != nil {
-		if aiSets, err := h.adminSvc.GetAISettings(ctx); err == nil && aiSets != nil && aiSets.EndpointURL != "" {
-			gatewayURL = aiSets.EndpointURL
-		}
-	}
-	if gatewayURL == "" {
-		gatewayURL = "http://localhost:8080"
-	}
-	adminClient := gateway.NewAdminClient(gatewayURL, gatewayUser, gatewayPass)
-	if gps, err := adminClient.ListPlans(ctx); err == nil {
+	adminClient, endpointURL, _ := h.getGatewayAdminClient(ctx)
+	gps, gwErr := adminClient.ListPlans(ctx)
+	gwOnline := gwErr == nil && len(gps) > 0
+	if gwOnline {
 		gwPlans = gps
-	}
-	if len(gwPlans) == 0 {
+	} else {
+		// Standard MuhiyaLLM Gateway defaults
 		gwPlans = []gateway.GatewayPlan{
-			{ID: "plan-basic", Name: "Basic AI Plan", RPMLimit: 10, TPMLimit: 50000},
-			{ID: "plan-pro", Name: "Pro AI Plan", RPMLimit: 60, TPMLimit: 300000},
-			{ID: "plan-enterprise", Name: "Enterprise AI Plan", RPMLimit: 200, TPMLimit: 1000000},
+			{ID: "plan-dev", Name: "MuhiyaCode Free (plan-dev)", RPMLimit: 30, TPMLimit: 300000, Description: "باقة التطوير والتشغيل المجانية"},
+			{ID: "yalla", Name: "MuhiyaCode Yalla (yalla)", RPMLimit: 60, TPMLimit: 1200000, Description: "باقة الأعمال والنمو المتوسطة"},
+			{ID: "max", Name: "MuhiyaCode Max (max)", RPMLimit: 100, TPMLimit: 2500000, Description: "باقة المؤسسات والشركات الكبرى"},
 		}
 	}
 
@@ -1871,6 +1885,8 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 		Plans:         plans,
 		Subscriptions: subs,
 		GatewayPlans:  gwPlans,
+		GatewayURL:    endpointURL,
+		GatewayOnline: gwOnline,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

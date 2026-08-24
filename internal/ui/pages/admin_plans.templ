@@ -16,6 +16,8 @@ type AdminPlansData struct {
 	Plans         []*billing.Plan
 	Subscriptions []*billing.Subscription
 	GatewayPlans  []gateway.GatewayPlan
+	GatewayURL    string
+	GatewayOnline bool
 }
 
 templ AdminPlans(lang, dir string, plans []*billing.Plan) {
@@ -24,245 +26,510 @@ templ AdminPlans(lang, dir string, plans []*billing.Plan) {
 
 templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 	@layouts.AdminShell("باقات وخطط الاشتراك الموحدة", "plans", lang, dir) {
-		<div class="card mb-3" style="border:1px solid var(--border);">
-			<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h1 class="card-title" style="margin:0; font-size:1.35rem; font-weight:800;">باقات واشتراكات المنظومة الموحدة</h1>
-					<p class="subtitle" style="margin:0.25rem 0 0; font-size:0.85rem; color:var(--text-secondary);">
-						إدارة شاملة لخطط الاشتراكات، حدود الجلسات المتزامنة (على مستوى المنشأة بالكامل)، الأجهزة، وتكامل باقات الذكاء الاصطناعي (AI Gateway).
-					</p>
+		<div x-data="adminPlansManager()" style="display:flex; flex-direction:column; gap:1.25rem;">
+			
+			<!-- Top KPI & Overview Header -->
+			<div class="card mb-0" style="border:1px solid var(--border); padding:1.25rem 1.5rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<h1 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800; color:var(--text);">
+								باقات واشتراكات المنظومة الموحدة
+							</h1>
+							<span class="badge badge-primary" style="font-size:0.8rem; font-weight:700;">
+								{ fmt.Sprintf("%d باقات", len(data.Plans)) }
+							</span>
+						</div>
+						<p class="subtitle" style="margin:0.35rem 0 0; font-size:0.875rem; color:var(--text-secondary);">
+							إدارة مركزية لخطط الاشتراكات، حدود الجلسات المتزامنة المطبقة على المنشأة بالكامل، وحصص بوابة الذكاء الاصطناعي (AI Gateway).
+						</p>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+						<!-- AI Gateway Connection Status Indicator -->
+						<div style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-sunken); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:var(--radius-full); font-size:0.8rem;">
+							<span style="font-size:0.9rem;">🤖</span>
+							<span style="color:var(--text-secondary); font-weight:600;">بوابة الذكاء الاصطناعي:</span>
+							if data.GatewayOnline {
+								<span class="badge badge-emerald" style="padding:0.2rem 0.5rem; font-size:0.75rem;">متصلة ومزامنة</span>
+							} else {
+								<span class="badge badge-warning" style="padding:0.2rem 0.5rem; font-size:0.75rem;" title="جاري الاتصال بـ Endpoint">جاهزة للربط</span>
+							}
+							<code dir="ltr" style="font-size:0.75rem; color:var(--text-muted);">{ data.GatewayURL }</code>
+						</div>
+
+						<!-- Add New Plan Action -->
+						<button
+							type="button"
+							class="btn btn-primary"
+							@click="openCreateModal()"
+							style="font-weight:800; padding:0.55rem 1.25rem; display:inline-flex; align-items:center; gap:0.4rem;"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إضافة باقة جديدة</span>
+						</button>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="card mb-0" style="border:1px solid var(--border); padding:0; overflow:hidden;">
-			<!-- Tab Navigation -->
-			<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto;">
-				<a href="/admin/plans?tab=plans" class={ "tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
-					@components.IconTag("icon-sm")
-					<span>دليل باقات الاشتراك الموحدة ({ fmt.Sprintf("%d", len(data.Plans)) })</span>
-				</a>
-				<a href="/admin/plans?tab=subscriptions" class={ "tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
-					@components.IconWallet("icon-sm")
-					<span>سجلات المشتركين والمنشآت ({ fmt.Sprintf("%d", len(data.Subscriptions)) })</span>
-				</a>
-			</div>
+			<!-- Main Container with Tabs -->
+			<div class="card mb-0" style="border:1px solid var(--border); padding:0; overflow:hidden;">
+				<!-- Tab Navigation -->
+				<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1.25rem; overflow-x:auto;">
+					<a
+						href="/admin/plans?tab=plans"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") }
+						style="padding:1rem 1.5rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;"
+					>
+						@components.IconTag("icon-sm")
+						<span>دليل باقات الاشتراك الموحدة ({ fmt.Sprintf("%d", len(data.Plans)) })</span>
+					</a>
+					<a
+						href="/admin/plans?tab=subscriptions"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") }
+						style="padding:1rem 1.5rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;"
+					>
+						@components.IconWallet("icon-sm")
+						<span>سجلات المشتركين والمنشآت ({ fmt.Sprintf("%d", len(data.Subscriptions)) })</span>
+					</a>
+				</div>
 
-			<div style="padding:1.5rem;">
-				if data.ActiveTab == "subscriptions" {
-					if len(data.Subscriptions) == 0 {
-						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد اشتراكات مسجلة", Message: "ستظهر هنا اشتراكات المنشآت الفعالة والمنتهية فور تفعيلها أو تسجيل منشآت جديدة."})
-					} else {
-						<div class="table-container">
-							<table class="data-table">
-								<thead>
-									<tr>
-										<th>رقم الاشتراك</th>
-										<th>المستفيد / المنشأة</th>
-										<th>معرف الخطة</th>
-										<th>الحالة</th>
-										<th>نظام المصدر</th>
-										<th>تاريخ التفعيل</th>
-										<th>تاريخ الانتهاء</th>
-									</tr>
-								</thead>
-								<tbody>
-									for _, s := range data.Subscriptions {
+				<div style="padding:1.5rem;">
+					if data.ActiveTab == "subscriptions" {
+						<!-- TAB 2: Subscriptions Table -->
+						if len(data.Subscriptions) == 0 {
+							@components.EmptyState(components.EmptyStateProps{
+								Title:   "لا توجد اشتراكات مسجلة حالياً",
+								Message: "ستظهر هنا سجلات اشتراكات المنشآت فور اعتمادها وتفعيل حساباتها.",
+							})
+						} else {
+							<div class="table-container">
+								<table class="data-table">
+									<thead>
 										<tr>
-											<td class="tabular-nums"><strong>{ fmt.Sprintf("SUB-%d", s.ID) }</strong></td>
-											<td>
-												if s.OrganizationID != nil && *s.OrganizationID > 0 {
-													<span class="badge badge-primary">منشأة #{ fmt.Sprintf("%d", *s.OrganizationID) }</span>
-												} else {
-													<span class="badge badge-secondary">مستخدم #{ fmt.Sprintf("%d", s.UserID) }</span>
-												}
-											</td>
-											<td class="tabular-nums">
-												for _, p := range data.Plans {
-													if p.ID == s.PlanID {
-														<strong>{ p.Name.Get(i18n.Lang(lang)) }</strong>
-													}
-												}
-												if s.PlanID > 0 {
-													<span style="font-size:0.75rem; color:var(--text-muted); display:block;">(خطة #{ fmt.Sprintf("%d", s.PlanID) })</span>
-												}
-											</td>
-											<td>
-												if s.Status == "active" {
-													<span class="badge badge-emerald">ساري وفعال</span>
-												} else {
-													<span class="badge badge-secondary">{ string(s.Status) }</span>
-												}
-											</td>
-											<td><span style="font-size:0.8rem; color:var(--text-secondary);">{ s.SourceSystem }</span></td>
-											<td class="tabular-nums">{ s.StartsAt.Format("2006-01-02") }</td>
-											<td class="tabular-nums">{ s.ExpiresAt.Format("2006-01-02") }</td>
+											<th>رقم الاشتراك</th>
+											<th>المنشأة / المستفيد</th>
+											<th>باقة الاشتراك</th>
+											<th>الحالة</th>
+											<th>نظام التفعيل</th>
+											<th>تاريخ البدء</th>
+											<th>تاريخ الانتهاء</th>
 										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					}
-				} else {
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.5rem;">
-						<!-- Form: Add / Edit Plan -->
-						<div class="card" style="margin:0; background:var(--surface-sunken); border:1px solid var(--border);">
-							<h3 style="font-size:1.1rem; font-weight:700; margin:0 0 1rem; color:var(--text);">إضافة / تعديل باقة اشتراك</h3>
-							<form method="POST" action="/admin/plans" style="display:flex; flex-direction:column; gap:1rem;">
-								<div class="form-grid-2">
-									<div class="form-group" style="margin-bottom:0;">
-										<label class="form-label" for="p-slug">المعرّف الفريد (Slug)</label>
-										<input type="text" id="p-slug" name="slug" required class="form-input" placeholder="e.g. basic, pro, enterprise" dir="ltr" />
-									</div>
-									<div class="form-group" style="margin-bottom:0;">
-										<label class="form-label" for="p-name-ar">اسم الباقة (عربي)</label>
-										<input type="text" id="p-name-ar" name="name_ar" required class="form-input" placeholder="مثال: الباقة الاحترافية" />
-									</div>
-								</div>
-
-								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label" for="p-desc-ar">وصف ومميزات الباقة</label>
-									<textarea id="p-desc-ar" name="description_ar" rows="2" class="form-input" placeholder="وصف موجز للمميزات والصلاحيات الممنوحة..."></textarea>
-								</div>
-
-								<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
-									<div class="form-group" style="margin-bottom:0;">
-										<label class="form-label" for="p-month">السعر الشهري (ج.م)</label>
-										<input type="text" id="p-month" name="price_month" class="form-input tabular-nums" value="0.00" />
-									</div>
-									<div class="form-group" style="margin-bottom:0;">
-										<label class="form-label" for="p-year">السعر السنوي (ج.م)</label>
-										<input type="text" id="p-year" name="price_year" class="form-input tabular-nums" value="0.00" />
-									</div>
-									<div class="form-group" style="margin-bottom:0;">
-										<label class="form-label" for="p-days">المدة (أيام)</label>
-										<input type="number" id="p-days" name="duration_days" class="form-input tabular-nums" value="30" />
-									</div>
-								</div>
-
-								<!-- Unified Limits Section -->
-								<div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
-									<h4 style="margin:0; font-size:0.95rem; font-weight:700; color:var(--text);">حدود الباقة الموحدة (Limits)</h4>
-									
-									<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-										<div class="form-group" style="margin-bottom:0;">
-											<label class="form-label" for="p-sessions">الجلسات المتزامنة (إجمالي المنشأة)</label>
-											<input type="number" id="p-sessions" name="max_login_sessions" class="form-input tabular-nums" value="3" min="1" max="500" required />
-											<span style="font-size:0.75rem; color:var(--text-secondary);">يتم تطبيقه على المنشأة بالكامل</span>
-										</div>
-										<div class="form-group" style="margin-bottom:0;">
-											<label class="form-label" for="p-devices">حد الأجهزة المسموح بها</label>
-											<input type="number" id="p-devices" name="max_devices" class="form-input tabular-nums" value="3" min="1" max="500" required />
-											<span style="font-size:0.75rem; color:var(--text-secondary);">أقصى أجهزة مسجلة</span>
-										</div>
-									</div>
-
-									<div class="form-group" style="margin-bottom:0;">
-										<label class="form-label" for="p-ai-plan">باقة بوابة الذكاء الاصطناعي (AI Gateway)</label>
-										<select id="p-ai-plan" name="ai_plan_id" class="form-input" style="background:var(--surface-sunken);">
-											for _, gp := range data.GatewayPlans {
-												<option value={ gp.ID }>{ gp.Name } ({ gp.ID }) - { fmt.Sprintf("%d RPM / %d TPM", gp.RPMLimit, gp.TPMLimit) }</option>
-											}
-											if len(data.GatewayPlans) == 0 {
-												<option value="plan-basic">Basic AI Plan (plan-basic)</option>
-												<option value="plan-pro">Pro AI Plan (plan-pro)</option>
-												<option value="plan-enterprise">Enterprise AI Plan (plan-enterprise)</option>
-											}
-										</select>
-										<span style="font-size:0.75rem; color:var(--text-secondary);">الربط التلقائي وتحديد حصة الكوتا في الـ AI Gateway</span>
-									</div>
-								</div>
-
-								<!-- Features and Default Status -->
-								<div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.9rem;">
-									<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-										<input type="checkbox" name="is_default" value="1" />
-										<strong>تعيين كباقة افتراضية (تُمنح تلقائياً ومجاناً لكافة المنشآت عند التسجيل)</strong>
-									</label>
-									<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-										<input type="checkbox" name="is_compare" value="1" />
-										<span>مقارنة الخصومات والعروض بين الموردين</span>
-									</label>
-									<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-										<input type="checkbox" name="feature_bulk_import" value="1" />
-										<span>استيراد وتحديث المخزون والطلبيات المجمعة</span>
-									</label>
-									<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-										<input type="checkbox" name="feature_analytics" value="1" />
-										<span>التحليلات المتقدمة ورؤى السوق الدوائي</span>
-									</label>
-								</div>
-
-								<button type="submit" class="btn btn-primary" style="justify-content:center; margin-top:0.5rem;">
-									@components.IconPlus("icon-sm")
-									<span>حفظ وتفعيل الباقة</span>
-								</button>
-							</form>
-						</div>
-
-						<!-- Plans List Table -->
-						<div class="card" style="margin:0; border:1px solid var(--border);">
-							<h3 style="font-size:1.1rem; font-weight:700; margin:0 0 1rem; color:var(--text);">الباقات المعرفة في المنظومة ({ fmt.Sprintf("%d", len(data.Plans)) })</h3>
-							if len(data.Plans) == 0 {
-								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد باقات معرفة", Message: "يمكنك إضافة باقة اشتراك موحدة جديدة عبر النموذج المقابل."})
-							} else {
-								<div class="table-container">
-									<table class="data-table">
-										<thead>
+									</thead>
+									<tbody>
+										for _, s := range data.Subscriptions {
 											<tr>
-												<th>المعرّف</th>
-												<th>اسم الباقة</th>
-												<th>الأسعار</th>
-												<th>حد الجلسات</th>
-												<th>باقة AI</th>
-												<th>الحالة</th>
+												<td class="tabular-nums"><strong>{ fmt.Sprintf("SUB-%d", s.ID) }</strong></td>
+												<td>
+													if s.OrganizationID != nil && *s.OrganizationID > 0 {
+														<span class="badge badge-primary" style="font-weight:700;">منشأة #{ fmt.Sprintf("%d", *s.OrganizationID) }</span>
+													} else {
+														<span class="badge badge-secondary">مستخدم #{ fmt.Sprintf("%d", s.UserID) }</span>
+													}
+												</td>
+												<td>
+													for _, p := range data.Plans {
+														if p.ID == s.PlanID {
+															<div style="font-weight:800; color:var(--text);">{ p.Name.Get(i18n.Lang(lang)) }</div>
+															<span style="font-size:0.75rem; color:var(--text-muted);" dir="ltr"><code>{ p.Slug }</code></span>
+														}
+													}
+													if s.PlanID > 0 {
+														<span style="font-size:0.75rem; color:var(--text-muted); display:none;">(خطة #{ fmt.Sprintf("%d", s.PlanID) })</span>
+													}
+												</td>
+												<td>
+													if s.Status == "active" {
+														<span class="badge badge-emerald">ساري وفعال</span>
+													} else {
+														<span class="badge badge-secondary">{ string(s.Status) }</span>
+													}
+												</td>
+												<td><span style="font-size:0.8rem; color:var(--text-secondary);">{ s.SourceSystem }</span></td>
+												<td class="tabular-nums">{ s.StartsAt.Format("2006-01-02") }</td>
+												<td class="tabular-nums">{ s.ExpiresAt.Format("2006-01-02") }</td>
 											</tr>
-										</thead>
-										<tbody>
-											for _, p := range data.Plans {
-												<tr>
-													<td dir="ltr" class="tabular-nums">
-														<code>{ p.Slug }</code>
+										}
+									</tbody>
+								</table>
+							</div>
+						}
+					} else {
+						<!-- TAB 1: Unified Plans Cards Grid -->
+						if len(data.Plans) == 0 {
+							@components.EmptyState(components.EmptyStateProps{
+								Title:   "لا توجد باقات معرفة",
+								Message: "قم بإنشاء باقة اشتراك موحدة جديدة لربط المنشآت وحصص الذكاء الاصطناعي.",
+							})
+						} else {
+							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:1.5rem; align-items:stretch;">
+								for _, p := range data.Plans {
+									<div
+										class="card mb-0"
+										style="display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.5rem; position:relative; box-shadow:0 4px 20px rgba(0,0,0,0.15);"
+									>
+										<!-- Card Top: Badges & Title -->
+										<div>
+											<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;">
+												<div style="display:flex; flex-direction:column; gap:0.25rem;">
+													<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+														<h3 style="font-size:1.25rem; font-weight:800; margin:0; color:var(--text);">
+															{ p.Name.Get(i18n.Lang(lang)) }
+														</h3>
 														if p.IsDefault {
-															<span class="badge badge-primary" style="font-size:0.7rem; margin-top:0.25rem; display:inline-block;">افتراضية</span>
+															<span class="badge badge-primary" style="font-weight:800; font-size:0.75rem;">
+																★ الباقة الافتراضية
+															</span>
 														}
-													</td>
-													<td>
-														<strong>{ p.Name.Get(i18n.Lang(lang)) }</strong>
-														if p.Description.Get(i18n.Lang(lang)) != "" {
-															<div style="font-size:0.75rem; color:var(--text-secondary); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-																{ p.Description.Get(i18n.Lang(lang)) }
-															</div>
-														}
-													</td>
-													<td class="tabular-nums">
-														<div style="font-weight:700; color:var(--primary);">{ fmt.Sprintf("%s ج.م/ش", p.PriceMonth.String()) }</div>
-														<div style="font-size:0.75rem; color:var(--text-muted);">{ fmt.Sprintf("%s ج.م/س", p.PriceYear.String()) }</div>
-													</td>
-													<td class="tabular-nums">
-														<span class="badge badge-info" style="font-weight:700;">{ fmt.Sprintf("%d جلسات", p.MaxLoginSessions) }</span>
-														<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }</div>
-													</td>
-													<td>
-														<span class="badge badge-secondary" dir="ltr">{ p.AIPlanID }</span>
-													</td>
-													<td>
-														if p.IsActive {
-															<span class="badge badge-emerald">نشطة</span>
-														} else {
-															<span class="badge badge-secondary">معطلة</span>
-														}
-													</td>
-												</tr>
+													</div>
+													<div dir="ltr" style="font-size:0.8rem; color:var(--text-muted);">
+														<code>{ p.Slug }</code>
+													</div>
+												</div>
+
+												if p.IsActive {
+													<span class="badge badge-emerald">نشطة</span>
+												} else {
+													<span class="badge badge-secondary">معطلة</span>
+												}
+											</div>
+
+											if p.Description.Get(i18n.Lang(lang)) != "" {
+												<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1.25rem 0; line-height:1.5;">
+													{ p.Description.Get(i18n.Lang(lang)) }
+												</p>
+											} else {
+												<div style="margin-bottom:1rem;"></div>
 											}
-										</tbody>
-									</table>
-								</div>
-							}
-						</div>
-					</div>
-				}
+
+											<!-- Pricing Display Strip -->
+											<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center;">
+												<div>
+													<div style="font-size:0.75rem; color:var(--text-secondary); font-weight:600;">الاشتراك الشهري</div>
+													<div style="font-size:1.35rem; font-weight:900; color:var(--primary);" class="tabular-nums">
+														{ fmt.Sprintf("%s ج.م", p.PriceMonth.String()) }
+													</div>
+												</div>
+												<div style="text-align:end; border-inline-start:1px solid var(--border); padding-inline-start:1rem;">
+													<div style="font-size:0.75rem; color:var(--text-secondary); font-weight:600;">الاشتراك السنوي</div>
+													<div style="font-size:1.05rem; font-weight:800; color:var(--text);" class="tabular-nums">
+														{ fmt.Sprintf("%s ج.م", p.PriceYear.String()) }
+													</div>
+												</div>
+											</div>
+
+											<!-- Quotas & Limits Box -->
+											<div style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:1rem; margin-bottom:1.25rem;">
+												<div style="font-size:0.8rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+													<span>⚙️</span>
+													<span>حدود المنشأة والحصص (Enterprise Limits)</span>
+												</div>
+
+												<div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.85rem;">
+													<!-- Concurrent Sessions Limit -->
+													<div style="display:flex; justify-content:space-between; align-items:center;">
+														<span style="color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;">
+															<span>👥</span>
+															<span>الجلسات المتزامنة:</span>
+														</span>
+														<strong style="color:var(--text);" class="tabular-nums">
+															{ fmt.Sprintf("%d جلسات (إجمالي المنشأة)", p.MaxLoginSessions) }
+														</strong>
+													</div>
+
+													<!-- Max Devices Limit -->
+													<div style="display:flex; justify-content:space-between; align-items:center;">
+														<span style="color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;">
+															<span>💻</span>
+															<span>الأجهزة المسموح بها:</span>
+														</span>
+														<strong style="color:var(--text);" class="tabular-nums">
+															{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }
+														</strong>
+													</div>
+
+													<!-- AI Gateway Plan -->
+													<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:0.5rem; margin-top:0.25rem;">
+														<span style="color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;">
+															<span>🤖</span>
+															<span>باقة الـ AI Gateway:</span>
+														</span>
+														<span class="badge badge-info" dir="ltr" style="font-weight:700; font-size:0.75rem;">
+															{ p.AIPlanID }
+														</span>
+													</div>
+												</div>
+											</div>
+
+											<!-- Features Checklist -->
+											<div style="margin-bottom:1.25rem; font-size:0.825rem; display:flex; flex-direction:column; gap:0.45rem;">
+												<div style="font-weight:700; color:var(--text-muted); font-size:0.75rem; margin-bottom:0.15rem;">المميزات والصلاحيات الممنوحة:</div>
+												<div style="display:flex; align-items:center; gap:0.4rem; color:var(--text);">
+													if p.Features != nil && p.Features["compare"] == "true" {
+														<span style="color:var(--emerald);">✓</span>
+														<span>مقارنة الخصومات والعروض بين الموردين</span>
+													} else {
+														<span style="color:var(--text-muted);">✕</span>
+														<span style="color:var(--text-muted); text-decoration:line-through;">مقارنة الخصومات والعروض</span>
+													}
+												</div>
+												<div style="display:flex; align-items:center; gap:0.4rem; color:var(--text);">
+													if p.Features != nil && p.Features["bulk_import"] == "true" {
+														<span style="color:var(--emerald);">✓</span>
+														<span>استيراد وتحديث المخزون والطلبيات المجمعة</span>
+													} else {
+														<span style="color:var(--text-muted);">✕</span>
+														<span style="color:var(--text-muted); text-decoration:line-through;">استيراد وتحديث المخزون المجمع</span>
+													}
+												</div>
+												<div style="display:flex; align-items:center; gap:0.4rem; color:var(--text);">
+													if p.Features != nil && p.Features["analytics"] == "true" {
+														<span style="color:var(--emerald);">✓</span>
+														<span>التحليلات المتقدمة ورؤى السوق الدوائي</span>
+													} else {
+														<span style="color:var(--text-muted);">✕</span>
+														<span style="color:var(--text-muted); text-decoration:line-through;">التحليلات المتقدمة ورؤى السوق</span>
+													}
+												</div>
+											</div>
+										</div>
+
+										<!-- Card Bottom Action -->
+										<div style="border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem; display:flex; justify-content:flex-end;">
+											<button
+												type="button"
+												class="btn btn-secondary btn-sm"
+												style="font-weight:700; width:100%; justify-content:center; gap:0.4rem;"
+												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t, compare:%t, bulk:%t, analytics:%t})",
+													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive, p.Features != nil && p.Features["compare"] == "true", p.Features != nil && p.Features["bulk_import"] == "true", p.Features != nil && p.Features["analytics"] == "true") }
+											>
+												@components.IconEdit("icon-xs")
+												<span>تعديل إعدادات وحدود الباقة</span>
+											</button>
+										</div>
+									</div>
+								}
+							</div>
+						}
+					}
+				</div>
 			</div>
+
+			<!-- ========================================== -->
+			<!-- Create / Edit Plan Modal                   -->
+			<!-- ========================================== -->
+			<div
+				x-show="showModal"
+				x-cloak
+				class="modal-backdrop"
+				style="position:fixed; inset:0; z-index:1050; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;"
+			>
+				<div
+					@click.away="showModal = false"
+					class="card"
+					style="width:100%; max-width:680px; max-height:90vh; overflow-y:auto; margin:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 20px 40px rgba(0,0,0,0.5); padding:1.75rem;"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div>
+							<h3 style="margin:0; font-size:1.2rem; font-weight:800; color:var(--text);" x-text="isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'"></h3>
+							<p style="margin:0.25rem 0 0; font-size:0.8rem; color:var(--text-secondary);">
+								تحديد الأسعار، حدود الجلسات المتزامنة للمنشأة، وربط باقة الـ AI Gateway.
+							</p>
+						</div>
+						<button type="button" @click="showModal = false" class="btn btn-secondary btn-xs" style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;">✕</button>
+					</div>
+
+					<form :action="formAction" method="POST" style="display:flex; flex-direction:column; gap:1.2rem;">
+						
+						<!-- Row 1: Slug & Name -->
+						<div class="form-grid-2">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">المعرّف الفريد (Slug) *</label>
+								<input type="text" name="slug" x-model="form.slug" required class="form-input" placeholder="e.g. basic, pro, enterprise" dir="ltr" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم الباقة (عربي) *</label>
+								<input type="text" name="name_ar" x-model="form.name_ar" required class="form-input" placeholder="مثال: الباقة الاحترافية" />
+							</div>
+						</div>
+
+						<div class="form-group" style="margin:0;">
+							<label class="form-label">وصف ومميزات الباقة</label>
+							<textarea name="description_ar" x-model="form.desc_ar" rows="2" class="form-input" placeholder="وصف موجز للمميزات والصلاحيات..."></textarea>
+						</div>
+
+						<!-- Row 2: Pricing and Duration -->
+						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">السعر الشهري (ج.م)</label>
+								<input type="text" name="price_month" x-model="form.price_month" class="form-input tabular-nums" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">السعر السنوي (ج.م)</label>
+								<input type="text" name="price_year" x-model="form.price_year" class="form-input tabular-nums" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">المدة (أيام)</label>
+								<input type="number" name="duration_days" x-model="form.duration" class="form-input tabular-nums" />
+							</div>
+						</div>
+
+						<!-- Row 3: Unified Enterprise Limits & AI Plan Binding Box -->
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.1rem; display:flex; flex-direction:column; gap:0.9rem;">
+							<div style="font-size:0.9rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+								<span>⚙️</span>
+								<span>حدود وحصص المنشأة بالكامل (Enterprise Quotas)</span>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">الجلسات المتزامنة (إجمالي المنشأة) *</label>
+									<input type="number" name="max_login_sessions" x-model="form.sessions" class="form-input tabular-nums" min="1" max="500" required />
+									<span style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;">مطبقة على إجمالي مستخدمي المنشأة</span>
+								</div>
+								<div class="form-group" style="margin:0;">
+									<label class="form-label">حد الأجهزة المسموح بها *</label>
+									<input type="number" name="max_devices" x-model="form.devices" class="form-input tabular-nums" min="1" max="500" required />
+									<span style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;">أقصى أجهزة مسجلة</span>
+								</div>
+							</div>
+
+							<div class="form-group" style="margin:0;">
+								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+									<label class="form-label" style="margin:0;">باقة بوابة الذكاء الاصطناعي (AI Gateway Plan) *</label>
+									<span style="font-size:0.75rem; color:var(--primary); font-weight:600;">(مزامنة من { data.GatewayURL })</span>
+								</div>
+								<select name="ai_plan_id" x-model="form.ai_plan" class="form-input" style="background:var(--surface);">
+									for _, gp := range data.GatewayPlans {
+										<option value={ gp.ID }>
+											{ gp.Name } ({ gp.ID }) — { fmt.Sprintf("%d RPM / %d TPM", gp.RPMLimit, gp.TPMLimit) }
+										</option>
+									}
+								</select>
+								<span style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem; display:block;">
+									الربط التلقائي وتحديد حصة الكوتا في الـ AI Gateway وتوليد المفتاح الافتراضي (Virtual Key) تلقائياً للمنشأة.
+								</span>
+							</div>
+						</div>
+
+						<!-- Features & Default Checkboxes -->
+						<div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;">
+							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.06); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);">
+								<input type="checkbox" name="is_default" value="1" x-model="form.is_default" />
+								<div>
+									<strong style="color:var(--text); display:block;">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong>
+									<span style="font-size:0.75rem; color:var(--text-secondary);">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span>
+								</div>
+							</label>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.25rem;">
+								<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
+									<input type="checkbox" name="is_compare" value="1" x-model="form.compare" />
+									<span>مقارنة الخصومات بين الموردين</span>
+								</label>
+								<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
+									<input type="checkbox" name="feature_bulk_import" value="1" x-model="form.bulk" />
+									<span>استيراد وتحديث المخزون المجمع</span>
+								</label>
+								<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
+									<input type="checkbox" name="feature_analytics" value="1" x-model="form.analytics" />
+									<span>التحليلات المتقدمة ورؤى السوق</span>
+								</label>
+								<template x-if="isEdit">
+									<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
+										<input type="checkbox" name="is_active" value="1" x-model="form.is_active" />
+										<span>الباقة نشطة ومتاحة للاشتراك</span>
+									</label>
+								</template>
+							</div>
+						</div>
+
+						<!-- Modal Actions -->
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;">
+							<button type="button" class="btn btn-secondary" @click="showModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+								@components.IconCheck("icon-xs")
+								<span x-text="isEdit ? 'حفظ التحديثات' : 'إضافة وتفعيل الباقة'"></span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
 		</div>
+
+		<script>
+			function adminPlansManager() {
+				return {
+					showModal: false,
+					isEdit: false,
+					formAction: '/admin/plans',
+					form: {
+						id: 0,
+						slug: '',
+						name_ar: '',
+						name_en: '',
+						desc_ar: '',
+						price_month: '0.00',
+						price_year: '0.00',
+						duration: 30,
+						sessions: 3,
+						devices: 3,
+						ai_plan: 'plan-dev',
+						is_default: false,
+						is_active: true,
+						compare: true,
+						bulk: true,
+						analytics: true
+					},
+					openCreateModal() {
+						this.isEdit = false;
+						this.formAction = '/admin/plans';
+						this.form = {
+							id: 0,
+							slug: '',
+							name_ar: '',
+							name_en: '',
+							desc_ar: '',
+							price_month: '0.00',
+							price_year: '0.00',
+							duration: 30,
+							sessions: 3,
+							devices: 3,
+							ai_plan: 'plan-dev',
+							is_default: false,
+							is_active: true,
+							compare: true,
+							bulk: true,
+							analytics: true
+						};
+						this.showModal = true;
+					},
+					openEditModal(p) {
+						this.isEdit = true;
+						this.formAction = '/admin/plans/' + p.id + '/update';
+						this.form = {
+							id: p.id,
+							slug: p.slug,
+							name_ar: p.name_ar,
+							name_en: p.name_en,
+							desc_ar: p.desc_ar,
+							price_month: p.price_month,
+							price_year: p.price_year,
+							duration: p.duration,
+							sessions: p.sessions,
+							devices: p.devices,
+							ai_plan: p.ai_plan,
+							is_default: p.is_default,
+							is_active: p.is_active,
+							compare: p.compare,
+							bulk: p.bulk,
+							analytics: p.analytics
+						};
+						this.showModal = true;
+					}
+				}
+			}
+		</script>
 	}
 }

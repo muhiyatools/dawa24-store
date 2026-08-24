@@ -273,7 +273,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)
 								</h3>
 								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-									إدارة الربط وجلب النماذج الحية وضبط موجهات المساعد كبسولة
+									إدارة نقطة النهاية (Endpoint)، ومزامنة باقات الذكاء الاصطناعي مع خطط الاشتراك الموحدة.
 								</p>
 							</div>
 						</div>
@@ -282,6 +282,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						} else {
 							<span class="badge badge-slate">معطلة</span>
 						}
+					</div>
+
+					<!-- Informational Architecture Alert -->
+					<div style="background:rgba(56, 189, 248, 0.06); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; font-size:0.825rem; line-height:1.5;">
+						<strong style="color:var(--primary); display:block; margin-bottom:0.25rem;">ℹ️ مبدأ عمل وعزل الذكاء الاصطناعي للمنشآت:</strong>
+						<span style="color:var(--text-secondary);">
+							مفتاح الربط والمصادقة هنا يُستخدم فقط من قِبل إدارة منصة دواء 24 لمزامنة الباقات وتوليد مفاتيح المنشآت. جميع طلبات الذكاء الاصطناعي للمنشآت والمستخدمين تعمل تلقائياً باستخدام <strong>المفتاح الافتراضي المخصص لكل منشأة (Organization Virtual Key)</strong> وبناءً على خطة اشتراكها وحصتها المحددة في باقات الاشتراك الموحدة.
+						</span>
 					</div>
 
 					<form action="/admin/developers/ai" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
@@ -312,7 +320,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 						<!-- Secret API Key with Toggle -->
 						<div class="form-group" style="margin:0;">
-							<label class="form-label">مفتاح الربط والمصادقة السري (Gateway Secret API Key) *</label>
+							<label class="form-label">مفتاح المدير السري للبوابة (Master Admin API Key) *</label>
 							<div style="position:relative; display:flex; align-items:center;">
 								<input
 									:type="showKey ? 'text' : 'password'"
@@ -320,7 +328,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									x-model="gatewayKey"
 									class="form-input"
 									dir="ltr"
-									placeholder="muhiya-ai-key-..."
+									placeholder="أدخل مفتاح المدير الرئيسي للبوابة..."
 									style="padding-inline-end:3rem;"
 								/>
 								<button
@@ -331,7 +339,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								></button>
 							</div>
 							<p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
-								🔒 يتم حفظ المفتاح في خادم قاعدة البيانات بشكل مشفر ولا يتم كشفه للواجهات العامة.
+								🔒 يُستخدم هذا المفتاح حصرياً للمصادقة الإدارية وجلب الباقات وتوليد مفاتيح المنشآت.
 							</p>
 						</div>
 

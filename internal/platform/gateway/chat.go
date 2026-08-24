@@ -55,6 +55,7 @@ type ChatRequest struct {
 	Tools       []ToolSpec // ALWAYS EMPTY IN THIS PHASE — asserted in tests
 	OrgID       int64
 	UserID      int64
+	VirtualKey  string // Tenant virtual key
 }
 
 // StreamEvent represents one decoded SSE chunk or lifecycle event.

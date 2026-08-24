@@ -243,7 +243,11 @@ func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, 
 	}
 
 	settings := c.resolve(ctx)
-	if !settings.Enabled || settings.VirtualKey == "" {
+	authKey := settings.VirtualKey
+	if req.VirtualKey != "" {
+		authKey = req.VirtualKey
+	}
+	if !settings.Enabled || authKey == "" {
 		return nil, ErrDisabled
 	}
 
@@ -254,10 +258,6 @@ func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, 
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	authKey := settings.VirtualKey
-	if req.VirtualKey != "" {
-		authKey = req.VirtualKey
-	}
 	httpReq.Header.Set("Authorization", "Bearer "+authKey)
 	httpReq.Header.Set("X-Client-App", settings.ClientApp)
 	// Per-tenant attribution: lets the Gateway report and cap AI spend by
