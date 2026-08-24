@@ -135,7 +135,7 @@ func New(cfg config.Gateway, log *slog.Logger) *HTTPClient {
 
 func (c *HTTPClient) Enabled() bool {
 	s := c.resolve(context.Background())
-	return s.Enabled && s.VirtualKey != ""
+	return s.Enabled
 }
 
 // Invoke calls the Gateway, honouring the capability's timeout and retry budget.
@@ -143,7 +143,12 @@ func (c *HTTPClient) Enabled() bool {
 // It returns ErrUnavailable rather than a transport error so that callers have
 // exactly one condition to branch on when deciding to use their fallback.
 func (c *HTTPClient) Invoke(ctx context.Context, req Request) (*Response, error) {
-	if !c.Enabled() {
+	settings := c.resolve(ctx)
+	authKey := settings.VirtualKey
+	if req.VirtualKey != "" {
+		authKey = req.VirtualKey
+	}
+	if !settings.Enabled || authKey == "" {
 		return nil, ErrDisabled
 	}
 	b, ok := budgets[req.Capability]

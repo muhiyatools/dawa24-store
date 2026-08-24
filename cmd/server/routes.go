@@ -202,11 +202,45 @@ func mountModuleRoutes(
 		attachSvc,
 		log,
 	)
+	adminSvcUI := platformadmin.NewService(adminRepoUI, log)
+	billSvcUI := billing.NewService(billRepoUI, log)
+
+	keyResolverUI := func(ctx context.Context, orgID int64) (string, error) {
+		if orgID <= 0 {
+			return "", nil
+		}
+		sysCtx := database.AsSystem(ctx)
+		o, err := orgSvcUI.GetOrganization(sysCtx, orgID)
+		if err != nil || o == nil {
+			return "", err
+		}
+		if o.AIVirtualKey != "" {
+			return o.AIVirtualKey, nil
+		}
+		// Auto-provision on the Gateway if missing
+		if gw, _ := adminSvcUI.GetGatewaySettings(sysCtx); gw != nil && gw.EndpointURL != "" && gw.APIKey != "" {
+			adminClient := gateway.NewAdminClient(gw.EndpointURL, "", gw.APIKey)
+			aiPlanID := "plan-pos-free"
+			if sub, _ := billSvcUI.GetActiveSubscriptionByOrg(sysCtx, orgID); sub != nil {
+				if plan, err := billSvcUI.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
+					aiPlanID = plan.AIPlanID
+				}
+			}
+			userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
+			if provErr == nil && vkey != "" {
+				_ = orgSvcUI.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
+				return vkey, nil
+			}
+		}
+		return "", nil
+	}
+
 	compareRepoUI := comparePostgres.NewRepository(db)
 	compareSvcUI := compare.NewService(compareRepoUI, log)
 	if ai != nil {
 		uiHandler.SetGatewayClient(ai)
 		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
+		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 		ingSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 	}
@@ -341,11 +375,10 @@ func mountAuthenticatedModules(
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
 
-	// 13. Assistant (كبسولة)
-	assistantRepo := assistantPostgres.NewRepository(db)
-	assistantSvc := assistant.NewService(assistantRepo, ai, log)
-	assistantHandler := assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log)
-	assistantHandler.SetKeyResolver(func(ctx context.Context, orgID int64) (string, error) {
+	keyResolverAPI := func(ctx context.Context, orgID int64) (string, error) {
+		if orgID <= 0 {
+			return "", nil
+		}
 		sysCtx := database.AsSystem(ctx)
 		o, err := orgSvc.GetOrganization(sysCtx, orgID)
 		if err != nil || o == nil {
@@ -370,7 +403,15 @@ func mountAuthenticatedModules(
 			}
 		}
 		return "", nil
-	})
+	}
+
+	aiSvc.SetKeyResolver(keyResolverAPI)
+
+	// 13. Assistant (كبسولة)
+	assistantRepo := assistantPostgres.NewRepository(db)
+	assistantSvc := assistant.NewService(assistantRepo, ai, log)
+	assistantHandler := assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log)
+	assistantHandler.SetKeyResolver(keyResolverAPI)
 	assistantHandler.RegisterRoutes(r)
 
 	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {

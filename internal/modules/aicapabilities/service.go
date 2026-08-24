@@ -6,14 +6,19 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 )
 
+// KeyResolver resolves tenant virtual key by organization ID.
+type KeyResolver func(ctx context.Context, orgID int64) (string, error)
+
 // Service coordinates AI capabilities with robust deterministic fallbacks.
 type Service struct {
-	gw  gateway.Client
-	log *slog.Logger
+	gw          gateway.Client
+	log         *slog.Logger
+	keyResolver KeyResolver
 }
 
 // NewService creates a new AI capabilities service.
@@ -24,15 +29,39 @@ func NewService(gw gateway.Client, log *slog.Logger) *Service {
 	}
 }
 
+// SetKeyResolver configures the tenant key resolver for per-organization Gateway billing and authorization.
+func (s *Service) SetKeyResolver(r KeyResolver) {
+	s.keyResolver = r
+}
+
 // MatchProduct matches an input product string against candidates using AI gateway with deterministic fallback.
 func (s *Service) MatchProduct(ctx context.Context, req MatchRequest) MatchResponse {
-	if s.gw != nil && s.gw.Enabled() {
+	var orgID, userID int64
+	var vKey string
+	if actor, ok := authctx.From(ctx); ok {
+		orgID = actor.OrgID
+		if orgID <= 0 {
+			orgID = actor.OrganizationID
+		}
+		userID = actor.UserID
+	}
+
+	if s.keyResolver != nil && orgID > 0 {
+		if k, err := s.keyResolver(ctx, orgID); err == nil && k != "" {
+			vKey = k
+		}
+	}
+
+	if s.gw != nil {
 		inputBytes, err := json.Marshal(req)
 		if err == nil {
 			gwReq := gateway.Request{
-				Capability: gateway.CapProductMatch,
-				System:     "You are an expert pharmaceutical matching AI. You will be given a query medicine name and a list of candidate medicines from the official catalog. Identify the single best matching medicine from the candidate list, taking into account brand names, generic/scientific names, dosage forms (tablets, syrup, capsules), and concentrations (mg, ml, etc.).\n\nReturn ONLY a JSON object with this exact format:\n{\"matched_candidate\":\"<exact candidate name or empty string if no match>\",\"confidence_score\":<number between 0.0 and 1.0>,\"reason\":\"<brief Arabic explanation>\"}",
-				Input:      string(inputBytes),
+				Capability:     gateway.CapProductMatch,
+				System:         "You are an expert pharmaceutical matching AI. You will be given a query medicine name and a list of candidate medicines from the official catalog. Identify the single best matching medicine from the candidate list, taking into account brand names, generic/scientific names, dosage forms (tablets, syrup, capsules), and concentrations (mg, ml, etc.).\n\nReturn ONLY a JSON object with this exact format:\n{\"matched_candidate\":\"<exact candidate name or empty string if no match>\",\"confidence_score\":<number between 0.0 and 1.0>,\"reason\":\"<brief Arabic explanation>\"}",
+				Input:          string(inputBytes),
+				OrganizationID: orgID,
+				UserID:         userID,
+				VirtualKey:     vKey,
 			}
 			resp, err := s.gw.Invoke(ctx, gwReq)
 			if err == nil && resp != nil && resp.Content != "" {

@@ -20,12 +20,6 @@ func (c *HTTPClient) Stream(ctx context.Context, req ChatRequest) (<-chan Stream
 	if len(req.Tools) > 0 {
 		return nil, ErrToolsNotSupported
 	}
-	if !c.Enabled() {
-		return nil, ErrDisabled
-	}
-	if !c.breaker.allow() {
-		return nil, ErrCircuitOpen
-	}
 
 	settings := c.resolve(ctx)
 	authKey := settings.VirtualKey
@@ -34,6 +28,9 @@ func (c *HTTPClient) Stream(ctx context.Context, req ChatRequest) (<-chan Stream
 	}
 	if !settings.Enabled || authKey == "" {
 		return nil, ErrDisabled
+	}
+	if !c.breaker.allow() {
+		return nil, ErrCircuitOpen
 	}
 
 	modelName := resolveRoleModel(req.Role)

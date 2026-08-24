@@ -311,27 +311,50 @@ func (idx *CatalogMatchIndex) Match(
 			}
 
 			if shouldCallAI {
-				candNames := make([]string, 0, min(8, len(poolCandidates)))
-				for i := 0; i < len(poolCandidates) && i < 8; i++ {
-					candNames = append(candNames, poolCandidates[i].product.NameAR)
+				candNames := make([]string, 0, min(10, len(poolCandidates)))
+				for i := 0; i < len(poolCandidates) && i < 10; i++ {
+					p := poolCandidates[i].product
+					candLabel := p.NameAR
+					if p.NameEN != "" {
+						candLabel += " (" + p.NameEN + ")"
+					}
+					if p.ScientificName != "" {
+						candLabel += " [" + p.ScientificName + "]"
+					}
+					if p.DosageForm != "" || p.Concentration != "" {
+						candLabel += " - " + p.DosageForm + " " + p.Concentration
+					}
+					candNames = append(candNames, candLabel)
 				}
 				bestName, aiScore := aiMatcher.MatchCandidate(ctx, rawName, candNames)
 				if aiScore >= 0.50 && bestName != "" {
 					normBest := normalizePharmaceutical(bestName)
 					for _, c := range poolCandidates {
-						if c.product.NameAR == bestName || c.product.NameEN == bestName ||
-							normalizePharmaceutical(c.product.NameAR) == normBest ||
-							normalizePharmaceutical(c.product.NameEN) == normBest ||
-							strings.Contains(bestName, c.product.NameAR) ||
-							strings.Contains(c.product.NameAR, bestName) {
-							pID := c.product.ID
+						p := c.product
+						matched := false
+						if p.NameAR == bestName || p.NameEN == bestName ||
+							normalizePharmaceutical(p.NameAR) == normBest ||
+							normalizePharmaceutical(p.NameEN) == normBest ||
+							strings.Contains(bestName, p.NameAR) ||
+							strings.Contains(p.NameAR, bestName) {
+							matched = true
+						} else if p.NameEN != "" && (strings.Contains(strings.ToLower(bestName), strings.ToLower(p.NameEN)) || strings.Contains(strings.ToLower(p.NameEN), strings.ToLower(bestName))) {
+							matched = true
+						} else if p.ScientificName != "" && strings.Contains(strings.ToLower(bestName), strings.ToLower(p.ScientificName)) {
+							matched = true
+						} else if tokenOverlapScore(bestName, p.NameAR) >= 0.40 || (p.NameEN != "" && tokenOverlapScore(bestName, p.NameEN) >= 0.40) {
+							matched = true
+						}
+
+						if matched {
+							pID := p.ID
 							confLvl := ConfidenceHigh
 							if aiScore < 0.85 {
 								confLvl = ConfidenceReview
 							}
 							return MatchRowResult{
 								MatchedProductID: &pID,
-								MatchedProduct:   c.product,
+								MatchedProduct:   p,
 								ConfidenceScore:  aiScore,
 								ConfidenceLevel:  confLvl,
 								MatchReason:      fmt.Sprintf("مطابقة ذكية عبر محرك الذكاء الاصطناعي AI (%d%%)", int(aiScore*100)),
