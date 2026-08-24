@@ -78,28 +78,16 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>الأدوار والصلاحيات (RBAC)</span>
 								</a>
 							}
-							if canAccessAdmin(ctx, "hr.document.view") {
-								<a href="/admin/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
-									@components.IconFile("icon-sm")
-									<span>سجل المستندات والتراخيص</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "org.organization.view") {
-							<a href="/admin/approvals" class={ "sidebar-link", templ.KV("active", activeNav == "approvals") }>
-									@components.IconCheck("icon-sm")
+							if canAccessAdmin(ctx, "org.organization.view") || canAccessAdmin(ctx, "hr.document.view") {
+								<a href="/admin/approvals" class={ "sidebar-link", templ.KV("active", activeNav == "approvals" || activeNav == "documents" || activeNav == "ask_for") }>
+									@components.IconShield("icon-sm")
 									<span>اعتماد المنشآت والوثائق</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "identity.user.view") {
-							<a href="/admin/employee-activities" class={ "sidebar-link", templ.KV("active", activeNav == "employee_activities") }>
+								<a href="/admin/employee-activities" class={ "sidebar-link", templ.KV("active", activeNav == "employee_activities") }>
 									@components.IconClock("icon-sm")
 									<span>نشاط الموظفين</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "org.organization.view") {
-							<a href="/admin/ask-for" class={ "sidebar-link", templ.KV("active", activeNav == "ask_for") }>
-									@components.IconFile("icon-sm")
-									<span>طلبات المستندات</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "platform.chat.view") {
@@ -177,7 +165,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 								</a>
 								<a href="/admin/categories" class={ "sidebar-link", templ.KV("active", activeNav == "categories") }>
 									@components.IconFolder("icon-sm")
-									<span>التصنيفات والشركات</span>
+									<span>فئات المنتجات</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "catalog.product.manage") {

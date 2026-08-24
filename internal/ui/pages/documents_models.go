@@ -46,6 +46,7 @@ func docRequirements(vendor bool) []DocRequirement {
 type OrganizationDocumentsData struct {
 	Requirements []DocRequirement
 	Docs         []*attachments.Document
+	Requests     []*attachments.DocumentRequest
 	Missing      []DocRequirement
 	Error        string
 }
@@ -53,8 +54,8 @@ type OrganizationDocumentsData struct {
 // BuildOrganizationDocumentsData groups the org's documents by requirement
 // and computes which mandatory ones are missing. The latest document of each
 // type is what the screen acts on (replace/delete).
-func BuildOrganizationDocumentsData(docs []*attachments.Document, vendor bool) *OrganizationDocumentsData {
-	data := &OrganizationDocumentsData{Docs: docs}
+func BuildOrganizationDocumentsData(docs []*attachments.Document, requests []*attachments.DocumentRequest, vendor bool) *OrganizationDocumentsData {
+	data := &OrganizationDocumentsData{Docs: docs, Requests: requests}
 	data.Requirements = docRequirements(vendor)
 
 	hasVerified := false

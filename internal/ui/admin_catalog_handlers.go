@@ -3,6 +3,7 @@ package ui
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -44,16 +45,95 @@ func (h *UIHandler) AdminProductChildrenPage(w http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var prods []*catalog.Product
+	search := strings.TrimSpace(r.URL.Query().Get("q"))
+	status := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	data := pages.AdminProductChildrenData{
+		SearchQuery:  search,
+		StatusFilter: status,
+	}
+
+	sysCtx := database.AsSystem(ctx)
+
 	if h.catSvc != nil {
-		// AsSystem justified: platform admin browsing master catalog listings
-		prods, _ = h.catSvc.ListProducts(database.AsSystem(ctx), "", 100, 0)
+		params := catalog.VariantSearchParams{
+			Query:  search,
+			Status: status,
+			Limit:  100,
+			Offset: 0,
+		}
+		variants, total, err := h.catSvc.ListAllVariants(sysCtx, params)
+		if err == nil {
+			data.Total = total
+
+			orgNames := make(map[int64]string)
+			if h.orgSvc != nil {
+				if orgs, err := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0); err == nil {
+					for _, o := range orgs {
+						if o != nil {
+							name := o.LegalName
+							if name == "" {
+								name = o.TradeName.Get("ar")
+							}
+							orgNames[o.ID] = name
+						}
+					}
+				}
+			}
+
+			prodNames := make(map[int64]string)
+			if masterProds, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 500}); err == nil {
+				for _, p := range masterProds {
+					if p != nil {
+						prodNames[p.ID] = p.Name.Get("ar")
+					}
+				}
+			}
+
+			for _, v := range variants {
+				if v != nil {
+					hasImg := v.Image != "" && strings.TrimSpace(v.Image) != ""
+					data.Items = append(data.Items, pages.VendorVariantItem{
+						Variant:        v,
+						OrgName:        orgNames[v.OrganizationID],
+						ParentProdName: prodNames[v.ProductID],
+						HasImage:       hasImg,
+					})
+				}
+			}
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProductChildrenPage(prods, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminProductChildrenPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render product children", "error", err)
 	}
+}
+
+// AdminProductChildStatusSubmit updates the active status of a vendor product variant.
+func (h *UIHandler) AdminProductChildStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && id > 0 && h.catSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		variant, err := h.catSvc.GetVariant(sysCtx, id)
+		if err == nil && variant != nil {
+			newStatus := r.URL.Query().Get("status")
+			if newStatus == "" {
+				newStatus = r.PostFormValue("status")
+			}
+			if newStatus == "" {
+				if variant.Status == catalog.StatusActive {
+					newStatus = "inactive"
+				} else {
+					newStatus = "active"
+				}
+			}
+			variant.Status = catalog.ProductStatus(newStatus)
+			_, _ = h.catSvc.UpdateVariant(sysCtx, id, variant)
+		}
+	}
+	h.redirectWithNotice(w, r, "/admin/product-child", "success", "تم تحديث حالة صنف المورد بنجاح.")
 }
 
 // AdminAdvProductsPage renders advanced spreadsheet column mapping uploader.

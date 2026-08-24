@@ -37,6 +37,22 @@ func (s *stubRepo) UpdateTypeAndStatus(context.Context, int64, DocumentType, Doc
 }
 func (s *stubRepo) SoftDelete(context.Context, int64) error { return nil }
 func (s *stubRepo) HardDelete(context.Context, int64) error { return nil }
+func (s *stubRepo) CreateDocumentRequest(_ context.Context, req *DocumentRequest) (*DocumentRequest, error) {
+	req.ID = 1
+	return req, nil
+}
+func (s *stubRepo) ListRequestsByOrg(context.Context, int64) ([]*DocumentRequest, error) {
+	return nil, nil
+}
+func (s *stubRepo) ListAllRequests(context.Context) ([]*DocumentRequest, error) {
+	return nil, nil
+}
+func (s *stubRepo) UpdateRequestStatus(context.Context, int64, DocumentRequestStatus, *int64) error {
+	return nil
+}
+func (s *stubRepo) FulfillRequestByDoc(context.Context, int64, DocumentType, int64) error {
+	return nil
+}
 
 func actor(orgID, userID int64) authctx.Actor {
 	// authctx.From() normalizes the OrgID alias onto OrganizationID; the test

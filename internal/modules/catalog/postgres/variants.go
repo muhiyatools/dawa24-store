@@ -197,6 +197,90 @@ func (r *Repository) ListVariantsByOrganization(ctx context.Context, orgID int64
 	return variants, total, nil
 }
 
+// ListAllVariants retrieves all product variants across all organizations (for platform admin) with pagination, search, and stock quantity aggregation.
+func (r *Repository) ListAllVariants(ctx context.Context, params catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
+	var variants []*catalog.ProductVariant
+	var total int
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		whereClauses := []string{"v.deleted_at IS NULL"}
+		args := []any{}
+		argIdx := 1
+
+		if params.Status != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("v.status = $%d", argIdx))
+			args = append(args, params.Status)
+			argIdx++
+		}
+
+		if params.Query != "" {
+			whereClauses = append(whereClauses, fmt.Sprintf("(v.name->>'ar' ILIKE $%d OR v.name->>'en' ILIKE $%d OR v.sku ILIKE $%d OR v.barcode ILIKE $%d OR v.batch_number ILIKE $%d)", argIdx, argIdx, argIdx, argIdx, argIdx))
+			args = append(args, "%"+strings.TrimSpace(params.Query)+"%")
+			argIdx++
+		}
+
+		whereSQL := strings.Join(whereClauses, " AND ")
+
+		// 1. Count query
+		countQuery := fmt.Sprintf("SELECT COUNT(*) FROM catalog.product_variants v WHERE %s;", whereSQL)
+		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
+			return fmt.Errorf("count all variants: %w", err)
+		}
+
+		limit := params.Limit
+		if limit <= 0 {
+			limit = 50
+		}
+		offset := params.Offset
+		if offset < 0 {
+			offset = 0
+		}
+
+		// 2. Data query with aggregated stock quantity
+		dataQuery := fmt.Sprintf(`
+			SELECT v.id, v.public_id, v.organization_id, v.product_id, v.name, v.sku, v.barcode,
+			       v.price, v.cost_price, v.discount, v.unit, v.image, v.status, v.is_featured,
+			       v.batch_number, v.expiry_date, v.min_order_qty, v.branch_id,
+			       COALESCE(SUM(s.quantity), 0) as stock_qty,
+			       v.created_at, v.updated_at, v.deleted_at
+			FROM catalog.product_variants v
+			LEFT JOIN inventory.stocks s ON s.product_variant_id = v.id
+			WHERE %s
+			GROUP BY v.id
+			ORDER BY v.id DESC
+			LIMIT $%d OFFSET $%d;
+		`, whereSQL, argIdx, argIdx+1)
+
+		args = append(args, limit, offset)
+		rows, err := tx.Query(txCtx, dataQuery, args...)
+		if err != nil {
+			return fmt.Errorf("list all variants: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var v catalog.ProductVariant
+			var statusStr string
+			if err := rows.Scan(
+				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
+				&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
+				&statusStr, &v.IsFeatured, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+				&v.BranchID, &v.StockQty, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
+			); err != nil {
+				return err
+			}
+			v.Status = catalog.ProductStatus(statusStr)
+			variants = append(variants, &v)
+		}
+		return rows.Err()
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+	return variants, total, nil
+}
+
 // UpdateVariant updates a variant.
 func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVariant) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {

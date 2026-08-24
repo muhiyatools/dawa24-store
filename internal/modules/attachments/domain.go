@@ -64,6 +64,47 @@ type Document struct {
 	DeletedAt      *time.Time             `json:"deleted_at,omitempty"`
 }
 
+// DocumentRequestStatus represents the status of an administrative document request.
+type DocumentRequestStatus string
+
+const (
+	DocReqPending   DocumentRequestStatus = "pending"
+	DocReqSubmitted DocumentRequestStatus = "submitted"
+	DocReqFulfilled DocumentRequestStatus = "fulfilled"
+	DocReqCancelled DocumentRequestStatus = "cancelled"
+)
+
+// DocumentRequest is the domain model matching platform_admin.document_requests.
+type DocumentRequest struct {
+	ID             int64                 `json:"id"`
+	OrganizationID int64                 `json:"organization_id"`
+	OrgName        string                `json:"org_name,omitempty"`
+	RequestedBy    *int64                `json:"requested_by,omitempty"`
+	DocumentType   DocumentType          `json:"document_type"`
+	Title          string                `json:"title"`
+	Description    string                `json:"description"`
+	DeadlineAt     time.Time             `json:"deadline_at"`
+	Status         DocumentRequestStatus `json:"status"`
+	SubmittedDocID *int64                `json:"submitted_doc_id,omitempty"`
+	CreatedAt      time.Time             `json:"created_at"`
+	UpdatedAt      time.Time             `json:"updated_at"`
+}
+
+// DaysRemaining returns the number of days until the deadline.
+func (dr *DocumentRequest) DaysRemaining() int {
+	diff := time.Until(dr.DeadlineAt)
+	days := int(diff.Hours() / 24)
+	if days < 0 {
+		return 0
+	}
+	return days
+}
+
+// IsOverdue returns true if the deadline has passed without fulfillment.
+func (dr *DocumentRequest) IsOverdue() bool {
+	return dr.Status == DocReqPending && time.Now().After(dr.DeadlineAt)
+}
+
 // PresignRequest defines parameters sent by a client to request a direct upload URL.
 type PresignRequest struct {
 	DocumentType   DocumentType `json:"document_type"`

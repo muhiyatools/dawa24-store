@@ -1,0 +1,279 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// CategoryViewItem holds a category and its linked product count.
+type CategoryViewItem struct {
+	Category     *catalog.Category
+	ProductCount int
+}
+
+templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
+	@layouts.AdminShell("فئات المنتجات", "categories", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.25rem;">
+			
+			<!-- Header Card -->
+			<div class="card" style="margin-bottom:0;">
+				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+					<div class="row-center-sm">
+						@components.IconFolder("icon-lg")
+						<div>
+							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
+								فئات المنتجات ({ fmt.Sprintf("%d", len(categories)) })
+							</h2>
+							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
+								إدارة وتصنيف الأصناف الدوائية والطبية، وتحديد الفئات المعتمدة لمنتجات المنصة.
+							</p>
+						</div>
+					</div>
+
+					<div style="display:flex; gap:0.75rem; align-items:center;">
+						<button
+							type="button"
+							class="btn btn-primary"
+							data-modal-open="create-category-modal"
+							style="font-weight:800; gap:0.4rem;"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إضافة فئة جديدة +</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Categories Table Card -->
+			<div class="card" style="margin-bottom:0; overflow:visible;">
+				if len(categories) == 0 {
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد فئات مسجلة",
+						Message: "لم يتم إنشاء أي فئات للمنتجات بعد. اضغط على إضافة فئة جديدة للبدء.",
+					})
+				} else {
+					<div class="table-container" style="overflow:visible;">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>اسم الفئة</th>
+									<th>الوصف</th>
+									<th>الأصناف المرتبطة</th>
+									<th>ترتيب العرض</th>
+									<th>الحالة</th>
+									<th class="text-end">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, item := range categories {
+									{{ c := item.Category }}
+									<tr id={ fmt.Sprintf("category-row-%d", c.ID) }>
+										<td class="tabular-nums" style="font-weight:700; color:var(--neutral-500);">
+											#{ fmt.Sprintf("%d", c.ID) }
+										</td>
+										<td>
+											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+												{ c.Name.Get("ar") }
+											</div>
+											if c.Name.Get("en") != "" {
+												<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;" dir="ltr">
+													{ c.Name.Get("en") }
+												</div>
+											}
+										</td>
+										<td>
+											if c.Description.Get("ar") != "" {
+												<div style="font-size:0.85rem; color:var(--text-secondary); max-width:260px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+													{ c.Description.Get("ar") }
+												</div>
+											} else {
+												<span style="color:var(--neutral-400); font-size:0.8rem;">-</span>
+											}
+										</td>
+										<td>
+											<span class="badge badge-sky" style="font-weight:700;">
+												{ fmt.Sprintf("%d صنف معتمد", item.ProductCount) }
+											</span>
+										</td>
+										<td>
+											<span class="tabular-nums" style="font-weight:700; color:var(--neutral-700);">
+												{ fmt.Sprintf("%d", c.SortOrder) }
+											</span>
+										</td>
+										<td>
+											if c.Status == "active" || c.Status == "" {
+												<span class="badge badge-emerald">نشط</span>
+											} else {
+												<span class="badge badge-danger">معطل</span>
+											}
+										</td>
+										<td class="text-end">
+											<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+												<button
+													type="button"
+													class="btn btn-secondary btn-sm"
+													data-modal-open={ fmt.Sprintf("edit-category-modal-%d", c.ID) }
+												>
+													@components.IconEdit("icon-xs")
+													<span>تعديل</span>
+												</button>
+
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/toggle", c.ID)) } style="margin:0; display:inline;">
+													if c.Status == "active" || c.Status == "" {
+														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--warning-text);" title="تعطيل الفئة">
+															تعطيل
+														</button>
+													} else {
+														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--success-text);" title="تفعيل الفئة">
+															تفعيل
+														</button>
+													}
+												</form>
+
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/delete", c.ID)) } style="margin:0; display:inline;">
+													<button
+														type="submit"
+														class="btn btn-secondary btn-sm"
+														style="color:var(--danger-text);"
+														onclick="return confirm('هل أنت متأكد من حذف هذه الفئة؟ سيتم التحقق من عدم وجود منتجات مرتبطة بها.')"
+														title="حذف الفئة"
+													>
+														@components.IconTrash("icon-xs")
+													</button>
+												</form>
+
+												<!-- Edit Category Modal -->
+												@components.Modal(components.ModalProps{
+													ID:    fmt.Sprintf("edit-category-modal-%d", c.ID),
+													Title: fmt.Sprintf("تعديل فئة: %s", c.Name.Get("ar")),
+													Size:  "md",
+												}) {
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/edit", c.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+														<div class="form-grid-2">
+															<div class="form-group" style="margin:0;">
+																<label class="form-label">اسم الفئة (عربي) *</label>
+																<input type="text" name="name_ar" value={ c.Name.Get("ar") } required class="form-input" placeholder="مثال: أدوية الجهاز الهضمي" />
+															</div>
+															<div class="form-group" style="margin:0;">
+																<label class="form-label">اسم الفئة (إنجليزي)</label>
+																<input type="text" name="name_en" value={ c.Name.Get("en") } class="form-input" dir="ltr" placeholder="Gastrointestinal Drugs" />
+															</div>
+														</div>
+
+														<div class="form-grid-2">
+															<div class="form-group" style="margin:0;">
+																<label class="form-label">الوصف (عربي)</label>
+																<textarea name="description_ar" rows="2" class="form-input" placeholder="وصف الفئة ونطاق الأصناف التابعة لها...">{ c.Description.Get("ar") }</textarea>
+															</div>
+															<div class="form-group" style="margin:0;">
+																<label class="form-label">الوصف (إنجليزي)</label>
+																<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="Category description...">{ c.Description.Get("en") }</textarea>
+															</div>
+														</div>
+
+														<div class="form-grid-2">
+															<div class="form-group" style="margin:0;">
+																<label class="form-label">ترتيب العرض</label>
+																<input type="number" name="sort_order" value={ fmt.Sprintf("%d", c.SortOrder) } class="form-input" min="0" />
+															</div>
+															<div class="form-group" style="margin:0;">
+																<label class="form-label">الحالة *</label>
+																<select name="status" class="form-select">
+																	<option value="active" selected?={ c.Status == "active" || c.Status == "" }>نشط (Active)</option>
+																	<option value="inactive" selected?={ c.Status == "inactive" }>معطل (Inactive)</option>
+																</select>
+															</div>
+														</div>
+
+														<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+															<button
+																type="button"
+																class="btn btn-secondary"
+																data-modal-close={ fmt.Sprintf("edit-category-modal-%d", c.ID) }
+															>
+																إلغاء
+															</button>
+															<button type="submit" class="btn btn-primary" style="font-weight:800;">
+																@components.IconCheck("icon-xs")
+																<span>حفظ التعديلات</span>
+															</button>
+														</div>
+													</form>
+												}
+
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+		</div>
+
+		<!-- Create Category Modal -->
+		@components.Modal(components.ModalProps{
+			ID:    "create-category-modal",
+			Title: "إضافة فئة منتجات جديدة",
+			Size:  "md",
+		}) {
+			<form method="POST" action="/admin/categories/new" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+				<div class="form-grid-2">
+					<div class="form-group" style="margin:0;">
+						<label class="form-label">اسم الفئة (عربي) *</label>
+						<input type="text" name="name_ar" required class="form-input" placeholder="مثال: أدوية القلب والأوعية الدموية" />
+					</div>
+					<div class="form-group" style="margin:0;">
+						<label class="form-label">اسم الفئة (إنجليزي)</label>
+						<input type="text" name="name_en" class="form-input" dir="ltr" placeholder="Cardiovascular Drugs" />
+					</div>
+				</div>
+
+				<div class="form-grid-2">
+					<div class="form-group" style="margin:0;">
+						<label class="form-label">الوصف (عربي)</label>
+						<textarea name="description_ar" rows="2" class="form-input" placeholder="وصف وتفاصيل فئة الأصناف..."></textarea>
+					</div>
+					<div class="form-group" style="margin:0;">
+						<label class="form-label">الوصف (إنجليزي)</label>
+						<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="Description in English..."></textarea>
+					</div>
+				</div>
+
+				<div class="form-grid-2">
+					<div class="form-group" style="margin:0;">
+						<label class="form-label">ترتيب العرض</label>
+						<input type="number" name="sort_order" value="0" class="form-input" min="0" />
+					</div>
+					<div class="form-group" style="margin:0;">
+						<label class="form-label">الحالة *</label>
+						<select name="status" class="form-select">
+							<option value="active" selected>نشط (Active)</option>
+							<option value="inactive">معطل (Inactive)</option>
+						</select>
+					</div>
+				</div>
+
+				<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-modal-close="create-category-modal"
+					>
+						إلغاء
+					</button>
+					<button type="submit" class="btn btn-primary" style="font-weight:800;">
+						@components.IconCheck("icon-xs")
+						<span>إنشاء فئة المنتج</span>
+					</button>
+				</div>
+			</form>
+		}
+
+	}
+}

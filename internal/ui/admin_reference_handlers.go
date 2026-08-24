@@ -18,24 +18,172 @@ func (h *UIHandler) AdminCategoriesPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var items []pages.ReferenceItem
+	var items []pages.CategoryViewItem
 	if h.catSvc != nil {
 		cats, _ := h.catSvc.ListCategories(database.AsSystem(ctx))
 		for _, c := range cats {
-			items = append(items, pages.ReferenceItem{
-				ID:          c.ID,
-				Name:        c.Name.Get("ar"),
-				Description: c.Description.Get("ar"),
-				Status:      c.Status,
-				Extra:       fmt.Sprintf("ترتيب: %d", c.SortOrder),
+			count, _ := h.catSvc.CountProductsInCategory(database.AsSystem(ctx), c.ID)
+			items = append(items, pages.CategoryViewItem{
+				Category:     c,
+				ProductCount: count,
 			})
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReferenceCRUDPage("إدارة التصنيفات الرئيسية", "categories", "تصنيف", items, "categories", lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminCategoriesPage(items, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin categories", "error", err)
 	}
+}
+
+// AdminCategoryCreateSubmit creates a new product category.
+func (h *UIHandler) AdminCategoryCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "خدمة الكتالوج غير متاحة.")
+		return
+	}
+
+	_ = r.ParseForm()
+
+	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.FormValue("name_en"))
+	if nameAr == "" && nameEn == "" {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "يرجى كتابة اسم فئة المنتج بالعربية أو الإنجليزية.")
+		return
+	}
+	if nameAr == "" {
+		nameAr = nameEn
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+
+	sortOrder, _ := strconv.Atoi(r.FormValue("sort_order"))
+	status := strings.TrimSpace(r.FormValue("status"))
+	if status == "" {
+		status = "active"
+	}
+
+	cat := &catalog.Category{
+		Name:        i18n.New(nameAr, nameEn),
+		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
+		SortOrder:   sortOrder,
+		Status:      status,
+	}
+
+	if _, err := h.catSvc.CreateCategory(database.AsSystem(ctx), cat); err != nil {
+		h.log.ErrorContext(ctx, "admin create category failed", "error", err)
+		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم إنشاء فئة المنتجات بنجاح.")
+}
+
+// AdminCategoryEditSubmit updates an existing product category.
+func (h *UIHandler) AdminCategoryEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "خدمة الكتالوج غير متاحة.")
+		return
+	}
+
+	idStr := chi.URLParam(r, "id")
+	catID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || catID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "معرف الفئة غير صالح.")
+		return
+	}
+
+	_ = r.ParseForm()
+
+	cat, err := h.catSvc.GetCategory(database.AsSystem(ctx), catID)
+	if err != nil || cat == nil {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "فئة المنتجات غير موجودة.")
+		return
+	}
+
+	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.FormValue("name_en"))
+	if nameAr == "" && nameEn == "" {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "يرجى كتابة اسم الفئة بالعربية أو الإنجليزية.")
+		return
+	}
+	if nameAr == "" {
+		nameAr = nameEn
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+
+	sortOrder, _ := strconv.Atoi(r.FormValue("sort_order"))
+	status := strings.TrimSpace(r.FormValue("status"))
+	if status == "" {
+		status = cat.Status
+	}
+
+	cat.Name = i18n.New(nameAr, nameEn)
+	cat.Description = i18n.New(r.FormValue("description_ar"), r.FormValue("description_en"))
+	cat.SortOrder = sortOrder
+	cat.Status = status
+
+	if err := h.catSvc.UpdateCategory(database.AsSystem(ctx), cat); err != nil {
+		h.log.ErrorContext(ctx, "admin update category failed", "error", err)
+		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم تحديث بيانات فئة المنتجات بنجاح.")
+}
+
+// AdminCategoryToggleSubmit toggles a category's active status.
+func (h *UIHandler) AdminCategoryToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idStr := chi.URLParam(r, "id")
+	catID, err := strconv.ParseInt(idStr, 10, 64)
+	if err == nil && catID > 0 && h.catSvc != nil {
+		cat, err := h.catSvc.GetCategory(database.AsSystem(ctx), catID)
+		if err == nil && cat != nil {
+			newStatus := "inactive"
+			if cat.Status == "inactive" {
+				newStatus = "active"
+			}
+			cat.Status = newStatus
+			_ = h.catSvc.UpdateCategory(database.AsSystem(ctx), cat)
+		}
+	}
+	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم تحديث حالة الفئة بنجاح.")
+}
+
+// AdminCategoryDeleteSubmit deletes a category if no products are linked.
+func (h *UIHandler) AdminCategoryDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "خدمة الكتالوج غير متاحة.")
+		return
+	}
+
+	idStr := chi.URLParam(r, "id")
+	catID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || catID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", "معرف الفئة غير صالح.")
+		return
+	}
+
+	count, _ := h.catSvc.CountProductsInCategory(database.AsSystem(ctx), catID)
+	if count > 0 {
+		h.redirectWithNotice(w, r, "/admin/categories", "error", fmt.Sprintf("لا يمكن حذف هذه الفئة لوجود %d صنف معتمد مرتبط بها. يرجى نقل الأصناف لفئة أخرى أولاً.", count))
+		return
+	}
+
+	if err := h.catSvc.DeleteCategory(database.AsSystem(ctx), catID); err != nil {
+		h.log.WarnContext(ctx, "admin delete category failed", "error", err)
+		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم حذف فئة المنتجات بنجاح.")
 }
 
 // AdminBrandsPage renders the master pharmaceutical brands and manufacturers management console.

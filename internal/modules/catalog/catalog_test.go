@@ -103,6 +103,14 @@ func (m *mockCatalogRepo) ListVariantsByOrganization(_ context.Context, orgID in
 	return list, len(list), nil
 }
 
+func (m *mockCatalogRepo) ListAllVariants(_ context.Context, params VariantSearchParams) ([]*ProductVariant, int, error) {
+	var list []*ProductVariant
+	for _, v := range m.variants {
+		list = append(list, v)
+	}
+	return list, len(list), nil
+}
+
 func (m *mockCatalogRepo) UpdateVariant(_ context.Context, v *ProductVariant) error {
 	m.variants[v.ID] = v
 	return nil

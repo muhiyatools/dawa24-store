@@ -32,11 +32,12 @@ func (h *UIHandler) OrganizationDocumentsPage(w http.ResponseWriter, r *http.Req
 	data := &pages.OrganizationDocumentsData{}
 	if h.attSvc != nil && actor.OrganizationID > 0 {
 		docs, err := h.attSvc.ListByOrganization(ctx, actor.OrganizationID)
+		reqs, _ := h.attSvc.ListDocumentRequests(ctx, actor, &actor.OrganizationID)
 		if err != nil {
 			h.log.ErrorContext(ctx, "load organization documents", "organization_id", actor.OrganizationID, "error", err)
 			data.Error = "تعذر تحميل المستندات، حاول مجدداً."
 		} else {
-			data = pages.BuildOrganizationDocumentsData(docs, actor.IsVendor())
+			data = pages.BuildOrganizationDocumentsData(docs, reqs, actor.IsVendor())
 		}
 	}
 
@@ -76,9 +77,16 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 		return
 	}
 
-	if _, err := h.attSvc.RegisterUpload(ctx, actor, docType, url, originalName); err != nil {
+	uploadedDoc, err := h.attSvc.RegisterUpload(ctx, actor, docType, url, originalName)
+	if err != nil {
 		h.documentsRedirect(w, r, "error", h.safeMessage(err, langOf(r)))
 		return
+	}
+
+	if reqIDStr := r.PostFormValue("request_id"); reqIDStr != "" && uploadedDoc != nil {
+		if reqID, err := strconv.ParseInt(reqIDStr, 10, 64); err == nil && reqID > 0 {
+			_ = h.attSvc.SubmitDocumentForRequest(ctx, reqID, uploadedDoc.ID)
+		}
 	}
 
 	h.documentsRedirect(w, r, "success", "تم رفع المستند، وهو قيد تدقيق إدارة المنصة.")

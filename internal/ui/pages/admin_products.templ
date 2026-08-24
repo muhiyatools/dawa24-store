@@ -16,6 +16,30 @@ func derefBrandID(bid *int64) int64 {
 	return 0
 }
 
+func derefCategoryID(cid *int64) int64 {
+	if cid != nil {
+		return *cid
+	}
+	return 0
+}
+
+func getCategoryLabel(cid *int64, categories []*catalog.Category, fallback string) string {
+	if cid != nil && *cid > 0 {
+		for _, c := range categories {
+			if c.ID == *cid {
+				name := c.Name.Get("ar")
+				if name == "" {
+					name = c.Name.Get("en")
+				}
+				if name != "" {
+					return name
+				}
+			}
+		}
+	}
+	return fallback
+}
+
 func getBrandLabel(bid *int64, brands []*catalog.Brand, fallback string) string {
 	if bid != nil && *bid > 0 {
 		for _, b := range brands {
@@ -33,7 +57,7 @@ func getBrandLabel(bid *int64, brands []*catalog.Brand, fallback string) string 
 	return fallback
 }
 
-templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand) {
+templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
 		<div
 			class="card"
@@ -53,6 +77,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					active_ingredient: '',
 					dosage_form: 'أقراص',
 					brand_id: 0,
+					category_id: 0,
 					manufacturer: '',
 					eda_reg_number: '',
 					price: '0.00',
@@ -61,7 +86,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					description_en: '',
 					status: 'active'
 				},
-				openEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, brandId, manufacturer, edaReg, price, image, descAr, descEn, status) {
+				openEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, brandId, categoryId, manufacturer, edaReg, price, image, descAr, descEn, status) {
 					this.editData = {
 						id: id,
 						name_ar: nameAr || '',
@@ -70,6 +95,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						active_ingredient: activeIng || '',
 						dosage_form: dosageForm || 'أقراص',
 						brand_id: brandId || 0,
+						category_id: categoryId || 0,
 						manufacturer: manufacturer || '',
 						eda_reg_number: edaReg || '',
 						price: price || '0.00',
@@ -99,84 +125,93 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<button type="button" @click="isImportModalOpen = true" class="btn btn-secondary" style="font-weight:700;">
+				<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+					<a href="/admin/products/import" class="btn btn-secondary" style="font-weight:700; gap:0.4rem;">
 						@components.IconUpload("icon-xs")
-						<span>استيراد أصناف (Excel / CSV)</span>
-					</button>
-					<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary" style="font-weight:800;">
+						<span>استيراد ملف الكتالوج (Excel / CSV)</span>
+					</a>
+					<button
+						type="button"
+						class="btn btn-primary"
+						@click="isCreateModalOpen = true"
+						style="font-weight:800; gap:0.4rem;"
+					>
 						@components.IconPlus("icon-xs")
-						<span>إضافة صنف دوائي أساسي</span>
+						<span>إضافة صنف دوائي جديد +</span>
 					</button>
 				</div>
 			</div>
 
-			<!-- Search and Filter Bar -->
-			if len(products) > 0 {
-				<div style="margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-					<div style="flex:1; min-width:280px; max-width:480px; position:relative;">
-						<input
-							type="text"
-							x-model="searchQuery"
-							placeholder="ابحث باسم الدواء، المادة الفعالة، الشركة، أو رقم EDA..."
-							class="form-input"
-							style="padding-inline-start:2.25rem; font-size:0.875rem;"
-						/>
-						<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-							@components.IconSearch("icon-xs")
-						</div>
-					</div>
-
-					<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-						<select x-model="dosageFilter" class="form-select" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
-							<option value="all">كل الأشكال الصيدلية</option>
-							<option value="أقراص">أقراص</option>
-							<option value="كبسولات">كبسولات</option>
-							<option value="شراب">شراب</option>
-							<option value="حقن">حقن وأمبولات</option>
-							<option value="نقط">نقط</option>
-							<option value="فوار">فوار</option>
-						</select>
-
-						<select x-model="statusFilter" class="form-select" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
-							<option value="all">جميع الحالات</option>
-							<option value="active">نشط ومعتمد</option>
-							<option value="pending">قيد التدقيق</option>
-							<option value="inactive">موقوف</option>
-						</select>
-					</div>
+			<!-- Search & Filter Controls -->
+			<div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:1rem; margin-bottom:1.5rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+				<div class="search-input-group" style="width:100%;">
+					<span class="search-icon">
+						@components.IconSearch("icon-sm")
+					</span>
+					<input
+						type="text"
+						class="form-input search-input"
+						placeholder="البحث بالاسم العربي، التجاري، العلمي، أو رقم التسجيل EDA..."
+						x-model="searchQuery"
+						style="background:var(--surface-raised);"
+					/>
 				</div>
-			}
 
+				<div>
+					<select class="form-select" x-model="dosageFilter" style="background:var(--surface-raised); height:100%;">
+						<option value="all">كل الأشكال الصيدلية</option>
+						<option value="أقراص">أقراص (Tablets)</option>
+						<option value="كبسولات">كبسولات (Capsules)</option>
+						<option value="شراب">شراب (Syrup / Suspension)</option>
+						<option value="حقن">أمبولات وحقن (Injections)</option>
+						<option value="مرهم / كريم">مرهم / كريم (Ointment / Cream)</option>
+						<option value="نقط">نقط (Drops)</option>
+						<option value="فوار">أكياس فوار (Sachets)</option>
+						<option value="مستلزمات طبية">مستلزمات طبية (Medical Supplies)</option>
+					</select>
+				</div>
+
+				<div>
+					<select class="form-select" x-model="statusFilter" style="background:var(--surface-raised); height:100%;">
+						<option value="all">كل الحالات</option>
+						<option value="active">نشط ومعتمد (Active)</option>
+						<option value="pending">قيد التدقيق (Pending)</option>
+						<option value="inactive">موقوف (Inactive)</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Master Products Table -->
 			if len(products) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد أصناف دوائية في الدليل",
-					Message: "يمكنك إضافة الأصناف والمستحضرات الطبية الأساسية ليتمكن الموردون من إضافة عروض أسعارهم وتوريدها.",
+					Title:   "لا توجد أصناف دوائية مسجلة",
+					Message: "لم يتم تسجيل أدوية في الكتالوج الأساسي بعد. ابدأ بإضافة صنف أو استيراد ملف الكتالوج.",
 				})
 			} else {
-				<div class="table-container">
+				<div class="table-container" style="overflow:visible;">
 					<table class="data-table">
 						<thead>
 							<tr>
 								<th style="width:50px;">الصورة</th>
-								<th style="width:25%;">اسم المستحضر</th>
-								<th style="width:24%;">الاسم العلمي والمادة الفعالة</th>
-								<th style="width:12%;">الشكل الصيدلي</th>
-								<th style="width:16%;">الشركة المصنعة</th>
-								<th style="width:11%;">الحالة</th>
-								<th style="width:12%; text-align:end;">الإجراءات</th>
+								<th>الاسم والتسجيل</th>
+								<th>الاسم العلمي والفعالية</th>
+								<th>الشكل الصيدلي</th>
+								<th>فئة المنتج</th>
+								<th>الشركة المصنعة</th>
+								<th>الحالة</th>
+								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, p := range products {
 								<tr
-									x-show={ fmt.Sprintf("(!searchQuery || '%s %s %s %s %s'.toLowerCase().includes(searchQuery.toLowerCase())) && (dosageFilter === 'all' || '%s' === dosageFilter) && (statusFilter === 'all' || '%s' === statusFilter)",
-										escapeJS(p.Name.Get("ar")),
-										escapeJS(p.Name.Get("en")),
-										escapeJS(p.ScientificName),
-										escapeJS(p.Active),
-										escapeJS(p.ManufacturingCompanies),
-										escapeJS(p.DosageForm),
+									id={ fmt.Sprintf("product-row-%d", p.ID) }
+									x-show={ fmt.Sprintf("(searchQuery === '' || %q.toLowerCase().includes(searchQuery.toLowerCase()) || %q.toLowerCase().includes(searchQuery.toLowerCase()) || %q.toLowerCase().includes(searchQuery.toLowerCase()) || %q.toLowerCase().includes(searchQuery.toLowerCase())) && (dosageFilter === 'all' || %q.includes(dosageFilter)) && (statusFilter === 'all' || %q === statusFilter)",
+										p.Name.Get("ar"),
+										p.Name.Get("en"),
+										p.ScientificName,
+										p.Barcode,
+										p.DosageForm,
 										p.Status) }
 								>
 									<td style="width:50px;">
@@ -207,6 +242,11 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 										<span class="badge badge-slate" style="font-weight:700;">{ p.DosageForm }</span>
 									</td>
 									<td>
+										<span class="badge badge-sky" style="font-weight:700;">
+											{ getCategoryLabel(p.CategoryID, categories, "غير مصنف") }
+										</span>
+									</td>
+									<td>
 										if p.BrandID != nil && *p.BrandID > 0 {
 											<a href="/admin/brands" class="badge badge-sky" style="font-weight:700; text-decoration:none;" title="عرض تفاصيل الشركة المصنعة">
 												{ getBrandLabel(p.BrandID, brands, p.ManufacturingCompanies) }
@@ -235,7 +275,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 												class="btn btn-secondary btn-icon"
 												style="width:32px; height:32px; color:var(--accent);"
 												title="تعديل بيانات الدواء"
-												@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %q, %q, %q, %q, %q, %q, %q)",
+												@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d, %q, %q, %q, %q, %q, %q, %q)",
 													p.ID,
 													p.Name.Get("ar"),
 													p.Name.Get("en"),
@@ -243,6 +283,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 													p.Active,
 													p.DosageForm,
 													derefBrandID(p.BrandID),
+													derefCategoryID(p.CategoryID),
 													p.ManufacturingCompanies,
 													p.Barcode,
 													p.Price.String(),
@@ -305,7 +346,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								@components.IconPlus("icon-xs")
 							</div>
 							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-								إضافة صنف دوائي أساسي جديد (Master Product)
+								إضافة صنف دوائي معتمد جديد
 							</h3>
 						</div>
 						<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
@@ -313,26 +354,26 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						</button>
 					</div>
 
-					<form method="POST" action="/admin/products/new" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
+					<form action="/admin/products/new" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
 						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">اسم الدواء / المستحضر (عربي) *</label>
-								<input type="text" name="name_ar" required class="form-input" placeholder="كونجستال أقراص" />
+								<input type="text" name="name_ar" required class="form-input" placeholder="مثال: بنادول إكسترا 500 مجم" />
 							</div>
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">اسم الدواء (إنجليزي) *</label>
-								<input type="text" name="name_en" required class="form-input" dir="ltr" placeholder="Congestal Tablets" />
+								<input type="text" name="name_en" required class="form-input" dir="ltr" placeholder="Panadol Extra 500mg" />
 							</div>
 						</div>
 
 						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">الاسم العلمي (Scientific Name) *</label>
-								<input type="text" name="generic_name" required class="form-input" placeholder="Paracetamol + Pseudoephedrine" />
+								<input type="text" name="generic_name" required class="form-input" placeholder="Paracetamol + Caffeine" />
 							</div>
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">المادة الفعالة والتركيز *</label>
-								<input type="text" name="active_ingredient" required class="form-input" placeholder="Paracetamol 500mg" />
+								<input type="text" name="active_ingredient" required class="form-input" placeholder="باراسيتامول 500 مجم + كافيين 65 مجم" />
 							</div>
 						</div>
 
@@ -358,6 +399,20 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 
 						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
+								<label class="form-label">فئة المنتج (Category) *</label>
+								<select name="category_id" required class="form-select" style="font-weight:700;">
+									<option value="" disabled selected>-- اختر فئة المنتج من الدليل --</option>
+									for _, cat := range categories {
+										<option value={ fmt.Sprintf("%d", cat.ID) }>
+											{ cat.Name.Get("ar") }
+											if cat.Name.Get("en") != "" {
+												({ cat.Name.Get("en") })
+											}
+										</option>
+									}
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
 								<label class="form-label">الشركة المصنعة من الدليل المعتمد (Brand)</label>
 								<select name="brand_id" class="form-select">
 									<option value="">-- اختر من الشركات المصنعة المعتمدة --</option>
@@ -371,31 +426,27 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 									}
 								</select>
 							</div>
+						</div>
+
+						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">أو كتابة اسم الشركة المصنعة يدوياً</label>
 								<input type="text" name="manufacturer" class="form-input" placeholder="Eva Pharma" />
 							</div>
-						</div>
-
-						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">صورة الصنف (رفع ملف)</label>
 								<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
 							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label">أو رابط الصورة (URL)</label>
-								<input type="text" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
-							</div>
 						</div>
 
 						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">الوصف ودواعي الاستعمال (عربي)</label>
-								<textarea name="description_ar" rows="2" class="form-input" placeholder="دواعي الاستعمال والجرعات المقترحة..."></textarea>
+								<label class="form-label">أو رابط الصورة (URL)</label>
+								<input type="text" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
 							</div>
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">الوصف (إنجليزي)</label>
-								<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="Indications, dosage and usage..."></textarea>
+								<label class="form-label">الوصف ودواعي الاستعمال (عربي)</label>
+								<textarea name="description_ar" rows="2" class="form-input" placeholder="دواعي الاستعمال والجرعات المقترحة..."></textarea>
 							</div>
 						</div>
 
@@ -481,6 +532,20 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 
 						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
+								<label class="form-label">فئة المنتج (Category) *</label>
+								<select name="category_id" x-model="editData.category_id" required class="form-select" style="font-weight:700;">
+									<option value="0" disabled>-- اختر فئة المنتج --</option>
+									for _, cat := range categories {
+										<option value={ fmt.Sprintf("%d", cat.ID) }>
+											{ cat.Name.Get("ar") }
+											if cat.Name.Get("en") != "" {
+												({ cat.Name.Get("en") })
+											}
+										</option>
+									}
+								</select>
+							</div>
+							<div class="form-group" style="margin:0;">
 								<label class="form-label">الشركة المصنعة من الدليل المعتمد (Brand)</label>
 								<select name="brand_id" x-model="editData.brand_id" class="form-select">
 									<option value="0">-- اختر من الشركات المصنعة المعتمدة --</option>
@@ -494,31 +559,42 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 									}
 								</select>
 							</div>
+						</div>
+
+						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">أو تعديل اسم الشركة المصنعة يدوياً</label>
 								<input type="text" name="manufacturer" x-model="editData.manufacturer" class="form-input" />
 							</div>
-						</div>
-
-						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">تغيير الصورة</label>
 								<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
 							</div>
+						</div>
+
+						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
 								<label class="form-label">أو رابط الصورة (URL)</label>
 								<input type="text" name="image_url" x-model="editData.image" class="form-input" dir="ltr" />
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">الوصف ودواعي الاستعمال (عربي)</label>
+								<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
 							</div>
 						</div>
 
 						<div class="form-grid-2">
 							<div class="form-group" style="margin:0;">
-								<label class="form-label">الوصف ودواعي الاستعمال (عربي)</label>
-								<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
-							</div>
-							<div class="form-group" style="margin:0;">
 								<label class="form-label">الوصف (إنجليزي)</label>
 								<textarea name="description_en" x-model="editData.description_en" rows="2" class="form-input" dir="ltr"></textarea>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">حالة الصنف</label>
+								<select name="status" x-model="editData.status" class="form-select">
+									<option value="active">نشط ومعتمد (Active)</option>
+									<option value="pending">قيد التدقيق (Pending)</option>
+									<option value="inactive">موقوف (Inactive)</option>
+								</select>
 							</div>
 						</div>
 
@@ -526,61 +602,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="font-weight:800;">
 								@components.IconCheck("icon-xs")
-								<span>حفظ التعديلات على الصنف</span>
-							</button>
-						</div>
-					</form>
-				</div>
-			</div>
-
-			<!-- Bulk Import Modal -->
-			<div
-				x-show="isImportModalOpen"
-				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
-				@keydown.escape.window="isImportModalOpen = false"
-			>
-				<div
-					@click.outside="isImportModalOpen = false"
-					class="card"
-					style="max-width:580px; width:100%; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
-				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div class="row-center-sm">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-								@components.IconUpload("icon-xs")
-							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-								استيراد أصناف جماعية (Bulk Import)
-							</h3>
-						</div>
-						<button type="button" @click="isImportModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
-							@components.IconClose("icon-xs")
-						</button>
-					</div>
-
-					<form method="POST" action="/admin/products/import" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;">
-							<div style="font-weight:700; color:var(--text); margin-bottom:0.35rem;">تعليمات الملف:</div>
-							<p style="color:var(--text-secondary); margin:0 0 0.75rem 0; font-size:0.8rem; line-height:1.5;">
-								قم برفع ملف Excel (.xlsx) أو CSV يحتوي على أعمدة الأصناف. يمكنك تحميل النموذج القياسي المعتمد:
-							</p>
-							<a href="/admin/products/sample.xlsx" download class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent);">
-								@components.IconDownload("icon-xs")
-								<span>تحميل نموذج Excel الاسترشادي (.xlsx)</span>
-							</a>
-						</div>
-
-						<div class="form-group" style="margin:0;">
-							<label class="form-label">اختيار ملف الأصناف (.xlsx, .csv) *</label>
-							<input type="file" name="file" accept=".xlsx,.csv" required class="form-input" style="padding:0.5rem;" />
-						</div>
-
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="button" @click="isImportModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800; gap:0.4rem;">
-								@components.IconUpload("icon-xs")
-								<span>بدء استيراد وإضافة الأصناف</span>
+								<span>حفظ التعديلات وتحديث الصنف</span>
 							</button>
 						</div>
 					</form>

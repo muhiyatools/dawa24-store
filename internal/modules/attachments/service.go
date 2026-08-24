@@ -267,7 +267,16 @@ func (s *Service) VerifyDocument(ctx context.Context, actor authctx.Actor, id in
 		reviewerID = &v
 	}
 
-	return s.repo.UpdateStatus(ctx, id, status, notes, reviewerID)
+	if err := s.repo.UpdateStatus(ctx, id, status, notes, reviewerID); err != nil {
+		return err
+	}
+
+	if status == StatusVerified {
+		if doc, err := s.repo.GetByID(ctx, id); err == nil && doc != nil && doc.OrganizationID != nil {
+			_ = s.repo.FulfillRequestByDoc(ctx, *doc.OrganizationID, doc.DocumentType, doc.ID)
+		}
+	}
+	return nil
 }
 
 // VerifyDocumentWithType allows platform admins to assign category and approve or reject submitted documents.
@@ -282,10 +291,88 @@ func (s *Service) VerifyDocumentWithType(ctx context.Context, actor authctx.Acto
 		reviewerID = &v
 	}
 
+	var err error
 	if docType != "" {
-		return s.repo.UpdateTypeAndStatus(ctx, id, docType, status, notes, reviewerID)
+		err = s.repo.UpdateTypeAndStatus(ctx, id, docType, status, notes, reviewerID)
+	} else {
+		err = s.repo.UpdateStatus(ctx, id, status, notes, reviewerID)
 	}
-	return s.repo.UpdateStatus(ctx, id, status, notes, reviewerID)
+	if err != nil {
+		return err
+	}
+
+	if status == StatusVerified {
+		if doc, err := s.repo.GetByID(ctx, id); err == nil && doc != nil && doc.OrganizationID != nil {
+			actualType := docType
+			if actualType == "" {
+				actualType = doc.DocumentType
+			}
+			_ = s.repo.FulfillRequestByDoc(ctx, *doc.OrganizationID, actualType, doc.ID)
+		}
+	}
+	return nil
+}
+
+// CreateDocumentRequest issues an official document request from platform admin to an organization.
+func (s *Service) CreateDocumentRequest(ctx context.Context, actor authctx.Actor, orgID int64, docType DocumentType, title, description string, deadlineDays int) (*DocumentRequest, error) {
+	if !actor.IsPlatformAdmin() {
+		return nil, apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام لطلب مستندات رسمية")
+	}
+	if orgID <= 0 {
+		return nil, apperr.Validation("org_id.required", "يرجى تحديد المنشأة المطلوبة", nil)
+	}
+	if strings.TrimSpace(title) == "" {
+		return nil, apperr.Validation("title.required", "عنوان ومسمى المستند المطلوب إلزامي", nil)
+	}
+	if deadlineDays <= 0 {
+		deadlineDays = 30
+	}
+
+	var reqBy *int64
+	if actor.UserID > 0 {
+		v := actor.UserID
+		reqBy = &v
+	}
+
+	req := &DocumentRequest{
+		OrganizationID: orgID,
+		RequestedBy:    reqBy,
+		DocumentType:   docType,
+		Title:          strings.TrimSpace(title),
+		Description:    strings.TrimSpace(description),
+		DeadlineAt:     time.Now().Add(time.Duration(deadlineDays) * 24 * time.Hour),
+		Status:         DocReqPending,
+	}
+
+	return s.repo.CreateDocumentRequest(ctx, req)
+}
+
+// ListDocumentRequests returns administrative document requests for a specific org or across the platform.
+func (s *Service) ListDocumentRequests(ctx context.Context, actor authctx.Actor, orgID *int64) ([]*DocumentRequest, error) {
+	if orgID != nil && *orgID > 0 {
+		if !actor.IsPlatformAdmin() && actor.OrgID != *orgID {
+			return nil, apperr.Forbidden("document.access_denied", "ليس لديك صلاحية استعراض طلبات هذه المنشأة")
+		}
+		return s.repo.ListRequestsByOrg(ctx, *orgID)
+	}
+
+	if !actor.IsPlatformAdmin() {
+		return nil, apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام")
+	}
+	return s.repo.ListAllRequests(ctx)
+}
+
+// CancelDocumentRequest cancels an administrative document request.
+func (s *Service) CancelDocumentRequest(ctx context.Context, actor authctx.Actor, reqID int64) error {
+	if !actor.IsPlatformAdmin() {
+		return apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام")
+	}
+	return s.repo.UpdateRequestStatus(ctx, reqID, DocReqCancelled, nil)
+}
+
+// SubmitDocumentForRequest marks a document request as submitted with the newly uploaded document ID.
+func (s *Service) SubmitDocumentForRequest(ctx context.Context, reqID int64, docID int64) error {
+	return s.repo.UpdateRequestStatus(ctx, reqID, DocReqSubmitted, &docID)
 }
 
 // Delete soft-deletes a document record.

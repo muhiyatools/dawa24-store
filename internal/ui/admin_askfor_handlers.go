@@ -11,21 +11,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// AdminAskForPage renders the list of administrative document & action requests.
+// AdminAskForPage redirects to the unified approvals & requested documents registry.
 func (h *UIHandler) AdminAskForPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var reqs []*workflow.Request
-	if h.wfSvc != nil {
-		// AsSystem justified: platform administrator managing all cross-organization document requests
-		reqs, _ = h.wfSvc.ListInbox(database.AsSystem(ctx), 0, "", 100, 0)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminAskForPage(reqs, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render ask-for page", "error", err)
-	}
+	http.Redirect(w, r, "/admin/approvals?tab=requests", http.StatusSeeOther)
 }
 
 // AdminAskForDetailPage renders details of an action/document request.

@@ -209,3 +209,20 @@ func DateTime(t time.Time, lang string) string {
 	}
 	return t.Format("2006-01-02 15:04")
 }
+
+// Bytes formats byte size into human readable string (e.g. 500 B, 1.5 KB, 2.4 MB).
+func Bytes(b int64) string {
+	if b <= 0 {
+		return "0 B"
+	}
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
+}

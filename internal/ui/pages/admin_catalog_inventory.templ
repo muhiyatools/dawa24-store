@@ -55,53 +55,226 @@ templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 	}
 }
 
-// AdminProductChildrenPage renders vendor variant listings.
-templ AdminProductChildrenPage(products []*catalog.Product, lang, dir string) {
-	@layouts.AdminShell("إدارة عروض وفروع المنتجات (Product Children)", "product_child", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title" style="margin:0;">عروض المنتجات بالمنشآت والمستودعات ({ fmt.Sprintf("%d", len(products)) })</h2>
-					<p class="subtitle">متابعة عروض التوريد، الخصومات، والكميات المسجلة لدى الموردين.</p>
+// AdminProductChildrenPage renders vendor variant listings with real database structure.
+templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) {
+	@layouts.AdminShell("أصناف الموردين وعروض التوريد", "product_child", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.25rem;">
+			
+			<!-- Header Card -->
+			<div class="card" style="margin-bottom:0;">
+				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+					<div class="row-center-sm">
+						@components.IconLayers("icon-lg")
+						<div>
+							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
+								أصناف الموردين وعروض الفروع ({ fmt.Sprintf("%d", len(data.Items)) })
+							</h2>
+							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
+								متابعة أصناف الموردين والشركات، الأسعار والخصومات، والمخزون الحي بالمستودعات.
+							</p>
+						</div>
+					</div>
+
+					<div style="display:flex; gap:0.5rem; align-items:center;">
+						<a href="/admin/product-child" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "all"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "all") }>
+							<span>الكل</span>
+						</a>
+						<a href="/admin/product-child?status=active" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "active"), templ.KV("btn-secondary", data.StatusFilter != "active") }>
+							<span>النشطة</span>
+						</a>
+						<a href="/admin/product-child?status=inactive" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "inactive"), templ.KV("btn-secondary", data.StatusFilter != "inactive") }>
+							<span>الموقوفة</span>
+						</a>
+					</div>
 				</div>
+
+				<!-- Search Toolbar -->
+				<form method="GET" action="/admin/product-child" style="margin-top:1rem; display:flex; gap:0.75rem;">
+					<input type="hidden" name="status" value={ data.StatusFilter } />
+					<div class="search-input-group" style="flex:1;">
+						<span class="search-icon">
+							@components.IconSearch("icon-sm")
+						</span>
+						<input
+							type="text"
+							name="q"
+							value={ data.SearchQuery }
+							class="form-input search-input"
+							placeholder="البحث باسم الصنف، SKU، الباركود، أو رقم التشغيلة..."
+						/>
+					</div>
+					<button type="submit" class="btn btn-primary" style="font-weight:700;">بحث</button>
+				</form>
 			</div>
 
-			if len(products) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عروض", Message: "لم يتم تسجيل عروض لمنتجات الموردين بعد."})
-			} else {
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>المنتج</th>
-								<th>الاسم العلمي</th>
-								<th>سعر الجمهور</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, p := range products {
+			<!-- Variants Table -->
+			<div class="card" style="margin-bottom:0; overflow:visible;">
+				if len(data.Items) == 0 {
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد أصناف موردين مسجلة",
+						Message: "لم يقم الموردون بتسجيل أصناف أو عروض توريد مطابقة لبحثك بعد.",
+					})
+				} else {
+					<div class="table-container" style="overflow:visible;">
+						<table class="data-table">
+							<thead>
 								<tr>
-									<td><strong>{ p.Name.Get("ar") }</strong></td>
-									<td>{ p.ScientificName }</td>
-									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", p.Price.String()) }</td>
-									<td>
-										if p.Status == catalog.StatusActive {
-											<span class="badge badge-success">نشط</span>
-										} else {
-											<span class="badge badge-danger">معطل</span>
-										}
-									</td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", p.ID)) } class="btn btn-secondary btn-sm">عرض التفاصيل</a>
-									</td>
+									<th style="width:50px;">الصورة</th>
+									<th>المنتج / SKU</th>
+									<th>المنظمة (المورد)</th>
+									<th>السعر / الخصم</th>
+									<th>المخزون</th>
+									<th>حالة المنتج</th>
+									<th>حالة الصورة</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+							</thead>
+							<tbody>
+								for _, item := range data.Items {
+									{{ v := item.Variant }}
+									<tr id={ fmt.Sprintf("variant-row-%d", v.ID) }>
+										<!-- 1. الصورة -->
+										<td style="width:50px;">
+											if v.Image != "" {
+												<img src={ v.Image } alt={ v.Name.Get("ar") } style="width:44px; height:44px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface-raised); padding:2px;" />
+											} else {
+												<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); border:1px solid var(--border);">
+													@components.IconPill("icon-xs")
+												</div>
+											}
+										</td>
+
+										<!-- 2. المنتج / SKU -->
+										<td>
+											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+												{ v.Name.Get("ar") }
+											</div>
+											if v.Name.Get("en") != "" {
+												<div style="font-size:0.775rem; color:var(--neutral-500);" dir="ltr">
+													{ v.Name.Get("en") }
+												</div>
+											}
+											if item.ParentProdName != "" {
+												<div style="font-size:0.75rem; color:var(--accent); margin-top:2px;">
+													صنف رئيسي: { item.ParentProdName }
+												</div>
+											}
+											<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:2px; display:flex; gap:0.5rem; flex-wrap:wrap;">
+												if v.SKU != "" {
+													<span class="tabular-nums">SKU: <strong style="color:var(--text);">{ v.SKU }</strong></span>
+												}
+												if v.Barcode != "" {
+													<span class="tabular-nums">باركود: { v.Barcode }</span>
+												}
+												if v.BatchNumber != "" {
+													<span>تشغيلة: { v.BatchNumber }</span>
+												}
+											</div>
+										</td>
+
+										<!-- 3. المنظمة -->
+										<td>
+											<strong style="color:var(--text); font-size:0.9rem;">
+												if item.OrgName != "" {
+													{ item.OrgName }
+												} else {
+													مورد #{ fmt.Sprintf("%d", v.OrganizationID) }
+												}
+											</strong>
+											<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:2px;">
+												معرف المؤسسة: #{ fmt.Sprintf("%d", v.OrganizationID) }
+											</div>
+										</td>
+
+										<!-- 4. السعر / الخصم -->
+										<td>
+											<div class="tabular-nums" style="font-weight:800; color:var(--text); font-size:0.95rem;">
+												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Price })
+											</div>
+											if v.Discount.IsPositive() {
+												<div style="margin-top:2px;">
+													<span class="badge badge-rose" style="font-size:10px; font-weight:700;">
+														<span>خصم: </span>
+														@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Discount })
+													</span>
+												</div>
+											}
+										</td>
+
+										<!-- 5. المخزون -->
+										<td>
+											if v.StockQty > 0 {
+												<span class="badge badge-emerald tabular-nums" style="font-size:0.825rem; font-weight:800;">
+													{ fmt.Sprintf("%d", v.StockQty) } وحدة
+												</span>
+											} else {
+												<span class="badge badge-danger" style="font-size:0.825rem; font-weight:800;">
+													نفذ المخزون (0)
+												</span>
+											}
+											if v.MinOrderQty > 1 {
+												<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:2px;">
+													أقل كمية: { fmt.Sprintf("%d", v.MinOrderQty) }
+												</div>
+											}
+										</td>
+
+										<!-- 6. حالة المنتج -->
+										<td>
+											if string(v.Status) == "active" {
+												<span class="badge badge-emerald">نشط ومعروض</span>
+											} else if string(v.Status) == "pending" {
+												<span class="badge badge-sky">قيد التدقيق</span>
+											} else if string(v.Status) == "rejected" {
+												<span class="badge badge-danger">مرفوض</span>
+											} else {
+												<span class="badge badge-slate">موقوف / معطل</span>
+											}
+										</td>
+
+										<!-- 7. حالة الصورة -->
+										<td>
+											if item.HasImage {
+												<span class="badge badge-emerald" style="font-size:11px; font-weight:700;">متوفرة ✓</span>
+											} else {
+												<span class="badge badge-warning" style="font-size:11px; font-weight:700;">غير متوفرة ⚠️</span>
+											}
+										</td>
+
+										<!-- 8. الإجراءات -->
+										<td class="text-end">
+											<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/product-child/%d/status", v.ID)) } style="margin:0; display:inline;">
+													if string(v.Status) == "active" {
+														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--warning-text);" title="تعطيل العرض">
+															تعطيل
+														</button>
+													} else {
+														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--success-text);" title="تفعيل العرض">
+															تفعيل
+														</button>
+													}
+												</form>
+
+												if v.ProductID > 0 {
+													<a
+														href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", v.ProductID)) }
+														class="btn btn-secondary btn-sm"
+														title="معاينة الصنف الأساسي في الكتالوج"
+													>
+														@components.IconEye("icon-xs")
+													</a>
+												}
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
 		</div>
 	}
 }

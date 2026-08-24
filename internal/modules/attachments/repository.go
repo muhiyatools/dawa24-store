@@ -18,4 +18,11 @@ type Repository interface {
 	UpdateTypeAndStatus(ctx context.Context, id int64, docType DocumentType, status DocumentStatus, notes string, reviewedBy *int64) error
 	SoftDelete(ctx context.Context, id int64) error
 	HardDelete(ctx context.Context, id int64) error
+
+	// Document Requests
+	CreateDocumentRequest(ctx context.Context, req *DocumentRequest) (*DocumentRequest, error)
+	ListRequestsByOrg(ctx context.Context, orgID int64) ([]*DocumentRequest, error)
+	ListAllRequests(ctx context.Context) ([]*DocumentRequest, error)
+	UpdateRequestStatus(ctx context.Context, id int64, status DocumentRequestStatus, submittedDocID *int64) error
+	FulfillRequestByDoc(ctx context.Context, orgID int64, docType DocumentType, docID int64) error
 }

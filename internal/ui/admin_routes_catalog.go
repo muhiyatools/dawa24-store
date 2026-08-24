@@ -60,11 +60,17 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Post("/admin/brands/new", h.AdminBrandCreateSubmit)
 		g.Post("/admin/brands/{id}/edit", h.AdminBrandEditSubmit)
 		g.Post("/admin/brands/{id}/status", h.AdminBrandStatusSubmit)
+		g.Post("/admin/categories/new", h.AdminCategoryCreateSubmit)
+		g.Post("/admin/categories/{id}/edit", h.AdminCategoryEditSubmit)
+		g.Post("/admin/categories/{id}/toggle", h.AdminCategoryToggleSubmit)
+		g.Post("/admin/categories/{id}/status", h.AdminCategoryToggleSubmit)
+		g.Post("/admin/product-child/{id}/status", h.AdminProductChildStatusSubmit)
 	})
 
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("catalog.product.delete", h.log))
 		g.Post("/admin/products/{id}/delete", h.AdminProductDeleteSubmit)
 		g.Post("/admin/brands/{id}/delete", h.AdminBrandDeleteSubmit)
+		g.Post("/admin/categories/{id}/delete", h.AdminCategoryDeleteSubmit)
 	})
 }

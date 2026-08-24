@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -10,6 +11,26 @@ import (
 
 templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 	@layouts.VendorShell("لوحة التحكم", "dashboard", lang, dir) {
+		if len(data.PendingDocRequests) > 0 {
+			<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:var(--radius-xl); padding:1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; box-shadow:var(--shadow-sm);">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					@components.IconAlert("icon-lg")
+					<div>
+						<div style="font-weight:800; color:#92400e; font-size:0.95rem;">
+							⚠️ تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
+						</div>
+						<div style="font-size:0.8rem; color:#b45309; margin-top:0.2rem;">
+							المهلة الممنوحة: متبقي <strong class="tabular-nums">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف وتجميد حساب المورد.
+						</div>
+					</div>
+				</div>
+				<a href="/vendor/documents" class="btn btn-primary btn-sm" style="font-weight:800; background:#d97706; border-color:#d97706; color:#ffffff; gap:0.35rem;">
+					@components.IconFile("icon-xs")
+					<span>رفع المستند المطلوب الآن ↗</span>
+				</a>
+			</div>
+		}
+
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 			@components.StatCard(components.StatCardProps{ Label: "المنتجات النشطة", Value: fmt.Sprintf("%d", data.ActiveProducts), Tone: "primary" })
 			@components.StatCard(components.StatCardProps{ Label: "طلبات قيد التنفيذ", Value: fmt.Sprintf("%d", data.PendingShipments), Tone: "warning" })

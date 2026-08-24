@@ -229,6 +229,11 @@ func (s *Service) ListVariantsByOrganization(ctx context.Context, orgID int64, p
 	return s.repo.ListVariantsByOrganization(ctx, orgID, params)
 }
 
+// ListAllVariants retrieves all variants across all vendors with pagination and search (for admin panel).
+func (s *Service) ListAllVariants(ctx context.Context, params VariantSearchParams) ([]*ProductVariant, int, error) {
+	return s.repo.ListAllVariants(ctx, params)
+}
+
 // ListCategories returns all categories.
 func (s *Service) ListCategories(ctx context.Context) ([]*Category, error) {
 	return s.repo.ListCategories(ctx)
@@ -253,6 +258,11 @@ func (s *Service) GetCategory(ctx context.Context, id int64) (*Category, error) 
 // UpdateCategory modifies category data.
 func (s *Service) UpdateCategory(ctx context.Context, c *Category) error {
 	return s.repo.UpdateCategory(ctx, c)
+}
+
+// CountProductsInCategory returns the number of products linked to a category.
+func (s *Service) CountProductsInCategory(ctx context.Context, categoryID int64) (int, error) {
+	return s.repo.CountProductsInCategory(ctx, categoryID)
 }
 
 // ListBrands returns all brands.

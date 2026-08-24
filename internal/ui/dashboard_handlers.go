@@ -3,6 +3,7 @@ package ui
 import (
 	"net/http"
 
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -22,6 +23,16 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	data := pages.VendorDashboardData{}
+
+	if h.attSvc != nil && actor.OrganizationID > 0 {
+		if reqs, err := h.attSvc.ListDocumentRequests(ctx, actor, &actor.OrganizationID); err == nil {
+			for _, reqItem := range reqs {
+				if reqItem != nil && reqItem.Status == attachments.DocReqPending {
+					data.PendingDocRequests = append(data.PendingDocRequests, reqItem)
+				}
+			}
+		}
+	}
 
 	if h.catSvc != nil {
 		// A COUNT, not the length of a page. Counting a page capped at 100 rows
@@ -112,6 +123,16 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 	}
 
 	data := pages.PharmacyDashboardData{}
+
+	if h.attSvc != nil && actor.OrganizationID > 0 {
+		if reqs, err := h.attSvc.ListDocumentRequests(ctx, actor, &actor.OrganizationID); err == nil {
+			for _, reqItem := range reqs {
+				if reqItem != nil && reqItem.Status == attachments.DocReqPending {
+					data.PendingDocRequests = append(data.PendingDocRequests, reqItem)
+				}
+			}
+		}
+	}
 
 	if h.commSvc != nil {
 		if orders, err := h.commSvc.ListCustomerOrders(ctx, actor.UserID, 100, 0); err != nil {

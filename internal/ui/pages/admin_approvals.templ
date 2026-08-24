@@ -4,44 +4,190 @@ import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminApprovals(organizations []*org.Organization, orgDocs map[int64][]*attachments.Document, currentFilter, lang, dir string) {
-	@layouts.AdminShell("اعتماد ومراجعة تراخيص المنشآت", "approvals", lang, dir) {
-		<div class="card" style="margin-bottom:0; overflow:visible;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-				<div class="row-center-sm">
-					@components.IconShield("icon-md")
-					<div>
-						<h2 class="card-title" style="margin:0;">
-							اعتماد وتدقيق طلبات المنشآت الطبية والتوريد
-						</h2>
-						<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
-							فحص مستندات التراخيص، السجل التجاري، وتصنيف وتوثيق المستندات الرسمية لكافة المنشآت.
-						</p>
+templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
+	@layouts.AdminShell("اعتماد المنشآت والوثائق الرسمية", "approvals", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.25rem;">
+			
+			<!-- Top Header Banner & Actions -->
+			<div class="card" style="margin-bottom:0;">
+				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+					<div class="row-center-sm">
+						@components.IconShield("icon-lg")
+						<div>
+							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
+								اعتماد المنشآت والوثائق الرسمية
+							</h2>
+							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
+								تدقيق تراخيص التسجيل، اعتماد وثائق الصيدليات والموردين، وإصدار طلبات المستندات الرسمية مع المهل.
+							</p>
+						</div>
+					</div>
+
+					<div style="display:flex; gap:0.75rem; align-items:center;">
+						<button
+							type="button"
+							class="btn btn-primary"
+							data-modal-open="request-doc-modal"
+							style="font-weight:800; gap:0.4rem; padding:0.6rem 1.1rem;"
+						>
+							@components.IconFile("icon-xs")
+							<span>طلب مستند رسمي من منشأة +</span>
+						</button>
 					</div>
 				</div>
 
-				<div style="display:flex; gap:0.5rem; align-items:center;">
-					<a href="/admin/approvals" class={ "btn btn-sm", templ.KV("btn-primary", currentFilter == "" || currentFilter == "pending"), templ.KV("btn-secondary", currentFilter != "" && currentFilter != "pending") }>
-						<span>طلبات قيد الفحص (Pending)</span>
+				<!-- Navigation Tabs -->
+				<div style="display:flex; gap:0.5rem; margin-top:1.25rem; border-top:1px solid var(--border); padding-top:1rem; overflow-x:auto;">
+					<a
+						href="/admin/approvals?tab=organizations"
+						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "" || data.ActiveTab == "organizations"), templ.KV("btn-secondary", data.ActiveTab != "" && data.ActiveTab != "organizations") }
+						style="font-weight:700;"
+					>
+						@components.IconBuilding("icon-xs")
+						<span>اعتماد المنشآت والتراخيص ({ fmt.Sprintf("%d", len(data.Organizations)) })</span>
 					</a>
-					<a href="/admin/approvals?status=approved" class={ "btn btn-sm", templ.KV("btn-primary", currentFilter == "approved"), templ.KV("btn-secondary", currentFilter != "approved") }>
-						<span>المعتمدة (Approved)</span>
+					<a
+						href="/admin/approvals?tab=documents"
+						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "documents"), templ.KV("btn-secondary", data.ActiveTab != "documents") }
+						style="font-weight:700;"
+					>
+						@components.IconFile("icon-xs")
+						<span>تدقيق وثائق المنشآت المرفوعة ({ fmt.Sprintf("%d", len(data.UploadedDocs)) })</span>
 					</a>
-					<a href="/admin/approvals?status=rejected" class={ "btn btn-sm", templ.KV("btn-primary", currentFilter == "rejected"), templ.KV("btn-secondary", currentFilter != "rejected") }>
-						<span>المرفوضة (Rejected)</span>
+					<a
+						href="/admin/approvals?tab=requests"
+						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "requests"), templ.KV("btn-secondary", data.ActiveTab != "requests") }
+						style="font-weight:700;"
+					>
+						@components.IconClock("icon-xs")
+						<span>المستندات المطلوبة والمتابعة ({ fmt.Sprintf("%d", len(data.DocRequests)) })</span>
 					</a>
 				</div>
 			</div>
 
-			<div id="admin-approvals-content">
-				@AdminApprovalsTable(organizations, orgDocs)
+			<!-- Tab Content Areas -->
+			<div class="card" style="margin-bottom:0; overflow:visible;">
+				if data.ActiveTab == "" || data.ActiveTab == "organizations" {
+					@AdminApprovalsOrgTab(data)
+				} else if data.ActiveTab == "documents" {
+					@AdminApprovalsDocsTab(data)
+				} else if data.ActiveTab == "requests" {
+					@AdminApprovalsRequestsTab(data)
+				}
 			</div>
+
 		</div>
+
+		<!-- Modal: Request Document from an Organization -->
+		@components.Modal(components.ModalProps{
+			ID:    "request-doc-modal",
+			Title: "طلب مستند رسمي وتحديث تراخيص من منشأة",
+			Size:  "md",
+		}) {
+			<form method="POST" action="/admin/document-requests" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem; font-size:0.825rem; line-height:1.5; color:var(--text-secondary);">
+					<strong style="color:var(--text); display:block; margin-bottom:0.25rem;">ℹ️ آلية عمل طلب المستند:</strong>
+					سيتم إرسال تنبيه إداري عاجل للمنشأة يظهر في لوحة تحكمها مع مهلة محددة (شهر). لا يتم إيقاف النشاط التجاري اليومي للمنشأة فوراً، ولكن يتم تذكيرهم برفع المستند لتجنب إيقاف الحساب بعد انتهاء المهلة.
+				</div>
+
+				<div class="form-group" style="margin:0;">
+					<label class="form-label" for="req-org-select">المنشأة المستهدفة (صيدلية / مورد) *</label>
+					<select id="req-org-select" name="organization_id" required class="form-select" style="font-weight:700;">
+						<option value="" disabled selected>-- اختر المنشأة من القائمة --</option>
+						for _, orgItem := range data.AllOrganizations {
+							<option value={ fmt.Sprintf("%d", orgItem.ID) }>
+								{ orgItem.LegalName } ({ orgTypeAr(string(orgItem.Type)) }) - سجل: { orgItem.CommercialRegister }
+							</option>
+						}
+					</select>
+				</div>
+
+				<div class="form-group" style="margin:0;">
+					<label class="form-label" for="req-doc-type">نوع المستند المطلوب *</label>
+					<select id="req-doc-type" name="document_type" required class="form-select">
+						<option value="commercial_register">السجل التجاري المجدد (Commercial Register)</option>
+						<option value="tax_card">البطاقة الضريبية الحديثة (Tax Card)</option>
+						<option value="pharmacy_license">ترخيص المنشأة / الصيدلية (Pharmacy License)</option>
+						<option value="pharmacist_license">ترخيص مزاولة المهنة للصيدلي المدير (Pharmacist License)</option>
+						<option value="syndicate_card">كارنيه نقابة الصيادلة (Syndicate Card)</option>
+						<option value="national_id">بطاقة الرقم القومي للمفوض (National ID)</option>
+						<option value="authorization_letter">خطاب تفويض رسمي معتمد (Authorization Letter)</option>
+						<option value="other">مستند رسمي إضافي (Other)</option>
+					</select>
+				</div>
+
+				<div class="form-group" style="margin:0;">
+					<label class="form-label" for="req-title">عنوان ومسمى الطلب *</label>
+					<input type="text" id="req-title" name="title" required class="form-input" placeholder="مثال: تحديث صورة السجل التجاري لعام 2026" />
+				</div>
+
+				<div class="form-group" style="margin:0;">
+					<label class="form-label" for="req-desc">توجيهات وملاحظات الإدارة للمنشأة</label>
+					<textarea id="req-desc" name="description" rows="3" class="form-input" placeholder="يرجى رفع نسخة ضوئية واضحة ومختومة بالسجل التجاري الساري..."></textarea>
+				</div>
+
+				<div class="form-group" style="margin:0;">
+					<label class="form-label" for="req-deadline">مهلة الرفع الممنوحة للمنشأة *</label>
+					<select id="req-deadline" name="deadline_days" required class="form-select">
+						<option value="15">15 يوماً (أسبوعان)</option>
+						<option value="30" selected>30 يوماً (شهر كامل - الافتراضي)</option>
+						<option value="45">45 يوماً</option>
+						<option value="60">60 يوماً (شهران)</option>
+					</select>
+				</div>
+
+				<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-modal-close="request-doc-modal"
+					>
+						إلغاء
+					</button>
+					<button type="submit" class="btn btn-primary" style="font-weight:800;">
+						@components.IconCheck("icon-xs")
+						<span>إرسال طلب المستند الرسمي</span>
+					</button>
+				</div>
+			</form>
+		}
+
 	}
+}
+
+// -------------------------------------------------------------
+// TAB 1: Organization Registrations & Licenses
+// -------------------------------------------------------------
+templ AdminApprovalsOrgTab(data *AdminApprovalsData) {
+	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+		<div>
+			<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+				طلبات تسجيل واعتماد المنشآت
+			</h3>
+			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
+				فحص ومطابقة بيانات التراخيص والسجل التجاري للمنشآت المسجلة حديثاً.
+			</p>
+		</div>
+
+		<div style="display:flex; gap:0.4rem; align-items:center;">
+			<a href="/admin/approvals?tab=organizations" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "pending"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "pending") }>
+				<span>قيد الفحص (Pending)</span>
+			</a>
+			<a href="/admin/approvals?tab=organizations&status=approved" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "approved"), templ.KV("btn-secondary", data.StatusFilter != "approved") }>
+				<span>المعتمدة (Approved)</span>
+			</a>
+			<a href="/admin/approvals?tab=organizations&status=rejected" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "rejected"), templ.KV("btn-secondary", data.StatusFilter != "rejected") }>
+				<span>المرفوضة (Rejected)</span>
+			</a>
+		</div>
+	</div>
+
+	@AdminApprovalsTable(data.Organizations, data.OrgDocs)
 }
 
 templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachments.Document) {
@@ -144,7 +290,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 										</button>
 									}
 
-									<!-- Persistent Registration Details Modal -->
+									<!-- Registration Details Modal -->
 									@components.Modal(components.ModalProps{
 										ID:    fmt.Sprintf("details-modal-%d", o.ID),
 										Title: fmt.Sprintf("ملف بيانات التسجيل: %s", o.LegalName),
@@ -193,10 +339,6 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 											</div>
 
 											<div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
-												<a href="/admin/documents" class="btn btn-secondary btn-sm" style="font-weight:700; color:var(--accent);">
-													@components.IconFile("icon-xs")
-													<span>عرض المستندات والملفات المرفقة في مركز الوثائق</span>
-												</a>
 												<button
 													type="button"
 													class="btn btn-secondary"
@@ -310,6 +452,304 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 						</tr>
 					}
 
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+// -------------------------------------------------------------
+// TAB 2: Uploaded Documents Auditing
+// -------------------------------------------------------------
+templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
+	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+		<div>
+			<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+				تدقيق واعتماد وثائق المنشآت المرفوعة
+			</h3>
+			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
+				مراجعة كافة المستندات والملفات المرفوعة لاحقاً من الصيدليات والشركات وتوثيق فئاتها.
+			</p>
+		</div>
+	</div>
+
+	if len(data.UploadedDocs) == 0 {
+		@components.EmptyState(components.EmptyStateProps{
+			Title:   "لا توجد مستندات مرفوعة",
+			Message: "لم تقم أي منشأة برفع مستندات إضافية حالياً.",
+		})
+	} else {
+		<div class="table-container" style="overflow:visible;">
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>نوع المستند</th>
+						<th>المنشأة المالكة</th>
+						<th>الملف والاسم الأصلي</th>
+						<th>تاريخ الرفع</th>
+						<th>الحالة</th>
+						<th>ملاحظات الإدارة</th>
+						<th class="text-end">الإجراء والتدقيق</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, doc := range data.UploadedDocs {
+						<tr id={ fmt.Sprintf("doc-row-%d", doc.ID) }>
+							<td>
+								<span class="badge badge-sky" style="font-weight:700;">
+									{ docTypeLabelAr(string(doc.DocumentType)) }
+								</span>
+							</td>
+							<td>
+								if doc.OrganizationID != nil && data.OrgNames[*doc.OrganizationID] != "" {
+									<strong style="color:var(--text);">{ data.OrgNames[*doc.OrganizationID] }</strong>
+								} else {
+									<span style="color:var(--neutral-400);">منشأة عامة / مستخدم</span>
+								}
+							</td>
+							<td>
+								<div style="font-weight:600; font-size:0.85rem; max-width:220px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+									if doc.OriginalName != "" {
+										{ doc.OriginalName }
+									} else {
+										مستند #{ fmt.Sprintf("%d", doc.ID) }
+									}
+								</div>
+								<div style="font-size:0.75rem; color:var(--neutral-400);">
+									{ format.Bytes(doc.SizeBytes) }
+								</div>
+							</td>
+							<td>
+								<span class="tabular-nums" style="font-size:0.825rem; color:var(--neutral-600);">
+									{ format.Date(doc.CreatedAt, "ar") }
+								</span>
+							</td>
+							<td>
+								switch doc.Status {
+									case attachments.StatusVerified:
+										<span class="badge badge-emerald">معتمد ومطابق ✓</span>
+									case attachments.StatusRejected:
+										<span class="badge badge-danger">مرفوض ✗</span>
+									default:
+										<span class="badge badge-warning">قيد الفحص والتدقيق</span>
+								}
+							</td>
+							<td>
+								if doc.ReviewNotes != "" {
+									<span style="font-size:0.8rem; color:var(--neutral-700); max-width:200px; display:inline-block; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" title={ doc.ReviewNotes }>
+										{ doc.ReviewNotes }
+									</span>
+								} else {
+									<span style="font-size:0.75rem; color:var(--neutral-400);">-</span>
+								}
+							</td>
+							<td class="text-end">
+								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/api/v1/attachments/%d", doc.ID)) }
+										target="_blank"
+										class="btn btn-secondary btn-sm"
+										style="gap:0.3rem;"
+									>
+										@components.IconEye("icon-xs")
+										<span>معاينة الملف ↗</span>
+									</a>
+
+									<button
+										type="button"
+										class="btn btn-primary btn-sm"
+										data-modal-open={ fmt.Sprintf("audit-doc-modal-%d", doc.ID) }
+									>
+										@components.IconCheck("icon-xs")
+										<span>تدقيق وتصنيف</span>
+									</button>
+
+									<!-- Document Audit Modal -->
+									@components.Modal(components.ModalProps{
+										ID:    fmt.Sprintf("audit-doc-modal-%d", doc.ID),
+										Title: fmt.Sprintf("تدقيق وتصنيف المستند: %s", doc.OriginalName),
+										Size:  "md",
+									}) {
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/documents/%d/verify", doc.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+											<div style="background:var(--surface-sunken); padding:0.9rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.85rem;">
+												<div style="margin-bottom:0.4rem;">
+													<strong>الملف:</strong> { doc.OriginalName } ({ format.Bytes(doc.SizeBytes) })
+												</div>
+												<div>
+													<a href={ templ.SafeURL(fmt.Sprintf("/api/v1/attachments/%d", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
+														@components.IconFile("icon-xs")
+														<span>فتح الملف في نافذة جديدة للمعاينة والتدقيق ↗</span>
+													</a>
+												</div>
+											</div>
+
+											<div class="form-group" style="margin:0;">
+												<label class="form-label" for={ fmt.Sprintf("doc-audit-type-%d", doc.ID) }>
+													تأكيد / تعديل تصنيف نوع المستند *
+												</label>
+												<select id={ fmt.Sprintf("doc-audit-type-%d", doc.ID) } name="document_type" required class="form-select" style="font-weight:700;">
+													<option value="pharmacy_license" selected?={ doc.DocumentType == attachments.DocPharmacyLicense }>ترخيص الصيدلية / المنشأة (Pharmacy License)</option>
+													<option value="pharmacist_license" selected?={ doc.DocumentType == attachments.DocPharmacistLicense }>ترخيص مزاولة المهنة للصيدلي (Pharmacist License)</option>
+													<option value="commercial_register" selected?={ doc.DocumentType == attachments.DocCommercialRegister }>السجل التجاري (Commercial Register)</option>
+													<option value="tax_card" selected?={ doc.DocumentType == attachments.DocTaxCard }>البطاقة الضريبية (Tax Card)</option>
+													<option value="syndicate_card" selected?={ doc.DocumentType == attachments.DocNationalID }>كارنيه نقابة الصيادلة (Syndicate Card)</option>
+													<option value="national_id" selected?={ doc.DocumentType == attachments.DocNationalID }>بطاقة الرقم القومي (National ID)</option>
+													<option value="authorization_letter" selected?={ doc.DocumentType == attachments.DocAuthorizationLetter }>خطاب تفويض رسمي (Authorization Letter)</option>
+													<option value="other" selected?={ doc.DocumentType == attachments.DocOther }>مستند رسمي آخر (Other)</option>
+												</select>
+											</div>
+
+											<div class="form-group" style="margin:0;">
+												<label class="form-label" for={ fmt.Sprintf("doc-audit-status-%d", doc.ID) }>قرار المراجعة *</label>
+												<select id={ fmt.Sprintf("doc-audit-status-%d", doc.ID) } name="status" required class="form-select">
+													<option value="verified" selected?={ doc.Status == attachments.StatusVerified || doc.Status == attachments.StatusPending }>اعتماد وتوثيق المستند (Verified)</option>
+													<option value="rejected" selected?={ doc.Status == attachments.StatusRejected }>رفض المستند (Rejected)</option>
+												</select>
+											</div>
+
+											<div class="form-group" style="margin:0;">
+												<label class="form-label" for={ fmt.Sprintf("doc-audit-notes-%d", doc.ID) }>ملاحظات التدقيق / سبب الرفض</label>
+												<textarea id={ fmt.Sprintf("doc-audit-notes-%d", doc.ID) } name="notes" rows="2" class="form-input" placeholder="ملاحظات توضيحية تظهر للمنشأة...">{ doc.ReviewNotes }</textarea>
+											</div>
+
+											<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+												<button
+													type="button"
+													class="btn btn-secondary"
+													data-modal-close={ fmt.Sprintf("audit-doc-modal-%d", doc.ID) }
+												>
+													إلغاء
+												</button>
+												<button type="submit" class="btn btn-primary" style="font-weight:800;">
+													@components.IconCheck("icon-xs")
+													<span>حفظ القرار والتوثيق</span>
+												</button>
+											</div>
+										</form>
+									}
+
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+// -------------------------------------------------------------
+// TAB 3: Requested Documents & Follow-up
+// -------------------------------------------------------------
+templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
+	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+		<div>
+			<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+				سجل المستندات المطلوبة ومتابعة المهل
+			</h3>
+			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
+				متابعة المستندات الرسمية التي طلبتها الإدارة من الصيدليات والشركات مع تواريخ انتهاء المهل.
+			</p>
+		</div>
+	</div>
+
+	if len(data.DocRequests) == 0 {
+		@components.EmptyState(components.EmptyStateProps{
+			Title:   "لا توجد طلبات مستندات",
+			Message: "لم يتم إصدار طلبات مستندات رسمية للمنشآت بعد.",
+		})
+	} else {
+		<div class="table-container" style="overflow:visible;">
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>المنشأة</th>
+						<th>المستند المطلوب</th>
+						<th>عنوان الطلب وتفاصيله</th>
+						<th>تاريخ الطلب</th>
+						<th>تاريخ المهلة والمدة المتبقية</th>
+						<th>الحالة</th>
+						<th class="text-end">الإجراء</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, req := range data.DocRequests {
+						<tr id={ fmt.Sprintf("req-row-%d", req.ID) }>
+							<td class="tabular-nums">#{ fmt.Sprintf("%d", req.ID) }</td>
+							<td>
+								<strong style="color:var(--text);">{ req.OrgName }</strong>
+								<div style="font-size:0.75rem; color:var(--neutral-500);">معرف: #{ fmt.Sprintf("%d", req.OrganizationID) }</div>
+							</td>
+							<td>
+								<span class="badge badge-sky">{ docTypeLabelAr(string(req.DocumentType)) }</span>
+							</td>
+							<td>
+								<div style="font-weight:700; font-size:0.875rem; color:var(--text);">{ req.Title }</div>
+								if req.Description != "" {
+									<div style="font-size:0.775rem; color:var(--neutral-500); margin-top:2px;">{ req.Description }</div>
+								}
+							</td>
+							<td>
+								<span class="tabular-nums" style="font-size:0.825rem; color:var(--neutral-600);">
+									{ format.Date(req.CreatedAt, "ar") }
+								</span>
+							</td>
+							<td>
+								<div class="tabular-nums" style="font-size:0.825rem; font-weight:700;">
+									{ format.Date(req.DeadlineAt, "ar") }
+								</div>
+								<div style="margin-top:3px;">
+									if req.Status == attachments.DocReqFulfilled {
+										<span class="badge badge-emerald" style="font-size:10px;">تم الاستيفاء ✓</span>
+									} else if req.IsOverdue() {
+										<span class="badge badge-danger" style="font-size:10px;">انتهت المهلة ⚠️</span>
+									} else {
+										<span class="badge badge-warning" style="font-size:10px;">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
+									}
+								</div>
+							</td>
+							<td>
+								switch req.Status {
+									case attachments.DocReqFulfilled:
+										<span class="badge badge-emerald">معتمد ومكتمل</span>
+									case attachments.DocReqSubmitted:
+										<span class="badge badge-sky">تم الرفع (قيد الفحص)</span>
+									case attachments.DocReqCancelled:
+										<span class="badge badge-slate">ملغي</span>
+									default:
+										if req.IsOverdue() {
+											<span class="badge badge-danger">متأخر</span>
+										} else {
+											<span class="badge badge-warning">بانتظار الرفع</span>
+										}
+								}
+							</td>
+							<td class="text-end">
+								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+									if req.SubmittedDocID != nil {
+										<a
+											href={ templ.SafeURL(fmt.Sprintf("/api/v1/attachments/%d", *req.SubmittedDocID)) }
+											target="_blank"
+											class="btn btn-primary btn-sm"
+											style="gap:0.25rem;"
+										>
+											@components.IconEye("icon-xs")
+											<span>معاينة المرفوع</span>
+										</a>
+									}
+
+									if req.Status == attachments.DocReqPending {
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/document-requests/%d/cancel", req.ID)) } style="margin:0; display:inline;">
+											<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);" onclick="return confirm('هل أنت متأكد من إلغاء طلب هذا المستند؟')">
+												إلغاء الطلب
+											</button>
+										</form>
+									}
+								</div>
+							</td>
+						</tr>
+					}
 				</tbody>
 			</table>
 		</div>

@@ -112,44 +112,72 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	actor, _ := authctx.From(ctx)
 	lang, dir := h.localeAndDir(r)
+
+	tab := r.URL.Query().Get("tab")
+	if tab == "" {
+		tab = "organizations"
+	}
 	statusParam := r.URL.Query().Get("status")
 
-	var orgs []*org.Organization
-	orgDocs := make(map[int64][]*attachments.Document)
+	data := &pages.AdminApprovalsData{
+		ActiveTab:    tab,
+		StatusFilter: statusParam,
+		OrgDocs:      make(map[int64][]*attachments.Document),
+		OrgNames:     make(map[int64]string),
+	}
+
+	sysCtx := database.AsSystem(ctx)
 
 	if h.orgSvc != nil {
-		sysCtx := database.AsSystem(ctx)
+		allList, _ := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0)
+		data.AllOrganizations = allList
+		for _, o := range allList {
+			if o != nil {
+				data.OrgNames[o.ID] = o.LegalName
+			}
+		}
+
 		var filterStatus *org.OrganizationStatus
 		if statusParam != "" {
 			st := org.OrganizationStatus(statusParam)
 			filterStatus = &st
-		} else {
+		} else if tab == "organizations" {
 			st := org.StatusPending
 			filterStatus = &st
 		}
-		list, err := h.orgSvc.ListOrganizations(sysCtx, nil, filterStatus, 100, 0)
+		list, err := h.orgSvc.ListOrganizations(sysCtx, nil, filterStatus, 150, 0)
 		if err != nil {
 			h.log.WarnContext(ctx, "admin approvals: list organizations", "error", err)
 		} else {
-			orgs = list
+			data.Organizations = list
 		}
 	}
 
-	if h.attSvc != nil && len(orgs) > 0 {
-		sysCtx := database.AsSystem(ctx)
-		for _, o := range orgs {
+	if h.attSvc != nil {
+		for _, o := range data.Organizations {
 			if o != nil {
 				docs, _ := h.attSvc.ListByOrganization(sysCtx, o.ID)
 				if len(docs) > 0 {
-					orgDocs[o.ID] = docs
+					data.OrgDocs[o.ID] = docs
 				}
 			}
+		}
+
+		docs, _, err := h.attSvc.ListAll(sysCtx, attachments.DocumentFilter{Limit: 200})
+		if err == nil {
+			data.UploadedDocs = docs
+		}
+
+		reqs, err := h.attSvc.ListDocumentRequests(sysCtx, actor, nil)
+		if err == nil {
+			data.DocRequests = reqs
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminApprovals(orgs, orgDocs, statusParam, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminApprovals(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin approvals page", "error", err)
 	}
 }
@@ -1173,13 +1201,15 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 
 	var products []*catalog.Product
 	var brands []*catalog.Brand
+	var categories []*catalog.Category
 	if h.catSvc != nil {
 		products, _ = h.catSvc.Search(database.AsSystem(ctx), catalog.SearchParams{Limit: 200})
 		brands, _ = h.catSvc.ListBrands(database.AsSystem(ctx))
+		categories, _ = h.catSvc.ListCategories(database.AsSystem(ctx))
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProducts(lang, dir, products, brands).Render(ctx, w); err != nil {
+	if err := pages.AdminProducts(lang, dir, products, brands, categories).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin products", "error", err)
 	}
 }
@@ -1229,6 +1259,13 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
+	var categoryIDPtr *int64
+	if catIDStr := strings.TrimSpace(r.FormValue("category_id")); catIDStr != "" {
+		if cid, err := strconv.ParseInt(catIDStr, 10, 64); err == nil && cid > 0 {
+			categoryIDPtr = &cid
+		}
+	}
+
 	manufacturer := strings.TrimSpace(r.FormValue("manufacturer"))
 	if manufacturer == "" && brandIDPtr != nil {
 		if b, err := h.catSvc.GetBrand(database.AsSystem(ctx), *brandIDPtr); err == nil && b != nil {
@@ -1246,6 +1283,7 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 		Active:                 r.FormValue("active_ingredient"),
 		DosageForm:             r.FormValue("dosage_form"),
 		BrandID:                brandIDPtr,
+		CategoryID:             categoryIDPtr,
 		ManufacturingCompanies: manufacturer,
 		SKU:                    r.FormValue("eda_reg_number"),
 		Barcode:                r.FormValue("eda_reg_number"),
@@ -1314,6 +1352,13 @@ func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	var categoryIDPtr *int64
+	if catIDStr := strings.TrimSpace(r.FormValue("category_id")); catIDStr != "" {
+		if cid, err := strconv.ParseInt(catIDStr, 10, 64); err == nil && cid > 0 {
+			categoryIDPtr = &cid
+		}
+	}
+
 	manufacturer := strings.TrimSpace(r.FormValue("manufacturer"))
 	if manufacturer == "" && brandIDPtr != nil {
 		if b, err := h.catSvc.GetBrand(database.AsSystem(ctx), *brandIDPtr); err == nil && b != nil {
@@ -1330,6 +1375,7 @@ func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Reques
 	prod.Active = r.FormValue("active_ingredient")
 	prod.DosageForm = r.FormValue("dosage_form")
 	prod.BrandID = brandIDPtr
+	prod.CategoryID = categoryIDPtr
 	prod.ManufacturingCompanies = manufacturer
 	prod.SKU = r.FormValue("eda_reg_number")
 	prod.Barcode = r.FormValue("eda_reg_number")
@@ -2077,40 +2123,100 @@ func (h *UIHandler) AdminInstitutionalStatusSubmit(w http.ResponseWriter, r *htt
 	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم تحديث حالة تفعيل التصنيف.")
 }
 
-// AdminDocumentsPage renders the official documents audit registry.
+// AdminDocumentsPage redirects to the unified documents & approvals audit registry.
 func (h *UIHandler) AdminDocumentsPage(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/admin/approvals?tab=documents", http.StatusSeeOther)
+}
+
+// AdminCreateDocumentRequestSubmit issues an administrative document request to an organization.
+func (h *UIHandler) AdminCreateDocumentRequestSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
+	actor, _ := authctx.From(ctx)
 
-	statusParam := r.URL.Query().Get("status")
-	var statusFilter *attachments.DocumentStatus
-	if statusParam != "" {
-		st := attachments.DocumentStatus(statusParam)
-		statusFilter = &st
+	orgID, err := strconv.ParseInt(r.PostFormValue("organization_id"), 10, 64)
+	if err != nil || orgID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "يرجى اختيار منشأة صالحة من القائمة.")
+		return
 	}
 
-	filter := attachments.DocumentFilter{
-		Status: statusFilter,
-		Search: r.URL.Query().Get("q"),
-		Limit:  50,
-		Offset: 0,
+	docType := attachments.DocumentType(strings.TrimSpace(r.PostFormValue("document_type")))
+	title := strings.TrimSpace(r.PostFormValue("title"))
+	description := strings.TrimSpace(r.PostFormValue("description"))
+	deadlineDays, _ := strconv.Atoi(r.PostFormValue("deadline_days"))
+	if deadlineDays <= 0 {
+		deadlineDays = 30
 	}
 
-	docs := make([]*attachments.Document, 0)
-	total := 0
+	if title == "" {
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "عنوان المستند المطلوب إلزامي.")
+		return
+	}
+
+	if h.attSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "خدمة المستندات غير متاحة.")
+		return
+	}
+
+	sysCtx := database.AsSystem(ctx)
+	if _, err := h.attSvc.CreateDocumentRequest(sysCtx, actor, orgID, docType, title, description, deadlineDays); err != nil {
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "success", "تم إصدار طلب المستند الرسمي للمنشأة مع التنبيه والمهلة المحددة بنجاح.")
+}
+
+// AdminCancelDocumentRequestSubmit cancels an active document request.
+func (h *UIHandler) AdminCancelDocumentRequestSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, _ := authctx.From(ctx)
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "معرف الطلب غير صالح.")
+		return
+	}
 
 	if h.attSvc != nil {
-		var err error
-		docs, total, err = h.attSvc.ListAll(ctx, filter)
-		if err != nil {
-			h.log.ErrorContext(ctx, "load admin documents", "error", err)
+		sysCtx := database.AsSystem(ctx)
+		_ = h.attSvc.CancelDocumentRequest(sysCtx, actor, id)
+	}
+
+	h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "success", "تم إلغاء طلب المستند.")
+}
+
+// AdminVerifyUploadedDocSubmit audits, categorizes, and approves/rejects an uploaded document.
+func (h *UIHandler) AdminVerifyUploadedDocSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, _ := authctx.From(ctx)
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "error", "معرف المستند غير صالح.")
+		return
+	}
+
+	docType := attachments.DocumentType(strings.TrimSpace(r.PostFormValue("document_type")))
+	status := attachments.DocumentStatus(strings.TrimSpace(r.PostFormValue("status")))
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+
+	if status != attachments.StatusVerified && status != attachments.StatusRejected {
+		status = attachments.StatusVerified
+	}
+
+	if h.attSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		if err := h.attSvc.VerifyDocumentWithType(sysCtx, actor, id, docType, status, notes); err != nil {
+			h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "error", h.safeMessage(err, langOf(r)))
+			return
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminDocuments(docs, total, filter, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin documents page", "error", err)
+	msg := "تم اعتماد وتوثيق المستند وتحديث ملف المنشأة بنجاح."
+	if status == attachments.StatusRejected {
+		msg = "تم رفض المستند وحفظ الملاحظات."
 	}
+	h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "success", msg)
 }
 
 // AdminCitiesPage renders the Egyptian cities and spatial coordinates management screen.

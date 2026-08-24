@@ -46,6 +46,7 @@ type Repository interface {
 	GetVariantByID(ctx context.Context, id int64) (*ProductVariant, error)
 	ListVariantsByProduct(ctx context.Context, productID int64) ([]*ProductVariant, error)
 	ListVariantsByOrganization(ctx context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error)
+	ListAllVariants(ctx context.Context, params VariantSearchParams) ([]*ProductVariant, int, error)
 	UpdateVariant(ctx context.Context, v *ProductVariant) error
 	DeleteVariant(ctx context.Context, id int64) error
 
