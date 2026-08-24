@@ -318,9 +318,9 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</div>
 						</div>
 
-						<!-- Secret API Key with Toggle -->
+						<!-- Secret Admin Password / Key with Toggle -->
 						<div class="form-group" style="margin:0;">
-							<label class="form-label">مفتاح المدير السري للبوابة (Master Admin API Key) *</label>
+							<label class="form-label">كلمة مرور مدير البوابة (Gateway Admin Password / Key) *</label>
 							<div style="position:relative; display:flex; align-items:center;">
 								<input
 									:type="showKey ? 'text' : 'password'"
@@ -328,7 +328,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									x-model="gatewayKey"
 									class="form-input"
 									dir="ltr"
-									placeholder="أدخل مفتاح المدير الرئيسي للبوابة..."
+									placeholder="أدخل كلمة مرور مدير البوابة (ADMIN_PASSWORD أو SERVICE_PASSWORD)..."
 									style="padding-inline-end:3rem;"
 								/>
 								<button
@@ -339,7 +339,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								></button>
 							</div>
 							<p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
-								🔒 يُستخدم هذا المفتاح حصرياً للمصادقة الإدارية وجلب الباقات وتوليد مفاتيح المنشآت.
+								🔒 كلمة المرور المحددة في إعدادات البوابة (ADMIN_PASSWORD). يتم إرسالها عبر Basic Auth لمصادقة الإدارة وجلب الباقات الحية.
 							</p>
 						</div>
 
@@ -945,8 +945,12 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						this.isTesting = true;
 						this.testResult = null;
 						try {
+							const form = new FormData();
+							form.append('endpoint_url', this.gatewayURL);
+							form.append('api_key', this.gatewayKey);
 							const resp = await fetch('/admin/developers/ai/test', {
-								method: 'POST'
+								method: 'POST',
+								body: form
 							});
 							const data = await resp.json();
 							this.testResult = data;

@@ -2617,21 +2617,33 @@ func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json")
 
+	_ = r.ParseForm()
+	reqEndpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
+	reqKey := strings.TrimSpace(r.FormValue("api_key"))
+
 	adminClient, endpoint, _ := h.getGatewayAdminClient(ctx)
+	if reqEndpoint != "" {
+		endpoint = reqEndpoint
+		adminClient = gateway.NewAdminClient(reqEndpoint, "", reqKey)
+	}
 	plans, err := adminClient.ListPlans(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusOK)
+		msg := fmt.Sprintf("تعذر الاتصال بـ %s (%v)", endpoint, err)
+		if strings.Contains(err.Error(), "401") || strings.Contains(err.Error(), "Unauthorized") {
+			msg = fmt.Sprintf("خطأ في المصادقة (401 Unauthorized): كلمة مرور أو بيانات اعتماد المدير غير صحيحة لبوابة %s. يرجى كتابة كلمة المرور المحددة في ADMIN_PASSWORD الخاصة بالبوابة والضغط على حفظ.", endpoint)
+		}
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"status":  "unreachable",
 			"error":   err.Error(),
-			"message": fmt.Sprintf("تعذر الاتصال بـ %s (%v)", endpoint, err),
+			"message": msg,
 		})
 		return
 	}
 
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"status":  "healthy",
-		"message": fmt.Sprintf("الاتصال بـ %s نشط بنجاح — تم جلب %d باقات ذكاء اصطناعي متاحة", endpoint, len(plans)),
+		"message": fmt.Sprintf("الاتصال بـ %s نشط بنجاح — تم جلب %d باقات ذكاء اصطناعي حية من البوابة", endpoint, len(plans)),
 		"count":   len(plans),
 	})
 }
