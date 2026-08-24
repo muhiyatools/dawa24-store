@@ -294,34 +294,6 @@ type ProductAlert struct {
 	CreatedAt   time.Time    `json:"created_at"`
 }
 
-// FinderQuestion is one step of the guided product-finder questionnaire.
-type FinderQuestion struct {
-	ID        int64     `json:"id"`
-	Question  i18n.Text `json:"question"`
-	Type      string    `json:"type"` // choice, text, number
-	IsFirst   bool      `json:"is_first"`
-	IsActive  bool      `json:"is_active"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// FinderOption is an answer choice leading to the next question or a result.
-type FinderOption struct {
-	ID             int64     `json:"id"`
-	QuestionID     int64     `json:"question_id"`
-	Label          i18n.Text `json:"label"`
-	NextQuestionID *int64    `json:"next_question_id,omitempty"`
-	ResultID       *int64    `json:"result_id,omitempty"`
-	SortOrder      int       `json:"sort_order"`
-}
-
-// FinderResult is the terminal recommendation of the questionnaire.
-type FinderResult struct {
-	ID          int64     `json:"id"`
-	Title       i18n.Text `json:"title"`
-	Description i18n.Text `json:"description"`
-}
-
 // InstitutionalGate resolves which institutional work ids a user may see products for.
 // Implemented by the org module and injected at composition time in cmd/server/routes.go — modules must not import each other (ADR 0002).
 type InstitutionalGate interface {

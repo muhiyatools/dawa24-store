@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -505,7 +506,9 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 								<tbody>
 									for _, u := range data.Users {
 										<tr
-											x-show={ fmt.Sprintf("(userGroupFilter === 'all' || (userGroupFilter === 'pharmacy' && (%t)) || (userGroupFilter === 'supplier' && (%t)) || (userGroupFilter === 'staff' && (%t))) && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.includes(searchQuery))", isPharmacyGroup(u.Role), isSupplierGroup(u.Role), isStaffGroup(u.Role), userDisplayName(u), u.Email, u.Phone) }
+											data-group={ getUserGroup(u.Role) }
+											data-search={ strings.ToLower(fmt.Sprintf("%s %s %s %s", userDisplayName(u), u.Email, u.Phone, roleDisplayAr(u.Role))) }
+											x-show="(userGroupFilter === 'all' || $el.getAttribute('data-group') === userGroupFilter) && (!searchQuery || $el.getAttribute('data-search').includes(searchQuery.toLowerCase()))"
 										>
 											<td>
 												<div style="display:flex; align-items:center; gap:0.6rem;">

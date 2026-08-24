@@ -74,6 +74,7 @@ type Request struct {
 	Schema         map[string]any // optional JSON schema for structured output
 	OrganizationID int64          // cost attribution and per-tenant quota
 	UserID         int64
+	VirtualKey     string // optional tenant virtual key for per-tenant quotas
 	IdempotencyKey string // required for anything that mutates domain state
 	MaxTokens      int
 }
@@ -253,7 +254,11 @@ func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, 
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+settings.VirtualKey)
+	authKey := settings.VirtualKey
+	if req.VirtualKey != "" {
+		authKey = req.VirtualKey
+	}
+	httpReq.Header.Set("Authorization", "Bearer "+authKey)
 	httpReq.Header.Set("X-Client-App", settings.ClientApp)
 	// Per-tenant attribution: lets the Gateway report and cap AI spend by
 	// organisation without the Store having to meter tokens itself.

@@ -398,17 +398,30 @@ func userDisplayName(u *identity.User) string {
 
 func isPharmacyGroup(role string) bool {
 	r := strings.ToLower(role)
-	return r == "pharmacy" || r == "customer" || r == "individual"
+	return r == "pharmacy" || r == "customer" || r == "individual" || r == "pharmacist" || r == "buyer" || r == "pharmacist_assistant"
 }
 
 func isSupplierGroup(role string) bool {
 	r := strings.ToLower(role)
-	return r == "supplier" || r == "vendor"
+	return r == "supplier" || r == "vendor" || r == "warehouse_keeper" || r == "driver" || r == "sales_rep"
 }
 
 func isStaffGroup(role string) bool {
 	r := strings.ToLower(role)
-	return r == "super_admin" || r == "admin" || r == "support" || r == "developer" || r == "employer"
+	return r == "super_admin" || r == "admin" || r == "support" || r == "developer" || r == "employer" || r == "staff" || r == "finance" || r == "auditor"
+}
+
+func getUserGroup(role string) string {
+	if isPharmacyGroup(role) {
+		return "pharmacy"
+	}
+	if isSupplierGroup(role) {
+		return "supplier"
+	}
+	if isStaffGroup(role) {
+		return "staff"
+	}
+	return "other"
 }
 
 func countUsersByGroup(users []*identity.User, group string) int {

@@ -325,51 +325,6 @@ func (s *Service) ListProductAlerts(ctx context.Context, userID int64) ([]*Produ
 	return s.repo.ListProductAlertsByUser(ctx, userID)
 }
 
-// GetFirstFinderQuestion returns the questionnaire entry question.
-func (s *Service) GetFirstFinderQuestion(ctx context.Context) (*FinderQuestion, error) {
-	return s.repo.GetFirstFinderQuestion(ctx)
-}
-
-// GetFinderQuestion returns one question.
-func (s *Service) GetFinderQuestion(ctx context.Context, id int64) (*FinderQuestion, error) {
-	return s.repo.GetFinderQuestionByID(ctx, id)
-}
-
-// ListFinderOptions returns a question's answer choices.
-func (s *Service) ListFinderOptions(ctx context.Context, questionID int64) ([]*FinderOption, error) {
-	return s.repo.ListFinderOptions(ctx, questionID)
-}
-
-// GetFinderResult returns the terminal recommendation.
-func (s *Service) GetFinderResult(ctx context.Context, id int64) (*FinderResult, error) {
-	return s.repo.GetFinderResultByID(ctx, id)
-}
-
-// ListFinderQuestions returns all questions (for the admin tree builder).
-func (s *Service) ListFinderQuestions(ctx context.Context) ([]*FinderQuestion, error) {
-	return s.repo.ListFinderQuestions(ctx)
-}
-
-// CreateFinderQuestion adds a question to the finder questionnaire.
-func (s *Service) CreateFinderQuestion(ctx context.Context, q *FinderQuestion) error {
-	return s.repo.CreateFinderQuestion(ctx, q)
-}
-
-// CreateFinderOption adds an answer choice to a question.
-func (s *Service) CreateFinderOption(ctx context.Context, o *FinderOption) error {
-	return s.repo.CreateFinderOption(ctx, o)
-}
-
-// CreateFinderResult adds a terminal recommendation.
-func (s *Service) CreateFinderResult(ctx context.Context, r *FinderResult) error {
-	return s.repo.CreateFinderResult(ctx, r)
-}
-
-// ListFinderResults returns all terminal recommendations.
-func (s *Service) ListFinderResults(ctx context.Context) ([]*FinderResult, error) {
-	return s.repo.ListFinderResults(ctx)
-}
-
 // CountProductsByOrg returns an organization's product total for a status.
 // Pass an empty status for every product.
 func (s *Service) CountProductsByOrg(ctx context.Context, orgID int64, status string) (int, error) {

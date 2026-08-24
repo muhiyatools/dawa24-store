@@ -146,43 +146,6 @@ func (r stubRepo) ListProductAlertsByUser(ctx context.Context, userID int64) ([]
 	return nil, nil
 }
 
-func (r stubRepo) GetFirstFinderQuestion(context.Context) (*catalog.FinderQuestion, error) {
-	r.fail("GetFirstFinderQuestion")
-	return nil, nil
-}
-func (r stubRepo) GetFinderQuestionByID(context.Context, int64) (*catalog.FinderQuestion, error) {
-	r.fail("GetFinderQuestionByID")
-	return nil, nil
-}
-func (r stubRepo) ListFinderOptions(context.Context, int64) ([]*catalog.FinderOption, error) {
-	r.fail("ListFinderOptions")
-	return nil, nil
-}
-func (r stubRepo) GetFinderResultByID(context.Context, int64) (*catalog.FinderResult, error) {
-	r.fail("GetFinderResultByID")
-	return nil, nil
-}
-func (r stubRepo) ListFinderQuestions(context.Context) ([]*catalog.FinderQuestion, error) {
-	r.fail("ListFinderQuestions")
-	return nil, nil
-}
-
-func (r stubRepo) CreateFinderQuestion(context.Context, *catalog.FinderQuestion) error {
-	r.fail("CreateFinderQuestion")
-	return nil
-}
-func (r stubRepo) CreateFinderOption(context.Context, *catalog.FinderOption) error {
-	r.fail("CreateFinderOption")
-	return nil
-}
-func (r stubRepo) CreateFinderResult(context.Context, *catalog.FinderResult) error {
-	r.fail("CreateFinderResult")
-	return nil
-}
-func (r stubRepo) ListFinderResults(context.Context) ([]*catalog.FinderResult, error) {
-	r.fail("ListFinderResults")
-	return nil, nil
-}
 func (r stubRepo) CountProductsInBrand(ctx context.Context, brandID int64) (int, error) {
 	r.fail("CountProductsInBrand")
 	return 0, nil

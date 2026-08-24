@@ -29,6 +29,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -892,7 +893,11 @@ func (h *UIHandler) adminApprovalAction(
 // AdminApproveOrgSubmit approves a pending organization.
 func (h *UIHandler) AdminApproveOrgSubmit(w http.ResponseWriter, r *http.Request) {
 	h.adminApprovalAction(w, r, func(ctx context.Context, orgID int64) error {
-		return h.orgSvc.ApproveOrganization(ctx, orgID)
+		if err := h.orgSvc.ApproveOrganization(ctx, orgID); err != nil {
+			return err
+		}
+		go h.provisionOrgAIAndSubscription(context.Background(), orgID)
+		return nil
 	})
 }
 
@@ -1169,8 +1174,57 @@ func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err == nil && h.orgSvc != nil {
 		_ = h.orgSvc.ApproveOrganization(ctx, id)
+		go h.provisionOrgAIAndSubscription(context.Background(), id)
 	}
 	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
+}
+
+func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int64) {
+	if orgID <= 0 {
+		return
+	}
+	sysCtx := database.AsSystem(ctx)
+
+	// 1. Ensure default subscription if none exists
+	var sub *billing.Subscription
+	if h.billSvc != nil {
+		sub, _ = h.billSvc.AssignDefaultSubscription(sysCtx, 0, &orgID)
+	}
+
+	// 2. Fetch organization to get details
+	if h.orgSvc == nil {
+		return
+	}
+	o, err := h.orgSvc.GetOrganization(sysCtx, orgID)
+	if err != nil || o == nil {
+		return
+	}
+
+	// Determine AI plan ID from subscription
+	aiPlanID := "plan-basic"
+	if sub != nil && h.billSvc != nil {
+		if plan, err := h.billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
+			aiPlanID = plan.AIPlanID
+		}
+	}
+
+	// 3. If AI Gateway client is configured, provision in AI Gateway
+	var gatewayURL, gatewayUser, gatewayPass string
+	if h.adminSvc != nil {
+		if aiSets, err := h.adminSvc.GetAISettings(sysCtx); err == nil && aiSets != nil && aiSets.EndpointURL != "" {
+			gatewayURL = aiSets.EndpointURL
+		}
+	}
+	if gatewayURL == "" {
+		gatewayURL = "http://localhost:8080"
+	}
+
+	adminClient := gateway.NewAdminClient(gatewayURL, gatewayUser, gatewayPass)
+	userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
+	if provErr == nil && (vkey != "" || userID != "") {
+		_ = h.orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
+		h.log.InfoContext(ctx, "ai gateway organization provisioned", "org_id", orgID, "user_id", userID, "plan_id", aiPlanID)
+	}
 }
 
 // AdminOrgRejectSubmit rejects an organization.
@@ -1772,85 +1826,6 @@ func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminFinderPage renders the guided-finder tree builder.
-func (h *UIHandler) AdminFinderPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var questions []*catalog.FinderQuestion
-	var results []*catalog.FinderResult
-	if h.catSvc != nil {
-		questions, _ = h.catSvc.ListFinderQuestions(ctx)
-		results, _ = h.catSvc.ListFinderResults(ctx)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFinder(lang, dir, questions, results).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin finder", "error", err)
-	}
-}
-
-// AdminFinderQuestionSubmit adds a finder question.
-func (h *UIHandler) AdminFinderQuestionSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finder", "error", "الخدمة غير متاحة حالياً.")
-		return
-	}
-	q := &catalog.FinderQuestion{
-		Question: i18n.New(r.PostFormValue("question_ar"), r.PostFormValue("question_en")),
-		Type:     r.PostFormValue("type"),
-		IsFirst:  r.PostFormValue("is_first") == "1",
-	}
-	if q.Type == "" {
-		q.Type = "choice"
-	}
-	if err := h.catSvc.CreateFinderQuestion(ctx, q); err != nil {
-		h.redirectWithNotice(w, r, "/admin/finder", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/admin/finder", "success", "تمت إضافة السؤال.")
-}
-
-// AdminFinderResultSubmit adds a finder result.
-func (h *UIHandler) AdminFinderResultSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finder", "error", "الخدمة غير متاحة حالياً.")
-		return
-	}
-	res := &catalog.FinderResult{
-		Title:       i18n.New(r.PostFormValue("title_ar"), r.PostFormValue("title_en")),
-		Description: i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
-	}
-	if err := h.catSvc.CreateFinderResult(ctx, res); err != nil {
-		h.redirectWithNotice(w, r, "/admin/finder", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/admin/finder", "success", "تمت إضافة النتيجة.")
-}
-
-// AdminFinderOptionSubmit adds an answer choice leading to a result.
-func (h *UIHandler) AdminFinderOptionSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/finder", "error", "الخدمة غير متاحة حالياً.")
-		return
-	}
-	questionID, _ := strconv.ParseInt(r.PostFormValue("question_id"), 10, 64)
-	resultID, _ := strconv.ParseInt(r.PostFormValue("result_id"), 10, 64)
-	o := &catalog.FinderOption{
-		QuestionID: questionID,
-		Label:      i18n.New(r.PostFormValue("label_ar"), ""),
-		ResultID:   &resultID,
-	}
-	if err := h.catSvc.CreateFinderOption(ctx, o); err != nil {
-		h.redirectWithNotice(w, r, "/admin/finder", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/admin/finder", "success", "تمت إضافة الخيار.")
-}
-
 // AdminPlansPage renders the subscription plan editor and active subscribers tab.
 func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1868,10 +1843,34 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 		subs, _ = h.billSvc.AdminListSubscriptions(ctx, 100, 0)
 	}
 
+	// Retrieve gateway plans for dropdown
+	var gwPlans []gateway.GatewayPlan
+	var gatewayURL, gatewayUser, gatewayPass string
+	if h.adminSvc != nil {
+		if aiSets, err := h.adminSvc.GetAISettings(ctx); err == nil && aiSets != nil && aiSets.EndpointURL != "" {
+			gatewayURL = aiSets.EndpointURL
+		}
+	}
+	if gatewayURL == "" {
+		gatewayURL = "http://localhost:8080"
+	}
+	adminClient := gateway.NewAdminClient(gatewayURL, gatewayUser, gatewayPass)
+	if gps, err := adminClient.ListPlans(ctx); err == nil {
+		gwPlans = gps
+	}
+	if len(gwPlans) == 0 {
+		gwPlans = []gateway.GatewayPlan{
+			{ID: "plan-basic", Name: "Basic AI Plan", RPMLimit: 10, TPMLimit: 50000},
+			{ID: "plan-pro", Name: "Pro AI Plan", RPMLimit: 60, TPMLimit: 300000},
+			{ID: "plan-enterprise", Name: "Enterprise AI Plan", RPMLimit: 200, TPMLimit: 1000000},
+		}
+	}
+
 	data := pages.AdminPlansData{
 		ActiveTab:     tab,
 		Plans:         plans,
 		Subscriptions: subs,
+		GatewayPlans:  gwPlans,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -1894,25 +1893,113 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	if durationDays <= 0 {
 		durationDays = 30
 	}
+	maxSessions, _ := strconv.Atoi(r.PostFormValue("max_login_sessions"))
+	if maxSessions <= 0 {
+		maxSessions = 3
+	}
+	maxDevices, _ := strconv.Atoi(r.PostFormValue("max_devices"))
+	if maxDevices <= 0 {
+		maxDevices = 3
+	}
+	aiPlanID := strings.TrimSpace(r.PostFormValue("ai_plan_id"))
+	if aiPlanID == "" {
+		aiPlanID = "plan-basic"
+	}
+	isDefault := r.PostFormValue("is_default") == "1" || r.PostFormValue("is_default") == "true"
+
 	features := map[string]string{}
 	if r.PostFormValue("is_compare") == "1" {
 		features["compare"] = "true"
 	}
+	if r.PostFormValue("feature_bulk_import") == "1" {
+		features["bulk_import"] = "true"
+	}
+	if r.PostFormValue("feature_analytics") == "1" {
+		features["analytics"] = "true"
+	}
 
 	p := &billing.Plan{
-		Slug:         r.PostFormValue("slug"),
-		Name:         i18n.New(r.PostFormValue("name_ar"), r.PostFormValue("name_en")),
-		PriceMonth:   priceMonth,
-		PriceYear:    priceYear,
-		DurationDays: durationDays,
-		IsActive:     true,
-		Features:     features,
+		Slug:             r.PostFormValue("slug"),
+		Name:             i18n.New(r.PostFormValue("name_ar"), r.PostFormValue("name_en")),
+		Description:      i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
+		PriceMonth:       priceMonth,
+		PriceYear:        priceYear,
+		DurationDays:     durationDays,
+		MaxLoginSessions: maxSessions,
+		MaxDevices:       maxDevices,
+		AIPlanID:         aiPlanID,
+		IsDefault:        isDefault,
+		IsActive:         true,
+		Features:         features,
 	}
 	if _, err := h.billSvc.CreatePlan(ctx, p); err != nil {
 		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/plans", "success", "تمت إضافة الخطة.")
+	h.redirectWithNotice(w, r, "/admin/plans", "success", "تمت إضافة وتفعيل باقة الاشتراك الموحدة بنجاح.")
+}
+
+// AdminPlanUpdateSubmit updates an existing subscription plan.
+func (h *UIHandler) AdminPlanUpdateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 || h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		return
+	}
+
+	priceMonth, _ := money.Parse(r.PostFormValue("price_month"))
+	priceYear, _ := money.Parse(r.PostFormValue("price_year"))
+	durationDays, _ := strconv.Atoi(r.PostFormValue("duration_days"))
+	if durationDays <= 0 {
+		durationDays = 30
+	}
+	maxSessions, _ := strconv.Atoi(r.PostFormValue("max_login_sessions"))
+	if maxSessions <= 0 {
+		maxSessions = 3
+	}
+	maxDevices, _ := strconv.Atoi(r.PostFormValue("max_devices"))
+	if maxDevices <= 0 {
+		maxDevices = 3
+	}
+	aiPlanID := strings.TrimSpace(r.PostFormValue("ai_plan_id"))
+	if aiPlanID == "" {
+		aiPlanID = "plan-basic"
+	}
+	isDefault := r.PostFormValue("is_default") == "1" || r.PostFormValue("is_default") == "true"
+	isActive := r.PostFormValue("is_active") != "0"
+
+	features := map[string]string{}
+	if r.PostFormValue("is_compare") == "1" {
+		features["compare"] = "true"
+	}
+	if r.PostFormValue("feature_bulk_import") == "1" {
+		features["bulk_import"] = "true"
+	}
+	if r.PostFormValue("feature_analytics") == "1" {
+		features["analytics"] = "true"
+	}
+
+	p := &billing.Plan{
+		ID:               id,
+		Slug:             r.PostFormValue("slug"),
+		Name:             i18n.New(r.PostFormValue("name_ar"), r.PostFormValue("name_en")),
+		Description:      i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
+		PriceMonth:       priceMonth,
+		PriceYear:        priceYear,
+		DurationDays:     durationDays,
+		MaxLoginSessions: maxSessions,
+		MaxDevices:       maxDevices,
+		AIPlanID:         aiPlanID,
+		IsDefault:        isDefault,
+		IsActive:         isActive,
+		Features:         features,
+	}
+	if _, err := h.billSvc.UpdatePlan(ctx, p); err != nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم تحديث باقة الاشتراك بنجاح.")
 }
 
 // AdminPolicyCreateSubmit creates a new draft version of a legal policy document.

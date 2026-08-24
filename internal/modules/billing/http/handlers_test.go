@@ -64,9 +64,21 @@ func (r stubRepo) CreatePlan(ctx context.Context, p *billing.Plan) error {
 	r.fail("CreatePlan")
 	return nil
 }
+func (r stubRepo) GetPlanByID(ctx context.Context, id int64) (*billing.Plan, error) {
+	r.fail("GetPlanByID")
+	return nil, nil
+}
 func (r stubRepo) GetPlanBySlug(ctx context.Context, slug string) (*billing.Plan, error) {
 	r.fail("GetPlanBySlug")
 	return nil, nil
+}
+func (r stubRepo) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) {
+	r.fail("GetDefaultPlan")
+	return nil, nil
+}
+func (r stubRepo) UpdatePlan(ctx context.Context, p *billing.Plan) error {
+	r.fail("UpdatePlan")
+	return nil
 }
 func (r stubRepo) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {
 	r.fail("CreateSubscription")
@@ -74,6 +86,10 @@ func (r stubRepo) CreateSubscription(ctx context.Context, sub *billing.Subscript
 }
 func (r stubRepo) GetActiveSubscription(ctx context.Context, userID int64) (*billing.Subscription, error) {
 	r.fail("GetActiveSubscription")
+	return nil, nil
+}
+func (r stubRepo) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*billing.Subscription, error) {
+	r.fail("GetActiveSubscriptionByOrg")
 	return nil, nil
 }
 func (r stubRepo) CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error) {
@@ -188,12 +204,24 @@ func (happyRepo) CreatePlan(ctx context.Context, p *billing.Plan) error {
 	p.ID = 1
 	return nil
 }
+func (happyRepo) GetPlanByID(ctx context.Context, id int64) (*billing.Plan, error) {
+	return &billing.Plan{ID: id, Slug: "basic", Name: i18n.Text{"en": "Basic"}}, nil
+}
+func (happyRepo) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) {
+	return &billing.Plan{ID: 1, Slug: "basic", Name: i18n.Text{"en": "Basic"}, IsDefault: true}, nil
+}
+func (happyRepo) UpdatePlan(ctx context.Context, p *billing.Plan) error {
+	return nil
+}
 func (happyRepo) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {
 	sub.ID = 1
 	return nil
 }
 func (happyRepo) GetActiveSubscription(ctx context.Context, userID int64) (*billing.Subscription, error) {
 	return &billing.Subscription{ID: 1, UserID: userID, Status: billing.SubActive}, nil
+}
+func (happyRepo) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*billing.Subscription, error) {
+	return &billing.Subscription{ID: 1, OrganizationID: &orgID, Status: billing.SubActive}, nil
 }
 func (happyRepo) CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error) {
 	return true, "unlimited", nil

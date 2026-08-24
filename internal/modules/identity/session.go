@@ -85,6 +85,10 @@ func userSessionsKey(userID int64) string {
 	return fmt.Sprintf("user_sessions:%d", userID)
 }
 
+func orgSessionsKey(orgID int64) string {
+	return fmt.Sprintf("org_sessions:%d", orgID)
+}
+
 // Create stores a new session in Redis with configured TTL.
 func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 	if sess.Token == "" {
@@ -111,18 +115,62 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 	pipe.Set(ctx, sessionKey(sess.Token), data, s.ttl)
 	pipe.SAdd(ctx, userSessionsKey(sess.UserID), sess.Token)
 	pipe.Expire(ctx, userSessionsKey(sess.UserID), s.ttl)
+	if sess.ActiveOrgID > 0 {
+		pipe.SAdd(ctx, orgSessionsKey(sess.ActiveOrgID), sess.Token)
+		pipe.Expire(ctx, orgSessionsKey(sess.ActiveOrgID), s.ttl)
+	}
 
 	if _, err := pipe.Exec(ctx); err != nil {
 		return apperr.Unavailable("redis", err)
 	}
 
-	// Enforce the concurrent-sign-in limit: if this session exceeds it, evict
-	// the oldest sessions until the user is back within budget. This is the
-	// licensing boundary for the session plans (Phase 4.6).
+	// Enforce the concurrent-sign-in limit:
+	// If the user belongs to an organization, enforce the limit across the entire organization!
+	// All staff members belonging to the organization share the organization subscription's concurrent session limit.
 	if sess.MaxLoginSessions != nil && *sess.MaxLoginSessions > 0 {
-		if err := s.enforceLimit(ctx, sess.UserID, *sess.MaxLoginSessions); err != nil {
-			return err
+		if sess.ActiveOrgID > 0 {
+			if err := s.enforceOrgLimit(ctx, sess.ActiveOrgID, *sess.MaxLoginSessions); err != nil {
+				return err
+			}
+		} else {
+			if err := s.enforceLimit(ctx, sess.UserID, *sess.MaxLoginSessions); err != nil {
+				return err
+			}
 		}
+	}
+	return nil
+}
+
+// enforceOrgLimit keeps the organization's total live session count at or below max by evicting
+// the oldest active sessions across all members of that organization.
+func (s *SessionStore) enforceOrgLimit(ctx context.Context, orgID int64, max int) error {
+	rdb, err := s.client()
+	if err != nil {
+		return err
+	}
+	tokens, err := rdb.SMembers(ctx, orgSessionsKey(orgID)).Result()
+	if err != nil || len(tokens) <= max {
+		return err
+	}
+
+	type live struct {
+		token   string
+		userID  int64
+		created time.Time
+	}
+	var sessions []live
+	for _, tok := range tokens {
+		if sess, err := s.Get(ctx, tok); err == nil && sess != nil {
+			sessions = append(sessions, live{token: tok, userID: sess.UserID, created: sess.CreatedAt})
+		}
+	}
+	sort.Slice(sessions, func(i, j int) bool { return sessions[i].created.Before(sessions[j].created) })
+
+	toEvict := len(sessions) - max
+	for i := 0; i < toEvict && i < len(sessions); i++ {
+		_ = rdb.SRem(ctx, orgSessionsKey(orgID), sessions[i].token)
+		_ = rdb.SRem(ctx, userSessionsKey(sessions[i].userID), sessions[i].token)
+		_ = rdb.Del(ctx, sessionKey(sessions[i].token))
 	}
 	return nil
 }
@@ -219,6 +267,9 @@ func (s *SessionStore) Delete(ctx context.Context, token string) error {
 	sess, err := s.Get(ctx, token)
 	if err == nil && sess != nil {
 		rdb.SRem(ctx, userSessionsKey(sess.UserID), token)
+		if sess.ActiveOrgID > 0 {
+			rdb.SRem(ctx, orgSessionsKey(sess.ActiveOrgID), token)
+		}
 	}
 
 	if err := rdb.Del(ctx, sessionKey(token)).Err(); err != nil {

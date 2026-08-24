@@ -259,7 +259,7 @@ func (r *Repository) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, slug, name, description, price_month, price_year,
-			       duration_days, max_users, is_active, created_at, updated_at
+			       duration_days, max_users, max_login_sessions, max_devices, ai_plan_id, is_default, is_active, created_at, updated_at
 			FROM billing.plans
 			WHERE is_active = true
 			ORDER BY id ASC;
@@ -275,6 +275,7 @@ func (r *Repository) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 			if err := rows.Scan(
 				&p.ID, &p.PublicID, &p.Slug, &p.Name, &p.Description,
 				&p.PriceMonth, &p.PriceYear, &p.DurationDays, &p.MaxUsers,
+				&p.MaxLoginSessions, &p.MaxDevices, &p.AIPlanID, &p.IsDefault,
 				&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
 			); err != nil {
 				return err
@@ -286,19 +287,46 @@ func (r *Repository) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 	return plans, err
 }
 
+// GetPlanByID retrieves a plan by ID.
+func (r *Repository) GetPlanByID(ctx context.Context, id int64) (*billing.Plan, error) {
+	var p billing.Plan
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, slug, name, description, price_month, price_year,
+			       duration_days, max_users, max_login_sessions, max_devices, ai_plan_id, is_default, is_active, created_at, updated_at
+			FROM billing.plans
+			WHERE id = $1;
+		`
+		return tx.QueryRow(txCtx, query, id).Scan(
+			&p.ID, &p.PublicID, &p.Slug, &p.Name, &p.Description,
+			&p.PriceMonth, &p.PriceYear, &p.DurationDays, &p.MaxUsers,
+			&p.MaxLoginSessions, &p.MaxDevices, &p.AIPlanID, &p.IsDefault,
+			&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("plan")
+		}
+		return nil, err
+	}
+	return &p, nil
+}
+
 // GetPlanBySlug retrieves a plan by slug.
 func (r *Repository) GetPlanBySlug(ctx context.Context, slug string) (*billing.Plan, error) {
 	var p billing.Plan
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, slug, name, description, price_month, price_year,
-			       duration_days, max_users, is_active, created_at, updated_at
+			       duration_days, max_users, max_login_sessions, max_devices, ai_plan_id, is_default, is_active, created_at, updated_at
 			FROM billing.plans
 			WHERE slug = $1 AND is_active = true;
 		`
 		return tx.QueryRow(txCtx, query, slug).Scan(
 			&p.ID, &p.PublicID, &p.Slug, &p.Name, &p.Description,
 			&p.PriceMonth, &p.PriceYear, &p.DurationDays, &p.MaxUsers,
+			&p.MaxLoginSessions, &p.MaxDevices, &p.AIPlanID, &p.IsDefault,
 			&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
 		)
 	})
@@ -327,7 +355,7 @@ func (r *Repository) CreateSubscription(ctx context.Context, sub *billing.Subscr
 	})
 }
 
-// GetActiveSubscription retrieves current active subscription.
+// GetActiveSubscription retrieves current active subscription for a user.
 func (r *Repository) GetActiveSubscription(ctx context.Context, userID int64) (*billing.Subscription, error) {
 	var sub billing.Subscription
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -341,6 +369,39 @@ func (r *Repository) GetActiveSubscription(ctx context.Context, userID int64) (*
 		`
 		var statusStr string
 		err := tx.QueryRow(txCtx, query, userID).Scan(
+			&sub.ID, &sub.PublicID, &sub.UserID, &sub.OrganizationID, &sub.PlanID,
+			&statusStr, &sub.StartsAt, &sub.ExpiresAt, &sub.SourceSystem, &sub.SourceID,
+			&sub.CreatedAt, &sub.UpdatedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("subscription")
+			}
+			return err
+		}
+		sub.Status = billing.SubscriptionStatus(statusStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &sub, nil
+}
+
+// GetActiveSubscriptionByOrg retrieves current active subscription for an organization.
+func (r *Repository) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*billing.Subscription, error) {
+	var sub billing.Subscription
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, user_id, organization_id, plan_id, status,
+			       starts_at, expires_at, source_system, source_id, created_at, updated_at
+			FROM billing.subscriptions
+			WHERE organization_id = $1 AND status = 'active' AND expires_at > now()
+			ORDER BY expires_at DESC
+			LIMIT 1;
+		`
+		var statusStr string
+		err := tx.QueryRow(txCtx, query, orgID).Scan(
 			&sub.ID, &sub.PublicID, &sub.UserID, &sub.OrganizationID, &sub.PlanID,
 			&statusStr, &sub.StartsAt, &sub.ExpiresAt, &sub.SourceSystem, &sub.SourceID,
 			&sub.CreatedAt, &sub.UpdatedAt,

@@ -11,6 +11,7 @@ type Repository interface {
 	GetSupplierProfile(ctx context.Context, id int64) (*SupplierOrgProfile, error)
 	UpdateSupplierProfile(ctx context.Context, p *SupplierOrgProfile) error
 	UpdateOrganizationStatus(ctx context.Context, id int64, status OrganizationStatus) error
+	UpdateOrganizationAICredentials(ctx context.Context, id int64, aiUserID, aiVirtualKey string) error
 	ReviewOrganization(ctx context.Context, id int64, status OrganizationStatus, notes, rejectionReason string, adminID int64) error
 	UpdateOrganization(ctx context.Context, o *Organization) error
 	DeleteOrganization(ctx context.Context, id int64) error

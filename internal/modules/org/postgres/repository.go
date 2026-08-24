@@ -54,6 +54,7 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 			       COALESCE(pharmacist_license, ''),
 			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
 			       COALESCE(owner_id, 0), approved_at, approved_by,
+			       COALESCE(ai_virtual_key, ''), COALESCE(ai_user_id, ''),
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
 			FROM org.organizations
 			WHERE id = $1;
@@ -63,6 +64,7 @@ func (r *Repository) GetOrganizationByID(ctx context.Context, id int64) (*org.Or
 			&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
 			&o.PharmacistLicense, &o.VerificationNotes, &o.RejectionReason,
 			&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
+			&o.AIVirtualKey, &o.AIUserID,
 			&typeStr, &statusStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
 		)
 		if err != nil {
@@ -171,6 +173,21 @@ func (r *Repository) UpdateOrganizationStatus(ctx context.Context, id int64, sta
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE org.organizations SET status = $1, updated_at = now() WHERE id = $2;`
 		tag, err := tx.Exec(txCtx, query, string(status), id)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("organization")
+		}
+		return nil
+	})
+}
+
+// UpdateOrganizationAICredentials saves the AI Gateway user ID and virtual API key for an organization.
+func (r *Repository) UpdateOrganizationAICredentials(ctx context.Context, id int64, aiUserID, aiVirtualKey string) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE org.organizations SET ai_user_id = $1, ai_virtual_key = $2, updated_at = now() WHERE id = $3;`
+		tag, err := tx.Exec(txCtx, query, aiUserID, aiVirtualKey, id)
 		if err != nil {
 			return err
 		}
@@ -465,9 +482,8 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 			       COALESCE(b.status, 'active'), b.is_main, COALESCE(b.phone, ''), b.created_at, b.updated_at
 			FROM org.branches b
 			LEFT JOIN identity.users u ON u.id = b.manager_id
-			WHERE b.organization_id = $1 AND b.deleted_at IS NULL
+			WHERE ($1::bigint = 0 OR b.organization_id = $1) AND b.deleted_at IS NULL
 			ORDER BY b.is_main DESC, b.id ASC;
-
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {

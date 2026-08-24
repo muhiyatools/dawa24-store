@@ -60,6 +60,8 @@ type Organization struct {
 	Rank               int                `json:"rank"`
 	ApprovedAt         *time.Time         `json:"approved_at,omitempty"`
 	ApprovedBy         *int64             `json:"approved_by,omitempty"`
+	AIVirtualKey       string             `json:"ai_virtual_key,omitempty"`
+	AIUserID           string             `json:"ai_user_id,omitempty"`
 	CreatedAt          time.Time          `json:"created_at"`
 	UpdatedAt          time.Time          `json:"updated_at"`
 }

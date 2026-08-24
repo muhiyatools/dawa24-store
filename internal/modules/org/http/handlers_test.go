@@ -650,6 +650,15 @@ func (r stubRepo) CountOrganizations(_ context.Context, _ *org.OrganizationType,
 	return 0, nil
 }
 
+func (r stubRepo) UpdateOrganizationAICredentials(_ context.Context, _ int64, _, _ string) error {
+	r.fail("UpdateOrganizationAICredentials")
+	return nil
+}
+
 func (happyRepo) CountOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus) (int, error) {
 	return 2, nil
+}
+
+func (happyRepo) UpdateOrganizationAICredentials(_ context.Context, _ int64, _, _ string) error {
+	return nil
 }

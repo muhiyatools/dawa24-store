@@ -92,6 +92,11 @@ func (s *Service) ReviewOrganization(ctx context.Context, id int64, status Organ
 	return nil
 }
 
+// UpdateOrganizationAICredentials updates the linked AI Gateway virtual key and user ID.
+func (s *Service) UpdateOrganizationAICredentials(ctx context.Context, id int64, aiUserID, aiVirtualKey string) error {
+	return s.repo.UpdateOrganizationAICredentials(ctx, id, aiUserID, aiVirtualKey)
+}
+
 // GetOrganization returns an organization by ID.
 func (s *Service) GetOrganization(ctx context.Context, id int64) (*Organization, error) {
 	return s.repo.GetOrganizationByID(ctx, id)

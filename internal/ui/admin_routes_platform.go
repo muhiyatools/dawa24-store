@@ -36,7 +36,6 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/policies", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/settings?tab=policies", http.StatusMovedPermanently)
 		})
-		g.Get("/admin/finder", h.AdminFinderPage)
 		g.Get("/admin/cities", h.AdminCitiesPage)
 		g.Get("/admin/categories", h.AdminCategoriesPage)
 		g.Get("/admin/brands", h.AdminBrandsPage)
@@ -58,9 +57,6 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/content/{id}/delete", h.AdminContentDeleteSubmit)
 		g.Post("/admin/policies", h.AdminPolicyCreateSubmit)
 		g.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
-		g.Post("/admin/finder/question", h.AdminFinderQuestionSubmit)
-		g.Post("/admin/finder/result", h.AdminFinderResultSubmit)
-		g.Post("/admin/finder/option", h.AdminFinderOptionSubmit)
 		g.Post("/admin/cities/new", h.AdminCityCreateSubmit)
 		g.Post("/admin/cities/{id}/toggle", h.AdminCityToggleSubmit)
 		g.Post("/admin/messages/{id}/toggle", h.AdminMessageToggleSubmit)
@@ -125,8 +121,12 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/trash-list/{model}", h.AdminTrashListModelPage)
 		g.Post("/admin/trash-list/{model}/{id}/restore", h.AdminTrashRestoreSubmit)
 		g.Post("/admin/trash-list/{model}/{id}/purge", h.AdminTrashPurgeSubmit)
-		g.Get("/admin/session-plan", h.AdminSessionPlansPage)
-		g.Get("/admin/session-plan/requests", h.AdminSessionPlanRequestsPage)
+		g.Get("/admin/session-plan", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/plans", http.StatusMovedPermanently)
+		})
+		g.Get("/admin/session-plan/requests", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/plans?tab=subscriptions", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/report-issues", h.AdminReportIssuesPage)
 	})
 

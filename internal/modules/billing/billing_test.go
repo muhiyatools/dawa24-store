@@ -118,6 +118,32 @@ func (m *mockBillingRepo) CreatePlan(_ context.Context, p *Plan) error {
 	return nil
 }
 
+func (m *mockBillingRepo) GetPlanByID(_ context.Context, id int64) (*Plan, error) {
+	for _, p := range m.plans {
+		if p.ID == id {
+			return p, nil
+		}
+	}
+	return nil, apperr.NotFound("plan")
+}
+
+func (m *mockBillingRepo) GetDefaultPlan(_ context.Context) (*Plan, error) {
+	for _, p := range m.plans {
+		if p.IsDefault {
+			return p, nil
+		}
+	}
+	for _, p := range m.plans {
+		return p, nil
+	}
+	return nil, apperr.NotFound("plan")
+}
+
+func (m *mockBillingRepo) UpdatePlan(_ context.Context, p *Plan) error {
+	m.plans[p.Slug] = p
+	return nil
+}
+
 func (m *mockBillingRepo) GetPlanBySlug(_ context.Context, slug string) (*Plan, error) {
 	p, ok := m.plans[slug]
 	if !ok {
@@ -139,6 +165,15 @@ func (m *mockBillingRepo) GetActiveSubscription(_ context.Context, userID int64)
 		return nil, apperr.NotFound("subscription")
 	}
 	return sub, nil
+}
+
+func (m *mockBillingRepo) GetActiveSubscriptionByOrg(_ context.Context, orgID int64) (*Subscription, error) {
+	for _, sub := range m.subscriptions {
+		if sub.OrganizationID != nil && *sub.OrganizationID == orgID && sub.Status == SubActive {
+			return sub, nil
+		}
+	}
+	return nil, apperr.NotFound("subscription")
 }
 
 func (m *mockBillingRepo) CheckEntitlement(_ context.Context, userID int64, featureKey string) (bool, string, error) {

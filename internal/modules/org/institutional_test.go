@@ -120,6 +120,9 @@ func (m *institutionalMockRepo) UpdateSupplierProfile(_ context.Context, _ *org.
 func (m *institutionalMockRepo) UpdateOrganizationStatus(_ context.Context, _ int64, _ org.OrganizationStatus) error {
 	return nil
 }
+func (m *institutionalMockRepo) UpdateOrganizationAICredentials(_ context.Context, _ int64, _, _ string) error {
+	return nil
+}
 func (m *institutionalMockRepo) ReviewOrganization(_ context.Context, _ int64, _ org.OrganizationStatus, _, _ string, _ int64) error {
 	return nil
 }

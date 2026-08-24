@@ -102,37 +102,6 @@ func (happyRepo) ListProductAlertsByUser(ctx context.Context, userID int64) ([]*
 	return []*catalog.ProductAlert{{ID: 1, UserID: userID}}, nil
 }
 
-func (happyRepo) GetFirstFinderQuestion(ctx context.Context) (*catalog.FinderQuestion, error) {
-	return &catalog.FinderQuestion{ID: 1, Question: i18n.Text{"ar": "ما نوع المنتج؟"}, Type: "choice", IsFirst: true}, nil
-}
-func (happyRepo) GetFinderQuestionByID(ctx context.Context, id int64) (*catalog.FinderQuestion, error) {
-	return &catalog.FinderQuestion{ID: id, Question: i18n.Text{"ar": "سؤال"}, Type: "choice"}, nil
-}
-func (happyRepo) ListFinderOptions(ctx context.Context, questionID int64) ([]*catalog.FinderOption, error) {
-	return []*catalog.FinderOption{{ID: 1, QuestionID: questionID, Label: i18n.Text{"ar": "خيار"}, ResultID: &[]int64{1}[0]}}, nil
-}
-func (happyRepo) GetFinderResultByID(ctx context.Context, id int64) (*catalog.FinderResult, error) {
-	return &catalog.FinderResult{ID: id, Title: i18n.Text{"ar": "النتيجة"}, Description: i18n.Text{"ar": "وصف"}}, nil
-}
-func (happyRepo) ListFinderQuestions(ctx context.Context) ([]*catalog.FinderQuestion, error) {
-	return []*catalog.FinderQuestion{{ID: 1, Question: i18n.Text{"ar": "سؤال"}, Type: "choice", IsFirst: true}}, nil
-}
-
-func (happyRepo) CreateFinderQuestion(ctx context.Context, q *catalog.FinderQuestion) error {
-	q.ID = 1
-	return nil
-}
-func (happyRepo) CreateFinderOption(ctx context.Context, o *catalog.FinderOption) error {
-	o.ID = 1
-	return nil
-}
-func (happyRepo) CreateFinderResult(ctx context.Context, r *catalog.FinderResult) error {
-	r.ID = 1
-	return nil
-}
-func (happyRepo) ListFinderResults(ctx context.Context) ([]*catalog.FinderResult, error) {
-	return []*catalog.FinderResult{{ID: 1, Title: i18n.Text{"ar": "نتيجة"}}}, nil
-}
 func (happyRepo) UpsertProductIndex(ctx context.Context, item *catalog.ProductIndexItem) error {
 	return nil
 }

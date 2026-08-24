@@ -100,6 +100,21 @@ func (s *Service) ListPlans(ctx context.Context) ([]*Plan, error) {
 	return s.repo.ListPlans(ctx)
 }
 
+// GetPlanByID retrieves a plan by ID.
+func (s *Service) GetPlanByID(ctx context.Context, id int64) (*Plan, error) {
+	return s.repo.GetPlanByID(ctx, id)
+}
+
+// GetPlanBySlug retrieves a plan by slug.
+func (s *Service) GetPlanBySlug(ctx context.Context, slug string) (*Plan, error) {
+	return s.repo.GetPlanBySlug(ctx, slug)
+}
+
+// GetDefaultPlan retrieves the default basic plan.
+func (s *Service) GetDefaultPlan(ctx context.Context) (*Plan, error) {
+	return s.repo.GetDefaultPlan(ctx)
+}
+
 // CreatePlan adds a subscription tier (admin).
 func (s *Service) CreatePlan(ctx context.Context, p *Plan) (*Plan, error) {
 	if p.Slug == "" || p.Name.IsEmpty() {
@@ -109,6 +124,70 @@ func (s *Service) CreatePlan(ctx context.Context, p *Plan) (*Plan, error) {
 		return nil, err
 	}
 	return p, nil
+}
+
+// UpdatePlan updates an existing subscription tier.
+func (s *Service) UpdatePlan(ctx context.Context, p *Plan) (*Plan, error) {
+	if p.ID <= 0 || p.Name.IsEmpty() {
+		return nil, apperr.Validation("plan.invalid", "Plan ID and name are required.", nil)
+	}
+	if err := s.repo.UpdatePlan(ctx, p); err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
+// GetActiveSubscription returns active subscription for a user.
+func (s *Service) GetActiveSubscription(ctx context.Context, userID int64) (*Subscription, error) {
+	return s.repo.GetActiveSubscription(ctx, userID)
+}
+
+// GetActiveSubscriptionByOrg returns active subscription for an organization.
+func (s *Service) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*Subscription, error) {
+	return s.repo.GetActiveSubscriptionByOrg(ctx, orgID)
+}
+
+// AssignDefaultSubscription guarantees an organization or user has an active basic subscription.
+func (s *Service) AssignDefaultSubscription(ctx context.Context, userID int64, orgID *int64) (*Subscription, error) {
+	if orgID != nil && *orgID > 0 {
+		if sub, err := s.repo.GetActiveSubscriptionByOrg(ctx, *orgID); err == nil && sub != nil {
+			return sub, nil
+		}
+	} else if userID > 0 {
+		if sub, err := s.repo.GetActiveSubscription(ctx, userID); err == nil && sub != nil {
+			return sub, nil
+		}
+	}
+
+	plan, err := s.repo.GetDefaultPlan(ctx)
+	if err != nil || plan == nil {
+		plan, err = s.repo.GetPlanBySlug(ctx, "basic")
+		if err != nil || plan == nil {
+			return nil, fmt.Errorf("default plan not found: %w", err)
+		}
+	}
+
+	now := time.Now().UTC()
+	duration := time.Duration(plan.DurationDays) * 24 * time.Hour
+	if duration <= 0 {
+		duration = 3650 * 24 * time.Hour
+	}
+
+	sub := &Subscription{
+		UserID:         userID,
+		OrganizationID: orgID,
+		PlanID:         plan.ID,
+		Status:         SubActive,
+		StartsAt:       now,
+		ExpiresAt:      now.Add(duration),
+		SourceSystem:   "registration_default",
+	}
+
+	if err := s.repo.CreateSubscription(ctx, sub); err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "default subscription assigned", "user_id", userID, "org_id", orgID, "plan", plan.Slug)
+	return sub, nil
 }
 
 // Subscribe grants a user a subscription to a plan tier.

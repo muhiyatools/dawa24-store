@@ -86,6 +86,15 @@ func (m *mockOrgRepo) UpdateOrganizationStatus(_ context.Context, id int64, stat
 	return nil
 }
 
+func (m *mockOrgRepo) UpdateOrganizationAICredentials(_ context.Context, id int64, aiUserID, aiVirtualKey string) error {
+	o, ok := m.orgs[id]
+	if ok {
+		o.AIUserID = aiUserID
+		o.AIVirtualKey = aiVirtualKey
+	}
+	return nil
+}
+
 func (m *mockOrgRepo) ReviewOrganization(_ context.Context, id int64, status OrganizationStatus, notes, rejectionReason string, adminID int64) error {
 	o, ok := m.orgs[id]
 	if ok {

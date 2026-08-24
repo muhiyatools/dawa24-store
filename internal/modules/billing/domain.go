@@ -79,21 +79,25 @@ type Payment struct {
 	UpdatedAt            time.Time    `json:"updated_at"`
 }
 
-// Plan represents a subscription tier with billing parameters and user limits.
+// Plan represents a subscription tier with billing parameters, limits, and AI Gateway plan linkage.
 type Plan struct {
-	ID           int64             `json:"id"`
-	PublicID     string            `json:"public_id"`
-	Slug         string            `json:"slug"`
-	Name         i18n.Text         `json:"name"`
-	Description  i18n.Text         `json:"description,omitempty"`
-	PriceMonth   money.Amount      `json:"price_month"`
-	PriceYear    money.Amount      `json:"price_year"`
-	DurationDays int               `json:"duration_days"`
-	MaxUsers     *int              `json:"max_users,omitempty"`
-	IsActive     bool              `json:"is_active"`
-	Features     map[string]string `json:"features,omitempty"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
+	ID               int64             `json:"id"`
+	PublicID         string            `json:"public_id"`
+	Slug             string            `json:"slug"`
+	Name             i18n.Text         `json:"name"`
+	Description      i18n.Text         `json:"description,omitempty"`
+	PriceMonth       money.Amount      `json:"price_month"`
+	PriceYear        money.Amount      `json:"price_year"`
+	DurationDays     int               `json:"duration_days"`
+	MaxUsers         *int              `json:"max_users,omitempty"`
+	MaxLoginSessions int               `json:"max_login_sessions"`
+	MaxDevices       int               `json:"max_devices"`
+	AIPlanID         string            `json:"ai_plan_id"`
+	IsDefault        bool              `json:"is_default"`
+	IsActive         bool              `json:"is_active"`
+	Features         map[string]string `json:"features,omitempty"`
+	CreatedAt        time.Time         `json:"created_at"`
+	UpdatedAt        time.Time         `json:"updated_at"`
 }
 
 // Subscription represents an active plan subscription (unifying legacy D7 systems).

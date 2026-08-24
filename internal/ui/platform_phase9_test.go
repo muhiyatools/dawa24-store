@@ -71,7 +71,7 @@ func TestPlatformPhase9Routes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Super admin GET /admin/session-plan returns 200",
+			name:   "Super admin GET /admin/session-plan redirects to /admin/plans",
 			path:   "/admin/session-plan",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -79,7 +79,7 @@ func TestPlatformPhase9Routes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Super admin GET /admin/report-issues returns 200",
