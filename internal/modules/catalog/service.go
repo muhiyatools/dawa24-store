@@ -57,6 +57,33 @@ func (s *Service) CreateProduct(ctx context.Context, p *Product) (*Product, erro
 	return p, nil
 }
 
+// BulkImportProducts imports a batch of products into the master catalog.
+func (s *Service) BulkImportProducts(ctx context.Context, prods []*Product) (int, int, error) {
+	if len(prods) == 0 {
+		return 0, 0, nil
+	}
+
+	// Clean and validate products
+	var validProds []*Product
+	for _, p := range prods {
+		if p != nil && !p.Name.IsEmpty() {
+			if p.Status == "" {
+				p.Status = StatusActive
+			}
+			validProds = append(validProds, p)
+		}
+	}
+
+	inserted, updated, err := s.repo.BulkUpsertProducts(ctx, validProds)
+	if err != nil {
+		s.log.ErrorContext(ctx, "bulk import products failed", "count", len(validProds), "error", err)
+		return inserted, updated, err
+	}
+
+	s.log.InfoContext(ctx, "bulk import products completed", "inserted", inserted, "updated", updated, "total", len(validProds))
+	return inserted, updated, nil
+}
+
 // GetProduct retrieves a product and its associated active variants.
 func (s *Service) GetProduct(ctx context.Context, id int64) (*Product, []*ProductVariant, error) {
 	p, err := s.repo.GetProductByID(ctx, id)

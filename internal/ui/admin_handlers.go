@@ -1,11 +1,9 @@
 package ui
 
 import (
-	"bytes"
 	"context"
 	"encoding/csv"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -1614,48 +1612,7 @@ func (h *UIHandler) AdminProductsSampleXLSX(w http.ResponseWriter, r *http.Reque
 	_ = f.Write(w)
 }
 
-func parseUploadedProductRows(content []byte, filename string) ([][]string, error) {
-	ext := strings.ToLower(filepath.Ext(filename))
-	// If Excel format (.xlsx) or starts with PK zip header
-	if ext == ".xlsx" || ext == ".xlsm" || bytes.HasPrefix(content, []byte("PK\x03\x04")) {
-		f, err := excelize.OpenReader(bytes.NewReader(content))
-		if err != nil {
-			return nil, fmt.Errorf("تعذر قراءة ملف Excel: %w", err)
-		}
-		defer f.Close()
-
-		sheets := f.GetSheetList()
-		if len(sheets) == 0 {
-			return nil, errors.New("ملف Excel لا يحتوي على أي صفحات بيانات")
-		}
-		rows, err := f.GetRows(sheets[0])
-		if err != nil {
-			return nil, fmt.Errorf("تعذر استخراج بيانات صفوف Excel: %w", err)
-		}
-		return rows, nil
-	}
-
-	// Remove UTF-8 BOM if present
-	content = bytes.TrimPrefix(content, []byte{0xEF, 0xBB, 0xBF})
-
-	// Detect delimiter
-	firstLine := string(bytes.Split(content, []byte("\n"))[0])
-	var delimiter rune = ','
-	if strings.Count(firstLine, ";") > strings.Count(firstLine, ",") {
-		delimiter = ';'
-	} else if strings.Count(firstLine, "\t") > strings.Count(firstLine, ",") {
-		delimiter = '\t'
-	}
-
-	reader := csv.NewReader(bytes.NewReader(content))
-	reader.Comma = delimiter
-	reader.LazyQuotes = true
-	reader.TrimLeadingSpace = true
-
-	return reader.ReadAll()
-}
-
-// AdminProductsImportSubmit handles bulk uploading and parsing of Excel/CSV product files.
+// AdminProductsImportSubmit handles bulk uploading and parsing of Excel/CSV product files with smart header detection.
 func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if h.catSvc == nil {
@@ -1663,8 +1620,9 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "حجم الملف كبير جداً أو تعذر قراءة البيانات.")
+	// Limit upload size to 64MB
+	if err := r.ParseMultipartForm(64 << 20); err != nil {
+		h.redirectWithNotice(w, r, "/admin/products/import", "error", "حجم الملف كبير جداً أو تعذر قراءة البيانات (الحد الأقصى 64 ميجابايت).")
 		return
 	}
 
@@ -1673,14 +1631,14 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 		file, header, err = r.FormFile("file")
 	}
 	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى اختيار ملف CSV أو Excel صالح للاستيراد.")
+		h.redirectWithNotice(w, r, "/admin/products/import", "error", "يرجى اختيار ملف CSV أو Excel صالح للاستيراد.")
 		return
 	}
 	defer file.Close()
 
 	content, err := io.ReadAll(file)
 	if err != nil || len(content) == 0 {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "الملف المرفوع فارغ أو تعذرت قراءته.")
+		h.redirectWithNotice(w, r, "/admin/products/import", "error", "الملف المرفوع فارغ أو تعذرت قراءته.")
 		return
 	}
 
@@ -1689,103 +1647,31 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 		filename = header.Filename
 	}
 
-	records, err := parseUploadedProductRows(content, filename)
-	if err != nil || len(records) < 2 {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "تنسيق الملف غير صالح أو لا يحتوي على صفوف بيانات.")
+	records, err := catalog.ParseUploadedSpreadsheet(content, filename)
+	if err != nil || len(records) < 1 {
+		h.redirectWithNotice(w, r, "/admin/products/import", "error", fmt.Sprintf("تنسيق الملف غير صالح: %v", err))
 		return
 	}
 
-	// Map headers
-	headerMap := make(map[string]int)
-	for idx, col := range records[0] {
-		clean := strings.ToLower(strings.TrimSpace(col))
-		clean = strings.ReplaceAll(clean, "_", "")
-		clean = strings.ReplaceAll(clean, "-", "")
-		clean = strings.ReplaceAll(clean, " ", "")
-		headerMap[clean] = idx
-	}
-
-	findCol := func(row []string, aliases ...string) string {
-		for _, alias := range aliases {
-			clean := strings.ToLower(strings.TrimSpace(alias))
-			clean = strings.ReplaceAll(clean, "_", "")
-			clean = strings.ReplaceAll(clean, "-", "")
-			clean = strings.ReplaceAll(clean, " ", "")
-			if idx, ok := headerMap[clean]; ok && idx < len(row) {
-				return strings.TrimSpace(row[idx])
-			}
-		}
-		return ""
-	}
-
-	importedCount := 0
-	var lastErr error
-	for rowIdx := 1; rowIdx < len(records); rowIdx++ {
-		row := records[rowIdx]
-		if len(row) == 0 {
-			continue
-		}
-
-		nameAr := findCol(row, "اسم الصنف بالعربي", "اسم الصنف", "الاسم بالعربي", "name_ar", "name", "product_name", "اسم الدواء", "المستحضر")
-		nameEn := findCol(row, "اسم الصنف بالإنجليزي", "الاسم بالانجليزي", "الاسم بالإنجليزية", "name_en", "trade_name", "english_name")
-		if nameAr == "" && nameEn == "" {
-			if len(row) > 0 && strings.TrimSpace(row[0]) != "" {
-				nameAr = strings.TrimSpace(row[0])
-			} else {
-				continue
-			}
-		}
-		if nameAr == "" {
-			nameAr = nameEn
-		}
-		if nameEn == "" {
-			nameEn = nameAr
-		}
-
-		generic := findCol(row, "الاسم العلمي", "generic_name", "scientific_name", "scientific")
-		active := findCol(row, "المادة الفعالة", "المادة الفعالة والتركيز", "active_ingredient", "active")
-		dosage := findCol(row, "الشكل الصيدلي", "dosage_form", "dosage")
-		if dosage == "" {
-			dosage = "أقراص"
-		}
-		mfg := findCol(row, "الشركة المصنعة", "المصنع", "manufacturer", "company")
-		eda := findCol(row, "رقم التسجيل EDA", "رقم التسجيل", "eda_reg_number", "eda", "sku", "barcode")
-		descAr := findCol(row, "الوصف بالعربي", "الوصف", "description_ar", "description")
-		descEn := findCol(row, "الوصف بالإنجليزي", "الوصف بالانجليزي", "description_en")
-
-		priceVal, _ := money.Parse(findCol(row, "السعر", "price", "سعر الجمهور"))
-
-		prod := &catalog.Product{
-			Name:                   i18n.New(nameAr, nameEn),
-			Description:            i18n.New(descAr, descEn),
-			ScientificName:         generic,
-			Active:                 active,
-			DosageForm:             dosage,
-			ManufacturingCompanies: mfg,
-			SKU:                    eda,
-			Barcode:                eda,
-			Price:                  priceVal,
-			Status:                 catalog.StatusActive,
-		}
-
-		if _, err := h.catSvc.CreateProduct(database.AsSystem(ctx), prod); err != nil {
-			lastErr = err
-			h.log.DebugContext(ctx, "admin products import: row failed", "error", err)
-		} else {
-			importedCount++
-		}
-	}
-
-	if importedCount == 0 {
-		errMsg := "لم يتم استيراد أي أصناف. يرجى التأكد من تطابق أعمدة الملف مع النموذج التجريبي."
-		if lastErr != nil {
-			errMsg = fmt.Sprintf("فشل استيراد الأصناف: %s", h.safeMessage(lastErr, langOf(r)))
-		}
-		h.redirectWithNotice(w, r, "/admin/products", "error", errMsg)
+	// Parse records using intelligent header detector, repeated header filter, and pharmaceutical extractor
+	products, stats := catalog.ParseProductRows(records)
+	if len(products) == 0 {
+		h.redirectWithNotice(w, r, "/admin/products/import", "error", "لم يتم العثور على أي صفوف أصناف صالحة في الملف. يرجى التأكد من محتوى الملف.")
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/products", "success", fmt.Sprintf("تم استيراد %d صنف دوائي بنجاح إلى الدليل المعتمد.", importedCount))
+	sysCtx := database.AsSystem(ctx)
+	inserted, updated, err := h.catSvc.BulkImportProducts(sysCtx, products)
+	if err != nil {
+		h.log.ErrorContext(ctx, "bulk import failed", "error", err)
+		h.redirectWithNotice(w, r, "/admin/products/import", "error", fmt.Sprintf("حدث خطأ أثناء حفظ الأصناف: %s", h.safeMessage(err, langOf(r))))
+		return
+	}
+
+	successMsg := fmt.Sprintf("تم استيراد وتحديث %d صنف دوائي بنجاح في الكتالوج المعتمد (تم فحص %d صفاً، وتخطي %d سطر تكرار طباعة/فارغ).",
+		inserted+updated, stats.TotalRowsRead, stats.RepeatedHeader+stats.EmptyRows)
+
+	h.redirectWithNotice(w, r, "/admin/products", "success", successMsg)
 }
 
 // AdminOffersPage renders the offer moderation list.

@@ -291,20 +291,23 @@ templ AdminProductsImportPage(lang, dir string) {
 	@layouts.AdminShell("معالج الاستيراد الشامل للأدوية والكتالوج العام", "import", lang, dir) {
 		<div style="max-width:1100px; margin:0 auto 3rem auto; display:flex; flex-direction:column; gap:1.5rem;">
 			
-			<!-- Header Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:1.75rem;">
+			<!-- Header Banner -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
 								@components.IconUpload("icon-sm")
 							</div>
-							<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">
-								معالج الاستيراد الشامل للكتالوج العام
-							</h1>
+							<div>
+								<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">
+									معالج الاستيراد الشامل والذكي للكتالوج العام
+								</h1>
+								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Intelligent Enterprise Catalog Ingestion Engine</span>
+							</div>
 						</div>
-						<p style="font-size:0.9rem; color:var(--text-secondary); margin:0;">
-							استيراد وتحديث آلاف الأصناف الدوائية والمستحضرات المعتمدة دفعة واحدة عبر ملفات Excel و CSV.
+						<p style="font-size:0.9rem; color:var(--text-secondary); margin:0.35rem 0 0 0;">
+							استيراد وتحديث آلاف الأصناف الدوائية والمستحضرات المعتمدة دفعة واحدة مع كشف الترويسات التلقائي، فلترة تكرار الطباعة، واستخراج الأشكال والتركيزات الصيدلانية آلياً.
 						</p>
 					</div>
 
@@ -321,8 +324,53 @@ templ AdminProductsImportPage(lang, dir string) {
 				</div>
 			</div>
 
+			<!-- Features Highlights Grid -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
+					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(16, 185, 129, 0.1); color:var(--emerald-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
+						⚡
+					</div>
+					<div>
+						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">كشف الترويسات الذكي</div>
+						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">يتعرف تلقائياً على سطر العناوين ويتجاوز الأسطر الفارغة</div>
+					</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
+					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(99, 102, 241, 0.1); color:var(--indigo-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
+						🧹
+					</div>
+					<div>
+						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">فلترة تكرار الصفحات</div>
+						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">تنظيف ترويسات الطباعة المتكررة في تقارير ERP دورياً</div>
+					</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
+					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(236, 72, 153, 0.1); color:var(--pink-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
+						💊
+					</div>
+					<div>
+						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">استخراج صيدلاني آلي</div>
+						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">يستخرج الشكل الصيدلي والتركيزات والحجم من اسم الدواء</div>
+					</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); display:flex; gap:0.75rem; align-items:center;">
+					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(245, 158, 11, 0.1); color:var(--amber-500); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">
+						🏢
+					</div>
+					<div>
+						<div style="font-weight:800; font-size:0.9rem; color:var(--text);">ربط الشركات آلياً</div>
+						<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">ربط العلامات التجارية والمصنعين المسجلين أو إنشائها فوراً</div>
+					</div>
+				</div>
+			</div>
+
 			<!-- Main Upload Wizard Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:2rem;">
+			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:2rem;"
+				x-data="{ fileName: '', isDragging: false, isSubmitting: false }"
+			>
 				<h2 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0 0 1.25rem 0;">
 					رفع ملف الأصناف ومزامنة البيانات
 				</h2>
@@ -332,7 +380,7 @@ templ AdminProductsImportPage(lang, dir string) {
 					action="/admin/products/import"
 					enctype="multipart/form-data"
 					style="display:flex; flex-direction:column; gap:1.5rem;"
-					x-data="{ fileName: '', isDragging: false }"
+					@submit="isSubmitting = true"
 				>
 					<!-- Drag & Drop Zone -->
 					<div
@@ -363,7 +411,7 @@ templ AdminProductsImportPage(lang, dir string) {
 									اسحب وأفلت ملف البيانات هنا، أو انقر للاختيار من جهازك
 								</div>
 								<div style="font-size:0.85rem; color:var(--text-secondary);">
-									يدعم ملفات Excel الحديثة (.xlsx) وملفات CSV المشفرة بـ UTF-8 (الحد الأقصى 32 ميجابايت)
+									يدعم ملفات Excel الحديثة (.xlsx) والقديمة (.xls) وملفات CSV المشفرة (الحد الأقصى 64 ميجابايت)
 								</div>
 							</div>
 						</template>
@@ -380,12 +428,22 @@ templ AdminProductsImportPage(lang, dir string) {
 					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
 						<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-secondary); font-size:0.85rem;">
 							@components.IconInfo("icon-xs")
-							<span>سيتم فك تشفير البيانات والتحقق من صحة الأسعار وأرقام التسجيل قبل الحفظ.</span>
+							<span>سيتم فحص البيانات، تنظيف الترويسات المتكررة، وحفظ الأصناف بدفعات سريعة.</span>
 						</div>
 
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.75rem 2rem; font-size:1rem;">
-							@components.IconCheckCircle("icon-xs")
-							<span>بدء المعالجة والاستيراد</span>
+						<button type="submit" class="btn btn-primary" :disabled="isSubmitting" style="font-weight:800; padding:0.75rem 2rem; font-size:1rem; min-width:200px;">
+							<template x-if="!isSubmitting">
+								<span style="display:inline-flex; align-items:center; gap:0.5rem;">
+									@components.IconCheckCircle("icon-xs")
+									<span>بدء المعالجة والاستيراد</span>
+								</span>
+							</template>
+							<template x-if="isSubmitting">
+								<span style="display:inline-flex; align-items:center; gap:0.5rem;">
+									<span style="display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span>
+									<span>جاري فحص وحفظ الأصناف...</span>
+								</span>
+							</template>
 						</button>
 					</div>
 				</form>
@@ -397,7 +455,7 @@ templ AdminProductsImportPage(lang, dir string) {
 					هيكل الأعمدة والبيانات المدعومة في ملف الاستيراد
 				</h3>
 				<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1.25rem 0;">
-					تأكد من مطابقة السطر الأول (Header) في ملفك للأعمدة الموضحة أدناه أو استخدم القالب الجاهز مباشرة:
+					يقوم المحرك الذكي بالتعرف تلقائياً على الأعمدة بمسمياتها المختلفة سواء كانت ملفات ERP أو قوائم أسعار أو نماذج قياسية:
 				</p>
 
 				<div class="table-container">

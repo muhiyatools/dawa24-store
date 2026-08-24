@@ -29,6 +29,9 @@ func (happyRepo) CreateProduct(ctx context.Context, p *catalog.Product) error {
 func (happyRepo) GetProductByID(ctx context.Context, id int64) (*catalog.Product, error) {
 	return &catalog.Product{ID: id, Name: i18n.Text{"en": "Panadol"}, Status: catalog.StatusActive}, nil
 }
+func (happyRepo) BulkUpsertProducts(ctx context.Context, prods []*catalog.Product) (int, int, error) {
+	return len(prods), 0, nil
+}
 func (happyRepo) UpdateProduct(ctx context.Context, p *catalog.Product) error { return nil }
 func (happyRepo) DeleteProduct(ctx context.Context, id int64) error           { return nil }
 func (happyRepo) SearchProducts(ctx context.Context, params catalog.SearchParams) ([]*catalog.Product, error) {
