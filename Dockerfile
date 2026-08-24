@@ -1,6 +1,4 @@
-# Multi-stage build with BuildKit caching for rapid Elest.io builds
-
-FROM golang:1.26-bookworm AS builder
+FROM golang:bookworm AS builder
 
 WORKDIR /app
 
