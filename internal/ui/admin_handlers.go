@@ -2626,6 +2626,7 @@ func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Re
 		endpoint = reqEndpoint
 		adminClient = gateway.NewAdminClient(reqEndpoint, "", reqKey)
 	}
+
 	plans, err := adminClient.ListPlans(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusOK)
