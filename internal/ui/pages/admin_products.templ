@@ -2,12 +2,74 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func totalPages(total, pageSize int) int {
+	if pageSize <= 0 {
+		return 1
+	}
+	pages := (total + pageSize - 1) / pageSize
+	if pages < 1 {
+		return 1
+	}
+	return pages
+}
+
+func calculateAdminPageNumbers(current, total int) []int {
+	if total <= 1 {
+		return []int{1}
+	}
+	start := current - 2
+	if start < 1 {
+		start = 1
+	}
+	end := start + 4
+	if end > total {
+		end = total
+		start = end - 4
+		if start < 1 {
+			start = 1
+		}
+	}
+	var nums []int
+	for i := start; i <= end; i++ {
+		nums = append(nums, i)
+	}
+	return nums
+}
+
+func buildAdminProductsPageURL(page, limit int, q, status, dosage string, brandID, catID int64) string {
+	u := fmt.Sprintf("/admin/products?page=%d&limit=%d", page, limit)
+	if q != "" {
+		u += "&q=" + url.QueryEscape(q)
+	}
+	if status != "" && status != "all" {
+		u += "&status=" + url.QueryEscape(status)
+	}
+	if dosage != "" && dosage != "all" {
+		u += "&dosage=" + url.QueryEscape(dosage)
+	}
+	if brandID > 0 {
+		u += fmt.Sprintf("&brand_id=%d", brandID)
+	}
+	if catID > 0 {
+		u += fmt.Sprintf("&category_id=%d", catID)
+	}
+	return u
+}
 
 func derefBrandID(bid *int64) int64 {
 	if bid != nil {
@@ -75,7 +137,7 @@ func getBrandLabel(bid *int64, brands []*catalog.Brand, fallback string) string 
 	return fallback
 }
 
-templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category) {
+templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category, totalCount, currentPage, pageSize int, searchQuery, statusFilter, dosageFilter string, brandFilterVal, catFilterVal int64) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
 		<div
 			class="card"
@@ -135,7 +197,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</div>
 					<div>
 						<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
-							دليل الأصناف الدوائية المعتمدة ({ fmt.Sprintf("%d", len(products)) })
+							دليل الأصناف الدوائية المعتمدة ({ fmt.Sprintf("%d", totalCount) })
 						</h2>
 						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
 							إدارة الكتالوج الرسمي الموحد للأدوية والمستحضرات المعتمدة من هيئة الدواء المصرية (EDA)
@@ -160,44 +222,74 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				</div>
 			</div>
 
-			<!-- Search & Filter Controls -->
-			<div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:1rem; margin-bottom:1.5rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+			<!-- Search & Filter Controls (Server-Side Full Database Search) -->
+			<form
+				method="GET"
+				action="/admin/products"
+				style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:0.75rem; margin-bottom:1.5rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); align-items:center;"
+			>
+				<input type="hidden" name="limit" value={ fmt.Sprintf("%d", pageSize) } />
+
 				<div class="search-input-group" style="width:100%;">
 					<span class="search-icon">
 						@components.IconSearch("icon-sm")
 					</span>
 					<input
 						type="text"
+						name="q"
 						class="form-input search-input"
 						placeholder="البحث بالاسم العربي، التجاري، العلمي، أو رقم التسجيل EDA..."
-						x-model="searchQuery"
+						value={ searchQuery }
 						style="background:var(--surface-raised);"
 					/>
 				</div>
 
 				<div>
-					<select class="form-select" x-model="dosageFilter" style="background:var(--surface-raised); height:100%;">
-						<option value="all">كل الأشكال الصيدلية</option>
-						<option value="أقراص">أقراص (Tablets)</option>
-						<option value="كبسولات">كبسولات (Capsules)</option>
-						<option value="شراب">شراب (Syrup / Suspension)</option>
-						<option value="حقن">أمبولات وحقن (Injections)</option>
-						<option value="مرهم / كريم">مرهم / كريم (Ointment / Cream)</option>
-						<option value="نقط">نقط (Drops)</option>
-						<option value="فوار">أكياس فوار (Sachets)</option>
-						<option value="مستلزمات طبية">مستلزمات طبية (Medical Supplies)</option>
+					<select name="dosage" class="form-select" style="background:var(--surface-raised); height:100%;" onchange="this.form.submit()">
+						<option value="all" selected?={ dosageFilter == "" || dosageFilter == "all" }>كل الأشكال الصيدلية</option>
+						<option value="أقراص" selected?={ dosageFilter == "أقراص" }>أقراص (Tablets)</option>
+						<option value="كبسولات" selected?={ dosageFilter == "كبسولات" }>كبسولات (Capsules)</option>
+						<option value="شراب" selected?={ dosageFilter == "شراب" }>شراب (Syrup / Suspension)</option>
+						<option value="حقن" selected?={ dosageFilter == "حقن" }>أمبولات وحقن (Injections)</option>
+						<option value="مرهم / كريم" selected?={ dosageFilter == "مرهم / كريم" }>مرهم / كريم (Ointment / Cream)</option>
+						<option value="نقط" selected?={ dosageFilter == "نقط" }>نقط (Drops)</option>
+						<option value="فوار" selected?={ dosageFilter == "فوار" }>أكياس فوار (Sachets)</option>
+						<option value="مستلزمات طبية" selected?={ dosageFilter == "مستلزمات طبية" }>مستلزمات طبية (Medical Supplies)</option>
 					</select>
 				</div>
 
 				<div>
-					<select class="form-select" x-model="statusFilter" style="background:var(--surface-raised); height:100%;">
-						<option value="all">كل الحالات</option>
-						<option value="active">نشط ومعتمد (Active)</option>
-						<option value="pending">قيد التدقيق (Pending)</option>
-						<option value="inactive">موقوف (Inactive)</option>
+					<select name="brand_id" class="form-select" style="background:var(--surface-raised); height:100%;" onchange="this.form.submit()">
+						<option value="0" selected?={ brandFilterVal == 0 }>كل الشركات المصنعة</option>
+						for _, b := range brands {
+							<option value={ fmt.Sprintf("%d", b.ID) } selected?={ brandFilterVal == b.ID }>
+								{ b.Name.Get("ar") }
+							</option>
+						}
 					</select>
 				</div>
-			</div>
+
+				<div>
+					<select name="status" class="form-select" style="background:var(--surface-raised); height:100%;" onchange="this.form.submit()">
+						<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>كل الحالات</option>
+						<option value="active" selected?={ statusFilter == "active" }>نشط ومعتمد (Active)</option>
+						<option value="pending" selected?={ statusFilter == "pending" }>قيد التدقيق (Pending)</option>
+						<option value="inactive" selected?={ statusFilter == "inactive" }>موقوف (Inactive)</option>
+					</select>
+				</div>
+
+				<div style="display:flex; gap:0.5rem; align-items:center;">
+					<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; padding:0.6rem 1.25rem;">
+						@components.IconSearch("icon-xs")
+						<span>بحث شامل</span>
+					</button>
+					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") || (dosageFilter != "" && dosageFilter != "all") || brandFilterVal > 0 || catFilterVal > 0 {
+						<a href="/admin/products" class="btn btn-ghost btn-sm" style="font-weight:700;" title="إعادة تعيين الفلاتر">
+							إلغاء الفلاتر
+						</a>
+					}
+				</div>
+			</form>
 
 			<!-- Master Products Table -->
 			if len(products) == 0 {
@@ -344,6 +436,73 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						</tbody>
 					</table>
 				</div>
+
+				<!-- Pagination Controls -->
+				if totalCount > 0 {
+					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+						<div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">
+							{ fmt.Sprintf("عرض %d - %d من إجمالي %d صنف معتمد", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
+						</div>
+
+						<!-- Page navigation numbers -->
+						<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+							if currentPage > 1 {
+								<a
+									href={ templ.SafeURL(buildAdminProductsPageURL(1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.65rem; font-weight:700;"
+									title="الصفحة الأولى"
+								>
+									«
+								</a>
+								<a
+									href={ templ.SafeURL(buildAdminProductsPageURL(currentPage-1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.75rem; font-weight:700;"
+								>
+									السابق
+								</a>
+							}
+
+							for _, pNum := range calculateAdminPageNumbers(currentPage, totalPages(totalCount, pageSize)) {
+								if pNum == currentPage {
+									<span
+										class="btn btn-primary btn-sm"
+										style="padding:0.4rem 0.85rem; font-weight:800; pointer-events:none;"
+									>
+										{ fmt.Sprintf("%d", pNum) }
+									</span>
+								} else {
+									<a
+										href={ templ.SafeURL(buildAdminProductsPageURL(pNum, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
+										class="btn btn-secondary btn-sm"
+										style="padding:0.4rem 0.85rem; font-weight:700;"
+									>
+										{ fmt.Sprintf("%d", pNum) }
+									</a>
+								}
+							}
+
+							if currentPage < totalPages(totalCount, pageSize) {
+								<a
+									href={ templ.SafeURL(buildAdminProductsPageURL(currentPage+1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.75rem; font-weight:700;"
+								>
+									التالي
+								</a>
+								<a
+									href={ templ.SafeURL(buildAdminProductsPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.65rem; font-weight:700;"
+									title="الصفحة الأخيرة"
+								>
+									»
+								</a>
+							}
+						</div>
+					</div>
+				}
 			}
 
 			<!-- Master Product Creation Modal -->

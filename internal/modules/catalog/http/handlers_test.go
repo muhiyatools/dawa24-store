@@ -49,6 +49,10 @@ func (r stubRepo) SearchProducts(ctx context.Context, params catalog.SearchParam
 	r.fail("SearchProducts")
 	return nil, nil
 }
+func (r stubRepo) CountProducts(ctx context.Context, params catalog.SearchParams) (int, error) {
+	r.fail("CountProducts")
+	return 0, nil
+}
 func (r stubRepo) ListProducts(ctx context.Context, status string, limit, offset int) ([]*catalog.Product, error) {
 	r.fail("ListProducts")
 	return nil, nil

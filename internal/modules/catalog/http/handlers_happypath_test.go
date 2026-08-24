@@ -37,6 +37,9 @@ func (happyRepo) DeleteProduct(ctx context.Context, id int64) error           { 
 func (happyRepo) SearchProducts(ctx context.Context, params catalog.SearchParams) ([]*catalog.Product, error) {
 	return []*catalog.Product{{ID: 1, Name: i18n.Text{"en": "Panadol"}}}, nil
 }
+func (happyRepo) CountProducts(ctx context.Context, params catalog.SearchParams) (int, error) {
+	return 1, nil
+}
 func (happyRepo) ListProducts(ctx context.Context, status string, limit, offset int) ([]*catalog.Product, error) {
 	return []*catalog.Product{{ID: 1, Name: i18n.Text{"en": "Panadol"}}}, nil
 }

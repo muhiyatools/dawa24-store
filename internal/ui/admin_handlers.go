@@ -1305,22 +1305,88 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminProductsPage renders the product moderation queue.
+// AdminProductsPage renders the master products catalog with full-database search and pagination.
 func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	if q == "" {
+		q = strings.TrimSpace(r.URL.Query().Get("search"))
+	}
+	status := strings.TrimSpace(r.URL.Query().Get("status"))
+	if status == "all" {
+		status = ""
+	}
+	dosage := strings.TrimSpace(r.URL.Query().Get("dosage"))
+	if dosage == "all" {
+		dosage = ""
+	}
+
+	var brandIDPtr *int64
+	if bStr := strings.TrimSpace(r.URL.Query().Get("brand_id")); bStr != "" && bStr != "0" {
+		if bid, err := strconv.ParseInt(bStr, 10, 64); err == nil && bid > 0 {
+			brandIDPtr = &bid
+		}
+	}
+
+	var catIDPtr *int64
+	if cStr := strings.TrimSpace(r.URL.Query().Get("category_id")); cStr != "" && cStr != "0" {
+		if cid, err := strconv.ParseInt(cStr, 10, 64); err == nil && cid > 0 {
+			catIDPtr = &cid
+		}
+	}
+
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit <= 0 {
+		limit = 50
+	} else if limit > 200 {
+		limit = 200
+	}
+	offset := (page - 1) * limit
+
 	var products []*catalog.Product
+	var totalProducts int
 	var brands []*catalog.Brand
 	var categories []*catalog.Category
+
 	if h.catSvc != nil {
-		products, _ = h.catSvc.Search(database.AsSystem(ctx), catalog.SearchParams{Limit: 200})
-		brands, _ = h.catSvc.ListBrands(database.AsSystem(ctx))
-		categories, _ = h.catSvc.ListCategories(database.AsSystem(ctx))
+		sysCtx := database.AsSystem(ctx)
+		prods, total, err := h.catSvc.SearchWithTotal(sysCtx, catalog.SearchParams{
+			Query:      q,
+			CategoryID: catIDPtr,
+			BrandID:    brandIDPtr,
+			Status:     status,
+			DosageForm: dosage,
+			Limit:      limit,
+			Offset:     offset,
+			Sort:       "newest",
+		})
+		if err == nil {
+			products = prods
+			totalProducts = total
+		} else {
+			h.log.ErrorContext(ctx, "admin products search failed", "error", err)
+		}
+		brands, _ = h.catSvc.ListBrands(sysCtx)
+		categories, _ = h.catSvc.ListCategories(sysCtx)
+	}
+
+	var brandFilterVal int64
+	if brandIDPtr != nil {
+		brandFilterVal = *brandIDPtr
+	}
+	var catFilterVal int64
+	if catIDPtr != nil {
+		catFilterVal = *catIDPtr
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProducts(lang, dir, products, brands, categories).Render(ctx, w); err != nil {
+	if err := pages.AdminProducts(lang, dir, products, brands, categories, totalProducts, page, limit, q, status, dosage, brandFilterVal, catFilterVal).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin products", "error", err)
 	}
 }

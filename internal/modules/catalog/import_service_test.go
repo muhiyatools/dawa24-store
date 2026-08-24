@@ -156,6 +156,64 @@ func (m *memoryImportStore) ArchiveAllProducts(context.Context, int64) (int64, e
 	return 7, nil
 }
 
+// mockCatalogRepoStub implements dummy methods for catalog.Repository.
+type mockCatalogRepoStub struct{}
+
+func (mockCatalogRepoStub) CreateProduct(context.Context, *catalog.Product) error { return nil }
+func (mockCatalogRepoStub) BulkUpsertProducts(context.Context, []*catalog.Product) (catalog.BulkWriteResult, error) { return catalog.BulkWriteResult{}, nil }
+func (mockCatalogRepoStub) GetProductByID(context.Context, int64) (*catalog.Product, error) { return nil, nil }
+func (mockCatalogRepoStub) UpdateProduct(context.Context, *catalog.Product) error { return nil }
+func (mockCatalogRepoStub) DeleteProduct(context.Context, int64) error { return nil }
+func (mockCatalogRepoStub) SearchProducts(context.Context, catalog.SearchParams) ([]*catalog.Product, error) { return nil, nil }
+func (mockCatalogRepoStub) CountProducts(context.Context, catalog.SearchParams) (int, error) { return 0, nil }
+func (mockCatalogRepoStub) ListProducts(context.Context, string, int, int) ([]*catalog.Product, error) { return nil, nil }
+func (mockCatalogRepoStub) SetProductsStatus(context.Context, []int64, catalog.ProductStatus) (int64, error) { return 0, nil }
+func (mockCatalogRepoStub) CreateVariant(context.Context, *catalog.ProductVariant) error { return nil }
+func (mockCatalogRepoStub) GetVariantByID(context.Context, int64) (*catalog.ProductVariant, error) { return nil, nil }
+func (mockCatalogRepoStub) GetVariantBySKUOrBarcode(context.Context, int64, string, string) (*catalog.ProductVariant, error) { return nil, nil }
+func (mockCatalogRepoStub) GetVariantByProductAndOrg(context.Context, int64, int64) (*catalog.ProductVariant, error) { return nil, nil }
+func (mockCatalogRepoStub) ListVariantsByProduct(context.Context, int64) ([]*catalog.ProductVariant, error) { return nil, nil }
+func (mockCatalogRepoStub) ListVariantsByOrganization(context.Context, int64, catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) { return nil, 0, nil }
+func (mockCatalogRepoStub) ListAllVariants(context.Context, catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) { return nil, 0, nil }
+func (mockCatalogRepoStub) UpdateVariant(context.Context, *catalog.ProductVariant) error { return nil }
+func (mockCatalogRepoStub) DeleteVariant(context.Context, int64) error { return nil }
+func (mockCatalogRepoStub) SearchVariants(context.Context, catalog.VariantSearchParams) ([]*catalog.ProductVariant, error) { return nil, nil }
+func (mockCatalogRepoStub) SetVariantsStatus(context.Context, []int64, catalog.ProductStatus) (int64, error) { return 0, nil }
+func (mockCatalogRepoStub) CreateCategory(context.Context, *catalog.Category) error { return nil }
+func (mockCatalogRepoStub) GetCategoryByID(context.Context, int64) (*catalog.Category, error) { return nil, nil }
+func (mockCatalogRepoStub) ListCategories(context.Context) ([]*catalog.Category, error) { return nil, nil }
+func (mockCatalogRepoStub) UpdateCategory(context.Context, *catalog.Category) error { return nil }
+func (mockCatalogRepoStub) DeleteCategory(context.Context, int64) error { return nil }
+func (mockCatalogRepoStub) CountProductsByOrg(context.Context, int64, string) (int, error) { return 0, nil }
+func (mockCatalogRepoStub) CountProductsInCategory(context.Context, int64) (int, error) { return 0, nil }
+func (mockCatalogRepoStub) CreateBrand(context.Context, *catalog.Brand) error { return nil }
+func (mockCatalogRepoStub) GetBrandByID(context.Context, int64) (*catalog.Brand, error) { return nil, nil }
+func (mockCatalogRepoStub) ListBrands(context.Context) ([]*catalog.Brand, error) { return nil, nil }
+func (mockCatalogRepoStub) UpdateBrand(context.Context, *catalog.Brand) error { return nil }
+func (mockCatalogRepoStub) DeleteBrand(context.Context, int64) error { return nil }
+func (mockCatalogRepoStub) ListBrandsByCategory(context.Context, int64) ([]*catalog.Brand, error) { return nil, nil }
+func (mockCatalogRepoStub) BrandInCategory(context.Context, int64, int64) (bool, error) { return true, nil }
+func (mockCatalogRepoStub) SetBrandCategories(context.Context, int64, []int64) error { return nil }
+func (mockCatalogRepoStub) CountProductsInBrand(context.Context, int64) (int, error) { return 0, nil }
+func (mockCatalogRepoStub) SetCustomerPricing(context.Context, *catalog.CustomerProductMapping) error { return nil }
+func (mockCatalogRepoStub) GetCustomerPricing(context.Context, int64, int64, int64) (*catalog.CustomerProductMapping, error) { return nil, nil }
+func (mockCatalogRepoStub) CreateProductAlert(context.Context, *catalog.ProductAlert) error { return nil }
+func (mockCatalogRepoStub) ListProductAlertsByUser(context.Context, int64) ([]*catalog.ProductAlert, error) { return nil, nil }
+func (mockCatalogRepoStub) UpsertProductIndex(context.Context, *catalog.ProductIndexItem) error { return nil }
+func (mockCatalogRepoStub) DeleteProductIndex(context.Context, string) error { return nil }
+func (mockCatalogRepoStub) DeleteProductIndexByProduct(context.Context, int64) error { return nil }
+func (mockCatalogRepoStub) SearchProductIndex(context.Context, catalog.SearchParams) ([]*catalog.ProductIndexItem, error) { return nil, nil }
+func (mockCatalogRepoStub) RebuildProductIndex(context.Context) (int64, error) { return 0, nil }
+func (mockCatalogRepoStub) CreateSavingProduct(context.Context, *catalog.SavingProduct) error { return nil }
+func (mockCatalogRepoStub) UpdateSavingProduct(context.Context, *catalog.SavingProduct) error { return nil }
+func (mockCatalogRepoStub) ListSavingProductsByOrg(context.Context, int64, int, int) ([]*catalog.SavingProduct, error) { return nil, nil }
+func (mockCatalogRepoStub) ListSavingProductsEnriched(context.Context, int64, string, string, int, int) ([]*catalog.SavingProductEnriched, *catalog.SavingProductStats, error) { return nil, nil, nil }
+func (mockCatalogRepoStub) ListAllSavingProductsAdmin(context.Context, *int64, *int64, string, string, int, int) ([]*catalog.SavingProductAdminView, *catalog.SavingProductAdminStats, error) { return nil, nil, nil }
+func (mockCatalogRepoStub) GetSavingProductByID(context.Context, int64) (*catalog.SavingProduct, error) { return nil, nil }
+func (mockCatalogRepoStub) DeleteSavingProduct(context.Context, int64, int64) error { return nil }
+func (mockCatalogRepoStub) GetProductProviders(context.Context, int64) ([]*catalog.ProductProviderInfo, error) { return nil, nil }
+func (mockCatalogRepoStub) BatchUpsertSavingProducts(context.Context, int64, *int64, []*catalog.SavingProduct) (int, int, error) { return 0, 0, nil }
+
 // stagingRepo is the minimal catalog.Repository the commit path needs.
 type stagingRepo struct {
 	mockCatalogRepoStub
@@ -407,7 +465,7 @@ func TestPrepareImportSurvivesAnUnavailableEnricher(t *testing.T) {
 	}
 
 	// The deterministic pass still did its job.
-	if got := store.rows[0].Product.DosageForm; got != "أقراص" {
+	if got := store.rows[1].Product.DosageForm; got != "أقراص" {
 		t.Errorf("dosage form = %q, want the value the name-based rules inferred", got)
 	}
 }

@@ -180,6 +180,8 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			  AND ($3::bigint IS NULL OR brand_id = $3)
 			  AND ($6::numeric IS NULL OR price >= $6)
 			  AND ($7::numeric IS NULL OR price <= $7)
+			  AND ($10::text = '' OR status = $10)
+			  AND ($11::text = '' OR dosage_form ILIKE '%' || $11 || '%')
 			  AND (
 			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
 			      OR
@@ -207,6 +209,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		rows, err := tx.Query(txCtx, query,
 			params.Query, params.CategoryID, params.BrandID, limit, params.Offset,
 			params.MinPrice, params.MaxPrice, params.FilterMode, params.AllowedWorkIDs,
+			params.Status, params.DosageForm,
 		)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: search products: %w", err)
@@ -235,6 +238,46 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		return nil, err
 	}
 	return products, nil
+}
+
+// CountProducts returns the total count of products matching search filters.
+func (r *Repository) CountProducts(ctx context.Context, params catalog.SearchParams) (int, error) {
+	var total int
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT COUNT(*)
+			FROM catalog.products
+			WHERE deleted_at IS NULL
+			  AND ($1 = '' 
+			       OR platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($1) || '%'
+			       OR name->>'en' ILIKE '%' || $1 || '%'
+			       OR sku ILIKE '%' || $1 || '%'
+			       OR barcode ILIKE '%' || $1 || '%'
+			       OR COALESCE(scientific_name, '') ILIKE '%' || $1 || '%'
+			       OR COALESCE(active, '') ILIKE '%' || $1 || '%'
+			       OR COALESCE(manufacturing_companies, '') ILIKE '%' || $1 || '%'
+			       OR word_similarity(platform.normalize_arabic($1), platform.normalize_arabic(name->>'ar')) >= 0.25
+			       OR similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) >= 0.15
+			       OR regexp_replace(platform.normalize_arabic(name->>'ar'), '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%')
+			  AND ($2::bigint IS NULL OR category_id = $2)
+			  AND ($3::bigint IS NULL OR brand_id = $3)
+			  AND ($4::numeric IS NULL OR price >= $4)
+			  AND ($5::numeric IS NULL OR price <= $5)
+			  AND ($6::text = '' OR status = $6)
+			  AND ($7::text = '' OR dosage_form ILIKE '%' || $7 || '%')
+			  AND (
+			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
+			      OR
+			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
+			  );
+		`
+		return tx.QueryRow(txCtx, query,
+			params.Query, params.CategoryID, params.BrandID,
+			params.MinPrice, params.MaxPrice, params.Status, params.DosageForm,
+			params.FilterMode, params.AllowedWorkIDs,
+		).Scan(&total)
+	})
+	return total, err
 }
 
 // catalogOrderBy maps a whitelisted sort key onto a safe ORDER BY clause.

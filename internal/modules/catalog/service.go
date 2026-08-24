@@ -202,6 +202,40 @@ func (s *Service) Search(ctx context.Context, params SearchParams) ([]*Product, 
 	return s.repo.SearchProducts(ctx, params)
 }
 
+// Count returns the total count of products matching search filters.
+func (s *Service) Count(ctx context.Context, params SearchParams) (int, error) {
+	if s.instGate != nil && len(params.AllowedWorkIDs) == 0 {
+		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
+			works, err := s.instGate.AllowedWorkIDs(ctx, uid, params.FilterMode)
+			if err == nil {
+				params.AllowedWorkIDs = works
+			}
+		}
+	}
+	return s.repo.CountProducts(ctx, params)
+}
+
+// SearchWithTotal searches products and returns total matching count for pagination.
+func (s *Service) SearchWithTotal(ctx context.Context, params SearchParams) ([]*Product, int, error) {
+	if s.instGate != nil && len(params.AllowedWorkIDs) == 0 {
+		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
+			works, err := s.instGate.AllowedWorkIDs(ctx, uid, params.FilterMode)
+			if err == nil {
+				params.AllowedWorkIDs = works
+			}
+		}
+	}
+	prods, err := s.repo.SearchProducts(ctx, params)
+	if err != nil {
+		return nil, 0, err
+	}
+	total, err := s.repo.CountProducts(ctx, params)
+	if err != nil {
+		return prods, len(prods), nil
+	}
+	return prods, total, nil
+}
+
 // FastSearch searches the denormalized read model (catalog.product_index) with deterministic fallback (Rule R3).
 // If the indexed table returns 0 results or errors, it falls back to direct catalog.products table search.
 func (s *Service) FastSearch(ctx context.Context, params SearchParams) ([]*ProductIndexItem, error) {

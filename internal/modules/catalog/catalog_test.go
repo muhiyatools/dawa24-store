@@ -77,6 +77,10 @@ func (m *mockCatalogRepo) SearchProducts(_ context.Context, params SearchParams)
 	return list, nil
 }
 
+func (m *mockCatalogRepo) CountProducts(_ context.Context, params SearchParams) (int, error) {
+	return len(m.products), nil
+}
+
 func (m *mockCatalogRepo) CreateVariant(_ context.Context, v *ProductVariant) error {
 	v.ID = m.nextID
 	m.nextID++

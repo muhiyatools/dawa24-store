@@ -237,12 +237,9 @@ func (s *Service) enrich(ctx context.Context, session *ImportSession, parsed *Pa
 		resp, err := s.enricher.Enrich(ctx, req)
 		if err != nil {
 			failures++
-			// One bad batch is survivable; a run of them means the Gateway is
-			// down and the remaining calls are just latency the admin pays for
-			// nothing.
+			session.AIFallback = true
+			session.AINote = "تعذر الوصول إلى خدمة الذكاء الاصطناعي، وتم استكمال الاستيراد بالقواعد التلقائية فقط."
 			if failures >= 3 {
-				session.AIFallback = true
-				session.AINote = "تعذر الوصول إلى خدمة الذكاء الاصطناعي، وتم استكمال الاستيراد بالقواعد التلقائية فقط."
 				break
 			}
 			continue
