@@ -72,10 +72,10 @@ func TestPhaseC_AdminReferenceData(t *testing.T) {
 	r := newRealUIHandlerRouter(handler)
 	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
 
-	// Countries
-	rec := doGET(t, r, "/admin/countries", adminActor)
+	// Categories
+	rec := doGET(t, r, "/admin/categories", adminActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "دليل الدول والمناطق")
+	assert.Contains(t, rec.Body.String(), "فئات المنتجات")
 
 	// Highlight Sections
 	rec = doGET(t, r, "/admin/highlight-sections", adminActor)

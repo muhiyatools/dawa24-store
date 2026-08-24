@@ -23,17 +23,35 @@ func derefCategoryID(cid *int64) int64 {
 	return 0
 }
 
+func getCategoryDisplayLabel(c *catalog.Category, categories []*catalog.Category) string {
+	if c == nil {
+		return ""
+	}
+	name := c.Name.Get("ar")
+	if name == "" {
+		name = c.Name.Get("en")
+	}
+	if c.ParentID != nil && *c.ParentID > 0 {
+		for _, parent := range categories {
+			if parent.ID == *c.ParentID {
+				parentName := parent.Name.Get("ar")
+				if parentName == "" {
+					parentName = parent.Name.Get("en")
+				}
+				if parentName != "" {
+					return parentName + " ⮞ " + name
+				}
+			}
+		}
+	}
+	return name
+}
+
 func getCategoryLabel(cid *int64, categories []*catalog.Category, fallback string) string {
 	if cid != nil && *cid > 0 {
 		for _, c := range categories {
 			if c.ID == *cid {
-				name := c.Name.Get("ar")
-				if name == "" {
-					name = c.Name.Get("en")
-				}
-				if name != "" {
-					return name
-				}
+				return getCategoryDisplayLabel(c, categories)
 			}
 		}
 	}
@@ -404,10 +422,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 									<option value="" disabled selected>-- اختر فئة المنتج من الدليل --</option>
 									for _, cat := range categories {
 										<option value={ fmt.Sprintf("%d", cat.ID) }>
-											{ cat.Name.Get("ar") }
-											if cat.Name.Get("en") != "" {
-												({ cat.Name.Get("en") })
-											}
+											{ getCategoryDisplayLabel(cat, categories) }
 										</option>
 									}
 								</select>
@@ -537,10 +552,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 									<option value="0" disabled>-- اختر فئة المنتج --</option>
 									for _, cat := range categories {
 										<option value={ fmt.Sprintf("%d", cat.ID) }>
-											{ cat.Name.Get("ar") }
-											if cat.Name.Get("en") != "" {
-												({ cat.Name.Get("en") })
-											}
+											{ getCategoryDisplayLabel(cat, categories) }
 										</option>
 									}
 								</select>

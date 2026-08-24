@@ -2,8 +2,13 @@ package ui
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/go-chi/chi/v5"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -23,14 +28,16 @@ func (h *UIHandler) ContactSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	_ = r.ParseForm()
+
 	submitted := false
 	if h.adminSvc != nil {
-		err := h.adminSvc.SubmitContactMessage(ctx, &platformadmin.ContactMessage{
-			Name:    r.PostFormValue("name"),
-			Email:   r.PostFormValue("email"),
-			Phone:   r.PostFormValue("phone"),
-			Subject: r.PostFormValue("subject"),
-			Message: r.PostFormValue("message"),
+		err := h.adminSvc.SubmitContactMessage(database.AsSystem(ctx), &platformadmin.ContactMessage{
+			Name:    strings.TrimSpace(r.FormValue("name")),
+			Email:   strings.TrimSpace(r.FormValue("email")),
+			Phone:   strings.TrimSpace(r.FormValue("phone")),
+			Subject: strings.TrimSpace(r.FormValue("subject")),
+			Message: strings.TrimSpace(r.FormValue("message")),
 			Status:  "unread",
 		})
 		if err != nil {
@@ -53,11 +60,43 @@ func (h *UIHandler) AdminMessagesPage(w http.ResponseWriter, r *http.Request) {
 
 	var messages []*platformadmin.ContactMessage
 	if h.adminSvc != nil {
-		messages, _ = h.adminSvc.ListContactMessages(ctx, "", 50, 0)
+		messages, _ = h.adminSvc.ListContactMessages(database.AsSystem(ctx), "", 200, 0)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminMessages(lang, dir, messages).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin messages", "error", err)
 	}
+}
+
+// AdminMessageToggleSubmit toggles the status of a contact message between unread and read.
+func (h *UIHandler) AdminMessageToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && id > 0 && h.adminSvc != nil {
+		msgs, err := h.adminSvc.ListContactMessages(database.AsSystem(ctx), "", 500, 0)
+		if err == nil {
+			for _, m := range msgs {
+				if m.ID == id {
+					newStatus := "read"
+					if m.Status == "read" {
+						newStatus = "unread"
+					}
+					_ = h.adminSvc.UpdateContactMessageStatus(database.AsSystem(ctx), id, newStatus)
+					break
+				}
+			}
+		}
+	}
+	h.redirectWithNotice(w, r, "/admin/messages", "success", "تم تحديث حالة الرسالة بنجاح.")
+}
+
+// AdminMessageDeleteSubmit deletes a contact message from the inbox.
+func (h *UIHandler) AdminMessageDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err == nil && id > 0 && h.adminSvc != nil {
+		_ = h.adminSvc.DeleteContactMessage(database.AsSystem(ctx), id)
+	}
+	h.redirectWithNotice(w, r, "/admin/messages", "success", "تم حذف الرسالة بنجاح.")
 }

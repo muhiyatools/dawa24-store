@@ -40,7 +40,6 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/cities", h.AdminCitiesPage)
 		g.Get("/admin/categories", h.AdminCategoriesPage)
 		g.Get("/admin/brands", h.AdminBrandsPage)
-		g.Get("/admin/countries", h.AdminCountriesPage)
 		g.Get("/admin/social-media", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/settings?tab=site", http.StatusMovedPermanently)
 		})
@@ -60,6 +59,8 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/finder/option", h.AdminFinderOptionSubmit)
 		g.Post("/admin/cities/new", h.AdminCityCreateSubmit)
 		g.Post("/admin/cities/{id}/toggle", h.AdminCityToggleSubmit)
+		g.Post("/admin/messages/{id}/toggle", h.AdminMessageToggleSubmit)
+		g.Post("/admin/messages/{id}/delete", h.AdminMessageDeleteSubmit)
 	})
 
 	// Audit & Logs & Chat History & AskFor & Notifications

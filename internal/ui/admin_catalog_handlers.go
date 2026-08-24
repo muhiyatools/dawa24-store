@@ -82,19 +82,33 @@ func (h *UIHandler) AdminProductChildrenPage(w http.ResponseWriter, r *http.Requ
 			}
 
 			prodNames := make(map[int64]string)
-			if masterProds, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 500}); err == nil {
+			prodImages := make(map[int64]string)
+			if masterProds, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 1000}); err == nil {
 				for _, p := range masterProds {
 					if p != nil {
 						prodNames[p.ID] = p.Name.Get("ar")
+						if p.Image != "" {
+							prodImages[p.ID] = p.Image
+						}
 					}
 				}
 			}
 
 			for _, v := range variants {
 				if v != nil {
-					hasImg := v.Image != "" && strings.TrimSpace(v.Image) != ""
+					img := strings.TrimSpace(v.Image)
+					isParentImg := false
+					if img == "" {
+						if parentImg, ok := prodImages[v.ProductID]; ok && parentImg != "" {
+							img = parentImg
+							isParentImg = true
+						}
+					}
+					hasImg := img != ""
 					data.Items = append(data.Items, pages.VendorVariantItem{
 						Variant:        v,
+						DisplayImage:   img,
+						IsParentImage:  isParentImg,
 						OrgName:        orgNames[v.OrganizationID],
 						ParentProdName: prodNames[v.ProductID],
 						HasImage:       hasImg,

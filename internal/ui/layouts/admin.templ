@@ -128,12 +128,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 								</a>
 							}
 							if canAccessAdmin(ctx, "platform.content.view") {
-							<a href="/admin/countries" class={ "sidebar-link", templ.KV("active", activeNav == "countries") }>
-									@components.IconGlobe("icon-sm")
-									<span>الدول والعملات</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "platform.content.view") {
 							<a href="/admin/highlight-sections" class={ "sidebar-link", templ.KV("active", activeNav == "highlight_sections") }>
 									@components.IconStar("icon-sm")
 									<span>الأقسام المميزة</span>

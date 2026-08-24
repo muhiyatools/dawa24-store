@@ -58,8 +58,8 @@ func TestAdminReferenceRoutes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:   "Super admin GET /admin/countries returns 200",
-			path:   "/admin/countries",
+			name:   "Super admin GET /admin/categories returns 200",
+			path:   "/admin/categories",
 			method: "GET",
 			actor: &authctx.Actor{
 				UserID:  1,

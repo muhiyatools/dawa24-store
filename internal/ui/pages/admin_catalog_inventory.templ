@@ -135,8 +135,8 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 									<tr id={ fmt.Sprintf("variant-row-%d", v.ID) }>
 										<!-- 1. الصورة -->
 										<td style="width:50px;">
-											if v.Image != "" {
-												<img src={ v.Image } alt={ v.Name.Get("ar") } style="width:44px; height:44px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface-raised); padding:2px;" />
+											if item.DisplayImage != "" {
+												<img src={ item.DisplayImage } alt={ v.Name.Get("ar") } style="width:44px; height:44px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface-raised); padding:2px;" />
 											} else {
 												<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); border:1px solid var(--border);">
 													@components.IconPill("icon-xs")
@@ -234,8 +234,10 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 
 										<!-- 7. حالة الصورة -->
 										<td>
-											if item.HasImage {
-												<span class="badge badge-emerald" style="font-size:11px; font-weight:700;">متوفرة ✓</span>
+											if v.Image != "" {
+												<span class="badge badge-emerald" style="font-size:11px; font-weight:700;">خاصة بالصنف ✓</span>
+											} else if item.IsParentImage {
+												<span class="badge badge-sky" style="font-size:11px; font-weight:700;" title="تم استخدام صورة الصنف الأساسي المعتمد">من الصنف الأساسي ⮞</span>
 											} else {
 												<span class="badge badge-warning" style="font-size:11px; font-weight:700;">غير متوفرة ⚠️</span>
 											}

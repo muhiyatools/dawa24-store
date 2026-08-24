@@ -94,6 +94,16 @@ func (s *Service) ListContactMessages(ctx context.Context, status string, limit,
 	return s.repo.ListContactMessages(ctx, status, limit, offset)
 }
 
+// UpdateContactMessageStatus updates the read/in-progress status of a contact message.
+func (s *Service) UpdateContactMessageStatus(ctx context.Context, id int64, status string) error {
+	return s.repo.UpdateContactMessageStatus(ctx, id, status)
+}
+
+// DeleteContactMessage removes a contact message.
+func (s *Service) DeleteContactMessage(ctx context.Context, id int64) error {
+	return s.repo.DeleteContactMessage(ctx, id)
+}
+
 // ListContentBlocks returns all CMS content blocks.
 func (s *Service) ListContentBlocks(ctx context.Context) ([]*ContentBlock, error) {
 	return s.repo.ListContentBlocks(ctx)

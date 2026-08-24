@@ -65,7 +65,15 @@ func (h *UIHandler) AdminCategoryCreateSubmit(w http.ResponseWriter, r *http.Req
 		status = "active"
 	}
 
+	var parentIDPtr *int64
+	if parentIDStr := strings.TrimSpace(r.FormValue("parent_id")); parentIDStr != "" {
+		if pid, err := strconv.ParseInt(parentIDStr, 10, 64); err == nil && pid > 0 {
+			parentIDPtr = &pid
+		}
+	}
+
 	cat := &catalog.Category{
+		ParentID:    parentIDPtr,
 		Name:        i18n.New(nameAr, nameEn),
 		Description: i18n.New(r.FormValue("description_ar"), r.FormValue("description_en")),
 		SortOrder:   sortOrder,
@@ -123,6 +131,16 @@ func (h *UIHandler) AdminCategoryEditSubmit(w http.ResponseWriter, r *http.Reque
 		status = cat.Status
 	}
 
+	var parentIDPtr *int64
+	if parentIDStr := strings.TrimSpace(r.FormValue("parent_id")); parentIDStr != "" {
+		if pid, err := strconv.ParseInt(parentIDStr, 10, 64); err == nil && pid > 0 {
+			if pid != catID { // category cannot be its own parent
+				parentIDPtr = &pid
+			}
+		}
+	}
+
+	cat.ParentID = parentIDPtr
 	cat.Name = i18n.New(nameAr, nameEn)
 	cat.Description = i18n.New(r.FormValue("description_ar"), r.FormValue("description_en"))
 	cat.SortOrder = sortOrder
@@ -366,33 +384,6 @@ func (h *UIHandler) AdminBrandDeleteSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	h.redirectWithNotice(w, r, "/admin/brands", "success", "تم حذف الشركة المصنعة بنجاح.")
-}
-
-// AdminCountriesPage renders country reference data.
-func (h *UIHandler) AdminCountriesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	var items []pages.ReferenceItem
-	if h.adminSvc != nil {
-		countries, _ := h.adminSvc.ListCountries(ctx)
-		for _, c := range countries {
-			status := "inactive"
-			if c.IsActive {
-				status = "active"
-			}
-			items = append(items, pages.ReferenceItem{
-				ID:          c.ID,
-				Name:        c.Name.Get("ar") + " (" + c.Code + ")",
-				Description: fmt.Sprintf("رمز الاتصال: %s | العملة: %s", c.PhoneCode, c.Currency),
-				Status:      status,
-				Extra:       c.Code,
-			})
-		}
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReferenceCRUDPage("دليل الدول والمناطق", "countries", "دولة", items, "countries", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin countries", "error", err)
-	}
 }
 
 // AdminSocialMediaPage renders social media channel links.

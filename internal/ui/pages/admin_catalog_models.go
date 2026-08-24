@@ -7,6 +7,8 @@ import (
 // VendorVariantItem holds a vendor variant with resolved relations.
 type VendorVariantItem struct {
 	Variant        *catalog.ProductVariant
+	DisplayImage   string
+	IsParentImage  bool
 	OrgName        string
 	ParentProdName string
 	HasImage       bool

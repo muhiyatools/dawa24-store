@@ -286,6 +286,24 @@ func (r *Repository) ListContactMessages(ctx context.Context, status string, lim
 	return list, err
 }
 
+// UpdateContactMessageStatus updates the status of a contact message.
+func (r *Repository) UpdateContactMessageStatus(ctx context.Context, id int64, status string) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE platform_admin.contact_messages SET status = $1 WHERE id = $2;`
+		_, err := tx.Exec(txCtx, query, status, id)
+		return err
+	})
+}
+
+// DeleteContactMessage removes a contact message.
+func (r *Repository) DeleteContactMessage(ctx context.Context, id int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `DELETE FROM platform_admin.contact_messages WHERE id = $1;`
+		_, err := tx.Exec(txCtx, query, id)
+		return err
+	})
+}
+
 // ListPolicyVersions returns all versions for a policy key.
 func (r *Repository) ListPolicyVersions(ctx context.Context, policyKey string) ([]*platformadmin.Policy, error) {
 	var list []*platformadmin.Policy

@@ -72,7 +72,7 @@ func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) erro
 // GetProductByID retrieves a product by its primary key.
 func (r *Repository) GetProductByID(ctx context.Context, id int64) (*catalog.Product, error) {
 	var p catalog.Product
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, category_id, brand_id, branch_id,
 			       name, description, sku, barcode, price, discount, old_price, image,
@@ -109,7 +109,7 @@ func (r *Repository) GetProductByID(ctx context.Context, id int64) (*catalog.Pro
 
 // UpdateProduct updates product attributes.
 func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE catalog.products
 			SET category_id = $2, brand_id = $3, branch_id = $4, name = $5,
@@ -139,7 +139,7 @@ func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) erro
 
 // DeleteProduct soft-deletes a product.
 func (r *Repository) DeleteProduct(ctx context.Context, id int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE catalog.products SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL;`
 		res, err := tx.Exec(txCtx, query, id)
 		if err != nil {

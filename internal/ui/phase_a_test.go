@@ -57,12 +57,9 @@ func TestPhaseA_FabricatedDatasets_Removed(t *testing.T) {
 
 	staffActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
 
-	// 1. Countries
-	rec := doGET(t, r, "/admin/countries", staffActor)
+	// 1. Cities
+	rec := doGET(t, r, "/admin/cities", staffActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	body := rec.Body.String()
-	assert.NotContains(t, body, "جمهورية مصر العربية (Egypt)")
-	assert.NotContains(t, body, "المملكة العربية السعودية (Saudi Arabia)")
 
 	// 2. Social Media (Redirects to Settings site tab)
 	rec = doGET(t, r, "/admin/social-media", staffActor)
@@ -78,7 +75,7 @@ func TestPhaseA_FabricatedDatasets_Removed(t *testing.T) {
 	// nothing to show without a database.
 	rec = doGET(t, r, "/admin/trash-list", staffActor)
 	assert.Equal(t, http.StatusSeeOther, rec.Code)
-	body = rec.Body.String()
+	body := rec.Body.String()
 	assert.NotContains(t, body, "1240")
 	assert.NotContains(t, body, "14200")
 }

@@ -86,6 +86,26 @@ func (m *mockPlatformAdminRepo) ListContactMessages(_ context.Context, status st
 	return m.messages, nil
 }
 
+func (m *mockPlatformAdminRepo) UpdateContactMessageStatus(_ context.Context, id int64, status string) error {
+	for _, msg := range m.messages {
+		if msg.ID == id {
+			msg.Status = status
+		}
+	}
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) DeleteContactMessage(_ context.Context, id int64) error {
+	var filtered []*ContactMessage
+	for _, msg := range m.messages {
+		if msg.ID != id {
+			filtered = append(filtered, msg)
+		}
+	}
+	m.messages = filtered
+	return nil
+}
+
 func (m *mockPlatformAdminRepo) ListContentBlocks(_ context.Context) ([]*ContentBlock, error) {
 	return nil, nil
 }

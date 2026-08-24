@@ -76,6 +76,14 @@ func (r stubRepo) ListContactMessages(context.Context, string, int, int) ([]*pla
 	r.fail("ListContactMessages")
 	return nil, nil
 }
+func (r stubRepo) UpdateContactMessageStatus(context.Context, int64, string) error {
+	r.fail("UpdateContactMessageStatus")
+	return nil
+}
+func (r stubRepo) DeleteContactMessage(context.Context, int64) error {
+	r.fail("DeleteContactMessage")
+	return nil
+}
 
 func (r stubRepo) ListContentBlocks(context.Context) ([]*platformadmin.ContentBlock, error) {
 	r.fail("ListContentBlocks")
@@ -204,6 +212,12 @@ func (happyRepo) CreateContactMessage(ctx context.Context, m *platformadmin.Cont
 }
 func (happyRepo) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, error) {
 	return []*platformadmin.ContactMessage{{ID: 1, Name: "User", Email: "u@example.com", Message: "Help"}}, nil
+}
+func (happyRepo) UpdateContactMessageStatus(ctx context.Context, id int64, status string) error {
+	return nil
+}
+func (happyRepo) DeleteContactMessage(ctx context.Context, id int64) error {
+	return nil
 }
 func (happyRepo) MarkContactMessageRead(ctx context.Context, id int64) error {
 	return nil
