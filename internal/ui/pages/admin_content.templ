@@ -17,8 +17,6 @@ func getContentBlockPreviewURL(key string) string {
 		return "/faq"
 	case key == "how-it-works":
 		return "/how-it-works"
-	case key == "help":
-		return "/help"
 	case strings.HasPrefix(key, "home") || strings.HasPrefix(key, "highlight"):
 		return "/"
 	default:
@@ -385,7 +383,6 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 								<option value="about-mission">about-mission — رسالتنا</option>
 								<option value="faq">faq — الأسئلة الشائعة</option>
 								<option value="how-it-works">how-it-works — كيف يعمل</option>
-								<option value="help">help — مركز المساعدة</option>
 							</optgroup>
 							<optgroup label="الأقسام المميزة والبانرات">
 								<option value="home-hero">home-hero — واجهة الصفحة الرئيسية</option>

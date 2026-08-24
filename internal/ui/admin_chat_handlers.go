@@ -12,11 +12,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// AdminChatTreePage redirects / renders chat decision tree (finder).
-func (h *UIHandler) AdminChatTreePage(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/admin/finder", http.StatusSeeOther)
-}
-
 // AdminChatHistoryPage renders audit list of all platform conversations.
 func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

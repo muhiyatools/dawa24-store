@@ -148,7 +148,6 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/about", h.AboutPage)
 		pub.Get("/how-it-works", h.HowItWorksPage)
 		pub.Get("/faq", h.FaqPage)
-		pub.Get("/help", h.HelpPage)
 		pub.Get("/contact", h.ContactPage)
 		pub.Get("/auth/login", h.LoginPage)
 		pub.Get("/auth/register", h.RegisterPage)

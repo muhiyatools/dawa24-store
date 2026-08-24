@@ -58,21 +58,13 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							<div class="sidebar-section-header">
 								<span>المؤسسة والمشرفين</span>
 							</div>
-							if canAccessAdmin(ctx, "org.organization.view") {
-								<a href="/admin/organizations" class={ "sidebar-link", templ.KV("active", activeNav == "organizations") }>
+							if canAccessAdmin(ctx, "org.organization.view") || canAccessAdmin(ctx, "identity.user.view") {
+								<a href="/admin/organizations" class={ "sidebar-link", templ.KV("active", activeNav == "organizations" || activeNav == "branches" || activeNav == "users") }>
 									@components.IconBuilding("icon-sm")
-									<span>إدارة المؤسسات والشركات</span>
-								</a>
-								<a href="/admin/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
-									@components.IconLayers("icon-sm")
-									<span>إدارة الفروع والمستودعات</span>
+									<span>المنشآت والفروع والمستخدمين</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "identity.user.view") {
-								<a href="/admin/users" class={ "sidebar-link", templ.KV("active", activeNav == "users") }>
-									@components.IconUsers("icon-sm")
-									<span>لوحة المستخدمين الشاملة</span>
-								</a>
 								<a href="/admin/roles" class={ "sidebar-link", templ.KV("active", activeNav == "roles") }>
 									@components.IconSettings("icon-sm")
 									<span>الأدوار والصلاحيات (RBAC)</span>
@@ -88,12 +80,6 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 								<a href="/admin/employee-activities" class={ "sidebar-link", templ.KV("active", activeNav == "employee_activities") }>
 									@components.IconClock("icon-sm")
 									<span>نشاط الموظفين</span>
-								</a>
-							}
-							if canAccessAdmin(ctx, "platform.chat.view") {
-							<a href="/admin/chat/tree" class={ "sidebar-link", templ.KV("active", activeNav == "chat_tree") }>
-									@components.IconInbox("icon-sm")
-									<span>شجرة المحادثات</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "platform.chat.view") {

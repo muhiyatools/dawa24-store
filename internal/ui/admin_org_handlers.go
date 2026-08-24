@@ -119,21 +119,9 @@ func (h *UIHandler) AdminOrganizationBranchesPage(w http.ResponseWriter, r *http
 	}
 }
 
-// AdminBranchesPage renders list of all branches across all organizations.
+// AdminBranchesPage renders list of all branches within the unified enterprise hub.
 func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var branches []*org.Branch
-	if h.orgSvc != nil {
-		// AsSystem justified: platform admin viewing branches across all tenant orgs
-		branches, _ = h.orgSvc.ListBranches(database.AsSystem(ctx), 0)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminBranchesPage(branches, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin branches page", "error", err)
-	}
+	h.renderAdminEnterpriseHub(w, r, "branches")
 }
 
 // AdminBranchDetailPage renders detail for a specific branch.

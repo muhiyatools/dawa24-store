@@ -87,27 +87,7 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var users []*identity.User
-	var deletionRequests []*identity.AccountDeletionRequest
-
-	if h.idSvc != nil {
-		users, _ = h.idSvc.AdminListUsers(ctx, "", "")
-		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(ctx, "")
-	}
-
-	data := pages.AdminUsersData{
-		Users:            users,
-		DeletionRequests: deletionRequests,
-		ActiveTab:        r.URL.Query().Get("tab"),
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminUsers(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin users page", "error", err)
-	}
+	h.renderAdminEnterpriseHub(w, r, "users")
 }
 
 func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
@@ -1106,31 +1086,81 @@ func localizeAuditEntry(e *platformadmin.AuditEntry) {
 	}
 }
 
-// AdminOrganizationsPage renders the full organization list with lifecycle actions.
-func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Request) {
+// renderAdminEnterpriseHub renders the unified enterprise management suite.
+func (h *UIHandler) renderAdminEnterpriseHub(w http.ResponseWriter, r *http.Request, defaultTab string) {
 	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
 	lang, dir := h.localeAndDir(r)
-	typeParam := r.URL.Query().Get("type")
 
-	// If route was /admin/vendors or /admin/suppliers, preset typeParam
+	typeParam := r.URL.Query().Get("type")
 	if strings.Contains(r.URL.Path, "/vendors") || strings.Contains(r.URL.Path, "/suppliers") {
 		typeParam = "vendor"
 	}
 
+	activeTab := r.URL.Query().Get("tab")
+	if activeTab == "" {
+		activeTab = defaultTab
+	}
+
 	var orgs []*org.Organization
+	var branches []*org.Branch
+	var users []*identity.User
+	var deletionRequests []*identity.AccountDeletionRequest
+
+	orgNames := make(map[int64]string)
+	orgTypes := make(map[int64]string)
+	branchCounts := make(map[int64]int)
+	userCounts := make(map[int64]int)
+
 	if h.orgSvc != nil {
 		var filterType *org.OrganizationType
 		if typeParam != "" {
 			t := org.OrganizationType(typeParam)
 			filterType = &t
 		}
-		orgs, _ = h.orgSvc.ListOrganizations(ctx, filterType, nil, 100, 0)
+		orgs, _ = h.orgSvc.ListOrganizations(sysCtx, filterType, nil, 300, 0)
+		for _, o := range orgs {
+			if o != nil {
+				orgNames[o.ID] = o.LegalName
+				orgTypes[o.ID] = string(o.Type)
+			}
+		}
+
+		branches, _ = h.orgSvc.ListBranches(sysCtx, 0)
+		for _, b := range branches {
+			if b != nil {
+				branchCounts[b.OrganizationID]++
+			}
+		}
+	}
+
+	if h.idSvc != nil {
+		users, _ = h.idSvc.AdminListUsers(ctx, "", "")
+		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(ctx, "")
+	}
+
+	data := pages.AdminEnterpriseHubData{
+		Organizations:    orgs,
+		Branches:         branches,
+		Users:            users,
+		DeletionRequests: deletionRequests,
+		ActiveTab:        activeTab,
+		CurrentType:      typeParam,
+		OrgNames:         orgNames,
+		OrgTypes:         orgTypes,
+		BranchCounts:     branchCounts,
+		UserCounts:       userCounts,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizations(lang, dir, typeParam, orgs).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin organizations", "error", err)
+	if err := pages.AdminOrganizations(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin organizations hub", "error", err)
 	}
+}
+
+// AdminOrganizationsPage renders the full organization list with lifecycle actions.
+func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Request) {
+	h.renderAdminEnterpriseHub(w, r, "organizations")
 }
 
 // AdminOrgApproveSubmit approves an organization.

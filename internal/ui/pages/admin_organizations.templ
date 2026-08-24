@@ -3,111 +3,637 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminOrganizations(lang, dir string, currentType string, orgs []*org.Organization) {
-	@layouts.AdminShell("دليل وإدارة المنشآت المسجلة", "organizations", lang, dir) {
-		<div class="card" style="margin-bottom:0; overflow:visible;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-				<div class="row-center-sm">
-					@components.IconBuilding("icon-md")
-					<div>
-						<h2 class="card-title" style="margin:0;">
-							إدارة الموردين والشركات والصيدليات ({ fmt.Sprintf("%d", len(orgs)) })
-						</h2>
-						<p class="subtitle">
-							متابعة سجلات التوريد، التراخيص الدوائية، وإدارة نشاط الحسابات المؤسسية على المنصة.
-						</p>
+type AdminEnterpriseHubData struct {
+	Organizations    []*org.Organization
+	Branches         []*org.Branch
+	Users            []*identity.User
+	DeletionRequests []*identity.AccountDeletionRequest
+	ActiveTab        string
+	CurrentType      string
+	OrgNames         map[int64]string
+	OrgTypes         map[int64]string
+	BranchCounts     map[int64]int
+	UserCounts       map[int64]int
+}
+
+func getOrgLegalName(id int64, names map[int64]string) string {
+	if name, ok := names[id]; ok && name != "" {
+		return name
+	}
+	if id > 0 {
+		return fmt.Sprintf("منشأة #%d", id)
+	}
+	return "المنصة الرئيسية"
+}
+
+func getOrgTypeBadge(id int64, types map[int64]string) string {
+	if t, ok := types[id]; ok {
+		if t == "vendor" {
+			return "مورد"
+		}
+		return "صيدلية"
+	}
+	return "منشأة"
+}
+
+func dayOfWeekAr(day int) string {
+	days := []string{"الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"}
+	if day >= 0 && day < len(days) {
+		return days[day]
+	}
+	return "—"
+}
+
+templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
+	@layouts.AdminShell("إدارة المنشآت والفروع والمستخدمين", "organizations", lang, dir) {
+		<div
+			style="max-width:1400px; margin:0 auto 3rem auto; display:flex; flex-direction:column; gap:1.25rem;"
+			x-data={ fmt.Sprintf(`{
+				activeTab: '%s',
+				orgFilter: '%s',
+				userGroupFilter: 'all',
+				branchOrgFilter: 'all',
+				branchTypeFilter: 'all',
+				searchQuery: '',
+				init() {
+					const urlParams = new URLSearchParams(window.location.search);
+					let tab = urlParams.get('tab') || '%s';
+					if (['organizations', 'branches', 'users', 'deletion_requests'].includes(tab)) {
+						this.activeTab = tab;
+					}
+					let orgId = urlParams.get('org_id');
+					if (orgId) {
+						this.branchOrgFilter = orgId;
+					}
+				},
+				setTab(tab) {
+					this.activeTab = tab;
+					const u = new URL(window.location);
+					u.searchParams.set('tab', tab);
+					window.history.replaceState({}, '', u);
+				}
+			}`, data.ActiveTab, data.CurrentType, data.ActiveTab) }
+		>
+			<!-- Header Card -->
+			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.75rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+					<div class="row-center">
+						<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconBuilding("icon-lg")
+						</div>
+						<div>
+							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+								إدارة المنشآت والفروع والمستخدمين
+							</h1>
+							<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
+								المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمستودعات، وحسابات الكوادر والمشرفين.
+							</p>
+						</div>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+						<span class="badge badge-sky" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
+							🏢 { fmt.Sprintf("%d", len(data.Organizations)) } منشأة
+						</span>
+						<span class="badge badge-emerald" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
+							📦 { fmt.Sprintf("%d", len(data.Branches)) } فرع ومستودع
+						</span>
+						<span class="badge badge-indigo" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
+							👥 { fmt.Sprintf("%d", len(data.Users)) } مستخدم
+						</span>
 					</div>
 				</div>
 			</div>
 
-			<!-- Organization Type Tabs -->
-			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-				<a href="/admin/organizations" class={ "btn btn-sm", templ.KV("btn-primary", currentType == ""), templ.KV("btn-secondary", currentType != "") }>
-					<span>كافة المنشآت ({ fmt.Sprintf("%d", len(orgs)) })</span>
-				</a>
-				<a href="/admin/organizations?type=vendor" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "vendor"), templ.KV("btn-secondary", currentType != "vendor") }>
-					<span>الموردون وشركات الأدوية (Vendors)</span>
-				</a>
-				<a href="/admin/organizations?type=customer" class={ "btn btn-sm", templ.KV("btn-primary", currentType == "customer"), templ.KV("btn-secondary", currentType != "customer") }>
-					<span>الصيدليات والمراكز الطبية (Customers)</span>
-				</a>
+			<!-- Main Top-Level Navigation Tabs -->
+			<div style="display:flex; gap:0.5rem; border-bottom:2px solid var(--border); flex-wrap:wrap;">
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'organizations' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+					@click="setTab('organizations')"
+				>
+					@components.IconBuilding("icon-xs")
+					<span>المؤسسات والشركات ({ fmt.Sprintf("%d", len(data.Organizations)) })</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'branches' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+					@click="setTab('branches')"
+				>
+					@components.IconLayers("icon-xs")
+					<span>الفروع والمستودعات ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn"
+					:class="activeTab === 'users' ? 'btn-primary' : 'btn-secondary'"
+					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+					@click="setTab('users')"
+				>
+					@components.IconUsers("icon-xs")
+					<span>المستخدمين والحسابات ({ fmt.Sprintf("%d", len(data.Users)) })</span>
+				</button>
+
+				if len(data.DeletionRequests) > 0 {
+					<button
+						type="button"
+						class="btn"
+						:class="activeTab === 'deletion_requests' ? 'btn-danger' : 'btn-secondary'"
+						style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+						@click="setTab('deletion_requests')"
+					>
+						@components.IconTrash("icon-xs")
+						<span>طلبات حذف الحسابات ({ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) })</span>
+					</button>
+				}
 			</div>
 
-			if len(orgs) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد منشآت مطابقة للنوع المحدد",
-					Message: "لم يتم العثور على منشآت مسجلة في هذا القسم حالياً.",
-				})
-			} else {
-				<div class="table-container" style="overflow:visible;">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>الاسم والبيانات التجارية</th>
-								<th>نوع المنشأة</th>
-								<th>السجل والبطاقة الضريبية</th>
-								<th>ترخيص هيئة الدواء</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, o := range orgs {
-								<tr>
-									<td>
-										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ o.LegalName }</div>
-										<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
-											if o.TradeName["ar"] != "" {
-												{ o.TradeName["ar"] }
-											} else {
-												{ o.TradeName["en"] }
-											}
-										</div>
-									</td>
-									<td>
-										if string(o.Type) == "vendor" {
-											<span class="badge badge-sky">مورد / شركة أدوية</span>
-										} else {
-											<span class="badge badge-emerald">صيدلية مرخصة</span>
-										}
-									</td>
-									<td>
-										<div style="font-size:0.85rem;"><span style="color:var(--text-secondary);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
-										if o.TaxNumber != "" {
-											<div style="font-size:0.8rem; color:var(--text-secondary);"><span style="color:var(--text-secondary);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
-										}
-									</td>
-									<td>
-										if o.PharmacistLicense != "" {
-											<span class="tabular-nums" style="font-weight:700; color:var(--accent); font-size:0.875rem;">{ o.PharmacistLicense }</span>
-										} else {
-											<span style="color:var(--text-secondary); font-size:0.8rem;">—</span>
-										}
-									</td>
-									<td>
-										if string(o.Status) == "approved" {
-											<span class="badge badge-success">معتمد ومفعل</span>
-										} else if string(o.Status) == "rejected" {
-											<span class="badge badge-danger">مرفوض</span>
-										} else {
-											<span class="badge badge-warning">قيد المراجعة</span>
-										}
-									</td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
-											<span>عرض الملف</span>
-										</a>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
+			<!-- TAB 1: Organizations -->
+			<div x-show="activeTab === 'organizations'" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+							<button
+								type="button"
+								class="btn btn-sm"
+								:class="orgFilter === '' ? 'btn-primary' : 'btn-secondary'"
+								@click="orgFilter = ''"
+								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
+							>
+								كافة المنشآت ({ fmt.Sprintf("%d", len(data.Organizations)) })
+							</button>
+							<button
+								type="button"
+								class="btn btn-sm"
+								:class="orgFilter === 'vendor' ? 'btn-primary' : 'btn-secondary'"
+								@click="orgFilter = 'vendor'"
+								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
+							>
+								الموردون وشركات الأدوية (Vendors)
+							</button>
+							<button
+								type="button"
+								class="btn btn-sm"
+								:class="orgFilter === 'customer' ? 'btn-primary' : 'btn-secondary'"
+								@click="orgFilter = 'customer'"
+								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
+							>
+								الصيدليات والمراكز الطبية (Customers)
+							</button>
+						</div>
+
+						<div style="min-width:260px;">
+							<input
+								type="text"
+								x-model="searchQuery"
+								class="form-input"
+								placeholder="بحث باسم المنشأة، السجل، أو الترخيص..."
+								style="font-size:0.85rem; padding:0.4rem 0.75rem;"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div class="card mb-0" style="overflow:visible;">
+					if len(data.Organizations) == 0 {
+						@components.EmptyState(components.EmptyStateProps{
+							Title:   "لا توجد منشآت مسجلة",
+							Message: "لم يتم العثور على منشآت مسجلة في هذا القسم حالياً.",
+						})
+					} else {
+						<div class="table-container" style="overflow:visible;">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>الاسم والبيانات التجارية</th>
+										<th>نوع المنشأة</th>
+										<th>السجل والبطاقة الضريبية</th>
+										<th>ترخيص هيئة الدواء</th>
+										<th>الهيكل التابع</th>
+										<th>الحالة</th>
+										<th class="text-end">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, o := range data.Organizations {
+										<tr
+											x-show={ fmt.Sprintf("(orgFilter === '' || orgFilter === '%s') && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.includes(searchQuery))", string(o.Type), o.LegalName, o.TradeName["ar"], o.CommercialRegister) }
+										>
+											<td>
+												<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ o.LegalName }</div>
+												<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
+													if o.TradeName["ar"] != "" {
+														{ o.TradeName["ar"] }
+													} else {
+														{ o.TradeName["en"] }
+													}
+												</div>
+											</td>
+											<td>
+												if string(o.Type) == "vendor" {
+													<span class="badge badge-sky" style="font-weight:700;">مورد / شركة أدوية</span>
+												} else {
+													<span class="badge badge-emerald" style="font-weight:700;">صيدلية مرخصة</span>
+												}
+											</td>
+											<td>
+												<div style="font-size:0.85rem;"><span style="color:var(--text-secondary);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
+												if o.TaxNumber != "" {
+													<div style="font-size:0.8rem; color:var(--text-secondary);"><span style="color:var(--text-secondary);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
+												}
+											</td>
+											<td>
+												if o.PharmacistLicense != "" {
+													<span class="tabular-nums" style="font-weight:700; color:var(--accent); font-size:0.875rem;">{ o.PharmacistLicense }</span>
+												} else {
+													<span style="color:var(--text-secondary); font-size:0.8rem;">—</span>
+												}
+											</td>
+											<td>
+												<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+													<button
+														type="button"
+														class="badge badge-indigo"
+														style="cursor:pointer; border:none; font-weight:700;"
+														@click={ fmt.Sprintf("setTab('branches'); branchOrgFilter = '%d';", o.ID) }
+														title="انتقال لاستعراض فروع هذه المنشأة"
+													>
+														📦 { fmt.Sprintf("%d", data.BranchCounts[o.ID]) } فرع
+													</button>
+												</div>
+											</td>
+											<td>
+												if string(o.Status) == "approved" {
+													<span class="badge badge-success">معتمد ومفعل</span>
+												} else if string(o.Status) == "rejected" {
+													<span class="badge badge-danger">مرفوض</span>
+												} else {
+													<span class="badge badge-warning">قيد المراجعة</span>
+												}
+											</td>
+											<td class="text-end">
+												<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+														<span>عرض الملف الشامل ↗</span>
+													</a>
+												</div>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+			</div>
+
+			<!-- TAB 2: Branches -->
+			<div x-show="activeTab === 'branches'" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+						<div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">تصفية بالمنشأة:</label>
+								<select x-model="branchOrgFilter" class="form-select" style="font-size:0.825rem; padding:0.35rem 0.75rem; max-width:240px;">
+									<option value="all">كافة المنشآت والشركات</option>
+									for _, o := range data.Organizations {
+										<option value={ fmt.Sprintf("%d", o.ID) }>{ o.LegalName }</option>
+									}
+								</select>
+							</div>
+
+							<div style="display:flex; align-items:center; gap:0.4rem;">
+								<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">النوع:</label>
+								<select x-model="branchTypeFilter" class="form-select" style="font-size:0.825rem; padding:0.35rem 0.75rem;">
+									<option value="all">كافة الأنواع</option>
+									<option value="warehouse">مستودع أدوية مركزي (Warehouse)</option>
+									<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
+									<option value="cold_depot">مستودع تبريد (Cold Depot)</option>
+									<option value="pharmacy_branch">فرع صيدلية (Pharmacy Branch)</option>
+								</select>
+							</div>
+
+							<button
+								type="button"
+								class="btn btn-secondary btn-sm"
+								x-show="branchOrgFilter !== 'all' || branchTypeFilter !== 'all'"
+								@click="branchOrgFilter = 'all'; branchTypeFilter = 'all';"
+								style="font-size:0.8rem;"
+							>
+								إلغاء التصفية
+							</button>
+						</div>
+
+						<div style="min-width:260px;">
+							<input
+								type="text"
+								x-model="searchQuery"
+								class="form-input"
+								placeholder="بحث باسم الفرع، الكود، أو العنوان..."
+								style="font-size:0.85rem; padding:0.4rem 0.75rem;"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div class="card mb-0">
+					if len(data.Branches) == 0 {
+						@components.EmptyState(components.EmptyStateProps{
+							Title:   "لا توجد فروع مسجلة",
+							Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً.",
+						})
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>اسم الفرع والكود</th>
+										<th>المنشأة التابع لها</th>
+										<th>نوع المنشأة اللوجستية</th>
+										<th>العنوان وبيانات التواصل</th>
+										<th>الحالة</th>
+										<th class="text-end">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, b := range data.Branches {
+										<tr
+											x-show={ fmt.Sprintf("(branchOrgFilter === 'all' || branchOrgFilter === '%d') && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", b.OrganizationID, b.Name.Get("ar"), b.Code, b.Address) }
+										>
+											<td>
+												<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ b.Name.Get("ar") }</div>
+												if b.Code != "" {
+													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;" dir="ltr">
+														<code style="font-weight:700;">{ b.Code }</code>
+													</div>
+												}
+											</td>
+											<td>
+												<div style="font-weight:700; color:var(--text); font-size:0.9rem;">
+													{ getOrgLegalName(b.OrganizationID, data.OrgNames) }
+												</div>
+												<div style="margin-top:0.15rem;">
+													<span class="badge badge-slate" style="font-size:0.75rem;">
+														{ getOrgTypeBadge(b.OrganizationID, data.OrgTypes) }
+													</span>
+												</div>
+											</td>
+											<td>
+												<span class="badge badge-sky" style="font-weight:700;">
+													if b.WarehouseType != "" {
+														{ b.WarehouseType }
+													} else {
+														فرع تشغيلي
+													}
+												</span>
+											</td>
+											<td>
+												<div style="font-size:0.85rem; color:var(--text);">{ b.Address }</div>
+												if b.Phone != "" {
+													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;" class="tabular-nums">
+														📞 { b.Phone }
+													</div>
+												}
+											</td>
+											<td>
+												if b.Status == "active" {
+													<span class="badge badge-success">نشط</span>
+												} else {
+													<span class="badge badge-danger">معطل</span>
+												}
+											</td>
+											<td class="text-end">
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+													<span>عرض التفاصيل</span>
+												</a>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+			</div>
+
+			<!-- TAB 3: Users -->
+			<div x-show="activeTab === 'users'" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+							<button
+								type="button"
+								class="btn btn-sm"
+								:class="userGroupFilter === 'all' ? 'btn-primary' : 'btn-secondary'"
+								@click="userGroupFilter = 'all'"
+								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
+							>
+								جميع المستخدمين ({ fmt.Sprintf("%d", len(data.Users)) })
+							</button>
+							<button
+								type="button"
+								class="btn btn-sm"
+								:class="userGroupFilter === 'pharmacy' ? 'btn-primary' : 'btn-secondary'"
+								@click="userGroupFilter = 'pharmacy'"
+								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
+							>
+								الصيدليات والعملاء ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "pharmacy")) })
+							</button>
+							<button
+								type="button"
+								class="btn btn-sm"
+								:class="userGroupFilter === 'supplier' ? 'btn-primary' : 'btn-secondary'"
+								@click="userGroupFilter = 'supplier'"
+								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
+							>
+								الموردون والشركات ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "supplier")) })
+							</button>
+							<button
+								type="button"
+								class="btn btn-sm"
+								:class="userGroupFilter === 'staff' ? 'btn-primary' : 'btn-secondary'"
+								@click="userGroupFilter = 'staff'"
+								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
+							>
+								إدارة ومشرفو المنصة ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "staff")) })
+							</button>
+						</div>
+
+						<div style="min-width:260px;">
+							<input
+								type="text"
+								x-model="searchQuery"
+								class="form-input"
+								placeholder="بحث بالاسم، البريد، أو الهاتف..."
+								style="font-size:0.85rem; padding:0.4rem 0.75rem;"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div class="card mb-0">
+					if len(data.Users) == 0 {
+						@components.EmptyState(components.EmptyStateProps{
+							Title:   "لا يوجد مستخدمون",
+							Message: "لم يتم العثور على أي مستخدمين مسجلين في هذا القسم.",
+						})
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>المستخدم</th>
+										<th>البريد الإلكتروني</th>
+										<th>الدور الوظيفي</th>
+										<th>الحالة</th>
+										<th class="text-end">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, u := range data.Users {
+										<tr
+											x-show={ fmt.Sprintf("(userGroupFilter === 'all' || (userGroupFilter === 'pharmacy' && (%t)) || (userGroupFilter === 'supplier' && (%t)) || (userGroupFilter === 'staff' && (%t))) && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.includes(searchQuery))", isPharmacyGroup(u.Role), isSupplierGroup(u.Role), isStaffGroup(u.Role), userDisplayName(u), u.Email, u.Phone) }
+										>
+											<td>
+												<div style="display:flex; align-items:center; gap:0.6rem;">
+													<div style="width:34px; height:34px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.825rem;">
+														if len(userDisplayName(u)) > 0 {
+															{ string([]rune(userDisplayName(u))[0]) }
+														} else {
+															U
+														}
+													</div>
+													<div>
+														<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ userDisplayName(u) }</div>
+														if u.Phone != "" {
+															<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.05rem;" class="tabular-nums">📞 { u.Phone }</div>
+														}
+													</div>
+												</div>
+											</td>
+											<td>
+												<div style="font-size:0.85rem; color:var(--text-secondary);" class="tabular-nums" dir="ltr">{ u.Email }</div>
+											</td>
+											<td>
+												<span class={ "badge", roleBadgeClass(u.Role) } style="font-weight:700;">
+													{ roleDisplayAr(u.Role) }
+												</span>
+											</td>
+											<td>
+												if u.Status == identity.StatusActive {
+													<span class="badge badge-success">نشط ومفعل</span>
+												} else if u.Status == identity.StatusSuspended {
+													<span class="badge badge-danger">موقوف / معلق</span>
+												} else {
+													<span class="badge badge-warning">قيد المراجعة</span>
+												}
+											</td>
+											<td class="text-end">
+												<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
+													if u.Status == identity.StatusActive {
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } style="margin:0; display:inline;" onsubmit="return confirm('تأكيد تعليق هذا الحساب؟');">
+															<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); font-weight:700;">
+																تعليق الحساب
+															</button>
+														</form>
+													} else {
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } style="margin:0; display:inline;">
+															<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+																إعادة التفعيل
+															</button>
+														</form>
+													}
+												</div>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+			</div>
+
+			<!-- TAB 4: Deletions -->
+			if len(data.DeletionRequests) > 0 {
+				<div x-show="activeTab === 'deletion_requests'" style="display:flex; flex-direction:column; gap:1.25rem;">
+					<div class="card mb-0">
+						<div class="header-row" style="margin-bottom:1rem;">
+							<div>
+								<h2 class="card-title" style="margin:0; font-size:1.2rem; font-weight:800; color:var(--danger);">
+									طلبات حذف الحسابات المعلقة ({ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) })
+								</h2>
+								<p class="subtitle" style="margin:0.2rem 0 0 0;">
+									مراجعة طلبات المستخدمين لحذف حساباتهم بموجب لوائح الخصوصية وحماية البيانات.
+								</p>
+							</div>
+						</div>
+
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th>المستخدم</th>
+										<th>البريد الإلكتروني</th>
+										<th>سبب الحذف</th>
+										<th>تاريخ الطلب</th>
+										<th>الحالة</th>
+										<th class="text-end">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, req := range data.DeletionRequests {
+										<tr>
+											<td><strong>{ req.UserName }</strong></td>
+											<td class="tabular-nums" dir="ltr">{ req.UserEmail }</td>
+											<td>{ req.Reason }</td>
+											<td class="tabular-nums">{ req.CreatedAt.Format("2006-01-02 15:04") }</td>
+											<td>
+												if req.Status == "pending" {
+													<span class="badge badge-warning">قيد المراجعة</span>
+												} else if req.Status == "approved" {
+													<span class="badge badge-danger">تم الحذف</span>
+												} else {
+													<span class="badge badge-slate">مرفوض</span>
+												}
+											</td>
+											<td class="text-end">
+												if req.Status == "pending" {
+													<div style="display:flex; justify-content:flex-end; gap:0.4rem;">
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", req.ID)) } style="margin:0;" onsubmit="return confirm('تأكيد الموافقة على حذف الحساب وتعليقه فورياً؟');">
+															<button type="submit" class="btn btn-sm btn-danger" style="font-weight:700;">
+																موافقة وحذف
+															</button>
+														</form>
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", req.ID)) } style="margin:0;">
+															<button type="submit" class="btn btn-sm btn-secondary" style="font-weight:700;">
+																رفض الطلب
+															</button>
+														</form>
+													</div>
+												} else {
+													<span style="color:var(--text-secondary); font-size:0.85rem;">تمت المعالجة</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
 			}
 		</div>
@@ -135,7 +661,7 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 				<div>
 					<a href="/admin/organizations" class="btn btn-secondary btn-sm">
 						@components.IconArrowRight("icon-xs")
-						<span>العودة لدليل المنشآت</span>
+						<span>العودة للمنظومة المركزية</span>
 					</a>
 				</div>
 			</div>
@@ -184,7 +710,8 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 							</table>
 						</div>
 					}
-				} else if activeTab == "branches" {
+				}
+				if activeTab == "branches" {
 					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">فروع ومستودعات المنشأة</h3>
 					if len(branches) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مستودعات لهذه المنشأة بعد."})
@@ -218,7 +745,8 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 							</table>
 						</div>
 					}
-				} else {
+				}
+				if activeTab != "users" && activeTab != "branches" {
 					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">تفاصيل المنشأة وبيانات التسجيل</h3>
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
 						<div>
@@ -306,7 +834,7 @@ templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
 					<h2 class="card-title" style="margin:0;">{ b.Name.Get("ar") }</h2>
 					<p class="subtitle">كود الفرع: { b.Code } | منشأة #{ fmt.Sprintf("%d", b.OrganizationID) }</p>
 				</div>
-				<a href="/admin/branches" class="btn btn-secondary btn-sm">العودة لدليل الفروع</a>
+				<a href="/admin/organizations?tab=branches" class="btn btn-secondary btn-sm">العودة لدليل الفروع</a>
 			</div>
 
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
@@ -349,125 +877,59 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</div>
 							<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">نطاقات وجداول التغطية الأسبوعية</h1>
 						</div>
-						<p style="font-size:0.9rem; color:var(--text-secondary); margin:0;">
-							استعراض ومتابعة جدول أيام التوصيل ونطاق المسافات المسجلة لمستودعات وفروع كل منشأة.
-						</p>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">استعراض وتدقيق أيام ومناطق تسليم الموردين للصيدليات في مختلف المحافظات.</p>
 					</div>
-					<div style="display:flex; gap:0.5rem;">
-						<a href="/admin/weekly-coverages" class="btn btn-secondary btn-sm" style="display:flex; align-items:center; gap:0.4rem;">
-							@components.IconRefresh("icon-xs")
-							<span>تحديث</span>
-						</a>
-					</div>
-				</div>
-			</div>
 
-			<!-- Organization Selector Dropdown Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; background:var(--surface);">
-				<form method="GET" action="/admin/weekly-coverages" style="display:flex; align-items:flex-end; gap:1rem; flex-wrap:wrap;">
-					<div class="form-group" style="margin-bottom:0; flex:1; min-width:280px;">
-						<label class="form-label" style="font-size:0.875rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
-							اختر المنشأة / المورد لعرض نطاقات التغطية التابعة لها:
-						</label>
-						<select name="org_id" class="form-input" onchange="this.form.submit()" style="height:42px; font-size:0.9rem;">
-							if len(data.Organizations) == 0 {
-								<option value="">لا توجد منشآت مسجلة</option>
-							}
+					<form method="GET" action="/admin/weekly-coverages" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+						<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">اختيار المنشأة:</label>
+						<select name="org_id" class="form-select" onchange="this.form.submit()" style="font-size:0.85rem; padding:0.4rem 0.85rem; min-width:220px;">
 							for _, o := range data.Organizations {
-								<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>
-									if o.LegalName != "" {
-										{ o.LegalName }
-									} else {
-										{ o.TradeName.Get("ar") }
-									}
-									({ string(o.Type) }) — #{ fmt.Sprintf("%d", o.ID) }
+								<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
+									{ o.LegalName }
 								</option>
 							}
 						</select>
-					</div>
-					<button type="submit" class="btn btn-primary btn-sm" style="height:42px; padding:0 1.5rem; display:flex; align-items:center; gap:0.4rem;">
-						@components.IconSearch("icon-xs")
-						<span>عرض نطاقات المنشأة</span>
-					</button>
-				</form>
+					</form>
+				</div>
 			</div>
 
-			<!-- Coverages Table Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:0; overflow:hidden; background:var(--surface);">
-				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-					<div style="font-weight:700; font-size:1rem; color:var(--text);">
-						سجلات نطاق التغطية ({ fmt.Sprintf("%d", len(data.Coverages)) })
-					</div>
-				</div>
-
+			<!-- Coverages List -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl);">
 				if len(data.Coverages) == 0 {
-					<div style="padding:4rem 2rem; text-align:center;">
-						<div style="width:54px; height:54px; border-radius:var(--radius-full); background:var(--surface-raised); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
-							@components.IconTruck("icon-md")
-						</div>
-						<h3 style="font-size:1.1rem; font-weight:700; color:var(--text); margin:0 0 0.5rem 0;">لا توجد نطاقات تغطية مسجلة لهذه المنشأة</h3>
-						<p style="font-size:0.875rem; color:var(--text-secondary); max-width:420px; margin:0 auto;">
-							تقوم المنشأة بضبط وإدارة نطاقات التغطية الأسبوعية لفروعها مباشرة من خلال لوحة تحكم المورد الخاصة بها.
-						</p>
-					</div>
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد جداول تغطية أسبوعية",
+						Message: "لم يتم ضبط جداول تغطية أسبوعية لهذه المنشأة بعد.",
+					})
 				} else {
 					<div class="table-container">
-						<table class="data-table" style="margin:0;">
+						<table class="data-table">
 							<thead>
 								<tr>
-									<th style="width:60px;">#</th>
-									<th>الفرع / المستودع</th>
-									<th>يوم التوصيل الأسبوعي</th>
-									<th>أقصى نطاق تغطية</th>
-									<th>ساعات العمل / التوصيل</th>
-									<th>العنوان / خط السير</th>
-									<th>الحالة</th>
+									<th>يوم التوصيل</th>
+									<th>المدينة / المحافظة</th>
+									<th>الفرع أو المستودع المنفذ</th>
+									<th>نطاق التغطية</th>
+									<th>مواعيد التوصيل</th>
+									<th>حالة التغطية</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, c := range data.Coverages {
 									<tr>
-										<td class="tabular-nums" style="color:var(--text-muted); font-size:0.8rem;">
-											#{ fmt.Sprintf("%d", c.ID) }
-										</td>
-										<td>
-											if c.BranchName != "" {
-												<strong style="color:var(--text);">{ c.BranchName }</strong>
-											} else {
-												<span>فرع #{ fmt.Sprintf("%d", c.BranchID) }</span>
-											}
-											if c.CityName != "" {
-												<span class="badge badge-secondary" style="margin-inline-start:0.35rem; font-size:0.75rem;">
-													{ c.CityName }
-												</span>
-											}
-										</td>
-										<td>
-											<span class="badge badge-sky" style="font-size:0.825rem; font-weight:700; padding:3px 10px;">
-												{ dayNameArabic(c.DayOfWeek) }
-											</span>
-										</td>
-										<td class="tabular-nums" style="font-weight:700; color:var(--text);">
-											{ fmt.Sprintf("%.1f كم", float64(c.DistanceMeters)/1000.0) }
-											<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">({ fmt.Sprintf("%d م", c.DistanceMeters) })</span>
-										</td>
-										<td>
+										<td><strong style="color:var(--accent);">{ dayOfWeekAr(c.DayOfWeek) }</strong></td>
+										<td><strong>{ c.CityName }</strong></td>
+										<td>{ c.BranchName }</td>
+										<td class="tabular-nums"><strong>{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong></td>
+										<td class="tabular-nums">
 											if c.CoverageFrom != nil && c.CoverageTo != nil {
-												<span class="tabular-nums" style="font-weight:600; color:var(--text);">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
+												<span>{ *c.CoverageFrom } - { *c.CoverageTo }</span>
 											} else {
-												<span style="color:var(--text-muted);">طوال اليوم</span>
-											}
-										</td>
-										<td style="font-size:0.85rem; color:var(--text-secondary); max-width:260px;">
-											if c.Address != "" {
-												{ c.Address }
-											} else {
-												<span style="color:var(--text-muted); font-style:italic;">غير محدد</span>
+												<span style="color:var(--text-secondary);">طوال اليوم</span>
 											}
 										</td>
 										<td>
 											if c.IsActive {
-												<span class="badge badge-success">مفعل ونشط</span>
+												<span class="badge badge-success">نشط</span>
 											} else {
 												<span class="badge badge-danger">معطل</span>
 											}

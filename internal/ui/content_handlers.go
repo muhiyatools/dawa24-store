@@ -95,11 +95,6 @@ func (h *UIHandler) FaqPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HelpPage renders the help content block.
-func (h *UIHandler) HelpPage(w http.ResponseWriter, r *http.Request) {
-	h.renderCmsBlock(w, r, "help", "مركز المساعدة")
-}
-
 // renderPolicy renders a published legal document by slug.
 func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, fallbackTitle string) {
 	ctx := r.Context()

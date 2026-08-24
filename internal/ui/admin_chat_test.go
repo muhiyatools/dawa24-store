@@ -46,17 +46,6 @@ func TestAdminChatTreeAndHistoryRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusOK,
 		},
-		{
-			name:   "Super admin GET /admin/chat/tree redirects 303 to /admin/finder",
-			path:   "/admin/chat/tree",
-			method: "GET",
-			actor: &authctx.Actor{
-				UserID:  1,
-				IsStaff: true,
-				Role:    "super_admin",
-			},
-			wantStatus: http.StatusSeeOther,
-		},
 	}
 
 	for _, tt := range tests {
