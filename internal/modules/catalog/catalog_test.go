@@ -42,13 +42,13 @@ func (m *mockCatalogRepo) CreateProduct(_ context.Context, p *Product) error {
 	return nil
 }
 
-func (m *mockCatalogRepo) BulkUpsertProducts(_ context.Context, prods []*Product) (int, int, error) {
+func (m *mockCatalogRepo) BulkUpsertProducts(_ context.Context, prods []*Product) (BulkWriteResult, error) {
 	for _, p := range prods {
 		p.ID = m.nextID
 		m.nextID++
 		m.products[p.ID] = p
 	}
-	return len(prods), 0, nil
+	return BulkWriteResult{Inserted: len(prods), Matches: map[int]MatchReason{}}, nil
 }
 
 func (m *mockCatalogRepo) GetProductByID(_ context.Context, id int64) (*Product, error) {

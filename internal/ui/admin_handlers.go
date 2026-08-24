@@ -1524,35 +1524,17 @@ func (h *UIHandler) AdminProductsSampleCSV(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w.Header().Set("Content-Disposition", "attachment; filename=\"dawa24_products_sample.csv\"")
 
-	// Write UTF-8 BOM for Microsoft Excel compatibility with Arabic
+	// Excel on Windows reads a BOM-less UTF-8 CSV as the system codepage and
+	// renders every Arabic name as mojibake, so the admin "fixes" it by saving
+	// in a codepage the importer then has to guess at. The BOM avoids the whole
+	// round trip.
 	_, _ = w.Write([]byte{0xEF, 0xBB, 0xBF})
 
 	writer := csv.NewWriter(w)
 	defer writer.Flush()
 
-	headers := []string{
-		"اسم الصنف بالعربي",
-		"اسم الصنف بالإنجليزي",
-		"الاسم العلمي",
-		"المادة الفعالة",
-		"الشكل الصيدلي",
-		"الشركة المصنعة",
-		"رقم التسجيل EDA",
-		"السعر",
-		"الوصف بالعربي",
-		"الوصف بالإنجليزي",
-	}
-	_ = writer.Write(headers)
-
-	sampleRows := [][]string{
-		{"كونجستال أقراص", "Congestal Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", "أقراص", "Eva Pharma", "EDA-10293", "25.00", "لعلاج أعراض نزلات البرد والإنفلونزا", "For cold and flu relief"},
-		{"بانادول إكسترا", "Panadol Extra", "Paracetamol + Caffeine", "Paracetamol 500mg + Caffeine 65mg", "أقراص", "GSK", "EDA-88421", "35.00", "مسكن للآلام وخافض للحرارة", "Pain reliever and fever reducer"},
-		{"أوجمنتين 1 جم أقراص", "Augmentin 1g Tablets", "Amoxicillin + Clavulanic Acid", "Amoxicillin 875mg + Clavulanate 125mg", "أقراص", "GlaxoSmithKline", "EDA-33910", "89.50", "مضاد حيوي واسع المجال", "Broad spectrum antibiotic"},
-		{"أنتينال كبسول", "Antinal Capsules", "Nifuroxazide", "Nifuroxazide 200mg", "كبسولات", "Amoun Pharmaceutical", "EDA-22194", "30.00", "مطهر معوي ومضاد للإسهال", "Intestinal antiseptic"},
-		{"كتفاست فوار", "Catafast Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", "فوار", "Novartis", "EDA-54210", "65.00", "مسكن سريع المفعول ومضاد للالتهاب", "Fast acting pain relief"},
-	}
-
-	for _, row := range sampleRows {
+	_ = writer.Write(importSampleHeaders)
+	for _, row := range importSampleRows {
 		_ = writer.Write(row)
 	}
 }
@@ -1568,62 +1550,130 @@ func (h *UIHandler) AdminProductsImportPage(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// AdminProductsSampleXLSX streams a styled Excel (.xlsx) template file for bulk products import.
+// AdminProductsSampleXLSX streams the Excel (.xlsx) import template.
 func (h *UIHandler) AdminProductsSampleXLSX(w http.ResponseWriter, r *http.Request) {
 	f := excelize.NewFile()
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	sheet := "Sheet1"
-	headers := []string{
-		"اسم الصنف بالعربي",
-		"اسم الصنف بالإنجليزي",
-		"الاسم العلمي",
-		"المادة الفعالة",
-		"الشكل الصيدلي",
-		"الشركة المصنعة",
-		"رقم التسجيل EDA",
-		"السعر",
-		"الوصف بالعربي",
-		"الوصف بالإنجليزي",
-	}
-
-	for i, head := range headers {
-		colName, _ := excelize.ColumnNumberToName(i + 1)
-		_ = f.SetCellValue(sheet, fmt.Sprintf("%s1", colName), head)
-	}
-
-	sampleRows := [][]string{
-		{"كونجستال أقراص", "Congestal Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", "أقراص", "Eva Pharma", "EDA-10293", "25.00", "لعلاج أعراض نزلات البرد والإنفلونزا", "For cold and flu relief"},
-		{"بانادول إكسترا", "Panadol Extra", "Paracetamol + Caffeine", "Paracetamol 500mg + Caffeine 65mg", "أقراص", "GSK", "EDA-88421", "35.00", "مسكن للآلام وخافض للحرارة", "Pain reliever and fever reducer"},
-		{"أوجمنتين 1 جم أقراص", "Augmentin 1g Tablets", "Amoxicillin + Clavulanic Acid", "Amoxicillin 875mg + Clavulanate 125mg", "أقراص", "GlaxoSmithKline", "EDA-33910", "89.50", "مضاد حيوي واسع المجال", "Broad spectrum antibiotic"},
-		{"أنتينال كبسول", "Antinal Capsules", "Nifuroxazide", "Nifuroxazide 200mg", "كبسولات", "Amoun Pharmaceutical", "EDA-22194", "30.00", "مطهر معوي ومضاد للإسهال", "Intestinal antiseptic"},
-		{"كتفاست فوار", "Catafast Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", "فوار", "Novartis", "EDA-54210", "65.00", "مسكن سريع المفعول ومضاد للالتهاب", "Fast acting pain relief"},
-	}
-
-	for rIdx, row := range sampleRows {
-		for cIdx, val := range row {
-			colName, _ := excelize.ColumnNumberToName(cIdx + 1)
-			_ = f.SetCellValue(sheet, fmt.Sprintf("%s%d", colName, rIdx+2), val)
+	const sheet = "Sheet1"
+	write := func(rowIdx int, values []string) {
+		for colIdx, value := range values {
+			cell, err := excelize.CoordinatesToCellName(colIdx+1, rowIdx)
+			if err != nil {
+				continue
+			}
+			_ = f.SetCellValue(sheet, cell, value)
 		}
 	}
 
+	write(1, importSampleHeaders)
+	for i, row := range importSampleRows {
+		write(i+2, row)
+	}
+
+	// Right-to-left, so the sheet opens the way an Arabic-speaking admin reads
+	// it and column A is where they expect it.
+	_ = f.SetSheetView(sheet, 0, &excelize.ViewOptions{RightToLeft: boolPtr(true)})
+
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", "attachment; filename=\"dawa24_products_sample.xlsx\"")
-	_ = f.Write(w)
+	if _, err := f.WriteTo(w); err != nil {
+		h.log.ErrorContext(r.Context(), "write products sample xlsx", "error", err)
+	}
 }
+
+func boolPtr(b bool) *bool { return &b }
 
 // AdminProductsImportSubmit handles bulk uploading and parsing of Excel/CSV product files with smart header detection.
 func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	fail := func(view pages.ImportReportView) {
+		h.renderImportReport(w, r, lang, dir, view, http.StatusUnprocessableEntity)
+	}
+
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
+		fail(importFailure("خدمة الكتالوج غير متاحة حالياً. يرجى المحاولة بعد قليل أو التواصل مع الدعم الفني.", ""))
 		return
 	}
 
-	// Limit upload size to 64MB
-	if err := r.ParseMultipartForm(64 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/admin/products/import", "error", "حجم الملف كبير جداً أو تعذر قراءة البيانات (الحد الأقصى 64 ميجابايت).")
+	content, filename, uploadErr := readUploadedFile(r)
+	if uploadErr != nil {
+		h.log.WarnContext(ctx, "import upload rejected", "error", uploadErr)
+		fail(importFailure(uploadErr.message, uploadErr.detail))
 		return
+	}
+
+	sheet, err := catalog.ReadSpreadsheet(content, filename)
+	if err != nil {
+		h.log.WarnContext(ctx, "import file unreadable", "file", filename, "error", err)
+		fail(importFailure(err.Error(), ""))
+		return
+	}
+
+	parsed := catalog.ParseProducts(sheet)
+	view := pages.NewImportReportView(filename, parsed)
+
+	if len(parsed.Products) == 0 {
+		view.Title = "لم يتم العثور على أصناف صالحة"
+		view.Fatal = "تمت قراءة الملف بنجاح، لكن لم يُعثر على أي صف يحتوي على بيانات صنف صالحة. " +
+			"يرجى مراجعة التفاصيل أدناه للتأكد من أن الملف يحتوي على صف عناوين وصفوف بيانات."
+		fail(view)
+		return
+	}
+
+	// The catalogue is a platform-wide master list, so the import deliberately
+	// spans tenants: the admin importing it is not acting as one organisation.
+	written, issues, err := h.catSvc.BulkImportProducts(database.AsSystem(ctx), parsed.Products)
+	view.AddIssues(issues)
+
+	if err != nil {
+		h.log.ErrorContext(ctx, "bulk import failed",
+			"file", filename, "products", len(parsed.Products), "error", err)
+		view.Title = "فشل حفظ الأصناف"
+		view.Fatal = h.importFailureMessage(err, r)
+		view.FatalDetail = "لم يتم حفظ أي صنف — تم التراجع عن العملية بالكامل للحفاظ على سلامة البيانات."
+		view.AddFailures(written.Failures, parsed)
+		fail(view)
+		return
+	}
+
+	view.ApplyWriteResult(written)
+	h.refreshProductIndex(ctx)
+	h.renderImportReport(w, r, lang, dir, view, http.StatusOK)
+}
+
+// importFailure builds the report view for an import that never got started.
+func importFailure(message, detail string) pages.ImportReportView {
+	return pages.ImportReportView{
+		Title:       "تعذر استيراد الملف",
+		Fatal:       message,
+		FatalDetail: detail,
+	}
+}
+
+// uploadError carries an admin-facing reason alongside the technical detail,
+// which is shown smaller and logged rather than being the headline.
+type uploadError struct {
+	message string
+	detail  string
+}
+
+func (e *uploadError) Error() string { return e.message }
+
+// readUploadedFile pulls the spreadsheet out of the multipart request.
+//
+// The field is accepted under two names because two different screens post here
+// — the import wizard sends "import_file" and the older warehouse upload form
+// sends "file".
+func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
+	if err := r.ParseMultipartForm(maxImportUploadBytes); err != nil {
+		return nil, "", &uploadError{
+			message: fmt.Sprintf("تعذرت قراءة الملف المرفوع. الحد الأقصى لحجم الملف هو %d ميجابايت.",
+				maxImportUploadBytes>>20),
+			detail: err.Error(),
+		}
 	}
 
 	file, header, err := r.FormFile("import_file")
@@ -1631,51 +1681,88 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 		file, header, err = r.FormFile("file")
 	}
 	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/products/import", "error", "يرجى اختيار ملف CSV أو Excel صالح للاستيراد.")
-		return
+		return nil, "", &uploadError{
+			message: "لم يتم اختيار أي ملف. يرجى اختيار ملف Excel (.xlsx) أو CSV ثم الضغط على «بدء الاستيراد».",
+		}
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
-	content, err := io.ReadAll(file)
-	if err != nil || len(content) == 0 {
-		h.redirectWithNotice(w, r, "/admin/products/import", "error", "الملف المرفوع فارغ أو تعذرت قراءته.")
-		return
+	// One byte past the cap, so a file exactly at the limit still reads whole
+	// and anything larger is detectable without buffering all of it.
+	content, err := io.ReadAll(io.LimitReader(file, maxImportUploadBytes+1))
+	if err != nil {
+		return nil, "", &uploadError{
+			message: "تعذرت قراءة محتوى الملف المرفوع. يرجى إعادة المحاولة.",
+			detail:  err.Error(),
+		}
+	}
+	if int64(len(content)) > maxImportUploadBytes {
+		return nil, "", &uploadError{
+			message: fmt.Sprintf("حجم الملف يتجاوز الحد الأقصى المسموح به (%d ميجابايت).",
+				maxImportUploadBytes>>20),
+		}
 	}
 
 	filename := ""
 	if header != nil {
 		filename = header.Filename
 	}
+	return content, filename, nil
+}
 
-	records, err := catalog.ParseUploadedSpreadsheet(content, filename)
-	if err != nil || len(records) < 1 {
-		h.redirectWithNotice(w, r, "/admin/products/import", "error", fmt.Sprintf("تنسيق الملف غير صالح: %v", err))
+// maxImportUploadBytes caps an uploaded catalogue file. The largest real
+// distributor export seen is a few megabytes; 32 MB leaves ample headroom while
+// keeping a single request from holding that much memory.
+const maxImportUploadBytes int64 = 32 << 20
+
+// importFailureMessage prefers the domain's own Arabic message and falls back to
+// the raw error, which for a write failure names the offending rows.
+func (h *UIHandler) importFailureMessage(err error, r *http.Request) string {
+	if msg := h.safeMessage(err, langOf(r)); msg != "" && msg != "حدث خطأ غير متوقع" {
+		return msg
+	}
+	return err.Error()
+}
+
+// renderImportReport writes the import result as a page rather than a redirect.
+//
+// The previous handler pushed every outcome into ?notice=&msg= and redirected,
+// which is why a failed import showed up as a wall of percent-encoded Arabic in
+// the address bar. A URL cannot carry a per-row error table, and an import of
+// nine thousand rows has nothing useful to say in one toast.
+func (h *UIHandler) renderImportReport(
+	w http.ResponseWriter, r *http.Request,
+	lang, dir string, view pages.ImportReportView, status int,
+) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	if err := pages.AdminProductsImportReport(lang, dir, view).Render(r.Context(), w); err != nil {
+		h.log.ErrorContext(r.Context(), "render import report", "error", err)
+	}
+}
+
+// refreshProductIndex rebuilds the denormalised search table after an import.
+//
+// catalog.product_index is what the storefront and the fast search read; it is
+// populated from catalog.products and does not update itself. Without this an
+// admin imports nine thousand products, sees them in the admin list, and cannot
+// find a single one from the customer-facing search.
+func (h *UIHandler) refreshProductIndex(ctx context.Context) {
+	if h.catSvc == nil {
 		return
 	}
-
-	// Parse records using intelligent header detector, repeated header filter, and pharmaceutical extractor
-	products, stats := catalog.ParseProductRows(records)
-	if len(products) == 0 {
-		h.redirectWithNotice(w, r, "/admin/products/import", "error", "لم يتم العثور على أي صفوف أصناف صالحة في الملف. يرجى التأكد من محتوى الملف.")
-		return
-	}
-
-	sysCtx := database.AsSystem(ctx)
-	inserted, updated, err := h.catSvc.BulkImportProducts(sysCtx, products)
-	if err != nil {
-		h.log.ErrorContext(ctx, "bulk import failed", "error", err)
-		msg := h.safeMessage(err, langOf(r))
-		if msg == "" || msg == "حدث خطأ غير متوقع" {
-			msg = err.Error()
+	// Detached from the request: the admin should not wait on it, and a client
+	// disconnect must not abort a rebuild that is already underway.
+	go func() {
+		bg, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
+		defer cancel()
+		count, err := h.catSvc.RebuildProductIndex(database.AsSystem(bg))
+		if err != nil {
+			h.log.ErrorContext(bg, "rebuild product index after import", "error", err)
+			return
 		}
-		h.redirectWithNotice(w, r, "/admin/products/import", "error", fmt.Sprintf("حدث خطأ أثناء حفظ الأصناف: %s", msg))
-		return
-	}
-
-	successMsg := fmt.Sprintf("تم استيراد وتحديث %d صنف دوائي بنجاح في الكتالوج المعتمد (تم فحص %d صفاً، وتخطي %d سطر تكرار طباعة/فارغ).",
-		inserted+updated, stats.TotalRowsRead, stats.RepeatedHeader+stats.EmptyRows)
-
-	h.redirectWithNotice(w, r, "/admin/products", "success", successMsg)
+		h.log.InfoContext(bg, "product index rebuilt after import", "rows", count)
+	}()
 }
 
 // AdminOffersPage renders the offer moderation list.

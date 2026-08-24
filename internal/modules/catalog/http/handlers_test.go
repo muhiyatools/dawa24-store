@@ -29,9 +29,9 @@ func (r stubRepo) CreateProduct(ctx context.Context, p *catalog.Product) error {
 	r.fail("CreateProduct")
 	return nil
 }
-func (r stubRepo) BulkUpsertProducts(ctx context.Context, prods []*catalog.Product) (int, int, error) {
+func (r stubRepo) BulkUpsertProducts(ctx context.Context, prods []*catalog.Product) (catalog.BulkWriteResult, error) {
 	r.fail("BulkUpsertProducts")
-	return 0, 0, nil
+	return catalog.BulkWriteResult{}, nil
 }
 func (r stubRepo) GetProductByID(ctx context.Context, id int64) (*catalog.Product, error) {
 	r.fail("GetProductByID")

@@ -2,11 +2,14 @@ package catalog
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Service coordinates product catalog business logic.
@@ -57,31 +60,74 @@ func (s *Service) CreateProduct(ctx context.Context, p *Product) (*Product, erro
 	return p, nil
 }
 
-// BulkImportProducts imports a batch of products into the master catalog.
-func (s *Service) BulkImportProducts(ctx context.Context, prods []*Product) (int, int, error) {
+// maxImportBatch bounds one upload. Ten thousand rows is roughly the largest
+// real distributor catalogue and already takes several seconds inside a single
+// transaction; beyond that the request would outlive its own timeout and hold
+// write locks on catalog.products the whole time.
+const maxImportBatch = 20000
+
+// BulkImportProducts writes a parsed batch into the master catalogue.
+//
+// Rows are validated here, before the write, so a bad value is reported against
+// its product rather than aborting a transaction halfway through. Products that
+// fail validation are dropped from the batch and named in the returned issues;
+// the write itself stays all-or-nothing.
+func (s *Service) BulkImportProducts(ctx context.Context, prods []*Product) (BulkWriteResult, []RowIssue, error) {
+	empty := BulkWriteResult{Matches: map[int]MatchReason{}}
 	if len(prods) == 0 {
-		return 0, 0, nil
+		return empty, nil, nil
+	}
+	if len(prods) > maxImportBatch {
+		return empty, nil, apperr.Validation("catalog.import_too_large",
+			fmt.Sprintf("الملف يحتوي على %d صنف، والحد الأقصى المسموح به في عملية الاستيراد الواحدة هو %d صنف. يرجى تقسيم الملف.",
+				len(prods), maxImportBatch), nil)
 	}
 
-	// Clean and validate products
-	var validProds []*Product
-	for _, p := range prods {
-		if p != nil && !p.Name.IsEmpty() {
-			if p.Status == "" {
-				p.Status = StatusActive
-			}
-			validProds = append(validProds, p)
+	valid := make([]*Product, 0, len(prods))
+	var issues []RowIssue
+
+	for i, p := range prods {
+		if p == nil {
+			continue
 		}
+		if err := p.Validate(); err != nil {
+			issues = append(issues, RowIssue{
+				Row:      i + 1,
+				Value:    p.Name.Get(i18n.AR),
+				Message:  s.validationMessage(err),
+				Severity: SeverityError,
+			})
+			continue
+		}
+		valid = append(valid, p)
 	}
 
-	inserted, updated, err := s.repo.BulkUpsertProducts(ctx, validProds)
+	if len(valid) == 0 {
+		return empty, issues, apperr.Validation("catalog.import_no_valid_rows",
+			"لا يوجد أي صنف صالح للاستيراد بعد التحقق من البيانات.", nil)
+	}
+
+	res, err := s.repo.BulkUpsertProducts(ctx, valid)
 	if err != nil {
-		s.log.ErrorContext(ctx, "bulk import products failed", "count", len(validProds), "error", err)
-		return inserted, updated, err
+		s.log.ErrorContext(ctx, "bulk import products failed",
+			"count", len(valid), "failures", len(res.Failures), "error", err)
+		return res, issues, err
 	}
 
-	s.log.InfoContext(ctx, "bulk import products completed", "inserted", inserted, "updated", updated, "total", len(validProds))
-	return inserted, updated, nil
+	s.log.InfoContext(ctx, "bulk import products completed",
+		"inserted", res.Inserted, "updated", res.Updated,
+		"brands_created", res.BrandsCreated, "submitted", len(valid))
+	return res, issues, nil
+}
+
+// validationMessage renders a domain validation failure for the import report,
+// preferring the Arabic message the rule carries.
+func (s *Service) validationMessage(err error) string {
+	var appErr *apperr.Error
+	if errors.As(err, &appErr) && appErr.Msg != "" {
+		return appErr.Msg
+	}
+	return err.Error()
 }
 
 // GetProduct retrieves a product and its associated active variants.
@@ -418,4 +464,3 @@ func (s *Service) BatchUpsertSavingProducts(ctx context.Context, orgID int64, us
 func (s *Service) ListAllSavingProductsAdmin(ctx context.Context, userID *int64, orgID *int64, search string, filter string, limit, offset int) ([]*SavingProductAdminView, *SavingProductAdminStats, error) {
 	return s.repo.ListAllSavingProductsAdmin(ctx, userID, orgID, search, filter, limit, offset)
 }
-

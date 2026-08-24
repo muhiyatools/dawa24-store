@@ -3,14 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
-	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // Repository implements catalog.Repository using PostgreSQL.
@@ -21,138 +19,6 @@ type Repository struct {
 // NewRepository creates a PostgreSQL catalog repository.
 func NewRepository(db *database.DB) *Repository {
 	return &Repository{db: db}
-}
-
-// BulkUpsertProducts inserts or updates a slice of products in high-performance chunks.
-func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Product) (int, int, error) {
-	if len(prods) == 0 {
-		return 0, 0, nil
-	}
-
-	var insertedCount, updatedCount int
-
-	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		// 1. Resolve fallback organization ID once
-		var defaultOrgID int64
-		_ = tx.QueryRow(txCtx, `SELECT id FROM org.organizations WHERE status = 'approved' ORDER BY id ASC LIMIT 1`).Scan(&defaultOrgID)
-		if defaultOrgID <= 0 {
-			_ = tx.QueryRow(txCtx, `SELECT id FROM org.organizations ORDER BY id ASC LIMIT 1`).Scan(&defaultOrgID)
-		}
-		if defaultOrgID <= 0 {
-			_ = tx.QueryRow(txCtx, `
-				INSERT INTO org.organizations (name, type, status)
-				VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
-				RETURNING id
-			`).Scan(&defaultOrgID)
-		}
-
-		// 2. Cache brands for fast in-memory lookup and auto-registration
-		brandMap := make(map[string]int64)
-		rows, err := tx.Query(txCtx, `SELECT id, COALESCE(name->>'ar', ''), COALESCE(name->>'en', '') FROM catalog.brands WHERE deleted_at IS NULL`)
-		if err == nil {
-			for rows.Next() {
-				var bID int64
-				var bAr, bEn string
-				if err := rows.Scan(&bID, &bAr, &bEn); err == nil {
-					if bAr != "" {
-						brandMap[strings.ToLower(strings.TrimSpace(bAr))] = bID
-					}
-					if bEn != "" {
-						brandMap[strings.ToLower(strings.TrimSpace(bEn))] = bID
-					}
-				}
-			}
-			rows.Close()
-		}
-
-		// 3. Pre-register any new brands before batch processing
-		for _, p := range prods {
-			if p.ManufacturingCompanies != "" && (p.BrandID == nil || *p.BrandID <= 0) {
-				cleanMfr := strings.ToLower(strings.TrimSpace(p.ManufacturingCompanies))
-				if bid, ok := brandMap[cleanMfr]; ok {
-					p.BrandID = &bid
-				} else if len(cleanMfr) > 2 {
-					var newBrandID int64
-					err := tx.QueryRow(txCtx, `
-						INSERT INTO catalog.brands (name, status)
-						VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), 'active')
-						RETURNING id
-					`, p.ManufacturingCompanies).Scan(&newBrandID)
-					if err == nil && newBrandID > 0 {
-						brandMap[cleanMfr] = newBrandID
-						p.BrandID = &newBrandID
-					}
-				}
-			}
-		}
-
-		// 4. Process products in pipelined batches of 200
-		chunkSize := 200
-		insertQuery := `
-			INSERT INTO catalog.products (
-				organization_id, category_id, brand_id, branch_id, name, description,
-				sku, barcode, price, discount, old_price, image, image_link, status,
-				is_featured, dosage_form, scientific_name, pharmacology, active,
-				concentration, unit, manufacturing_companies, institutional_work_ids
-			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, COALESCE($23, '{}')
-			) RETURNING id;
-		`
-
-		for i := 0; i < len(prods); i += chunkSize {
-			end := i + chunkSize
-			if end > len(prods) {
-				end = len(prods)
-			}
-			chunk := prods[i:end]
-
-			batch := &pgx.Batch{}
-			for _, p := range chunk {
-				if p.OrganizationID <= 0 {
-					p.OrganizationID = defaultOrgID
-				}
-				if p.Status == "" {
-					p.Status = catalog.StatusActive
-				}
-				if p.Price.IsZero() {
-					p.Price = money.Zero
-				}
-				if p.Discount.IsZero() {
-					p.Discount = money.Zero
-				}
-				if p.OldPrice.IsZero() {
-					p.OldPrice = money.Zero
-				}
-				if p.InstitutionalWorkIDs == nil {
-					p.InstitutionalWorkIDs = []int64{}
-				}
-
-				batch.Queue(insertQuery,
-					p.OrganizationID, p.CategoryID, p.BrandID, p.BranchID, p.Name, p.Description,
-					p.SKU, p.Barcode, p.Price, p.Discount, p.OldPrice, p.Image, p.ImageLink,
-					string(p.Status), p.IsFeatured, p.DosageForm, p.ScientificName,
-					p.Pharmacology, p.Active, p.Concentration, p.Unit, p.ManufacturingCompanies,
-					p.InstitutionalWorkIDs,
-				)
-			}
-
-			br := tx.SendBatch(txCtx, batch)
-			for _, p := range chunk {
-				var newID int64
-				if err := br.QueryRow().Scan(&newID); err == nil {
-					insertedCount++
-					p.ID = newID
-				}
-			}
-			if err := br.Close(); err != nil {
-				return fmt.Errorf("bulk batch close failed: %w", err)
-			}
-		}
-
-		return nil
-	})
-
-	return insertedCount, updatedCount, err
 }
 
 // CreateProduct inserts a new product for the active organization.

@@ -580,3 +580,88 @@
 @media (prefers-reduced-motion: reduce) {
 	.capsule-dot { animation: none; opacity: 0.6; }
 }
+
+/* ---------------------------------------------------------------------------
+   Import report
+   ---------------------------------------------------------------------------
+   The bulk catalogue import used to report itself through ?notice=&msg= and a
+   toast, which could carry one sentence. An import of nine thousand rows has a
+   per-column reading, a per-row findings list, and a set of counts to explain,
+   so it gets a page. These classes are what that page is built from.
+   --------------------------------------------------------------------------- */
+.import-report {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	max-width: 1100px;
+	margin: 0 auto 3rem auto;
+}
+
+.import-banner {
+	border-radius: var(--radius-md);
+	border: 1px solid var(--border);
+	padding: 1.25rem 1.5rem;
+	background: var(--surface-sunken);
+}
+.import-banner--ok    { border-inline-start: 4px solid var(--success, #10b981); }
+.import-banner--error { border-inline-start: 4px solid var(--danger, #ef4444); }
+.import-banner-title  { font-size: 1.25rem; font-weight: 800; margin: 0 0 0.35rem 0; }
+.import-banner-text   { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+.import-banner-detail { font-size: 0.8rem; color: var(--text-muted); margin: 0.5rem 0 0 0; }
+
+.import-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 1rem;
+}
+
+.import-stat {
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	padding: 1rem;
+	background: var(--surface);
+	text-align: center;
+}
+.import-stat-value {
+	display: block;
+	font-size: 1.6rem;
+	font-weight: 800;
+	line-height: 1.2;
+	font-variant-numeric: tabular-nums;
+}
+.import-stat-label { font-size: 0.8rem; color: var(--text-secondary); }
+.import-stat--ok    .import-stat-value { color: var(--success, #10b981); }
+.import-stat--warn  .import-stat-value { color: var(--warning, #f59e0b); }
+.import-stat--error .import-stat-value { color: var(--danger, #ef4444); }
+
+.import-section-title {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0 0 0.75rem 0;
+}
+
+.import-note {
+	font-size: 0.85rem;
+	color: var(--text-muted);
+	margin: 0 0 1rem 0;
+}
+
+/* A long findings table scrolls inside its own box; the page itself must never
+   scroll sideways on a phone. */
+.import-scroll {
+	max-height: 26rem;
+	overflow: auto;
+}
+
+.import-actions {
+	display: flex;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
+.import-chip-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+}
