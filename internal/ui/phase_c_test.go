@@ -77,10 +77,14 @@ func TestPhaseC_AdminReferenceData(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Contains(t, rec.Body.String(), "فئات المنتجات")
 
-	// Highlight Sections
+	// Highlight Sections (Redirects to Content sections tab)
 	rec = doGET(t, r, "/admin/highlight-sections", adminActor)
+	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
+
+	// Content & Sections Management
+	rec = doGET(t, r, "/admin/content", adminActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "الأقسام المميزة والعروض البارزة")
+	assert.Contains(t, rec.Body.String(), "محتوى الصفحات والأقسام")
 
 	// API Integrations (Redirects to Developers)
 	rec = doGET(t, r, "/admin/api-integrations", adminActor)

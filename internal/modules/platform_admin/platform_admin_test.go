@@ -118,6 +118,14 @@ func (m *mockPlatformAdminRepo) UpsertContentBlock(_ context.Context, _ *Content
 	return nil
 }
 
+func (m *mockPlatformAdminRepo) ToggleContentBlockStatus(_ context.Context, _ int64) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) DeleteContentBlock(_ context.Context, _ int64) error {
+	return nil
+}
+
 func (m *mockPlatformAdminRepo) RecordVisitor(_ context.Context, _ *Visitor) error {
 	return nil
 }

@@ -69,7 +69,7 @@ func GetFAQs() []FAQItem {
 	}
 }
 
-func FAQPage(lang, dir string) templ.Component {
+func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -110,51 +110,91 @@ func FAQPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز المساعدة والمعلومات</span></div><h1 style=\"font-size:2.2rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;\">الأسئلة الشائعة وإرشادات الاستخدام</h1><p style=\"color:var(--text-secondary); font-size:0.95rem; max-width:620px; margin:0 auto;\">كل ما تحتاج لمعرفته حول طلب وتوريد الأدوية، شروط التعامل، وسياسات الدفع والشحن عبر منصة دواء 24.</p></div><!-- Category Filter Tabs --><div style=\"display:flex; justify-content:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:2rem;\"><button type=\"button\" @click=\"activeCategory = 'all'\" class=\"btn btn-sm\" :class=\"activeCategory === 'all' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">جميع الأسئلة</button> <button type=\"button\" @click=\"activeCategory = 'عام ونظرة عامة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'عام ونظرة عامة' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">عام ونظرة عامة</button> <button type=\"button\" @click=\"activeCategory = 'الطلبات والتوريد'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الطلبات والتوريد' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">الطلبات والتوريد</button> <button type=\"button\" @click=\"activeCategory = 'الشحن والجودة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الشحن والجودة' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">الشحن وسلسلة التبريد</button> <button type=\"button\" @click=\"activeCategory = 'الدفع والفواتير'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الدفع والفواتير' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">الدفع والفواتير</button> <button type=\"button\" @click=\"activeCategory = 'انضمام الموردين'\" class=\"btn btn-sm\" :class=\"activeCategory === 'انضمام الموردين' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">انضمام الموردين</button></div><!-- FAQ List Accordion --><div style=\"display:flex; flex-direction:column; gap:0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز المساعدة والمعلومات</span></div><h1 style=\"font-size:2.2rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, item := range GetFAQs() {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card mb-0\" style=\"padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); transition:border-color 0.2s ease;\" x-data=\"{ open: false }\" x-show=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			if customTitle != "" {
 				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue("activeCategory === 'all' || activeCategory === '" + item.Category + "'")
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(customTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 147, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 76, Col: 19}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" :style=\"open ? 'border-color:var(--accent);' : ''\"><div style=\"display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:1rem;\" @click=\"open = !open\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.725rem; font-weight:700;\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "الأسئلة الشائعة وإرشادات الاستخدام")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p style=\"color:var(--text-secondary); font-size:0.95rem; max-width:620px; margin:0 auto; white-space:pre-wrap;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if customSubtitle != "" {
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(item.Category)
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(customSubtitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 156, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 83, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">")
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "كل ما تحتاج لمعرفته حول طلب وتوريد الأدوية، شروط التعامل، وسياسات الدفع والشحن عبر منصة دواء 24.")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div><!-- Category Filter Tabs --><div style=\"display:flex; justify-content:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:2rem;\"><button type=\"button\" @click=\"activeCategory = 'all'\" class=\"btn btn-sm\" :class=\"activeCategory === 'all' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">جميع الأسئلة</button> <button type=\"button\" @click=\"activeCategory = 'عام ونظرة عامة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'عام ونظرة عامة' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">عام ونظرة عامة</button> <button type=\"button\" @click=\"activeCategory = 'الطلبات والتوريد'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الطلبات والتوريد' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">الطلبات والتوريد</button> <button type=\"button\" @click=\"activeCategory = 'الشحن والجودة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الشحن والجودة' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">الشحن وسلسلة التبريد</button> <button type=\"button\" @click=\"activeCategory = 'الدفع والفواتير'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الدفع والفواتير' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">الدفع والفواتير</button> <button type=\"button\" @click=\"activeCategory = 'انضمام الموردين'\" class=\"btn btn-sm\" :class=\"activeCategory === 'انضمام الموردين' ? 'btn-primary' : 'btn-secondary'\" style=\"font-size:0.825rem; font-weight:700; border-radius:var(--radius-full); padding:0.4rem 1rem;\">انضمام الموردين</button></div><!-- FAQ List Accordion --><div style=\"display:flex; flex-direction:column; gap:0.75rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, item := range GetFAQs() {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"card mb-0\" style=\"padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); transition:border-color 0.2s ease;\" x-data=\"{ open: false }\" x-show=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(item.Question)
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue("activeCategory === 'all' || activeCategory === '" + item.Category + "'")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 159, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 155, Col: 87}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h3></div><div style=\"color:var(--accent); transition:transform 0.2s ease; flex-shrink:0;\" :style=\"open ? 'transform: rotate(180deg)' : ''\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" :style=\"open ? 'border-color:var(--accent);' : ''\"><div style=\"display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:1rem;\" @click=\"open = !open\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.725rem; font-weight:700;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var6 string
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(item.Category)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 164, Col: 24}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(item.Question)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 167, Col: 24}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h3></div><div style=\"color:var(--accent); transition:transform 0.2s ease; flex-shrink:0;\" :style=\"open ? 'transform: rotate(180deg)' : ''\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -162,25 +202,25 @@ func FAQPage(lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div><div x-show=\"open\" x-cloak x-collapse style=\"margin-top:0.85rem; padding-top:0.85rem; border-top:1px solid var(--border); color:var(--text-secondary); font-size:0.9rem; line-height:1.8;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div x-show=\"open\" x-cloak x-collapse style=\"margin-top:0.85rem; padding-top:0.85rem; border-top:1px solid var(--border); color:var(--text-secondary); font-size:0.9rem; line-height:1.8;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(item.Answer)
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(item.Answer)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 172, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 180, Col: 20}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><!-- Contact Support Card --><div class=\"card mb-0\" style=\"margin-top:2.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); padding:2rem;\"><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;\">لم تجد إجابة لاستفسارك؟</h3><p style=\"color:var(--text-secondary); font-size:0.875rem; margin:0 auto 1.25rem auto; max-width:500px;\">فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.</p><div style=\"display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/contact\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700; padding:0.55rem 1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- Contact Support Card --><div class=\"card mb-0\" style=\"margin-top:2.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); padding:2rem;\"><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;\">لم تجد إجابة لاستفسارك؟</h3><p style=\"color:var(--text-secondary); font-size:0.875rem; margin:0 auto 1.25rem auto; max-width:500px;\">فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.</p><div style=\"display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/contact\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700; padding:0.55rem 1.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -188,7 +228,7 @@ func FAQPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>إرسال استفسار عبر نموذج التواصل</span></a> <a href=\"tel:01065397000\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; padding:0.55rem 1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>إرسال استفسار عبر نموذج التواصل</span></a> <a href=\"tel:01065397000\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; padding:0.55rem 1.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -196,7 +236,7 @@ func FAQPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>اتصال هاتفي: 01065397000</span></a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>اتصال هاتفي: 01065397000</span></a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -61,7 +61,7 @@ func GetFAQs() []FAQItem {
 	}
 }
 
-templ FAQPage(lang, dir string) {
+templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 	@layouts.PublicShell("الأسئلة الشائعة وإرشادات الاستخدام | FAQ", lang, dir) {
 		<div class="faq-page-container" style="max-width:960px; margin:1.5rem auto 4rem auto; padding:0 1rem;" x-data="{ activeCategory: 'all' }">
 			
@@ -72,10 +72,18 @@ templ FAQPage(lang, dir string) {
 					<span>مركز المساعدة والمعلومات</span>
 				</div>
 				<h1 style="font-size:2.2rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;">
-					الأسئلة الشائعة وإرشادات الاستخدام
+					if customTitle != "" {
+						{ customTitle }
+					} else {
+						الأسئلة الشائعة وإرشادات الاستخدام
+					}
 				</h1>
-				<p style="color:var(--text-secondary); font-size:0.95rem; max-width:620px; margin:0 auto;">
-					كل ما تحتاج لمعرفته حول طلب وتوريد الأدوية، شروط التعامل، وسياسات الدفع والشحن عبر منصة دواء 24.
+				<p style="color:var(--text-secondary); font-size:0.95rem; max-width:620px; margin:0 auto; white-space:pre-wrap;">
+					if customSubtitle != "" {
+						{ customSubtitle }
+					} else {
+						كل ما تحتاج لمعرفته حول طلب وتوريد الأدوية، شروط التعامل، وسياسات الدفع والشحن عبر منصة دواء 24.
+					}
 				</p>
 			</div>
 

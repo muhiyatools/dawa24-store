@@ -80,8 +80,19 @@ func TestAdminReferenceRoutes(t *testing.T) {
 			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/highlight-sections returns 200",
+			name:   "Super admin GET /admin/highlight-sections returns 301",
 			path:   "/admin/highlight-sections",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusMovedPermanently,
+		},
+		{
+			name:   "Super admin GET /admin/content returns 200",
+			path:   "/admin/content",
 			method: "GET",
 			actor: &authctx.Actor{
 				UserID:  1,

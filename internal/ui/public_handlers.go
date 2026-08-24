@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -43,6 +44,13 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 			h.log.WarnContext(ctx, "home page: list categories", "error", err)
 		} else {
 			categories = cats
+		}
+	}
+
+	if h.adminSvc != nil {
+		if b, err := h.adminSvc.GetContentBlockByKey(ctx, "home-hero"); err == nil && b != nil && b.IsActive {
+			stats.HeroTitle = b.Title.Get(i18n.Lang(lang))
+			stats.HeroSubtitle = b.Body.Get(i18n.Lang(lang))
 		}
 	}
 

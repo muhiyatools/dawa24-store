@@ -99,6 +99,14 @@ func (r stubRepo) UpsertContentBlock(context.Context, *platformadmin.ContentBloc
 	r.fail("UpsertContentBlock")
 	return nil
 }
+func (r stubRepo) ToggleContentBlockStatus(context.Context, int64) error {
+	r.fail("ToggleContentBlockStatus")
+	return nil
+}
+func (r stubRepo) DeleteContentBlock(context.Context, int64) error {
+	r.fail("DeleteContentBlock")
+	return nil
+}
 
 func (r stubRepo) RecordVisitor(context.Context, *platformadmin.Visitor) error {
 	r.fail("RecordVisitor")
@@ -270,6 +278,14 @@ func (happyRepo) GetContentBlockByKey(ctx context.Context, key string) (*platfor
 
 func (happyRepo) UpsertContentBlock(ctx context.Context, b *platformadmin.ContentBlock) error {
 	b.ID = 1
+	return nil
+}
+
+func (happyRepo) ToggleContentBlockStatus(ctx context.Context, id int64) error {
+	return nil
+}
+
+func (happyRepo) DeleteContentBlock(ctx context.Context, id int64) error {
 	return nil
 }
 

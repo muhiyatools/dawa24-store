@@ -13,7 +13,20 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-func AboutPage(lang, dir string) templ.Component {
+// AboutPageData holds editable content for the About Us page.
+type AboutPageData struct {
+	HeroBadge    string
+	HeroTitle    string
+	HeroSubtitle string
+	VisionTitle  string
+	VisionText   string
+	MissionTitle string
+	MissionText  string
+	BannerTitle  string
+	BannerText   string
+}
+
+func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -54,7 +67,71 @@ func AboutPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>شركة DAWA24 للتكنولوجيا وحلول الإمداد الدوائي</span></div><h1 style=\"font-size:2.4rem; font-weight:900; color:var(--text); margin-bottom:1rem; letter-spacing:-0.02em; line-height:1.3;\">من نحن — منصة التوريد الدوائي الذكية</h1><p style=\"color:var(--text-secondary); font-size:1.05rem; max-width:760px; margin:0 auto; line-height:1.9;\">دواء 24 هي المنظومة الرقمية الرائدة في جمهورية مصر العربية المصممة لربط الصيدليات، المستشفيات، والمراكز الطبية المرخصة مباشرة بمصانع وشركات ومستودعات توزيع الأدوية المعتمدة، لخلق سوق دوائي موثوق، شفاف، وفائق الكفاءة.</p></section><!-- Mission and Vision Cards --><section style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; margin-bottom:2.5rem;\"><div class=\"card mb-0\" style=\"padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;\">")
+			if data.HeroBadge != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroBadge)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 30, Col: 28}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>شركة DAWA24 للتكنولوجيا وحلول الإمداد الدوائي</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><h1 style=\"font-size:2.4rem; font-weight:900; color:var(--text); margin-bottom:1rem; letter-spacing:-0.02em; line-height:1.3;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.HeroTitle != "" {
+				var templ_7745c5c3_Var4 string
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroTitle)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 37, Col: 22}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "من نحن — منصة التوريد الدوائي الذكية")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h1><p style=\"color:var(--text-secondary); font-size:1.05rem; max-width:760px; margin:0 auto; line-height:1.9; white-space:pre-wrap;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.HeroSubtitle != "" {
+				var templ_7745c5c3_Var5 string
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroSubtitle)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 44, Col: 25}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "دواء 24 هي المنظومة الرقمية الرائدة في جمهورية مصر العربية المصممة لربط الصيدليات، المستشفيات، والمراكز الطبية المرخصة مباشرة بمصانع وشركات ومستودعات توزيع الأدوية المعتمدة، لخلق سوق دوائي موثوق، شفاف، وفائق الكفاءة.")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></section><!-- Mission and Vision Cards --><section style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; margin-bottom:2.5rem;\"><div class=\"card mb-0\" style=\"padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -62,7 +139,47 @@ func AboutPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><h3 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">رؤيتنا</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0;\">أن نكون البنية التحتية الرقمية الأكثر أماناً وموثوقية لسلاسل الإمداد والتوريد الدوائي في الشرق الأوسط وإفريقيا، وضمان توافر الدواء بجودة قياسية وأسعار عادلة لكل مريض عبر تمكين الصيدلي والمورد.</p></div><div class=\"card mb-0\" style=\"padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><h3 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.VisionTitle != "" {
+				var templ_7745c5c3_Var6 string
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionTitle)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 59, Col: 25}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "رؤيتنا")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0; white-space:pre-wrap;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.VisionText != "" {
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionText)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 66, Col: 24}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "أن نكون البنية التحتية الرقمية الأكثر أماناً وموثوقية لسلاسل الإمداد والتوريد الدوائي في الشرق الأوسط وإفريقيا، وضمان توافر الدواء بجودة قياسية وأسعار عادلة لكل مريض عبر تمكين الصيدلي والمورد.")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</p></div><div class=\"card mb-0\" style=\"padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -70,7 +187,47 @@ func AboutPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><h3 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">رسالتنا</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0;\">القضاء على تعقيدات ونواقص التوريد التقليدي عبر توفير منصة إلكترونية ذكية تتيح مقارنة الأسعار، الشراء المباشر، الفواتير الإلكترونية المعتمدة، وسلاسل التبريد المتطورة بدعم تقني وصيدلي متواصل 24/7.</p></div></section><!-- Strategic Pillars --><section class=\"card mb-0\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; margin-bottom:2.5rem;\"><div style=\"text-align:center; margin-bottom:2.5rem;\"><h2 style=\"font-size:1.75rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;\">ركائز العمل في منصة دواء 24</h2><p style=\"color:var(--text-secondary); font-size:0.95rem; margin:0;\">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;\"><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h3 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.MissionTitle != "" {
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionTitle)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 79, Col: 26}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "رسالتنا")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0; white-space:pre-wrap;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.MissionText != "" {
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionText)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 86, Col: 25}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "القضاء على تعقيدات ونواقص التوريد التقليدي عبر توفير منصة إلكترونية ذكية تتيح مقارنة الأسعار، الشراء المباشر، الفواتير الإلكترونية المعتمدة، وسلاسل التبريد المتطورة بدعم تقني وصيدلي متواصل 24/7.")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p></div></section><!-- Strategic Pillars --><section class=\"card mb-0\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; margin-bottom:2.5rem;\"><div style=\"text-align:center; margin-bottom:2.5rem;\"><h2 style=\"font-size:1.75rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;\">ركائز العمل في منصة دواء 24</h2><p style=\"color:var(--text-secondary); font-size:0.95rem; margin:0;\">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;\"><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,7 +235,7 @@ func AboutPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">توثيق التراخيص الرسمية</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">توثيق التراخيص الرسمية</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -86,7 +243,7 @@ func AboutPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">سلسلة تبريد معتمدة (Cold-Chain)</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">سلسلة تبريد معتمدة (Cold-Chain)</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -94,7 +251,7 @@ func AboutPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">تكامل الفاتورة الإلكترونية</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">تكامل الفاتورة الإلكترونية</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -102,7 +259,47 @@ func AboutPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">دعم فني واستشارات 24/7</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p></div></div></section><!-- Registration Banner --><section class=\"card mb-0\" style=\"background:var(--accent-subtle); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center;\"><h2 style=\"font-size:1.85rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">كن جزءاً من مستقبل التوريد الدوائي الذكي</h2><p style=\"color:var(--text-secondary); font-size:0.95rem; max-width:600px; margin:0 auto 1.75rem auto; line-height:1.8;\">سواء كنت صيدلية تسعى لتأمين احتياجاتها بأفضل الأسعار، أو مورداً يريد توسيع قاعدة عملائه، دواء 24 هو شريكك الاستراتيجي.</p><div style=\"display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;\"><a href=\"/auth/register\" class=\"btn btn-primary\" style=\"font-size:0.95rem; font-weight:800; padding:0.65rem 1.75rem;\"><span>تسجيل صيدلية جديدة</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary\" style=\"font-size:0.95rem; font-weight:700; padding:0.65rem 1.75rem;\"><span>انضمام كشريك مورد</span></a></div></section></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">دعم فني واستشارات 24/7</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p></div></div></section><!-- Registration Banner --><section class=\"card mb-0\" style=\"background:var(--accent-subtle); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center;\"><h2 style=\"font-size:1.85rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.BannerTitle != "" {
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.BannerTitle)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 142, Col: 24}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "كن جزءاً من مستقبل التوريد الدوائي الذكي")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</h2><p style=\"color:var(--text-secondary); font-size:0.95rem; max-width:600px; margin:0 auto 1.75rem auto; line-height:1.8; white-space:pre-wrap;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.BannerText != "" {
+				var templ_7745c5c3_Var11 string
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.BannerText)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 149, Col: 23}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "سواء كنت صيدلية تسعى لتأمين احتياجاتها بأفضل الأسعار، أو مورداً يريد توسيع قاعدة عملائه، دواء 24 هو شريكك الاستراتيجي.")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p><div style=\"display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;\"><a href=\"/auth/register\" class=\"btn btn-primary\" style=\"font-size:0.95rem; font-weight:800; padding:0.65rem 1.75rem;\"><span>تسجيل صيدلية جديدة</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary\" style=\"font-size:0.95rem; font-weight:700; padding:0.65rem 1.75rem;\"><span>انضمام كشريك مورد</span></a></div></section></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

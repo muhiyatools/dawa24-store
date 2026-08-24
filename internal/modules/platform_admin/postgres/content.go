@@ -76,6 +76,28 @@ func (r *Repository) UpsertContentBlock(ctx context.Context, b *platformadmin.Co
 	})
 }
 
+// ToggleContentBlockStatus toggles is_active for a content block.
+func (r *Repository) ToggleContentBlockStatus(ctx context.Context, id int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			UPDATE platform_admin.content_blocks
+			SET is_active = NOT is_active, updated_at = now()
+			WHERE id = $1;
+		`
+		_, err := tx.Exec(txCtx, query, id)
+		return err
+	})
+}
+
+// DeleteContentBlock removes a content block by ID.
+func (r *Repository) DeleteContentBlock(ctx context.Context, id int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `DELETE FROM platform_admin.content_blocks WHERE id = $1;`
+		_, err := tx.Exec(txCtx, query, id)
+		return err
+	})
+}
+
 // ListAuditLog returns the platform audit trail, newest first.
 func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*platformadmin.AuditEntry, error) {
 	var list []*platformadmin.AuditEntry

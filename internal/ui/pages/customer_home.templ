@@ -12,6 +12,9 @@ type HomeStats struct {
 	TotalProducts  int
 	TotalCities    int
 	TotalOrders    int
+	HeroTitle      string
+	HeroSubtitle   string
+	HeroBadge      string
 }
 
 templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, stats HomeStats, lang, dir string) {
@@ -96,15 +99,27 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		<section class="card mb-0" style="background:var(--surface-raised); padding:3.5rem 1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); margin-bottom:2rem; text-align:center;">
 			<div class="hero-badge-pill">
 				@components.IconShield("icon-xs")
-				<span>المنظومة الرقمية المعتمدة لربط وتوريد الأدوية في مصر</span>
+				if stats.HeroBadge != "" {
+					<span>{ stats.HeroBadge }</span>
+				} else {
+					<span>المنظومة الرقمية المعتمدة لربط وتوريد الأدوية في مصر</span>
+				}
 			</div>
 			
 			<h1 style="font-size:2.5rem; font-weight:900; color:var(--text); margin:0 auto 1rem auto; max-width:800px; line-height:1.25; letter-spacing:-0.02em;">
-				سوق التوريد الدوائي المباشر للصيدليات والمستودعات
+				if stats.HeroTitle != "" {
+					{ stats.HeroTitle }
+				} else {
+					سوق التوريد الدوائي المباشر للصيدليات والمستودعات
+				}
 			</h1>
 			
-			<p style="font-size:1.05rem; font-weight:500; color:var(--text-secondary); margin:0 auto 2rem auto; max-width:680px; line-height:1.75;">
-				اطلب طلبيتك الدوائية مباشرة من كبرى شركات التوزيع ومصانع الأدوية المرخصة، مع ضمان فواتير إلكترونية معتمدة وسلاسل شحن مبردة (Cold-Chain).
+			<p style="font-size:1.05rem; font-weight:500; color:var(--text-secondary); margin:0 auto 2rem auto; max-width:680px; line-height:1.75; white-space:pre-wrap;">
+				if stats.HeroSubtitle != "" {
+					{ stats.HeroSubtitle }
+				} else {
+					اطلب طلبيتك الدوائية مباشرة من كبرى شركات التوزيع ومصانع الأدوية المرخصة، مع ضمان فواتير إلكترونية معتمدة وسلاسل شحن مبردة (Cold-Chain).
+				}
 			</p>
 
 			<!-- Live Catalog Search Box -->

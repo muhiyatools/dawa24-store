@@ -122,6 +122,16 @@ func (s *Service) UpsertContentBlock(ctx context.Context, b *ContentBlock) error
 	return s.repo.UpsertContentBlock(ctx, b)
 }
 
+// ToggleContentBlockStatus toggles is_active for a content block.
+func (s *Service) ToggleContentBlockStatus(ctx context.Context, id int64) error {
+	return s.repo.ToggleContentBlockStatus(ctx, id)
+}
+
+// DeleteContentBlock removes a content block by ID.
+func (s *Service) DeleteContentBlock(ctx context.Context, id int64) error {
+	return s.repo.DeleteContentBlock(ctx, id)
+}
+
 // RecordVisitor records one visitor-session-day, deduplicated by key+day.
 func (s *Service) RecordVisitor(ctx context.Context, v *Visitor) error {
 	if v.VisitorKey == "" {

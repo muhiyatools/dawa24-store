@@ -43,7 +43,9 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/social-media", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/settings?tab=site", http.StatusMovedPermanently)
 		})
-		g.Get("/admin/highlight-sections", h.AdminHighlightSectionsPage)
+		g.Get("/admin/highlight-sections", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/content?tab=sections", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/api-integrations", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/developers", http.StatusMovedPermanently)
 		})
@@ -52,6 +54,8 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.content.update", h.log))
 		g.Post("/admin/content", h.AdminContentSubmit)
+		g.Post("/admin/content/{id}/toggle", h.AdminContentToggleSubmit)
+		g.Post("/admin/content/{id}/delete", h.AdminContentDeleteSubmit)
 		g.Post("/admin/policies", h.AdminPolicyCreateSubmit)
 		g.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
 		g.Post("/admin/finder/question", h.AdminFinderQuestionSubmit)

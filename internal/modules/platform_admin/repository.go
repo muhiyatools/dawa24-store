@@ -26,6 +26,8 @@ type Repository interface {
 	ListContentBlocks(ctx context.Context) ([]*ContentBlock, error)
 	GetContentBlockByKey(ctx context.Context, key string) (*ContentBlock, error)
 	UpsertContentBlock(ctx context.Context, b *ContentBlock) error
+	ToggleContentBlockStatus(ctx context.Context, id int64) error
+	DeleteContentBlock(ctx context.Context, id int64) error
 
 	RecordVisitor(ctx context.Context, v *Visitor) error
 	VisitorAnalytics(ctx context.Context, limit int) (*VisitorAnalytics, error)

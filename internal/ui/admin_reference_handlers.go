@@ -412,33 +412,6 @@ func (h *UIHandler) AdminSocialMediaPage(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// AdminHighlightSectionsPage renders promotional highlight sections.
-func (h *UIHandler) AdminHighlightSectionsPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	var items []pages.ReferenceItem
-	if h.adminSvc != nil {
-		blocks, _ := h.adminSvc.ListContentBlocks(ctx)
-		for _, b := range blocks {
-			status := "inactive"
-			if b.IsActive {
-				status = "active"
-			}
-			items = append(items, pages.ReferenceItem{
-				ID:          b.ID,
-				Name:        b.Title.Get("ar"),
-				Description: fmt.Sprintf("مفتاح: %s", b.Key),
-				Status:      status,
-				Extra:       fmt.Sprintf("موضع: %s | ترتيب: %d", b.Position, b.SortOrder),
-			})
-		}
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReferenceCRUDPage("الأقسام المميزة والعروض البارزة", "highlight-sections", "قسم مميز", items, "highlight_sections", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin highlight sections", "error", err)
-	}
-}
-
 // AdminApiIntegrationsPage renders third-party API configurations.
 func (h *UIHandler) AdminApiIntegrationsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
