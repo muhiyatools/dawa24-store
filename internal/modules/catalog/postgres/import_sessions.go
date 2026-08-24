@@ -29,7 +29,7 @@ const sessionColumns = `
 	s.status, s.import_mode, s.options, s.layout_overrides,
 	s.total_rows, s.parsed_rows, s.insert_rows, s.update_rows, s.skip_rows,
 	s.error_rows, s.warning_rows, s.block_count, s.new_brands,
-	s.ai_calls, s.ai_applied, s.ai_note, s.ai_fallback,
+	s.ai_calls, s.ai_applied, s.ai_matched, s.ai_note, s.ai_fallback,
 	s.error_message, s.created_at, s.updated_at, s.committed_at, s.expires_at`
 
 // CreateImportSession opens a review session and collects abandoned ones.
@@ -46,6 +46,19 @@ func (r *Repository) CreateImportSession(ctx context.Context, s *catalog.ImportS
 			WHERE status IN ('draft','ready') AND expires_at < now()
 		`); err != nil {
 			return fmt.Errorf("catalog postgres: reap expired import sessions: %w", err)
+		}
+
+		// A finished session keeps its counts as history but has no further use
+		// for its rows. Without this they are never collected — the expiry sweep
+		// above only looks at sessions still under review — and a few hundred
+		// imports leave millions of staging rows behind.
+		if _, err := tx.Exec(txCtx, `
+			DELETE FROM catalog.import_staging_rows r
+			USING catalog.import_sessions s
+			WHERE r.session_id = s.id
+			  AND s.status IN ('committed','cancelled','failed')
+		`); err != nil {
+			return fmt.Errorf("catalog postgres: reap finished staging rows: %w", err)
 		}
 
 		options, err := json.Marshal(s.Options)
@@ -96,6 +109,22 @@ func (r *Repository) GetImportSession(ctx context.Context, publicID string) (*ca
 		return nil, err
 	}
 	return out, nil
+}
+
+// ClearStagingRows drops a finished session's rows.
+//
+// Called the moment a session is committed or cancelled: the rows have done
+// their job, the session row keeps the counts that history needs, and holding
+// nine thousand of them per import indefinitely is how the staging table grows
+// without bound.
+func (r *Repository) ClearStagingRows(ctx context.Context, sessionID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx,
+			`DELETE FROM catalog.import_staging_rows WHERE session_id = $1`, sessionID); err != nil {
+			return fmt.Errorf("catalog postgres: clear finished staging rows: %w", err)
+		}
+		return nil
+	})
 }
 
 // ImportSourceFile reads back the bytes a session was opened with.
@@ -155,7 +184,7 @@ func (r *Repository) UpdateImportSession(ctx context.Context, s *catalog.ImportS
 				skip_rows = $13, error_rows = $14, warning_rows = $15, block_count = $16,
 				new_brands = $17::jsonb,
 				ai_calls = $18, ai_applied = $19, ai_note = $20, ai_fallback = $21,
-				error_message = $22, committed_at = $23
+				error_message = $22, committed_at = $23, ai_matched = $24
 			WHERE id = $1
 		`,
 			s.ID, string(s.Status), string(s.Mode), string(options), string(overrides),
@@ -164,7 +193,7 @@ func (r *Repository) UpdateImportSession(ctx context.Context, s *catalog.ImportS
 			s.SkipRows, s.ErrorRows, s.WarningRows, s.BlockCount,
 			string(brands),
 			s.AICalls, s.AIApplied, s.AINote, s.AIFallback,
-			s.ErrorMessage, s.CommittedAt,
+			s.ErrorMessage, s.CommittedAt, s.AIMatched,
 		)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: update import session: %w", err)
@@ -455,85 +484,101 @@ func (r *Repository) ArchiveAllProducts(ctx context.Context, orgID int64) (int64
 func (r *Repository) ImportVocabulary(ctx context.Context, orgID int64) (catalog.EnrichVocabulary, error) {
 	var vocab catalog.EnrichVocabulary
 
-	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		cats, err := tx.Query(txCtx, `
-			SELECT id, COALESCE(name->>'ar', name->>'en', '')
-			FROM catalog.categories
-			WHERE deleted_at IS NULL AND status = 'active'
-			ORDER BY id
-		`)
-		if err != nil {
-			return fmt.Errorf("catalog postgres: load category vocabulary: %w", err)
-		}
-		for cats.Next() {
-			var opt catalog.TaxonomyOption
-			if err := cats.Scan(&opt.ID, &opt.Name); err != nil {
-				cats.Close()
-				return fmt.Errorf("catalog postgres: scan category: %w", err)
-			}
-			if opt.Name != "" {
-				vocab.Categories = append(vocab.Categories, opt)
-			}
-		}
-		cats.Close()
-		if err := cats.Err(); err != nil {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var err error
+		if vocab.Categories, err = loadCategoryOptions(txCtx, tx); err != nil {
 			return err
 		}
-
-		// Brands are ordered by how much of the catalogue already uses them, so
-		// the truncation that keeps the prompt bounded drops the long tail
-		// rather than an arbitrary slice.
-		brands, err := tx.Query(txCtx, `
-			SELECT b.id, COALESCE(b.name->>'ar', b.name->>'en', ''), count(p.id) AS uses
-			FROM catalog.brands b
-			LEFT JOIN catalog.products p ON p.brand_id = b.id AND p.deleted_at IS NULL
-			WHERE b.deleted_at IS NULL
-			GROUP BY b.id, b.name
-			ORDER BY uses DESC, b.id
-		`)
-		if err != nil {
-			return fmt.Errorf("catalog postgres: load brand vocabulary: %w", err)
-		}
-		for brands.Next() {
-			var opt catalog.TaxonomyOption
-			var uses int64
-			if err := brands.Scan(&opt.ID, &opt.Name, &uses); err != nil {
-				brands.Close()
-				return fmt.Errorf("catalog postgres: scan brand: %w", err)
-			}
-			if opt.Name != "" {
-				vocab.Brands = append(vocab.Brands, opt)
-			}
-		}
-		brands.Close()
-		if err := brands.Err(); err != nil {
+		if vocab.Brands, err = loadBrandOptions(txCtx, tx); err != nil {
 			return err
 		}
-
-		forms, err := tx.Query(txCtx, `
-			SELECT DISTINCT dosage_form
-			FROM catalog.products
-			WHERE deleted_at IS NULL AND btrim(dosage_form) <> ''
-			ORDER BY dosage_form
-			LIMIT 100
-		`)
-		if err != nil {
-			return fmt.Errorf("catalog postgres: load dosage form vocabulary: %w", err)
-		}
-		defer forms.Close()
-		for forms.Next() {
-			var form string
-			if err := forms.Scan(&form); err != nil {
-				return fmt.Errorf("catalog postgres: scan dosage form: %w", err)
-			}
-			vocab.DosageForms = append(vocab.DosageForms, form)
-		}
-		return forms.Err()
+		vocab.DosageForms, err = loadDosageForms(txCtx, tx)
+		return err
 	})
 	if err != nil {
 		return catalog.EnrichVocabulary{}, err
 	}
 	return vocab, nil
+}
+
+func loadCategoryOptions(ctx context.Context, tx pgx.Tx) ([]catalog.TaxonomyOption, error) {
+	rows, err := tx.Query(ctx, `
+		SELECT id, COALESCE(name->>'ar', name->>'en', '')
+		FROM catalog.categories
+		WHERE deleted_at IS NULL AND status = 'active'
+		ORDER BY id
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("catalog postgres: load category vocabulary: %w", err)
+	}
+	defer rows.Close()
+
+	var out []catalog.TaxonomyOption
+	for rows.Next() {
+		var opt catalog.TaxonomyOption
+		if err := rows.Scan(&opt.ID, &opt.Name); err != nil {
+			return nil, fmt.Errorf("catalog postgres: scan category: %w", err)
+		}
+		if opt.Name != "" {
+			out = append(out, opt)
+		}
+	}
+	return out, rows.Err()
+}
+
+// loadBrandOptions orders brands by how much of the catalogue already uses
+// them, so the truncation that keeps the prompt bounded drops the long tail
+// rather than an arbitrary slice.
+func loadBrandOptions(ctx context.Context, tx pgx.Tx) ([]catalog.TaxonomyOption, error) {
+	rows, err := tx.Query(ctx, `
+		SELECT b.id, COALESCE(b.name->>'ar', b.name->>'en', ''), count(p.id) AS uses
+		FROM catalog.brands b
+		LEFT JOIN catalog.products p ON p.brand_id = b.id AND p.deleted_at IS NULL
+		WHERE b.deleted_at IS NULL
+		GROUP BY b.id, b.name
+		ORDER BY uses DESC, b.id
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("catalog postgres: load brand vocabulary: %w", err)
+	}
+	defer rows.Close()
+
+	var out []catalog.TaxonomyOption
+	for rows.Next() {
+		var opt catalog.TaxonomyOption
+		var uses int64
+		if err := rows.Scan(&opt.ID, &opt.Name, &uses); err != nil {
+			return nil, fmt.Errorf("catalog postgres: scan brand: %w", err)
+		}
+		if opt.Name != "" {
+			out = append(out, opt)
+		}
+	}
+	return out, rows.Err()
+}
+
+func loadDosageForms(ctx context.Context, tx pgx.Tx) ([]string, error) {
+	rows, err := tx.Query(ctx, `
+		SELECT DISTINCT dosage_form
+		FROM catalog.products
+		WHERE deleted_at IS NULL AND btrim(dosage_form) <> ''
+		ORDER BY dosage_form
+		LIMIT 100
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("catalog postgres: load dosage form vocabulary: %w", err)
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var form string
+		if err := rows.Scan(&form); err != nil {
+			return nil, fmt.Errorf("catalog postgres: scan dosage form: %w", err)
+		}
+		out = append(out, form)
+	}
+	return out, rows.Err()
 }
 
 // ListRecentImportSessions backs the import history panel.
@@ -584,7 +629,7 @@ func scanImportSession(row rowScanner) (*catalog.ImportSession, error) {
 		&status, &mode, &options, &overrides,
 		&s.TotalRows, &s.ParsedRows, &s.InsertRows, &s.UpdateRows, &s.SkipRows,
 		&s.ErrorRows, &s.WarningRows, &s.BlockCount, &brands,
-		&s.AICalls, &s.AIApplied, &s.AINote, &s.AIFallback,
+		&s.AICalls, &s.AIApplied, &s.AIMatched, &s.AINote, &s.AIFallback,
 		&s.ErrorMessage, &s.CreatedAt, &s.UpdatedAt, &s.CommittedAt, &s.ExpiresAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -664,4 +709,81 @@ func nonNilChanges(in []catalog.AIChange) []catalog.AIChange {
 		return []catalog.AIChange{}
 	}
 	return in
+}
+
+// FindMatchCandidates finds catalogue products whose names are close to the
+// given ones, for the rows exact matching could not settle.
+//
+// Trigram similarity over the GIN index on platform.normalize_arabic(name) is
+// what makes this affordable: about 15 ms per name against a catalogue of
+// thousands. It is still one index probe per name, so the caller bounds how many
+// it asks about — this is the expensive path, taken only for rows that exact
+// matching already failed on.
+func (r *Repository) FindMatchCandidates(
+	ctx context.Context, orgID int64, names map[int]string, perRow int,
+) (map[int][]catalog.MatchCandidate, error) {
+	out := map[int][]catalog.MatchCandidate{}
+	if len(names) == 0 || orgID <= 0 {
+		return out, nil
+	}
+	if perRow <= 0 || perRow > 10 {
+		perRow = 3
+	}
+
+	const query = `
+		SELECT p.id,
+		       COALESCE(p.name->>'ar', p.name->>'en', ''),
+		       p.sku,
+		       p.manufacturing_companies,
+		       p.dosage_form,
+		       p.concentration,
+		       similarity(platform.normalize_arabic(p.name->>'ar'), platform.normalize_arabic($2)) AS sim
+		FROM catalog.products p
+		WHERE p.organization_id = $1
+		  AND p.deleted_at IS NULL
+		  AND platform.normalize_arabic(p.name->>'ar') % platform.normalize_arabic($2)
+		ORDER BY sim DESC
+		LIMIT $3`
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// The similarity floor is set per transaction rather than per statement
+		// so the index probe itself filters, instead of returning everything
+		// that shares a trigram and sorting it afterwards.
+		if _, err := tx.Exec(txCtx, `SELECT set_limit(0.4)`); err != nil {
+			return fmt.Errorf("catalog postgres: set similarity floor: %w", err)
+		}
+
+		for idx, name := range names {
+			if strings.TrimSpace(name) == "" {
+				continue
+			}
+			rows, err := tx.Query(txCtx, query, orgID, name, perRow)
+			if err != nil {
+				return fmt.Errorf("catalog postgres: find match candidates: %w", err)
+			}
+
+			var found []catalog.MatchCandidate
+			for rows.Next() {
+				var c catalog.MatchCandidate
+				if err := rows.Scan(&c.ProductID, &c.Name, &c.SKU,
+					&c.Manufacturer, &c.DosageForm, &c.Concentration, &c.Similarity); err != nil {
+					rows.Close()
+					return fmt.Errorf("catalog postgres: scan match candidate: %w", err)
+				}
+				found = append(found, c)
+			}
+			rows.Close()
+			if err := rows.Err(); err != nil {
+				return err
+			}
+			if len(found) > 0 {
+				out[idx] = found
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }

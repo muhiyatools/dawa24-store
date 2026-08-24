@@ -253,6 +253,11 @@ func (s *Service) GetGatewaySettings(ctx context.Context) (*GatewaySettings, err
 		TimeoutSeconds: getInt(v, "timeout_seconds", 30),
 		APIKey:         getString(v, "api_key", ""),
 		IsActive:       getBool(v, "is_active", true),
+		VirtualKey:     getString(v, "virtual_key", ""),
+		AIUserID:       getString(v, "ai_user_id", ""),
+		FastModel:      getString(v, "fast_model", ""),
+		QualityModel:   getString(v, "quality_model", ""),
+		AIPlanID:       getString(v, "ai_plan_id", ""),
 	}
 	return gw, nil
 }
@@ -265,6 +270,11 @@ func (s *Service) SaveGatewaySettings(ctx context.Context, gw *GatewaySettings) 
 		"timeout_seconds": gw.TimeoutSeconds,
 		"api_key":         gw.APIKey,
 		"is_active":       gw.IsActive,
+		"virtual_key":     gw.VirtualKey,
+		"ai_user_id":      gw.AIUserID,
+		"fast_model":      gw.FastModel,
+		"quality_model":   gw.QualityModel,
+		"ai_plan_id":      gw.AIPlanID,
 	}
 	return s.repo.SetSetting(ctx, &SystemSetting{
 		Key:         "gateway_configuration",

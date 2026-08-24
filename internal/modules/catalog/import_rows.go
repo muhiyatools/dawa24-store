@@ -69,6 +69,8 @@ type ParseResult struct {
 	SheetsSkipped []string
 	// Layout is the block structure the sheet was read as.
 	Layout SheetLayout
+	// options are the enrichment switches this parse ran under.
+	options ImportOptions
 	// SourceRows holds the spreadsheet row number each product came from,
 	// parallel to Products. The staging table records it so a finding raised
 	// after the write still points at a row in the admin's own file.
@@ -220,9 +222,21 @@ func ParseProducts(data *SheetData) *ParseResult {
 }
 
 // ParseProductsWithOverrides reads a sheet after applying the admin's
-// corrections to the detected structure.
+// corrections to the detected structure, inferring everything it can.
 func ParseProductsWithOverrides(data *SheetData, overrides LayoutOverrides) *ParseResult {
-	res := &ParseResult{Stats: ImportStats{HeaderRow: -1}}
+	return ParseSheet(data, overrides, ImportOptions{AssignDosageForm: true})
+}
+
+// ParseSheet reads a sheet under the admin's structural corrections and their
+// enrichment switches.
+//
+// The switches reach this far down because some of them change how a row is
+// read, not just what happens to it afterwards. Inferring the pharmaceutical
+// form from a product's name used to happen unconditionally, which meant
+// turning "تحديد الشكل الصيدلي" off still wrote a form — and a switch that does
+// nothing is worse than no switch, because it is believed.
+func ParseSheet(data *SheetData, overrides LayoutOverrides, opts ImportOptions) *ParseResult {
+	res := &ParseResult{Stats: ImportStats{HeaderRow: -1}, options: opts}
 	if data == nil || len(data.Rows) == 0 {
 		return res
 	}
@@ -436,9 +450,12 @@ func (c rowCursor) parse() (*Product, bool) {
 		Description: i18n.New(c.value(FieldDescriptionAR), c.value(FieldDescriptionEN)),
 	}
 
-	// Fill the form and strength from the name only where the file gave none.
+	// Fill the form and strength from the name only where the file gave none,
+	// and only where the admin asked for it. The concentration is not behind a
+	// switch: it is read out of the name verbatim rather than inferred, so it
+	// states what the supplier wrote instead of guessing on their behalf.
 	autoDosage, autoConc := ExtractDosageAndConcentration(nameAR + " " + nameEN)
-	if prod.DosageForm == "" {
+	if prod.DosageForm == "" && c.result.options.AssignDosageForm {
 		prod.DosageForm = autoDosage
 	}
 	if prod.Concentration == "" {

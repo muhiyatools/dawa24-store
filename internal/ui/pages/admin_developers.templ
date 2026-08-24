@@ -358,6 +358,60 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							🔒 أدخل نفس بيانات تسجيل الدخول التي تستخدمها للدخول إلى لوحة البوابة <code>/admin/</code> (المحددة في ADMIN_PASSWORD بسيرفر البوابة).
 						</p>
 
+						<!-- Models and the provisioned admin-panel identity -->
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نموذج المهام السريعة (Fast)</label>
+								<input
+									type="text"
+									name="fast_model"
+									value={ values.GatewaySettings.FastModel }
+									class="form-input"
+									dir="ltr"
+									placeholder="gpt-4o-mini"
+								/>
+								<span style="font-size:0.72rem; color:var(--text-muted);">
+									يُستخدم في مطابقة الأصناف وتوسيع البحث.
+								</span>
+							</div>
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">نموذج المهام الدقيقة (Quality)</label>
+								<input
+									type="text"
+									name="quality_model"
+									value={ values.GatewaySettings.QualityModel }
+									class="form-input"
+									dir="ltr"
+									placeholder="gpt-4o-mini"
+								/>
+								<span style="font-size:0.72rem; color:var(--text-muted);">
+									يُستخدم في استكمال بيانات الأصناف أثناء الاستيراد.
+								</span>
+							</div>
+						</div>
+						<p style="font-size:0.75rem; color:var(--text-muted); margin:-0.5rem 0 0 0;">
+							اتركهما فارغين لاستخدام النموذج الافتراضي. يجب أن يكون الاسم مطابقاً لما تنشره البوابة.
+						</p>
+
+						<div style="padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface-sunken);">
+							<div style="font-size:0.8rem; font-weight:700; margin-bottom:0.25rem;">
+								مفتاح لوحة التحكم (Admin Panel Key)
+							</div>
+							if values.GatewaySettings.VirtualKey != "" {
+								<div style="font-size:0.78rem; color:var(--success, #10b981);">
+									✅ تم إنشاؤه تلقائياً — المستخدم:
+									<code dir="ltr">{ values.GatewaySettings.AIUserID }</code>
+								</div>
+							} else {
+								<div style="font-size:0.78rem; color:var(--text-muted);">
+									سيتم إنشاؤه تلقائياً من بيانات مدير البوابة أعلاه عند أول استخدام للذكاء الاصطناعي.
+								</div>
+							}
+							<div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.35rem;">
+								هذا المفتاح مستقل عن مفاتيح المنشآت، ويُستخدم لعمليات المنصة نفسها مثل استيراد الكتالوج.
+							</div>
+						</div>
+
 						<!-- Test Connection & Role Breakdown -->
 						<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1rem; align-items:start;">
 							<div>

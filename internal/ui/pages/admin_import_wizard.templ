@@ -26,7 +26,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 			<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false">
 				@importUploadCard()
 				@importModeCard(view.Modes, view.SelectedMode)
-				@importOptionsCard(view.Toggles, view.Categories, 0)
+				@importOptionsCard(view.Toggles, view.Categories, 0, view.AIAvailable)
 				<div class="card mb-0">
 					<div class="wiz-actions">
 						<span class="wiz-actions-note">
@@ -137,7 +137,7 @@ templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMo
 	</div>
 }
 
-templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOption, defaultCategory int64) {
+templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOption, defaultCategory int64, aiAvailable bool) {
 	<div class="card mb-0">
 		<h2 class="wiz-head">🧩 استكمال بيانات الأصناف</h2>
 		<p class="wiz-sub">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p>
@@ -146,6 +146,12 @@ templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpt
 				@importSwitch(toggle)
 			}
 		</div>
+		if !aiAvailable {
+			<p class="wiz-sub" style="margin-top:0.75rem;">
+				⚠️ خدمة الذكاء الاصطناعي غير متصلة حالياً. يمكنك ضبط بوابة الذكاء الاصطناعي من
+				<a href="/admin/developers?tab=ai">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.
+			</p>
+		}
 		if len(categories) > 0 {
 			<div class="wiz-map-item" style="margin-top:0.75rem;">
 				<label class="wiz-map-label" for="default-category">الفئة الافتراضية عند تعذّر التحديد</label>

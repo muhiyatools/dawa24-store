@@ -78,7 +78,11 @@ func run() error {
 	// trading.
 	adminRepo := platformadminPostgres.NewRepository(deps.Handle())
 	adminSvc := platformadmin.NewService(adminRepo, log)
-	gwSource := newAdminGatewaySettings(adminSvc)
+	// The admin panel's Gateway identity is provisioned on demand from the
+	// administrator credentials in إعدادات النظام, so an operator never has to
+	// paste a Bearer key by hand.
+	adminKeys := newAdminKeyProvisioner(adminSvc, log)
+	gwSource := newAdminGatewaySettings(adminSvc, adminKeys)
 
 	ai := gateway.New(cfg.Gateway, log).WithSettingsSource(gwSource)
 	if ai.Enabled() {
@@ -90,7 +94,7 @@ func run() error {
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.HTTP.Port),
-		Handler:           newRouter(cfg, log, deps, ai, migrations),
+		Handler:           newRouter(cfg, log, deps, ai, adminKeys, migrations),
 		ReadTimeout:       cfg.HTTP.ReadTimeout,
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      cfg.HTTP.WriteTimeout,
@@ -133,6 +137,12 @@ func newRouter(
 	log *slog.Logger,
 	deps *dependencies,
 	ai gateway.Client,
+	// adminKeys is the admin panel's provisioned Gateway credential. The
+	// settings screen has to be able to drop it when an operator changes the
+	// credentials it was issued from, so it is threaded through rather than
+	// rebuilt here — two instances would cache independently and one would go
+	// on serving a key the operator had just replaced.
+	adminKeys *adminKeyProvisioner,
 	migrations []database.Migration,
 ) http.Handler {
 	r := chi.NewRouter()
@@ -189,7 +199,7 @@ func newRouter(
 	})
 
 	// Mount all domain module and UI endpoints
-	mountModuleRoutes(r, cfg, log, deps, ai)
+	mountModuleRoutes(r, cfg, log, deps, ai, adminKeys)
 
 	return r
 }

@@ -3,6 +3,7 @@
 package platformadmin
 
 import (
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -171,12 +172,55 @@ type AISettings struct {
 }
 
 // GatewaySettings defines configuration for platform API gateways and external integrations.
+//
+// Two credentials live here and they are not interchangeable. APIKey is the
+// administrator credential for the Gateway's /api management surface, used with
+// basic auth to register users and mint keys. VirtualKey is a Bearer token the
+// Gateway issued for the admin panel's own identity, and is the only thing that
+// authenticates a /v1 completion. Sending the first where the second belongs is
+// a 401 on every AI call — which is precisely why the AI features looked inert.
 type GatewaySettings struct {
 	EndpointURL    string `json:"endpoint_url"`    // Gateway Base URL
 	Environment    string `json:"environment"`     // production / sandbox
 	TimeoutSeconds int    `json:"timeout_seconds"` // Request timeout
-	APIKey         string `json:"api_key"`
+	APIKey         string `json:"api_key"`         // admin credential, "user:password" or password
 	IsActive       bool   `json:"is_active"`
+
+	// VirtualKey is provisioned automatically from APIKey; an operator never
+	// types it.
+	VirtualKey string `json:"virtual_key"`
+	// AIUserID is the Gateway user the admin panel runs as.
+	AIUserID string `json:"ai_user_id"`
+	// FastModel and QualityModel let an operator point each capability tier at
+	// whatever their Gateway publishes. Empty means the platform default.
+	FastModel    string `json:"fast_model"`
+	QualityModel string `json:"quality_model"`
+	// AIPlanID is the Gateway plan the admin panel identity is created under.
+	AIPlanID string `json:"ai_plan_id"`
+}
+
+// AdminCredentials splits the stored admin credential into a username and
+// password. A value with no colon is a password for the conventional "admin"
+// account, which is how the settings screen has always accepted it.
+func (g *GatewaySettings) AdminCredentials() (username, password string) {
+	raw := strings.TrimSpace(g.APIKey)
+	if raw == "" {
+		return "", ""
+	}
+	if user, pass, found := strings.Cut(raw, ":"); found {
+		return strings.TrimSpace(user), pass
+	}
+	return "admin", raw
+}
+
+// CanProvision reports whether there is enough configuration to talk to the
+// Gateway's management API at all.
+func (g *GatewaySettings) CanProvision() bool {
+	if g == nil || !g.IsActive || strings.TrimSpace(g.EndpointURL) == "" {
+		return false
+	}
+	_, password := g.AdminCredentials()
+	return password != ""
 }
 
 // SiteSettings defines public website branding, contact info, and social media.

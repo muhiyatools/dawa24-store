@@ -75,6 +75,7 @@ func mountModuleRoutes(
 	log *slog.Logger,
 	deps *dependencies,
 	ai gateway.Client,
+	adminKeys *adminKeyProvisioner,
 ) {
 	db := deps.Handle()
 
@@ -247,6 +248,9 @@ func mountModuleRoutes(
 	compareSvcUI := compare.NewService(compareRepoUI, log)
 	if ai != nil {
 		uiHandler.SetGatewayClient(ai)
+		// The settings screen resets this when an operator changes the Gateway
+		// credentials the admin panel's key was issued from.
+		uiHandler.SetGatewayKeyCache(adminKeys)
 		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
 		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
@@ -259,6 +263,9 @@ func mountModuleRoutes(
 		enricher := cataloggw.NewEnricher(ai, log)
 		enricher.SetKeyResolver(cataloggw.KeyResolver(keyResolverUI))
 		catSvcUI.SetEnricher(enricher)
+		// The same adapter adjudicates ambiguous product matches, which is what
+		// keeps two spellings of one medicine from becoming two catalogue rows.
+		catSvcUI.SetMatcher(enricher)
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)

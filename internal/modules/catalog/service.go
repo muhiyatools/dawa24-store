@@ -31,6 +31,10 @@ type Service struct {
 	// enricher the AI switch is simply not offered.
 	imports  ImportSessionStore
 	enricher Enricher
+	matcher  Matcher
+	// progress tracks background preparation runs so the review screen can show
+	// the admin what a long import is doing.
+	progress *ProgressTracker
 }
 
 // SetInstitutionalGate installs the institutional work filter gate.

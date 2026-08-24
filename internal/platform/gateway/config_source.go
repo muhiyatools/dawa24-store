@@ -6,12 +6,19 @@ import (
 	"time"
 )
 
-// Settings are the Gateway credentials in effect right now.
+// Settings are the Gateway credentials and model choices in effect right now.
 type Settings struct {
-	BaseURL    string
+	BaseURL string
+	// VirtualKey authenticates /v1 traffic. It is a Bearer token the Gateway
+	// issued (sk-virt-…), never the admin credential used for /api management —
+	// sending the latter is a 401 and reads to a caller as "AI is broken".
 	VirtualKey string
 	ClientApp  string
 	Enabled    bool
+	// FastModel and QualityModel name the models serving each tier. Empty means
+	// "use this package's default".
+	FastModel    string
+	QualityModel string
 }
 
 // SettingsSource supplies live credentials. The admin panel writes them to the

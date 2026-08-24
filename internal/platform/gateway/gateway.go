@@ -25,6 +25,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -44,6 +45,30 @@ const (
 	CapSearchExpand  Capability = "search.expand_query"
 )
 
+// Tier is the class of model a capability needs, not a model itself.
+//
+// The Store asks for a tier; which model serves it is Gateway configuration an
+// operator sets in إعدادات النظام. That indirection is the whole point of this
+// package: swapping the model behind "fast" must be a settings change, never a
+// Store deployment.
+type Tier string
+
+const (
+	TierFast    Tier = "fast"
+	TierQuality Tier = "quality"
+)
+
+// Default models, used when an operator has not chosen one.
+//
+// They live here rather than in any caller because this package is the only
+// place allowed to know a provider's vocabulary — the boundary a CI grep
+// enforces (see the package comment). A deployment whose Gateway publishes
+// different names overrides both from the settings screen.
+const (
+	defaultFastModel    = "gpt-4o-mini"
+	defaultQualityModel = "gpt-4o-mini"
+)
+
 // budget is the per-capability latency ceiling and retry policy.
 //
 // These are far below the Gateway's own 30-minute upstream timeout, which is
@@ -52,18 +77,34 @@ const (
 type budget struct {
 	timeout time.Duration
 	retries int
-	// alias is the Store-side configuration key naming a Gateway model alias.
-	// It never contains a provider or model name.
-	alias string
+	tier    Tier
 }
 
 var budgets = map[Capability]budget{
-	CapColumnDetect:  {timeout: 30 * time.Second, retries: 2, alias: "dawa24-fast"},
-	CapProductMatch:  {timeout: 60 * time.Second, retries: 3, alias: "dawa24-fast"},
-	CapProductEnrich: {timeout: 120 * time.Second, retries: 1, alias: "dawa24-quality"},
-	CapOrderOptimize: {timeout: 15 * time.Second, retries: 1, alias: "dawa24-fast"},
-	CapCatalogChat:   {timeout: 120 * time.Second, retries: 0, alias: "dawa24-quality"},
-	CapSearchExpand:  {timeout: 3 * time.Second, retries: 0, alias: "dawa24-fast"},
+	CapColumnDetect:  {timeout: 60 * time.Second, retries: 2, tier: TierFast},
+	CapProductMatch:  {timeout: 120 * time.Second, retries: 2, tier: TierFast},
+	CapProductEnrich: {timeout: 240 * time.Second, retries: 2, tier: TierQuality},
+	CapOrderOptimize: {timeout: 15 * time.Second, retries: 1, tier: TierFast},
+	CapCatalogChat:   {timeout: 120 * time.Second, retries: 0, tier: TierQuality},
+	CapSearchExpand:  {timeout: 5 * time.Second, retries: 0, tier: TierFast},
+}
+
+// modelFor resolves a capability's tier to the model name to send.
+//
+// An unconfigured tier falls back to the default rather than sending an empty
+// model, which the Gateway would reject as a bad request — and a 400 here reads
+// to a caller as "AI is broken" rather than "nobody chose a model".
+func modelFor(s Settings, b budget) string {
+	if b.tier == TierQuality && strings.TrimSpace(s.QualityModel) != "" {
+		return strings.TrimSpace(s.QualityModel)
+	}
+	if b.tier == TierFast && strings.TrimSpace(s.FastModel) != "" {
+		return strings.TrimSpace(s.FastModel)
+	}
+	if b.tier == TierQuality {
+		return defaultQualityModel
+	}
+	return defaultFastModel
 }
 
 // Request is a capability invocation.
@@ -226,8 +267,9 @@ type chatResponse struct {
 }
 
 func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, error) {
+	settings := c.resolve(ctx)
 	payload := chatRequest{
-		Model: b.alias,
+		Model: modelFor(settings, b),
 		Messages: []chatMessage{
 			{Role: "system", Content: req.System},
 			{Role: "user", Content: req.Input},
@@ -247,7 +289,6 @@ func (c *HTTPClient) do(ctx context.Context, req Request, b budget) (*Response, 
 		return nil, fmt.Errorf("gateway: marshal request: %w", err)
 	}
 
-	settings := c.resolve(ctx)
 	authKey := settings.VirtualKey
 	if req.VirtualKey != "" {
 		authKey = req.VirtualKey

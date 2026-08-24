@@ -25,6 +25,8 @@ const (
 	MatchSKU     MatchReason = "sku"
 	MatchBarcode MatchReason = "barcode"
 	MatchName    MatchReason = "name"
+	// MatchAI is a match a model adjudicated between similar candidates.
+	MatchAI MatchReason = "ai"
 )
 
 // MatchLabels renders a match reason in the admin's language.
@@ -32,6 +34,7 @@ var MatchLabels = map[MatchReason]string{
 	MatchSKU:     "مطابقة بكود الصنف",
 	MatchBarcode: "مطابقة بالباركود",
 	MatchName:    "مطابقة باسم الصنف",
+	MatchAI:      "مطابقة بالذكاء الاصطناعي",
 }
 
 // WriteFailure identifies one product the database refused, by its position in

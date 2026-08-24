@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -19,17 +20,22 @@ import (
 // check that it is actually an abstraction and not a description of one
 // PostgreSQL schema.
 type memoryImportStore struct {
-	session  *catalog.ImportSession
-	file     []byte
-	rows     []*catalog.StagingRow
-	existing map[string]int64 // folded name or SKU -> product id
-	vocab    catalog.EnrichVocabulary
-	archived int64
-	nextID   int64
+	session    *catalog.ImportSession
+	file       []byte
+	rows       []*catalog.StagingRow
+	existing   map[string]int64 // folded name or SKU -> product id
+	vocab      catalog.EnrichVocabulary
+	candidates map[int][]catalog.MatchCandidate
+	archived   int64
+	nextID     int64
 }
 
 func newMemoryStore() *memoryImportStore {
-	return &memoryImportStore{existing: map[string]int64{}, nextID: 1}
+	return &memoryImportStore{
+		existing:   map[string]int64{},
+		candidates: map[int][]catalog.MatchCandidate{},
+		nextID:     1,
+	}
 }
 
 func (m *memoryImportStore) CreateImportSession(_ context.Context, s *catalog.ImportSession, file []byte) error {
@@ -69,6 +75,11 @@ func (m *memoryImportStore) ReplaceStagingRows(_ context.Context, _ int64, rows 
 		row.ID = m.nextID
 		m.nextID++
 	}
+	return nil
+}
+
+func (m *memoryImportStore) ClearStagingRows(context.Context, int64) error {
+	m.rows = nil
 	return nil
 }
 
@@ -147,6 +158,20 @@ func (m *memoryImportStore) MatchExistingProducts(
 	return out, nil
 }
 
+// candidates are the near-miss lookups the AI matching path consults. Empty by
+// default, so a test that does not exercise matching sees none.
+func (m *memoryImportStore) FindMatchCandidates(
+	_ context.Context, _ int64, names map[int]string, _ int,
+) (map[int][]catalog.MatchCandidate, error) {
+	out := map[int][]catalog.MatchCandidate{}
+	for idx := range names {
+		if found, ok := m.candidates[idx]; ok {
+			out[idx] = found
+		}
+	}
+	return out, nil
+}
+
 func (m *memoryImportStore) ImportVocabulary(context.Context, int64) (catalog.EnrichVocabulary, error) {
 	return m.vocab, nil
 }
@@ -160,59 +185,129 @@ func (m *memoryImportStore) ArchiveAllProducts(context.Context, int64) (int64, e
 type mockCatalogRepoStub struct{}
 
 func (mockCatalogRepoStub) CreateProduct(context.Context, *catalog.Product) error { return nil }
-func (mockCatalogRepoStub) BulkUpsertProducts(context.Context, []*catalog.Product) (catalog.BulkWriteResult, error) { return catalog.BulkWriteResult{}, nil }
-func (mockCatalogRepoStub) GetProductByID(context.Context, int64) (*catalog.Product, error) { return nil, nil }
+func (mockCatalogRepoStub) BulkUpsertProducts(context.Context, []*catalog.Product) (catalog.BulkWriteResult, error) {
+	return catalog.BulkWriteResult{}, nil
+}
+func (mockCatalogRepoStub) GetProductByID(context.Context, int64) (*catalog.Product, error) {
+	return nil, nil
+}
 func (mockCatalogRepoStub) UpdateProduct(context.Context, *catalog.Product) error { return nil }
-func (mockCatalogRepoStub) DeleteProduct(context.Context, int64) error { return nil }
-func (mockCatalogRepoStub) SearchProducts(context.Context, catalog.SearchParams) ([]*catalog.Product, error) { return nil, nil }
-func (mockCatalogRepoStub) CountProducts(context.Context, catalog.SearchParams) (int, error) { return 0, nil }
-func (mockCatalogRepoStub) ListProducts(context.Context, string, int, int) ([]*catalog.Product, error) { return nil, nil }
-func (mockCatalogRepoStub) SetProductsStatus(context.Context, []int64, catalog.ProductStatus) (int64, error) { return 0, nil }
+func (mockCatalogRepoStub) DeleteProduct(context.Context, int64) error            { return nil }
+func (mockCatalogRepoStub) SearchProducts(context.Context, catalog.SearchParams) ([]*catalog.Product, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) CountProducts(context.Context, catalog.SearchParams) (int, error) {
+	return 0, nil
+}
+func (mockCatalogRepoStub) ListProducts(context.Context, string, int, int) ([]*catalog.Product, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) SetProductsStatus(context.Context, []int64, catalog.ProductStatus) (int64, error) {
+	return 0, nil
+}
 func (mockCatalogRepoStub) CreateVariant(context.Context, *catalog.ProductVariant) error { return nil }
-func (mockCatalogRepoStub) GetVariantByID(context.Context, int64) (*catalog.ProductVariant, error) { return nil, nil }
-func (mockCatalogRepoStub) GetVariantBySKUOrBarcode(context.Context, int64, string, string) (*catalog.ProductVariant, error) { return nil, nil }
-func (mockCatalogRepoStub) GetVariantByProductAndOrg(context.Context, int64, int64) (*catalog.ProductVariant, error) { return nil, nil }
-func (mockCatalogRepoStub) ListVariantsByProduct(context.Context, int64) ([]*catalog.ProductVariant, error) { return nil, nil }
-func (mockCatalogRepoStub) ListVariantsByOrganization(context.Context, int64, catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) { return nil, 0, nil }
-func (mockCatalogRepoStub) ListAllVariants(context.Context, catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) { return nil, 0, nil }
+func (mockCatalogRepoStub) GetVariantByID(context.Context, int64) (*catalog.ProductVariant, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) GetVariantBySKUOrBarcode(context.Context, int64, string, string) (*catalog.ProductVariant, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) GetVariantByProductAndOrg(context.Context, int64, int64) (*catalog.ProductVariant, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) ListVariantsByProduct(context.Context, int64) ([]*catalog.ProductVariant, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) ListVariantsByOrganization(context.Context, int64, catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
+	return nil, 0, nil
+}
+func (mockCatalogRepoStub) ListAllVariants(context.Context, catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
+	return nil, 0, nil
+}
 func (mockCatalogRepoStub) UpdateVariant(context.Context, *catalog.ProductVariant) error { return nil }
-func (mockCatalogRepoStub) DeleteVariant(context.Context, int64) error { return nil }
-func (mockCatalogRepoStub) SearchVariants(context.Context, catalog.VariantSearchParams) ([]*catalog.ProductVariant, error) { return nil, nil }
-func (mockCatalogRepoStub) SetVariantsStatus(context.Context, []int64, catalog.ProductStatus) (int64, error) { return 0, nil }
+func (mockCatalogRepoStub) DeleteVariant(context.Context, int64) error                   { return nil }
+func (mockCatalogRepoStub) SearchVariants(context.Context, catalog.VariantSearchParams) ([]*catalog.ProductVariant, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) SetVariantsStatus(context.Context, []int64, catalog.ProductStatus) (int64, error) {
+	return 0, nil
+}
 func (mockCatalogRepoStub) CreateCategory(context.Context, *catalog.Category) error { return nil }
-func (mockCatalogRepoStub) GetCategoryByID(context.Context, int64) (*catalog.Category, error) { return nil, nil }
-func (mockCatalogRepoStub) ListCategories(context.Context) ([]*catalog.Category, error) { return nil, nil }
+func (mockCatalogRepoStub) GetCategoryByID(context.Context, int64) (*catalog.Category, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) ListCategories(context.Context) ([]*catalog.Category, error) {
+	return nil, nil
+}
 func (mockCatalogRepoStub) UpdateCategory(context.Context, *catalog.Category) error { return nil }
-func (mockCatalogRepoStub) DeleteCategory(context.Context, int64) error { return nil }
-func (mockCatalogRepoStub) CountProductsByOrg(context.Context, int64, string) (int, error) { return 0, nil }
-func (mockCatalogRepoStub) CountProductsInCategory(context.Context, int64) (int, error) { return 0, nil }
+func (mockCatalogRepoStub) DeleteCategory(context.Context, int64) error             { return nil }
+func (mockCatalogRepoStub) CountProductsByOrg(context.Context, int64, string) (int, error) {
+	return 0, nil
+}
+func (mockCatalogRepoStub) CountProductsInCategory(context.Context, int64) (int, error) {
+	return 0, nil
+}
 func (mockCatalogRepoStub) CreateBrand(context.Context, *catalog.Brand) error { return nil }
-func (mockCatalogRepoStub) GetBrandByID(context.Context, int64) (*catalog.Brand, error) { return nil, nil }
+func (mockCatalogRepoStub) GetBrandByID(context.Context, int64) (*catalog.Brand, error) {
+	return nil, nil
+}
 func (mockCatalogRepoStub) ListBrands(context.Context) ([]*catalog.Brand, error) { return nil, nil }
-func (mockCatalogRepoStub) UpdateBrand(context.Context, *catalog.Brand) error { return nil }
-func (mockCatalogRepoStub) DeleteBrand(context.Context, int64) error { return nil }
-func (mockCatalogRepoStub) ListBrandsByCategory(context.Context, int64) ([]*catalog.Brand, error) { return nil, nil }
-func (mockCatalogRepoStub) BrandInCategory(context.Context, int64, int64) (bool, error) { return true, nil }
+func (mockCatalogRepoStub) UpdateBrand(context.Context, *catalog.Brand) error    { return nil }
+func (mockCatalogRepoStub) DeleteBrand(context.Context, int64) error             { return nil }
+func (mockCatalogRepoStub) ListBrandsByCategory(context.Context, int64) ([]*catalog.Brand, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) BrandInCategory(context.Context, int64, int64) (bool, error) {
+	return true, nil
+}
 func (mockCatalogRepoStub) SetBrandCategories(context.Context, int64, []int64) error { return nil }
 func (mockCatalogRepoStub) CountProductsInBrand(context.Context, int64) (int, error) { return 0, nil }
-func (mockCatalogRepoStub) SetCustomerPricing(context.Context, *catalog.CustomerProductMapping) error { return nil }
-func (mockCatalogRepoStub) GetCustomerPricing(context.Context, int64, int64, int64) (*catalog.CustomerProductMapping, error) { return nil, nil }
-func (mockCatalogRepoStub) CreateProductAlert(context.Context, *catalog.ProductAlert) error { return nil }
-func (mockCatalogRepoStub) ListProductAlertsByUser(context.Context, int64) ([]*catalog.ProductAlert, error) { return nil, nil }
-func (mockCatalogRepoStub) UpsertProductIndex(context.Context, *catalog.ProductIndexItem) error { return nil }
-func (mockCatalogRepoStub) DeleteProductIndex(context.Context, string) error { return nil }
+func (mockCatalogRepoStub) SetCustomerPricing(context.Context, *catalog.CustomerProductMapping) error {
+	return nil
+}
+func (mockCatalogRepoStub) GetCustomerPricing(context.Context, int64, int64, int64) (*catalog.CustomerProductMapping, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) CreateProductAlert(context.Context, *catalog.ProductAlert) error {
+	return nil
+}
+func (mockCatalogRepoStub) ListProductAlertsByUser(context.Context, int64) ([]*catalog.ProductAlert, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) UpsertProductIndex(context.Context, *catalog.ProductIndexItem) error {
+	return nil
+}
+func (mockCatalogRepoStub) DeleteProductIndex(context.Context, string) error         { return nil }
 func (mockCatalogRepoStub) DeleteProductIndexByProduct(context.Context, int64) error { return nil }
-func (mockCatalogRepoStub) SearchProductIndex(context.Context, catalog.SearchParams) ([]*catalog.ProductIndexItem, error) { return nil, nil }
+func (mockCatalogRepoStub) SearchProductIndex(context.Context, catalog.SearchParams) ([]*catalog.ProductIndexItem, error) {
+	return nil, nil
+}
 func (mockCatalogRepoStub) RebuildProductIndex(context.Context) (int64, error) { return 0, nil }
-func (mockCatalogRepoStub) CreateSavingProduct(context.Context, *catalog.SavingProduct) error { return nil }
-func (mockCatalogRepoStub) UpdateSavingProduct(context.Context, *catalog.SavingProduct) error { return nil }
-func (mockCatalogRepoStub) ListSavingProductsByOrg(context.Context, int64, int, int) ([]*catalog.SavingProduct, error) { return nil, nil }
-func (mockCatalogRepoStub) ListSavingProductsEnriched(context.Context, int64, string, string, int, int) ([]*catalog.SavingProductEnriched, *catalog.SavingProductStats, error) { return nil, nil, nil }
-func (mockCatalogRepoStub) ListAllSavingProductsAdmin(context.Context, *int64, *int64, string, string, int, int) ([]*catalog.SavingProductAdminView, *catalog.SavingProductAdminStats, error) { return nil, nil, nil }
-func (mockCatalogRepoStub) GetSavingProductByID(context.Context, int64) (*catalog.SavingProduct, error) { return nil, nil }
+func (mockCatalogRepoStub) CreateSavingProduct(context.Context, *catalog.SavingProduct) error {
+	return nil
+}
+func (mockCatalogRepoStub) UpdateSavingProduct(context.Context, *catalog.SavingProduct) error {
+	return nil
+}
+func (mockCatalogRepoStub) ListSavingProductsByOrg(context.Context, int64, int, int) ([]*catalog.SavingProduct, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) ListSavingProductsEnriched(context.Context, int64, string, string, int, int) ([]*catalog.SavingProductEnriched, *catalog.SavingProductStats, error) {
+	return nil, nil, nil
+}
+func (mockCatalogRepoStub) ListAllSavingProductsAdmin(context.Context, *int64, *int64, string, string, int, int) ([]*catalog.SavingProductAdminView, *catalog.SavingProductAdminStats, error) {
+	return nil, nil, nil
+}
+func (mockCatalogRepoStub) GetSavingProductByID(context.Context, int64) (*catalog.SavingProduct, error) {
+	return nil, nil
+}
 func (mockCatalogRepoStub) DeleteSavingProduct(context.Context, int64, int64) error { return nil }
-func (mockCatalogRepoStub) GetProductProviders(context.Context, int64) ([]*catalog.ProductProviderInfo, error) { return nil, nil }
-func (mockCatalogRepoStub) BatchUpsertSavingProducts(context.Context, int64, *int64, []*catalog.SavingProduct) (int, int, error) { return 0, 0, nil }
+func (mockCatalogRepoStub) GetProductProviders(context.Context, int64) ([]*catalog.ProductProviderInfo, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) BatchUpsertSavingProducts(context.Context, int64, *int64, []*catalog.SavingProduct) (int, int, error) {
+	return 0, 0, nil
+}
 
 // stagingRepo is the minimal catalog.Repository the commit path needs.
 type stagingRepo struct {
@@ -282,8 +377,8 @@ func TestPrepareImportWritesNothingToTheCatalogue(t *testing.T) {
 
 func TestPrepareImportAssignsActionsPerMode(t *testing.T) {
 	tests := []struct {
-		mode                   catalog.ImportMode
-		insert, update, skip   int
+		mode                 catalog.ImportMode
+		insert, update, skip int
 	}{
 		{catalog.ModeUpdateAndAdd, 2, 1, 0},
 		{catalog.ModeAddNewOnly, 2, 0, 1},
@@ -556,5 +651,75 @@ func TestPrepareImportExcludesRejectedRows(t *testing.T) {
 	}
 	if len(repo.written) != 1 {
 		t.Errorf("repository received %d products, want 1", len(repo.written))
+	}
+}
+
+// blockingEnricher holds a batch until released, so a preparation run can be
+// caught mid-flight.
+type blockingEnricher struct{ release chan struct{} }
+
+func (b *blockingEnricher) Available(context.Context) bool { return true }
+
+func (b *blockingEnricher) Enrich(ctx context.Context, _ catalog.EnrichRequest) (catalog.EnrichResponse, error) {
+	select {
+	case <-b.release:
+	case <-ctx.Done():
+	}
+	return catalog.EnrichResponse{}, nil
+}
+
+// Preparation runs in the background, so a commit can arrive while the staging
+// table is still being filled. Committing then would write a partial catalogue
+// built from a partial read.
+func TestCommitImportRefusesWhilePreparationIsRunning(t *testing.T) {
+	store := newMemoryStore()
+	store.vocab = testVocabulary()
+	svc, repo := newImportService(t, store)
+
+	blocker := &blockingEnricher{release: make(chan struct{})}
+	svc.SetEnricher(blocker)
+	ctx := context.Background()
+
+	session, _, err := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
+	if err != nil {
+		t.Fatalf("analyse failed: %v", err)
+	}
+
+	if err := svc.PrepareImportAsync(ctx, session.PublicID, catalog.ImportSettings{
+		Mode: catalog.ModeUpdateAndAdd,
+		Options: catalog.ImportOptions{
+			UseAI: true, AssignScientificName: true, AssignDosageForm: true,
+		},
+	}); err != nil {
+		t.Fatalf("prepare could not start: %v", err)
+	}
+
+	// Wait until the run is genuinely in flight before trying to commit.
+	deadline := time.Now().Add(5 * time.Second)
+	for !svc.EnricherRunning(session.PublicID) && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if _, _, err := svc.CommitImport(ctx, session.PublicID); err == nil {
+		t.Error("a session still being prepared was committed")
+	}
+	if len(repo.written) != 0 {
+		t.Errorf("a mid-preparation commit wrote %d products", len(repo.written))
+	}
+
+	close(blocker.release)
+
+	// Once it finishes, the same session commits normally.
+	for i := 0; i < 200; i++ {
+		if progress, ok := svc.ImportProgress(session.PublicID); ok && progress.Phase.Terminal() {
+			break
+		}
+		time.Sleep(25 * time.Millisecond)
+	}
+	if _, _, err := svc.CommitImport(ctx, session.PublicID); err != nil {
+		t.Fatalf("commit after preparation finished: %v", err)
+	}
+	if len(repo.written) == 0 {
+		t.Error("nothing was written after a successful preparation")
 	}
 }

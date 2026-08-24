@@ -176,6 +176,52 @@ type ImportReviewView struct {
 	Notice      string
 	NoticeKind  string
 	FatalDetail string
+
+	// Progress is the live state of a background preparation run. While one is
+	// in flight the review tables are meaningless — they still hold the previous
+	// run's rows — so the page shows the progress panel instead.
+	Progress catalog.ImportProgress
+	Working  bool
+}
+
+// ProgressPercent is how far the run has got, or -1 when the phase carries no
+// count and the bar should read as indeterminate.
+func (v ImportReviewView) ProgressPercent() int { return v.Progress.Percent() }
+
+// ProgressPhases lists the stages with the current one marked, so the admin can
+// see what is happening rather than watching an unlabelled bar.
+func (v ImportReviewView) ProgressPhases() []ImportPhaseInfo {
+	phases := []catalog.ImportPhase{
+		catalog.ImportPhaseReading,
+		catalog.ImportPhaseParsing,
+		catalog.ImportPhaseEnriching,
+		catalog.ImportPhaseMatching,
+		catalog.ImportPhaseStaging,
+	}
+
+	current := -1
+	for i, phase := range phases {
+		if phase == v.Progress.Phase {
+			current = i
+		}
+	}
+
+	out := make([]ImportPhaseInfo, 0, len(phases))
+	for i, phase := range phases {
+		out = append(out, ImportPhaseInfo{
+			Label:  phase.Label(),
+			Active: i == current,
+			Done:   current > i || v.Progress.Phase == catalog.ImportPhaseDone,
+		})
+	}
+	return out
+}
+
+// ImportPhaseInfo is one stage on the progress panel.
+type ImportPhaseInfo struct {
+	Label  string
+	Active bool
+	Done   bool
 }
 
 // ImportColumnChoice is one field the admin can rebind in the mapping panel.
@@ -289,15 +335,25 @@ func (v ImportReviewView) SourceSummary() string {
 	return strings.Join(parts, " · ")
 }
 
-// AISummary is the enrichment line, empty when AI did not run.
+// AISummary is what AI did on this run, empty when it did not run.
 func (v ImportReviewView) AISummary() string {
-	if v.Session == nil || v.Session.AICalls == 0 {
-		if v.Session != nil && v.Session.AINote != "" {
-			return v.Session.AINote
-		}
+	if v.Session == nil {
 		return ""
 	}
-	return v.Session.AINote
+	summary := v.Session.AINote
+	// Matching is reported separately from enrichment because it is the more
+	// consequential of the two: it is the number of duplicate catalogue entries
+	// this import did not create.
+	if v.Session.AIMatched > 0 {
+		matched := fmt.Sprintf(
+			"تم ربط %s صنف بأصناف موجودة بالفعل عبر المطابقة الذكية بدلاً من تكرارها.",
+			FormatCount(v.Session.AIMatched))
+		if summary == "" {
+			return matched
+		}
+		return summary + " " + matched
+	}
+	return summary
 }
 
 // RowActionBadge picks the badge colour for a staged action.

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -96,8 +97,12 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 	// The settings the admin chose on the upload screen apply to this first
 	// pass, so the review they land on already reflects their choices rather
 	// than a default run they would have to redo.
-	if _, err := h.catSvc.PrepareImport(sysCtx, session.PublicID, readImportSettings(r)); err != nil {
-		h.log.ErrorContext(ctx, "import preparation failed",
+	//
+	// Started in the background: with AI enabled a large file is minutes of
+	// work, and holding the POST open for it gives the admin a hung browser and
+	// a request that may outlive its own timeout.
+	if err := h.catSvc.PrepareImportAsync(sysCtx, session.PublicID, readImportSettings(r)); err != nil {
+		h.log.ErrorContext(ctx, "import preparation could not start",
 			"session", session.PublicID, "error", err)
 		h.renderImportConfigure(w, r, pages.ImportConfigureView{
 			Fatal: h.importMessage(err, r),
@@ -144,7 +149,15 @@ func (h *UIHandler) renderImportReview(w http.ResponseWriter, r *http.Request, n
 	view := pages.NewImportReviewView(session, counts, rows, total, filter,
 		h.importCategories(ctx), h.catSvc.EnricherAvailable(ctx))
 	view.Notice = notice
-	h.attachImportStructure(sysCtx, &view, session)
+
+	// A run still in flight means the staged rows below belong to the previous
+	// pass, so the page shows progress rather than numbers that are about to
+	// change under the admin.
+	if progress, running := h.catSvc.ImportProgress(publicID); running && !progress.Phase.Terminal() {
+		view.Progress, view.Working = progress, true
+	} else {
+		h.attachImportStructure(sysCtx, &view, session)
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
@@ -182,15 +195,11 @@ func (h *UIHandler) AdminProductsImportPrepare(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	session, err := h.catSvc.PrepareImport(database.AsSystem(ctx), publicID, readImportSettings(r))
-	if err != nil {
-		h.log.ErrorContext(ctx, "import re-preparation failed", "session", publicID, "error", err)
+	if err := h.catSvc.PrepareImportAsync(database.AsSystem(ctx), publicID, readImportSettings(r)); err != nil {
+		h.log.ErrorContext(ctx, "import re-preparation could not start", "session", publicID, "error", err)
 		h.renderImportReview(w, r, h.importMessage(err, r), http.StatusUnprocessableEntity)
 		return
 	}
-
-	h.log.InfoContext(ctx, "import re-prepared",
-		"session", session.PublicID, "insert", session.InsertRows, "update", session.UpdateRows)
 	http.Redirect(w, r, "/admin/products/import/"+publicID, http.StatusSeeOther)
 }
 
@@ -499,4 +508,48 @@ func (h *UIHandler) refreshProductIndex(ctx context.Context) {
 		}
 		h.log.InfoContext(bg, "product index rebuilt after import", "rows", count)
 	}()
+}
+
+// AdminProductsImportProgress reports a running preparation as JSON.
+//
+// The review screen polls it while a file is being processed. It is a small
+// endpoint rather than a stream because the answer changes a few times a second
+// at most, and a poll survives a reverse proxy that would buffer an event
+// stream into uselessness.
+func (h *UIHandler) AdminProductsImportProgress(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+
+	if h.catSvc == nil {
+		http.Error(w, `{"phase":"failed","message":"catalog service unavailable"}`,
+			http.StatusServiceUnavailable)
+		return
+	}
+
+	progress, running := h.catSvc.ImportProgress(publicID)
+	if !running {
+		// No run in flight. The session itself is the durable answer: a staged
+		// session is finished, anything else never started here.
+		phase := catalog.ImportPhaseDone
+		if session, err := h.catSvc.GetImportSession(database.AsSystem(r.Context()), publicID); err != nil ||
+			session.Status == catalog.SessionDraft {
+			phase = catalog.ImportPhaseFailed
+		}
+		progress = catalog.ImportProgress{Phase: phase, Message: phase.Label()}
+	}
+
+	payload := map[string]any{
+		"phase":   string(progress.Phase),
+		"message": progress.Message,
+		"current": progress.Current,
+		"total":   progress.Total,
+		"percent": progress.Percent(),
+		"done":    progress.Phase.Terminal(),
+		"failed":  progress.Phase == catalog.ImportPhaseFailed,
+		"elapsed": int(progress.Elapsed().Seconds()),
+	}
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		h.log.WarnContext(r.Context(), "write import progress", "session", publicID, "error", err)
+	}
 }

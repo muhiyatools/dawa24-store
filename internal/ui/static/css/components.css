@@ -940,3 +940,75 @@
 @media (prefers-reduced-motion: reduce) {
 	.wiz-choice-body, .wiz-track, .wiz-track::after, .wiz-drop { transition: none; }
 }
+
+/* Import progress ---------------------------------------------------------
+   Shown while a file is being processed. AI enrichment turns a large import
+   into minutes of work, and a blank wait is indistinguishable from a hang. */
+.wiz-progress { margin: 1rem 0 1.25rem 0; }
+.wiz-progress-track {
+	height: 0.6rem;
+	border-radius: 999px;
+	background: var(--surface-sunken);
+	border: 1px solid var(--border);
+	overflow: hidden;
+}
+.wiz-progress-fill {
+	height: 100%;
+	width: 0;
+	border-radius: 999px;
+	background: var(--accent);
+	transition: width 0.4s ease;
+}
+/* A phase with no countable work animates instead of claiming a percentage it
+   does not know. */
+.wiz-progress-fill.is-indeterminate {
+	width: 35%;
+	animation: wiz-progress-slide 1.4s ease-in-out infinite;
+}
+@keyframes wiz-progress-slide {
+	0%   { margin-inline-start: -35%; }
+	100% { margin-inline-start: 100%; }
+}
+.wiz-progress-meta {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-top: 0.45rem;
+	font-size: 0.82rem;
+	color: var(--text-secondary);
+}
+
+.wiz-phases {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 1.1rem;
+}
+.wiz-phase {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.8rem;
+	color: var(--text-muted);
+}
+.wiz-phase-dot {
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--border);
+	flex: 0 0 auto;
+}
+.wiz-phase.is-done { color: var(--success, #10b981); }
+.wiz-phase.is-done .wiz-phase-dot { background: var(--success, #10b981); }
+.wiz-phase.is-active { color: var(--text); font-weight: 700; }
+.wiz-phase.is-active .wiz-phase-dot {
+	background: var(--accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wiz-progress-fill { transition: none; }
+	.wiz-progress-fill.is-indeterminate { animation: none; width: 100%; opacity: 0.5; }
+}

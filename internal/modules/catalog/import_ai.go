@@ -110,10 +110,12 @@ const minAIConfidence = 0.55
 
 // aiBatchSize is how many products go into one Gateway call.
 //
-// Large enough that a few thousand uncertain rows is tens of calls rather than
-// thousands; small enough that one batch's prompt, taxonomy and answer stay well
-// inside a normal context window and one failure loses little work.
-const aiBatchSize = 40
+// Latency here is output-bound and close to linear: a batch of 40 measured 33
+// seconds against 23 for 25 and 14 for 15. Forty was overrunning the
+// capability's timeout once several batches contended for the same upstream, so
+// the batch is sized to finish comfortably inside it even under load. Smaller
+// still would multiply the per-call prompt overhead for no gain.
+const aiBatchSize = 25
 
 // maxTaxonomyOptions bounds how much vocabulary is sent per call. A platform
 // with hundreds of brands cannot put all of them in every prompt, so the list is
@@ -136,9 +138,11 @@ For every product you are given, decide only what you are confident about:
 - brand_id: the id of the manufacturer from the supplied brands list if the product clearly belongs to one. Use 0 if none matches.
 - brand_name: only when you recognise the manufacturer but it is absent from the brands list, give its name. Otherwise "".
 - confidence: your own certainty from 0.0 to 1.0 for this product overall.
-- reason: a short Arabic phrase explaining the classification.
+- reason: at most three Arabic words. Keep it terse; it is a label, not an explanation.
 
 Rules:
+- OMIT any field you would leave empty or zero. A shorter object is a cheaper one, and this runs over thousands of products.
+- Be brief. Every extra word is paid for on a file of thousands of products.
 - Never guess. An empty value is correct and expected when the product name does not tell you. A wrong classification is much worse than a missing one.
 - Cosmetics, personal-care items, body sprays, shampoos and wipes are NOT medicines: leave scientific_name empty and classify them by their care category.
 - Return one object per input product, with its "ref" copied exactly.
@@ -308,68 +312,102 @@ func ApplyEnrichment(
 	prods []*Product, results []EnrichResult, opts ImportOptions, vocab EnrichVocabulary,
 ) map[int][]AIChange {
 	changes := map[int][]AIChange{}
-	categoryNames := optionIndex(vocab.Categories)
-	brandNames := optionIndex(vocab.Brands)
+	names := taxonomyNames{
+		categories: optionIndex(vocab.Categories),
+		brands:     optionIndex(vocab.Brands),
+	}
 
 	for _, res := range results {
 		if res.Ref < 0 || res.Ref >= len(prods) || prods[res.Ref] == nil {
 			continue
 		}
+		// A model that says it is unsure is not believed. A wrong category on a
+		// pharmaceutical product reads as fact and propagates into search and
+		// reporting; an empty one reads as "not classified yet".
 		if res.Confidence > 0 && res.Confidence < minAIConfidence {
 			continue
 		}
-		p := prods[res.Ref]
-		var applied []AIChange
-
-		if opts.AssignCategory && res.CategoryID > 0 && (p.CategoryID == nil || *p.CategoryID <= 0) {
-			if name, known := categoryNames[res.CategoryID]; known {
-				id := res.CategoryID
-				p.CategoryID = &id
-				applied = append(applied, AIChange{
-					Field: FieldCategory, Label: "فئة المنتج", Value: name, Reason: res.Reason,
-				})
-			}
-		}
-
-		if opts.AssignDosageForm && res.DosageForm != "" &&
-			(p.DosageForm == "" || p.DosageForm == defaultDosageForm) {
-			p.DosageForm = CleanCellString(res.DosageForm)
-			applied = append(applied, AIChange{
-				Field: FieldDosageForm, Label: "الشكل الصيدلي", Value: p.DosageForm, Reason: res.Reason,
-			})
-		}
-
-		if opts.AssignScientificName && res.ScientificName != "" && p.ScientificName == "" {
-			p.ScientificName = CleanCellString(res.ScientificName)
-			applied = append(applied, AIChange{
-				Field: FieldGenericName, Label: "الاسم العلمي", Value: p.ScientificName, Reason: res.Reason,
-			})
-		}
-
-		if opts.AutoCreateBrands && p.ManufacturingCompanies == "" {
-			if name, known := brandNames[res.BrandID]; known && res.BrandID > 0 {
-				id := res.BrandID
-				p.BrandID = &id
-				p.ManufacturingCompanies = name
-				applied = append(applied, AIChange{
-					Field: FieldManufacturer, Label: "الشركة المصنعة", Value: name, Reason: res.Reason,
-				})
-			} else if clean := CleanCellString(res.BrandName); clean != "" {
-				// A manufacturer the catalogue has not seen. It is written onto
-				// the product as text here and only becomes a brand row at
-				// commit, and only if the admin left auto-creation on.
-				p.ManufacturingCompanies = clean
-				applied = append(applied, AIChange{
-					Field: FieldManufacturer, Label: "الشركة المصنعة (جديدة)", Value: clean, Reason: res.Reason,
-				})
-			}
-		}
-
-		if len(applied) > 0 {
+		if applied := applyOneEnrichment(prods[res.Ref], res, opts, names); len(applied) > 0 {
 			changes[res.Ref] = applied
 		}
 	}
 	return changes
+}
+
+// taxonomyNames resolves the ids a model returns back to names, and is what
+// rejects an id the platform does not have.
+type taxonomyNames struct {
+	categories map[int64]string
+	brands     map[int64]string
+}
+
+// applyOneEnrichment fills one product's gaps and reports what it changed.
+func applyOneEnrichment(
+	p *Product, res EnrichResult, opts ImportOptions, names taxonomyNames,
+) []AIChange {
+	var applied []AIChange
+
+	if opts.AssignCategory && res.CategoryID > 0 && (p.CategoryID == nil || *p.CategoryID <= 0) {
+		if name, known := names.categories[res.CategoryID]; known {
+			id := res.CategoryID
+			p.CategoryID = &id
+			applied = append(applied, AIChange{
+				Field: FieldCategory, Label: "فئة المنتج", Value: name, Reason: res.Reason,
+			})
+		}
+	}
+
+	if opts.AssignDosageForm && res.DosageForm != "" &&
+		(p.DosageForm == "" || p.DosageForm == defaultDosageForm) {
+		p.DosageForm = CleanCellString(res.DosageForm)
+		applied = append(applied, AIChange{
+			Field: FieldDosageForm, Label: "الشكل الصيدلي", Value: p.DosageForm, Reason: res.Reason,
+		})
+	}
+
+	if opts.AssignScientificName && res.ScientificName != "" && p.ScientificName == "" {
+		p.ScientificName = CleanCellString(res.ScientificName)
+		applied = append(applied, AIChange{
+			Field: FieldGenericName, Label: "الاسم العلمي", Value: p.ScientificName, Reason: res.Reason,
+		})
+	}
+
+	if change, ok := applyManufacturer(p, res, opts, names); ok {
+		applied = append(applied, change)
+	}
+	return applied
+}
+
+// applyManufacturer links a known brand or records a proposed new one.
+//
+// A brand the catalogue already has is linked by id, which is what stops an
+// import fragmenting the brand list into five spellings of one company. A
+// manufacturer it has never seen is written onto the product as text and only
+// becomes a brand row at commit, and only if the admin left auto-creation on.
+func applyManufacturer(
+	p *Product, res EnrichResult, opts ImportOptions, names taxonomyNames,
+) (AIChange, bool) {
+	if !opts.AutoCreateBrands || p.ManufacturingCompanies != "" {
+		return AIChange{}, false
+	}
+
+	if name, known := names.brands[res.BrandID]; known && res.BrandID > 0 {
+		id := res.BrandID
+		p.BrandID = &id
+		p.ManufacturingCompanies = name
+		return AIChange{
+			Field: FieldManufacturer, Label: "الشركة المصنعة", Value: name, Reason: res.Reason,
+		}, true
+	}
+
+	clean := CleanCellString(res.BrandName)
+	if clean == "" {
+		return AIChange{}, false
+	}
+	p.ManufacturingCompanies = clean
+	return AIChange{
+		Field: FieldManufacturer, Label: "الشركة المصنعة (جديدة)", Value: clean, Reason: res.Reason,
+	}, true
 }
 
 // FieldCategory names the category field in AI changes. The other field names

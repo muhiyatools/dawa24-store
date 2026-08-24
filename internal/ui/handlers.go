@@ -54,6 +54,7 @@ type UIHandler struct {
 	attSvc        *attachments.Service
 	storage       *storage.Client
 	aiClient      gateway.Client
+	gatewayKeys   GatewayKeyCache
 	log           *slog.Logger
 }
 
@@ -65,6 +66,18 @@ func (h *UIHandler) SetAssistantRepository(repo assistant.Repository) {
 // SetGatewayClient attaches the Gateway client instance for health probes and AI services.
 func (h *UIHandler) SetGatewayClient(ai gateway.Client) {
 	h.aiClient = ai
+}
+
+// GatewayKeyCache is the admin panel's provisioned Gateway credential, which
+// has to be dropped when an operator changes the credentials it was issued
+// from. It is an interface so the UI does not depend on the composition root.
+type GatewayKeyCache interface {
+	Invalidate()
+}
+
+// SetGatewayKeyCache installs the credential cache the settings screen resets.
+func (h *UIHandler) SetGatewayKeyCache(cache GatewayKeyCache) {
+	h.gatewayKeys = cache
 }
 
 // NewUIHandler creates a new UI page handler with all platform domain services wired.

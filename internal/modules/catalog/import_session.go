@@ -206,7 +206,10 @@ type ImportSession struct {
 	// during analysis.
 	NewBrands []string `json:"new_brands,omitempty"`
 
-	AICalls    int    `json:"ai_calls"`
+	AICalls int `json:"ai_calls"`
+	// AIMatched counts rows tied to an existing product by similarity or by the
+	// model, which exact matching alone would have duplicated.
+	AIMatched  int    `json:"ai_matched"`
 	AIApplied  int    `json:"ai_applied"`
 	AINote     string `json:"ai_note,omitempty"`
 	AIFallback bool   `json:"ai_fallback"`

@@ -2444,15 +2444,45 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 		combinedKey = adminUser + ":" + apiKey
 	}
 
-	gw := &platformadmin.GatewaySettings{
-		EndpointURL: endpoint,
-		APIKey:      combinedKey,
-		Environment: "production",
-		IsActive:    isActive,
+	// Load and mutate rather than rebuild. The struct also carries the virtual
+	// key provisioned from these very credentials, plus the model choices;
+	// constructing a fresh one here silently discarded all of it and switched
+	// AI back off every time an operator pressed save.
+	gw, err := h.adminSvc.GetGatewaySettings(ctx)
+	if err != nil || gw == nil {
+		gw = &platformadmin.GatewaySettings{Environment: "production"}
 	}
+
+	credentialsChanged := gw.EndpointURL != endpoint || gw.APIKey != combinedKey
+	gw.EndpointURL = endpoint
+	gw.APIKey = combinedKey
+	gw.IsActive = isActive
+	if gw.Environment == "" {
+		gw.Environment = "production"
+	}
+	if model := strings.TrimSpace(r.FormValue("fast_model")); model != "" {
+		gw.FastModel = model
+	}
+	if model := strings.TrimSpace(r.FormValue("quality_model")); model != "" {
+		gw.QualityModel = model
+	}
+	if plan := strings.TrimSpace(r.FormValue("ai_plan_id")); plan != "" {
+		gw.AIPlanID = plan
+	}
+
+	// New credentials invalidate the key they issued: it may belong to a
+	// different Gateway entirely. Clearing it makes the next AI call provision
+	// a fresh one against the endpoint now configured.
+	if credentialsChanged {
+		gw.VirtualKey, gw.AIUserID = "", ""
+	}
+
 	if err := h.adminSvc.SaveGatewaySettings(ctx, gw); err != nil {
 		h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "error", h.safeMessage(err, langOf(r)))
 		return
+	}
+	if h.gatewayKeys != nil {
+		h.gatewayKeys.Invalidate()
 	}
 
 	// Also sync to AISettings

@@ -10,6 +10,7 @@ package gateway
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -75,11 +76,9 @@ func (e *Enricher) Enrich(ctx context.Context, req catalog.EnrichRequest) (catal
 
 	resp, err := e.client.Invoke(ctx, gwReq)
 	if err != nil {
-		if gateway.ShouldFallback(err) {
-			e.log.WarnContext(ctx, "enrichment unavailable, keeping deterministic values",
-				"error", err, "batch", len(req.Targets))
-		}
-		return catalog.EnrichResponse{Fallback: true}, err
+		e.log.WarnContext(ctx, "enrichment unavailable, keeping deterministic values",
+			"error", err, "batch", len(req.Targets))
+		return catalog.EnrichResponse{Fallback: true}, translateGatewayError(err)
 	}
 	if resp == nil || resp.Content == "" {
 		return catalog.EnrichResponse{Fallback: true}, errors.New("catalog gateway: empty enrichment response")
@@ -109,4 +108,70 @@ func (e *Enricher) virtualKey(ctx context.Context, orgID int64) string {
 		return ""
 	}
 	return key
+}
+
+// translateGatewayError maps the Gateway's closed error set onto the conditions
+// the import knows how to explain.
+//
+// Two of them are worth telling an admin apart from an outage: a spent budget
+// and a rejected key are both things an operator can go and fix, and reporting
+// either as "the service is unavailable" sends them looking in the wrong place.
+func translateGatewayError(err error) error {
+	switch {
+	case errors.Is(err, gateway.ErrQuotaExceeded):
+		return fmt.Errorf("%w: %v", catalog.ErrAIQuotaExceeded, err)
+	case errors.Is(err, gateway.ErrUnauthorized), errors.Is(err, gateway.ErrDisabled):
+		return fmt.Errorf("%w: %v", catalog.ErrAIUnauthorized, err)
+	default:
+		return err
+	}
+}
+
+// AdjudicateMatches asks the model which existing product an ambiguous row is.
+//
+// It runs on the fast tier rather than the quality one: the question is a
+// choice between three named alternatives, not open classification, and the
+// latency budget matters more here because matching happens on every import
+// while enrichment only happens when the file has gaps.
+func (e *Enricher) AdjudicateMatches(
+	ctx context.Context, req catalog.MatchRequest,
+) (catalog.MatchAdjudication, error) {
+	if e == nil || e.client == nil {
+		return catalog.MatchAdjudication{}, gateway.ErrDisabled
+	}
+
+	input, err := catalog.EncodeMatchInput(req)
+	if err != nil {
+		return catalog.MatchAdjudication{}, err
+	}
+
+	resp, err := e.client.Invoke(ctx, gateway.Request{
+		Capability:     gateway.CapProductMatch,
+		System:         catalog.MatchSystemPrompt(),
+		Input:          input,
+		Schema:         catalog.MatchSchema(),
+		OrganizationID: req.OrganizationID,
+		UserID:         req.UserID,
+		VirtualKey:     e.virtualKey(ctx, req.OrganizationID),
+	})
+	if err != nil {
+		e.log.WarnContext(ctx, "match adjudication unavailable, keeping deterministic matches",
+			"error", err, "batch", len(req.Questions))
+		return catalog.MatchAdjudication{}, translateGatewayError(err)
+	}
+	if resp == nil || resp.Content == "" {
+		return catalog.MatchAdjudication{}, errors.New("catalog gateway: empty match response")
+	}
+
+	decisions, err := catalog.DecodeMatchDecisions(resp.Content)
+	if err != nil {
+		e.log.WarnContext(ctx, "match response unreadable",
+			"error", err, "request_id", resp.RequestID, "model", resp.Model)
+		return catalog.MatchAdjudication{}, err
+	}
+
+	e.log.InfoContext(ctx, "catalogue match batch adjudicated",
+		"questions", len(req.Questions), "decisions", len(decisions.Decisions),
+		"request_id", resp.RequestID, "model", resp.Model)
+	return decisions, nil
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -38,6 +39,7 @@ type ImportSessionStore interface {
 	ListRecentImportSessions(ctx context.Context, orgID int64, limit int) ([]*ImportSession, error)
 
 	ReplaceStagingRows(ctx context.Context, sessionID int64, rows []*StagingRow) error
+	ClearStagingRows(ctx context.Context, sessionID int64) error
 	ListStagingRows(ctx context.Context, sessionID int64, filter StagingFilter) ([]*StagingRow, int, error)
 	LoadCommittableRows(ctx context.Context, sessionID int64) ([]*StagingRow, error)
 	SetRowIncluded(ctx context.Context, sessionID, rowID int64, included bool) error
@@ -46,12 +48,22 @@ type ImportSessionStore interface {
 
 	DefaultCatalogOrg(ctx context.Context) (int64, error)
 	MatchExistingProducts(ctx context.Context, prods []*Product) (map[int]ExistingMatch, error)
+	FindMatchCandidates(ctx context.Context, orgID int64, names map[int]string, perRow int) (map[int][]MatchCandidate, error)
 	ImportVocabulary(ctx context.Context, orgID int64) (EnrichVocabulary, error)
 	ArchiveAllProducts(ctx context.Context, orgID int64) (int64, error)
 }
 
 // SetImportStore installs the staging persistence.
-func (s *Service) SetImportStore(store ImportSessionStore) { s.imports = store }
+func (s *Service) SetImportStore(store ImportSessionStore) {
+	s.imports = store
+	if s.progress == nil {
+		s.progress = NewProgressTracker()
+	}
+}
+
+// SetMatcher installs the AI matching port, used to adjudicate rows that exact
+// matching could not settle.
+func (s *Service) SetMatcher(m Matcher) { s.matcher = m }
 
 // SetEnricher installs the AI enrichment port. Leaving it unset disables the AI
 // switch in the wizard rather than failing an import that asked for it.
@@ -125,9 +137,57 @@ func (s *Service) AnalyzeImport(
 // admin can adjust the column mapping and run it again as many times as they
 // need without accumulating anything.
 func (s *Service) PrepareImport(ctx context.Context, publicID string, settings ImportSettings) (*ImportSession, error) {
+	return s.prepare(ctx, publicID, settings, nil)
+}
+
+// PrepareImportAsync starts preparation in the background and returns at once.
+//
+// With AI enabled this is minutes of work; running it inside the request that
+// asked for it gives the admin a browser hanging on something that may outlive
+// its own timeout. The review screen polls Progress instead.
+func (s *Service) PrepareImportAsync(ctx context.Context, publicID string, settings ImportSettings) error {
+	if s.imports == nil {
+		return ErrImportUnavailable
+	}
+	if s.progress.Running(publicID) {
+		return apperr.Conflict("catalog.import_already_running",
+			"جارٍ بالفعل معالجة هذا الملف. يرجى الانتظار حتى تكتمل العملية.")
+	}
+
+	report := s.progress.Begin(publicID)
+	// Detached from the request: the admin's browser navigating away, or the
+	// request timing out, must not abandon a run that is already underway.
+	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), prepareTimeout)
+
+	go func() {
+		defer cancel()
+		_, err := s.prepare(runCtx, publicID, settings, report)
+		s.progress.Finish(publicID, err)
+		if err != nil {
+			s.log.ErrorContext(runCtx, "background import preparation failed",
+				"session", publicID, "error", err)
+		}
+	}()
+	return nil
+}
+
+// prepareTimeout bounds one background run. A file large enough to exceed this
+// needs splitting, and an admin should be told so rather than left watching a
+// bar that never moves.
+const prepareTimeout = 30 * time.Minute
+
+// ImportProgress reports where a background preparation has reached.
+func (s *Service) ImportProgress(publicID string) (ImportProgress, bool) {
+	return s.progress.Progress(publicID)
+}
+
+func (s *Service) prepare(
+	ctx context.Context, publicID string, settings ImportSettings, progress ProgressFunc,
+) (*ImportSession, error) {
 	if s.imports == nil {
 		return nil, ErrImportUnavailable
 	}
+	progress.report(ImportPhaseReading, 0, 0)
 
 	session, err := s.imports.GetImportSession(ctx, publicID)
 	if err != nil {
@@ -156,18 +216,23 @@ func (s *Service) PrepareImport(ctx context.Context, publicID string, settings I
 	session.Options = settings.Options
 	session.Overrides = settings.Overrides
 
-	parsed := ParseProductsWithOverrides(sheet, settings.Overrides)
+	progress.report(ImportPhaseParsing, 0, 0)
+	parsed := ParseSheet(sheet, settings.Overrides, settings.Options)
 	applyParseStats(session, parsed)
 	session.SheetName = sheet.Sheet
 	session.SourceFormat = sheet.Format
 	session.Delimiter = sheet.Delimiter
 
-	aiChanges := s.enrich(ctx, session, parsed)
+	aiChanges := s.enrich(ctx, session, parsed, progress)
+
+	progress.report(ImportPhaseMatching, 0, len(parsed.Products))
 	matches, err := s.imports.MatchExistingProducts(ctx, parsed.Products)
 	if err != nil {
 		return nil, err
 	}
+	s.resolveAmbiguousMatches(ctx, session, parsed.Products, matches, progress)
 
+	progress.report(ImportPhaseStaging, 0, len(parsed.Products))
 	rows := buildStagingRows(parsed, matches, aiChanges, session.Mode)
 	applyRowStats(session, rows)
 	session.NewBrands = collectNewBrands(parsed.Products, matches)
@@ -201,7 +266,9 @@ type ImportSettings struct {
 // simply slow leaves the deterministic values in place and marks the session so
 // the review screen can say so plainly, rather than failing an import the admin
 // has already waited on.
-func (s *Service) enrich(ctx context.Context, session *ImportSession, parsed *ParseResult) map[int][]AIChange {
+func (s *Service) enrich(
+	ctx context.Context, session *ImportSession, parsed *ParseResult, progress ProgressFunc,
+) map[int][]AIChange {
 	applyDefaultCategory(parsed.Products, session.Options)
 
 	session.AICalls, session.AIApplied, session.AIFallback, session.AINote = 0, 0, false, ""
@@ -215,6 +282,11 @@ func (s *Service) enrich(ctx context.Context, session *ImportSession, parsed *Pa
 		return nil
 	}
 
+	// Announced before the work starts. Reporting it only once the first batch
+	// returned left the panel claiming to still be parsing for the half-minute
+	// the first request took.
+	progress.report(ImportPhaseEnriching, 0, 0)
+
 	vocab, err := s.imports.ImportVocabulary(ctx, session.OrganizationID)
 	if err != nil {
 		s.log.WarnContext(ctx, "import vocabulary unavailable, skipping enrichment", "error", err)
@@ -223,41 +295,254 @@ func (s *Service) enrich(ctx context.Context, session *ImportSession, parsed *Pa
 		return nil
 	}
 
-	changes := map[int][]AIChange{}
-	var failures int
+	// One question per product family rather than per product. On a real
+	// distributor catalogue this removes about a third of the work before a
+	// single request is sent.
+	cluster := ClusterForEnrichment(parsed.Products, plan, session.Options)
+	asked := EnrichmentPlan{
+		Indices:            cluster.Representatives,
+		WantCategory:       plan.WantCategory,
+		WantDosageForm:     plan.WantDosageForm,
+		WantScientificName: plan.WantScientificName,
+		WantManufacturer:   plan.WantManufacturer,
+	}
 
-	for _, batch := range plan.Batches() {
-		req := BuildEnrichRequest(parsed.Products, batch, plan, vocab)
-		req.OrganizationID = session.OrganizationID
+	batches := asked.Batches()
+	progress.report(ImportPhaseEnriching, 0, len(batches))
+	results := s.runEnrichBatches(ctx, session, parsed.Products, asked, vocab, batches, progress)
+
+	changes := map[int][]AIChange{}
+	for ref, applied := range ApplyEnrichment(
+		parsed.Products, SpreadClusterAnswers(results, cluster), session.Options, vocab,
+	) {
+		changes[ref] = append(changes[ref], applied...)
+	}
+	session.AIApplied = len(changes)
+
+	if session.AINote == "" {
+		session.AINote = fmt.Sprintf(
+			"تمت مراجعة %s صنف عبر الذكاء الاصطناعي في %d طلب (تم توفير %s صنف بتجميع المتشابهات)، "+
+				"واستُكملت بيانات %s صنف.",
+			formatThousands(len(plan.Indices)), session.AICalls,
+			formatThousands(cluster.Saved()), formatThousands(session.AIApplied))
+	}
+	return changes
+}
+
+// enrichConcurrency is how many Gateway calls run at once.
+//
+// The Gateway's plans allow 60-100 requests per minute and a batch takes about
+// half a minute, so six in flight is roughly 12 requests per minute — well
+// inside the limit, while turning what would be an hour-long serial crawl into
+// minutes. Pushing it higher was measurably worse, not better: the calls
+// contend for the same upstream and start overrunning their own timeout.
+const enrichConcurrency = 6
+
+// runEnrichBatches sends the batches, collects the answers, and reports
+// progress as it goes.
+//
+// A batch that fails is skipped, not fatal: its rows keep the deterministic
+// values they already have. Only a run of failures — a Gateway that is down or
+// out of budget — stops the remaining calls, because past that point they are
+// latency the admin pays for nothing.
+func (s *Service) runEnrichBatches(
+	ctx context.Context, session *ImportSession, prods []*Product,
+	plan EnrichmentPlan, vocab EnrichVocabulary, batches [][]int, progress ProgressFunc,
+) []EnrichResult {
+	var (
+		mu        sync.Mutex
+		results   []EnrichResult
+		failures  int
+		done      int
+		firstErr  error
+		abandoned bool
+	)
+
+	work := make(chan []int)
+	var wg sync.WaitGroup
+
+	for worker := 0; worker < min(enrichConcurrency, len(batches)); worker++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for batch := range work {
+				req := BuildEnrichRequest(prods, batch, plan, vocab)
+				req.OrganizationID = session.OrganizationID
+				if session.CreatedBy != nil {
+					req.UserID = *session.CreatedBy
+				}
+
+				resp, err := s.enricher.Enrich(ctx, req)
+
+				mu.Lock()
+				session.AICalls++
+				done++
+				if err != nil {
+					failures++
+					if firstErr == nil {
+						firstErr = err
+					}
+					if failures >= 3 {
+						abandoned = true
+					}
+				} else {
+					results = append(results, resp.Results...)
+				}
+				current, total := done, len(batches)
+				mu.Unlock()
+
+				progress.report(ImportPhaseEnriching, current, total)
+			}
+		}()
+	}
+
+	for _, batch := range batches {
+		mu.Lock()
+		stop := abandoned
+		mu.Unlock()
+		if stop || ctx.Err() != nil {
+			break
+		}
+		work <- batch
+	}
+	close(work)
+	wg.Wait()
+
+	if firstErr != nil {
+		session.AIFallback = true
+		session.AINote = enrichFailureNote(firstErr, failures, len(batches))
+		s.log.WarnContext(ctx, "catalogue enrichment degraded",
+			"session", session.PublicID, "failed_batches", failures,
+			"total_batches", len(batches), "error", firstErr)
+	}
+	return results
+}
+
+// enrichFailureNote explains a degraded run in terms the admin can act on.
+func enrichFailureNote(err error, failed, total int) string {
+	switch {
+	case errors.Is(err, ErrAIQuotaExceeded):
+		return "تم استنفاد رصيد الذكاء الاصطناعي المخصص للمنصة. تم استكمال الاستيراد بالقواعد التلقائية، " +
+			"ويمكن رفع الحد من إعدادات بوابة الذكاء الاصطناعي."
+	case errors.Is(err, ErrAIUnauthorized):
+		return "مفتاح بوابة الذكاء الاصطناعي غير صالح. يرجى مراجعة إعدادات النظام؛ " +
+			"تم استكمال الاستيراد بالقواعد التلقائية."
+	case failed >= total:
+		return "تعذر الوصول إلى خدمة الذكاء الاصطناعي، وتم استكمال الاستيراد بالقواعد التلقائية فقط."
+	default:
+		return fmt.Sprintf(
+			"تعذر إكمال %d طلب من أصل %d عبر الذكاء الاصطناعي؛ باقي الأصناف تمت معالجتها بالقواعد التلقائية.",
+			failed, total)
+	}
+}
+
+// formatThousands renders a count with separators, because the numbers on this
+// screen are routinely in the thousands.
+func formatThousands(n int) string {
+	digits := fmt.Sprintf("%d", n)
+	if len(digits) <= 3 {
+		return digits
+	}
+	var b strings.Builder
+	for i, r := range digits {
+		if i > 0 && (len(digits)-i)%3 == 0 {
+			b.WriteByte(',')
+		}
+		b.WriteRune(r)
+	}
+	return b.String()
+}
+
+// resolveAmbiguousMatches uses similarity, and then a model, on the rows exact
+// matching could not settle.
+//
+// This is where duplicates come from. The same medicine arrives from two
+// distributors under two spellings, exact matching sees two products, and the
+// catalogue grows a second copy that nobody reconciles. Similarity finds the
+// near misses cheaply; the model decides the ones similarity cannot, and only
+// those — a row that matched exactly never gets here, and neither does one with
+// nothing similar in the catalogue.
+func (s *Service) resolveAmbiguousMatches(
+	ctx context.Context, session *ImportSession, prods []*Product,
+	matches map[int]ExistingMatch, progress ProgressFunc,
+) {
+	if !session.Options.UseAI || s.matcher == nil {
+		return
+	}
+	// Nothing to reconcile against in a mode that only ever inserts.
+	if session.Mode == ModeAddNewOnly || session.Mode == ModeClearAndAdd {
+		return
+	}
+
+	unmatched := map[int]string{}
+	for i, p := range prods {
+		if _, done := matches[i]; done || p == nil {
+			continue
+		}
+		if name := p.Name.Get(i18n.AR); strings.TrimSpace(name) != "" {
+			unmatched[i] = name
+		}
+		if len(unmatched) >= maxMatchLookups {
+			break
+		}
+	}
+	if len(unmatched) == 0 {
+		return
+	}
+
+	candidates, err := s.imports.FindMatchCandidates(
+		ctx, session.OrganizationID, unmatched, maxCandidatesPerRow)
+	if err != nil {
+		s.log.WarnContext(ctx, "similarity lookup failed, keeping exact matches only",
+			"session", session.PublicID, "error", err)
+		return
+	}
+
+	questions, certain := BuildMatchQuestions(prods, matches, candidates)
+	for idx, match := range certain {
+		matches[idx] = match
+	}
+	session.AIMatched += len(certain)
+
+	if len(questions) == 0 {
+		return
+	}
+
+	batches := MatchBatches(questions)
+	progress.report(ImportPhaseMatching, 0, len(batches))
+
+	for i, batch := range batches {
+		if ctx.Err() != nil {
+			return
+		}
+		req := MatchRequest{Questions: batch, OrganizationID: session.OrganizationID}
 		if session.CreatedBy != nil {
 			req.UserID = *session.CreatedBy
 		}
 
 		session.AICalls++
-		resp, err := s.enricher.Enrich(ctx, req)
+		decided, err := s.matcher.AdjudicateMatches(ctx, req)
 		if err != nil {
-			failures++
+			// Exact matches stand; the ambiguous rows simply arrive as new
+			// products, which the review table shows the admin.
 			session.AIFallback = true
-			session.AINote = "تعذر الوصول إلى خدمة الذكاء الاصطناعي، وتم استكمال الاستيراد بالقواعد التلقائية فقط."
-			if failures >= 3 {
-				break
-			}
-			continue
+			s.log.WarnContext(ctx, "match adjudication degraded",
+				"session", session.PublicID, "error", err)
+			return
 		}
-
-		for ref, applied := range ApplyEnrichment(parsed.Products, resp.Results, session.Options, vocab) {
-			changes[ref] = append(changes[ref], applied...)
-			session.AIApplied++
-		}
+		session.AIMatched += ApplyMatchDecisions(decided.Decisions, batch, matches)
+		progress.report(ImportPhaseMatching, i+1, len(batches))
 	}
 
-	if session.AINote == "" {
-		session.AINote = fmt.Sprintf(
-			"تمت مراجعة %d صنف عبر الذكاء الاصطناعي في %d دفعة، وتم استكمال بيانات %d صنف.",
-			len(plan.Indices), session.AICalls, session.AIApplied)
-	}
-	return changes
+	s.log.InfoContext(ctx, "ambiguous matches resolved",
+		"session", session.PublicID, "questions", len(questions), "matched", session.AIMatched)
 }
+
+// maxMatchLookups bounds the similarity probes one import performs. Each is an
+// index lookup of roughly fifteen milliseconds, so this is about thirty seconds
+// of work in the worst case — worth paying to avoid duplicating a catalogue,
+// and bounded so a wholly unmatched file cannot turn it into minutes.
+const maxMatchLookups = 2000
 
 // applyDefaultCategory fills the fallback category the admin chose, for every
 // product that ends without one. It runs whether or not AI is on, so a file with
@@ -430,6 +715,13 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 		return session, empty, apperr.Validation("catalog.import_not_reviewable",
 			"لا يمكن تنفيذ هذه الجلسة لأنها أُلغيت أو انتهت صلاحيتها.", nil)
 	}
+	// Preparation runs in the background, so a commit can arrive while the
+	// staging table is still being filled. Committing then would write whatever
+	// happened to have landed — a partial catalogue built from a partial read.
+	if s.progress.Running(publicID) {
+		return session, empty, apperr.Conflict("catalog.import_still_processing",
+			"لا تزال معالجة الملف جارية. يرجى الانتظار حتى اكتمالها ثم التأكيد.")
+	}
 
 	rows, err := s.imports.LoadCommittableRows(ctx, session.ID)
 	if err != nil {
@@ -492,12 +784,10 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
 		return session, written, err
 	}
-	// The file has done its job; keeping a copy of the admin's workbook past the
-	// commit serves nothing.
-	if err := s.imports.ReleaseImportSourceFile(ctx, session.ID); err != nil {
-		s.log.WarnContext(ctx, "could not release import source file",
-			"session", session.PublicID, "error", err)
-	}
+	// The file and the staged rows have done their job; keeping the admin's
+	// workbook and nine thousand staging rows past the commit serves nothing,
+	// and the session row keeps the counts that history needs.
+	s.releaseSessionWorkspace(ctx, session)
 
 	s.log.InfoContext(ctx, "catalogue import committed",
 		"session", session.PublicID, "mode", session.Mode,
@@ -522,7 +812,24 @@ func (s *Service) CancelImport(ctx context.Context, publicID string) error {
 	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
 		return err
 	}
-	return s.imports.ReleaseImportSourceFile(ctx, session.ID)
+	s.releaseSessionWorkspace(ctx, session)
+	return nil
+}
+
+// releaseSessionWorkspace frees what a finished session no longer needs.
+//
+// Best-effort by design: an import that has already been written must not be
+// reported as failed because its scratch space could not be tidied. The reaper
+// that runs when the next session opens collects whatever is left.
+func (s *Service) releaseSessionWorkspace(ctx context.Context, session *ImportSession) {
+	if err := s.imports.ReleaseImportSourceFile(ctx, session.ID); err != nil {
+		s.log.WarnContext(ctx, "could not release import source file",
+			"session", session.PublicID, "error", err)
+	}
+	if err := s.imports.ClearStagingRows(ctx, session.ID); err != nil {
+		s.log.WarnContext(ctx, "could not clear staged rows",
+			"session", session.PublicID, "error", err)
+	}
 }
 
 // GetImportSession loads a session for the review screen.
@@ -670,4 +977,10 @@ func (s *Service) ImportStructure(ctx context.Context, publicID string) (ColumnP
 		return ColumnPlan{}, err
 	}
 	return AnalyzeLayout(sheet).Apply(sheet, session.Overrides).Primary, nil
+}
+
+// EnricherRunning reports whether a background preparation is in flight. Tests
+// use it to catch a run mid-flight; the UI uses ImportProgress.
+func (s *Service) EnricherRunning(publicID string) bool {
+	return s.progress.Running(publicID)
 }

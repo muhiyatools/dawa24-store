@@ -17,12 +17,16 @@ templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 	@layouts.AdminShell("مراجعة نتائج الاستيراد", "import", lang, dir) {
 		<div class="wizard">
 			@wizardRail(reviewStep(view))
-			@importReviewBanner(view)
-			@importReviewStats(view)
-			if view.Session.IsReviewable() {
-				@importStructureCard(view)
-				@importRowsCard(view)
-				@importConfirmCard(view)
+			if view.Working {
+				@importProgressCard(view)
+			} else {
+				@importReviewBanner(view)
+				@importReviewStats(view)
+				if view.Session.IsReviewable() {
+					@importStructureCard(view)
+					@importRowsCard(view)
+					@importConfirmCard(view)
+				}
 			}
 		</div>
 	}
@@ -87,6 +91,9 @@ templ importReviewStats(view ImportReviewView) {
 		}
 		if view.Counts.AIChanged > 0 {
 			@wizStat(FormatCount(view.Counts.AIChanged), "استكمله الذكاء الاصطناعي", "ai")
+		}
+		if view.Session.AIMatched > 0 {
+			@wizStat(FormatCount(view.Session.AIMatched), "طابقه الذكاء الاصطناعي", "ai")
 		}
 		if len(view.Session.NewBrands) > 0 {
 			@wizStat(FormatCount(len(view.Session.NewBrands)), "شركة مصنعة جديدة", "")
@@ -421,4 +428,48 @@ templ rowFilterChip(view ImportReviewView, key, label string) {
 		class={ "wiz-chip", templ.KV("is-on", view.FilterIsActive(key)) }
 		href={ importFilterURL(view, key) }
 	>{ label }</a>
+}
+
+// importProgressCard is what the admin watches while a file is being processed.
+//
+// It polls rather than streams: the answer changes a few times a second at
+// most, and a poll survives a reverse proxy that would buffer an event stream
+// into uselessness. When the run finishes the page reloads itself into the
+// review, so nobody has to know to press refresh.
+templ importProgressCard(view ImportReviewView) {
+	<div class="card mb-0" id="import-progress" data-session={ view.Session.PublicID }>
+		<h2 class="wiz-head">⏳ جارٍ معالجة الملف</h2>
+		<p class="wiz-sub">{ view.SourceSummary() }</p>
+		<div class="wiz-progress">
+			<div class="wiz-progress-track">
+				<div
+					class={ "wiz-progress-fill", templ.KV("is-indeterminate", view.ProgressPercent() < 0) }
+					id="import-progress-fill"
+					if view.ProgressPercent() >= 0 {
+						style={ templ.SafeCSS(fmt.Sprintf("width:%d%%", view.ProgressPercent())) }
+					}
+				></div>
+			</div>
+			<div class="wiz-progress-meta">
+				<span id="import-progress-message">{ view.Progress.Message }</span>
+				<span id="import-progress-count" class="tabular-nums">
+					if view.Progress.Total > 0 {
+						{ fmt.Sprintf("%s / %s", FormatCount(view.Progress.Current), FormatCount(view.Progress.Total)) }
+					}
+				</span>
+			</div>
+		</div>
+		<ol class="wiz-phases">
+			for _, phase := range view.ProgressPhases() {
+				<li class={ "wiz-phase", templ.KV("is-active", phase.Active), templ.KV("is-done", phase.Done) }>
+					<span class="wiz-phase-dot" aria-hidden="true"></span>
+					<span>{ phase.Label }</span>
+				</li>
+			}
+		</ol>
+		<p class="wiz-sub" style="margin-top:1rem;">
+			يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج تلقائياً عند اكتمال المعالجة.
+			لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.
+		</p>
+	</div>
 }

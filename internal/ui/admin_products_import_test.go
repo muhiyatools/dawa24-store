@@ -3,6 +3,7 @@ package ui_test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -47,8 +48,12 @@ const (
 // sessionIDPattern pulls the session id out of the redirect the upload returns.
 var sessionIDPattern = regexp.MustCompile(`/admin/products/import/([0-9a-f-]{36})`)
 
-// uploadImportFile posts a file to the wizard and returns the session id it
-// staged, failing the test if the upload was rejected.
+// uploadImportFile posts a file to the wizard, waits for the background
+// preparation to finish, and returns the session id.
+//
+// Preparation is asynchronous because AI enrichment makes it minutes of work on
+// a real file, so the upload returns as soon as the run starts. The real screen
+// polls the progress endpoint; these tests do the same thing.
 func uploadImportFile(t *testing.T, h http.Handler, content string, settings url.Values) string {
 	t.Helper()
 	rec := postImportFile(t, h, "catalog.csv", content, settings)
@@ -60,7 +65,44 @@ func uploadImportFile(t *testing.T, h http.Handler, content string, settings url
 	if match == nil {
 		t.Fatalf("no session id in redirect %q", rec.Header().Get("Location"))
 	}
-	return match[1]
+
+	sessionID := match[1]
+	waitForPreparation(t, h, sessionID)
+	return sessionID
+}
+
+// waitForPreparation blocks until the background run reports it is finished.
+func waitForPreparation(t *testing.T, h http.Handler, sessionID string) {
+	t.Helper()
+
+	deadline := time.Now().Add(90 * time.Second)
+	for time.Now().Before(deadline) {
+		ctx := authctx.WithActor(context.Background(), superAdmin())
+		req, err := http.NewRequestWithContext(ctx, "GET",
+			"/admin/products/import/"+sessionID+"/progress", nil)
+		if err != nil {
+			t.Fatalf("create progress request: %v", err)
+		}
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+
+		var progress struct {
+			Done    bool   `json:"done"`
+			Failed  bool   `json:"failed"`
+			Message string `json:"message"`
+		}
+		if err := json.Unmarshal(rec.Body.Bytes(), &progress); err != nil {
+			t.Fatalf("decode progress %q: %v", rec.Body.String(), err)
+		}
+		if progress.Failed {
+			t.Fatalf("preparation failed: %s", progress.Message)
+		}
+		if progress.Done {
+			return
+		}
+		time.Sleep(150 * time.Millisecond)
+	}
+	t.Fatal("preparation did not finish within 90s")
 }
 
 // postImportFile uploads content as a multipart file with the wizard's settings.
@@ -419,6 +461,7 @@ func TestAdminProductsImportReprocessesWithCorrectedColumns(t *testing.T) {
 	if rec := postSessionAction(t, h, sessionID, "prepare", settings); rec.Code != http.StatusSeeOther {
 		t.Fatalf("prepare status = %d, want 303", rec.Code)
 	}
+	waitForPreparation(t, h, sessionID)
 	if n := countImportedProducts(t, db); n != 0 {
 		t.Fatalf("re-processing wrote %d products; it must write none", n)
 	}
