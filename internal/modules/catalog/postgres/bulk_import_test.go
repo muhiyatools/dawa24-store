@@ -18,6 +18,10 @@ import (
 // what was created and nothing else.
 const bulkTestSKU = "BULKTEST"
 
+// createAll lets these tests exercise brand and category creation. The toggles
+// that govern it in production are covered by the service tests.
+var createAll = catalog.BulkWriteOptions{CreateBrands: true, CreateCategories: true}
+
 // bulkTestName namespaces product names too.
 //
 // Name matching is one of the behaviours under test, and it runs against
@@ -76,7 +80,7 @@ func TestBulkUpsertProductsInsertsAgainstRealColumnTypes(t *testing.T) {
 	res, err := repo.BulkUpsertProducts(ctx, []*catalog.Product{
 		bulkProduct(bulkTestName("بانادول اكسترا"), bulkTestSKU+"-1", money.MustParse("55.00")),
 		bulkProduct(bulkTestName("كتافلام أقراص"), bulkTestSKU+"-2", money.MustParse("42.00")),
-	})
+	}, createAll)
 	if err != nil {
 		t.Fatalf("bulk upsert failed: %v", err)
 	}
@@ -93,12 +97,12 @@ func TestBulkUpsertProductsMatchesExistingBySKU(t *testing.T) {
 	ctx := database.AsSystem(context.Background())
 
 	first := []*catalog.Product{bulkProduct(bulkTestName("بانادول اكسترا"), bulkTestSKU+"-1", money.MustParse("55.00"))}
-	if _, err := repo.BulkUpsertProducts(ctx, first); err != nil {
+	if _, err := repo.BulkUpsertProducts(ctx, first, createAll); err != nil {
 		t.Fatalf("first write failed: %v", err)
 	}
 
 	second := []*catalog.Product{bulkProduct(bulkTestName("بانادول اكسترا"), bulkTestSKU+"-1", money.MustParse("60.00"))}
-	res, err := repo.BulkUpsertProducts(ctx, second)
+	res, err := repo.BulkUpsertProducts(ctx, second, createAll)
 	if err != nil {
 		t.Fatalf("second write failed: %v", err)
 	}
@@ -121,13 +125,13 @@ func TestBulkUpsertProductsMatchesExistingByFoldedName(t *testing.T) {
 	// ta-marbuta. Folding on both sides is what keeps this one product.
 	if _, err := repo.BulkUpsertProducts(ctx, []*catalog.Product{
 		{Name: i18n.New(bulkTestName("أوجمنتين حقنة"), ""), SKU: bulkTestSKU + "-N1", InstitutionalWorkIDs: []int64{}},
-	}); err != nil {
+	}, createAll); err != nil {
 		t.Fatalf("first write failed: %v", err)
 	}
 
 	res, err := repo.BulkUpsertProducts(ctx, []*catalog.Product{
 		{Name: i18n.New(bulkTestName("اوجمنتين حقنه"), ""), InstitutionalWorkIDs: []int64{}},
-	})
+	}, createAll)
 	if err != nil {
 		t.Fatalf("second write failed: %v", err)
 	}
@@ -155,7 +159,7 @@ func TestBulkUpsertProductsNamesTheRowThatFailed(t *testing.T) {
 		bulkProduct(bulkTestName("صنف سليم أول"), bulkTestSKU+"-1", money.MustParse("10.00")),
 		bulkProduct(bulkTestName("صنف بسعر خارج النطاق"), bulkTestSKU+"-2", money.FromMinor(99999999999999)),
 		bulkProduct(bulkTestName("صنف سليم ثالث"), bulkTestSKU+"-3", money.MustParse("30.00")),
-	})
+	}, createAll)
 
 	if err == nil {
 		t.Fatal("expected the write to fail")
@@ -194,7 +198,7 @@ func TestBulkUpsertProductsRegistersNewManufacturers(t *testing.T) {
 	// Same company, spelled with different casing and spacing: one brand, not two.
 	prods[1].ManufacturingCompanies = "bulktest  pharma"
 
-	res, err := repo.BulkUpsertProducts(ctx, prods)
+	res, err := repo.BulkUpsertProducts(ctx, prods, createAll)
 	if err != nil {
 		t.Fatalf("bulk upsert failed: %v", err)
 	}

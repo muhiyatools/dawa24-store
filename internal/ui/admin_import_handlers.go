@@ -52,7 +52,7 @@ func (h *UIHandler) renderImportConfigure(
 	view := pages.NewImportConfigureView(
 		h.importCategories(ctx),
 		h.recentImportSessions(ctx),
-		h.catSvc != nil && h.catSvc.EnricherAvailable(ctx),
+		h.catSvc != nil && h.catSvc.AIAvailable(ctx),
 	)
 	view.Fatal, view.FatalDetail = seed.Fatal, seed.FatalDetail
 
@@ -147,7 +147,7 @@ func (h *UIHandler) renderImportReview(w http.ResponseWriter, r *http.Request, n
 	}
 
 	view := pages.NewImportReviewView(session, counts, rows, total, filter,
-		h.importCategories(ctx), h.catSvc.EnricherAvailable(ctx))
+		h.importCategories(ctx), h.catSvc.AIAvailable(ctx))
 	view.Notice = notice
 
 	// A run still in flight means the staged rows below belong to the previous
@@ -318,6 +318,7 @@ func readImportSettings(r *http.Request) catalog.ImportSettings {
 		Options: catalog.ImportOptions{
 			AutoCreateBrands:     formChecked(r, "auto_create_brands"),
 			AssignCategory:       formChecked(r, "assign_category"),
+			AutoCreateCategories: formChecked(r, "auto_create_categories"),
 			AssignDosageForm:     formChecked(r, "assign_dosage_form"),
 			AssignScientificName: formChecked(r, "assign_scientific_name"),
 			UseAI:                formChecked(r, "use_ai"),

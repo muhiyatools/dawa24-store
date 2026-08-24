@@ -4,447 +4,483 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
-
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
-// AI enrichment for the catalogue import.
+// AI's role in the import: three small translation jobs, nothing else.
 //
-// The file this was built against is three columns wide — item code,
-// description, vendor — and 8,790 rows long. It carries no category, no
-// pharmaceutical form, no scientific name and no price. Deterministic rules
-// recover the form from the product name for about two thirds of it and can say
-// nothing at all about the rest, which is the gap this closes.
+// The previous design asked a model about every product, which on a
+// fifty-thousand-row file is thousands of requests, minutes of waiting, and a
+// per-row failure mode. None of that bought anything the importer could not do
+// itself, because the questions repeat: a file has a handful of distinct
+// category words and a handful of distinct pharmaceutical forms, and asking
+// about each of the fifty thousand rows that use them asks the same question
+// over and over.
 //
-// Three rules shape the design:
+// So AI answers each distinct question once:
 //
-//   - AI never blocks a commit. Every field it fills has a deterministic answer
-//     underneath, and a Gateway that is disabled, throttled, or out of budget
-//     degrades to that answer rather than failing the import.
-//   - AI only sees rows the deterministic pass could not settle. Sending all
-//     8,790 rows would be 180 calls to decide 3,000 questions.
-//   - AI proposes; the admin disposes. Nothing it decides is written until the
-//     review screen is confirmed, and every change it made is shown as its own
-//     line in the preview.
+//	1. Which spreadsheet column is which product field?
+//	2. Which existing category does each distinct category word mean?
+//	3. Which existing pharmaceutical form does each distinct form word mean?
+//
+// Three requests for any file of any size. Everything after that — every row,
+// every lookup, every insert — is the ordinary importer, which is fast,
+// predictable, and works unchanged when AI is switched off or unreachable.
 
-// Enricher fills the fields a file did not carry. It is an interface so the
-// catalogue module depends on the capability rather than on the Gateway client,
-// and so tests can drive the whole import with a scripted model.
-type Enricher interface {
-	// Enrich resolves the requested fields for a batch of products. It must
-	// return one result per input, in order, and must not error for a row it
-	// cannot resolve — an empty result is a valid "I don't know".
-	Enrich(ctx context.Context, req EnrichRequest) (EnrichResponse, error)
-	// Available reports whether the enricher can currently be called at all.
-	Available(ctx context.Context) bool
-}
-
-// EnrichTarget is one product handed to the model.
-type EnrichTarget struct {
-	Ref            int    `json:"ref"`
-	Name           string `json:"name"`
-	NameEN         string `json:"name_en,omitempty"`
-	Manufacturer   string `json:"manufacturer,omitempty"`
-	DosageForm     string `json:"dosage_form,omitempty"`
-	Concentration  string `json:"concentration,omitempty"`
-	ScientificName string `json:"scientific_name,omitempty"`
-}
-
-// TaxonomyOption is one value the model is allowed to choose from.
+// TaxonomyOption is one value the catalogue already has, with its id.
 type TaxonomyOption struct {
 	ID   int64  `json:"id,omitempty"`
 	Name string `json:"name"`
 }
 
-// EnrichRequest is one batch, with the vocabulary the model must choose within.
-type EnrichRequest struct {
-	Targets []EnrichTarget `json:"products"`
-	// Categories and Brands are what the platform already has. The model picks
-	// from these by id rather than inventing names, which is what keeps an
-	// import from fragmenting the taxonomy into near-duplicates.
-	Categories []TaxonomyOption `json:"categories,omitempty"`
-	Brands     []TaxonomyOption `json:"brands,omitempty"`
-	// DosageForms are the forms already in use across the catalogue.
-	DosageForms []string `json:"dosage_forms,omitempty"`
-
-	WantCategory       bool `json:"-"`
-	WantDosageForm     bool `json:"-"`
-	WantScientificName bool `json:"-"`
-	WantManufacturer   bool `json:"-"`
-
-	OrganizationID int64 `json:"-"`
-	UserID         int64 `json:"-"`
-}
-
-// EnrichResult is the model's answer for one product.
-type EnrichResult struct {
-	Ref        int   `json:"ref"`
-	CategoryID int64 `json:"category_id,omitempty"`
-	// BrandID names an existing brand. BrandName is set instead when the model
-	// identified a manufacturer the catalogue does not have yet, which the
-	// import registers only if the admin allowed auto-created brands.
-	BrandID        int64  `json:"brand_id,omitempty"`
-	BrandName      string `json:"brand_name,omitempty"`
-	DosageForm     string `json:"dosage_form,omitempty"`
-	ScientificName string `json:"scientific_name,omitempty"`
-	Reason         string `json:"reason,omitempty"`
-	// Confidence is the model's own certainty, 0..1. Anything below
-	// minAIConfidence is discarded rather than written.
-	Confidence float64 `json:"confidence,omitempty"`
-}
-
-// EnrichResponse is one batch's answers.
-type EnrichResponse struct {
-	Results []EnrichResult `json:"results"`
-	// Fallback is true when the deterministic path answered instead of a model.
-	Fallback bool `json:"-"`
-}
-
-// minAIConfidence is the floor below which a model's answer is dropped.
-//
-// A wrong category on a pharmaceutical product is worse than a missing one: an
-// empty column reads as "not classified yet", while a confident wrong value
-// reads as fact and propagates into search and reporting.
-const minAIConfidence = 0.55
-
-// aiBatchSize is how many products go into one Gateway call.
-//
-// Latency here is output-bound and close to linear: a batch of 40 measured 33
-// seconds against 23 for 25 and 14 for 15. Forty was overrunning the
-// capability's timeout once several batches contended for the same upstream, so
-// the batch is sized to finish comfortably inside it even under load. Smaller
-// still would multiply the per-call prompt overhead for no gain.
-const aiBatchSize = 25
-
-// maxTaxonomyOptions bounds how much vocabulary is sent per call. A platform
-// with hundreds of brands cannot put all of them in every prompt, so the list is
-// narrowed to what the batch could plausibly match before it is sent.
-const maxTaxonomyOptions = 120
-
-// enrichSystemPrompt is versioned in this repository, alongside the code that
-// parses what it asks for.
-//
-// It is deliberately narrow: choose from the given lists, say nothing when
-// unsure, and never invent a category. The model is doing classification against
-// a fixed vocabulary, not open-ended generation.
-const enrichSystemPromptText = `You are a pharmaceutical catalogue classification assistant for an Egyptian medical marketplace. Product names are mostly Arabic, sometimes transliterated English, and often abbreviated by a distributor's data entry.
-
-For every product you are given, decide only what you are confident about:
-
-- category_id: choose the single best id from the supplied categories list. Use 0 when no category clearly fits. NEVER invent a category id that is not in the list.
-- dosage_form: choose from the supplied dosage_forms list when one fits, in Arabic. Use "" when the name gives no indication of the form.
-- scientific_name: the international generic (INN) name of the active ingredient, in English, e.g. "Paracetamol" or "Amoxicillin + Clavulanic Acid". Use "" for cosmetics, devices and anything with no pharmaceutical active ingredient.
-- brand_id: the id of the manufacturer from the supplied brands list if the product clearly belongs to one. Use 0 if none matches.
-- brand_name: only when you recognise the manufacturer but it is absent from the brands list, give its name. Otherwise "".
-- confidence: your own certainty from 0.0 to 1.0 for this product overall.
-- reason: at most three Arabic words. Keep it terse; it is a label, not an explanation.
-
-Rules:
-- OMIT any field you would leave empty or zero. A shorter object is a cheaper one, and this runs over thousands of products.
-- Be brief. Every extra word is paid for on a file of thousands of products.
-- Never guess. An empty value is correct and expected when the product name does not tell you. A wrong classification is much worse than a missing one.
-- Cosmetics, personal-care items, body sprays, shampoos and wipes are NOT medicines: leave scientific_name empty and classify them by their care category.
-- Return one object per input product, with its "ref" copied exactly.
-
-Respond with ONLY a JSON object of the form:
-{"results":[{"ref":1,"category_id":0,"brand_id":0,"brand_name":"","dosage_form":"","scientific_name":"","confidence":0.0,"reason":""}]}`
-
-// EnrichSystemPrompt is the versioned instruction the enrichment capability
-// runs under. It is exported so the Gateway adapter can send it without the
-// catalogue having to know what a Gateway request looks like.
-func EnrichSystemPrompt() string { return enrichSystemPromptText }
-
-// EnrichSchema constrains the model to the shape DecodeEnrichResponse expects.
-func EnrichSchema() map[string]any { return enrichSchema() }
-
-// enrichSchema constrains the model to the shape the parser expects. The Gateway
-// forwards it as a structured-output request where the provider supports one.
-func enrichSchema() map[string]any {
-	return map[string]any{
-		"name":   "catalog_enrichment",
-		"strict": false,
-		"schema": map[string]any{
-			"type": "object",
-			"properties": map[string]any{
-				"results": map[string]any{
-					"type": "array",
-					"items": map[string]any{
-						"type": "object",
-						"properties": map[string]any{
-							"ref":             map[string]any{"type": "integer"},
-							"category_id":     map[string]any{"type": "integer"},
-							"brand_id":        map[string]any{"type": "integer"},
-							"brand_name":      map[string]any{"type": "string"},
-							"dosage_form":     map[string]any{"type": "string"},
-							"scientific_name": map[string]any{"type": "string"},
-							"confidence":      map[string]any{"type": "number"},
-							"reason":          map[string]any{"type": "string"},
-						},
-						"required": []string{"ref"},
-					},
-				},
-			},
-			"required": []string{"results"},
-		},
-	}
-}
-
-// EnrichmentPlan decides which rows need a model and what to ask about them.
-type EnrichmentPlan struct {
-	// Indices are positions in the product slice that need enrichment.
-	Indices []int
-	// The fields worth asking about, narrowed to what is both switched on and
-	// actually missing across the selected rows.
-	WantCategory       bool
-	WantDosageForm     bool
-	WantScientificName bool
-	WantManufacturer   bool
-}
-
-// Empty reports whether there is nothing to ask.
-func (p EnrichmentPlan) Empty() bool {
-	return len(p.Indices) == 0 ||
-		!(p.WantCategory || p.WantDosageForm || p.WantScientificName || p.WantManufacturer)
-}
-
-// Batches splits the selected rows into Gateway-sized groups.
-func (p EnrichmentPlan) Batches() [][]int {
-	var out [][]int
-	for start := 0; start < len(p.Indices); start += aiBatchSize {
-		out = append(out, p.Indices[start:min(start+aiBatchSize, len(p.Indices))])
-	}
-	return out
-}
-
-// PlanEnrichment selects the rows a model could usefully answer for.
-//
-// A row is selected only when a switched-on field is genuinely empty on it. A
-// file that already names the pharmaceutical form in its own column asks the
-// model nothing, however loudly the switch is on — which is what keeps a clean
-// file free of AI cost entirely.
-func PlanEnrichment(prods []*Product, opts ImportOptions) EnrichmentPlan {
-	var plan EnrichmentPlan
-	if !opts.UseAI {
-		return plan
-	}
-
-	for i, p := range prods {
-		if p == nil {
-			continue
-		}
-		needsCategory := opts.AssignCategory && (p.CategoryID == nil || *p.CategoryID <= 0)
-		// An inferred form is a placeholder, not an answer: "مستحضر صيدلاني"
-		// means the name gave no clue, which is exactly when a model helps.
-		needsDosage := opts.AssignDosageForm && (p.DosageForm == "" || p.DosageForm == defaultDosageForm)
-		needsScientific := opts.AssignScientificName && p.ScientificName == ""
-		needsBrand := opts.AutoCreateBrands && p.ManufacturingCompanies == ""
-
-		if !needsCategory && !needsDosage && !needsScientific && !needsBrand {
-			continue
-		}
-		plan.Indices = append(plan.Indices, i)
-		plan.WantCategory = plan.WantCategory || needsCategory
-		plan.WantDosageForm = plan.WantDosageForm || needsDosage
-		plan.WantScientificName = plan.WantScientificName || needsScientific
-		plan.WantManufacturer = plan.WantManufacturer || needsBrand
-	}
-	return plan
-}
-
-// BuildEnrichRequest assembles one batch's payload.
-func BuildEnrichRequest(prods []*Product, batch []int, plan EnrichmentPlan, vocab EnrichVocabulary) EnrichRequest {
-	req := EnrichRequest{
-		WantCategory:       plan.WantCategory,
-		WantDosageForm:     plan.WantDosageForm,
-		WantScientificName: plan.WantScientificName,
-		WantManufacturer:   plan.WantManufacturer,
-	}
-
-	for _, idx := range batch {
-		p := prods[idx]
-		req.Targets = append(req.Targets, EnrichTarget{
-			// The reference is the product's position in the whole slice, so an
-			// answer that arrives out of order still lands on the right row.
-			Ref:            idx,
-			Name:           p.Name.Get(i18n.AR),
-			NameEN:         p.Name.Get(i18n.EN),
-			Manufacturer:   p.ManufacturingCompanies,
-			DosageForm:     p.DosageForm,
-			Concentration:  p.Concentration,
-			ScientificName: p.ScientificName,
-		})
-	}
-
-	if plan.WantCategory {
-		req.Categories = vocab.Categories
-	}
-	if plan.WantDosageForm {
-		req.DosageForms = vocab.DosageForms
-	}
-	if plan.WantManufacturer {
-		req.Brands = truncateOptions(vocab.Brands, maxTaxonomyOptions)
-	}
-	return req
-}
-
-// EnrichVocabulary is what the platform already knows, offered to the model as
-// the closed set it must choose within.
+// EnrichVocabulary is what the platform already knows: the closed sets a
+// mapping request translates onto, and the manufacturer index the importer
+// reuses so it never creates a brand twice.
 type EnrichVocabulary struct {
 	Categories  []TaxonomyOption
 	Brands      []TaxonomyOption
 	DosageForms []string
 }
 
-func truncateOptions(in []TaxonomyOption, limit int) []TaxonomyOption {
-	if len(in) <= limit {
-		return in
-	}
-	return in[:limit]
+// AIMapper performs the three mapping calls. It is a port so the catalogue
+// depends on the capability rather than on a transport.
+type AIMapper interface {
+	// MapColumns names the product field each spreadsheet column holds.
+	MapColumns(ctx context.Context, req ColumnMapRequest) (ColumnMapResult, error)
+	// MapValues translates distinct source values onto existing catalogue
+	// values, for one taxonomy at a time.
+	MapValues(ctx context.Context, req ValueMapRequest) (ValueMapResult, error)
+	// Available reports whether the Gateway can be called at all.
+	Available(ctx context.Context) bool
 }
 
-// ApplyEnrichment writes a model's accepted answers onto the products and
-// reports what it changed, per row, for the preview.
+// ---------------------------------------------------------------------------
+// Request 1: columns
+// ---------------------------------------------------------------------------
+
+// ColumnMapRequest is the header row plus a few data rows.
 //
-// Nothing here overwrites a value the file supplied. The model fills gaps; it
-// does not correct the supplier.
-func ApplyEnrichment(
-	prods []*Product, results []EnrichResult, opts ImportOptions, vocab EnrichVocabulary,
-) map[int][]AIChange {
-	changes := map[int][]AIChange{}
-	names := taxonomyNames{
-		categories: optionIndex(vocab.Categories),
-		brands:     optionIndex(vocab.Brands),
+// A handful of rows is all a model needs and all it should be paid for: the
+// header names the column and the sample shows what actually sits under it,
+// which is what settles an ambiguous heading like "الكود" holding barcodes.
+type ColumnMapRequest struct {
+	Headers []string   `json:"headers"`
+	Sample  [][]string `json:"sample_rows"`
+	// Fields are the product fields available to map onto, sent so the model
+	// chooses from a closed set instead of inventing names.
+	Fields []FieldOption `json:"target_fields"`
+
+	OrganizationID int64 `json:"-"`
+	UserID         int64 `json:"-"`
+}
+
+// FieldOption is one product field the model may assign a column to.
+type FieldOption struct {
+	Field string `json:"field"`
+	Label string `json:"label"`
+}
+
+// ColumnAssignment is one column the model recognised.
+type ColumnAssignment struct {
+	// Column is one-based, as an admin counts columns in Excel.
+	Column     int     `json:"column"`
+	Field      string  `json:"field"`
+	Confidence float64 `json:"confidence,omitempty"`
+}
+
+// ColumnMapResult is the model's reading of the sheet.
+type ColumnMapResult struct {
+	Columns []ColumnAssignment `json:"columns"`
+}
+
+// sampleRowsForAI is how many data rows go with the header. Enough to show what
+// a column holds; few enough that the request stays small on any file.
+const sampleRowsForAI = 8
+
+// columnMapPrompt is versioned here, beside the code that parses its answer.
+const columnMapPrompt = `You map spreadsheet columns to database fields for an Egyptian pharmaceutical catalogue.
+
+You are given the header row, a few sample data rows, and the list of database fields. For each column you recognise, return its 1-based column number and the field name it holds.
+
+Rules:
+- Use ONLY field names from target_fields. Never invent one.
+- Judge by the sample values, not only the header. A column headed "الكود" holding 13-digit numbers is barcode, not sku.
+- Assign each field to at most one column, and each column to at most one field.
+- OMIT columns you do not recognise. A missing mapping is safe; a wrong one corrupts every row.
+- Arabic headers are common: "اسم الصنف"=name_ar, "الشركة المصنعة"=manufacturer, "سعر البيع"=price, "سعر الجمهور"=public_price, "الشكل الصيدلي"=dosage_form, "التصنيف"/"الفئة"=category, "الاسم العلمي"=generic_name, "التركيز"=concentration, "الوحدة"=unit.
+- Distinguish price kinds: selling price=price, public/consumer price=public_price, cost/purchase price=cost_price.
+
+Respond with ONLY JSON: {"columns":[{"column":1,"field":"name_ar","confidence":0.95}]}`
+
+// ColumnMapPrompt is the instruction the column-mapping capability runs under.
+func ColumnMapPrompt() string { return columnMapPrompt }
+
+// ColumnMapSchema constrains the model to the shape the parser expects.
+func ColumnMapSchema() map[string]any {
+	return map[string]any{
+		"name":   "column_map",
+		"strict": false,
+		"schema": map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"columns": map[string]any{
+					"type": "array",
+					"items": map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"column":     map[string]any{"type": "integer"},
+							"field":      map[string]any{"type": "string"},
+							"confidence": map[string]any{"type": "number"},
+						},
+						"required": []string{"column", "field"},
+					},
+				},
+			},
+			"required": []string{"columns"},
+		},
+	}
+}
+
+// MappableFields are the product fields a model may assign a column to.
+var MappableFields = []string{
+	FieldNameAR, FieldNameEN, FieldSKU, FieldBarcode,
+	FieldPrice, FieldPublicPrice, FieldCostPrice, FieldDiscount,
+	FieldManufacturer, FieldCategory, FieldDosageForm, FieldConcentration,
+	FieldGenericName, FieldActive, FieldUnit, FieldQuantity,
+	FieldDescriptionAR, FieldStatus,
+}
+
+// BuildColumnMapRequest assembles the one request that reads a sheet's shape.
+func BuildColumnMapRequest(data *SheetData, layout SheetLayout) ColumnMapRequest {
+	req := ColumnMapRequest{Fields: make([]FieldOption, 0, len(MappableFields))}
+	for _, field := range MappableFields {
+		req.Fields = append(req.Fields, FieldOption{Field: field, Label: FieldLabels[field]})
+	}
+	if data == nil || len(data.Rows) == 0 {
+		return req
 	}
 
-	for _, res := range results {
-		if res.Ref < 0 || res.Ref >= len(prods) || prods[res.Ref] == nil {
+	headerRow, firstData := -1, 0
+	if len(layout.HeaderRows) > 0 {
+		headerRow = layout.HeaderRows[0]
+		firstData = headerRow + 1
+	}
+	if headerRow >= 0 && headerRow < len(data.Rows) {
+		req.Headers = cleanRow(data.Rows[headerRow])
+	}
+
+	for i := firstData; i < len(data.Rows) && len(req.Sample) < sampleRowsForAI; i++ {
+		if isBlankRow(data.Rows[i]) {
 			continue
 		}
-		// A model that says it is unsure is not believed. A wrong category on a
-		// pharmaceutical product reads as fact and propagates into search and
-		// reporting; an empty one reads as "not classified yet".
-		if res.Confidence > 0 && res.Confidence < minAIConfidence {
-			continue
-		}
-		if applied := applyOneEnrichment(prods[res.Ref], res, opts, names); len(applied) > 0 {
-			changes[res.Ref] = applied
-		}
+		req.Sample = append(req.Sample, cleanRow(data.Rows[i]))
 	}
-	return changes
+	return req
 }
 
-// taxonomyNames resolves the ids a model returns back to names, and is what
-// rejects an id the platform does not have.
-type taxonomyNames struct {
-	categories map[int64]string
-	brands     map[int64]string
-}
-
-// applyOneEnrichment fills one product's gaps and reports what it changed.
-func applyOneEnrichment(
-	p *Product, res EnrichResult, opts ImportOptions, names taxonomyNames,
-) []AIChange {
-	var applied []AIChange
-
-	if opts.AssignCategory && res.CategoryID > 0 && (p.CategoryID == nil || *p.CategoryID <= 0) {
-		if name, known := names.categories[res.CategoryID]; known {
-			id := res.CategoryID
-			p.CategoryID = &id
-			applied = append(applied, AIChange{
-				Field: FieldCategory, Label: "فئة المنتج", Value: name, Reason: res.Reason,
-			})
-		}
-	}
-
-	if opts.AssignDosageForm && res.DosageForm != "" &&
-		(p.DosageForm == "" || p.DosageForm == defaultDosageForm) {
-		p.DosageForm = CleanCellString(res.DosageForm)
-		applied = append(applied, AIChange{
-			Field: FieldDosageForm, Label: "الشكل الصيدلي", Value: p.DosageForm, Reason: res.Reason,
-		})
-	}
-
-	if opts.AssignScientificName && res.ScientificName != "" && p.ScientificName == "" {
-		p.ScientificName = CleanCellString(res.ScientificName)
-		applied = append(applied, AIChange{
-			Field: FieldGenericName, Label: "الاسم العلمي", Value: p.ScientificName, Reason: res.Reason,
-		})
-	}
-
-	if change, ok := applyManufacturer(p, res, opts, names); ok {
-		applied = append(applied, change)
-	}
-	return applied
-}
-
-// applyManufacturer links a known brand or records a proposed new one.
-//
-// A brand the catalogue already has is linked by id, which is what stops an
-// import fragmenting the brand list into five spellings of one company. A
-// manufacturer it has never seen is written onto the product as text and only
-// becomes a brand row at commit, and only if the admin left auto-creation on.
-func applyManufacturer(
-	p *Product, res EnrichResult, opts ImportOptions, names taxonomyNames,
-) (AIChange, bool) {
-	if !opts.AutoCreateBrands || p.ManufacturingCompanies != "" {
-		return AIChange{}, false
-	}
-
-	if name, known := names.brands[res.BrandID]; known && res.BrandID > 0 {
-		id := res.BrandID
-		p.BrandID = &id
-		p.ManufacturingCompanies = name
-		return AIChange{
-			Field: FieldManufacturer, Label: "الشركة المصنعة", Value: name, Reason: res.Reason,
-		}, true
-	}
-
-	clean := CleanCellString(res.BrandName)
-	if clean == "" {
-		return AIChange{}, false
-	}
-	p.ManufacturingCompanies = clean
-	return AIChange{
-		Field: FieldManufacturer, Label: "الشركة المصنعة (جديدة)", Value: clean, Reason: res.Reason,
-	}, true
-}
-
-// FieldCategory names the category field in AI changes. The other field names
-// are the import field constants, so a change lines up with the column it fills.
-const FieldCategory = "category"
-
-func optionIndex(options []TaxonomyOption) map[int64]string {
-	out := make(map[int64]string, len(options))
-	for _, o := range options {
-		out[o.ID] = o.Name
+func cleanRow(row []string) []string {
+	out := make([]string, len(row))
+	for i, cell := range row {
+		// Long free text tells the model nothing extra and costs tokens on
+		// every sample row.
+		out[i] = truncateRunes(CleanCellString(cell), 60)
 	}
 	return out
 }
 
-// EncodeEnrichInput renders a batch as the model's user message.
-func EncodeEnrichInput(req EnrichRequest) (string, error) {
-	body, err := json.Marshal(req)
+func truncateRunes(s string, limit int) string {
+	r := []rune(s)
+	if len(r) <= limit {
+		return s
+	}
+	return string(r[:limit]) + "…"
+}
+
+// ApplyColumnMap turns the model's reading into layout overrides.
+//
+// It is deliberately conservative. A field the model names that the importer
+// does not know is dropped; a column outside the sheet is dropped; and a field
+// the deterministic mapper already bound with certainty is left alone, because
+// an exact header match is better evidence than a model's opinion of it.
+func ApplyColumnMap(result ColumnMapResult, plan ColumnPlan, width int) LayoutOverrides {
+	known := make(map[string]bool, len(MappableFields))
+	for _, field := range MappableFields {
+		known[field] = true
+	}
+
+	certain := map[string]bool{}
+	for _, binding := range plan.Bindings {
+		if binding.Score >= scoreExact {
+			certain[binding.Field] = true
+		}
+	}
+
+	overrides := LayoutOverrides{Columns: map[string]int{}}
+	takenColumn := map[int]bool{}
+	for _, assignment := range result.Columns {
+		field := strings.TrimSpace(assignment.Field)
+		if !known[field] || certain[field] {
+			continue
+		}
+		if assignment.Column < 1 || (width > 0 && assignment.Column > width) {
+			continue
+		}
+		if takenColumn[assignment.Column] {
+			continue
+		}
+		if _, already := overrides.Columns[field]; already {
+			continue
+		}
+		overrides.Columns[field] = assignment.Column
+		takenColumn[assignment.Column] = true
+	}
+
+	if len(overrides.Columns) == 0 {
+		overrides.Columns = nil
+	}
+	return overrides
+}
+
+// DecodeColumnMap reads the model's answer, tolerating markdown fences.
+func DecodeColumnMap(content string) (ColumnMapResult, error) {
+	var out ColumnMapResult
+	if err := decodeJSON(content, &out); err != nil {
+		return ColumnMapResult{}, fmt.Errorf("catalog: decode column map: %w", err)
+	}
+	return out, nil
+}
+
+// ---------------------------------------------------------------------------
+// Requests 2 and 3: taxonomy values
+// ---------------------------------------------------------------------------
+
+// ValueMapKind names which taxonomy a value-mapping request is about.
+type ValueMapKind string
+
+const (
+	// ValueMapCategory maps the file's category words onto فئات المنتجات.
+	ValueMapCategory ValueMapKind = "category"
+	// ValueMapDosageForm maps the file's form words onto الأشكال الصيدلية.
+	ValueMapDosageForm ValueMapKind = "dosage_form"
+)
+
+// ValueMapRequest asks the model to translate a file's distinct values onto the
+// values the catalogue already uses.
+//
+// Distinct is the whole point: a fifty-thousand-row file has perhaps twenty
+// category words in it, so this is one small request no matter how large the
+// file is.
+type ValueMapRequest struct {
+	Kind ValueMapKind `json:"kind"`
+	// Sources are the distinct values found in the file.
+	Sources []string `json:"source_values"`
+	// Targets are what the catalogue already has.
+	Targets []string `json:"existing_values"`
+
+	OrganizationID int64 `json:"-"`
+	UserID         int64 `json:"-"`
+}
+
+// ValueMatch is one translation.
+type ValueMatch struct {
+	Source string `json:"source"`
+	// Target is the existing value it means, or empty when none fits.
+	Target     string  `json:"target"`
+	Confidence float64 `json:"confidence,omitempty"`
+}
+
+// ValueMapResult is the model's translation table.
+type ValueMapResult struct {
+	Matches []ValueMatch `json:"matches"`
+}
+
+// maxDistinctValues bounds one value-mapping request. A file with more distinct
+// category words than this has a mis-mapped column, and the answer to that is
+// the review screen rather than a larger prompt.
+const maxDistinctValues = 300
+
+// minMapConfidence is the floor below which a translation is discarded. A wrong
+// category reads as fact downstream; an unmapped one reads as "not classified".
+const minMapConfidence = 0.6
+
+const valueMapPrompt = `You translate values from a supplier's spreadsheet into the values an Egyptian pharmaceutical catalogue already uses.
+
+You are given source_values (distinct values found in the uploaded file) and existing_values (what the catalogue already has). For each source value, return the existing value it means.
+
+Rules:
+- target MUST be copied EXACTLY from existing_values, character for character. Never invent, translate, reword, or reformat it.
+- Return target as "" when no existing value means the same thing. An empty answer is correct and expected; a wrong one mislabels every product that uses that value.
+- Match meaning, not spelling: Arabic and English names for the same thing match, singular and plural match, and abbreviations match their full form.
+- Different strengths, forms, or audiences are NOT the same value.
+- Return one entry per source value, with source copied exactly.
+- confidence is 0.0 to 1.0.
+
+Respond with ONLY JSON: {"matches":[{"source":"...","target":"...","confidence":0.9}]}`
+
+// ValueMapPrompt is the instruction the value-mapping capability runs under.
+func ValueMapPrompt() string { return valueMapPrompt }
+
+// ValueMapSchema constrains the model to the shape the parser expects.
+func ValueMapSchema() map[string]any {
+	return map[string]any{
+		"name":   "value_map",
+		"strict": false,
+		"schema": map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"matches": map[string]any{
+					"type": "array",
+					"items": map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"source":     map[string]any{"type": "string"},
+							"target":     map[string]any{"type": "string"},
+							"confidence": map[string]any{"type": "number"},
+						},
+						"required": []string{"source", "target"},
+					},
+				},
+			},
+			"required": []string{"matches"},
+		},
+	}
+}
+
+// DistinctValues collects the distinct non-empty values a field holds across
+// the parsed products, in first-seen order.
+//
+// Folding is what keeps the request small: "أقراص", "اقراص" and "Aqras " are
+// one question, and the answer applies to every row that used any of them.
+func DistinctValues(prods []*Product, read func(*Product) string) []string {
+	seen := map[string]bool{}
+	var out []string
+
+	for _, p := range prods {
+		if p == nil {
+			continue
+		}
+		value := CleanCellString(read(p))
+		if value == "" {
+			continue
+		}
+		key := NormalizeKey(value)
+		if key == "" || seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, value)
+		if len(out) >= maxDistinctValues {
+			break
+		}
+	}
+	return out
+}
+
+// ValueMapping is a resolved translation table, keyed by folded source value so
+// every spelling of a value finds it.
+type ValueMapping struct {
+	// resolved maps a folded source value to the exact existing value.
+	resolved map[string]string
+	// unmatched lists source values with no existing equivalent, in the file's
+	// own spelling, for the caller to create when its toggle allows.
+	unmatched []string
+}
+
+// Lookup returns the existing value a source value means.
+func (m ValueMapping) Lookup(source string) (string, bool) {
+	if m.resolved == nil {
+		return "", false
+	}
+	target, ok := m.resolved[NormalizeKey(source)]
+	return target, ok
+}
+
+// Unmatched lists the values nothing existing covers.
+func (m ValueMapping) Unmatched() []string { return m.unmatched }
+
+// Matched is how many distinct values were translated.
+func (m ValueMapping) Matched() int { return len(m.resolved) }
+
+// BuildValueMapping combines exact folding with the model's answer.
+//
+// Exact folding runs first and wins: if the file says "اقراص" and the catalogue
+// has "أقراص", those are the same string once folded and no model is needed or
+// trusted to say so. The model only settles what folding cannot.
+func BuildValueMapping(sources, targets []string, result ValueMapResult) ValueMapping {
+	byFolded := make(map[string]string, len(targets))
+	for _, target := range targets {
+		if key := NormalizeKey(target); key != "" {
+			if _, taken := byFolded[key]; !taken {
+				byFolded[key] = target
+			}
+		}
+	}
+
+	mapping := ValueMapping{resolved: map[string]string{}}
+	fromModel := map[string]ValueMatch{}
+	for _, match := range result.Matches {
+		if key := NormalizeKey(match.Source); key != "" {
+			fromModel[key] = match
+		}
+	}
+
+	for _, source := range sources {
+		key := NormalizeKey(source)
+		if key == "" {
+			continue
+		}
+		if exact, ok := byFolded[key]; ok {
+			mapping.resolved[key] = exact
+			continue
+		}
+
+		match, asked := fromModel[key]
+		target := strings.TrimSpace(match.Target)
+		// The model must name an existing value exactly. Anything else — a
+		// reworded label, an invented one — is discarded rather than written.
+		if asked && target != "" &&
+			(match.Confidence == 0 || match.Confidence >= minMapConfidence) {
+			if exact, known := byFolded[NormalizeKey(target)]; known {
+				mapping.resolved[key] = exact
+				continue
+			}
+		}
+		mapping.unmatched = append(mapping.unmatched, source)
+	}
+
+	sort.Strings(mapping.unmatched)
+	return mapping
+}
+
+// DecodeValueMap reads the model's answer, tolerating markdown fences.
+func DecodeValueMap(content string) (ValueMapResult, error) {
+	var out ValueMapResult
+	if err := decodeJSON(content, &out); err != nil {
+		return ValueMapResult{}, fmt.Errorf("catalog: decode value map: %w", err)
+	}
+	return out, nil
+}
+
+// EncodeJSON renders a request as the model's user message.
+func EncodeJSON(v any) (string, error) {
+	body, err := json.Marshal(v)
 	if err != nil {
-		return "", fmt.Errorf("catalog: encode enrichment request: %w", err)
+		return "", fmt.Errorf("catalog: encode ai request: %w", err)
 	}
 	return string(body), nil
 }
 
-// DecodeEnrichResponse reads the model's answer.
-//
-// Models wrap JSON in markdown fences often enough that stripping them is part
-// of parsing rather than an error worth failing a nine-thousand-row import over.
-func DecodeEnrichResponse(content string) (EnrichResponse, error) {
+// decodeJSON parses a model answer, stripping the markdown fences models wrap
+// JSON in often enough that tolerating them is part of parsing.
+func decodeJSON(content string, into any) error {
 	clean := strings.TrimSpace(content)
 	clean = strings.TrimPrefix(clean, "```json")
 	clean = strings.TrimPrefix(clean, "```")
 	clean = strings.TrimSuffix(clean, "```")
-	clean = strings.TrimSpace(clean)
-
-	var out EnrichResponse
-	if err := json.Unmarshal([]byte(clean), &out); err != nil {
-		return EnrichResponse{}, fmt.Errorf("catalog: decode enrichment response: %w", err)
-	}
-	return out, nil
+	return json.Unmarshal([]byte(strings.TrimSpace(clean)), into)
 }
+
+// NeedsColumnHelp reports whether header detection left enough doubt to be
+// worth an AI request. Exported so the decision is testable on its own.
+func NeedsColumnHelp(plan ColumnPlan) bool { return needsColumnHelp(plan) }

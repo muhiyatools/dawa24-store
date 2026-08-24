@@ -35,7 +35,7 @@ type VariantSearchParams struct {
 // Repository defines the persistence interface for the catalog bounded context.
 type Repository interface {
 	CreateProduct(ctx context.Context, p *Product) error
-	BulkUpsertProducts(ctx context.Context, prods []*Product) (BulkWriteResult, error)
+	BulkUpsertProducts(ctx context.Context, prods []*Product, opts BulkWriteOptions) (BulkWriteResult, error)
 	GetProductByID(ctx context.Context, id int64) (*Product, error)
 	UpdateProduct(ctx context.Context, p *Product) error
 	DeleteProduct(ctx context.Context, id int64) error

@@ -441,6 +441,9 @@ func (c rowCursor) parse() (*Product, bool) {
 		Unit:                   c.value(FieldUnit),
 		ManufacturingCompanies: c.value(FieldManufacturer),
 		InstitutionalWorkIDs:   []int64{},
+		// The file's own category word, kept as text until the taxonomy pass
+		// resolves it to a catalogue category id.
+		SourceCategory: c.value(FieldCategory),
 
 		// The name columns stay in their own language. Copying Arabic into the
 		// English slot — which the previous importer did unconditionally — makes

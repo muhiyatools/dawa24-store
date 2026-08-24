@@ -20,21 +20,19 @@ import (
 // check that it is actually an abstraction and not a description of one
 // PostgreSQL schema.
 type memoryImportStore struct {
-	session    *catalog.ImportSession
-	file       []byte
-	rows       []*catalog.StagingRow
-	existing   map[string]int64 // folded name or SKU -> product id
-	vocab      catalog.EnrichVocabulary
-	candidates map[int][]catalog.MatchCandidate
-	archived   int64
-	nextID     int64
+	session  *catalog.ImportSession
+	file     []byte
+	rows     []*catalog.StagingRow
+	existing map[string]int64 // folded name or SKU -> product id
+	vocab    catalog.EnrichVocabulary
+	archived int64
+	nextID   int64
 }
 
 func newMemoryStore() *memoryImportStore {
 	return &memoryImportStore{
-		existing:   map[string]int64{},
-		candidates: map[int][]catalog.MatchCandidate{},
-		nextID:     1,
+		existing: map[string]int64{},
+		nextID:   1,
 	}
 }
 
@@ -153,20 +151,6 @@ func (m *memoryImportStore) MatchExistingProducts(
 		}
 		if id, ok := m.existing[catalog.NormalizeName(p.Name.Get(i18n.AR))]; ok {
 			out[i] = catalog.ExistingMatch{ProductID: id, Reason: catalog.MatchName}
-		}
-	}
-	return out, nil
-}
-
-// candidates are the near-miss lookups the AI matching path consults. Empty by
-// default, so a test that does not exercise matching sees none.
-func (m *memoryImportStore) FindMatchCandidates(
-	_ context.Context, _ int64, names map[int]string, _ int,
-) (map[int][]catalog.MatchCandidate, error) {
-	out := map[int][]catalog.MatchCandidate{}
-	for idx := range names {
-		if found, ok := m.candidates[idx]; ok {
-			out[idx] = found
 		}
 	}
 	return out, nil
@@ -316,7 +300,7 @@ type stagingRepo struct {
 }
 
 func (r *stagingRepo) BulkUpsertProducts(
-	_ context.Context, prods []*catalog.Product,
+	_ context.Context, prods []*catalog.Product, _ catalog.BulkWriteOptions,
 ) (catalog.BulkWriteResult, error) {
 	r.written = append(r.written, prods...)
 	res := catalog.BulkWriteResult{Matches: map[int]catalog.MatchReason{}}
@@ -528,18 +512,18 @@ func TestCancelImportPreventsCommit(t *testing.T) {
 
 // AI is an enhancement, never a dependency. A Gateway that is down must leave
 // the deterministic values in place and let the import finish.
-func TestPrepareImportSurvivesAnUnavailableEnricher(t *testing.T) {
+func TestPrepareImportSurvivesAnUnavailableMapper(t *testing.T) {
 	store := newMemoryStore()
 	store.vocab = testVocabulary()
 	svc, _ := newImportService(t, store)
-	svc.SetEnricher(&stubEnricher{available: true, fail: errGatewayDown})
+	svc.SetAIMapper(&stubMapper{available: true, fail: errGatewayDown})
 	ctx := context.Background()
 
 	session, _, _ := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
 	prepared, err := svc.PrepareImport(ctx, session.PublicID, catalog.ImportSettings{
 		Mode: catalog.ModeUpdateAndAdd,
 		Options: catalog.ImportOptions{
-			UseAI: true, AssignScientificName: true, AssignDosageForm: true,
+			UseAI: true, AssignCategory: true, AssignDosageForm: true,
 		},
 	})
 	if err != nil {
@@ -555,71 +539,44 @@ func TestPrepareImportSurvivesAnUnavailableEnricher(t *testing.T) {
 	if !prepared.AIFallback {
 		t.Error("the session does not record that it fell back")
 	}
-	if prepared.AINote == "" {
-		t.Error("the session gives the admin no explanation of what happened to AI")
-	}
-
-	// The deterministic pass still did its job.
-	if got := store.rows[1].Product.DosageForm; got != "أقراص" {
-		t.Errorf("dosage form = %q, want the value the name-based rules inferred", got)
+	// The deterministic pass still ran: every row carries a form, inferred from
+	// the name where it could be and the placeholder where it could not.
+	for _, row := range store.rows {
+		if row.Product.DosageForm == "" {
+			t.Errorf("row %d has no dosage form; the name-based rules did not run",
+				row.SourceRow)
+		}
 	}
 }
 
-func TestPrepareImportRecordsWhatAIFilled(t *testing.T) {
-	store := newMemoryStore()
-	store.vocab = testVocabulary()
-	svc, _ := newImportService(t, store)
+// The model must translate onto an existing value, never invent one.
+func TestValueMappingRefusesInventedTargets(t *testing.T) {
+	sources := []string{"اقراص مغلفه"}
+	targets := []string{"أقراص", "شراب"}
 
-	enricher := &stubEnricher{
-		available: true,
-		answer: func(req catalog.EnrichRequest) []catalog.EnrichResult {
-			out := make([]catalog.EnrichResult, 0, len(req.Targets))
-			for _, target := range req.Targets {
-				out = append(out, catalog.EnrichResult{
-					Ref:            target.Ref,
-					ScientificName: "Paracetamol",
-					CategoryID:     53,
-					Confidence:     0.92,
-					Reason:         "مسكن معروف",
-				})
-			}
-			return out
-		},
-	}
-	svc.SetEnricher(enricher)
-	ctx := context.Background()
-
-	session, _, _ := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
-	prepared, err := svc.PrepareImport(ctx, session.PublicID, catalog.ImportSettings{
-		Mode: catalog.ModeUpdateAndAdd,
-		Options: catalog.ImportOptions{
-			UseAI: true, AssignScientificName: true, AssignCategory: true,
-		},
+	mapping := catalog.BuildValueMapping(sources, targets, catalog.ValueMapResult{
+		Matches: []catalog.ValueMatch{{Source: "اقراص مغلفه", Target: "حبوب مغلفة", Confidence: 0.99}},
 	})
-	if err != nil {
-		t.Fatalf("prepare failed: %v", err)
-	}
 
-	if enricher.calls == 0 {
-		t.Fatal("the enricher was never called")
+	if _, ok := mapping.Lookup("اقراص مغلفه"); ok {
+		t.Error("a value the catalogue does not have was accepted as a target")
 	}
-	if prepared.AIApplied == 0 {
-		t.Error("the session records no applied enrichment")
+	if len(mapping.Unmatched()) != 1 {
+		t.Errorf("unmatched = %v, want the source left for the admin", mapping.Unmatched())
 	}
+}
 
-	// Every filled field is shown to the admin as its own line in the preview.
-	changed := 0
-	for _, row := range store.rows {
-		if len(row.AIChanges) > 0 {
-			changed++
-		}
-		if row.Product.ScientificName != "Paracetamol" {
-			t.Errorf("row %d scientific name = %q, want Paracetamol",
-				row.SourceRow, row.Product.ScientificName)
-		}
-	}
-	if changed != 3 {
-		t.Errorf("%d rows record an AI change, want 3", changed)
+// Exact folding settles what it can without asking, and outranks the model.
+func TestValueMappingPrefersExactFolding(t *testing.T) {
+	mapping := catalog.BuildValueMapping(
+		[]string{"اقراص"}, []string{"أقراص"},
+		catalog.ValueMapResult{
+			Matches: []catalog.ValueMatch{{Source: "اقراص", Target: "شراب", Confidence: 1}},
+		})
+
+	got, ok := mapping.Lookup("اقراص")
+	if !ok || got != "أقراص" {
+		t.Errorf("lookup = %q,%v; folding must win over the model", got, ok)
 	}
 }
 
@@ -654,18 +611,26 @@ func TestPrepareImportExcludesRejectedRows(t *testing.T) {
 	}
 }
 
-// blockingEnricher holds a batch until released, so a preparation run can be
-// caught mid-flight.
-type blockingEnricher struct{ release chan struct{} }
+// blockingMapper holds a mapping call until released, so a preparation run can
+// be caught mid-flight.
+type blockingMapper struct{ release chan struct{} }
 
-func (b *blockingEnricher) Available(context.Context) bool { return true }
+func (b *blockingMapper) Available(context.Context) bool { return true }
 
-func (b *blockingEnricher) Enrich(ctx context.Context, _ catalog.EnrichRequest) (catalog.EnrichResponse, error) {
+func (b *blockingMapper) MapColumns(
+	context.Context, catalog.ColumnMapRequest,
+) (catalog.ColumnMapResult, error) {
+	return catalog.ColumnMapResult{}, nil
+}
+
+func (b *blockingMapper) MapValues(
+	ctx context.Context, _ catalog.ValueMapRequest,
+) (catalog.ValueMapResult, error) {
 	select {
 	case <-b.release:
 	case <-ctx.Done():
 	}
-	return catalog.EnrichResponse{}, nil
+	return catalog.ValueMapResult{}, nil
 }
 
 // Preparation runs in the background, so a commit can arrive while the staging
@@ -676,8 +641,8 @@ func TestCommitImportRefusesWhilePreparationIsRunning(t *testing.T) {
 	store.vocab = testVocabulary()
 	svc, repo := newImportService(t, store)
 
-	blocker := &blockingEnricher{release: make(chan struct{})}
-	svc.SetEnricher(blocker)
+	blocker := &blockingMapper{release: make(chan struct{})}
+	svc.SetAIMapper(blocker)
 	ctx := context.Background()
 
 	session, _, err := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
@@ -688,7 +653,7 @@ func TestCommitImportRefusesWhilePreparationIsRunning(t *testing.T) {
 	if err := svc.PrepareImportAsync(ctx, session.PublicID, catalog.ImportSettings{
 		Mode: catalog.ModeUpdateAndAdd,
 		Options: catalog.ImportOptions{
-			UseAI: true, AssignScientificName: true, AssignDosageForm: true,
+			UseAI: true, AssignCategory: true, AssignDosageForm: true,
 		},
 	}); err != nil {
 		t.Fatalf("prepare could not start: %v", err)

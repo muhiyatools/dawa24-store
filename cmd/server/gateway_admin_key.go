@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"sync"
 	"time"
 
@@ -80,10 +81,18 @@ func (p *adminKeyProvisioner) Key(ctx context.Context) string {
 		return ""
 	}
 
-	// A key an operator or a previous run already stored is used as-is.
+	// A stored key is trusted only after it is checked. Issuing a key for a user
+	// revokes the previous one, so a second instance booting — or a re-run of
+	// provisioning — leaves whatever is stored here silently dead, and every AI
+	// call fails with "invalid or revoked virtual key" until somebody notices.
 	if settings.VirtualKey != "" {
-		p.cached, p.cachedAt = settings.VirtualKey, time.Now()
-		return p.cached
+		if p.keyWorks(sysCtx, settings) {
+			p.cached, p.cachedAt = settings.VirtualKey, time.Now()
+			return p.cached
+		}
+		p.log.WarnContext(ctx, "stored gateway key no longer valid, re-provisioning",
+			"gateway_user", settings.AIUserID)
+		settings.VirtualKey = ""
 	}
 
 	if !settings.CanProvision() {
@@ -135,6 +144,23 @@ func (p *adminKeyProvisioner) provision(ctx context.Context, settings *platforma
 	p.log.InfoContext(ctx, "provisioned admin panel gateway identity",
 		"gateway_user", userID, "endpoint", settings.EndpointURL)
 	return key, nil
+}
+
+// keyWorks checks a stored key against the Gateway, treating an unreachable
+// Gateway as "assume it still works": a transient outage must not cause a
+// pointless re-provision that revokes a key which was fine.
+func (p *adminKeyProvisioner) keyWorks(ctx context.Context, settings *platformadmin.GatewaySettings) bool {
+	if !settings.CanProvision() {
+		return true
+	}
+	username, password := settings.AdminCredentials()
+	client := gateway.NewAdminClient(settings.EndpointURL, username, password)
+
+	err := client.ValidateVirtualKey(ctx, settings.VirtualKey)
+	if err == nil {
+		return true
+	}
+	return !strings.Contains(err.Error(), "rejected")
 }
 
 // Invalidate drops the cached key, so the next call re-reads settings. The

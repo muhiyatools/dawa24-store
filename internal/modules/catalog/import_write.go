@@ -50,8 +50,11 @@ type WriteFailure struct {
 type BulkWriteResult struct {
 	Inserted int
 	Updated  int
-	// BrandsCreated counts manufacturers registered as new brands along the way.
-	BrandsCreated int
+	// BrandsCreated and CategoriesCreated count the taxonomy rows this import
+	// added. Both are zero on a re-import of the same file: an existing row is
+	// always reused, never duplicated.
+	BrandsCreated     int
+	CategoriesCreated int
 	// Matches maps a batch index to how that product was matched, for the rows
 	// that updated an existing product rather than inserting a new one.
 	Matches map[int]MatchReason
@@ -89,4 +92,14 @@ func (r BulkWriteResult) Error() string {
 type ExistingMatch struct {
 	ProductID int64       `json:"product_id"`
 	Reason    MatchReason `json:"reason"`
+}
+
+// BulkWriteOptions govern what a bulk write may create alongside the products.
+//
+// They exist because "link to an existing manufacturer" and "invent a new one"
+// are different permissions. An import always reuses a taxonomy row it finds;
+// these say whether it may add one it does not.
+type BulkWriteOptions struct {
+	CreateBrands     bool
+	CreateCategories bool
 }

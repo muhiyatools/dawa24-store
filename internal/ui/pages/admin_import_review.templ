@@ -89,11 +89,11 @@ templ importReviewStats(view ImportReviewView) {
 		if view.Counts.Errors > 0 {
 			@wizStat(FormatCount(view.Counts.Errors), "صف مرفوض", "error")
 		}
-		if view.Counts.AIChanged > 0 {
-			@wizStat(FormatCount(view.Counts.AIChanged), "استكمله الذكاء الاصطناعي", "ai")
+		if view.Session.AICalls > 0 {
+			@wizStat(FormatCount(view.Session.AICalls), "طلب ذكاء اصطناعي", "ai")
 		}
-		if view.Session.AIMatched > 0 {
-			@wizStat(FormatCount(view.Session.AIMatched), "طابقه الذكاء الاصطناعي", "ai")
+		if len(view.Session.NewCategories) > 0 {
+			@wizStat(FormatCount(len(view.Session.NewCategories)), "فئة جديدة", "")
 		}
 		if len(view.Session.NewBrands) > 0 {
 			@wizStat(FormatCount(len(view.Session.NewBrands)), "شركة مصنعة جديدة", "")

@@ -112,6 +112,9 @@ type ImportOptions struct {
 	AutoCreateBrands bool `json:"auto_create_brands"`
 	// AssignCategory fills catalog.products.category_id.
 	AssignCategory bool `json:"assign_category"`
+	// AutoCreateCategories registers a category named in the file that the
+	// catalogue does not have. Linking to an existing one never needs it.
+	AutoCreateCategories bool `json:"auto_create_categories"`
 	// AssignDosageForm fills the pharmaceutical form.
 	AssignDosageForm bool `json:"assign_dosage_form"`
 	// AssignScientificName fills the generic name.
@@ -205,6 +208,9 @@ type ImportSession struct {
 	// create. They are proposals until the admin confirms; nothing is written
 	// during analysis.
 	NewBrands []string `json:"new_brands,omitempty"`
+	// NewCategories are the category words nothing existing covers. They become
+	// real rows at commit, and only when auto-creation is on.
+	NewCategories []string `json:"new_categories,omitempty"`
 
 	AICalls int `json:"ai_calls"`
 	// AIMatched counts rows tied to an existing product by similarity or by the

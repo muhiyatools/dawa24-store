@@ -40,6 +40,7 @@ const (
 	FieldDescriptionEN = "description_en"
 	FieldQuantity      = "quantity"
 	FieldStatus        = "status"
+	FieldCategory      = "category"
 )
 
 // FieldLabels are the Arabic names shown in the import report, so an admin
@@ -63,6 +64,7 @@ var FieldLabels = map[string]string{
 	FieldDescriptionEN: "الوصف بالإنجليزي",
 	FieldQuantity:      "الكمية",
 	FieldStatus:        "الحالة",
+	FieldCategory:      "فئة المنتج",
 }
 
 // Match strengths. The gaps are wide on purpose: an exact header match must beat
@@ -263,6 +265,21 @@ var fieldSpecs = []fieldSpec{
 		strong:  []string{"quantityavailable", "stockquantity", "الكميهالمتوفره", "الرصيدالمتاح", "كميهالمخزون"},
 		weak:    []string{"quantity", "qty", "stock", "الكميه", "الرصيد"},
 		blocked: []string{"minqty", "maxqty", "الحدالادني", "الحدالاقصي"},
+	},
+	{
+		field: FieldCategory,
+		exact: []string{
+			"category", "categoryname", "التصنيف", "الفئة", "فئه", "تصنيف",
+			"القسم", "المجموعه", "فئهالمنتج", "تصنيفالمنتج", "نوعالمنتج",
+		},
+		strong: []string{
+			"productcategory", "categoryname", "فئهالمنتج", "تصنيفالمنتج",
+			"القسمالرئيسي", "المجموعهالرئيسيه",
+		},
+		weak: []string{"category", "التصنيف", "الفئه", "القسم", "المجموعه"},
+		// A "تصنيف" that is really a sub-classification of the dosage form, or
+		// a category code rather than a name, is not this field.
+		blocked: []string{"كودالتصنيف", "categorycode", "categoryid", "subcategory"},
 	},
 	{
 		field:   FieldStatus,

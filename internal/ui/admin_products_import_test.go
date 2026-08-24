@@ -39,11 +39,26 @@ func superAdmin() authctx.Actor {
 	return authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
 }
 
-// importTestSKU and importTestTag namespace the rows these tests create.
-const (
-	importTestSKU = "UITEST-IMPORT"
-	importTestTag = "UITEST"
-)
+// importTestTag marks every row these tests create, so a stray one is
+// recognisable in the catalogue they run against.
+const importTestTag = "UITEST"
+
+// testNamespace gives one test its own SKU prefix.
+//
+// These run against a shared database — in practice a real catalogue of
+// thousands of products — and they create, count, and delete rows by prefix. A
+// single prefix for the whole file means each test counts its neighbours' rows
+// and deletes rows a neighbour is still using, which is exactly the flakiness
+// this replaces.
+func testNamespace(t *testing.T) string {
+	safe := strings.Map(func(r rune) rune {
+		if (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			return r
+		}
+		return '-'
+	}, t.Name())
+	return "UITEST-" + safe
+}
 
 // sessionIDPattern pulls the session id out of the redirect the upload returns.
 var sessionIDPattern = regexp.MustCompile(`/admin/products/import/([0-9a-f-]{36})`)
@@ -162,29 +177,35 @@ func postSessionAction(
 	return rec
 }
 
-func cleanupImportedProducts(t *testing.T, db *database.DB) {
+func cleanupImportedProducts(t *testing.T, db *database.DB) string {
 	t.Helper()
+	ns := testNamespace(t)
 	// Reported, not swallowed. A cleanup that silently fails leaves rows behind
 	// that make the next run of these tests measure the wrong thing — which is
 	// exactly what happened while this suite was being written.
 	t.Cleanup(func() {
 		err := deleteWithRetry(context.Background(), db, func(txCtx context.Context, tx pgx.Tx) error {
 			if _, err := tx.Exec(txCtx,
-				`DELETE FROM catalog.products WHERE sku LIKE $1`, importTestSKU+"%"); err != nil {
+				`DELETE FROM catalog.products WHERE sku LIKE $1`, ns+"%"); err != nil {
 				return err
 			}
 			if _, err := tx.Exec(txCtx,
 				`DELETE FROM catalog.brands WHERE name->>'ar' LIKE 'UITest%'`); err != nil {
 				return err
 			}
-			_, err := tx.Exec(txCtx,
-				`DELETE FROM catalog.import_sessions WHERE filename IN ('catalog.csv','old.xls','empty.csv')`)
-			return err
+			// Sessions are deliberately not deleted here. Preparation runs in
+			// the background, so a blanket delete by filename removes the
+			// session another test is still preparing against — which shows up
+			// as a foreign-key violation on its staging rows. The staging rows
+			// are cleared on commit and cancel, and the reaper collects the
+			// session rows themselves.
+			return nil
 		})
 		if err != nil {
 			t.Errorf("cleanup failed, leaving rows behind for the next run: %v", err)
 		}
 	})
+	return ns
 }
 
 // deleteWithRetry runs a cleanup transaction, retrying briefly.
@@ -206,13 +227,13 @@ func deleteWithRetry(ctx context.Context, db *database.DB, fn func(context.Conte
 	return err
 }
 
-func countImportedProducts(t *testing.T, db *database.DB) int {
+func countImportedProducts(t *testing.T, db *database.DB, ns string) int {
 	t.Helper()
 	var n int
 	err := db.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
 		return tx.QueryRow(txCtx,
 			`SELECT count(*) FROM catalog.products WHERE sku LIKE $1 AND deleted_at IS NULL`,
-			importTestSKU+"%").Scan(&n)
+			ns+"%").Scan(&n)
 	})
 	if err != nil {
 		t.Fatalf("count imported products: %v", err)
@@ -235,11 +256,11 @@ func defaultSettings() url.Values {
 	}
 }
 
-func threeProductFixture() string {
+func threeProductFixture(ns string) string {
 	return importFixture(
-		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,55.00,UITest Pharma", importTestTag, importTestSKU),
-		fmt.Sprintf("%s كتافلام 50 مجم أقراص,%s-2,42.00,UITest Pharma", importTestTag, importTestSKU),
-		fmt.Sprintf("%s اوجمنتين 1 جم,%s-3,115.00,UITest Labs", importTestTag, importTestSKU),
+		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,55.00,UITest Pharma", importTestTag, ns),
+		fmt.Sprintf("%s كتافلام 50 مجم أقراص,%s-2,42.00,UITest Pharma", importTestTag, ns),
+		fmt.Sprintf("%s اوجمنتين 1 جم,%s-3,115.00,UITest Labs", importTestTag, ns),
 	)
 }
 
@@ -248,11 +269,11 @@ func threeProductFixture() string {
 func TestAdminProductsImportStagesWithoutWriting(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
-	sessionID := uploadImportFile(t, h, threeProductFixture(), defaultSettings())
+	sessionID := uploadImportFile(t, h, threeProductFixture(ns), defaultSettings())
 
-	if n := countImportedProducts(t, db); n != 0 {
+	if n := countImportedProducts(t, db, ns); n != 0 {
 		t.Fatalf("catalogue holds %d products after upload, want 0 — nothing may be written before confirmation", n)
 	}
 
@@ -271,15 +292,15 @@ func TestAdminProductsImportStagesWithoutWriting(t *testing.T) {
 func TestAdminProductsImportCommitsAfterConfirmation(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
-	sessionID := uploadImportFile(t, h, threeProductFixture(), defaultSettings())
+	sessionID := uploadImportFile(t, h, threeProductFixture(ns), defaultSettings())
 
 	rec := postSessionAction(t, h, sessionID, "commit", url.Values{})
 	if rec.Code != http.StatusSeeOther {
 		t.Fatalf("commit status = %d, want 303; body: %s", rec.Code, truncate(rec.Body.String(), 600))
 	}
-	if n := countImportedProducts(t, db); n != 3 {
+	if n := countImportedProducts(t, db, ns); n != 3 {
 		t.Fatalf("catalogue holds %d products after commit, want 3", n)
 	}
 }
@@ -287,20 +308,20 @@ func TestAdminProductsImportCommitsAfterConfirmation(t *testing.T) {
 func TestAdminProductsImportCancelWritesNothing(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
-	sessionID := uploadImportFile(t, h, threeProductFixture(), defaultSettings())
+	sessionID := uploadImportFile(t, h, threeProductFixture(ns), defaultSettings())
 
 	if rec := postSessionAction(t, h, sessionID, "cancel", url.Values{}); rec.Code != http.StatusSeeOther {
 		t.Fatalf("cancel status = %d, want 303", rec.Code)
 	}
-	if n := countImportedProducts(t, db); n != 0 {
+	if n := countImportedProducts(t, db, ns); n != 0 {
 		t.Fatalf("catalogue holds %d products after cancelling, want 0", n)
 	}
 
 	// A cancelled session cannot then be committed behind the admin's back.
 	postSessionAction(t, h, sessionID, "commit", url.Values{})
-	if n := countImportedProducts(t, db); n != 0 {
+	if n := countImportedProducts(t, db, ns); n != 0 {
 		t.Fatalf("a cancelled session wrote %d products, want 0", n)
 	}
 }
@@ -310,27 +331,27 @@ func TestAdminProductsImportCancelWritesNothing(t *testing.T) {
 func TestAdminProductsImportUpdatesRatherThanDuplicating(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
 	first := importFixture(
-		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,55.00,UITest Pharma", importTestTag, importTestSKU),
+		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,55.00,UITest Pharma", importTestTag, ns),
 	)
 	sessionID := uploadImportFile(t, h, first, defaultSettings())
 	if rec := postSessionAction(t, h, sessionID, "commit", url.Values{}); rec.Code != http.StatusSeeOther {
 		t.Fatalf("first commit status = %d", rec.Code)
 	}
-	if n := countImportedProducts(t, db); n != 1 {
+	if n := countImportedProducts(t, db, ns); n != 1 {
 		t.Fatalf("after first import: %d products, want 1", n)
 	}
 
 	corrected := importFixture(
-		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,60.00,UITest Pharma", importTestTag, importTestSKU),
+		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,60.00,UITest Pharma", importTestTag, ns),
 	)
 	sessionID = uploadImportFile(t, h, corrected, defaultSettings())
 	if rec := postSessionAction(t, h, sessionID, "commit", url.Values{}); rec.Code != http.StatusSeeOther {
 		t.Fatalf("second commit status = %d", rec.Code)
 	}
-	if n := countImportedProducts(t, db); n != 1 {
+	if n := countImportedProducts(t, db, ns); n != 1 {
 		t.Fatalf("after re-import: %d products, want 1 (updated, not duplicated)", n)
 	}
 
@@ -338,7 +359,7 @@ func TestAdminProductsImportUpdatesRatherThanDuplicating(t *testing.T) {
 	err := db.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
 		return tx.QueryRow(txCtx,
 			`SELECT price::text FROM catalog.products WHERE sku = $1 AND deleted_at IS NULL`,
-			importTestSKU+"-1").Scan(&price)
+			ns+"-1").Scan(&price)
 	})
 	if err != nil {
 		t.Fatalf("read updated price: %v", err)
@@ -352,10 +373,10 @@ func TestAdminProductsImportUpdatesRatherThanDuplicating(t *testing.T) {
 func TestAdminProductsImportAddNewOnlySkipsExisting(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
 	seed := importFixture(
-		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,55.00,UITest Pharma", importTestTag, importTestSKU),
+		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,55.00,UITest Pharma", importTestTag, ns),
 	)
 	sessionID := uploadImportFile(t, h, seed, defaultSettings())
 	postSessionAction(t, h, sessionID, "commit", url.Values{})
@@ -363,15 +384,15 @@ func TestAdminProductsImportAddNewOnlySkipsExisting(t *testing.T) {
 	settings := defaultSettings()
 	settings.Set("import_mode", "add_new_only")
 	both := importFixture(
-		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,99.00,UITest Pharma", importTestTag, importTestSKU),
-		fmt.Sprintf("%s كتافلام 50 مجم أقراص,%s-2,42.00,UITest Pharma", importTestTag, importTestSKU),
+		fmt.Sprintf("%s بانادول اكسترا 500 مجم,%s-1,99.00,UITest Pharma", importTestTag, ns),
+		fmt.Sprintf("%s كتافلام 50 مجم أقراص,%s-2,42.00,UITest Pharma", importTestTag, ns),
 	)
 	sessionID = uploadImportFile(t, h, both, settings)
 	if rec := postSessionAction(t, h, sessionID, "commit", url.Values{}); rec.Code != http.StatusSeeOther {
 		t.Fatalf("commit status = %d", rec.Code)
 	}
 
-	if n := countImportedProducts(t, db); n != 2 {
+	if n := countImportedProducts(t, db, ns); n != 2 {
 		t.Fatalf("catalogue holds %d products, want 2", n)
 	}
 
@@ -379,7 +400,7 @@ func TestAdminProductsImportAddNewOnlySkipsExisting(t *testing.T) {
 	err := db.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
 		return tx.QueryRow(txCtx,
 			`SELECT price::text FROM catalog.products WHERE sku = $1 AND deleted_at IS NULL`,
-			importTestSKU+"-1").Scan(&price)
+			ns+"-1").Scan(&price)
 	})
 	if err != nil {
 		t.Fatalf("read price: %v", err)
@@ -394,11 +415,11 @@ func TestAdminProductsImportAddNewOnlySkipsExisting(t *testing.T) {
 func TestAdminProductsImportArchiveModeRequiresConfirmation(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
 	settings := defaultSettings()
 	settings.Set("import_mode", "clear_and_add")
-	sessionID := uploadImportFile(t, h, threeProductFixture(), settings)
+	sessionID := uploadImportFile(t, h, threeProductFixture(ns), settings)
 
 	rec := postSessionAction(t, h, sessionID, "commit", url.Values{})
 	if rec.Code == http.StatusSeeOther {
@@ -407,7 +428,7 @@ func TestAdminProductsImportArchiveModeRequiresConfirmation(t *testing.T) {
 	if !strings.Contains(rec.Body.String(), "يجب تأكيد أرشفة") {
 		t.Error("the refusal does not explain that the acknowledgement is required")
 	}
-	if n := countImportedProducts(t, db); n != 0 {
+	if n := countImportedProducts(t, db, ns); n != 0 {
 		t.Fatalf("catalogue holds %d products, want 0", n)
 	}
 }
@@ -416,9 +437,9 @@ func TestAdminProductsImportArchiveModeRequiresConfirmation(t *testing.T) {
 func TestAdminProductsImportRespectsDeselectedRows(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
-	sessionID := uploadImportFile(t, h, threeProductFixture(), defaultSettings())
+	sessionID := uploadImportFile(t, h, threeProductFixture(ns), defaultSettings())
 
 	var rowID int64
 	err := db.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
@@ -440,7 +461,7 @@ func TestAdminProductsImportRespectsDeselectedRows(t *testing.T) {
 		t.Fatalf("commit status = %d", rec.Code)
 	}
 
-	if n := countImportedProducts(t, db); n != 2 {
+	if n := countImportedProducts(t, db, ns); n != 2 {
 		t.Fatalf("catalogue holds %d products, want 2 — the deselected row must be skipped", n)
 	}
 }
@@ -450,9 +471,9 @@ func TestAdminProductsImportRespectsDeselectedRows(t *testing.T) {
 func TestAdminProductsImportReprocessesWithCorrectedColumns(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
-	sessionID := uploadImportFile(t, h, threeProductFixture(), defaultSettings())
+	sessionID := uploadImportFile(t, h, threeProductFixture(ns), defaultSettings())
 
 	settings := defaultSettings()
 	// Read column 3 as the public price rather than the selling price.
@@ -462,7 +483,7 @@ func TestAdminProductsImportReprocessesWithCorrectedColumns(t *testing.T) {
 		t.Fatalf("prepare status = %d, want 303", rec.Code)
 	}
 	waitForPreparation(t, h, sessionID)
-	if n := countImportedProducts(t, db); n != 0 {
+	if n := countImportedProducts(t, db, ns); n != 0 {
 		t.Fatalf("re-processing wrote %d products; it must write none", n)
 	}
 
@@ -474,7 +495,7 @@ func TestAdminProductsImportReprocessesWithCorrectedColumns(t *testing.T) {
 	err := db.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
 		return tx.QueryRow(txCtx,
 			`SELECT old_price::text FROM catalog.products WHERE sku = $1 AND deleted_at IS NULL`,
-			importTestSKU+"-1").Scan(&oldPrice)
+			ns+"-1").Scan(&oldPrice)
 	})
 	if err != nil {
 		t.Fatalf("read prices: %v", err)
@@ -519,10 +540,10 @@ func TestAdminProductsImportRejectsEmptyUpload(t *testing.T) {
 func TestAdminProductsImportExplainsColumnMapping(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
 	file := "اسم الصنف التجاري / الوصف,الباركود الدولي,كود الصنف,سعر البيع للجمهور,الشركة المصنعة\n" +
-		fmt.Sprintf("%s بانادول اكسترا,6221234567890,%s-1,55.00,UITest Pharma\n", importTestTag, importTestSKU)
+		fmt.Sprintf("%s بانادول اكسترا,6221234567890,%s-1,55.00,UITest Pharma\n", importTestTag, ns)
 
 	sessionID := uploadImportFile(t, h, file, defaultSettings())
 
@@ -545,7 +566,7 @@ func TestAdminProductsImportExplainsColumnMapping(t *testing.T) {
 	err := db.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
 		return tx.QueryRow(txCtx,
 			`SELECT sku, barcode FROM catalog.products WHERE sku = $1 AND deleted_at IS NULL`,
-			importTestSKU+"-1").Scan(&sku, &barcode)
+			ns+"-1").Scan(&sku, &barcode)
 	})
 	if err != nil {
 		t.Fatalf("read imported row: %v", err)
@@ -560,7 +581,7 @@ func TestAdminProductsImportExplainsColumnMapping(t *testing.T) {
 func TestAdminProductsImportReadsPaginatedExport(t *testing.T) {
 	db := testDB(t)
 	h := newRealUIHandler(t, db)
-	cleanupImportedProducts(t, db)
+	ns := cleanupImportedProducts(t, db)
 
 	const header = "اسم الصنف,كود الصنف,سعر البيع,الشركة المصنعة"
 	rows := []string{"قائمة أصناف - تصدير", header}
@@ -569,7 +590,7 @@ func TestAdminProductsImportReadsPaginatedExport(t *testing.T) {
 			rows = append(rows, "", header)
 		}
 		rows = append(rows, fmt.Sprintf("%s صنف رقم %d أقراص,%s-%03d,25.00,UITest Pharma",
-			importTestTag, i, importTestSKU, i))
+			importTestTag, i, ns, i))
 	}
 
 	sessionID := uploadImportFile(t, h, strings.Join(rows, "\n")+"\n", defaultSettings())
@@ -577,7 +598,7 @@ func TestAdminProductsImportReadsPaginatedExport(t *testing.T) {
 		t.Fatalf("commit status = %d", rec.Code)
 	}
 
-	if n := countImportedProducts(t, db); n != 30 {
+	if n := countImportedProducts(t, db, ns); n != 30 {
 		t.Fatalf("catalogue holds %d products, want 30 — every block must be read and no header imported", n)
 	}
 }

@@ -121,8 +121,14 @@ func importToggles(opts catalog.ImportOptions, aiAvailable bool) []ImportToggle 
 		{
 			Name: "assign_category", Icon: "🗂️",
 			Title:       "تحديد فئة المنتج",
-			Description: "ربط كل صنف بالفئة المناسبة من فئات المنصة.",
+			Description: "ربط كل صنف بالفئة المناسبة من فئات المنصة الموجودة.",
 			Checked:     opts.AssignCategory,
+		},
+		{
+			Name: "auto_create_categories", Icon: "➕",
+			Title:       "إنشاء الفئات غير الموجودة",
+			Description: "إضافة الفئات المستوردة التي لا تطابق أي فئة حالية. الفئات الموجودة يُعاد استخدامها دائماً.",
+			Checked:     opts.AutoCreateCategories,
 		},
 		{
 			Name: "assign_dosage_form", Icon: "💊",
@@ -140,9 +146,10 @@ func importToggles(opts catalog.ImportOptions, aiAvailable bool) []ImportToggle 
 
 	ai := ImportToggle{
 		Name: "use_ai", Icon: "🤖",
-		Title:       "تفعيل الذكاء الاصطناعي",
-		Description: "يقرأ الذكاء الاصطناعي الأصناف التي تعذّر تحديد بياناتها تلقائياً، ويطابقها مع فئات وشركات المنصة.",
-		Checked:     opts.UseAI && aiAvailable,
+		Title: "مساعدة الذكاء الاصطناعي",
+		Description: "يُستخدم في ثلاثة طلبات فقط مهما كان حجم الملف: تحديد معنى الأعمدة، " +
+			"ومطابقة الفئات والأشكال الصيدلية المستوردة مع الموجودة في المنصة. لا يعالج الصفوف واحداً واحداً.",
+		Checked: opts.UseAI && aiAvailable,
 	}
 	if !aiAvailable {
 		ai.Disabled = true
@@ -194,7 +201,7 @@ func (v ImportReviewView) ProgressPhases() []ImportPhaseInfo {
 	phases := []catalog.ImportPhase{
 		catalog.ImportPhaseReading,
 		catalog.ImportPhaseParsing,
-		catalog.ImportPhaseEnriching,
+		catalog.ImportPhaseMapping,
 		catalog.ImportPhaseMatching,
 		catalog.ImportPhaseStaging,
 	}
@@ -336,24 +343,17 @@ func (v ImportReviewView) SourceSummary() string {
 }
 
 // AISummary is what AI did on this run, empty when it did not run.
+//
+// It reports requests, not rows, because that is the shape of the work: a
+// fixed, small number of translation calls whatever the file's size.
 func (v ImportReviewView) AISummary() string {
-	if v.Session == nil {
+	if v.Session == nil || v.Session.AINote == "" {
 		return ""
 	}
-	summary := v.Session.AINote
-	// Matching is reported separately from enrichment because it is the more
-	// consequential of the two: it is the number of duplicate catalogue entries
-	// this import did not create.
-	if v.Session.AIMatched > 0 {
-		matched := fmt.Sprintf(
-			"تم ربط %s صنف بأصناف موجودة بالفعل عبر المطابقة الذكية بدلاً من تكرارها.",
-			FormatCount(v.Session.AIMatched))
-		if summary == "" {
-			return matched
-		}
-		return summary + " " + matched
+	if v.Session.AICalls == 0 {
+		return v.Session.AINote
 	}
-	return summary
+	return fmt.Sprintf("%s (%d طلب ذكاء اصطناعي)", v.Session.AINote, v.Session.AICalls)
 }
 
 // RowActionBadge picks the badge colour for a staged action.

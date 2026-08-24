@@ -79,9 +79,13 @@ type Product struct {
 	Unit                   string        `json:"unit,omitempty"`
 	ManufacturingCompanies string        `json:"manufacturing_companies,omitempty"`
 	InstitutionalWorkIDs   []int64       `json:"institutional_work_ids,omitempty"`
-	CreatedAt              time.Time     `json:"created_at"`
-	UpdatedAt              time.Time     `json:"updated_at"`
-	DeletedAt              *time.Time    `json:"deleted_at,omitempty"`
+	// SourceCategory is the category word an imported row carried, held until
+	// the import resolves it to a CategoryID. It is never persisted: the
+	// products table stores the resolved id, not the supplier's spelling.
+	SourceCategory string     `json:"-"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+	DeletedAt      *time.Time `json:"deleted_at,omitempty"`
 }
 
 // ProductVariant represents a distinct package, concentration, or SKU variation (was product_childerns).

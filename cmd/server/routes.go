@@ -256,16 +256,13 @@ func mountModuleRoutes(
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 		ingSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 
-		// Catalogue enrichment fills the category, form, generic name and
-		// manufacturer that a supplier file leaves out. It bills against the
-		// importing organisation's own virtual key, and every field it fills
-		// has a deterministic answer underneath it.
-		enricher := cataloggw.NewEnricher(ai, log)
-		enricher.SetKeyResolver(cataloggw.KeyResolver(keyResolverUI))
-		catSvcUI.SetEnricher(enricher)
-		// The same adapter adjudicates ambiguous product matches, which is what
-		// keeps two spellings of one medicine from becoming two catalogue rows.
-		catSvcUI.SetMatcher(enricher)
+		// The catalogue import's three mapping calls: which column is which
+		// field, and which existing category and pharmaceutical form each of the
+		// file's distinct words means. Three requests per import regardless of
+		// how many rows it has; the rows themselves never reach a model.
+		mapper := cataloggw.NewMapper(ai, log)
+		mapper.SetKeyResolver(cataloggw.KeyResolver(keyResolverUI))
+		catSvcUI.SetAIMapper(mapper)
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)

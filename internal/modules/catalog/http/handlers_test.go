@@ -29,7 +29,7 @@ func (r stubRepo) CreateProduct(ctx context.Context, p *catalog.Product) error {
 	r.fail("CreateProduct")
 	return nil
 }
-func (r stubRepo) BulkUpsertProducts(ctx context.Context, prods []*catalog.Product) (catalog.BulkWriteResult, error) {
+func (r stubRepo) BulkUpsertProducts(ctx context.Context, prods []*catalog.Product, _ catalog.BulkWriteOptions) (catalog.BulkWriteResult, error) {
 	r.fail("BulkUpsertProducts")
 	return catalog.BulkWriteResult{}, nil
 }

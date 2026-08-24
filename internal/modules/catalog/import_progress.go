@@ -24,8 +24,9 @@ const (
 	ImportPhaseReading ImportPhase = "reading"
 	// ImportPhaseParsing is turning rows into products.
 	ImportPhaseParsing ImportPhase = "parsing"
-	// ImportPhaseEnriching is asking the model about the rows with gaps.
-	ImportPhaseEnriching ImportPhase = "enriching"
+	// ImportPhaseMapping is the small AI translation pass: which column is which
+	// field, and which catalogue value each of the file's distinct words means.
+	ImportPhaseMapping ImportPhase = "mapping"
 	// ImportPhaseMatching is resolving rows against the existing catalogue.
 	ImportPhaseMatching ImportPhase = "matching"
 	// ImportPhaseStaging is writing the staged rows for review.
@@ -43,8 +44,8 @@ func (p ImportPhase) Label() string {
 		return "قراءة الملف وتحليل بنيته"
 	case ImportPhaseParsing:
 		return "استخراج الأصناف من الصفوف"
-	case ImportPhaseEnriching:
-		return "استكمال البيانات بالذكاء الاصطناعي"
+	case ImportPhaseMapping:
+		return "مطابقة الأعمدة والتصنيفات"
 	case ImportPhaseMatching:
 		return "مطابقة الأصناف مع الكتالوج الحالي"
 	case ImportPhaseStaging:

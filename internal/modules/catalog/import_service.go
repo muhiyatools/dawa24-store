@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"sync"
+
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -48,7 +48,6 @@ type ImportSessionStore interface {
 
 	DefaultCatalogOrg(ctx context.Context) (int64, error)
 	MatchExistingProducts(ctx context.Context, prods []*Product) (map[int]ExistingMatch, error)
-	FindMatchCandidates(ctx context.Context, orgID int64, names map[int]string, perRow int) (map[int][]MatchCandidate, error)
 	ImportVocabulary(ctx context.Context, orgID int64) (EnrichVocabulary, error)
 	ArchiveAllProducts(ctx context.Context, orgID int64) (int64, error)
 }
@@ -61,17 +60,13 @@ func (s *Service) SetImportStore(store ImportSessionStore) {
 	}
 }
 
-// SetMatcher installs the AI matching port, used to adjudicate rows that exact
-// matching could not settle.
-func (s *Service) SetMatcher(m Matcher) { s.matcher = m }
-
-// SetEnricher installs the AI enrichment port. Leaving it unset disables the AI
+// SetAIMapper installs the AI mapping port. Leaving it unset disables the AI
 // switch in the wizard rather than failing an import that asked for it.
-func (s *Service) SetEnricher(e Enricher) { s.enricher = e }
+func (s *Service) SetAIMapper(m AIMapper) { s.mapper = m }
 
-// EnricherAvailable reports whether AI can be offered on the upload screen.
-func (s *Service) EnricherAvailable(ctx context.Context) bool {
-	return s.enricher != nil && s.enricher.Available(ctx)
+// AIAvailable reports whether AI can be offered on the upload screen.
+func (s *Service) AIAvailable(ctx context.Context) bool {
+	return s.mapper != nil && s.mapper.Available(ctx)
 }
 
 // ErrImportUnavailable means the staging store was never wired.
@@ -214,26 +209,29 @@ func (s *Service) prepare(
 
 	session.Mode = settings.Mode
 	session.Options = settings.Options
-	session.Overrides = settings.Overrides
+
+	// Request one: which column is which field. It runs before parsing because
+	// its whole purpose is to change how the sheet is read.
+	session.AICalls, session.AIApplied, session.AIFallback, session.AINote = 0, 0, false, ""
+	session.Overrides = s.resolveColumnMapping(ctx, session, sheet, settings.Overrides)
 
 	progress.report(ImportPhaseParsing, 0, 0)
-	parsed := ParseSheet(sheet, settings.Overrides, settings.Options)
+	parsed := ParseSheet(sheet, session.Overrides, settings.Options)
 	applyParseStats(session, parsed)
 	session.SheetName = sheet.Sheet
 	session.SourceFormat = sheet.Format
 	session.Delimiter = sheet.Delimiter
 
-	aiChanges := s.enrich(ctx, session, parsed, progress)
+	s.resolveTaxonomies(ctx, session, parsed, progress)
 
 	progress.report(ImportPhaseMatching, 0, len(parsed.Products))
 	matches, err := s.imports.MatchExistingProducts(ctx, parsed.Products)
 	if err != nil {
 		return nil, err
 	}
-	s.resolveAmbiguousMatches(ctx, session, parsed.Products, matches, progress)
 
 	progress.report(ImportPhaseStaging, 0, len(parsed.Products))
-	rows := buildStagingRows(parsed, matches, aiChanges, session.Mode)
+	rows := buildStagingRows(parsed, matches, session.Mode)
 	applyRowStats(session, rows)
 	session.NewBrands = collectNewBrands(parsed.Products, matches)
 	session.Status = SessionReady
@@ -260,289 +258,228 @@ type ImportSettings struct {
 	Overrides LayoutOverrides
 }
 
-// enrich fills what the file did not carry, and records what it cost.
+// resolveTaxonomies is the whole of AI's involvement after the column mapping:
+// two small requests that translate the file's distinct category and
+// pharmaceutical-form words onto the ones the catalogue already uses.
 //
-// Failure here is never fatal. A Gateway that is disabled, out of budget, or
-// simply slow leaves the deterministic values in place and marks the session so
-// the review screen can say so plainly, rather than failing an import the admin
-// has already waited on.
-func (s *Service) enrich(
+// Distinct is what makes it cheap. A fifty-thousand-row file has perhaps twenty
+// category words in it, so this is two requests regardless of the file's size,
+// and the answers are applied to every row by the ordinary importer.
+//
+// Failure is never fatal. Exact folding has already matched everything that
+// matches on spelling; without a model the rest are simply left for the admin
+// to see as unmatched, and the import proceeds.
+func (s *Service) resolveTaxonomies(
 	ctx context.Context, session *ImportSession, parsed *ParseResult, progress ProgressFunc,
-) map[int][]AIChange {
-	applyDefaultCategory(parsed.Products, session.Options)
-
-	session.AICalls, session.AIApplied, session.AIFallback, session.AINote = 0, 0, false, ""
-	if !session.Options.UseAI || s.enricher == nil {
-		return nil
-	}
-
-	plan := PlanEnrichment(parsed.Products, session.Options)
-	if plan.Empty() {
-		session.AINote = "لم تكن هناك حقول ناقصة تحتاج إلى الذكاء الاصطناعي؛ الملف مكتمل البيانات."
-		return nil
-	}
-
-	// Announced before the work starts. Reporting it only once the first batch
-	// returned left the panel claiming to still be parsing for the half-minute
-	// the first request took.
-	progress.report(ImportPhaseEnriching, 0, 0)
+) {
+	progress.report(ImportPhaseMapping, 0, 0)
 
 	vocab, err := s.imports.ImportVocabulary(ctx, session.OrganizationID)
 	if err != nil {
-		s.log.WarnContext(ctx, "import vocabulary unavailable, skipping enrichment", "error", err)
-		session.AIFallback = true
-		session.AINote = "تعذر تحميل التصنيفات والشركات المصنعة، فتم تخطي مرحلة الذكاء الاصطناعي."
+		s.log.WarnContext(ctx, "taxonomy vocabulary unavailable", "error", err)
+		return
+	}
+
+	var notes []string
+	if session.Options.AssignCategory {
+		notes = append(notes, s.resolveCategories(ctx, session, parsed, vocab)...)
+	}
+	if session.Options.AssignDosageForm {
+		notes = append(notes, s.resolveDosageForms(ctx, session, parsed, vocab)...)
+	}
+
+	applyDefaultCategory(parsed.Products, session.Options)
+	if len(notes) > 0 {
+		session.AINote = strings.Join(notes, " ")
+	}
+}
+
+// resolveCategories translates the file's category words and stamps the
+// resulting ids onto every product that used them.
+func (s *Service) resolveCategories(
+	ctx context.Context, session *ImportSession, parsed *ParseResult, vocab EnrichVocabulary,
+) []string {
+	sources := DistinctValues(parsed.Products, func(p *Product) string { return p.SourceCategory })
+	if len(sources) == 0 {
 		return nil
 	}
 
-	// One question per product family rather than per product. On a real
-	// distributor catalogue this removes about a third of the work before a
-	// single request is sent.
-	cluster := ClusterForEnrichment(parsed.Products, plan, session.Options)
-	asked := EnrichmentPlan{
-		Indices:            cluster.Representatives,
-		WantCategory:       plan.WantCategory,
-		WantDosageForm:     plan.WantDosageForm,
-		WantScientificName: plan.WantScientificName,
-		WantManufacturer:   plan.WantManufacturer,
+	targets := make([]string, 0, len(vocab.Categories))
+	idByName := make(map[string]int64, len(vocab.Categories))
+	for _, option := range vocab.Categories {
+		targets = append(targets, option.Name)
+		idByName[option.Name] = option.ID
 	}
 
-	batches := asked.Batches()
-	progress.report(ImportPhaseEnriching, 0, len(batches))
-	results := s.runEnrichBatches(ctx, session, parsed.Products, asked, vocab, batches, progress)
-
-	changes := map[int][]AIChange{}
-	for ref, applied := range ApplyEnrichment(
-		parsed.Products, SpreadClusterAnswers(results, cluster), session.Options, vocab,
-	) {
-		changes[ref] = append(changes[ref], applied...)
-	}
-	session.AIApplied = len(changes)
-
-	if session.AINote == "" {
-		session.AINote = fmt.Sprintf(
-			"تمت مراجعة %s صنف عبر الذكاء الاصطناعي في %d طلب (تم توفير %s صنف بتجميع المتشابهات)، "+
-				"واستُكملت بيانات %s صنف.",
-			formatThousands(len(plan.Indices)), session.AICalls,
-			formatThousands(cluster.Saved()), formatThousands(session.AIApplied))
-	}
-	return changes
-}
-
-// enrichConcurrency is how many Gateway calls run at once.
-//
-// The Gateway's plans allow 60-100 requests per minute and a batch takes about
-// half a minute, so six in flight is roughly 12 requests per minute — well
-// inside the limit, while turning what would be an hour-long serial crawl into
-// minutes. Pushing it higher was measurably worse, not better: the calls
-// contend for the same upstream and start overrunning their own timeout.
-const enrichConcurrency = 6
-
-// runEnrichBatches sends the batches, collects the answers, and reports
-// progress as it goes.
-//
-// A batch that fails is skipped, not fatal: its rows keep the deterministic
-// values they already have. Only a run of failures — a Gateway that is down or
-// out of budget — stops the remaining calls, because past that point they are
-// latency the admin pays for nothing.
-func (s *Service) runEnrichBatches(
-	ctx context.Context, session *ImportSession, prods []*Product,
-	plan EnrichmentPlan, vocab EnrichVocabulary, batches [][]int, progress ProgressFunc,
-) []EnrichResult {
-	var (
-		mu        sync.Mutex
-		results   []EnrichResult
-		failures  int
-		done      int
-		firstErr  error
-		abandoned bool
-	)
-
-	work := make(chan []int)
-	var wg sync.WaitGroup
-
-	for worker := 0; worker < min(enrichConcurrency, len(batches)); worker++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for batch := range work {
-				req := BuildEnrichRequest(prods, batch, plan, vocab)
-				req.OrganizationID = session.OrganizationID
-				if session.CreatedBy != nil {
-					req.UserID = *session.CreatedBy
-				}
-
-				resp, err := s.enricher.Enrich(ctx, req)
-
-				mu.Lock()
-				session.AICalls++
-				done++
-				if err != nil {
-					failures++
-					if firstErr == nil {
-						firstErr = err
-					}
-					if failures >= 3 {
-						abandoned = true
-					}
-				} else {
-					results = append(results, resp.Results...)
-				}
-				current, total := done, len(batches)
-				mu.Unlock()
-
-				progress.report(ImportPhaseEnriching, current, total)
-			}
-		}()
-	}
-
-	for _, batch := range batches {
-		mu.Lock()
-		stop := abandoned
-		mu.Unlock()
-		if stop || ctx.Err() != nil {
-			break
-		}
-		work <- batch
-	}
-	close(work)
-	wg.Wait()
-
-	if firstErr != nil {
-		session.AIFallback = true
-		session.AINote = enrichFailureNote(firstErr, failures, len(batches))
-		s.log.WarnContext(ctx, "catalogue enrichment degraded",
-			"session", session.PublicID, "failed_batches", failures,
-			"total_batches", len(batches), "error", firstErr)
-	}
-	return results
-}
-
-// enrichFailureNote explains a degraded run in terms the admin can act on.
-func enrichFailureNote(err error, failed, total int) string {
-	switch {
-	case errors.Is(err, ErrAIQuotaExceeded):
-		return "تم استنفاد رصيد الذكاء الاصطناعي المخصص للمنصة. تم استكمال الاستيراد بالقواعد التلقائية، " +
-			"ويمكن رفع الحد من إعدادات بوابة الذكاء الاصطناعي."
-	case errors.Is(err, ErrAIUnauthorized):
-		return "مفتاح بوابة الذكاء الاصطناعي غير صالح. يرجى مراجعة إعدادات النظام؛ " +
-			"تم استكمال الاستيراد بالقواعد التلقائية."
-	case failed >= total:
-		return "تعذر الوصول إلى خدمة الذكاء الاصطناعي، وتم استكمال الاستيراد بالقواعد التلقائية فقط."
-	default:
-		return fmt.Sprintf(
-			"تعذر إكمال %d طلب من أصل %d عبر الذكاء الاصطناعي؛ باقي الأصناف تمت معالجتها بالقواعد التلقائية.",
-			failed, total)
-	}
-}
-
-// formatThousands renders a count with separators, because the numbers on this
-// screen are routinely in the thousands.
-func formatThousands(n int) string {
-	digits := fmt.Sprintf("%d", n)
-	if len(digits) <= 3 {
-		return digits
-	}
-	var b strings.Builder
-	for i, r := range digits {
-		if i > 0 && (len(digits)-i)%3 == 0 {
-			b.WriteByte(',')
-		}
-		b.WriteRune(r)
-	}
-	return b.String()
-}
-
-// resolveAmbiguousMatches uses similarity, and then a model, on the rows exact
-// matching could not settle.
-//
-// This is where duplicates come from. The same medicine arrives from two
-// distributors under two spellings, exact matching sees two products, and the
-// catalogue grows a second copy that nobody reconciles. Similarity finds the
-// near misses cheaply; the model decides the ones similarity cannot, and only
-// those — a row that matched exactly never gets here, and neither does one with
-// nothing similar in the catalogue.
-func (s *Service) resolveAmbiguousMatches(
-	ctx context.Context, session *ImportSession, prods []*Product,
-	matches map[int]ExistingMatch, progress ProgressFunc,
-) {
-	if !session.Options.UseAI || s.matcher == nil {
-		return
-	}
-	// Nothing to reconcile against in a mode that only ever inserts.
-	if session.Mode == ModeAddNewOnly || session.Mode == ModeClearAndAdd {
-		return
-	}
-
-	unmatched := map[int]string{}
-	for i, p := range prods {
-		if _, done := matches[i]; done || p == nil {
+	mapping := s.mapValues(ctx, session, ValueMapCategory, sources, targets)
+	for _, p := range parsed.Products {
+		if p == nil || p.SourceCategory == "" {
 			continue
 		}
-		if name := p.Name.Get(i18n.AR); strings.TrimSpace(name) != "" {
-			unmatched[i] = name
+		if p.CategoryID != nil && *p.CategoryID > 0 {
+			continue
 		}
-		if len(unmatched) >= maxMatchLookups {
-			break
+		if name, ok := mapping.Lookup(p.SourceCategory); ok {
+			if id := idByName[name]; id > 0 {
+				resolved := id
+				p.CategoryID = &resolved
+			}
 		}
 	}
-	if len(unmatched) == 0 {
-		return
-	}
 
-	candidates, err := s.imports.FindMatchCandidates(
-		ctx, session.OrganizationID, unmatched, maxCandidatesPerRow)
-	if err != nil {
-		s.log.WarnContext(ctx, "similarity lookup failed, keeping exact matches only",
-			"session", session.PublicID, "error", err)
-		return
-	}
-
-	questions, certain := BuildMatchQuestions(prods, matches, candidates)
-	for idx, match := range certain {
-		matches[idx] = match
-	}
-	session.AIMatched += len(certain)
-
-	if len(questions) == 0 {
-		return
-	}
-
-	batches := MatchBatches(questions)
-	progress.report(ImportPhaseMatching, 0, len(batches))
-
-	for i, batch := range batches {
-		if ctx.Err() != nil {
-			return
-		}
-		req := MatchRequest{Questions: batch, OrganizationID: session.OrganizationID}
-		if session.CreatedBy != nil {
-			req.UserID = *session.CreatedBy
-		}
-
-		session.AICalls++
-		decided, err := s.matcher.AdjudicateMatches(ctx, req)
-		if err != nil {
-			// Exact matches stand; the ambiguous rows simply arrive as new
-			// products, which the review table shows the admin.
-			session.AIFallback = true
-			s.log.WarnContext(ctx, "match adjudication degraded",
-				"session", session.PublicID, "error", err)
-			return
-		}
-		session.AIMatched += ApplyMatchDecisions(decided.Decisions, batch, matches)
-		progress.report(ImportPhaseMatching, i+1, len(batches))
-	}
-
-	s.log.InfoContext(ctx, "ambiguous matches resolved",
-		"session", session.PublicID, "questions", len(questions), "matched", session.AIMatched)
+	// Categories nothing existing covers. They become real rows at commit, and
+	// only when the admin left auto-creation on.
+	session.NewCategories = mapping.Unmatched()
+	return []string{fmt.Sprintf(
+		"تمت مطابقة %d فئة من أصل %d فئة مستوردة%s.",
+		mapping.Matched(), len(sources), unmatchedSuffix(len(mapping.Unmatched())))}
 }
 
-// maxMatchLookups bounds the similarity probes one import performs. Each is an
-// index lookup of roughly fifteen milliseconds, so this is about thirty seconds
-// of work in the worst case — worth paying to avoid duplicating a catalogue,
-// and bounded so a wholly unmatched file cannot turn it into minutes.
-const maxMatchLookups = 2000
+// resolveDosageForms translates the file's form words in place, so the products
+// carry the catalogue's own spelling rather than the supplier's.
+func (s *Service) resolveDosageForms(
+	ctx context.Context, session *ImportSession, parsed *ParseResult, vocab EnrichVocabulary,
+) []string {
+	sources := DistinctValues(parsed.Products, func(p *Product) string { return p.DosageForm })
+	if len(sources) == 0 {
+		return nil
+	}
+
+	mapping := s.mapValues(ctx, session, ValueMapDosageForm, sources, vocab.DosageForms)
+	for _, p := range parsed.Products {
+		if p == nil || p.DosageForm == "" {
+			continue
+		}
+		if canonical, ok := mapping.Lookup(p.DosageForm); ok {
+			p.DosageForm = canonical
+		}
+	}
+	return []string{fmt.Sprintf(
+		"تمت مطابقة %d شكل صيدلي من أصل %d شكل مستورد%s.",
+		mapping.Matched(), len(sources), unmatchedSuffix(len(mapping.Unmatched())))}
+}
+
+// mapValues runs one value-mapping request, falling back to exact folding alone
+// when the model is unavailable.
+func (s *Service) mapValues(
+	ctx context.Context, session *ImportSession, kind ValueMapKind, sources, targets []string,
+) ValueMapping {
+	if !session.Options.UseAI || s.mapper == nil || len(targets) == 0 {
+		return BuildValueMapping(sources, targets, ValueMapResult{})
+	}
+
+	req := ValueMapRequest{
+		Kind: kind, Sources: sources, Targets: targets,
+		OrganizationID: session.OrganizationID,
+	}
+	if session.CreatedBy != nil {
+		req.UserID = *session.CreatedBy
+	}
+
+	session.AICalls++
+	result, err := s.mapper.MapValues(ctx, req)
+	if err != nil {
+		session.AIFallback = true
+		s.log.WarnContext(ctx, "value mapping unavailable, using exact matching only",
+			"session", session.PublicID, "kind", kind, "error", err)
+		return BuildValueMapping(sources, targets, ValueMapResult{})
+	}
+
+	mapping := BuildValueMapping(sources, targets, result)
+	session.AIApplied += mapping.Matched()
+	return mapping
+}
+
+func unmatchedSuffix(unmatched int) string {
+	if unmatched == 0 {
+		return ""
+	}
+	return fmt.Sprintf("، و%d قيمة بلا مقابل", unmatched)
+}
+
+// resolveColumnMapping is the first AI request: it reads the header and a few
+// sample rows and says which column is which field.
+//
+// It runs only where the deterministic mapper is unsure. A file whose headers
+// are plain — and most are — never reaches a model at all, which is the point:
+// AI is here for the badly labelled file, not the ordinary one.
+func (s *Service) resolveColumnMapping(
+	ctx context.Context, session *ImportSession, data *SheetData, overrides LayoutOverrides,
+) LayoutOverrides {
+	if !session.Options.UseAI || s.mapper == nil {
+		return overrides
+	}
+
+	layout := AnalyzeLayout(data).Apply(data, overrides)
+	if !needsColumnHelp(layout.Primary) {
+		return overrides
+	}
+
+	req := BuildColumnMapRequest(data, layout)
+	req.OrganizationID = session.OrganizationID
+	if session.CreatedBy != nil {
+		req.UserID = *session.CreatedBy
+	}
+
+	session.AICalls++
+	result, err := s.mapper.MapColumns(ctx, req)
+	if err != nil {
+		session.AIFallback = true
+		s.log.WarnContext(ctx, "column mapping unavailable, using header detection only",
+			"session", session.PublicID, "error", err)
+		return overrides
+	}
+
+	suggested := ApplyColumnMap(result, layout.Primary, data.Width)
+	if len(suggested.Columns) == 0 {
+		return overrides
+	}
+
+	// The admin's own corrections outrank the model's, always.
+	merged := overrides
+	if merged.Columns == nil {
+		merged.Columns = map[string]int{}
+	}
+	for field, column := range suggested.Columns {
+		if _, chosen := overrides.Columns[field]; !chosen {
+			merged.Columns[field] = column
+		}
+	}
+	s.log.InfoContext(ctx, "column mapping assisted by ai",
+		"session", session.PublicID, "assigned", len(suggested.Columns))
+	return merged
+}
+
+// needsColumnHelp reports whether the header detection left enough doubt to be
+// worth a request.
+//
+// The test is whether the fields that decide an import — what a product is
+// called, what it costs, who makes it — were found confidently. A file that
+// names all of them plainly is read correctly without help.
+func needsColumnHelp(plan ColumnPlan) bool {
+	if plan.Positional {
+		return true
+	}
+	for _, field := range []string{FieldNameAR, FieldPrice, FieldManufacturer} {
+		column, bound := plan.Columns[field]
+		if !bound {
+			return true
+		}
+		if !boundWithCertainty(plan, field, column) {
+			return true
+		}
+	}
+	return false
+}
+
+func boundWithCertainty(plan ColumnPlan, field string, column int) bool {
+	for _, binding := range plan.Bindings {
+		if binding.Field == field && binding.Index == column {
+			return binding.Score >= scoreExact
+		}
+	}
+	return false
+}
 
 // applyDefaultCategory fills the fallback category the admin chose, for every
 // product that ends without one. It runs whether or not AI is on, so a file with
@@ -562,8 +499,7 @@ func applyDefaultCategory(prods []*Product, opts ImportOptions) {
 // buildStagingRows decides what each parsed product would do under the chosen
 // mode, and packages it for review.
 func buildStagingRows(
-	parsed *ParseResult, matches map[int]ExistingMatch,
-	aiChanges map[int][]AIChange, mode ImportMode,
+	parsed *ParseResult, matches map[int]ExistingMatch, mode ImportMode,
 ) []*StagingRow {
 	issuesByRow := groupIssuesByRow(parsed.Issues)
 	rows := make([]*StagingRow, 0, len(parsed.Products))
@@ -579,7 +515,6 @@ func buildStagingRows(
 			Product:   product,
 			Included:  true,
 			Issues:    issuesByRow[sourceRow],
-			AIChanges: aiChanges[i],
 		}
 		if match, matched := matches[i]; matched {
 			id := match.ProductID
@@ -753,15 +688,15 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 		if row.Action == ActionUpdate && row.MatchedProductID != nil {
 			product.ID = *row.MatchedProductID
 		}
-		if !session.Options.AutoCreateBrands {
-			// The manufacturer stays on the product as text either way; without
-			// the switch it simply does not become a brand row.
-			product.BrandID = nil
-		}
 		prods = append(prods, product)
 	}
 
-	written, issues, err := s.BulkImportProducts(ctx, prods)
+	// The toggles decide what the write may create. A taxonomy row that already
+	// exists is reused either way; these govern adding one that does not.
+	written, issues, err := s.BulkImportProducts(ctx, prods, BulkWriteOptions{
+		CreateBrands:     session.Options.AutoCreateBrands,
+		CreateCategories: session.Options.AssignCategory && session.Options.AutoCreateCategories,
+	})
 	if err != nil {
 		session.Status = SessionFailed
 		session.ErrorMessage = err.Error()

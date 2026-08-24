@@ -366,14 +366,14 @@ func importReviewStats(view ImportReviewView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if view.Counts.AIChanged > 0 {
-			templ_7745c5c3_Err = wizStat(FormatCount(view.Counts.AIChanged), "استكمله الذكاء الاصطناعي", "ai").Render(ctx, templ_7745c5c3_Buffer)
+		if view.Session.AICalls > 0 {
+			templ_7745c5c3_Err = wizStat(FormatCount(view.Session.AICalls), "طلب ذكاء اصطناعي", "ai").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		if view.Session.AIMatched > 0 {
-			templ_7745c5c3_Err = wizStat(FormatCount(view.Session.AIMatched), "طابقه الذكاء الاصطناعي", "ai").Render(ctx, templ_7745c5c3_Buffer)
+		if len(view.Session.NewCategories) > 0 {
+			templ_7745c5c3_Err = wizStat(FormatCount(len(view.Session.NewCategories)), "فئة جديدة", "").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

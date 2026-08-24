@@ -441,3 +441,35 @@ func truncateBody(raw []byte) string {
 	}
 	return text[:limit] + "…"
 }
+
+// ValidateVirtualKey reports whether a Bearer key the Gateway issued still
+// works.
+//
+// A key can stop working without anything local changing: issuing a new one for
+// the same user revokes the previous, so a second app instance booting — or a
+// re-run of provisioning — silently invalidates the key the first one stored.
+// Checking costs one credential-free request against the model list, which is
+// far cheaper than discovering the problem as a failed import.
+func (c *AdminClient) ValidateVirtualKey(ctx context.Context, key string) error {
+	if strings.TrimSpace(key) == "" {
+		return fmt.Errorf("gateway admin: empty virtual key")
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/models", nil)
+	if err != nil {
+		return fmt.Errorf("gateway admin: build key check: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+key)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("gateway admin: check key: %w", err)
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 1<<16))
+
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		return fmt.Errorf("gateway admin: virtual key rejected (%d)", resp.StatusCode)
+	}
+	return nil
+}

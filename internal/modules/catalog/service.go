@@ -29,9 +29,8 @@ type Service struct {
 	// imports and enricher back the reviewed catalogue import. Both are
 	// optional: without a store the wizard is unavailable, and without an
 	// enricher the AI switch is simply not offered.
-	imports  ImportSessionStore
-	enricher Enricher
-	matcher  Matcher
+	imports ImportSessionStore
+	mapper  AIMapper
 	// progress tracks background preparation runs so the review screen can show
 	// the admin what a long import is doing.
 	progress *ProgressTracker
@@ -95,7 +94,9 @@ const maxImportBatch = 20000
 // its product rather than aborting a transaction halfway through. Products that
 // fail validation are dropped from the batch and named in the returned issues;
 // the write itself stays all-or-nothing.
-func (s *Service) BulkImportProducts(ctx context.Context, prods []*Product) (BulkWriteResult, []RowIssue, error) {
+func (s *Service) BulkImportProducts(
+	ctx context.Context, prods []*Product, opts BulkWriteOptions,
+) (BulkWriteResult, []RowIssue, error) {
 	empty := BulkWriteResult{Matches: map[int]MatchReason{}}
 	if len(prods) == 0 {
 		return empty, nil, nil
@@ -130,7 +131,7 @@ func (s *Service) BulkImportProducts(ctx context.Context, prods []*Product) (Bul
 			"لا يوجد أي صنف صالح للاستيراد بعد التحقق من البيانات.", nil)
 	}
 
-	res, err := s.repo.BulkUpsertProducts(ctx, valid)
+	res, err := s.repo.BulkUpsertProducts(ctx, valid, opts)
 	if err != nil {
 		s.log.ErrorContext(ctx, "bulk import products failed",
 			"count", len(valid), "failures", len(res.Failures), "error", err)
@@ -139,7 +140,8 @@ func (s *Service) BulkImportProducts(ctx context.Context, prods []*Product) (Bul
 
 	s.log.InfoContext(ctx, "bulk import products completed",
 		"inserted", res.Inserted, "updated", res.Updated,
-		"brands_created", res.BrandsCreated, "submitted", len(valid))
+		"brands_created", res.BrandsCreated, "categories_created", res.CategoriesCreated,
+		"submitted", len(valid))
 	return res, issues, nil
 }
 

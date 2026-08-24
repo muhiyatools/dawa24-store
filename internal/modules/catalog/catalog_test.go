@@ -42,7 +42,7 @@ func (m *mockCatalogRepo) CreateProduct(_ context.Context, p *Product) error {
 	return nil
 }
 
-func (m *mockCatalogRepo) BulkUpsertProducts(_ context.Context, prods []*Product) (BulkWriteResult, error) {
+func (m *mockCatalogRepo) BulkUpsertProducts(_ context.Context, prods []*Product, _ BulkWriteOptions) (BulkWriteResult, error) {
 	for _, p := range prods {
 		p.ID = m.nextID
 		m.nextID++
