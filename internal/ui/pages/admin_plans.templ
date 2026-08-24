@@ -260,38 +260,6 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 													</div>
 												</div>
 											</div>
-
-											<!-- Features Checklist -->
-											<div style="margin-bottom:1.25rem; font-size:0.825rem; display:flex; flex-direction:column; gap:0.45rem;">
-												<div style="font-weight:700; color:var(--text-muted); font-size:0.75rem; margin-bottom:0.15rem;">المميزات والصلاحيات الممنوحة:</div>
-												<div style="display:flex; align-items:center; gap:0.4rem; color:var(--text);">
-													if p.Features != nil && p.Features["compare"] == "true" {
-														<span style="color:var(--emerald);">✓</span>
-														<span>مقارنة الخصومات والعروض بين الموردين</span>
-													} else {
-														<span style="color:var(--text-muted);">✕</span>
-														<span style="color:var(--text-muted); text-decoration:line-through;">مقارنة الخصومات والعروض</span>
-													}
-												</div>
-												<div style="display:flex; align-items:center; gap:0.4rem; color:var(--text);">
-													if p.Features != nil && p.Features["bulk_import"] == "true" {
-														<span style="color:var(--emerald);">✓</span>
-														<span>استيراد وتحديث المخزون والطلبيات المجمعة</span>
-													} else {
-														<span style="color:var(--text-muted);">✕</span>
-														<span style="color:var(--text-muted); text-decoration:line-through;">استيراد وتحديث المخزون المجمع</span>
-													}
-												</div>
-												<div style="display:flex; align-items:center; gap:0.4rem; color:var(--text);">
-													if p.Features != nil && p.Features["analytics"] == "true" {
-														<span style="color:var(--emerald);">✓</span>
-														<span>التحليلات المتقدمة ورؤى السوق الدوائي</span>
-													} else {
-														<span style="color:var(--text-muted);">✕</span>
-														<span style="color:var(--text-muted); text-decoration:line-through;">التحليلات المتقدمة ورؤى السوق</span>
-													}
-												</div>
-											</div>
 										</div>
 
 										<!-- Card Bottom Action -->
@@ -300,8 +268,8 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 												type="button"
 												class="btn btn-secondary btn-sm"
 												style="font-weight:700; width:100%; justify-content:center; gap:0.4rem;"
-												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t, compare:%t, bulk:%t, analytics:%t})",
-													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive, p.Features != nil && p.Features["compare"] == "true", p.Features != nil && p.Features["bulk_import"] == "true", p.Features != nil && p.Features["analytics"] == "true") }
+												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t})",
+													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive) }
 											>
 												@components.IconEdit("icon-xs")
 												<span>تعديل إعدادات وحدود الباقة</span>
@@ -327,7 +295,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 				<div
 					@click.away="showModal = false"
 					class="card"
-					style="width:100%; max-width:680px; max-height:90vh; overflow-y:auto; margin:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 20px 40px rgba(0,0,0,0.5); padding:1.75rem;"
+					style="width:100%; max-width:640px; max-height:90vh; overflow-y:auto; margin:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 20px 40px rgba(0,0,0,0.5); padding:1.75rem;"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div>
@@ -354,8 +322,8 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						</div>
 
 						<div class="form-group" style="margin:0;">
-							<label class="form-label">وصف ومميزات الباقة</label>
-							<textarea name="description_ar" x-model="form.desc_ar" rows="2" class="form-input" placeholder="وصف موجز للمميزات والصلاحيات..."></textarea>
+							<label class="form-label">وصف الباقة</label>
+							<textarea name="description_ar" x-model="form.desc_ar" rows="2" class="form-input" placeholder="وصف موجز للباقة وخطة العمل..."></textarea>
 						</div>
 
 						<!-- Row 2: Pricing and Duration -->
@@ -412,7 +380,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							</div>
 						</div>
 
-						<!-- Features & Default Checkboxes -->
+						<!-- Default & Status Checkboxes -->
 						<div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;">
 							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.06); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);">
 								<input type="checkbox" name="is_default" value="1" x-model="form.is_default" />
@@ -422,26 +390,12 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								</div>
 							</label>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.25rem;">
-								<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-									<input type="checkbox" name="is_compare" value="1" x-model="form.compare" />
-									<span>مقارنة الخصومات بين الموردين</span>
+							<template x-if="isEdit">
+								<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer; padding:0.25rem 0.5rem;">
+									<input type="checkbox" name="is_active" value="1" x-model="form.is_active" />
+									<span>الباقة نشطة ومتاحة للاشتراك</span>
 								</label>
-								<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-									<input type="checkbox" name="feature_bulk_import" value="1" x-model="form.bulk" />
-									<span>استيراد وتحديث المخزون المجمع</span>
-								</label>
-								<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-									<input type="checkbox" name="feature_analytics" value="1" x-model="form.analytics" />
-									<span>التحليلات المتقدمة ورؤى السوق</span>
-								</label>
-								<template x-if="isEdit">
-									<label style="display:flex; gap:0.5rem; align-items:center; cursor:pointer;">
-										<input type="checkbox" name="is_active" value="1" x-model="form.is_active" />
-										<span>الباقة نشطة ومتاحة للاشتراك</span>
-									</label>
-								</template>
-							</div>
+							</template>
 						</div>
 
 						<!-- Modal Actions -->
@@ -477,10 +431,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						devices: 3,
 						ai_plan: 'plan-dev',
 						is_default: false,
-						is_active: true,
-						compare: true,
-						bulk: true,
-						analytics: true
+						is_active: true
 					},
 					openCreateModal() {
 						this.isEdit = false;
@@ -498,10 +449,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							devices: 3,
 							ai_plan: 'plan-dev',
 							is_default: false,
-							is_active: true,
-							compare: true,
-							bulk: true,
-							analytics: true
+							is_active: true
 						};
 						this.showModal = true;
 					},
@@ -521,10 +469,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							devices: p.devices,
 							ai_plan: p.ai_plan,
 							is_default: p.is_default,
-							is_active: p.is_active,
-							compare: p.compare,
-							bulk: p.bulk,
-							analytics: p.analytics
+							is_active: p.is_active
 						};
 						this.showModal = true;
 					}

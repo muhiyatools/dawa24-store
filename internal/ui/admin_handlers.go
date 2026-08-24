@@ -2617,28 +2617,22 @@ func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	w.Header().Set("Content-Type", "application/json")
 
-	if h.aiClient == nil {
-		w.WriteHeader(http.StatusServiceUnavailable)
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"status":  "unreachable",
-			"message": "Gateway client not configured",
-		})
-		return
-	}
-
-	if err := h.aiClient.Health(ctx); err != nil {
-		w.WriteHeader(http.StatusBadGateway)
+	adminClient, endpoint, _ := h.getGatewayAdminClient(ctx)
+	plans, err := adminClient.ListPlans(ctx)
+	if err != nil {
+		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"status":  "unreachable",
 			"error":   err.Error(),
-			"message": "تعذر الاتصال ببوابة الذكاء الاصطناعي",
+			"message": fmt.Sprintf("تعذر الاتصال بـ %s (%v)", endpoint, err),
 		})
 		return
 	}
 
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"status":  "healthy",
-		"message": "الاتصال ببوابة الذكاء الاصطناعي نشط ويعمل بشكل صحيح",
+		"message": fmt.Sprintf("الاتصال بـ %s نشط بنجاح — تم جلب %d باقات ذكاء اصطناعي متاحة", endpoint, len(plans)),
+		"count":   len(plans),
 	})
 }
 

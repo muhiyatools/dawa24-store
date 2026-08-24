@@ -1,15 +1,92 @@
 package ui
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
+func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.Actor, lang string) *pages.OrgSubscriptionView {
+	if actor.OrganizationID <= 0 && actor.UserID <= 0 {
+		return nil
+	}
+
+	subView := &pages.OrgSubscriptionView{
+		HasSubscription:  true,
+		PlanName:         "الباقة الأساسية الافتراضية",
+		PlanSlug:         "basic",
+		Status:           "ساري وفعال",
+		ExpiresAt:        "تجديد تلقائي مستمر",
+		MaxLoginSessions: 3,
+		MaxDevices:       3,
+		AIPlanID:         "plan-dev",
+		IsDefaultPlan:    true,
+	}
+
+	sysCtx := database.AsSystem(ctx)
+
+	// Fetch Subscription & Plan
+	if h.billSvc != nil {
+		var sub *billing.Subscription
+		if actor.OrganizationID > 0 {
+			sub, _ = h.billSvc.GetActiveSubscriptionByOrg(sysCtx, actor.OrganizationID)
+		}
+		if sub == nil && actor.UserID > 0 {
+			sub, _ = h.billSvc.GetActiveSubscription(sysCtx, actor.UserID)
+		}
+
+		if sub != nil {
+			subView.Status = "ساري وفعال"
+			if !sub.ExpiresAt.IsZero() {
+				subView.ExpiresAt = sub.ExpiresAt.Format("2006-01-02")
+			}
+			if plan, err := h.billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil {
+				subView.PlanName = plan.Name.Get(i18n.Lang(lang))
+				subView.PlanSlug = plan.Slug
+				subView.MaxLoginSessions = plan.MaxLoginSessions
+				subView.MaxDevices = plan.MaxDevices
+				subView.AIPlanID = plan.AIPlanID
+				subView.IsDefaultPlan = plan.IsDefault
+			}
+		} else {
+			if defPlan, err := h.billSvc.GetDefaultPlan(sysCtx); err == nil && defPlan != nil {
+				subView.PlanName = defPlan.Name.Get(i18n.Lang(lang))
+				subView.PlanSlug = defPlan.Slug
+				subView.MaxLoginSessions = defPlan.MaxLoginSessions
+				subView.MaxDevices = defPlan.MaxDevices
+				subView.AIPlanID = defPlan.AIPlanID
+				subView.IsDefaultPlan = true
+			}
+		}
+	}
+
+	// Fetch Org AI credentials
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		if o, err := h.orgSvc.GetOrganization(sysCtx, actor.OrganizationID); err == nil && o != nil {
+			subView.AIUserID = o.AIUserID
+			if subView.AIUserID == "" {
+				subView.AIUserID = fmt.Sprintf("org-%d", actor.OrganizationID)
+			}
+			if len(o.AIVirtualKey) > 8 {
+				subView.AIVirtualKeyMasked = o.AIVirtualKey[:4] + "••••••••" + o.AIVirtualKey[len(o.AIVirtualKey)-4:]
+			} else if o.AIVirtualKey != "" {
+				subView.AIVirtualKeyMasked = "••••••••"
+			}
+		}
+	}
+
+	return subView
+}
 
 // VendorDashboardPage renders the supplier dashboard.
 func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +99,9 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	data := pages.VendorDashboardData{}
+	data := pages.VendorDashboardData{
+		Subscription: h.loadOrgSubscriptionView(ctx, actor, lang),
+	}
 
 	if h.attSvc != nil && actor.OrganizationID > 0 {
 		if reqs, err := h.attSvc.ListDocumentRequests(ctx, actor, &actor.OrganizationID); err == nil {
@@ -122,7 +201,9 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	data := pages.PharmacyDashboardData{}
+	data := pages.PharmacyDashboardData{
+		Subscription: h.loadOrgSubscriptionView(ctx, actor, lang),
+	}
 
 	if h.attSvc != nil && actor.OrganizationID > 0 {
 		if reqs, err := h.attSvc.ListDocumentRequests(ctx, actor, &actor.OrganizationID); err == nil {

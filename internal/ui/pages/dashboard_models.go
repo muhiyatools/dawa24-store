@@ -8,6 +8,21 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
+// OrgSubscriptionView encapsulates subscription and AI Gateway usage details for tenant dashboards.
+type OrgSubscriptionView struct {
+	HasSubscription    bool
+	PlanName           string
+	PlanSlug           string
+	Status             string
+	ExpiresAt          string
+	MaxLoginSessions   int
+	MaxDevices         int
+	AIPlanID           string
+	AIUserID           string
+	AIVirtualKeyMasked string
+	IsDefaultPlan      bool
+}
+
 // VendorDashboardData is the supplier dashboard view model.
 type VendorDashboardData struct {
 	ActiveProducts     int
@@ -21,6 +36,7 @@ type VendorDashboardData struct {
 	Offers             []*promo.Offer
 	UnreadQuotes       int
 	PendingDocRequests []*attachments.DocumentRequest
+	Subscription       *OrgSubscriptionView
 }
 
 // PharmacyDashboardData is the pharmacy dashboard view model.
@@ -34,6 +50,7 @@ type PharmacyDashboardData struct {
 	Orders             []*commerce.Order
 	Offers             []*promo.Offer
 	PendingDocRequests []*attachments.DocumentRequest
+	Subscription       *OrgSubscriptionView
 }
 
 // CoveredPharmacyItem represents one pharmacy branch covered by the vendor's distribution network.
