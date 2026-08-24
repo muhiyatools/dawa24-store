@@ -243,14 +243,14 @@ func TestParseProductsInfersDosageAndConcentration(t *testing.T) {
 }
 
 func TestParseProductsCrossFillsSKUAndBarcode(t *testing.T) {
-	// A file with only a barcode still needs a SKU for matching, and the reverse.
-	res := parseCSV(t, "اسم الصنف,الباركود\nبانادول,6221234567890\n")
+	// A file with only a SKU fills an empty barcode from it.
+	res := parseCSV(t, "اسم الصنف,كود الصنف\nبانادول,PAN-123\n")
 
 	if len(res.Products) != 1 {
 		t.Fatalf("got %d products, want 1", len(res.Products))
 	}
-	if res.Products[0].SKU != "6221234567890" {
-		t.Errorf("sku = %q, want the barcode carried across", res.Products[0].SKU)
+	if res.Products[0].Barcode != "PAN-123" {
+		t.Errorf("barcode = %q, want the SKU carried across", res.Products[0].Barcode)
 	}
 }
 

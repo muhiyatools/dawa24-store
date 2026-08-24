@@ -633,15 +633,13 @@ func guessNameCell(row []string, plan ColumnPlan) string {
 	return best
 }
 
-// dedupeKey picks the strongest identity a row carries. SKU and barcode are
-// authoritative; a name is the fallback, folded so spacing and Arabic letter
-// variants do not split one product into two.
+// dedupeKey picks the identity a row carries. SKU is the primary unique identifier;
+// a normalised name with manufacturer is the fallback. Barcode is intentionally not
+// used as a uniqueness key so multiple products or packages sharing a barcode are
+// preserved and not wrongly collapsed.
 func dedupeKey(p *Product) string {
 	if sku := strings.ToLower(strings.TrimSpace(p.SKU)); sku != "" {
 		return "sku:" + sku
-	}
-	if barcode := strings.ToLower(strings.TrimSpace(p.Barcode)); barcode != "" {
-		return "barcode:" + barcode
 	}
 	name := NormalizeName(p.Name.Get(i18n.AR))
 	if name == "" {
@@ -696,20 +694,12 @@ func fillString(dst *string, src string) {
 	}
 }
 
-// crossFillIdentifiers carries a SKU into an empty barcode and the reverse, so a
-// file that supplies only one identifier can still be matched on either.
-//
-// It runs after in-file duplicates are merged, never during row parsing: a row
-// that filled its barcode from its own SKU would look like it already had one,
-// and the merge would then refuse the real barcode a later duplicate row
-// supplied.
+// crossFillIdentifiers fills an empty barcode from SKU when available, without forcing
+// barcode into SKU.
 func crossFillIdentifiers(prods []*Product) {
 	for _, p := range prods {
-		switch {
-		case p.Barcode == "" && p.SKU != "":
+		if p.Barcode == "" && p.SKU != "" {
 			p.Barcode = p.SKU
-		case p.SKU == "" && p.Barcode != "":
-			p.SKU = p.Barcode
 		}
 	}
 }
