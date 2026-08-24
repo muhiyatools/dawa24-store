@@ -40,6 +40,21 @@ func (s *Service) ProcessSpreadsheetStream(
 	}
 
 	headers := allRows[0]
+
+	// Automatically detect and store column mappings from real file headers
+	detected := DetectColumns(headers)
+	if len(detected) > 0 {
+		_ = s.repo.UpdateColumnMapping(ctx, sessionID, detected)
+	}
+
+	if nameColumn == "" || detected[FieldProductName] != "" {
+		if prodCol, ok := detected[FieldProductName]; ok && prodCol != "" {
+			nameColumn = prodCol
+		} else if len(headers) > 0 {
+			nameColumn = headers[0]
+		}
+	}
+
 	var batch []*ImportRow
 	totalProcessed := 0
 	rowNumber := 1
@@ -61,14 +76,28 @@ func (s *Service) ProcessSpreadsheetStream(
 				norm = arabic.Normalize(fmt.Sprintf("%v", val))
 			}
 		}
+		if norm == "" {
+			for _, h := range headers {
+				if val, ok := raw[h]; ok && val != nil {
+					valStr := fmt.Sprintf("%v", val)
+					if valStr != "" {
+						norm = arabic.Normalize(valStr)
+						break
+					}
+				}
+			}
+		}
 
 		batch = append(batch, &ImportRow{
-			SessionID:      sessionID,
-			OrganizationID: orgID,
-			RowNumber:      rowNumber,
-			RawData:        raw,
-			NormalizedName: norm,
-			Status:         "pending",
+			SessionID:       sessionID,
+			OrganizationID:  orgID,
+			RowNumber:       rowNumber,
+			RawData:         raw,
+			NormalizedName:  norm,
+			ConfidenceLevel: ConfidenceUnmatched,
+			IsApproved:      true,
+			ImportAction:    "pending",
+			Status:          "pending",
 		})
 		rowNumber++
 
@@ -93,6 +122,8 @@ func (s *Service) ProcessSpreadsheetStream(
 			onProgress(ctx, totalProcessed, totalProcessed)
 		}
 	}
+
+	_ = s.repo.UpdateImportSessionStats(ctx, sessionID, totalProcessed, totalProcessed, 0, 0, totalProcessed, StatusPending, "")
 
 	s.log.InfoContext(ctx, "streamed spreadsheet processing complete", "session_id", sessionID, "total_rows", totalProcessed)
 	return totalProcessed, nil

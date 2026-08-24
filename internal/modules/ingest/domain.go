@@ -192,26 +192,33 @@ var knownColumnSynonyms = map[string][]string{
 	},
 }
 
-// DetectColumns uses deterministic keyword matching to map raw spreadsheet headers.
+// DetectColumns uses deterministic keyword matching to map standard target fields to raw spreadsheet headers.
+// Returns map[targetField]rawHeaderName (e.g. mapping["product_name"] = "اسم الصنف").
 func DetectColumns(headers []string) map[string]string {
 	mapping := make(map[string]string)
-	usedTargets := make(map[string]bool)
+	usedHeaders := make(map[string]bool)
 
-	for _, header := range headers {
-		clean := strings.ToLower(strings.TrimSpace(header))
-		clean = strings.ReplaceAll(clean, "_", " ")
-		clean = strings.ReplaceAll(clean, "-", " ")
-
-		for targetField, synonyms := range knownColumnSynonyms {
-			if usedTargets[targetField] {
+	for targetField, synonyms := range knownColumnSynonyms {
+		for _, header := range headers {
+			if usedHeaders[header] {
 				continue
 			}
+			clean := strings.ToLower(strings.TrimSpace(header))
+			clean = strings.ReplaceAll(clean, "_", " ")
+			clean = strings.ReplaceAll(clean, "-", " ")
+
+			matched := false
 			for _, syn := range synonyms {
-				if clean == syn || strings.Contains(clean, syn) {
-					mapping[header] = targetField
-					usedTargets[targetField] = true
+				synClean := strings.ToLower(strings.TrimSpace(syn))
+				if clean == synClean || strings.Contains(clean, synClean) || strings.Contains(synClean, clean) {
+					mapping[targetField] = header
+					usedHeaders[header] = true
+					matched = true
 					break
 				}
+			}
+			if matched {
+				break
 			}
 		}
 	}

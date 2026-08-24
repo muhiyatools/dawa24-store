@@ -101,16 +101,16 @@ func (s *Service) CommitSessionWithReconciliation(
 			continue
 		}
 
-		rawName := getRawString(row.RawData, nameCol)
-		rawPriceStr := getRawString(row.RawData, priceCol)
-		rawCostPriceStr := getRawString(row.RawData, costPriceCol)
-		rawQtyStr := getRawString(row.RawData, qtyCol)
-		rawDiscStr := getRawString(row.RawData, discCol)
-		rawBarcode := getRawString(row.RawData, barcodeCol)
-		rawSKU := getRawString(row.RawData, skuCol)
-		rawUnit := getRawString(row.RawData, unitCol)
-		rawMinThresholdStr := getRawString(row.RawData, minThresholdCol)
-		rawMinOrderQtyStr := getRawString(row.RawData, minOrderQtyCol)
+		rawName := getRawStringWithFallback(row.RawData, nameCol, FieldProductName)
+		rawPriceStr := getRawStringWithFallback(row.RawData, priceCol, FieldPrice)
+		rawCostPriceStr := getRawStringWithFallback(row.RawData, costPriceCol, FieldCostPrice)
+		rawQtyStr := getRawStringWithFallback(row.RawData, qtyCol, FieldQuantity)
+		rawDiscStr := getRawStringWithFallback(row.RawData, discCol, FieldDiscount)
+		rawBarcode := getRawStringWithFallback(row.RawData, barcodeCol, FieldBarcode)
+		rawSKU := getRawStringWithFallback(row.RawData, skuCol, FieldSKU)
+		rawUnit := getRawStringWithFallback(row.RawData, unitCol, FieldUnit)
+		rawMinThresholdStr := getRawStringWithFallback(row.RawData, minThresholdCol, FieldMinThreshold)
+		rawMinOrderQtyStr := getRawStringWithFallback(row.RawData, minOrderQtyCol, FieldMinOrderQty)
 
 		if rawName == "" && row.NormalizedName != "" {
 			rawName = row.NormalizedName

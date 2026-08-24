@@ -92,8 +92,14 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 		sItem, err := h.ingSvc.GetSessionProgress(ctx, sessionID)
 		if err == nil && sItem != nil {
 			data.Session = sItem
-			rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, data.ConfidenceFilter, 200, 0)
+			rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, data.ConfidenceFilter, 500, 0)
 			data.Rows = rList
+
+			if len(rList) > 0 && rList[0].RawData != nil {
+				for k := range rList[0].RawData {
+					data.AvailableHeaders = append(data.AvailableHeaders, k)
+				}
+			}
 		}
 	}
 
@@ -121,12 +127,19 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Determine wizard step
-	if data.Session.Status == ingest.StatusCompleted {
-		data.Step = 3
-	} else if len(data.Session.ColumnMapping) > 0 && data.Session.ProcessedRows > 0 {
-		data.Step = 3
-	} else {
+	reqStep := r.URL.Query().Get("step")
+	if reqStep == "2" {
 		data.Step = 2
+	} else if reqStep == "3" {
+		data.Step = 3
+	} else if data.Session.Status == ingest.StatusCompleted {
+		data.Step = 3
+	} else if data.Session.MatchedRows > 0 || data.Session.ReviewRows > 0 || data.Session.UnmatchedRows > 0 {
+		data.Step = 3
+	} else if len(data.Rows) > 0 {
+		data.Step = 2
+	} else {
+		data.Step = 1
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -170,7 +183,6 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	enableAI := r.PostFormValue("enable_ai_matching") == "1" || r.PostFormValue("enable_ai_matching") == "on" || r.PostFormValue("enable_ai_matching") == "true"
-	// Default to true if not explicitly submitted as false
 	if r.PostFormValue("enable_ai_matching_submitted") == "" && r.PostFormValue("enable_ai_matching") == "" {
 		enableAI = true
 	}
@@ -198,7 +210,7 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 		session, err := h.ingSvc.StartSessionWithConfig(
 			ctx,
 			createdUpload.ID,
-			[]string{"product_name", "price", "quantity", "barcode", "sku", "dosage_form", "concentration"},
+			nil,
 			warehouseID,
 			importMode,
 			enableAI,
@@ -210,10 +222,16 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		// Stream spreadsheet rows into staging
-		_, err = h.ingSvc.ProcessSpreadsheetStream(ctx, session.ID, file, header.Filename, "product_name", nil)
+		// Stream spreadsheet rows into staging and auto-detect columns
+		_, err = h.ingSvc.ProcessSpreadsheetStream(ctx, session.ID, file, header.Filename, "", nil)
 		if err != nil {
 			h.log.WarnContext(ctx, "stream rows warning", "session_id", session.ID, "error", err)
+		}
+
+		// Run immediate matching so Step 3 is instantly ready
+		masterProducts, savingProducts := h.prepareMatchingData(ctx, actor.OrganizationID)
+		if err := h.ingSvc.ExecuteMultiStageMatching(ctx, session.ID, masterProducts, savingProducts); err != nil {
+			h.log.WarnContext(ctx, "auto matching warning", "session_id", session.ID, "error", err)
 		}
 
 		http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", session.ID), http.StatusSeeOther)

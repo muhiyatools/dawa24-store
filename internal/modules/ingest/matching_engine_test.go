@@ -176,4 +176,59 @@ func TestMultiStageMatchingEngine(t *testing.T) {
 			t.Fatalf("expected nil MatchedProductID, got %v", res.MatchedProductID)
 		}
 	})
+
+	// Test 7: End-to-End Excel spreadsheet parsing and auto-detection
+	t.Run("End-to-End Excel Matching", func(t *testing.T) {
+		headers := []string{
+			"اسم الصنف", "الباركود الدولي", "كود الصنف", "سعر البيع للجمهور",
+			"سعر التكلفة", "نسبة الخصم", "الكمية المتوفرة", "رقم التشغيلة",
+			"تاريخ الصلاحية", "الوحدة", "الشكل الدوائي", "التركيز", "الشركة المصنعة",
+		}
+		detected := DetectColumns(headers)
+		if detected[FieldProductName] != "اسم الصنف" {
+			t.Fatalf("expected product_name mapped to 'اسم الصنف', got %q", detected[FieldProductName])
+		}
+		if detected[FieldBarcode] != "الباركود الدولي" {
+			t.Fatalf("expected barcode mapped to 'الباركود الدولي', got %q", detected[FieldBarcode])
+		}
+		if detected[FieldPrice] != "سعر البيع للجمهور" {
+			t.Fatalf("expected price mapped to 'سعر البيع للجمهور', got %q", detected[FieldPrice])
+		}
+		if detected[FieldQuantity] != "الكمية المتوفرة" {
+			t.Fatalf("expected quantity mapped to 'الكمية المتوفرة', got %q", detected[FieldQuantity])
+		}
+
+		// Test row 1: Barcode match
+		row1 := MatchRowInput{
+			RawName:  "بانادول إكسترا 500 مجم أقراص",
+			Barcode:  "6221234567890",
+			SKU:      "PAN-EXT-500",
+			EnableAI: true,
+		}
+		res1 := index.Match(ctx, row1, nil)
+		if res1.ConfidenceLevel != ConfidenceHigh || res1.MatchedProductID == nil || *res1.MatchedProductID != 101 {
+			t.Fatalf("row 1: expected high confidence match 101, got level=%s id=%v", res1.ConfidenceLevel, res1.MatchedProductID)
+		}
+
+		// Test row 2: SKU match
+		row2 := MatchRowInput{
+			RawName:  "كونجستال أقراص للبرد والاحتقان",
+			SKU:      "CONG-TAB",
+			EnableAI: true,
+		}
+		res2 := index.Match(ctx, row2, nil)
+		if res2.ConfidenceLevel != ConfidenceHigh || res2.MatchedProductID == nil || *res2.MatchedProductID != 102 {
+			t.Fatalf("row 2: expected high confidence match 102, got level=%s id=%v", res2.ConfidenceLevel, res2.MatchedProductID)
+		}
+
+		// Test row 4: Savings product match
+		row4 := MatchRowInput{
+			RawName:       "بنادول احمر اكسترا توفير",
+			EnableSavings: true,
+		}
+		res4 := index.Match(ctx, row4, nil)
+		if res4.ConfidenceLevel != ConfidenceHigh || res4.MatchedProductID == nil || *res4.MatchedProductID != 101 {
+			t.Fatalf("row 4: expected savings match 101, got level=%s id=%v", res4.ConfidenceLevel, res4.MatchedProductID)
+		}
+	})
 }

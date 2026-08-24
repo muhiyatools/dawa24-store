@@ -119,6 +119,10 @@ func NewCatalogMatchIndex(
 		if cleanSKU := strings.ToUpper(strings.TrimSpace(s.SKU)); cleanSKU != "" {
 			idx.bySavingsSKU[cleanSKU] = master
 		}
+		sTokens := extractSignificantTokens(s.NameProduct)
+		for _, tok := range sTokens {
+			idx.tokenIndex[tok] = append(idx.tokenIndex[tok], master)
+		}
 	}
 
 	return idx
@@ -226,6 +230,21 @@ func (idx *CatalogMatchIndex) Match(
 				ConfidenceLevel:  ConfidenceHigh,
 				MatchReason:      "مطابقة فائقة عبر قائمة منتجات التوفير المعتمدة 🛒 (94%)",
 				Status:           "matched",
+			}
+		}
+		for sNorm, master := range idx.bySavingsName {
+			sim := arabic.Similarity(normName, sNorm)
+			tokOverlap := tokenOverlapScore(normName, sNorm)
+			if sim >= 0.65 || tokOverlap >= 0.50 || strings.Contains(normName, sNorm) || strings.Contains(sNorm, normName) {
+				pID := master.ID
+				return MatchRowResult{
+					MatchedProductID: &pID,
+					MatchedProduct:   master,
+					ConfidenceScore:  0.92,
+					ConfidenceLevel:  ConfidenceHigh,
+					MatchReason:      "مطابقة فائقة عبر قائمة منتجات التوفير المعتمدة 🛒 (92%)",
+					Status:           "matched",
+				}
 			}
 		}
 	}
@@ -398,7 +417,9 @@ func (idx *CatalogMatchIndex) findCandidates(
 	for _, p := range pool {
 		simAR := arabic.Similarity(normName, p.NormalizedNameAR)
 		simEN := arabic.Similarity(normName, p.NormalizedNameEN)
-		baseSim := maxFloat(simAR, simEN)
+		tokAR := tokenOverlapScore(normName, p.NormalizedNameAR)
+		tokEN := tokenOverlapScore(normName, p.NormalizedNameEN)
+		baseSim := maxFloat(maxFloat(simAR, simEN), maxFloat(tokAR, tokEN))
 
 		bonus := 0.0
 		if normConc != "" && p.ConcentrationNorm != "" && strings.Contains(p.ConcentrationNorm, normConc) {
@@ -428,6 +449,29 @@ func (idx *CatalogMatchIndex) findCandidates(
 	return scored
 }
 
+func tokenOverlapScore(a, b string) float64 {
+	toksA := extractSignificantTokens(a)
+	toksB := extractSignificantTokens(b)
+	if len(toksA) == 0 || len(toksB) == 0 {
+		return 0
+	}
+	setB := make(map[string]bool, len(toksB))
+	for _, t := range toksB {
+		setB[t] = true
+	}
+	matches := 0
+	for _, t := range toksA {
+		if setB[t] {
+			matches++
+		}
+	}
+	maxLen := max(len(toksA), len(toksB))
+	if maxLen == 0 {
+		return 0
+	}
+	return float64(matches) / float64(maxLen)
+}
+
 // normalizePharmaceutical strips common pharmaceutical punctuation, suffixes, and noise.
 func normalizePharmaceutical(s string) string {
 	clean := arabic.Normalize(s)
@@ -441,6 +485,7 @@ func normalizePharmaceutical(s string) string {
 		"gel", "spray", "solution", "sol", "eff", "sachet", "sachets", "supp",
 		"أقراص", "قرص", "كبسول", "كبسولات", "شراب", "نقط", "أمبول", "أمبولات",
 		"فيال", "مرهم", "كريم", "بخاخ", "محلول", "فوار", "لبوس", "تحاميل", "أكياس",
+		"توفير", "عرض", "خصم", "مجانا", "جديد", "savings", "offer", "discount",
 	}
 
 	words := strings.Fields(clean)

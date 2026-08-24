@@ -202,17 +202,17 @@ func TestColumnDetection(t *testing.T) {
 	mapping := DetectColumns(rawHeaders)
 
 	expected := map[string]string{
-		"اسم الدواء":  FieldProductName,
-		"سعر الجمهور": FieldPrice,
-		"الرصيد":      FieldQuantity,
-		"نسبة الخصم":  FieldDiscount,
-		"الباركود":    FieldBarcode,
-		"كود الصنف":   FieldSKU,
+		FieldProductName: "اسم الدواء",
+		FieldPrice:       "سعر الجمهور",
+		FieldQuantity:    "الرصيد",
+		FieldDiscount:    "نسبة الخصم",
+		FieldBarcode:     "الباركود",
+		FieldSKU:         "كود الصنف",
 	}
 
-	for header, expectedField := range expected {
-		if mapping[header] != expectedField {
-			t.Errorf("header %q mapped to %q; want %q", header, mapping[header], expectedField)
+	for expectedField, header := range expected {
+		if mapping[expectedField] != header {
+			t.Errorf("target field %q mapped to %q; want %q", expectedField, mapping[expectedField], header)
 		}
 	}
 }

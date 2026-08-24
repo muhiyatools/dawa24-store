@@ -132,6 +132,7 @@ type IngestWizardData struct {
 	Warehouses       []*inventory.Warehouse
 	MasterProducts   []*catalog.Product
 	CurrentWarehouse *inventory.Warehouse
+	AvailableHeaders []string
 	NoticeType       string
 	NoticeMessage    string
 	ConfidenceFilter string

@@ -262,14 +262,30 @@ func (s *Service) ExecuteMultiStageMatching(
 	var matchedCount, reviewCount, unmatchedCount int
 
 	for _, row := range rows {
+		rawName := getRawStringWithFallback(row.RawData, nameCol, FieldProductName)
+		if rawName == "" && row.NormalizedName != "" {
+			rawName = row.NormalizedName
+		}
+		if rawName == "" {
+			for _, v := range row.RawData {
+				if v != nil {
+					s := strings.TrimSpace(fmt.Sprintf("%v", v))
+					if len(s) >= 2 {
+						rawName = s
+						break
+					}
+				}
+			}
+		}
+
 		input := MatchRowInput{
-			RawName:       getRawString(row.RawData, nameCol),
-			Barcode:       getRawString(row.RawData, barcodeCol),
-			SKU:           getRawString(row.RawData, skuCol),
-			DosageForm:    getRawString(row.RawData, dosageCol),
-			Concentration: getRawString(row.RawData, concCol),
-			Unit:          getRawString(row.RawData, unitCol),
-			Manufacturer:  getRawString(row.RawData, manufCol),
+			RawName:       rawName,
+			Barcode:       getRawStringWithFallback(row.RawData, barcodeCol, FieldBarcode),
+			SKU:           getRawStringWithFallback(row.RawData, skuCol, FieldSKU),
+			DosageForm:    getRawStringWithFallback(row.RawData, dosageCol, FieldDosageForm),
+			Concentration: getRawStringWithFallback(row.RawData, concCol, FieldConcentration),
+			Unit:          getRawStringWithFallback(row.RawData, unitCol, FieldUnit),
+			Manufacturer:  getRawStringWithFallback(row.RawData, manufCol, FieldManufacturer),
 			EnableAI:      session.EnableAIMatching,
 			EnableSavings: session.EnableSavingsMatching,
 			MinSimilarity: session.MinSimilarityScore,
@@ -434,6 +450,33 @@ func getRawString(m map[string]any, key string) string {
 	}
 	if val, ok := m[key]; ok && val != nil {
 		return strings.TrimSpace(fmt.Sprintf("%v", val))
+	}
+	return ""
+}
+
+func getRawStringWithFallback(m map[string]any, colName, targetField string) string {
+	if val := getRawString(m, colName); val != "" {
+		return val
+	}
+	if m == nil {
+		return ""
+	}
+	if synonyms, ok := knownColumnSynonyms[targetField]; ok {
+		for _, syn := range synonyms {
+			for k, v := range m {
+				kClean := strings.ToLower(strings.TrimSpace(k))
+				kClean = strings.ReplaceAll(kClean, "_", " ")
+				synClean := strings.ToLower(strings.TrimSpace(syn))
+				if kClean == synClean || strings.Contains(kClean, synClean) || strings.Contains(synClean, kClean) {
+					if v != nil {
+						str := strings.TrimSpace(fmt.Sprintf("%v", v))
+						if str != "" {
+							return str
+						}
+					}
+				}
+			}
+		}
 	}
 	return ""
 }
