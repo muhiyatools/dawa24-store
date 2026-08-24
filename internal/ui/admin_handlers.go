@@ -2559,6 +2559,10 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 	}
 
 	endpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
+	adminUser := strings.TrimSpace(r.FormValue("admin_username"))
+	if adminUser == "" {
+		adminUser = "admin"
+	}
 	apiKey := strings.TrimSpace(r.FormValue("api_key"))
 	isActive := r.FormValue("is_active") == "true"
 	systemPrompt := strings.TrimSpace(r.FormValue("system_prompt"))
@@ -2575,9 +2579,15 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 		}
 	}
 
+	// Format combined credentials if username is custom
+	combinedKey := apiKey
+	if apiKey != "" && !strings.Contains(apiKey, ":") && adminUser != "admin" {
+		combinedKey = adminUser + ":" + apiKey
+	}
+
 	gw := &platformadmin.GatewaySettings{
 		EndpointURL: endpoint,
-		APIKey:      apiKey,
+		APIKey:      combinedKey,
 		Environment: "production",
 		IsActive:    isActive,
 	}
@@ -2592,7 +2602,7 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 		ai = &platformadmin.AISettings{}
 	}
 	ai.EndpointURL = endpoint
-	ai.APIKey = apiKey
+	ai.APIKey = combinedKey
 	ai.IsActive = isActive
 	if systemPrompt != "" {
 		ai.SystemPrompt = systemPrompt
@@ -2619,12 +2629,16 @@ func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Re
 
 	_ = r.ParseForm()
 	reqEndpoint := strings.TrimSpace(r.FormValue("endpoint_url"))
+	reqUser := strings.TrimSpace(r.FormValue("admin_username"))
+	if reqUser == "" {
+		reqUser = "admin"
+	}
 	reqKey := strings.TrimSpace(r.FormValue("api_key"))
 
 	adminClient, endpoint, _ := h.getGatewayAdminClient(ctx)
 	if reqEndpoint != "" {
 		endpoint = reqEndpoint
-		adminClient = gateway.NewAdminClient(reqEndpoint, "", reqKey)
+		adminClient = gateway.NewAdminClient(reqEndpoint, reqUser, reqKey)
 	}
 
 	plans, err := adminClient.ListPlans(ctx)

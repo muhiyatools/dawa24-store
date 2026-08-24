@@ -318,30 +318,45 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</div>
 						</div>
 
-						<!-- Secret Admin Password / Key with Toggle -->
-						<div class="form-group" style="margin:0;">
-							<label class="form-label">كلمة مرور مدير البوابة (Gateway Admin Password / Key) *</label>
-							<div style="position:relative; display:flex; align-items:center;">
+						<!-- Admin Credentials (Username & Password) -->
+						<div style="display:grid; grid-template-columns:1fr 1.5fr; gap:1rem;">
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">اسم مستخدم مدير البوابة (Admin Username) *</label>
 								<input
-									:type="showKey ? 'text' : 'password'"
-									name="api_key"
-									x-model="gatewayKey"
+									type="text"
+									name="admin_username"
+									x-model="gatewayUser"
+									required
 									class="form-input"
 									dir="ltr"
-									placeholder="أدخل كلمة مرور مدير البوابة (ADMIN_PASSWORD أو SERVICE_PASSWORD)..."
-									style="padding-inline-end:3rem;"
+									placeholder="admin"
 								/>
-								<button
-									type="button"
-									@click="showKey = !showKey"
-									style="position:absolute; inset-inline-end:0.75rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; font-weight:700;"
-									x-text="showKey ? 'إخفاء' : 'إظهار'"
-								></button>
 							</div>
-							<p style="font-size:0.75rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
-								🔒 كلمة المرور المحددة في إعدادات البوابة (ADMIN_PASSWORD). يتم إرسالها عبر Basic Auth لمصادقة الإدارة وجلب الباقات الحية.
-							</p>
+
+							<div class="form-group" style="margin:0;">
+								<label class="form-label">كلمة مرور مدير البوابة (ADMIN_PASSWORD) *</label>
+								<div style="position:relative; display:flex; align-items:center;">
+									<input
+										:type="showKey ? 'text' : 'password'"
+										name="api_key"
+										x-model="gatewayKey"
+										class="form-input"
+										dir="ltr"
+										placeholder="أدخل كلمة مرور تسجيل الدخول للوحة البوابة..."
+										style="padding-inline-end:3rem;"
+									/>
+									<button
+										type="button"
+										@click="showKey = !showKey"
+										style="position:absolute; inset-inline-end:0.75rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; font-weight:700;"
+										x-text="showKey ? 'إخفاء' : 'إظهار'"
+									></button>
+								</div>
+							</div>
 						</div>
+						<p style="font-size:0.75rem; color:var(--text-muted); margin:-0.5rem 0 0 0;">
+							🔒 أدخل نفس بيانات تسجيل الدخول التي تستخدمها للدخول إلى لوحة البوابة <code>/admin/</code> (المحددة في ADMIN_PASSWORD بسيرفر البوابة).
+						</p>
 
 						<!-- Test Connection & Role Breakdown -->
 						<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1rem; align-items:start;">
@@ -934,10 +949,18 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			}
 
 			function adminAIManager(initURL, initKey) {
+				let user = 'admin';
+				let key = initKey || '';
+				if (key.includes(':')) {
+					const parts = key.split(':');
+					user = parts[0];
+					key = parts[1];
+				}
 				return {
 					showKey: false,
 					gatewayURL: initURL || 'https://api.muhiya.com',
-					gatewayKey: initKey || '',
+					gatewayUser: user,
+					gatewayKey: key,
 					isTesting: false,
 					testResult: null,
 
@@ -947,6 +970,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						try {
 							const form = new FormData();
 							form.append('endpoint_url', this.gatewayURL);
+							form.append('admin_username', this.gatewayUser);
 							form.append('api_key', this.gatewayKey);
 							const resp = await fetch('/admin/developers/ai/test', {
 								method: 'POST',
