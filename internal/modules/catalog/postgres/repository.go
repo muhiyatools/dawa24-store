@@ -34,14 +34,14 @@ func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Pr
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		// 1. Resolve fallback organization ID once
 		var defaultOrgID int64
-		_ = tx.QueryRow(txCtx, `SELECT id FROM org.organizations WHERE status = 'approved' OR type = 'vendor' ORDER BY id ASC LIMIT 1`).Scan(&defaultOrgID)
+		_ = tx.QueryRow(txCtx, `SELECT id FROM org.organizations WHERE status = 'approved' ORDER BY id ASC LIMIT 1`).Scan(&defaultOrgID)
 		if defaultOrgID <= 0 {
 			_ = tx.QueryRow(txCtx, `SELECT id FROM org.organizations ORDER BY id ASC LIMIT 1`).Scan(&defaultOrgID)
 		}
 		if defaultOrgID <= 0 {
 			_ = tx.QueryRow(txCtx, `
-				INSERT INTO org.organizations (name, legal_name, trade_name, type, status)
-				VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'دواء 24 - الكتالوج المعتمد', '{"ar":"دواء 24","en":"Dawa24"}'::jsonb, 'vendor', 'approved')
+				INSERT INTO org.organizations (name, type, status)
+				VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
 				RETURNING id
 			`).Scan(&defaultOrgID)
 		}
@@ -65,7 +65,28 @@ func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Pr
 			rows.Close()
 		}
 
-		// 3. Process products in pipelined batches of 200
+		// 3. Pre-register any new brands before batch processing
+		for _, p := range prods {
+			if p.ManufacturingCompanies != "" && (p.BrandID == nil || *p.BrandID <= 0) {
+				cleanMfr := strings.ToLower(strings.TrimSpace(p.ManufacturingCompanies))
+				if bid, ok := brandMap[cleanMfr]; ok {
+					p.BrandID = &bid
+				} else if len(cleanMfr) > 2 {
+					var newBrandID int64
+					err := tx.QueryRow(txCtx, `
+						INSERT INTO catalog.brands (name, status)
+						VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), 'active')
+						RETURNING id
+					`, p.ManufacturingCompanies).Scan(&newBrandID)
+					if err == nil && newBrandID > 0 {
+						brandMap[cleanMfr] = newBrandID
+						p.BrandID = &newBrandID
+					}
+				}
+			}
+		}
+
+		// 4. Process products in pipelined batches of 200
 		chunkSize := 200
 		insertQuery := `
 			INSERT INTO catalog.products (
@@ -74,7 +95,7 @@ func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Pr
 				is_featured, dosage_form, scientific_name, pharmacology, active,
 				concentration, unit, manufacturing_companies, institutional_work_ids
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, COALESCE($23, '{}')
 			) RETURNING id;
 		`
 
@@ -96,24 +117,14 @@ func (r *Repository) BulkUpsertProducts(ctx context.Context, prods []*catalog.Pr
 				if p.Price.IsZero() {
 					p.Price = money.Zero
 				}
-
-				// Auto-associate Brand if manufacturer name is provided
-				if p.ManufacturingCompanies != "" && (p.BrandID == nil || *p.BrandID <= 0) {
-					cleanMfr := strings.ToLower(strings.TrimSpace(p.ManufacturingCompanies))
-					if bid, ok := brandMap[cleanMfr]; ok {
-						p.BrandID = &bid
-					} else if len(cleanMfr) > 2 {
-						var newBrandID int64
-						err := tx.QueryRow(txCtx, `
-							INSERT INTO catalog.brands (name, status)
-							VALUES (jsonb_build_object('ar', $1::text, 'en', $1::text), 'active')
-							RETURNING id
-						`, p.ManufacturingCompanies).Scan(&newBrandID)
-						if err == nil && newBrandID > 0 {
-							brandMap[cleanMfr] = newBrandID
-							p.BrandID = &newBrandID
-						}
-					}
+				if p.Discount.IsZero() {
+					p.Discount = money.Zero
+				}
+				if p.OldPrice.IsZero() {
+					p.OldPrice = money.Zero
+				}
+				if p.InstitutionalWorkIDs == nil {
+					p.InstitutionalWorkIDs = []int64{}
 				}
 
 				batch.Queue(insertQuery,

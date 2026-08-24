@@ -1664,7 +1664,11 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 	inserted, updated, err := h.catSvc.BulkImportProducts(sysCtx, products)
 	if err != nil {
 		h.log.ErrorContext(ctx, "bulk import failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/products/import", "error", fmt.Sprintf("حدث خطأ أثناء حفظ الأصناف: %s", h.safeMessage(err, langOf(r))))
+		msg := h.safeMessage(err, langOf(r))
+		if msg == "" || msg == "حدث خطأ غير متوقع" {
+			msg = err.Error()
+		}
+		h.redirectWithNotice(w, r, "/admin/products/import", "error", fmt.Sprintf("حدث خطأ أثناء حفظ الأصناف: %s", msg))
 		return
 	}
 
