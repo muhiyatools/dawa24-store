@@ -80,6 +80,16 @@ func (m *mockInventoryRepo) UpsertStock(_ context.Context, s *inventory.Stock) e
 	return nil
 }
 
+func (m *mockInventoryRepo) ClearWarehouseStocks(_ context.Context, warehouseID int64) error {
+	for key, s := range m.stocks {
+		if s.WarehouseID == warehouseID {
+			delete(m.stocks, key)
+			delete(m.stocksByID, s.ID)
+		}
+	}
+	return nil
+}
+
 func (m *mockInventoryRepo) AdjustStock(_ context.Context, stockID int64, delta int, movement inventory.StockMovement) (*inventory.Stock, error) {
 	s, ok := m.stocksByID[stockID]
 	if !ok {

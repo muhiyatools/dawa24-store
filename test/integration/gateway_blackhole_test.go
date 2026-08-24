@@ -59,6 +59,21 @@ func (m *blackholeMockIngestRepo) UpdateImportRowMatch(_ context.Context, rowID 
 	}
 	return nil
 }
+func (m *blackholeMockIngestRepo) UpdateImportSessionConfig(_ context.Context, id int64, warehouseID *int64, mode ingest.ImportMode, aiMatching, savingsMatching bool) error {
+	return nil
+}
+func (m *blackholeMockIngestRepo) UpdateImportSessionStats(_ context.Context, id int64, total, processed, matched, review, unmatched int, status ingest.SessionStatus, errMsg string) error {
+	return nil
+}
+func (m *blackholeMockIngestRepo) UpdateImportRowMatchDetailed(_ context.Context, rowID int64, matchedProductID *int64, score float64, confLevel ingest.ConfidenceLevel, reason string, candidates []ingest.CandidateMatch, isApproved bool, status string) error {
+	return nil
+}
+func (m *blackholeMockIngestRepo) UpdateImportRowApproval(_ context.Context, rowID int64, isApproved bool) error {
+	return nil
+}
+func (m *blackholeMockIngestRepo) UpdateImportRowAction(_ context.Context, rowID int64, action, errorDetails string) error {
+	return nil
+}
 
 // TestGatewayBlackHoleVerifiesDeterministicFallback ensures that when the AI Gateway
 // is pointed at an unreachable black-hole IP (RFC 5737 192.0.2.1), the system does not hang

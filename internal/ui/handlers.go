@@ -381,6 +381,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/vendor/ingest/{id}/mapping", h.VendorIngestMappingSubmit)
 	r.Get("/vendor/ingest/{id}/rows", h.VendorIngestRowsPartial)
 	r.Post("/vendor/ingest/{id}/rows/{rid}", h.VendorIngestRowUpdateSubmit)
+	r.Post("/vendor/ingest/{id}/rows/{rid}/toggle", h.VendorIngestRowToggleSubmit)
 	r.Post("/vendor/ingest/{id}/commit", h.VendorIngestCommitSubmit)
 	r.Post("/vendor/ingest/{id}/cancel", h.VendorIngestCancelSubmit)
 	r.Get("/vendor/orders", h.VendorOrdersPage)

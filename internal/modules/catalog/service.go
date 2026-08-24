@@ -219,6 +219,16 @@ func (s *Service) CreateVariant(ctx context.Context, v *ProductVariant) (*Produc
 	return v, nil
 }
 
+// GetVariantBySKUOrBarcode retrieves a variant by SKU or Barcode within an organization.
+func (s *Service) GetVariantBySKUOrBarcode(ctx context.Context, orgID int64, sku, barcode string) (*ProductVariant, error) {
+	return s.repo.GetVariantBySKUOrBarcode(ctx, orgID, sku, barcode)
+}
+
+// GetVariantByProductAndOrg retrieves a variant by parent product ID and organization ID.
+func (s *Service) GetVariantByProductAndOrg(ctx context.Context, orgID int64, productID int64) (*ProductVariant, error) {
+	return s.repo.GetVariantByProductAndOrg(ctx, orgID, productID)
+}
+
 // ListVariantsByProduct retrieves all variants for a parent product.
 func (s *Service) ListVariantsByProduct(ctx context.Context, productID int64) ([]*ProductVariant, error) {
 	return s.repo.ListVariantsByProduct(ctx, productID)

@@ -121,6 +121,26 @@ func (m *mockIngestRepo) UpdateImportRowMatch(ctx context.Context, rowID int64, 
 	return nil
 }
 
+func (m *mockIngestRepo) UpdateImportSessionConfig(ctx context.Context, id int64, warehouseID *int64, mode ingest.ImportMode, aiMatching, savingsMatching bool) error {
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportSessionStats(ctx context.Context, id int64, total, processed, matched, review, unmatched int, status ingest.SessionStatus, errMsg string) error {
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportRowMatchDetailed(ctx context.Context, rowID int64, matchedProductID *int64, score float64, confLevel ingest.ConfidenceLevel, reason string, candidates []ingest.CandidateMatch, isApproved bool, status string) error {
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportRowApproval(ctx context.Context, rowID int64, isApproved bool) error {
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportRowAction(ctx context.Context, rowID int64, action, errorDetails string) error {
+	return nil
+}
+
 func TestChunkedUploadFullFlow(t *testing.T) {
 	repo := newMockIngestRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

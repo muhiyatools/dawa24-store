@@ -62,6 +62,14 @@ func (r stubRepo) GetVariantByID(ctx context.Context, id int64) (*catalog.Produc
 	r.fail("GetVariantByID")
 	return nil, nil
 }
+func (r stubRepo) GetVariantBySKUOrBarcode(ctx context.Context, orgID int64, sku, barcode string) (*catalog.ProductVariant, error) {
+	r.fail("GetVariantBySKUOrBarcode")
+	return nil, nil
+}
+func (r stubRepo) GetVariantByProductAndOrg(ctx context.Context, orgID int64, productID int64) (*catalog.ProductVariant, error) {
+	r.fail("GetVariantByProductAndOrg")
+	return nil, nil
+}
 func (r stubRepo) ListVariantsByProduct(ctx context.Context, productID int64) ([]*catalog.ProductVariant, error) {
 	r.fail("ListVariantsByProduct")
 	return nil, nil

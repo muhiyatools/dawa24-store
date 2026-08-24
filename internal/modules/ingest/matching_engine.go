@@ -1,0 +1,501 @@
+package ingest
+
+import (
+	"context"
+	"fmt"
+	"sort"
+	"strings"
+	"unicode"
+
+	"github.com/muhiya/dawa24-store/internal/shared/arabic"
+)
+
+// MasterProductData contains indexed fields from catalog.products for in-memory matching.
+type MasterProductData struct {
+	ID                 int64
+	NameAR             string
+	NameEN             string
+	NormalizedNameAR   string
+	NormalizedNameEN   string
+	SKU                string
+	Barcode            string
+	DosageForm         string
+	DosageFormNorm     string
+	Concentration      string
+	ConcentrationNorm  string
+	Unit               string
+	Manufacturer       string
+	ManufacturerNorm   string
+	ScientificName     string
+	ScientificNameNorm string
+	PublicPrice        string
+}
+
+// SavingProductData contains indexed entries from catalog.saving_products.
+type SavingProductData struct {
+	ProductID      int64
+	NameProduct    string
+	NormalizedName string
+	SKU            string
+}
+
+// CatalogMatchIndex provides high-performance multi-index candidate lookups.
+type CatalogMatchIndex struct {
+	byBarcode      map[string]*MasterProductData
+	bySKU          map[string]*MasterProductData
+	byExactName    map[string]*MasterProductData
+	bySavingsName  map[string]*MasterProductData
+	bySavingsSKU   map[string]*MasterProductData
+	tokenIndex     map[string][]*MasterProductData
+	allProducts    []*MasterProductData
+	productsByID   map[int64]*MasterProductData
+}
+
+// NewCatalogMatchIndex builds in-memory inverted indices from master catalog and saving products.
+func NewCatalogMatchIndex(
+	masterProducts []*MasterProductData,
+	savingProducts []*SavingProductData,
+) *CatalogMatchIndex {
+	idx := &CatalogMatchIndex{
+		byBarcode:     make(map[string]*MasterProductData),
+		bySKU:         make(map[string]*MasterProductData),
+		byExactName:   make(map[string]*MasterProductData),
+		bySavingsName: make(map[string]*MasterProductData),
+		bySavingsSKU:  make(map[string]*MasterProductData),
+		tokenIndex:    make(map[string][]*MasterProductData),
+		allProducts:   masterProducts,
+		productsByID:  make(map[int64]*MasterProductData),
+	}
+
+	for _, p := range masterProducts {
+		if p == nil || p.ID <= 0 {
+			continue
+		}
+		p.NormalizedNameAR = normalizePharmaceutical(p.NameAR)
+		p.NormalizedNameEN = normalizePharmaceutical(p.NameEN)
+		p.DosageFormNorm = normalizePharmaceutical(p.DosageForm)
+		p.ConcentrationNorm = normalizePharmaceutical(p.Concentration)
+		p.ManufacturerNorm = normalizePharmaceutical(p.Manufacturer)
+		p.ScientificNameNorm = normalizePharmaceutical(p.ScientificName)
+
+		idx.productsByID[p.ID] = p
+
+		if cleanBarcode := strings.TrimSpace(p.Barcode); cleanBarcode != "" {
+			idx.byBarcode[cleanBarcode] = p
+		}
+		if cleanSKU := strings.ToUpper(strings.TrimSpace(p.SKU)); cleanSKU != "" {
+			idx.bySKU[cleanSKU] = p
+		}
+		if p.NormalizedNameAR != "" {
+			idx.byExactName[p.NormalizedNameAR] = p
+		}
+		if p.NormalizedNameEN != "" {
+			idx.byExactName[p.NormalizedNameEN] = p
+		}
+
+		// Build token index
+		tokens := extractSignificantTokens(p.NameAR + " " + p.NameEN + " " + p.ScientificName)
+		seenTokens := make(map[string]bool)
+		for _, tok := range tokens {
+			if !seenTokens[tok] {
+				seenTokens[tok] = true
+				idx.tokenIndex[tok] = append(idx.tokenIndex[tok], p)
+			}
+		}
+	}
+
+	for _, s := range savingProducts {
+		if s == nil || s.ProductID <= 0 {
+			continue
+		}
+		master, exists := idx.productsByID[s.ProductID]
+		if !exists || master == nil {
+			continue
+		}
+		normName := normalizePharmaceutical(s.NameProduct)
+		if normName != "" {
+			idx.bySavingsName[normName] = master
+		}
+		if cleanSKU := strings.ToUpper(strings.TrimSpace(s.SKU)); cleanSKU != "" {
+			idx.bySavingsSKU[cleanSKU] = master
+		}
+	}
+
+	return idx
+}
+
+// MatchRowInput encapsulates extracted data from an imported spreadsheet row.
+type MatchRowInput struct {
+	RawName        string
+	Barcode        string
+	SKU            string
+	DosageForm     string
+	Concentration  string
+	Unit           string
+	Manufacturer   string
+	EnableAI       bool
+	EnableSavings  bool
+	MinSimilarity  float64
+}
+
+// MatchRowResult contains the complete outcome of multi-stage matching.
+type MatchRowResult struct {
+	MatchedProductID *int64
+	MatchedProduct   *MasterProductData
+	ConfidenceScore  float64
+	ConfidenceLevel  ConfidenceLevel
+	MatchReason      string
+	CandidateMatches []CandidateMatch
+	Status           string
+}
+
+// Match stages an imported row through the deterministic, fuzzy, savings, and AI pipeline.
+func (idx *CatalogMatchIndex) Match(
+	ctx context.Context,
+	input MatchRowInput,
+	aiMatcher AIMatcher,
+) MatchRowResult {
+	if idx == nil || len(idx.allProducts) == 0 {
+		return MatchRowResult{
+			ConfidenceScore: 0,
+			ConfidenceLevel: ConfidenceUnmatched,
+			MatchReason:     "الكتالوج العام فارغ",
+			Status:          "unmatched",
+		}
+	}
+
+	rawName := strings.TrimSpace(input.RawName)
+	cleanBarcode := strings.TrimSpace(input.Barcode)
+	cleanSKU := strings.ToUpper(strings.TrimSpace(input.SKU))
+	normName := normalizePharmaceutical(rawName)
+	normDosage := normalizePharmaceutical(input.DosageForm)
+	normConc := normalizePharmaceutical(input.Concentration)
+	normManuf := normalizePharmaceutical(input.Manufacturer)
+
+	// Stage 1: Exact Identifier Match (Barcode / SKU)
+	if cleanBarcode != "" {
+		if p, ok := idx.byBarcode[cleanBarcode]; ok && p != nil {
+			pID := p.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   p,
+				ConfidenceScore:  1.0,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة تامة عبر الباركود الدولي (100%)",
+				Status:           "matched",
+			}
+		}
+	}
+	if cleanSKU != "" {
+		if p, ok := idx.bySKU[cleanSKU]; ok && p != nil {
+			pID := p.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   p,
+				ConfidenceScore:  0.98,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة تامة عبر كود الصنف SKU (98%)",
+				Status:           "matched",
+			}
+		}
+	}
+
+	// Stage 2: Exact Normalized Name Match
+	if normName != "" {
+		if p, ok := idx.byExactName[normName]; ok && p != nil {
+			pID := p.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   p,
+				ConfidenceScore:  0.96,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة تامة لاسم الصنف بعد المعايرة (96%)",
+				Status:           "matched",
+			}
+		}
+	}
+
+	// Stage 3: Savings Products Matching (if enabled)
+	if input.EnableSavings && normName != "" {
+		if p, ok := idx.bySavingsName[normName]; ok && p != nil {
+			pID := p.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   p,
+				ConfidenceScore:  0.94,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة فائقة عبر قائمة منتجات التوفير المعتمدة 🛒 (94%)",
+				Status:           "matched",
+			}
+		}
+	}
+	if input.EnableSavings && cleanSKU != "" {
+		if p, ok := idx.bySavingsSKU[cleanSKU]; ok && p != nil {
+			pID := p.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   p,
+				ConfidenceScore:  0.92,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة عبر كود منتجات التوفير 🛒 (92%)",
+				Status:           "matched",
+			}
+		}
+	}
+
+	// Stage 4: Multi-Signal Fuzzy Candidate Search & Scoring
+	candidates := idx.findCandidates(normName, normDosage, normConc, normManuf)
+
+	var topCand *candidateScore
+	if len(candidates) > 0 {
+		topCand = &candidates[0]
+	}
+
+	// Format candidate matches for UI
+	var candidateMatchDTOs []CandidateMatch
+	for i, c := range candidates {
+		if i >= 5 {
+			break
+		}
+		candidateMatchDTOs = append(candidateMatchDTOs, CandidateMatch{
+			ProductID:      c.product.ID,
+			ProductName:    c.product.NameAR,
+			ScientificName: c.product.ScientificName,
+			DosageForm:     c.product.DosageForm,
+			Concentration:  c.product.Concentration,
+			Manufacturer:   c.product.Manufacturer,
+			PublicPrice:    c.product.PublicPrice,
+			Similarity:     c.score,
+			Reason:         c.reason,
+		})
+	}
+
+	// Stage 5: AI-Assisted Resolution (if enabled and ambiguous or score between 0.50 and 0.85)
+	if input.EnableAI && aiMatcher != nil && len(candidates) > 0 {
+		shouldCallAI := false
+		if topCand != nil && topCand.score < 0.85 {
+			shouldCallAI = true
+		} else if len(candidates) >= 2 && (candidates[0].score-candidates[1].score) < 0.05 {
+			// Competing ambiguous candidates
+			shouldCallAI = true
+		}
+
+		if shouldCallAI {
+			candNames := make([]string, 0, min(5, len(candidates)))
+			for i := 0; i < len(candidates) && i < 5; i++ {
+				candNames = append(candNames, candidates[i].product.NameAR)
+			}
+			bestName, aiScore := aiMatcher.MatchCandidate(ctx, rawName, candNames)
+			if aiScore >= 0.70 && bestName != "" {
+				for _, c := range candidates {
+					if c.product.NameAR == bestName || c.product.NameEN == bestName {
+						pID := c.product.ID
+						confLvl := ConfidenceHigh
+						if aiScore < 0.85 {
+							confLvl = ConfidenceReview
+						}
+						return MatchRowResult{
+							MatchedProductID: &pID,
+							MatchedProduct:   c.product,
+							ConfidenceScore:  aiScore,
+							ConfidenceLevel:  confLvl,
+							MatchReason:      fmt.Sprintf("مطابقة ذكية عبر محرك الذكاء الاصطناعي AI (%d%%)", int(aiScore*100)),
+							CandidateMatches: candidateMatchDTOs,
+							Status:           "matched",
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Evaluate top candidate from deterministic fuzzy scoring
+	if topCand != nil {
+		if topCand.score >= 0.85 {
+			pID := topCand.product.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   topCand.product,
+				ConfidenceScore:  topCand.score,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      fmt.Sprintf("مطابقة قوية للاسم والخصائص الدوائية (%d%%)", int(topCand.score*100)),
+				CandidateMatches: candidateMatchDTOs,
+				Status:           "matched",
+			}
+		} else if topCand.score >= 0.65 {
+			pID := topCand.product.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   topCand.product,
+				ConfidenceScore:  topCand.score,
+				ConfidenceLevel:  ConfidenceReview,
+				MatchReason:      fmt.Sprintf("مطابقة متوسطة (%d%%) — يرجى مراجعة الصنف وتأكيده", int(topCand.score*100)),
+				CandidateMatches: candidateMatchDTOs,
+				Status:           "matched",
+			}
+		} else if topCand.score >= 0.50 {
+			pID := topCand.product.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   topCand.product,
+				ConfidenceScore:  topCand.score,
+				ConfidenceLevel:  ConfidenceLow,
+				MatchReason:      fmt.Sprintf("مطابقة منخفضة (%d%%) — غير مؤكدة", int(topCand.score*100)),
+				CandidateMatches: candidateMatchDTOs,
+				Status:           "matched",
+			}
+		}
+	}
+
+	// Stage 6: Unmatched
+	return MatchRowResult{
+		MatchedProductID: nil,
+		ConfidenceScore:  0,
+		ConfidenceLevel:  ConfidenceUnmatched,
+		MatchReason:      "لم يتم العثور على صنف مطابق بالكتالوج العام",
+		CandidateMatches: candidateMatchDTOs,
+		Status:           "unmatched",
+	}
+}
+
+type candidateScore struct {
+	product *MasterProductData
+	score   float64
+	reason  string
+}
+
+func (idx *CatalogMatchIndex) findCandidates(
+	normName, normDosage, normConc, normManuf string,
+) []candidateScore {
+	if normName == "" {
+		return nil
+	}
+
+	tokens := extractSignificantTokens(normName)
+	candidateSet := make(map[int64]*MasterProductData)
+
+	for _, tok := range tokens {
+		if prods, ok := idx.tokenIndex[tok]; ok {
+			for _, p := range prods {
+				candidateSet[p.ID] = p
+			}
+		}
+	}
+
+	// If token index returned too few, fallback to top products
+	var pool []*MasterProductData
+	if len(candidateSet) > 0 {
+		for _, p := range candidateSet {
+			pool = append(pool, p)
+		}
+	} else {
+		// Sample first 100 products for general fuzzy comparison
+		maxPool := min(100, len(idx.allProducts))
+		pool = idx.allProducts[:maxPool]
+	}
+
+	var scored []candidateScore
+	for _, p := range pool {
+		simAR := arabic.Similarity(normName, p.NormalizedNameAR)
+		simEN := arabic.Similarity(normName, p.NormalizedNameEN)
+		baseSim := maxFloat(simAR, simEN)
+
+		bonus := 0.0
+		if normConc != "" && p.ConcentrationNorm != "" && strings.Contains(p.ConcentrationNorm, normConc) {
+			bonus += 0.08
+		}
+		if normDosage != "" && p.DosageFormNorm != "" && (p.DosageFormNorm == normDosage || strings.Contains(p.DosageFormNorm, normDosage)) {
+			bonus += 0.05
+		}
+		if normManuf != "" && p.ManufacturerNorm != "" && (p.ManufacturerNorm == normManuf || strings.Contains(p.ManufacturerNorm, normManuf)) {
+			bonus += 0.05
+		}
+
+		finalScore := minFloat(0.95, baseSim*0.82+bonus)
+		if finalScore >= 0.35 {
+			scored = append(scored, candidateScore{
+				product: p,
+				score:   finalScore,
+				reason:  fmt.Sprintf("تشابه اسم %d%%", int(baseSim*100)),
+			})
+		}
+	}
+
+	sort.Slice(scored, func(i, j int) bool {
+		return scored[i].score > scored[j].score
+	})
+
+	return scored
+}
+
+// normalizePharmaceutical strips common pharmaceutical punctuation, suffixes, and noise.
+func normalizePharmaceutical(s string) string {
+	clean := arabic.Normalize(s)
+	clean = strings.ToLower(clean)
+
+	// Remove common noise words in catalogue exports
+	noiseWords := []string{
+		"tab", "tabs", "tablet", "tablets", "cap", "caps", "capsule", "capsules",
+		"amp", "amps", "ampoule", "ampoules", "vial", "vials", "syr", "syrup",
+		"susp", "suspension", "drops", "drop", "cream", "crm", "ointment", "oint",
+		"gel", "spray", "solution", "sol", "eff", "sachet", "sachets", "supp",
+		"أقراص", "قرص", "كبسول", "كبسولات", "شراب", "نقط", "أمبول", "أمبولات",
+		"فيال", "مرهم", "كريم", "بخاخ", "محلول", "فوار", "لبوس", "تحاميل", "أكياس",
+	}
+
+	words := strings.Fields(clean)
+	var filtered []string
+	for _, w := range words {
+		isNoise := false
+		for _, nw := range noiseWords {
+			if w == nw {
+				isNoise = true
+				break
+			}
+		}
+		if !isNoise {
+			filtered = append(filtered, w)
+		}
+	}
+
+	if len(filtered) > 0 {
+		return strings.Join(filtered, " ")
+	}
+	return clean
+}
+
+func extractSignificantTokens(text string) []string {
+	clean := arabic.Normalize(text)
+	words := strings.Fields(clean)
+	var tokens []string
+	for _, w := range words {
+		r := []rune(w)
+		if len(r) >= 3 && !isPureNumber(w) {
+			tokens = append(tokens, w)
+		}
+	}
+	return tokens
+}
+
+func isPureNumber(s string) bool {
+	for _, r := range s {
+		if !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return true
+}
+
+func maxFloat(a, b float64) float64 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func minFloat(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
+}

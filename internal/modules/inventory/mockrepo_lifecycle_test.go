@@ -37,6 +37,8 @@ func (m *mockInventoryRepo) CountStockInWarehouse(_ context.Context, warehouseID
 	return count, nil
 }
 
+
+
 func (m *mockInventoryRepo) ListLowStock(_ context.Context, limit, offset int) ([]*inventory.Stock, error) {
 	var low []*inventory.Stock
 	for _, s := range m.stocksByID {

@@ -2,6 +2,8 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -119,4 +121,18 @@ type CatalogFilterParams struct {
 	DosageForm string
 	Sort       string
 	InStock    bool
+}
+
+// IngestWizardData contains comprehensive state for the multi-step ingest wizard.
+type IngestWizardData struct {
+	Step             int // 1 = Upload, 2 = Mapping, 3 = Review & Commit
+	Session          *ingest.ImportSession
+	Sessions         []*ingest.ImportSession
+	Rows             []*ingest.ImportRow
+	Warehouses       []*inventory.Warehouse
+	MasterProducts   []*catalog.Product
+	CurrentWarehouse *inventory.Warehouse
+	NoticeType       string
+	NoticeMessage    string
+	ConfidenceFilter string
 }

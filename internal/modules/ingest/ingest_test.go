@@ -125,6 +125,29 @@ func (m *mockIngestRepo) GetImportRowByID(_ context.Context, id int64) (*ImportR
 	return nil, apperr.NotFound("import_row")
 }
 
+func (m *mockIngestRepo) UpdateImportSessionConfig(_ context.Context, id int64, warehouseID *int64, mode ImportMode, aiMatching, savingsMatching bool) error {
+	if s, ok := m.sessions[id]; ok {
+		s.WarehouseID = warehouseID
+		s.ImportMode = mode
+		s.EnableAIMatching = aiMatching
+		s.EnableSavingsMatching = savingsMatching
+	}
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportSessionStats(_ context.Context, id int64, total, processed, matched, review, unmatched int, status SessionStatus, errMsg string) error {
+	if s, ok := m.sessions[id]; ok {
+		s.TotalRows = total
+		s.ProcessedRows = processed
+		s.MatchedRows = matched
+		s.ReviewRows = review
+		s.UnmatchedRows = unmatched
+		s.Status = status
+		s.ErrorMessage = errMsg
+	}
+	return nil
+}
+
 func (m *mockIngestRepo) UpdateImportRowMatch(_ context.Context, rowID int64, matchedProductID *int64, score float64, status string) error {
 	r, ok := m.rows[rowID]
 	if !ok {
@@ -133,6 +156,36 @@ func (m *mockIngestRepo) UpdateImportRowMatch(_ context.Context, rowID int64, ma
 	r.MatchedProductID = matchedProductID
 	r.SimilarityScore = &score
 	r.Status = status
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportRowMatchDetailed(_ context.Context, rowID int64, matchedProductID *int64, score float64, confLevel ConfidenceLevel, reason string, candidates []CandidateMatch, isApproved bool, status string) error {
+	r, ok := m.rows[rowID]
+	if !ok {
+		return apperr.NotFound("import_row")
+	}
+	r.MatchedProductID = matchedProductID
+	r.SimilarityScore = &score
+	r.ConfidenceLevel = confLevel
+	r.MatchReason = reason
+	r.CandidateMatches = candidates
+	r.IsApproved = isApproved
+	r.Status = status
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportRowApproval(_ context.Context, rowID int64, isApproved bool) error {
+	if r, ok := m.rows[rowID]; ok {
+		r.IsApproved = isApproved
+	}
+	return nil
+}
+
+func (m *mockIngestRepo) UpdateImportRowAction(_ context.Context, rowID int64, action, errorDetails string) error {
+	if r, ok := m.rows[rowID]; ok {
+		r.ImportAction = action
+		r.ErrorDetails = errorDetails
+	}
 	return nil
 }
 

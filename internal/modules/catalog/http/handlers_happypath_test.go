@@ -47,6 +47,12 @@ func (happyRepo) CreateVariant(ctx context.Context, v *catalog.ProductVariant) e
 func (happyRepo) GetVariantByID(ctx context.Context, id int64) (*catalog.ProductVariant, error) {
 	return &catalog.ProductVariant{ID: id, ProductID: 1, SKU: "SKU-1"}, nil
 }
+func (happyRepo) GetVariantBySKUOrBarcode(ctx context.Context, orgID int64, sku, barcode string) (*catalog.ProductVariant, error) {
+	return &catalog.ProductVariant{ID: 1, OrganizationID: orgID, ProductID: 1, SKU: sku, Barcode: barcode}, nil
+}
+func (happyRepo) GetVariantByProductAndOrg(ctx context.Context, orgID int64, productID int64) (*catalog.ProductVariant, error) {
+	return &catalog.ProductVariant{ID: 1, OrganizationID: orgID, ProductID: productID, SKU: "SKU-1"}, nil
+}
 func (happyRepo) ListVariantsByProduct(ctx context.Context, productID int64) ([]*catalog.ProductVariant, error) {
 	return []*catalog.ProductVariant{{ID: 1, ProductID: productID, SKU: "SKU-1"}}, nil
 }

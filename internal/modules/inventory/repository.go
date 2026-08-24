@@ -19,6 +19,7 @@ type Repository interface {
 
 	GetStock(ctx context.Context, warehouseID, variantID int64) (*Stock, error)
 	UpsertStock(ctx context.Context, s *Stock) error
+	ClearWarehouseStocks(ctx context.Context, warehouseID int64) error
 	AdjustStock(ctx context.Context, stockID int64, delta int, movement StockMovement) (*Stock, error)
 	// AvailableQuantity totals a variant's sellable stock across warehouses.
 	// catalog.ProductVariant.StockQty is never populated by any query; this is

@@ -75,6 +75,80 @@ func (r *Repository) GetVariantByID(ctx context.Context, id int64) (*catalog.Pro
 	return &v, nil
 }
 
+// GetVariantBySKUOrBarcode retrieves a variant by SKU or Barcode within an organization.
+func (r *Repository) GetVariantBySKUOrBarcode(ctx context.Context, orgID int64, sku, barcode string) (*catalog.ProductVariant, error) {
+	if sku == "" && barcode == "" {
+		return nil, apperr.NotFound("product_variant")
+	}
+	var v catalog.ProductVariant
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, product_id, name, sku, barcode,
+			       price, cost_price, discount, unit, image, status, is_featured, is_negotiable,
+			       batch_number, expiry_date, min_order_qty, branch_id,
+			       created_at, updated_at, deleted_at
+			FROM catalog.product_variants
+			WHERE organization_id = $1 AND deleted_at IS NULL
+			  AND (($2 <> '' AND sku = $2) OR ($3 <> '' AND barcode = $3))
+			LIMIT 1;
+		`
+		var statusStr string
+		err := tx.QueryRow(txCtx, query, orgID, sku, barcode).Scan(
+			&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
+			&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
+			&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+			&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("product_variant")
+			}
+			return fmt.Errorf("catalog postgres: get variant by sku/barcode: %w", err)
+		}
+		v.Status = catalog.ProductStatus(statusStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+// GetVariantByProductAndOrg retrieves a variant by parent product ID and organization ID.
+func (r *Repository) GetVariantByProductAndOrg(ctx context.Context, orgID int64, productID int64) (*catalog.ProductVariant, error) {
+	var v catalog.ProductVariant
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, product_id, name, sku, barcode,
+			       price, cost_price, discount, unit, image, status, is_featured, is_negotiable,
+			       batch_number, expiry_date, min_order_qty, branch_id,
+			       created_at, updated_at, deleted_at
+			FROM catalog.product_variants
+			WHERE organization_id = $1 AND product_id = $2 AND deleted_at IS NULL
+			LIMIT 1;
+		`
+		var statusStr string
+		err := tx.QueryRow(txCtx, query, orgID, productID).Scan(
+			&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
+			&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
+			&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+			&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("product_variant")
+			}
+			return fmt.Errorf("catalog postgres: get variant by prod/org: %w", err)
+		}
+		v.Status = catalog.ProductStatus(statusStr)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
 // ListVariantsByProduct retrieves all active variants of a product.
 func (r *Repository) ListVariantsByProduct(ctx context.Context, productID int64) ([]*catalog.ProductVariant, error) {
 	var variants []*catalog.ProductVariant

@@ -75,6 +75,26 @@ func (r stubRepo) UpdateImportRowMatch(context.Context, int64, *int64, float64, 
 	r.fail("UpdateImportRowMatch")
 	return nil
 }
+func (r stubRepo) UpdateImportSessionConfig(context.Context, int64, *int64, ingest.ImportMode, bool, bool) error {
+	r.fail("UpdateImportSessionConfig")
+	return nil
+}
+func (r stubRepo) UpdateImportSessionStats(context.Context, int64, int, int, int, int, int, ingest.SessionStatus, string) error {
+	r.fail("UpdateImportSessionStats")
+	return nil
+}
+func (r stubRepo) UpdateImportRowMatchDetailed(context.Context, int64, *int64, float64, ingest.ConfidenceLevel, string, []ingest.CandidateMatch, bool, string) error {
+	r.fail("UpdateImportRowMatchDetailed")
+	return nil
+}
+func (r stubRepo) UpdateImportRowApproval(context.Context, int64, bool) error {
+	r.fail("UpdateImportRowApproval")
+	return nil
+}
+func (r stubRepo) UpdateImportRowAction(context.Context, int64, string, string) error {
+	r.fail("UpdateImportRowAction")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -98,6 +118,12 @@ func (happyRepo) ListImportSessions(ctx context.Context, orgID int64, limit, off
 func (happyRepo) UpdateImportSessionProgress(ctx context.Context, id int64, processed, matched int, status ingest.SessionStatus, errMsg string) error {
 	return nil
 }
+func (happyRepo) UpdateImportSessionConfig(ctx context.Context, id int64, warehouseID *int64, mode ingest.ImportMode, aiMatching, savingsMatching bool) error {
+	return nil
+}
+func (happyRepo) UpdateImportSessionStats(ctx context.Context, id int64, total, processed, matched, review, unmatched int, status ingest.SessionStatus, errMsg string) error {
+	return nil
+}
 func (happyRepo) UpdateColumnMapping(ctx context.Context, id int64, mapping map[string]string) error {
 	return nil
 }
@@ -114,6 +140,15 @@ func (happyRepo) GetImportRowByID(ctx context.Context, id int64) (*ingest.Import
 	return &ingest.ImportRow{ID: id, SessionID: 1, RowNumber: 1, NormalizedName: "Panadol"}, nil
 }
 func (happyRepo) UpdateImportRowMatch(ctx context.Context, id int64, productID *int64, score float64, status string) error {
+	return nil
+}
+func (happyRepo) UpdateImportRowMatchDetailed(ctx context.Context, id int64, productID *int64, score float64, confLevel ingest.ConfidenceLevel, reason string, candidates []ingest.CandidateMatch, isApproved bool, status string) error {
+	return nil
+}
+func (happyRepo) UpdateImportRowApproval(ctx context.Context, id int64, isApproved bool) error {
+	return nil
+}
+func (happyRepo) UpdateImportRowAction(ctx context.Context, id int64, action, errorDetails string) error {
 	return nil
 }
 

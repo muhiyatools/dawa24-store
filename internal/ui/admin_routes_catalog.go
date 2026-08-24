@@ -24,7 +24,9 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Get("/admin/products/sample.xlsx", h.AdminProductsSampleXLSX)
 
 		// Inventory & Warehouses
-		g.Get("/admin/stocks", h.AdminStocksPage)
+		g.Get("/admin/stocks", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/warehouses", http.StatusMovedPermanently)
+		})
 		g.Get("/admin/warehouses", h.AdminWarehousesPage)
 		g.Get("/admin/warehouses/{id}", h.AdminWarehouseDetailPage)
 		g.Get("/admin/warehouses/{id}/stocks-json", h.AdminWarehouseStocksJSON)

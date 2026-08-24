@@ -4,28 +4,29 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// VendorIngestPage renders the server-driven vendor catalog ingestion wizard (Plan V5 Phase 4 §4.2).
-templ VendorIngestPage(sessions []*ingest.ImportSession, currentSession *ingest.ImportSession, rows []*ingest.ImportRow, lang, dir string) {
-	@layouts.VendorShell("استيراد وتحديث كتالوج الأدوية والأرصدة", "ingest", lang, dir) {
-		<div style="max-width:1160px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:2rem;">
+// VendorIngestPage renders the primary catalog upload and multi-stage matching wizard.
+templ VendorIngestPage(data IngestWizardData, lang, dir string) {
+	@layouts.VendorShell("استيراد وتحديث كتالوج الأدوية والمخزون", "ingest", lang, dir) {
+		<div style="max-width:1200px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:1.75rem;">
 			
-			<!-- Header & Actions Bar -->
+			<!-- Header & Title Bar -->
 			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
 				<div>
 					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-							@components.IconUpload("icon-sm")
+						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							@components.IconUpload("icon-md")
 						</div>
-						<h1 style="font-size:1.85rem; font-weight:800; color:var(--text); margin:0;">
-							استيراد وتحديث كتالوج الأدوية والأرصدة
+						<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0;">
+							استيراد وتحديث كتالوج الأدوية والمخزون
 						</h1>
 					</div>
 					<p style="color:var(--text-secondary); font-size:0.925rem; margin:0;">
-						معالج الاستيراد الذكي لمطابقة آلاف الأصناف بالباركود وتحديث الأسعار والأرصدة بالـ Chunk بدون استهلاك ذاكرة.
+						معالج الاستيراد والمطابقة الفائقة للأصناف مع الكتالوج العام ومنتجات التوفير والذكاء الاصطناعي.
 					</p>
 				</div>
 
@@ -37,185 +38,713 @@ templ VendorIngestPage(sessions []*ingest.ImportSession, currentSession *ingest.
 				</div>
 			</div>
 
+			<!-- Notice Alerts -->
+			if data.NoticeMessage != "" {
+				<div class={ "card", templ.KV("alert-success", data.NoticeType == "success"), templ.KV("alert-danger", data.NoticeType == "error"), templ.KV("alert-info", data.NoticeType == "info") } style="padding:1rem 1.5rem; margin-bottom:0; font-weight:700;">
+					<span>{ data.NoticeMessage }</span>
+				</div>
+			}
+
 			<!-- Stepper Indicator -->
-			<div class="card" style="margin-bottom:0; padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-				<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:2.5rem; border-bottom:1px solid var(--border); padding-bottom:1.5rem;">
-					<div style={ templ.KV("border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;", currentSession == nil), templ.KV("opacity:0.6; padding-inline-start:0.75rem;", currentSession != nil) }>
+			<div class="card" style="margin-bottom:0; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
+					<div style={ templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 1), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 1) }>
 						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 1</div>
-						<div style="font-weight:700; font-size:1rem; color:var(--text);">اختيار ورفع ملف الأرصدة</div>
+						<div style="font-weight:800; font-size:1.05rem; color:var(--text);">المستودع، النمط ورفع الملف</div>
 					</div>
 
-					<div style={ templ.KV("border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;", currentSession != nil && currentSession.Status == ingest.StatusPending), templ.KV("opacity:0.6; padding-inline-start:0.75rem;", currentSession == nil || currentSession.Status != ingest.StatusPending) }>
+					<div style={ templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 2), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 2) }>
 						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 2</div>
-						<div style="font-weight:700; font-size:1rem; color:var(--text);">مطابقة الأعمدة والبيانات</div>
+						<div style="font-weight:800; font-size:1.05rem; color:var(--text);">مطابقة الأعمدة والبيانات</div>
 					</div>
 
-					<div style={ templ.KV("border-inline-start:3px solid var(--accent); padding-inline-start:0.75rem;", currentSession != nil && currentSession.Status == ingest.StatusCompleted), templ.KV("opacity:0.6; padding-inline-start:0.75rem;", currentSession == nil || currentSession.Status != ingest.StatusCompleted) }>
+					<div style={ templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 3), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 3) }>
 						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 3</div>
-						<div style="font-weight:700; font-size:1rem; color:var(--text);">تأكيد وتفعيل الأسعار للمتجر</div>
+						<div style="font-weight:800; font-size:1.05rem; color:var(--text);">المطابقة الذكية والمراجعة والاعتماد</div>
 					</div>
 				</div>
+			</div>
 
-				<!-- Step 1: Upload Dropzone (when no active session) -->
-				if currentSession == nil {
-					<div>
-						<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data">
-							<div style="border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3.5rem 2rem; text-align:center; background:var(--surface-sunken); margin-bottom:1.5rem;">
-								@components.IconUpload("icon-lg")
-								<h3 style="font-weight:800; color:var(--text); font-size:1.2rem; margin:1rem 0 0.5rem 0;">اختر ملف Excel أو CSV أو اسحبه هنا</h3>
-								<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;">الصيغ المدعومة: .xlsx, .xls, .csv (حتى 50,000 صنف معالجة متدفقة بدون استهلاك ذاكرة).</p>
-								<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-control" style="max-width:380px; margin:0 auto;" />
-							</div>
-
-							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-								<div style="font-size:0.85rem; color:var(--text-secondary);">
-									الأعمدة المقترحة: <strong>اسم الصنف (Name)</strong>، <strong>الباركود (Barcode)</strong>، <strong>السعر (Price)</strong>، <strong>الرصيد (Quantity)</strong>.
+			<!-- STEP 1: Upload, Target Warehouse & Import Mode -->
+			if data.Step == 1 {
+				<div class="card" style="padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+					<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data">
+						
+						<!-- Target Warehouse Selection -->
+						<div style="margin-bottom:2rem;">
+							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
+								1. اختر المستودع المستهدف <span style="color:var(--danger);">*</span>
+							</label>
+							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.75rem 0;">
+								سيتم تسجيل وتحديث أرصدة المخزون داخل المستودع الذي تختاره.
+							</p>
+							if len(data.Warehouses) > 0 {
+								<select name="warehouse_id" required class="form-control" style="max-width:480px; height:46px; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);">
+									for _, wh := range data.Warehouses {
+										<option value={ fmt.Sprintf("%d", wh.ID) }>
+											{ wh.Name } (كود: { wh.Code })
+										</option>
+									}
+								</select>
+							} else {
+								<div class="alert alert-warning" style="margin-bottom:0; max-width:480px;">
+									لا يوجد لديك مستودعات نشطة حالياً. يرجى <a href="/vendor/warehouses" style="font-weight:800; text-decoration:underline;">إضافة مستودع أولاً</a> للمتابعة.
 								</div>
-								<button type="submit" class="btn btn-primary" style="padding:0.75rem 2.25rem; font-weight:800;">
-									<span>رفع الملف وبدء الاستيراد التدريجي</span>
-									@components.IconArrowLeft("icon-xs")
-								</button>
-							</div>
-						</form>
-					</div>
-				}
+							}
+						</div>
 
-				<!-- Step 2: Mapping / Review (when session is pending/processing) -->
-				if currentSession != nil && currentSession.Status != ingest.StatusCompleted {
-					<div>
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-							<div>
-								<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0;">
-									جلسة استيراد #{ fmt.Sprintf("%d", currentSession.ID) } — مراجعة وتأكيد الأصناف
-								</h3>
-								<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">
-									تمت قراءة البيانات بنجاح وتجهيز { fmt.Sprintf("%d", len(rows)) } صنف للمطابقة.
-								</p>
-							</div>
-							<div style="display:flex; gap:0.5rem;">
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/cancel", currentSession.ID)) }>
-									<button type="submit" class="btn btn-secondary btn-sm">إلغاء الجلسة</button>
-								</form>
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/commit", currentSession.ID)) }>
-									<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
-										@components.IconCheck("icon-xs")
-										<span>تأكيد وتفعيل الأصناف في المتجر</span>
-									</button>
-								</form>
+						<!-- Import Mode Selection (4 Modes) -->
+						<div style="margin-bottom:2.25rem;">
+							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
+								2. اختر نمط الاستيراد <span style="color:var(--danger);">*</span>
+							</label>
+							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0;">
+								حدد كيفية معالجة وتحديث الأصناف والمخزون الموجود مقارنة بالملف المرفوع:
+							</p>
+
+							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
+								
+								<!-- Mode 4: Update & Add (Recommended) -->
+								<label style="border:2px solid var(--accent); background:rgba(37,99,235,0.03); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
+									<div>
+										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+											<input type="radio" name="import_mode" value="update_and_add" checked style="accent-color:var(--accent); width:18px; height:18px;" />
+											<span style="font-weight:800; font-size:1rem; color:var(--text);">تحديث وإضافة المنتجات (موصى به)</span>
+										</div>
+										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+											سيتم تحديث الأصناف والمخزونات الموجودة، وإذا لم تكن موجودة سيتم إضافتها كأصناف جديدة.
+										</p>
+									</div>
+									<div style="margin-top:0.75rem; font-size:0.75rem; color:var(--accent); font-weight:700;">
+										✓ النمط الشامل الأكثر مرونة
+									</div>
+								</label>
+
+								<!-- Mode 1: Add New Only -->
+								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
+									<div>
+										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+											<input type="radio" name="import_mode" value="add_new_only" style="accent-color:var(--accent); width:18px; height:18px;" />
+											<span style="font-weight:800; font-size:1rem; color:var(--text);">إضافة المنتجات الجديدة فقط</span>
+										</div>
+										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+											سيتم إضافة المنتجات الجديدة فقط في الأصناف والمخزون، ولن يتم تعديل أي منتج موجود مسبقاً.
+										</p>
+									</div>
+									<div style="margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;">
+										⚠️ لن يتم تحديث أي منتج موجود بالفعل
+									</div>
+								</label>
+
+								<!-- Mode 2: Update Existing Only -->
+								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
+									<div>
+										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+											<input type="radio" name="import_mode" value="update_existing_only" style="accent-color:var(--accent); width:18px; height:18px;" />
+											<span style="font-weight:800; font-size:1rem; color:var(--text);">تحديث المنتجات الموجودة فقط</span>
+										</div>
+										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+											سيتم تحديث المنتجات الموجودة فقط في الأصناف والمخزون، ولن تتم إضافة أي منتجات جديدة.
+										</p>
+									</div>
+									<div style="margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;">
+										⚠️ لن يتم إضافة أي منتج غير موجود مسبقاً
+									</div>
+								</label>
+
+								<!-- Mode 3: Clear & Add -->
+								<label style="border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.02); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
+									<div>
+										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+											<input type="radio" name="import_mode" value="clear_and_add" style="accent-color:var(--danger); width:18px; height:18px;" />
+											<span style="font-weight:800; font-size:1rem; color:var(--danger);">تفريغ المخزون بالكامل وإضافة الجديد</span>
+										</div>
+										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
+											سيتم حذف جميع مخزونات المستودع المحدد بالكامل ثم إضافة جميع المنتجات من الملف كمنتجات جديدة.
+										</p>
+									</div>
+									<div style="margin-top:0.75rem; font-size:0.75rem; color:var(--danger); font-weight:800;">
+										⚠️ سيتم حذف جميع مخزونات هذا المخزن بالكامل!
+									</div>
+								</label>
+
 							</div>
 						</div>
 
-						<!-- Staged Rows Table -->
-						<div class="table-container" style="margin-bottom:1.75rem;">
+						<!-- Matching Options & AI Switches -->
+						<div style="margin-bottom:2.25rem; padding:1.5rem; background:var(--surface-sunken); border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.75rem; color:var(--text);">
+								3. خيارات وإعدادات المطابقة الفائقة
+							</label>
+
+							<input type="hidden" name="enable_ai_matching_submitted" value="1" />
+							<input type="hidden" name="enable_savings_matching_submitted" value="1" />
+
+							<div style="display:flex; flex-direction:column; gap:1.25rem;">
+								<!-- Savings Products Switch -->
+								<label style="display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;">
+									<input type="checkbox" name="enable_savings_matching" value="1" checked style="accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;" />
+									<div>
+										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											اعتماد منتجات التوفير للمطابقة الفائقة 🛒
+										</div>
+										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
+											استخدام قائمة منتجات التوفير لربط الأصناف بمنتجاتك المعتمدة فوراً، بدقة وسرعة عالية.
+										</div>
+									</div>
+								</label>
+
+								<!-- AI Matching Switch -->
+								<label style="display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;">
+									<input type="checkbox" name="enable_ai_matching" value="1" checked style="accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;" />
+									<div>
+										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											تفعيل المطابقة الذكية بالذكاء الاصطناعي (AI Matching) 🤖
+										</div>
+										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
+											استدعاء محرك الذكاء الاصطناعي بشكل انتقائي للأصناف الغامضة والمعقدة لتحقيق أعلى دقة ممكنة.
+										</div>
+									</div>
+								</label>
+							</div>
+						</div>
+
+						<!-- File Upload Dropzone -->
+						<div style="margin-bottom:2rem;">
+							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
+								4. رفع ملف الكتالوج والأرصدة <span style="color:var(--danger);">*</span>
+							</label>
+
+							<div style="border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--surface-sunken);">
+								<div style="width:54px; height:54px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
+									@components.IconUpload("icon-lg")
+								</div>
+								<h3 style="font-weight:800; color:var(--text); font-size:1.2rem; margin:0 0 0.5rem 0;">اختر ملف Excel أو CSV أو اسحبه هنا</h3>
+								<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;">
+									الصيغ المدعومة: .xlsx, .xls, .csv (معالجة متدفقة بدون استهلاك ذاكرة).
+								</p>
+								<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-control" style="max-width:380px; margin:0 auto;" />
+							</div>
+						</div>
+
+						<!-- Form Actions -->
+						<div style="display:flex; justify-content:flex-end; align-items:center; gap:1rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+							<button type="submit" class="btn btn-primary" style="padding:0.85rem 2.5rem; font-weight:800; font-size:1rem; gap:0.5rem;">
+								<span>رفع الملف والمتابعة لمطابقة الأعمدة</span>
+								@components.IconArrowLeft("icon-xs")
+							</button>
+						</div>
+
+					</form>
+				</div>
+			}
+
+			<!-- STEP 2: Column Mapping Step -->
+			if data.Step == 2 && data.Session != nil {
+				<div class="card" style="padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+					
+					<div style="margin-bottom:2rem;">
+						<h2 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
+							الخطوة 2: تعيين وتحديد أعمدة الملف
+						</h2>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">
+							قم بمطابقة أعمدة ملفك المرفوع مع حقول النظام المعيارية. حقل <strong>اسم الصنف</strong> إلزامي للمتابعة.
+						</p>
+					</div>
+
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/mapping", data.Session.ID)) }>
+						
+						<div class="table-container" style="margin-bottom:2rem;">
 							<table class="data-table">
 								<thead>
 									<tr>
-										<th>#</th>
-										<th>اسم الصنف في الملف</th>
-										<th>الاسم المعياري المقترح</th>
-										<th>الحالة</th>
+										<th style="width:30%;">حقل النظام المعياري</th>
+										<th style="width:15%;">الحالة</th>
+										<th style="width:55%;">العمود المطابق في ملفك</th>
 									</tr>
 								</thead>
 								<tbody>
-									if len(rows) > 0 {
-										for _, r := range rows {
-											<tr>
-												<td>{ fmt.Sprintf("%d", r.RowNumber) }</td>
-												<td><strong>{ fmt.Sprintf("%v", r.RawData["product_name"]) }</strong></td>
-												<td style="color:var(--accent); font-weight:600;">{ r.NormalizedName }</td>
-												<td><span class="badge badge-success">{ r.Status }</span></td>
+									<!-- Product Name (Required) -->
+									<tr style="background:rgba(37,99,235,0.03);">
+										<td>
+											<strong style="color:var(--text); font-size:0.95rem;">اسم الصنف / Product Name</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">الاسم التجاري أو العلمي للدواء</div>
+										</td>
+										<td>
+											<span class="badge badge-danger" style="font-size:0.75rem;">إلزامي</span>
+										</td>
+										<td>
+											<select name="target_field_product_name" required class="form-control" style="font-weight:700;">
+												<option value="">-- اختر العمود من الملف --</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldProductName] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Barcode -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">الباركود الدولي / Barcode</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">كود الترقيم الدولي (EAN/UPC/GTIN)</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_barcode" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldBarcode] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- SKU -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">كود الصنف / SKU</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">كود الصنف الداخلي لدى المورد</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_sku" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldSKU] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Price -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">سعر البيع للجمهور / Public Price</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">السعر الرسمي للجمهور (ج.م)</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_price" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldPrice] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Cost Price -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">سعر التكلفة / Cost Price</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">سعر الشراء أو التكلفة</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_cost_price" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldCostPrice] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Discount -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">نسبة / قيمة الخصم / Discount</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">الخصم الممنوح للصيدلية</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_discount" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldDiscount] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Quantity -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">الكمية / الرصيد / Stock Qty</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">الرصيد المتاح بالمستودع</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_quantity" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldQuantity] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Batch Number -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">رقم التشغيلة / Batch Number</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">رقم الباتش أو التشغيلة</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_batch_number" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldBatchNumber] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Expiry Date -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">تاريخ الصلاحية / Expiry Date</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">تاريخ انتهاء صلاحية الصنف</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_expiry_date" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldExpiryDate] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Dosage Form -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">الشكل الدوائي / Dosage Form</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">أقراص، شراب، كبسول، إلخ</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_dosage_form" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldDosageForm] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+									<!-- Concentration -->
+									<tr>
+										<td>
+											<strong style="color:var(--text);">التركيز / Concentration</strong>
+											<div style="font-size:0.75rem; color:var(--text-secondary);">مثل: 500mg, 1000mg</div>
+										</td>
+										<td>
+											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+										</td>
+										<td>
+											<select name="target_field_concentration" class="form-control">
+												<option value="unmapped">غير محدد (Unmapped)</option>
+												for hKey := range data.Session.ColumnMapping {
+													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldConcentration] == hKey }>
+														{ hKey }
+													</option>
+												}
+											</select>
+										</td>
+									</tr>
+
+								</tbody>
+							</table>
+						</div>
+
+						<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem;">
+							<a href="/vendor/ingest" class="btn btn-secondary">
+								@components.IconArrowRight("icon-xs")
+								<span>رجوع لاختيار ملف آخر</span>
+							</a>
+							<button type="submit" class="btn btn-primary" style="padding:0.85rem 2.5rem; font-weight:800; font-size:1rem; gap:0.5rem;">
+								<span>🚀 بدء المطابقة الذكية للأصناف</span>
+								@components.IconArrowLeft("icon-xs")
+							</button>
+						</div>
+
+					</form>
+
+				</div>
+			}
+
+			<!-- STEP 3: Matching Results, Interactive Review & Commit -->
+			if data.Step == 3 && data.Session != nil {
+				<div style="display:flex; flex-direction:column; gap:1.75rem;">
+					
+					<!-- KPI Strip -->
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem;">
+						<div class="card" style="margin-bottom:0; padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="font-size:0.825rem; color:var(--text-secondary); font-weight:700;">إجمالي الأصناف بالملف</div>
+							<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.25rem;">
+								{ fmt.Sprintf("%d", data.Session.TotalRows) }
+							</div>
+						</div>
+
+						<div class="card" style="margin-bottom:0; padding:1.5rem; background:rgba(16,185,129,0.04); border-radius:var(--radius-xl); border:1px solid rgba(16,185,129,0.25);">
+							<div style="font-size:0.825rem; color:#059669; font-weight:800;">✓ مطابقة فائقة ومؤكدة (High)</div>
+							<div style="font-size:1.85rem; font-weight:900; color:#059669; margin-top:0.25rem;">
+								{ fmt.Sprintf("%d", data.Session.MatchedRows) }
+							</div>
+						</div>
+
+						<div class="card" style="margin-bottom:0; padding:1.5rem; background:rgba(245,158,11,0.04); border-radius:var(--radius-xl); border:1px solid rgba(245,158,11,0.25);">
+							<div style="font-size:0.825rem; color:#d97706; font-weight:800;">⚠️ بحاجة لمراجعة وتأكيد (Review)</div>
+							<div style="font-size:1.85rem; font-weight:900; color:#d97706; margin-top:0.25rem;">
+								{ fmt.Sprintf("%d", data.Session.ReviewRows) }
+							</div>
+						</div>
+
+						<div class="card" style="margin-bottom:0; padding:1.5rem; background:rgba(239,68,68,0.04); border-radius:var(--radius-xl); border:1px solid rgba(239,68,68,0.25);">
+							<div style="font-size:0.825rem; color:var(--danger); font-weight:800;">✗ غير مطابق بالكتالوج (Unmatched)</div>
+							<div style="font-size:1.85rem; font-weight:900; color:var(--danger); margin-top:0.25rem;">
+								{ fmt.Sprintf("%d", data.Session.UnmatchedRows) }
+							</div>
+						</div>
+					</div>
+
+					<!-- Main Review Card -->
+					<div class="card" style="padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
+						
+						<!-- Header & Actions -->
+						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);">
+							<div>
+								<h2 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">
+									مراجعة وتأكيد نتائج المطابقة
+								</h2>
+								<div style="font-size:0.85rem; color:var(--text-secondary);">
+									المستودع: <strong>{ data.CurrentWarehouse.Name }</strong> • نمط الاستيراد: <strong>{ string(data.Session.ImportMode) }</strong>
+								</div>
+							</div>
+
+							<div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/cancel", data.Session.ID)) }>
+									<button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('هل أنت متأكد من إلغاء جلسة الاستيراد هذه؟')">
+										إلغاء الجلسة
+									</button>
+								</form>
+
+								if data.Session.Status != ingest.StatusCompleted {
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/commit", data.Session.ID)) }>
+										<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem 1.75rem; font-size:0.95rem; gap:0.4rem;" onclick="return confirm('هل أنت متأكد من اعتماد ومزامنة البيانات في المستودع المحدد؟')">
+											@components.IconCheck("icon-xs")
+											<span>✓ تأكيد واعتماد الاستيراد بالمستودع</span>
+										</button>
+									</form>
+								} else {
+									<span class="badge badge-success" style="padding:0.6rem 1.25rem; font-size:0.9rem;">
+										✓ تم الاستيراد والاعتماد بنجاح
+									</span>
+								}
+							</div>
+						</div>
+
+						<!-- Filter Pills -->
+						<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == ""), templ.KV("btn-secondary", data.ConfidenceFilter != "") } style="font-weight:700;">
+								الكل ({ fmt.Sprintf("%d", data.Session.TotalRows) })
+							</a>
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=high", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "high"), templ.KV("btn-secondary", data.ConfidenceFilter != "high") } style="font-weight:700;">
+								المطابقة المؤكدة ({ fmt.Sprintf("%d", data.Session.MatchedRows) })
+							</a>
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=review", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "review"), templ.KV("btn-secondary", data.ConfidenceFilter != "review") } style="font-weight:700;">
+								بحاجة لمراجعة ({ fmt.Sprintf("%d", data.Session.ReviewRows) })
+							</a>
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=unmatched", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "unmatched"), templ.KV("btn-secondary", data.ConfidenceFilter != "unmatched") } style="font-weight:700;">
+								غير المطابقة ({ fmt.Sprintf("%d", data.Session.UnmatchedRows) })
+							</a>
+						</div>
+
+						<!-- Rows Table -->
+						<div class="table-container">
+							<table class="data-table">
+								<thead>
+									<tr>
+										<th style="width:40px;">#</th>
+										<th style="width:30%;">بيانات الصنف بالملف المرفوع</th>
+										<th style="width:35%;">الصنف المعتمد المطابق بالكتالوج</th>
+										<th style="width:20%;">دقة وسبب المطابقة</th>
+										<th style="width:10%;">الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									if len(data.Rows) > 0 {
+										for _, row := range data.Rows {
+											<tr style={ templ.KV("opacity:0.45; background:var(--surface-sunken);", !row.IsApproved) }>
+												<td>{ fmt.Sprintf("%d", row.RowNumber) }</td>
+												
+												<!-- Raw Data Column -->
+												<td>
+													<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+														{ row.NormalizedName }
+													</div>
+													<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.35rem; font-size:0.775rem; color:var(--text-secondary);">
+														if b := getRawVal(row.RawData, data.Session.ColumnMapping[ingest.FieldBarcode]); b != "" {
+															<span>الباركود: <code>{ b }</code></span>
+														}
+														if p := getRawVal(row.RawData, data.Session.ColumnMapping[ingest.FieldPrice]); p != "" {
+															<span>السعر: <strong>{ p } ج.م</strong></span>
+														}
+														if q := getRawVal(row.RawData, data.Session.ColumnMapping[ingest.FieldQuantity]); q != "" {
+															<span>الكمية: <strong>{ q }</strong></span>
+														}
+													</div>
+												</td>
+
+												<!-- Matched Master Product Column -->
+												<td>
+													if row.MatchedProductID != nil && *row.MatchedProductID > 0 {
+														<div style="font-weight:800; color:var(--accent); font-size:0.95rem;">
+															{ row.MatchedProdName }
+														</div>
+														if row.MatchedProdSKU != "" {
+															<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:0.15rem;">
+																كود الصنف بالكتالوج: <code>{ row.MatchedProdSKU }</code>
+															</div>
+														}
+													} else {
+														<div style="color:var(--danger); font-weight:800; font-size:0.875rem;">
+															⚠️ لم يتم الربط بصنف معتمد
+														</div>
+													}
+
+													<!-- Manual Override Dropdown -->
+													if data.Session.Status != ingest.StatusCompleted {
+														<div style="margin-top:0.5rem;">
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d", data.Session.ID, row.ID)) } style="display:flex; gap:0.35rem; align-items:center;">
+																<select name="product_id" class="form-control form-control-sm" style="font-size:0.8rem; max-width:280px;" onchange="this.form.submit()">
+																	<option value="">-- تغيير الصنف المعتمد يدوياً --</option>
+																	for _, mp := range data.MasterProducts {
+																		<option value={ fmt.Sprintf("%d", mp.ID) } selected?={ row.MatchedProductID != nil && *row.MatchedProductID == mp.ID }>
+																			{ mp.Name.Get(i18n.Lang(lang)) }
+																		</option>
+																	}
+																</select>
+															</form>
+														</div>
+													}
+												</td>
+
+												<!-- Confidence Level & Match Reason -->
+												<td>
+													<div style="margin-bottom:0.25rem;">
+														if row.ConfidenceLevel == ingest.ConfidenceHigh {
+															<span class="badge badge-success" style="font-size:0.775rem; font-weight:800;">
+																✓ مطابقة مؤكدة
+															</span>
+														} else if row.ConfidenceLevel == ingest.ConfidenceReview {
+															<span class="badge badge-warning" style="font-size:0.775rem; font-weight:800;">
+																⚠️ بحاجة لمراجعة
+															</span>
+														} else {
+															<span class="badge badge-danger" style="font-size:0.775rem; font-weight:800;">
+																✗ غير مطابق
+															</span>
+														}
+													</div>
+													<div style="font-size:0.775rem; color:var(--text-secondary); line-height:1.35;">
+														{ row.MatchReason }
+													</div>
+												</td>
+
+												<!-- Action Column -->
+												<td>
+													if data.Session.Status != ingest.StatusCompleted {
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d/toggle", data.Session.ID, row.ID)) }>
+															if row.IsApproved {
+																<input type="hidden" name="approved" value="false" />
+																<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger);" title="استبعاد هذا الصنف من الاستيراد">
+																	استبعاد
+																</button>
+															} else {
+																<input type="hidden" name="approved" value="true" />
+																<button type="submit" class="btn btn-primary btn-xs" title="تضمين هذا الصنف في الاستيراد">
+																	تضمين
+																</button>
+															}
+														</form>
+													} else {
+														<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">
+															{ row.ImportAction }
+														</span>
+													}
+												</td>
+
 											</tr>
 										}
 									} else {
 										<tr>
-											<td colspan="4" style="text-align:center; padding:1.5rem; color:var(--text-secondary);">جاري تجهيز وبث السجلات...</td>
+											<td colspan="5" style="text-align:center; padding:3rem; color:var(--text-secondary);">
+												لا توجد أصناف تطابق الفلتر المحدد.
+											</td>
 										</tr>
 									}
 								</tbody>
 							</table>
 						</div>
-					</div>
-				}
 
-				<!-- Step 3: Success Confirmation (when session is completed) -->
-				if currentSession != nil && currentSession.Status == ingest.StatusCompleted {
-					<div style="text-align:center; padding:2rem 1rem;">
-						<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto; border:1px solid var(--border);">
-							@components.IconCheckCircle("icon-lg")
-						</div>
-						<h3 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
-							تم استيراد وتفعيل الأرصدة بنجاح!
-						</h3>
-						<p style="font-size:0.95rem; color:var(--text-secondary); max-width:560px; margin:0 auto 2rem auto; line-height:1.6;">
-							تمت مطابقة وحفظ كافة الأصناف وعروض الأسعار والكميات في متجر شركتك، وأصبحت متاحة للطلب الفوري.
-						</p>
-
-						<div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
-							<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:700;">
-								استيراد ملف جديد
-							</a>
-							<a href="/vendor/products" class="btn btn-primary" style="font-weight:800;">
-								<span>الانتقال لكتالوج منتجات المورد</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
 					</div>
-				}
-			</div>
 
-			<!-- Previous Import Sessions Log -->
-			<div class="card" style="margin-bottom:0; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem;">
-					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--surface-sunken); color:var(--text); display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">
-						@components.IconFolder("icon-sm")
-					</div>
-					<h2 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
-						سجل عمليات الاستيراد والمزامنة السابقة
-					</h2>
 				</div>
+			}
 
-				if len(sessions) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد عمليات استيراد سابقة",
-						Message: "يمكنك رفع ملف الأرصدة والأسعار الخاص بشركتك للبدء في البيع فوراً.",
-					})
-				} else {
-					<div class="table-container">
-						<table class="data-table">
-							<thead>
-								<tr>
-									<th>رقم الجلسة</th>
-									<th>الحالة</th>
-									<th>تاريخ البدء</th>
-									<th>الإجراء</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, s := range sessions {
-									<tr>
-										<td><strong>#{ fmt.Sprintf("%d", s.ID) }</strong></td>
-										<td>
-											if s.Status == ingest.StatusCompleted {
-												<span class="badge badge-success">مكتمل ومفعل</span>
-											} else if s.Status == ingest.StatusProcessing {
-												<span class="badge badge-primary">قيد المعالجة</span>
-											} else {
-												<span class="badge badge-secondary">{ string(s.Status) }</span>
-											}
-										</td>
-										<td>{ s.CreatedAt.Format("2006-01-02 15:04") }</td>
-										<td>
-											<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", s.ID)) } class="btn btn-secondary btn-sm">
-												<span>فتح الجلسة</span>
-											</a>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				}
-			</div>
 		</div>
 	}
+}
+
+func getRawVal(m map[string]any, k string) string {
+	if k == "" || m == nil {
+		return ""
+	}
+	if v, ok := m[k]; ok && v != nil {
+		return fmt.Sprintf("%v", v)
+	}
+	return ""
 }

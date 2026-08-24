@@ -150,6 +150,15 @@ func (r *Repository) UpsertStock(ctx context.Context, s *inventory.Stock) error 
 	})
 }
 
+// ClearWarehouseStocks deletes all stock records for a warehouse (for clear_and_add import mode).
+func (r *Repository) ClearWarehouseStocks(ctx context.Context, warehouseID int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `DELETE FROM inventory.stocks WHERE warehouse_id = $1;`
+		_, err := tx.Exec(txCtx, query, warehouseID)
+		return err
+	})
+}
+
 // AdjustStock updates stock atomically and records an entry in the stock movements ledger.
 func (r *Repository) AdjustStock(ctx context.Context, stockID int64, delta int, movement inventory.StockMovement) (*inventory.Stock, error) {
 	var updatedStock inventory.Stock

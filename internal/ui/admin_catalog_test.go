@@ -36,7 +36,7 @@ func TestAdminCatalogAndInventoryRoutes(t *testing.T) {
 			wantStatus: http.StatusSeeOther,
 		},
 		{
-			name:   "Super admin GET /admin/stocks returns 200",
+			name:   "Super admin GET /admin/stocks 301 redirects to /admin/warehouses",
 			path:   "/admin/stocks",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -44,7 +44,7 @@ func TestAdminCatalogAndInventoryRoutes(t *testing.T) {
 				IsStaff: true,
 				Role:    "super_admin",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Super admin GET /admin/warehouses returns 200",

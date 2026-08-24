@@ -60,6 +60,10 @@ func (r stubRepo) UpsertStock(ctx context.Context, s *inventory.Stock) error {
 	r.fail("UpsertStock")
 	return nil
 }
+func (r stubRepo) ClearWarehouseStocks(ctx context.Context, warehouseID int64) error {
+	r.fail("ClearWarehouseStocks")
+	return nil
+}
 func (r stubRepo) AdjustStock(ctx context.Context, stockID int64, delta int, movement inventory.StockMovement) (*inventory.Stock, error) {
 	r.fail("AdjustStock")
 	return nil, nil
@@ -132,6 +136,9 @@ func (happyRepo) GetStock(ctx context.Context, warehouseID, variantID int64) (*i
 }
 func (happyRepo) UpsertStock(ctx context.Context, s *inventory.Stock) error {
 	s.ID = 1
+	return nil
+}
+func (happyRepo) ClearWarehouseStocks(ctx context.Context, warehouseID int64) error {
 	return nil
 }
 func (happyRepo) AdjustStock(ctx context.Context, stockID int64, delta int, movement inventory.StockMovement) (*inventory.Stock, error) {

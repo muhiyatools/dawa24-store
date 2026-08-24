@@ -1,19 +1,23 @@
 package ui
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// VendorIngestPage renders the primary catalog upload and sync dashboard.
+// VendorIngestPage renders the primary catalog upload, column mapping, and matching wizard.
 func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -23,21 +27,34 @@ func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sessions []*ingest.ImportSession
+	data := pages.IngestWizardData{
+		Step:             1,
+		NoticeType:       r.URL.Query().Get("notice"),
+		NoticeMessage:    r.URL.Query().Get("msg"),
+		ConfidenceFilter: r.URL.Query().Get("filter"),
+	}
+
+	if h.invSvc != nil && actor.OrganizationID > 0 {
+		whs, err := h.invSvc.ListWarehouses(ctx)
+		if err == nil {
+			data.Warehouses = whs
+		}
+	}
+
 	if h.ingSvc != nil && actor.OrganizationID > 0 {
 		sList, err := h.ingSvc.ListSessions(ctx, actor.OrganizationID, 20, 0)
 		if err == nil {
-			sessions = sList
+			data.Sessions = sList
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorIngestPage(sessions, nil, nil, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.VendorIngestPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor ingest page", "error", err)
 	}
 }
 
-// VendorIngestSessionPage loads an ongoing or completed session to resume at the exact step.
+// VendorIngestSessionPage loads an ongoing or completed session to display at the exact wizard step.
 func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -54,34 +71,71 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var session *ingest.ImportSession
-	var rows []*ingest.ImportRow
-	if h.ingSvc != nil {
-		sItem, err := h.ingSvc.GetSessionProgress(ctx, sessionID)
-		if err == nil && sItem != nil {
-			session = sItem
-			rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, "", 50, 0)
-			rows = rList
+	data := pages.IngestWizardData{
+		NoticeType:       r.URL.Query().Get("notice"),
+		NoticeMessage:    r.URL.Query().Get("msg"),
+		ConfidenceFilter: r.URL.Query().Get("filter"),
+	}
+
+	if h.invSvc != nil && actor.OrganizationID > 0 {
+		whs, err := h.invSvc.ListWarehouses(ctx)
+		if err == nil {
+			data.Warehouses = whs
 		}
 	}
 
-	if session == nil {
+	if h.ingSvc != nil && actor.OrganizationID > 0 {
+		sList, err := h.ingSvc.ListSessions(ctx, actor.OrganizationID, 20, 0)
+		if err == nil {
+			data.Sessions = sList
+		}
+		sItem, err := h.ingSvc.GetSessionProgress(ctx, sessionID)
+		if err == nil && sItem != nil {
+			data.Session = sItem
+			rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, data.ConfidenceFilter, 200, 0)
+			data.Rows = rList
+		}
+	}
+
+	if data.Session == nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "جلسة الاستيراد غير موجودة.")
 		return
 	}
 
-	var sessions []*ingest.ImportSession
-	if h.ingSvc != nil && actor.OrganizationID > 0 {
-		sessions, _ = h.ingSvc.ListSessions(ctx, actor.OrganizationID, 20, 0)
+	// Find current warehouse
+	if data.Session.WarehouseID != nil && len(data.Warehouses) > 0 {
+		for _, wh := range data.Warehouses {
+			if wh.ID == *data.Session.WarehouseID {
+				data.CurrentWarehouse = wh
+				break
+			}
+		}
+	}
+
+	// Fetch master products for manual override select dropdowns
+	if h.catSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		if prods, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 2000}); err == nil {
+			data.MasterProducts = prods
+		}
+	}
+
+	// Determine wizard step
+	if data.Session.Status == ingest.StatusCompleted {
+		data.Step = 3
+	} else if len(data.Session.ColumnMapping) > 0 && data.Session.ProcessedRows > 0 {
+		data.Step = 3
+	} else {
+		data.Step = 2
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorIngestPage(sessions, session, rows, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.VendorIngestPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor ingest session page", "error", err)
 	}
 }
 
-// VendorIngestUploadSubmit handles the initial file upload and initiates streaming ingestion.
+// VendorIngestUploadSubmit handles the initial file upload, warehouse choice, mode, and switches.
 func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -104,8 +158,29 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 	}
 	defer file.Close()
 
+	var warehouseID *int64
+	whStr := r.PostFormValue("warehouse_id")
+	if whID, err := strconv.ParseInt(whStr, 10, 64); err == nil && whID > 0 {
+		warehouseID = &whID
+	}
+
+	importMode := ingest.ImportMode(r.PostFormValue("import_mode"))
+	if importMode == "" {
+		importMode = ingest.ModeUpdateAndAdd
+	}
+
+	enableAI := r.PostFormValue("enable_ai_matching") == "1" || r.PostFormValue("enable_ai_matching") == "on" || r.PostFormValue("enable_ai_matching") == "true"
+	// Default to true if not explicitly submitted as false
+	if r.PostFormValue("enable_ai_matching_submitted") == "" && r.PostFormValue("enable_ai_matching") == "" {
+		enableAI = true
+	}
+
+	enableSavings := r.PostFormValue("enable_savings_matching") == "1" || r.PostFormValue("enable_savings_matching") == "on" || r.PostFormValue("enable_savings_matching") == "true"
+	if r.PostFormValue("enable_savings_matching_submitted") == "" && r.PostFormValue("enable_savings_matching") == "" {
+		enableSavings = true
+	}
+
 	if h.ingSvc != nil {
-		// Register upload
 		fileUpload := &ingest.FileUpload{
 			OrganizationID: actor.OrganizationID,
 			UserID:         actor.UserID,
@@ -120,28 +195,25 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		// Start session
-		session, err := h.ingSvc.StartSession(ctx, createdUpload.ID, []string{"product_name", "price", "quantity", "barcode", "sku"}, 0.85)
+		session, err := h.ingSvc.StartSessionWithConfig(
+			ctx,
+			createdUpload.ID,
+			[]string{"product_name", "price", "quantity", "barcode", "sku", "dosage_form", "concentration"},
+			warehouseID,
+			importMode,
+			enableAI,
+			enableSavings,
+			0.85,
+		)
 		if err != nil {
 			h.redirectWithNotice(w, r, "/vendor/ingest", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 
-		// Stream spreadsheet rows in 500-row chunks
+		// Stream spreadsheet rows into staging
 		_, err = h.ingSvc.ProcessSpreadsheetStream(ctx, session.ID, file, header.Filename, "product_name", nil)
 		if err != nil {
 			h.log.WarnContext(ctx, "stream rows warning", "session_id", session.ID, "error", err)
-		}
-
-		// If called via AJAX/JSON
-		if r.Header.Get("Accept") == "application/json" {
-			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(map[string]any{
-				"session_id": session.ID,
-				"status":     session.Status,
-				"redirect":   fmt.Sprintf("/vendor/ingest/%d", session.ID),
-			})
-			return
 		}
 
 		http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", session.ID), http.StatusSeeOther)
@@ -151,9 +223,15 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, "/vendor/ingest", http.StatusSeeOther)
 }
 
-// VendorIngestMappingSubmit updates column mapping for the active session.
+// VendorIngestMappingSubmit updates column mapping and triggers the multi-stage matching engine.
 func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/ingest", http.StatusSeeOther)
+		return
+	}
+
 	idStr := chi.URLParam(r, "id")
 	sessionID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || sessionID <= 0 {
@@ -163,40 +241,43 @@ func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Req
 
 	_ = r.ParseForm()
 	mapping := make(map[string]string)
+
+	// Collect form mappings: target field -> header name
 	for k, v := range r.PostForm {
-		if len(v) > 0 && v[0] != "" {
+		if strings.HasPrefix(k, "target_field_") {
+			targetField := strings.TrimPrefix(k, "target_field_")
+			if len(v) > 0 && v[0] != "" && v[0] != "unmapped" {
+				mapping[targetField] = v[0]
+			}
+		} else if len(v) > 0 && v[0] != "" && v[0] != "unmapped" {
 			mapping[k] = v[0]
 		}
 	}
 
-	if h.ingSvc != nil {
-		_ = h.ingSvc.UpdateColumnMapping(ctx, sessionID, mapping)
-	}
-
-	http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), http.StatusSeeOther)
-}
-
-// VendorIngestRowsPartial returns rows HTML for review.
-func (h *UIHandler) VendorIngestRowsPartial(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	sessionID, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || sessionID <= 0 {
-		http.Error(w, "invalid session", http.StatusBadRequest)
+	// Validate product_name is mapped
+	if mapping[ingest.FieldProductName] == "" {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "error", "حقل (اسم الصنف / Product Name) إلزامي للمتابعة.")
 		return
 	}
 
-	var rows []*ingest.ImportRow
 	if h.ingSvc != nil {
-		rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, "", 50, 0)
-		rows = rList
+		_ = h.ingSvc.UpdateColumnMapping(ctx, sessionID, mapping)
+
+		// Prepare candidate data
+		masterProducts, savingProducts := h.prepareMatchingData(ctx, actor.OrganizationID)
+
+		// Run multi-stage matching
+		if err := h.ingSvc.ExecuteMultiStageMatching(ctx, sessionID, masterProducts, savingProducts); err != nil {
+			h.log.ErrorContext(ctx, "failed multi-stage matching", "session_id", sessionID, "error", err)
+			h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "error", "حدث خطأ أثناء مطابقة الأصناف: "+h.safeMessage(err, langOf(r)))
+			return
+		}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"rows": rows, "count": len(rows)})
+	h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "success", "تمت مطابقة الأصناف بنجاح. يمكنك الآن مراجعة النتائج واعتماد الاستيراد.")
 }
 
-// VendorIngestRowUpdateSubmit overrides or fixes a staged row match.
+// VendorIngestRowUpdateSubmit overrides a staged row's matched master product.
 func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")
@@ -208,13 +289,39 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 	productID, _ := strconv.ParseInt(productIDStr, 10, 64)
 
 	if h.ingSvc != nil && rowID > 0 && productID > 0 {
-		_ = h.ingSvc.OverrideRowMatch(ctx, rowID, productID)
+		_ = h.ingSvc.OverrideRowMatchDetailed(ctx, rowID, productID)
+	}
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.WriteHeader(http.StatusOK)
+		return
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), http.StatusSeeOther)
 }
 
-// VendorIngestCommitSubmit commits the session and activates inventory in catalog.
+// VendorIngestRowToggleSubmit toggles whether a row is included/approved for import.
+func (h *UIHandler) VendorIngestRowToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idStr := chi.URLParam(r, "id")
+	sessionID, _ := strconv.ParseInt(idStr, 10, 64)
+	rowIDStr := chi.URLParam(r, "rid")
+	rowID, _ := strconv.ParseInt(rowIDStr, 10, 64)
+
+	approved := r.FormValue("approved") == "1" || r.FormValue("approved") == "true"
+	if h.ingSvc != nil && rowID > 0 {
+		_ = h.ingSvc.ToggleRowApproval(ctx, rowID, approved)
+	}
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), http.StatusSeeOther)
+}
+
+// VendorIngestCommitSubmit commits the session and reconciles catalog variants & warehouse stocks.
 func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")
@@ -225,15 +332,15 @@ func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	if h.ingSvc != nil {
-		if err := h.ingSvc.CommitSession(ctx, sessionID); err != nil {
-			h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "error", h.safeMessage(err, langOf(r)))
+		outcome, err := h.ingSvc.CommitSessionWithReconciliation(ctx, sessionID, h.catSvc, h.invSvc)
+		if err != nil {
+			h.log.ErrorContext(ctx, "failed to commit ingest session", "session_id", sessionID, "error", err)
+			h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "error", "تعذر إتمام الاستيراد: "+h.safeMessage(err, langOf(r)))
 			return
 		}
-	}
 
-	if r.Header.Get("Accept") == "application/json" {
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{"status": "completed"})
+		msg := fmt.Sprintf("تم استيراد واعتماد البيانات بنجاح: تمت إضافة %d صنف جديد، وتحديث %d صنف موجود، وتخطي %d صنف.", outcome.Inserted, outcome.Updated, outcome.Skipped)
+		h.redirectWithNotice(w, r, "/vendor/products", "success", msg)
 		return
 	}
 
@@ -254,5 +361,72 @@ func (h *UIHandler) VendorIngestCancelSubmit(w http.ResponseWriter, r *http.Requ
 		_ = h.ingSvc.CancelSession(ctx, sessionID)
 	}
 
-	http.Redirect(w, r, "/vendor/ingest", http.StatusSeeOther)
+	h.redirectWithNotice(w, r, "/vendor/ingest", "info", "تم إلغاء جلسة الاستيراد.")
+}
+
+// VendorIngestRowsPartial returns rows JSON for review.
+func (h *UIHandler) VendorIngestRowsPartial(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idStr := chi.URLParam(r, "id")
+	sessionID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || sessionID <= 0 {
+		http.Error(w, "invalid session", http.StatusBadRequest)
+		return
+	}
+
+	var rows []*ingest.ImportRow
+	if h.ingSvc != nil {
+		rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, "", 50, 0)
+		rows = rList
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"rows": rows, "count": len(rows)})
+}
+
+// prepareMatchingData aggregates master products and saving products for the in-memory matching index.
+func (h *UIHandler) prepareMatchingData(ctx context.Context, orgID int64) ([]*ingest.MasterProductData, []*ingest.SavingProductData) {
+	var masterList []*ingest.MasterProductData
+	var savingList []*ingest.SavingProductData
+
+	if h.catSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		prods, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 10000})
+		if err == nil {
+			for _, p := range prods {
+				if p != nil {
+					masterList = append(masterList, &ingest.MasterProductData{
+						ID:             p.ID,
+						NameAR:         p.Name.Get("ar"),
+						NameEN:         p.Name.Get("en"),
+						SKU:            p.SKU,
+						Barcode:        p.Barcode,
+						DosageForm:     p.DosageForm,
+						Concentration:  p.Concentration,
+						Unit:           p.Unit,
+						Manufacturer:   p.ManufacturingCompanies,
+						ScientificName: p.ScientificName,
+						PublicPrice:    p.Price.String(),
+					})
+				}
+			}
+		}
+
+		if orgID > 0 {
+			sProds, err := h.catSvc.ListSavingProducts(sysCtx, orgID, 5000, 0)
+			if err == nil {
+				for _, sp := range sProds {
+					if sp != nil && sp.ProductID != nil && *sp.ProductID > 0 {
+						savingList = append(savingList, &ingest.SavingProductData{
+							ProductID:   *sp.ProductID,
+							NameProduct: sp.NameProduct,
+							SKU:         sp.SKU,
+						})
+					}
+				}
+			}
+		}
+	}
+
+	return masterList, savingList
 }

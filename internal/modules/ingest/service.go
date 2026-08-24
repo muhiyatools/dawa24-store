@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -132,31 +133,65 @@ func (s *Service) StartSession(
 	headers []string,
 	minScore float64,
 ) (*ImportSession, error) {
+	return s.StartSessionWithConfig(ctx, uploadID, headers, nil, ModeUpdateAndAdd, true, true, minScore)
+}
+
+// StartSessionWithConfig creates an import session with target warehouse and matching parameters.
+func (s *Service) StartSessionWithConfig(
+	ctx context.Context,
+	uploadID int64,
+	headers []string,
+	warehouseID *int64,
+	mode ImportMode,
+	enableAI, enableSavings bool,
+	minScore float64,
+) (*ImportSession, error) {
 	orgID, ok := database.TenantFrom(ctx)
 	if !ok {
 		return nil, database.ErrNoTenant
 	}
 
 	if minScore <= 0 {
-		minScore = 0.85 // Standard legacy default
+		minScore = 0.85
+	}
+	if mode == "" {
+		mode = ModeUpdateAndAdd
 	}
 
 	mapping := DetectColumns(headers)
 
 	session := &ImportSession{
-		OrganizationID:     orgID,
-		FileUploadID:       uploadID,
-		Status:             StatusPending,
-		ColumnMapping:      mapping,
-		MinSimilarityScore: minScore,
+		OrganizationID:        orgID,
+		FileUploadID:          uploadID,
+		WarehouseID:           warehouseID,
+		ImportMode:            mode,
+		EnableAIMatching:      enableAI,
+		EnableSavingsMatching: enableSavings,
+		Status:                StatusPending,
+		ColumnMapping:         mapping,
+		MinSimilarityScore:    minScore,
 	}
 
 	if err := s.repo.CreateImportSession(ctx, session); err != nil {
 		return nil, err
 	}
 
-	s.log.InfoContext(ctx, "import session created", "session_id", session.ID, "detected_columns", len(mapping))
+	s.log.InfoContext(ctx, "import session created", "session_id", session.ID, "warehouse_id", warehouseID, "mode", mode)
 	return session, nil
+}
+
+// ConfigureSession updates warehouse, import mode, and matching switches for an existing session.
+func (s *Service) ConfigureSession(
+	ctx context.Context,
+	sessionID int64,
+	warehouseID *int64,
+	mode ImportMode,
+	enableAI, enableSavings bool,
+) error {
+	if mode == "" {
+		mode = ModeUpdateAndAdd
+	}
+	return s.repo.UpdateImportSessionConfig(ctx, sessionID, warehouseID, mode, enableAI, enableSavings)
 }
 
 // StageRows inserts raw spreadsheet rows into the staging table with normalized names.
@@ -179,19 +214,110 @@ func (s *Service) StageRows(
 		}
 
 		importRows = append(importRows, &ImportRow{
-			SessionID:      sessionID,
-			OrganizationID: orgID,
-			RowNumber:      idx + 1,
-			RawData:        raw,
-			NormalizedName: norm,
-			Status:         "pending",
+			SessionID:       sessionID,
+			OrganizationID:  orgID,
+			RowNumber:       idx + 1,
+			RawData:         raw,
+			NormalizedName:  norm,
+			ConfidenceLevel: ConfidenceUnmatched,
+			IsApproved:      true,
+			ImportAction:    "pending",
+			Status:          "pending",
 		})
 	}
 
 	return s.repo.InsertImportRows(ctx, importRows)
 }
 
-// MatchRowDeterministic matches a staged row against catalog candidates using pure Arabic similarity.
+// ExecuteMultiStageMatching runs the comprehensive multi-stage matching pipeline across all staged rows.
+func (s *Service) ExecuteMultiStageMatching(
+	ctx context.Context,
+	sessionID int64,
+	masterProducts []*MasterProductData,
+	savingProducts []*SavingProductData,
+) error {
+	session, err := s.repo.GetImportSessionByID(ctx, sessionID)
+	if err != nil {
+		return err
+	}
+
+	// Build in-memory multi-index
+	index := NewCatalogMatchIndex(masterProducts, savingProducts)
+
+	// Fetch all staged rows
+	rows, err := s.repo.ListImportRows(ctx, sessionID, "", 10000, 0)
+	if err != nil {
+		return err
+	}
+
+	// Resolve column mapping keys
+	nameCol := session.ColumnMapping[FieldProductName]
+	barcodeCol := session.ColumnMapping[FieldBarcode]
+	skuCol := session.ColumnMapping[FieldSKU]
+	dosageCol := session.ColumnMapping[FieldDosageForm]
+	concCol := session.ColumnMapping[FieldConcentration]
+	unitCol := session.ColumnMapping[FieldUnit]
+	manufCol := session.ColumnMapping[FieldManufacturer]
+
+	var matchedCount, reviewCount, unmatchedCount int
+
+	for _, row := range rows {
+		input := MatchRowInput{
+			RawName:       getRawString(row.RawData, nameCol),
+			Barcode:       getRawString(row.RawData, barcodeCol),
+			SKU:           getRawString(row.RawData, skuCol),
+			DosageForm:    getRawString(row.RawData, dosageCol),
+			Concentration: getRawString(row.RawData, concCol),
+			Unit:          getRawString(row.RawData, unitCol),
+			Manufacturer:  getRawString(row.RawData, manufCol),
+			EnableAI:      session.EnableAIMatching,
+			EnableSavings: session.EnableSavingsMatching,
+			MinSimilarity: session.MinSimilarityScore,
+		}
+
+		result := index.Match(ctx, input, s.aiMatcher)
+
+		switch result.ConfidenceLevel {
+		case ConfidenceHigh:
+			matchedCount++
+		case ConfidenceReview, ConfidenceLow:
+			reviewCount++
+		default:
+			unmatchedCount++
+		}
+
+		isApproved := result.ConfidenceLevel == ConfidenceHigh || result.ConfidenceLevel == ConfidenceReview
+		_ = s.repo.UpdateImportRowMatchDetailed(
+			ctx,
+			row.ID,
+			result.MatchedProductID,
+			result.ConfidenceScore,
+			result.ConfidenceLevel,
+			result.MatchReason,
+			result.CandidateMatches,
+			isApproved,
+			result.Status,
+		)
+	}
+
+	total := len(rows)
+	processed := total
+	newStatus := StatusPending
+
+	return s.repo.UpdateImportSessionStats(
+		ctx,
+		sessionID,
+		total,
+		processed,
+		matchedCount,
+		reviewCount,
+		unmatchedCount,
+		newStatus,
+		"",
+	)
+}
+
+// MatchRowDeterministic satisfies legacy deterministic matching for compatibility.
 func (s *Service) MatchRowDeterministic(
 	ctx context.Context,
 	row *ImportRow,
@@ -259,6 +385,34 @@ func (s *Service) UpdateColumnMapping(ctx context.Context, sessionID int64, mapp
 	return s.repo.UpdateColumnMapping(ctx, sessionID, mapping)
 }
 
+// ToggleRowApproval toggles whether a staged row should be included in the commit.
+func (s *Service) ToggleRowApproval(ctx context.Context, rowID int64, isApproved bool) error {
+	return s.repo.UpdateImportRowApproval(ctx, rowID, isApproved)
+}
+
+// OverrideRowMatchDetailed overrides a row's master product match with a manual user selection.
+func (s *Service) OverrideRowMatchDetailed(ctx context.Context, rowID int64, matchedProductID int64) error {
+	if matchedProductID <= 0 {
+		return apperr.Validation("product_id.invalid", "Invalid product ID", nil)
+	}
+	return s.repo.UpdateImportRowMatchDetailed(
+		ctx,
+		rowID,
+		&matchedProductID,
+		1.0,
+		ConfidenceHigh,
+		"تم التعيين اليدوي بواسطة المستخدم (100%)",
+		nil,
+		true,
+		"matched",
+	)
+}
+
+// OverrideRowMatch sets a manual product match for a staged row (compatibility).
+func (s *Service) OverrideRowMatch(ctx context.Context, rowID int64, matchedProductID int64) error {
+	return s.OverrideRowMatchDetailed(ctx, rowID, matchedProductID)
+}
+
 // CommitSession finalizes the import session and marks it completed.
 func (s *Service) CommitSession(ctx context.Context, sessionID int64) error {
 	return s.repo.UpdateSessionStatus(ctx, sessionID, StatusCompleted)
@@ -274,10 +428,12 @@ func (s *Service) ListImportRows(ctx context.Context, sessionID int64, status st
 	return s.repo.ListImportRows(ctx, sessionID, status, limit, offset)
 }
 
-// OverrideRowMatch sets a manual product match for a staged row.
-func (s *Service) OverrideRowMatch(ctx context.Context, rowID int64, matchedProductID int64) error {
-	if matchedProductID <= 0 {
-		return apperr.Validation("product_id.invalid", "Invalid product ID", nil)
+func getRawString(m map[string]any, key string) string {
+	if key == "" || m == nil {
+		return ""
 	}
-	return s.repo.UpdateImportRowMatch(ctx, rowID, &matchedProductID, 1.0, "matched")
+	if val, ok := m[key]; ok && val != nil {
+		return strings.TrimSpace(fmt.Sprintf("%v", val))
+	}
+	return ""
 }

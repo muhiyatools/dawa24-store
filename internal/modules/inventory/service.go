@@ -48,6 +48,16 @@ func (s *Service) ListWarehouses(ctx context.Context) ([]*Warehouse, error) {
 	return s.repo.ListWarehouses(ctx)
 }
 
+// ClearWarehouseStocks deletes all stocks for a warehouse (for clear_and_add import mode).
+func (s *Service) ClearWarehouseStocks(ctx context.Context, warehouseID int64) error {
+	return s.repo.ClearWarehouseStocks(ctx, warehouseID)
+}
+
+// UpsertStock inserts or updates a stock record in a warehouse.
+func (s *Service) UpsertStock(ctx context.Context, st *Stock) error {
+	return s.repo.UpsertStock(ctx, st)
+}
+
 // AdjustStockInput carries parameters for a stock adjustment.
 type AdjustStockInput struct {
 	StockID       int64        `json:"stock_id"`

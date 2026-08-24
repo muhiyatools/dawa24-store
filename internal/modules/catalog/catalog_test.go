@@ -83,6 +83,26 @@ func (m *mockCatalogRepo) GetVariantByID(_ context.Context, id int64) (*ProductV
 	return v, nil
 }
 
+func (m *mockCatalogRepo) GetVariantBySKUOrBarcode(_ context.Context, orgID int64, sku, barcode string) (*ProductVariant, error) {
+	for _, v := range m.variants {
+		if v.OrganizationID == orgID {
+			if (sku != "" && v.SKU == sku) || (barcode != "" && v.Barcode == barcode) {
+				return v, nil
+			}
+		}
+	}
+	return nil, apperr.NotFound("product_variant")
+}
+
+func (m *mockCatalogRepo) GetVariantByProductAndOrg(_ context.Context, orgID int64, productID int64) (*ProductVariant, error) {
+	for _, v := range m.variants {
+		if v.OrganizationID == orgID && v.ProductID == productID {
+			return v, nil
+		}
+	}
+	return nil, apperr.NotFound("product_variant")
+}
+
 func (m *mockCatalogRepo) ListVariantsByProduct(_ context.Context, productID int64) ([]*ProductVariant, error) {
 	var list []*ProductVariant
 	for _, v := range m.variants {
