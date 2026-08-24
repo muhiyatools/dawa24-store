@@ -160,6 +160,9 @@ func mountModuleRoutes(
 	// it is written. Without a store the wizard reports itself unavailable
 	// rather than falling back to writing blind.
 	catSvcUI.SetImportStore(catRepoUI)
+	if cacheHandle := deps.CacheHandle(); cacheHandle != nil {
+		catSvcUI.SetCache(cacheHandle)
+	}
 
 	commSvcUI := commerce.NewService(commRepoUI, log)
 	commSvcUI.SetRequiredDocsChecker(docsGate)
@@ -321,6 +324,9 @@ func mountAuthenticatedModules(
 	// 2. Catalog
 	catRepo := catalogPostgres.NewRepository(db)
 	catSvc := catalog.NewService(catRepo, log)
+	if cacheHandle := deps.CacheHandle(); cacheHandle != nil {
+		catSvc.SetCache(cacheHandle)
+	}
 	catalogHttp.NewHandler(catSvc, log).RegisterRoutes(r)
 
 	// 3. Inventory

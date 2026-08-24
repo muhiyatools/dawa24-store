@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	chimw "github.com/go-chi/chi/v5/middleware"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
@@ -141,6 +142,7 @@ func newRouter(
 	r.Use(httpx.Logger(log))
 	r.Use(httpx.SecurityHeaders)
 	r.Use(httpx.Locale)
+	r.Use(chimw.Compress(5))
 
 	health := &healthHandler{
 		deps:       deps,

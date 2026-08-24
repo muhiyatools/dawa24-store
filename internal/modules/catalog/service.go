@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -12,11 +13,19 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
+// Cache represents the key-value cache contract used for high-frequency catalog reads.
+type Cache interface {
+	GetJSON(ctx context.Context, key string, dst any) error
+	SetJSON(ctx context.Context, key string, val any, ttl time.Duration) error
+	Delete(ctx context.Context, keys ...string) error
+}
+
 // Service coordinates product catalog business logic.
 type Service struct {
 	repo     Repository
 	log      *slog.Logger
 	instGate InstitutionalGate
+	cache    Cache
 	// imports and enricher back the reviewed catalogue import. Both are
 	// optional: without a store the wizard is unavailable, and without an
 	// enricher the AI switch is simply not offered.
@@ -27,6 +36,11 @@ type Service struct {
 // SetInstitutionalGate installs the institutional work filter gate.
 func (s *Service) SetInstitutionalGate(gate InstitutionalGate) {
 	s.instGate = gate
+}
+
+// SetCache installs the cache layer for high-speed taxonomy reads.
+func (s *Service) SetCache(c Cache) {
+	s.cache = c
 }
 
 // NewService creates a new catalog service.
@@ -358,7 +372,20 @@ func (s *Service) ListAllVariants(ctx context.Context, params VariantSearchParam
 
 // ListCategories returns all categories.
 func (s *Service) ListCategories(ctx context.Context) ([]*Category, error) {
-	return s.repo.ListCategories(ctx)
+	if s.cache != nil {
+		var cached []*Category
+		if err := s.cache.GetJSON(ctx, "catalog:global:categories", &cached); err == nil && len(cached) > 0 {
+			return cached, nil
+		}
+	}
+	cats, err := s.repo.ListCategories(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if s.cache != nil && len(cats) > 0 {
+		_ = s.cache.SetJSON(ctx, "catalog:global:categories", cats, 30*time.Minute)
+	}
+	return cats, nil
 }
 
 // CreateCategory adds a category.
@@ -368,6 +395,9 @@ func (s *Service) CreateCategory(ctx context.Context, c *Category) (*Category, e
 	}
 	if err := s.repo.CreateCategory(ctx, c); err != nil {
 		return nil, err
+	}
+	if s.cache != nil {
+		_ = s.cache.Delete(ctx, "catalog:global:categories")
 	}
 	return c, nil
 }
@@ -379,7 +409,13 @@ func (s *Service) GetCategory(ctx context.Context, id int64) (*Category, error) 
 
 // UpdateCategory modifies category data.
 func (s *Service) UpdateCategory(ctx context.Context, c *Category) error {
-	return s.repo.UpdateCategory(ctx, c)
+	if err := s.repo.UpdateCategory(ctx, c); err != nil {
+		return err
+	}
+	if s.cache != nil {
+		_ = s.cache.Delete(ctx, "catalog:global:categories")
+	}
+	return nil
 }
 
 // CountProductsInCategory returns the number of products linked to a category.
@@ -389,7 +425,20 @@ func (s *Service) CountProductsInCategory(ctx context.Context, categoryID int64)
 
 // ListBrands returns all brands.
 func (s *Service) ListBrands(ctx context.Context) ([]*Brand, error) {
-	return s.repo.ListBrands(ctx)
+	if s.cache != nil {
+		var cached []*Brand
+		if err := s.cache.GetJSON(ctx, "catalog:global:brands", &cached); err == nil && len(cached) > 0 {
+			return cached, nil
+		}
+	}
+	brands, err := s.repo.ListBrands(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if s.cache != nil && len(brands) > 0 {
+		_ = s.cache.SetJSON(ctx, "catalog:global:brands", brands, 30*time.Minute)
+	}
+	return brands, nil
 }
 
 // CreateBrand adds a brand.
@@ -399,6 +448,9 @@ func (s *Service) CreateBrand(ctx context.Context, b *Brand) (*Brand, error) {
 	}
 	if err := s.repo.CreateBrand(ctx, b); err != nil {
 		return nil, err
+	}
+	if s.cache != nil {
+		_ = s.cache.Delete(ctx, "catalog:global:brands")
 	}
 	return b, nil
 }
@@ -410,7 +462,13 @@ func (s *Service) GetBrand(ctx context.Context, id int64) (*Brand, error) {
 
 // UpdateBrand modifies brand data.
 func (s *Service) UpdateBrand(ctx context.Context, b *Brand) error {
-	return s.repo.UpdateBrand(ctx, b)
+	if err := s.repo.UpdateBrand(ctx, b); err != nil {
+		return err
+	}
+	if s.cache != nil {
+		_ = s.cache.Delete(ctx, "catalog:global:brands")
+	}
+	return nil
 }
 
 // CountProductsInBrand returns the number of active products linked to a brand.

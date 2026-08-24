@@ -26,8 +26,12 @@ func RegisterStaticRoutes(r chi.Router) {
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 		fsHandler := http.StripPrefix(pathPrefix, fileServer)
 
-		// Ensure client always receives up-to-date static assets
-		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
+		// Allow browser caching with revalidation fallback (1 day for general static assets, 1 year for immutable fonts/vendor scripts)
+		if strings.Contains(r.URL.Path, "vendor") || strings.Contains(r.URL.Path, "fonts") || strings.Contains(r.URL.Path, ".woff") {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			w.Header().Set("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800")
+		}
 		fsHandler.ServeHTTP(w, r)
 	})
 

@@ -106,15 +106,14 @@ func (r *Repository) SearchProductIndex(ctx context.Context, params catalog.Sear
 			WHERE status = 'active'
 			  AND ($1 = '' 
 			       OR search_vector @@ plainto_tsquery('simple', $1)
-			       OR search_text ILIKE '%' || $1 || '%'
 			       OR search_simple ILIKE '%' || platform.normalize_arabic($1) || '%'
+			       OR search_text ILIKE '%' || $1 || '%'
 			       OR name_ar ILIKE '%' || $1 || '%'
 			       OR name_en ILIKE '%' || $1 || '%'
 			       OR sku ILIKE '%' || $1 || '%'
 			       OR COALESCE(scientific_name, '') ILIKE '%' || $1 || '%'
 			       OR word_similarity(platform.normalize_arabic($1), search_simple) >= 0.25
-			       OR similarity(search_simple, platform.normalize_arabic($1)) >= 0.15
-			       OR regexp_replace(search_simple, '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%')
+			       OR similarity(search_simple, platform.normalize_arabic($1)) >= 0.15)
 			  AND ($2::bigint IS NULL OR category_id = $2)
 			  AND ($3::bigint IS NULL OR brand_id = $3)
 			  AND ($6::numeric IS NULL OR price_after_discount >= $6)
