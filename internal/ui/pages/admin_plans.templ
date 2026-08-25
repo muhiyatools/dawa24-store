@@ -289,8 +289,8 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			<div
 				x-show="showModal"
 				x-cloak
-				class="modal-backdrop"
-				style="position:fixed; inset:0; z-index:1050; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;"
+				class="modal-overlay"
+				class="modal-overlay"
 			>
 				<div
 					@click.away="showModal = false"

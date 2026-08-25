@@ -706,7 +706,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<div
 				x-show="isMethodModalOpen"
 				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				class="modal-overlay"
 				@keydown.escape.window="isMethodModalOpen = false"
 			>
 				<div

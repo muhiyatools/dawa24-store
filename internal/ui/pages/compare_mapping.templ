@@ -11,7 +11,7 @@ import (
 templ CompareFileMappingModal(file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection) {
 	<div
 		id="compare-mapping-modal-backdrop"
-		style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; padding:1rem;"
+		class="modal-overlay"
 		onclick="if(event.target === this) closeMappingModal();"
 	>
 		<div

@@ -12,104 +12,54 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 	@layouts.AdminShell("التحليلات والمؤشرات الحية | Platform Analytics", "analytics", lang, dir) {
 		
 		<!-- Header -->
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; gap:1rem; flex-wrap:wrap;">
-			<div class="row-center-sm">
-				<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-					@components.IconChart("icon-sm")
-				</div>
-				<div>
-					<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
-						التحليلات والمؤشرات الحية
-					</h2>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-						تحليل جغرافي وتوزيع للأجهزة وحركة الزيارات وأداء التوريد الحقيقي من قاعدة البيانات
-					</p>
-				</div>
-			</div>
+		@components.PageHeader(components.PageHeaderProps{
+			Title:    "التحليلات والمؤشرات الحية",
+			Subtitle: "تحليل جغرافي وتوزيع للأجهزة وحركة الزيارات وأداء التوريد الحقيقي من قاعدة البيانات",
+		}) {
+			<span class="badge badge-emerald" style="font-weight:700; padding:0.45rem 0.9rem; font-size:0.8rem; gap:0.4rem;">
+				@components.IconCheck("icon-xs")
+				<span>بيانات حية ومتزامنة</span>
+			</span>
+		}
 
-			<div class="row-center">
-				<span class="badge badge-emerald" style="font-weight:700; padding:0.4rem 0.85rem; font-size:0.8rem;">
-					@components.IconCheck("icon-xs")
-					<span>بيانات حية ومتزامنة</span>
-				</span>
-			</div>
-		</div>
-
-		<!-- 1. Live KPI Summary Cards (100% Real Database Queries) -->
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.75rem;">
-			
-			<!-- Total Visits -->
-			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid var(--accent);">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">إجمالي الزيارات</span>
-					<div style="color:var(--accent);">@components.IconEye("icon-sm")</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
-					{ fmt.Sprintf("%d", a.Total) }
-				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">زيارات موثقة تراكمياً</div>
-			</div>
-
-			<!-- Today Visits -->
-			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #10b981;">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">زيارات اليوم</span>
-					<div style="color:#10b981;">@components.IconClock("icon-sm")</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:800; color:#10b981; margin-top:0.35rem;" class="tabular-nums">
-					{ fmt.Sprintf("%d", a.Today) }
-				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">خلال الـ 24 ساعة الحالية</div>
-			</div>
-
-			<!-- Registered Pharmacies -->
-			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #3b82f6;">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الصيدليات المسجلة</span>
-					<div style="color:#3b82f6;">@components.IconBuilding("icon-sm")</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
-					{ fmt.Sprintf("%d", a.TotalPharmacies) }
-				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">صيدليات معتمدة بالنظام</div>
-			</div>
-
-			<!-- Approved Suppliers -->
-			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #8b5cf6;">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الموردين المعتمدين</span>
-					<div style="color:#8b5cf6;">@components.IconShield("icon-sm")</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
-					{ fmt.Sprintf("%d", a.TotalSuppliers) }
-				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">شركات ومستودعات توزيع</div>
-			</div>
-
-			<!-- Supply Orders -->
-			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #f59e0b;">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">أوامر التوريد</span>
-					<div style="color:#f59e0b;">@components.IconTruck("icon-sm")</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.35rem;" class="tabular-nums">
-					{ fmt.Sprintf("%d", a.TotalOrders) }
-				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">إجمالي عمليات الشراء</div>
-			</div>
-
-			<!-- Platform GMV -->
-			<div class="card hover-lift" style="padding:1.25rem; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-inline-start:4px solid #06b6d4;">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-					<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">حجم التداولات</span>
-					<div style="color:#06b6d4;">@components.IconTag("icon-sm")</div>
-				</div>
-				<div style="font-size:1.45rem; font-weight:800; color:var(--accent); margin-top:0.35rem;" class="tabular-nums">
-					{ a.TotalGMV }
-				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">قيمة أوامر التوريد المنفذة</div>
-			</div>
-
+		<!-- 1. Live KPI Summary Cards (Unified StatCards) -->
+		<div class="b2b-metric-grid" style="margin-bottom:1.75rem;">
+			@components.StatCard(components.StatCardProps{
+				Label:     "إجمالي الزيارات",
+				Value:     fmt.Sprintf("%d", a.Total),
+				Subtitle:  "زيارات موثقة تراكمياً",
+				Tone:      "primary",
+			})
+			@components.StatCard(components.StatCardProps{
+				Label:     "زيارات اليوم",
+				Value:     fmt.Sprintf("%d", a.Today),
+				Subtitle:  "خلال الـ 24 ساعة الحالية",
+				Tone:      "primary",
+			})
+			@components.StatCard(components.StatCardProps{
+				Label:     "الصيدليات المسجلة",
+				Value:     fmt.Sprintf("%d", a.TotalPharmacies),
+				Subtitle:  "صيدليات معتمدة بالنظام",
+				Tone:      "info",
+			})
+			@components.StatCard(components.StatCardProps{
+				Label:     "الموردين المعتمدين",
+				Value:     fmt.Sprintf("%d", a.TotalSuppliers),
+				Subtitle:  "شركات ومستودعات توزيع",
+				Tone:      "info",
+			})
+			@components.StatCard(components.StatCardProps{
+				Label:     "أوامر التوريد",
+				Value:     fmt.Sprintf("%d", a.TotalOrders),
+				Subtitle:  "إجمالي عمليات الشراء",
+				Tone:      "warning",
+			})
+			@components.StatCard(components.StatCardProps{
+				Label:     "حجم التداولات",
+				Value:     a.TotalGMV,
+				Subtitle:  "قيمة أوامر التوريد المنفذة",
+				Tone:      "primary",
+			})
 		</div>
 
 		<!-- 2. Geographic & Devices Distribution -->
@@ -119,7 +69,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-						<span>🌍</span>
+						
 						<span>توزيع الزوار حسب الدول</span>
 					</h3>
 					<span class="badge badge-slate" style="font-size:0.75rem;">تتبع مباشر</span>
@@ -150,7 +100,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-						<span>🏙️</span>
+						
 						<span>أكثر المدن والمحافظات نشاطاً</span>
 					</h3>
 					<span class="badge badge-slate" style="font-size:0.75rem;">المناطق والمدن</span>
@@ -176,7 +126,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-						<span>📱</span>
+						
 						<span>الأجهزة والمتصفحات</span>
 					</h3>
 				</div>
