@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -447,6 +448,268 @@ func (h *UIHandler) CustomerSavingProductsPreviewColumnsJSON(w http.ResponseWrit
 		},
 		SampleRows: sampleRows,
 	})
+}
+
+// CustomerSavingProductsImportStartJSON initiates asynchronous processing of an uploaded file.
+func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		return
+	}
+
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الملف كبير جداً أو غير صالح"})
+		return
+	}
+
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "يرجى اختيار ملف Excel أو CSV صالح"})
+		return
+	}
+	defer file.Close()
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil || len(fileBytes) == 0 {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "تعذر قراءة محتوى الملف"})
+		return
+	}
+
+	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	if err != nil || len(rawRows) <= 1 {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الملف فارغ أو لا يحتوي على صفوف بيانات"})
+		return
+	}
+
+	headers := rawRows[0]
+	var sampleRows [][]string
+	if len(rawRows) > 1 {
+		limit := 4
+		if len(rawRows)-1 < limit {
+			limit = len(rawRows) - 1
+		}
+		sampleRows = rawRows[1 : 1+limit]
+	}
+
+	nameCol, skuCol, qtyCol, priceCol, productIDCol := detectSavingProductColumns(
+		headers,
+		sampleRows,
+		r.FormValue("col_name"),
+		r.FormValue("col_sku"),
+		r.FormValue("col_qty"),
+		r.FormValue("col_price"),
+		r.FormValue("col_product_id"),
+	)
+
+	matchStrategy := MatchStrategy(strings.TrimSpace(r.FormValue("match_strategy")))
+	if matchStrategy == "" {
+		matchStrategy = StrategySmartAuto
+	}
+
+	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(rawRows)-1)
+
+	// Launch async background processing
+	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy) {
+		bgCtx := context.Background()
+
+		globalSavingImportSessionStore.UpdateProgress(sessID, 15, "تحميل وفهرسة كتالوج الأدوية المعتمد", 0)
+
+		var matchEngine *SavingProductMatchEngine
+		if h.catSvc != nil {
+			if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(bgCtx); err == nil && len(catalogSources) > 0 {
+				matchEngine = NewSavingProductMatchEngine(catalogSources)
+			}
+		}
+
+		total := len(dataRows)
+		stagedItems := make([]*StagedSavingItem, 0, total)
+		matchedCount := 0
+		unlinkedCount := 0
+		var totalQty float64
+		var totalValMinor int64
+
+		globalSavingImportSessionStore.UpdateProgress(sessID, 30, "جاري المطابقة الذكية للأصناف وتجهيز المسودة", 0)
+
+		for i, row := range dataRows {
+			if len(row) == 0 || IsAllEmptyRow(row) || IsSummaryOrTotalRow(row) {
+				continue
+			}
+
+			var name string
+			if nCol >= 0 && nCol < len(row) {
+				name = strings.TrimSpace(row[nCol])
+			}
+			var sku string
+			if sCol >= 0 && sCol < len(row) {
+				sku = strings.TrimSpace(row[sCol])
+			}
+
+			// Content swap heuristic
+			if isAllDigitsOrCode(name) && len(name) >= 4 && isDescriptiveArabicText(sku) {
+				name, sku = sku, name
+			}
+			if name == "" && sku != "" {
+				name = sku
+			}
+			if name == "" {
+				continue
+			}
+
+			var qty float64
+			if qCol >= 0 && qCol < len(row) {
+				qty, _ = ParseFlexibleQuantity(row[qCol])
+			}
+
+			var price money.Amount
+			if pCol >= 0 && pCol < len(row) {
+				price, _ = ParseFlexibleMoney(row[pCol])
+			}
+
+			var productID *int64
+			if pidCol >= 0 && pidCol < len(row) {
+				if pid, err := strconv.ParseInt(strings.TrimSpace(row[pidCol]), 10, 64); err == nil && pid > 0 {
+					productID = &pid
+				}
+			}
+
+			matchType := "unlinked"
+			confidence := 0.0
+			if matchEngine != nil {
+				res := matchEngine.Match(strat, productID, sku, name)
+				if res.ProductID != nil {
+					productID = res.ProductID
+					matchType = res.MatchType
+					confidence = res.Confidence
+				}
+			}
+
+			masterName := ""
+			masterSKU := ""
+			if productID != nil {
+				matchedCount++
+				if matchEngine != nil {
+					for _, cItem := range matchEngine.items {
+						if cItem.ID == *productID {
+							if cItem.NameAr != "" {
+								masterName = cItem.NameAr
+							} else {
+								masterName = cItem.NameEn
+							}
+							masterSKU = cItem.SKU
+							break
+						}
+					}
+				}
+			} else {
+				unlinkedCount++
+			}
+
+			rowTotalMinor := int64(qty * float64(price.Minor()))
+			totalQty += qty
+			totalValMinor += rowTotalMinor
+
+			stagedItems = append(stagedItems, &StagedSavingItem{
+				Index:             len(stagedItems) + 1,
+				NameProduct:       name,
+				SKU:               sku,
+				Quantity:          qty,
+				Price:             price,
+				TotalValue:        money.FromMinor(rowTotalMinor),
+				ProductID:         productID,
+				MasterProductName: masterName,
+				MasterProductSKU:  masterSKU,
+				MatchType:         matchType,
+				Confidence:        confidence,
+				Included:          true,
+			})
+
+			if i%100 == 0 || i == total-1 {
+				pct := 30 + int(float64(i+1)/float64(total)*65)
+				if pct > 98 {
+					pct = 98
+				}
+				globalSavingImportSessionStore.UpdateProgress(sessID, pct, fmt.Sprintf("تمت معالجة %d من أصل %d صنف", i+1, total), i+1)
+			}
+		}
+
+		globalSavingImportSessionStore.CompleteProcessing(
+			sessID,
+			stagedItems,
+			matchedCount,
+			unlinkedCount,
+			totalQty,
+			money.FromMinor(totalValMinor),
+		)
+	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy)
+
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"success":    true,
+		"session_id": session.ID,
+		"total_rows": session.TotalRows,
+	})
+}
+
+// CustomerSavingProductsImportProgressJSON returns the live state and staged items for review.
+func (h *UIHandler) CustomerSavingProductsImportProgressJSON(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		return
+	}
+
+	sessionID := chi.URLParam(r, "id")
+	session, ok := globalSavingImportSessionStore.GetSession(sessionID, actor.OrganizationID)
+	if !ok {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها"})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(session)
+}
+
+// CustomerSavingProductsImportCommitJSON commits the staged session into catalog.saving_products.
+func (h *UIHandler) CustomerSavingProductsImportCommitJSON(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		return
+	}
+
+	sessionID := chi.URLParam(r, "id")
+	added, updated, err := globalSavingImportSessionStore.CommitSession(ctx, sessionID, actor.OrganizationID, actor.UserID, h.catSvc)
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "فشل الحفظ: " + h.safeMessage(err, langOf(r))})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"success": true,
+		"added":   added,
+		"updated": updated,
+		"message": fmt.Sprintf("تم استيراد وحفظ %d منتج بنجاح (جديد: %d، تم تحديثه: %d).", added+updated, added, updated),
+	})
+}
+
+// CustomerSavingProductsImportCancelJSON discards and clears the staged session.
+func (h *UIHandler) CustomerSavingProductsImportCancelJSON(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		return
+	}
+
+	sessionID := chi.URLParam(r, "id")
+	cancelled := globalSavingImportSessionStore.CancelSession(sessionID, actor.OrganizationID)
+	_ = json.NewEncoder(w).Encode(map[string]any{"success": cancelled})
 }
 
 // CustomerSavingProductsExport streams an Excel spreadsheet of all saving products for the pharmacy.

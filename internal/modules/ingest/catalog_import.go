@@ -374,19 +374,40 @@ func SnapshotMapping(layout engine.Layout, m *engine.Mapping) *MappingSnapshot {
 
 // RowOutcome is what the run did with one spreadsheet row.
 type RowOutcome struct {
-	ID          int64                   `json:"id"`
-	SourceRow   int                     `json:"source_row"`
-	Outcome     string                  `json:"outcome"`
-	MatchLevel  string                  `json:"match_level"`
-	MatchScore  float64                 `json:"match_score"`
-	ProductID   *int64                  `json:"product_id,omitempty"`
-	VariantID   *int64                  `json:"variant_id,omitempty"`
-	DisplayName string                  `json:"display_name"`
-	SourceCode  string                  `json:"source_code"`
-	Payload     *engine.Row             `json:"payload,omitempty"`
-	Candidates  []engine.MatchCandidate `json:"candidates,omitempty"`
-	Issues      []engine.Issue          `json:"issues,omitempty"`
-	Message     string                  `json:"message"`
+	ID                 int64                   `json:"id"`
+	SourceRow          int                     `json:"source_row"`
+	Outcome            string                  `json:"outcome"`
+	MatchLevel         string                  `json:"match_level"`
+	MatchScore         float64                 `json:"match_score"`
+	ProductID          *int64                  `json:"product_id,omitempty"`
+	MatchedProductName string                  `json:"matched_product_name,omitempty"`
+	MatchedProductSKU  string                  `json:"matched_product_sku,omitempty"`
+	VariantID          *int64                  `json:"variant_id,omitempty"`
+	DisplayName        string                  `json:"display_name"`
+	SourceCode         string                  `json:"source_code"`
+	Payload            *engine.Row             `json:"payload,omitempty"`
+	Candidates         []engine.MatchCandidate `json:"candidates,omitempty"`
+	Issues             []engine.Issue          `json:"issues,omitempty"`
+	Message            string                  `json:"message"`
+}
+
+// MatchedCatalogName returns the name of the matched master product, or top candidate.
+func (r *RowOutcome) MatchedCatalogName() string {
+	if r.MatchedProductName != "" {
+		return r.MatchedProductName
+	}
+	if len(r.Candidates) > 0 && r.Candidates[0].Name != "" {
+		return r.Candidates[0].Name
+	}
+	return ""
+}
+
+// MatchedCatalogSKU returns the SKU/barcode of the matched master product.
+func (r *RowOutcome) MatchedCatalogSKU() string {
+	if r.MatchedProductSKU != "" {
+		return r.MatchedProductSKU
+	}
+	return ""
 }
 
 // Outcome values recorded against a row.

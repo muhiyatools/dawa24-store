@@ -70,19 +70,19 @@ func (r *Repository) Rows(
 	if filter.Limit <= 0 || filter.Limit > 500 {
 		filter.Limit = 50
 	}
-	where := []string{"import_id = $1"}
+	where := []string{"r.import_id = $1"}
 	args := []any{importID}
 	if filter.Outcome != "" {
 		args = append(args, filter.Outcome)
-		where = append(where, fmt.Sprintf("outcome = $%d", len(args)))
+		where = append(where, fmt.Sprintf("r.outcome = $%d", len(args)))
 	}
 	if filter.MatchLevel != "" {
 		args = append(args, filter.MatchLevel)
-		where = append(where, fmt.Sprintf("match_level = $%d", len(args)))
+		where = append(where, fmt.Sprintf("r.match_level = $%d", len(args)))
 	}
 	if q := strings.TrimSpace(filter.Search); q != "" {
 		args = append(args, "%"+q+"%")
-		where = append(where, fmt.Sprintf("(display_name ILIKE $%d OR source_code ILIKE $%d)", len(args), len(args)))
+		where = append(where, fmt.Sprintf("(r.display_name ILIKE $%d OR r.source_code ILIKE $%d OR COALESCE(p.name->>'ar', p.name->>'en', '') ILIKE $%d OR p.sku ILIKE $%d)", len(args), len(args), len(args), len(args)))
 	}
 	clause := strings.Join(where, " AND ")
 
@@ -90,18 +90,23 @@ func (r *Repository) Rows(
 	var total int
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		if err := tx.QueryRow(txCtx,
-			`SELECT count(*) FROM ingest.catalog_import_rows WHERE `+clause, args...,
+			`SELECT count(*) 
+			 FROM ingest.catalog_import_rows r
+			 LEFT JOIN catalog.products p ON p.id = r.product_id
+			 WHERE `+clause, args...,
 		).Scan(&total); err != nil {
 			return fmt.Errorf("ingest postgres: count import rows: %w", err)
 		}
 
 		paged := append(append([]any{}, args...), filter.Limit, filter.Offset)
 		rows, err := tx.Query(txCtx, fmt.Sprintf(`
-			SELECT id, source_row, outcome, match_level, match_score, product_id,
-			       variant_id, display_name, source_code, payload, candidates, issues, message
-			FROM ingest.catalog_import_rows
+			SELECT r.id, r.source_row, r.outcome, r.match_level, r.match_score, r.product_id,
+			       COALESCE(p.name->>'ar', p.name->>'en', ''), COALESCE(p.sku, ''),
+			       r.variant_id, r.display_name, r.source_code, r.payload, r.candidates, r.issues, r.message
+			FROM ingest.catalog_import_rows r
+			LEFT JOIN catalog.products p ON p.id = r.product_id
 			WHERE %s
-			ORDER BY source_row
+			ORDER BY r.source_row
 			LIMIT $%d OFFSET $%d`, clause, len(args)+1, len(args)+2), paged...)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: list import rows: %w", err)
@@ -112,8 +117,8 @@ func (r *Repository) Rows(
 			var o ingest.RowOutcome
 			var payload, candidates, issues []byte
 			if err := rows.Scan(&o.ID, &o.SourceRow, &o.Outcome, &o.MatchLevel,
-				&o.MatchScore, &o.ProductID, &o.VariantID, &o.DisplayName,
-				&o.SourceCode, &payload, &candidates, &issues, &o.Message); err != nil {
+				&o.MatchScore, &o.ProductID, &o.MatchedProductName, &o.MatchedProductSKU,
+				&o.VariantID, &o.DisplayName, &o.SourceCode, &payload, &candidates, &issues, &o.Message); err != nil {
 				return fmt.Errorf("ingest postgres: scan import row: %w", err)
 			}
 			_ = json.Unmarshal(payload, &o.Payload)

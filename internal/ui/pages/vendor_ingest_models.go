@@ -161,6 +161,20 @@ func MatchLevelLabel(level string) string {
 	return engine.MatchLevel(level).Label()
 }
 
+// MatchLevelBadgeClass maps a match level to a badge tone.
+func MatchLevelBadgeClass(level string) string {
+	switch engine.MatchLevel(level) {
+	case engine.MatchBarcode, engine.MatchCode, engine.MatchExact, engine.MatchStrong:
+		return "badge-emerald"
+	case engine.MatchReview:
+		return "badge-amber"
+	case engine.MatchAmbiguous:
+		return "badge-purple"
+	default:
+		return "badge-slate"
+	}
+}
+
 // PercentText renders a 0..1 score as a percentage.
 func PercentText(score float64) string {
 	return fmt.Sprintf("%d%%", int(score*100+0.5))

@@ -222,25 +222,47 @@ templ importRowsTable(view VendorImportView) {
 			<table class="table">
 				<thead>
 					<tr>
-						<th>الصف</th>
-						<th>الصنف</th>
-						<th>الكود</th>
-						<th>النتيجة</th>
-						<th>المطابقة</th>
-						<th>التفاصيل</th>
+						<th style="width:60px; text-align:center;">الصف</th>
+						<th>اسم الصنف في الملف</th>
+						<th>الصنف المطابق بالكتالوج العام</th>
+						<th class="text-center" style="width:110px;">النتيجة</th>
+						<th class="text-center" style="width:140px;">حالة المطابقة</th>
+						<th>التفاصيل والملاحظات</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, row := range view.Rows {
 						<tr>
-							<td>{ fmt.Sprint(row.SourceRow) }</td>
-							<td class="fw-700">{ row.DisplayName }</td>
-							<td class="text-xs text-muted">{ row.SourceCode }</td>
-							<td><span class={ "badge", OutcomeTone(row.Outcome), "text-xs" }>{ OutcomeLabel(row.Outcome) }</span></td>
-							<td class="text-xs">
-								{ MatchLevelLabel(row.MatchLevel) }
+							<td class="text-center tabular-nums">{ fmt.Sprint(row.SourceRow) }</td>
+							<td>
+								<div class="fw-700" style="color:var(--text);">{ row.DisplayName }</div>
+								if row.SourceCode != "" {
+									<div class="text-xs text-muted" style="margin-top:2px;">كود الملف: <code>{ row.SourceCode }</code></div>
+								}
+							</td>
+							<td>
+								if row.MatchedCatalogName() != "" {
+									<div class="fw-700" style="color:var(--emerald-600);">{ row.MatchedCatalogName() }</div>
+									if row.MatchedCatalogSKU() != "" {
+										<div class="text-xs text-muted" style="margin-top:2px;">كود الكتالوج: <code>{ row.MatchedCatalogSKU() }</code></div>
+									}
+								} else if row.MatchLevel == "none" || row.Outcome == ingest.OutcomeInserted {
+									<span class="badge badge-amber text-xs">صنف جديد غير مسجل بالكتالوج</span>
+								} else {
+									<span class="text-xs text-muted">—</span>
+								}
+							</td>
+							<td class="text-center">
+								<span class={ "badge", OutcomeTone(row.Outcome), "text-xs" }>{ OutcomeLabel(row.Outcome) }</span>
+							</td>
+							<td class="text-center text-xs">
+								<div>
+									<span class={ "badge", MatchLevelBadgeClass(row.MatchLevel), "text-xs" }>
+										{ MatchLevelLabel(row.MatchLevel) }
+									</span>
+								</div>
 								if row.MatchScore > 0 {
-									<span class="text-muted"> · { PercentText(row.MatchScore) }</span>
+									<div class="text-muted tabular-nums" style="font-size:10px; margin-top:2px;">{ PercentText(row.MatchScore) }</div>
 								}
 							</td>
 							<td class="text-xs text-muted">{ row.Message }</td>
