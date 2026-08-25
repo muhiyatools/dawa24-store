@@ -20,7 +20,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 					📦
 				</div>
 				<div>
-					<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0;">
+					<h1 class="text-2xl fw-800 text-primary m-0">
 						إتمام أمر الشراء والتوريد
 					</h1>
 					<p style="color:var(--text-muted); font-size:0.875rem; margin:0.2rem 0 0 0;">
@@ -119,10 +119,10 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 													</strong>
 													<div class="row-center-sm">
 														if b.IsMain {
-															<span class="badge badge-emerald" style="font-size:0.725rem;">الفرع الرئيسي</span>
+															<span class="badge badge-emerald text-xs">الفرع الرئيسي</span>
 														}
 														if b.Status == "active" || b.Status == "" {
-															<span class="badge badge-sky" style="font-size:0.725rem;">نشط ومعتمد</span>
+															<span class="badge badge-sky text-xs">نشط ومعتمد</span>
 														}
 													</div>
 												</div>
@@ -224,7 +224,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 
 									<div style="display:flex; justify-content:space-between; color:var(--text-secondary);">
 										<span>الشحن المبرد (Cold-Chain):</span>
-										<span class="badge badge-emerald" style="font-size:0.725rem;">مجاناً للطلبيات المعتمدة</span>
+										<span class="badge badge-emerald text-xs">مجاناً للطلبيات المعتمدة</span>
 									</div>
 
 									<div style="display:flex; justify-content:space-between; color:var(--text-secondary);">

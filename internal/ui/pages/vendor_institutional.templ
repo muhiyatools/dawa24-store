@@ -41,7 +41,7 @@ templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir stri
 									<td><span class="badge badge-sky">{ string(w.PricingType) }</span></td>
 									<td>
 										if w.IsActive {
-											<span class="badge badge-success">نشط</span>
+											<span class="badge badge-emerald">نشط</span>
 										} else {
 											<span class="badge badge-secondary">غير نشط</span>
 										}
@@ -79,22 +79,22 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 			<!-- KPI Stat Cards -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">إجمالي الصيدليات المغطاة</div>
+					<div class="form-label">إجمالي الصيدليات المغطاة</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", data.TotalPharmacies) }</div>
 				</div>
 
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">متاحة للتوصيل اليوم</div>
+					<div class="form-label">متاحة للتوصيل اليوم</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--success-text);" class="tabular-nums">{ fmt.Sprintf("%d", data.CoveredTodayCount) }</div>
 				</div>
 
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">المدن والمحافظات المغطاة</div>
+					<div class="form-label">المدن والمحافظات المغطاة</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.CoveredCities)) }</div>
 				</div>
 
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">فروع التوزيع المغذية</div>
+					<div class="form-label">فروع التوزيع المغذية</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--text-secondary);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.CoveredBranches)) }</div>
 				</div>
 			</div>
@@ -142,7 +142,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-					<div style="display:flex; gap:0.5rem;">
+					<div class="row-center-sm">
 						<button type="submit" class="btn btn-primary fw-700">تصفية</button>
 						if data.SearchQuery != "" || data.FilterDay != "" || data.FilterBranch != "" || data.FilterCity != "" {
 							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary" title="إعادة تعيين">✕</a>
@@ -176,7 +176,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 								for _, p := range data.Pharmacies {
 									<tr>
 										<td>
-											<div style="display:flex; align-items:center; gap:0.6rem;">
+											<div class="row-center-sm">
 												<div class="b2b-icon-box-sm">
 													@components.IconBuilding("icon-xs")
 												</div>

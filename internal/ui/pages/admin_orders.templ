@@ -25,7 +25,7 @@ templ AdminOrders(lang, dir, query string, orders []*commerce.Order) {
 templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 	@layouts.AdminShell("إدارة الطلبات وأوامر التوريد", "orders", lang, dir) {
 		<div class="card mb-3" style="border:1px solid var(--border);">
-			<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+			<div class="header-row flex-between flex-wrap gap-md">
 				<div>
 					<h1 class="card-title" style="margin:0; font-size:1.35rem; font-weight:800;">إدارة الطلبات وأوامر التوريد</h1>
 					<p class="subtitle" style="margin:0.25rem 0 0; font-size:0.85rem; color:var(--text-secondary);">
@@ -100,7 +100,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 												if o.NegotiationStatus == "accepted" {
 													<span class="badge badge-emerald">✓ تم قبول التفاوض</span>
 												} else if o.NegotiationStatus == "rejected" {
-													<span class="badge badge-danger">✕ تم رفض السعر</span>
+													<span class="badge badge-rose">✕ تم رفض السعر</span>
 												} else {
 													<span class="badge badge-amber">⏳ قيد المراجعة</span>
 												}

@@ -44,7 +44,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Page Header -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+					<div class="row-center-sm mb-sm">
 						<div class="b2b-icon-box-sm">
 							@components.IconSettings("icon-sm")
 						</div>
@@ -391,7 +391,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 												{ tx.CreatedAt.Format("2006-01-02 15:04") }
 											</td>
 											<td>
-												<span class="badge badge-emerald" style="font-size:0.725rem;">
+												<span class="badge badge-emerald text-xs">
 													@components.IconCheckCircle("icon-xs")
 													<span>مكتملة ومؤكدة</span>
 												</span>

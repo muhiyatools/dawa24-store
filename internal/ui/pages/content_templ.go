@@ -149,7 +149,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h1></div><p style=\"font-size:var(--text-sm); color:var(--text-secondary); margin:0;\">الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24</p></div><!-- Metadata Badges --><div style=\"display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem;\"><span class=\"badge badge-success\" style=\"font-weight:700; font-size:var(--text-xs); padding:0.3rem 0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h1></div><p style=\"font-size:var(--text-sm); color:var(--text-secondary); margin:0;\">الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24</p></div><!-- Metadata Badges --><div style=\"display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem;\"><span class=\"badge badge-emerald\" style=\"font-weight:700; font-size:var(--text-xs); padding:0.3rem 0.75rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -52,7 +52,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1200px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:1.75rem;\"><!-- AI Processing Loading Modal --><div id=\"ai-loading-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:1.75rem; text-align:center; padding:2rem;\"><div style=\"width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); display:flex; align-items:center; justify-content:center; box-shadow:0 0 40px rgba(124, 58, 237, 0.6); animation:ai-pulse 1.8s infinite ease-in-out;\"><span style=\"font-size:3rem; line-height:1;\">🤖</span></div><div><h2 style=\"color:#ffffff; font-size:1.6rem; font-weight:900; margin:0 0 0.5rem 0;\">جاري تحليل ومطابقة الأصناف عبر محرك الذكاء الاصطناعي...</h2><p style=\"color:#94a3b8; font-size:0.95rem; margin:0; max-width:480px; line-height:1.6;\">يتم فحص الباركود، الكود الداخلي، المعايرة اللغوية للأدوية، واستدعاء الذكاء الاصطناعي لربط الأصناف بالكتالوج العام المعتمد.</p></div><div style=\"width:280px; height:8px; background:#1e293b; border-radius:999px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.1);\"><div style=\"width:50%; height:100%; background:linear-gradient(90deg, #2563eb, #a855f7); border-radius:999px; animation:indeterminate-progress 1.5s infinite ease-in-out;\"></div></div></div><style>\n\t\t\t@keyframes ai-pulse {\n\t\t\t\t0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }\n\t\t\t\t50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(124, 58, 237, 0.8); }\n\t\t\t\t100% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }\n\t\t\t}\n\t\t\t@keyframes indeterminate-progress {\n\t\t\t\t0% { transform: translateX(-100%); width: 30%; }\n\t\t\t\t50% { width: 70%; }\n\t\t\t\t100% { transform: translateX(250%); width: 30%; }\n\t\t\t}\n\t\t\t</style><!-- Header & Title Bar --><div class=\"card\" style=\"margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div class=\"b2b-icon-box\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-4xl mx-auto stack-lg mb-lg\"><!-- AI Processing Loading Modal --><div id=\"ai-loading-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:1.75rem; text-align:center; padding:2rem;\"><div style=\"width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); display:flex; align-items:center; justify-content:center; box-shadow:0 0 40px rgba(124, 58, 237, 0.6); animation:ai-pulse 1.8s infinite ease-in-out;\"><span style=\"font-size:3rem; line-height:1;\">🤖</span></div><div><h2 style=\"color:#ffffff; font-size:1.6rem; font-weight:900; margin:0 0 0.5rem 0;\">جاري تحليل ومطابقة الأصناف عبر محرك الذكاء الاصطناعي...</h2><p style=\"color:#94a3b8; font-size:0.95rem; margin:0; max-width:480px; line-height:1.6;\">يتم فحص الباركود، الكود الداخلي، المعايرة اللغوية للأدوية، واستدعاء الذكاء الاصطناعي لربط الأصناف بالكتالوج العام المعتمد.</p></div><div style=\"width:280px; height:8px; background:#1e293b; border-radius:999px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.1);\"><div style=\"width:50%; height:100%; background:linear-gradient(90deg, #2563eb, #a855f7); border-radius:999px; animation:indeterminate-progress 1.5s infinite ease-in-out;\"></div></div></div><!-- Header & Title Bar --><div class=\"card\" style=\"margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><div><div class=\"row-center-sm mb-sm\"><div class=\"b2b-icon-box\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -60,7 +60,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.75rem; font-weight:800; color:var(--text); margin:0;\">استيراد وتحديث كتالوج الأدوية والمخزون</h1></div><p style=\"color:var(--text-secondary); font-size:0.925rem; margin:0;\">معالج الاستيراد والمطابقة الفائقة للأصناف مع الكتالوج العام ومنتجات التوفير والذكاء الاصطناعي.</p></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/vendor/ingest\" class=\"btn btn-secondary\" style=\"font-weight:700; font-size:0.875rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl fw-800 text-primary m-0\">استيراد وتحديث كتالوج الأدوية والمخزون</h1></div><p class=\"text-sm text-secondary m-0\">معالج الاستيراد والمطابقة الفائقة للأصناف مع الكتالوج العام ومنتجات التوفير والذكاء الاصطناعي.</p></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/vendor/ingest\" class=\"btn btn-secondary\" style=\"font-weight:700; font-size:0.875rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -98,7 +98,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 76, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 63, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -116,7 +116,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 1), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 83, Col: 231}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 70, Col: 231}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -129,7 +129,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 2), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 2))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 88, Col: 231}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 75, Col: 231}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -142,7 +142,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 3), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 3))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 93, Col: 231}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 80, Col: 231}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -158,7 +158,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if len(data.Warehouses) > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<select name=\"warehouse_id\" required class=\"form-control\" style=\"max-width:480px; height:46px; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<select name=\"warehouse_id\" required class=\"form-input\" style=\"max-width:480px; height:46px; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -170,7 +170,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", wh.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 116, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 103, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 						if templ_7745c5c3_Err != nil {
@@ -183,7 +183,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(wh.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 117, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 104, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -196,7 +196,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(wh.Code)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 117, Col: 41}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 104, Col: 41}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -217,7 +217,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><!-- Import Mode Selection (4 Modes) --><div style=\"margin-bottom:2.25rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">2. اختر نمط الاستيراد <span class=\"text-danger\">*</span></label><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0;\">حدد كيفية معالجة وتحديث الأصناف والمخزون الموجود مقارنة بالملف المرفوع:</p><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><!-- Mode 4: Update & Add (Recommended) --><label style=\"border:2px solid var(--accent); background:rgba(37,99,235,0.03); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; position:relative;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"update_and_add\" checked style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث وإضافة المنتجات (موصى به)</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث الأصناف والمخزونات الموجودة، وإذا لم تكن موجودة سيتم إضافتها كأصناف جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--accent); font-weight:700;\">✓ النمط الشامل الأكثر مرونة</div></label><!-- Mode 1: Add New Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"add_new_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">إضافة المنتجات الجديدة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم إضافة المنتجات الجديدة فقط في الأصناف والمخزون، ولن يتم تعديل أي منتج موجود مسبقاً.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن يتم تحديث أي منتج موجود بالفعل</div></label><!-- Mode 2: Update Existing Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"update_existing_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث المنتجات الموجودة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث المنتجات الموجودة فقط في الأصناف والمخزون، ولن تتم إضافة أي منتجات جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن تتم إضافة أي أصناف غير مسجلة</div></label><!-- Mode 3: Clear and Add --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"clear_and_add\" style=\"accent-color:var(--danger); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--danger);\">تفريغ مخزون المستودع بالكامل وإضافة كمنتجات جديدة</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم حذف وتفريغ جميع مخزونات هذا المستودع بالكامل أولاً ثم إضافة الأصناف المرفوعة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--danger); font-weight:800;\">سيتم مسح أرصدة هذا المستودع بالكامل!</div></label></div></div><!-- Smart Matching Engine Switches --><div style=\"margin-bottom:2.25rem; background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.85rem; color:var(--text);\">3. إعدادات محرك المطابقة الذكي</label><div class=\"stack-md\"><!-- Savings Products Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_savings_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div class=\"fw-800 text-primary text-base\">اعتماد منتجات التوفير للمطابقة الفائقة 🛒</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استخدام قائمة منتجات التوفير لربط الأصناف بمنتجاتك المعتمدة فوراً، بدقة وسرعة عالية.</div></div></label><!-- AI-Powered Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_ai_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div class=\"fw-800 text-primary text-base\">تفعيل المطابقة الذكية بالذكاء الاصطناعي (AI Matching) 🤖</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استدعاء محرك الذكاء الاصطناعي بشكل انتقائي للأصناف الغامضة والمعقدة لتحقيق أعلى دقة ممكنة.</div></div></label></div></div><!-- File Upload Dropzone --><div style=\"margin-bottom:2rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">4. رفع ملف الكتالوج والأرصدة <span class=\"text-danger\">*</span></label><div style=\"border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--surface-sunken);\"><div style=\"width:54px; height:54px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><!-- Import Mode Selection (4 Modes) --><div style=\"margin-bottom:2.25rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">2. اختر نمط الاستيراد <span class=\"text-danger\">*</span></label><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0;\">حدد كيفية معالجة وتحديث الأصناف والمخزون الموجود مقارنة بالملف المرفوع:</p><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><!-- Mode 4: Update & Add (Recommended) --><label style=\"border:2px solid var(--accent); background:rgba(37,99,235,0.03); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; position:relative;\"><div><div class=\"row-center-sm mb-sm\"><input type=\"radio\" name=\"import_mode\" value=\"update_and_add\" checked style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث وإضافة المنتجات (موصى به)</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث الأصناف والمخزونات الموجودة، وإذا لم تكن موجودة سيتم إضافتها كأصناف جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--accent); font-weight:700;\">✓ النمط الشامل الأكثر مرونة</div></label><!-- Mode 1: Add New Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div class=\"row-center-sm mb-sm\"><input type=\"radio\" name=\"import_mode\" value=\"add_new_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">إضافة المنتجات الجديدة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم إضافة المنتجات الجديدة فقط في الأصناف والمخزون، ولن يتم تعديل أي منتج موجود مسبقاً.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن يتم تحديث أي منتج موجود بالفعل</div></label><!-- Mode 2: Update Existing Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div class=\"row-center-sm mb-sm\"><input type=\"radio\" name=\"import_mode\" value=\"update_existing_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث المنتجات الموجودة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث المنتجات الموجودة فقط في الأصناف والمخزون، ولن تتم إضافة أي منتجات جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن تتم إضافة أي أصناف غير مسجلة</div></label><!-- Mode 3: Clear and Add --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div class=\"row-center-sm mb-sm\"><input type=\"radio\" name=\"import_mode\" value=\"clear_and_add\" style=\"accent-color:var(--danger); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--danger);\">تفريغ مخزون المستودع بالكامل وإضافة كمنتجات جديدة</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم حذف وتفريغ جميع مخزونات هذا المستودع بالكامل أولاً ثم إضافة الأصناف المرفوعة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--danger); font-weight:800;\">سيتم مسح أرصدة هذا المستودع بالكامل!</div></label></div></div><!-- Smart Matching Engine Switches --><div style=\"margin-bottom:2.25rem; background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.85rem; color:var(--text);\">3. إعدادات محرك المطابقة الذكي</label><div class=\"stack-md\"><!-- Savings Products Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_savings_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div class=\"fw-800 text-primary text-base\">اعتماد منتجات التوفير للمطابقة الفائقة 🛒</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استخدام قائمة منتجات التوفير لربط الأصناف بمنتجاتك المعتمدة فوراً، بدقة وسرعة عالية.</div></div></label><!-- AI-Powered Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_ai_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div class=\"fw-800 text-primary text-base\">تفعيل المطابقة الذكية بالذكاء الاصطناعي (AI Matching) 🤖</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استدعاء محرك الذكاء الاصطناعي بشكل انتقائي للأصناف الغامضة والمعقدة لتحقيق أعلى دقة ممكنة.</div></div></label></div></div><!-- File Upload Dropzone --><div style=\"margin-bottom:2rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">4. رفع ملف الكتالوج والأرصدة <span class=\"text-danger\">*</span></label><div style=\"border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--surface-sunken);\"><div style=\"width:54px; height:54px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -225,7 +225,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><h3 style=\"font-weight:800; color:var(--text); font-size:1.2rem; margin:0 0 0.5rem 0;\">اختر ملف Excel أو CSV أو اسحبه هنا</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">الصيغ المدعومة: .xlsx, .xls, .csv (معالجة متدفقة ومطابقة فورية بدون استهلاك ذاكرة).</p><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-control\" style=\"max-width:380px; margin:0 auto;\"></div></div><!-- Form Actions --><div style=\"display:flex; justify-content:flex-end; align-items:center; gap:1rem; padding-top:1.5rem; border-top:1px solid var(--border);\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.85rem 2.5rem; font-weight:800; font-size:1rem; gap:0.5rem;\"><span>🚀 رفع الملف وبدء المطابقة الفائقة</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><h3 style=\"font-weight:800; color:var(--text); font-size:1.2rem; margin:0 0 0.5rem 0;\">اختر ملف Excel أو CSV أو اسحبه هنا</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">الصيغ المدعومة: .xlsx, .xls, .csv (معالجة متدفقة ومطابقة فورية بدون استهلاك ذاكرة).</p><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-input\" style=\"max-width:380px; margin:0 auto;\"></div></div><!-- Form Actions --><div style=\"display:flex; justify-content:flex-end; align-items:center; gap:1rem; padding-top:1.5rem; border-top:1px solid var(--border);\"><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.85rem 2.5rem; font-weight:800; font-size:1rem; gap:0.5rem;\"><span>🚀 رفع الملف وبدء المطابقة الفائقة</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -250,7 +250,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var12 templ.SafeURL
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/mapping", data.Session.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 284, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 271, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -268,7 +268,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 309, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 296, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 					if templ_7745c5c3_Err != nil {
@@ -291,7 +291,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 310, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 297, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</select></td></tr><!-- Barcode --><tr><td><strong class=\"text-primary\">الباركود الدولي / Barcode</strong><div class=\"text-xs text-secondary\">كود الترقيم الدولي (EAN/UPC/GTIN)</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_barcode\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</select></td></tr><!-- Barcode --><tr><td><strong class=\"text-primary\">الباركود الدولي / Barcode</strong><div class=\"text-xs text-secondary\">كود الترقيم الدولي (EAN/UPC/GTIN)</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_barcode\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -314,7 +314,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 330, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 317, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 					if templ_7745c5c3_Err != nil {
@@ -337,7 +337,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 331, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 318, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -348,7 +348,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</select></td></tr><!-- SKU --><tr><td><strong class=\"text-primary\">كود الصنف / SKU</strong><div class=\"text-xs text-secondary\">كود الصنف الداخلي لدى المورد</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_sku\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</select></td></tr><!-- SKU --><tr><td><strong class=\"text-primary\">كود الصنف / SKU</strong><div class=\"text-xs text-secondary\">كود الصنف الداخلي لدى المورد</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_sku\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -360,7 +360,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 351, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 338, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 352, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 339, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -394,7 +394,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</select></td></tr><!-- Price --><tr><td><strong class=\"text-primary\">سعر البيع للجمهور / Public Price</strong><div class=\"text-xs text-secondary\">السعر الرسمي للجمهور (ج.م)</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_price\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</select></td></tr><!-- Price --><tr><td><strong class=\"text-primary\">سعر البيع للجمهور / Public Price</strong><div class=\"text-xs text-secondary\">السعر الرسمي للجمهور (ج.م)</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_price\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -406,7 +406,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 372, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 359, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
@@ -429,7 +429,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 373, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 360, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -440,7 +440,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select></td></tr><!-- Cost Price --><tr><td><strong class=\"text-primary\">سعر التكلفة / Cost Price</strong><div class=\"text-xs text-secondary\">سعر الشراء أو التكلفة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_cost_price\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select></td></tr><!-- Cost Price --><tr><td><strong class=\"text-primary\">سعر التكلفة / Cost Price</strong><div class=\"text-xs text-secondary\">سعر الشراء أو التكلفة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_cost_price\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -452,7 +452,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 393, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 380, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 					if templ_7745c5c3_Err != nil {
@@ -475,7 +475,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 394, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 381, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -486,7 +486,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></td></tr><!-- Discount --><tr><td><strong class=\"text-primary\">نسبة / قيمة الخصم / Discount</strong><div class=\"text-xs text-secondary\">الخصم الممنوح للصيدلية</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_discount\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></td></tr><!-- Discount --><tr><td><strong class=\"text-primary\">نسبة / قيمة الخصم / Discount</strong><div class=\"text-xs text-secondary\">الخصم الممنوح للصيدلية</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_discount\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -498,7 +498,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 414, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 401, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 					if templ_7745c5c3_Err != nil {
@@ -521,7 +521,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 415, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 402, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -532,7 +532,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></td></tr><!-- Quantity --><tr><td><strong class=\"text-primary\">الكمية / الرصيد / Stock Qty</strong><div class=\"text-xs text-secondary\">الرصيد المتاح بالمستودع</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_quantity\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></td></tr><!-- Quantity --><tr><td><strong class=\"text-primary\">الكمية / الرصيد / Stock Qty</strong><div class=\"text-xs text-secondary\">الرصيد المتاح بالمستودع</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_quantity\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -544,7 +544,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 435, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 422, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 					if templ_7745c5c3_Err != nil {
@@ -567,7 +567,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 436, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 423, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -578,7 +578,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select></td></tr><!-- Batch Number --><tr><td><strong class=\"text-primary\">رقم التشغيلة / Batch Number</strong><div class=\"text-xs text-secondary\">رقم الباتش أو التشغيلة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_batch_number\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select></td></tr><!-- Batch Number --><tr><td><strong class=\"text-primary\">رقم التشغيلة / Batch Number</strong><div class=\"text-xs text-secondary\">رقم الباتش أو التشغيلة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_batch_number\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -590,7 +590,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 456, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 443, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 					if templ_7745c5c3_Err != nil {
@@ -613,7 +613,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 457, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 444, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -624,7 +624,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></td></tr><!-- Expiry Date --><tr><td><strong class=\"text-primary\">تاريخ الصلاحية / Expiry Date</strong><div class=\"text-xs text-secondary\">تاريخ انتهاء صلاحية الصنف</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_expiry_date\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></td></tr><!-- Expiry Date --><tr><td><strong class=\"text-primary\">تاريخ الصلاحية / Expiry Date</strong><div class=\"text-xs text-secondary\">تاريخ انتهاء صلاحية الصنف</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_expiry_date\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -636,7 +636,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 477, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 464, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 					if templ_7745c5c3_Err != nil {
@@ -659,7 +659,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 478, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 465, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -670,7 +670,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></td></tr><!-- Dosage Form --><tr><td><strong class=\"text-primary\">الشكل الدوائي / Dosage Form</strong><div class=\"text-xs text-secondary\">أقراص، شراب، كبسول، إلخ</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_dosage_form\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></td></tr><!-- Dosage Form --><tr><td><strong class=\"text-primary\">الشكل الدوائي / Dosage Form</strong><div class=\"text-xs text-secondary\">أقراص، شراب، كبسول، إلخ</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_dosage_form\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -682,7 +682,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 498, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 485, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 					if templ_7745c5c3_Err != nil {
@@ -705,7 +705,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 499, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 486, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
@@ -716,7 +716,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</select></td></tr><!-- Concentration --><tr><td><strong class=\"text-primary\">التركيز / Concentration</strong><div class=\"text-xs text-secondary\">مثل: 500mg, 1000mg</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_concentration\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</select></td></tr><!-- Concentration --><tr><td><strong class=\"text-primary\">التركيز / Concentration</strong><div class=\"text-xs text-secondary\">مثل: 500mg, 1000mg</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_concentration\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -728,7 +728,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 519, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 506, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 					if templ_7745c5c3_Err != nil {
@@ -751,7 +751,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 520, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 507, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -762,7 +762,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</select></td></tr><!-- Manufacturer --><tr><td><strong class=\"text-primary\">الشركة المصنعة / Manufacturer</strong><div class=\"text-xs text-secondary\">اسم المصنع أو الشركة المنتجة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_manufacturer\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</select></td></tr><!-- Manufacturer --><tr><td><strong class=\"text-primary\">الشركة المصنعة / Manufacturer</strong><div class=\"text-xs text-secondary\">اسم المصنع أو الشركة المنتجة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_manufacturer\" class=\"form-input\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -774,7 +774,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 540, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 527, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 					if templ_7745c5c3_Err != nil {
@@ -797,7 +797,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(hKey)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 541, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 528, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -841,7 +841,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var37 string
 				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.TotalRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 577, Col: 51}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 564, Col: 51}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 				if templ_7745c5c3_Err != nil {
@@ -854,7 +854,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.MatchedRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 584, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 571, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 				if templ_7745c5c3_Err != nil {
@@ -867,7 +867,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var39 string
 				templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.ReviewRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 591, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 578, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 				if templ_7745c5c3_Err != nil {
@@ -880,13 +880,13 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var40 string
 				templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.UnmatchedRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 598, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 585, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</div></div></div><!-- Main Review Card --><div class=\"card\" style=\"padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><!-- Header & Actions --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><h2 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin:0;\">مراجعة وتأكيد نتائج المطابقة</h2>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</div></div></div><!-- Main Review Card --><div class=\"card\" style=\"padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><!-- Header & Actions --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><h2 class=\"text-xl fw-800 text-primary m-0\">مراجعة وتأكيد نتائج المطابقة</h2>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -904,7 +904,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var41 string
 					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(data.CurrentWarehouse.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 624, Col: 39}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 611, Col: 39}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
@@ -923,7 +923,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(string(data.Session.ImportMode))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 629, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 616, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {
@@ -936,7 +936,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var43 templ.SafeURL
 				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?step=2", data.Session.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 634, Col: 89}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 621, Col: 89}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 				if templ_7745c5c3_Err != nil {
@@ -957,7 +957,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var44 templ.SafeURL
 				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/cancel", data.Session.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 639, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 626, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 				if templ_7745c5c3_Err != nil {
@@ -975,7 +975,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var45 templ.SafeURL
 					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/commit", data.Session.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 646, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 633, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 					if templ_7745c5c3_Err != nil {
@@ -994,7 +994,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span class=\"badge badge-success\" style=\"padding:0.6rem 1.25rem; font-size:0.9rem;\">✓ تم الاستيراد والاعتماد بنجاح</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span class=\"badge badge-emerald\" style=\"padding:0.6rem 1.25rem; font-size:0.9rem;\">✓ تم الاستيراد والاعتماد بنجاح</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1015,7 +1015,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var47 templ.SafeURL
 				templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", data.Session.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 662, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 649, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 				if templ_7745c5c3_Err != nil {
@@ -1041,7 +1041,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var49 string
 				templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.TotalRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 663, Col: 61}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 650, Col: 61}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 				if templ_7745c5c3_Err != nil {
@@ -1063,7 +1063,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var51 templ.SafeURL
 				templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=high", data.Session.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 665, Col: 93}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 652, Col: 93}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 				if templ_7745c5c3_Err != nil {
@@ -1089,7 +1089,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var53 string
 				templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.MatchedRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 666, Col: 86}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 653, Col: 86}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 				if templ_7745c5c3_Err != nil {
@@ -1111,7 +1111,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var55 templ.SafeURL
 				templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=review", data.Session.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 668, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 655, Col: 95}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 				if templ_7745c5c3_Err != nil {
@@ -1137,7 +1137,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var57 string
 				templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.ReviewRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 669, Col: 79}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 656, Col: 79}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 				if templ_7745c5c3_Err != nil {
@@ -1159,7 +1159,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var59 templ.SafeURL
 				templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=unmatched", data.Session.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 671, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 658, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 				if templ_7745c5c3_Err != nil {
@@ -1185,7 +1185,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var61 string
 				templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Session.UnmatchedRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 672, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 659, Col: 80}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
 				if templ_7745c5c3_Err != nil {
@@ -1204,7 +1204,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var62 string
 						templ_7745c5c3_Var62, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("opacity:0.45; background:var(--surface-sunken);", !row.IsApproved))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 691, Col: 99}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 678, Col: 99}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
 						if templ_7745c5c3_Err != nil {
@@ -1217,7 +1217,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var63 string
 						templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", row.RowNumber))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 692, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 679, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 						if templ_7745c5c3_Err != nil {
@@ -1231,7 +1231,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var64 string
 							templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(row.NormalizedName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 698, Col: 35}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 685, Col: 35}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
 							if templ_7745c5c3_Err != nil {
@@ -1241,7 +1241,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var65 string
 							templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 700, Col: 21}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 687, Col: 21}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 							if templ_7745c5c3_Err != nil {
@@ -1265,7 +1265,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var66 string
 							templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(b)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 707, Col: 178}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 694, Col: 178}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 							if templ_7745c5c3_Err != nil {
@@ -1284,7 +1284,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var67 string
 							templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(s)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 710, Col: 172}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 697, Col: 172}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 							if templ_7745c5c3_Err != nil {
@@ -1303,7 +1303,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var68 string
 							templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(p)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 713, Col: 195}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 700, Col: 195}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 							if templ_7745c5c3_Err != nil {
@@ -1322,7 +1322,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var69 string
 							templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(q)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 716, Col: 197}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 703, Col: 197}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 							if templ_7745c5c3_Err != nil {
@@ -1341,7 +1341,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var70 string
 							templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(d)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 719, Col: 174}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 706, Col: 174}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var70))
 							if templ_7745c5c3_Err != nil {
@@ -1360,7 +1360,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var71 string
 							templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(c)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 722, Col: 178}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 709, Col: 178}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
 							if templ_7745c5c3_Err != nil {
@@ -1383,7 +1383,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var72 string
 							templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.JoinStringErrs(row.MatchedProdName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 731, Col: 36}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 718, Col: 36}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var72))
 							if templ_7745c5c3_Err != nil {
@@ -1401,7 +1401,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 								var templ_7745c5c3_Var73 string
 								templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(row.MatchedProdSKU)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 735, Col: 80}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 722, Col: 80}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 								if templ_7745c5c3_Err != nil {
@@ -1430,7 +1430,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var74 templ.SafeURL
 							templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d", data.Session.ID, row.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 747, Col: 124}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 734, Col: 124}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 							if templ_7745c5c3_Err != nil {
@@ -1448,7 +1448,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 								var templ_7745c5c3_Var75 string
 								templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", mp.ID))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 751, Col: 58}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 738, Col: 58}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var75)
 								if templ_7745c5c3_Err != nil {
@@ -1471,7 +1471,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 								var templ_7745c5c3_Var76 string
 								templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.JoinStringErrs(mp.Name.Get(i18n.Lang(lang)))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 752, Col: 49}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 739, Col: 49}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var76))
 								if templ_7745c5c3_Err != nil {
@@ -1497,17 +1497,17 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else if row.ConfidenceLevel == ingest.ConfidenceHigh {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 168, "<span class=\"badge badge-success\" style=\"font-size:0.775rem; font-weight:800;\">✓ مطابقة مؤكدة</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 168, "<span class=\"badge badge-emerald\" style=\"font-size:0.775rem; font-weight:800;\">✓ مطابقة مؤكدة</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else if row.ConfidenceLevel == ingest.ConfidenceReview {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 169, "<span class=\"badge badge-warning\" style=\"font-size:0.775rem; font-weight:800;\">بحاجة لمراجعة</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 169, "<span class=\"badge badge-amber\" style=\"font-size:0.775rem; font-weight:800;\">بحاجة لمراجعة</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 170, "<span class=\"badge badge-danger\" style=\"font-size:0.775rem; font-weight:800;\">✗ غير مطابق</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 170, "<span class=\"badge badge-rose\" style=\"font-size:0.775rem; font-weight:800;\">✗ غير مطابق</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1519,7 +1519,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var77 string
 						templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(row.MatchReason)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 783, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 770, Col: 31}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
 						if templ_7745c5c3_Err != nil {
@@ -1537,7 +1537,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var78 templ.SafeURL
 							templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d/toggle", data.Session.ID, row.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 790, Col: 130}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 777, Col: 130}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
 							if templ_7745c5c3_Err != nil {
@@ -1570,7 +1570,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var79 string
 							templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(row.ImportAction)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 805, Col: 33}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 792, Col: 33}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 							if templ_7745c5c3_Err != nil {

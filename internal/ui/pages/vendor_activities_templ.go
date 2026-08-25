@@ -171,7 +171,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><!-- Actor Info --><td style=\"padding:0.85rem 1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem; flex-shrink:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><!-- Actor Info --><td class=\"p-sm\"><div class=\"row-center-sm\"><div style=\"width:32px; height:32px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem; flex-shrink:0;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -234,7 +234,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div></td><!-- Action --><td style=\"padding:0.85rem 1rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div></td><!-- Action --><td class=\"p-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -269,7 +269,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><!-- Entity Type --><td style=\"padding:0.85rem 1rem;\"><span class=\"badge badge-slate text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><!-- Entity Type --><td class=\"p-sm\"><span class=\"badge badge-slate text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -282,7 +282,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></td><!-- Entity ID --><td style=\"padding:0.85rem 1rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></td><!-- Entity ID --><td class=\"p-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -323,7 +323,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><!-- IP Address --><td style=\"padding:0.85rem 1rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><!-- IP Address --><td class=\"p-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -351,7 +351,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><!-- Timestamp --><td style=\"padding:0.85rem 1rem;\"><span class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--text); font-weight:600;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><!-- Timestamp --><td class=\"p-sm\"><span class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--text); font-weight:600;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

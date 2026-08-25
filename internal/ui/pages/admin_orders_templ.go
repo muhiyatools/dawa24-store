@@ -88,7 +88,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-3\" style=\"border:1px solid var(--border);\"><div class=\"header-row\" style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><h1 class=\"card-title\" style=\"margin:0; font-size:1.35rem; font-weight:800;\">إدارة الطلبات وأوامر التوريد</h1><p class=\"subtitle\" style=\"margin:0.25rem 0 0; font-size:0.85rem; color:var(--text-secondary);\">متابعة جميع طلبات الشراء، أوامر التوريد المباشرة، وطلبات التفاوض على الأسعار بين الصيدليات والموردين.</p></div><form method=\"GET\" action=\"/admin/orders\" style=\"display:flex; gap:0.5rem; margin:0; min-width:320px;\"><input type=\"hidden\" name=\"tab\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-3\" style=\"border:1px solid var(--border);\"><div class=\"header-row flex-between flex-wrap gap-md\"><div><h1 class=\"card-title\" style=\"margin:0; font-size:1.35rem; font-weight:800;\">إدارة الطلبات وأوامر التوريد</h1><p class=\"subtitle\" style=\"margin:0.25rem 0 0; font-size:0.85rem; color:var(--text-secondary);\">متابعة جميع طلبات الشراء، أوامر التوريد المباشرة، وطلبات التفاوض على الأسعار بين الصيدليات والموردين.</p></div><form method=\"GET\" action=\"/admin/orders\" style=\"display:flex; gap:0.5rem; margin:0; min-width:320px;\"><input type=\"hidden\" name=\"tab\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -345,7 +345,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else if o.NegotiationStatus == "rejected" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-danger\">✕ تم رفض السعر</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-rose\">✕ تم رفض السعر</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

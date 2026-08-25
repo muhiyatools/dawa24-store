@@ -32,7 +32,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			<div class="card mb-0" style="border:1px solid var(--border); padding:1.25rem 1.5rem;">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
 					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem;">
+						<div class="row-center-sm">
 							<h1 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800; color:var(--text);">
 								باقات واشتراكات المنظومة الموحدة
 							</h1>
@@ -53,7 +53,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							if data.GatewayOnline {
 								<span class="badge badge-emerald" style="padding:0.2rem 0.5rem; font-size:0.75rem;">متصلة ومزامنة</span>
 							} else {
-								<span class="badge badge-warning" style="padding:0.2rem 0.5rem; font-size:0.75rem;" title="جاري الاتصال بـ Endpoint">جاهزة للربط</span>
+								<span class="badge badge-amber" style="padding:0.2rem 0.5rem; font-size:0.75rem;" title="جاري الاتصال بـ Endpoint">جاهزة للربط</span>
 							}
 							<code dir="ltr" class="text-xs text-muted">{ data.GatewayURL }</code>
 						</div>

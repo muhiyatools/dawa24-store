@@ -113,7 +113,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 					</select>
 				</div>
 
-				<div style="display:flex; gap:0.5rem;">
+				<div class="row-center-sm">
 					<button type="submit" class="btn btn-primary" style="font-weight:700; padding:0.5rem 1rem;">
 						تصفية
 					</button>
@@ -133,7 +133,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						Message: "لم يتم العثور على أي نتائج وفق معايير البحث الحالية. اضغط على إضافة فئة جديدة للبدء.",
 					})
 				} else {
-					<div class="table-container" style="overflow:visible;">
+					<div class="table-container overflow-visible">
 						<table class="b2b-table">
 							<thead>
 								<tr>

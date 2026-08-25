@@ -200,7 +200,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"><!-- 1. Title & Hierarchy --><td style=\"padding:1rem 1.25rem;\"><div class=\"row-center\"><!-- Level Indent Spacer -->")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"><!-- 1. Title & Hierarchy --><td class=\"p-card-sm\"><div class=\"row-center\"><!-- Level Indent Spacer -->")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -327,7 +327,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></td><!-- 2. Parent --><td style=\"padding:1rem 1.25rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></td><!-- 2. Parent --><td class=\"p-card-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -355,7 +355,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td><!-- 3. Allowed Connections (يتصل بـ) --><td style=\"padding:1rem 1.25rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td><!-- 3. Allowed Connections (يتصل بـ) --><td class=\"p-card-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -393,7 +393,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</td><!-- 4. View Type & Pricing --><td style=\"padding:1rem 1.25rem;\"><div style=\"display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</td><!-- 4. View Type & Pricing --><td class=\"p-card-sm\"><div style=\"display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

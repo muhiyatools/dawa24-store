@@ -52,7 +52,7 @@ templ NotificationsList(logs []*notifications.NotificationLog) {
 			for _, l := range logs {
 				<div class="card hover-lift" style={ fmt.Sprintf("padding:1.25rem; margin-bottom:0; display:flex; justify-content:space-between; align-items:flex-start; background:%s;", ifReadBg(l.IsRead)) }>
 					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+						<div class="row-center-sm mb-sm">
 							if !l.IsRead {
 								<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--primary-600);"></span>
 							}

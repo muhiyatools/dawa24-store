@@ -43,9 +43,9 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 									<td><code>{ l.URLPath }</code></td>
 									<td>
 										if l.ErrorLevel == "CRITICAL" || l.ErrorLevel == "ERROR" {
-											<span class="badge badge-danger">{ l.ErrorLevel }</span>
+											<span class="badge badge-rose">{ l.ErrorLevel }</span>
 										} else {
-											<span class="badge badge-warning">{ l.ErrorLevel }</span>
+											<span class="badge badge-amber">{ l.ErrorLevel }</span>
 										}
 									</td>
 									<td><span class="badge badge-sky">{ l.Status }</span></td>
@@ -80,7 +80,7 @@ templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 				<pre style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-md); overflow-x:auto; font-size:0.8rem;">{ l.StackTrace }</pre>
 			</div>
 
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/full-error-logs/%d/status", l.ID)) } style="display:flex; justify-content:flex-end; gap:0.75rem;">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/full-error-logs/%d/status", l.ID)) } class="row-center justify-end">
 				<button type="submit" name="status" value="INVESTIGATING" class="btn btn-secondary">قيد التحقيق</button>
 				<button type="submit" name="status" value="RESOLVED" class="btn btn-primary">تم الحل والتسوية</button>
 				<button type="submit" name="status" value="IGNORED" class="btn btn-secondary text-muted">تجاهل</button>
@@ -107,15 +107,15 @@ templ AdminSystemResourcesPage(systemName string, lang, dir string) {
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
 				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
 					<div class="text-sm text-secondary">قاعدة البيانات PostgreSQL</div>
-					<div style="margin-top:0.5rem;"><span class="badge badge-success">متصل ونشط</span></div>
+					<div style="margin-top:0.5rem;"><span class="badge badge-emerald">متصل ونشط</span></div>
 				</div>
 				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
 					<div class="text-sm text-secondary">بوابة الذكاء الاصطناعي AI Gateway</div>
-					<div style="margin-top:0.5rem;"><span class="badge badge-success">جاهز للخدمة</span></div>
+					<div style="margin-top:0.5rem;"><span class="badge badge-emerald">جاهز للخدمة</span></div>
 				</div>
 				<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
 					<div class="text-sm text-secondary">نظام التخزين Storage S3/Local</div>
-					<div style="margin-top:0.5rem;"><span class="badge badge-success">يعمل بكفاءة</span></div>
+					<div style="margin-top:0.5rem;"><span class="badge badge-emerald">يعمل بكفاءة</span></div>
 				</div>
 			</div>
 		</div>

@@ -67,7 +67,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								اسم المؤسسة بالعربية <span class="text-danger">*</span>
 							</label>
 							<input
@@ -82,7 +82,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								اسم المؤسسة بالإنجليزية <span class="text-danger">*</span>
 							</label>
 							<input
@@ -97,7 +97,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								النوع / التصنيف <span class="text-danger">*</span>
 							</label>
 							<select name="type" class="form-input" style="height:44px; font-weight:600; border-radius:var(--radius-lg);">
@@ -116,7 +116,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							💰
 						</div>
 						<div>
-							<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+							<h3 class="text-lg fw-800 text-primary m-0">
 								إعدادات الحد الأدنى والأقصى لسعر الطلب
 							</h3>
 							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.15rem 0 0;">
@@ -127,7 +127,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								الحد الأدنى لسعر الطلب <span class="text-danger">*</span>
 							</label>
 							<div style="position:relative; display:flex; align-items:center;">
@@ -147,7 +147,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								الحد الأقصى لسعر الطلب <span class="text-danger">*</span>
 							</label>
 							<div style="position:relative; display:flex; align-items:center;">
@@ -184,7 +184,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								رقم المنظمة
 							</label>
 							<input
@@ -198,7 +198,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								البريد الإلكتروني
 							</label>
 							<input
@@ -212,7 +212,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								رقم الهاتف
 							</label>
 							<input
@@ -226,7 +226,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								الرقم الضريبي
 							</label>
 							<input
@@ -240,7 +240,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div style="grid-column:1 / -1;">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								العنوان الرئيسي
 							</label>
 							<input
@@ -271,7 +271,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								الوصف (بالعربية)
 							</label>
 							<textarea
@@ -284,7 +284,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								الوصف (بالإنجليزية)
 							</label>
 							<textarea

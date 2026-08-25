@@ -143,8 +143,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'features' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'features' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('features')"
 				>
 					@components.IconShield("icon-xs")
@@ -154,8 +153,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'site' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'site' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('site')"
 				>
 					@components.IconBuilding("icon-xs")
@@ -165,8 +163,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'policies' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'policies' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('policies')"
 				>
 					@components.IconFile("icon-xs")
@@ -176,8 +173,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'payment_methods' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'payment_methods' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('payment_methods')"
 				>
 					@components.IconWallet("icon-xs")
@@ -470,7 +466,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 									/>
 								</div>
 								<div>
-									<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+									<h4 class="text-base fw-800 text-primary m-0">
 										الشعار الرسمي للمنصة (Platform Logo)
 									</h4>
 									<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
@@ -608,10 +604,10 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 											}
 
 											if pm.IsDepositEnabled {
-												<span class="badge badge-sky" style="font-size:0.725rem;">شحن المحفظة ✓</span>
+												<span class="badge badge-sky text-xs">شحن المحفظة ✓</span>
 											}
 											if pm.IsCheckoutEnabled {
-												<span class="badge badge-indigo" style="font-size:0.725rem;">سداد الطلبات ✓</span>
+												<span class="badge badge-indigo text-xs">سداد الطلبات ✓</span>
 											}
 										</div>
 									</div>

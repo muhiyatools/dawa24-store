@@ -45,11 +45,11 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 									<td>منشأة #{ fmt.Sprintf("%d", r.ToOrgID) }</td>
 									<td>
 										if r.Status == workflow.RequestPending {
-											<span class="badge badge-warning">قيد الانتظار</span>
+											<span class="badge badge-amber">قيد الانتظار</span>
 										} else if r.Status == workflow.RequestAccepted {
-											<span class="badge badge-success">تم القبول</span>
+											<span class="badge badge-emerald">تم القبول</span>
 										} else {
-											<span class="badge badge-danger">مرفوض</span>
+											<span class="badge badge-rose">مرفوض</span>
 										}
 									</td>
 									<td class="text-end">
@@ -82,7 +82,7 @@ templ AdminAskForDetailPage(r *workflow.Request, lang, dir string) {
 				<div style="font-size:0.95rem; line-height:1.5;">{ r.Description }</div>
 			</div>
 
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ask-for/%d/respond", r.ID)) } style="display:flex; justify-content:flex-end; gap:0.75rem;">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ask-for/%d/respond", r.ID)) } class="row-center justify-end">
 				<button type="submit" name="status" value="declined" class="btn btn-secondary text-danger">رفض الطلب</button>
 				<button type="submit" name="status" value="accepted" class="btn btn-primary">قبول واعتماد</button>
 			</form>

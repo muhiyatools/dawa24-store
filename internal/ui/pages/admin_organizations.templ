@@ -210,14 +210,14 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 					</div>
 				</div>
 
-				<div class="card mb-0" style="overflow:visible;">
+				<div class="card mb-0 overflow-visible">
 					if len(data.Organizations) == 0 {
 						@components.EmptyState(components.EmptyStateProps{
 							Title:   "لا توجد منشآت مسجلة",
 							Message: "لم يتم العثور على منشآت مسجلة في هذا القسم حالياً.",
 						})
 					} else {
-						<div class="b2b-table-container">
+						<div class="table-container">
 							<table class="b2b-table">
 								<thead>
 									<tr>
@@ -280,11 +280,11 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											</td>
 											<td>
 												if string(o.Status) == "approved" {
-													<span class="badge badge-success">معتمد ومفعل</span>
+													<span class="badge badge-emerald">معتمد ومفعل</span>
 												} else if string(o.Status) == "rejected" {
-													<span class="badge badge-danger">مرفوض</span>
+													<span class="badge badge-rose">مرفوض</span>
 												} else {
-													<span class="badge badge-warning">قيد المراجعة</span>
+													<span class="badge badge-amber">قيد المراجعة</span>
 												}
 											</td>
 											<td class="text-end">
@@ -359,7 +359,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً.",
 						})
 					} else {
-						<div class="b2b-table-container">
+						<div class="table-container">
 							<table class="b2b-table">
 								<thead>
 									<tr>
@@ -413,9 +413,9 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											</td>
 											<td>
 												if b.Status == "active" {
-													<span class="badge badge-success">نشط</span>
+													<span class="badge badge-emerald">نشط</span>
 												} else {
-													<span class="badge badge-danger">معطل</span>
+													<span class="badge badge-rose">معطل</span>
 												}
 											</td>
 											<td class="text-end">
@@ -494,7 +494,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							Message: "لم يتم العثور على أي مستخدمين مسجلين في هذا القسم.",
 						})
 					} else {
-						<div class="b2b-table-container">
+						<div class="table-container">
 							<table class="b2b-table">
 								<thead>
 									<tr>
@@ -513,7 +513,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											x-show="(userGroupFilter === 'all' || $el.getAttribute('data-group') === userGroupFilter) && (!searchQuery || $el.getAttribute('data-search').includes(searchQuery.toLowerCase()))"
 										>
 											<td>
-												<div style="display:flex; align-items:center; gap:0.6rem;">
+												<div class="row-center-sm">
 													<div style="width:34px; height:34px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.825rem;">
 														if len(userDisplayName(u)) > 0 {
 															{ string([]rune(userDisplayName(u))[0]) }
@@ -539,11 +539,11 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											</td>
 											<td>
 												if u.Status == identity.StatusActive {
-													<span class="badge badge-success">نشط ومفعل</span>
+													<span class="badge badge-emerald">نشط ومفعل</span>
 												} else if u.Status == identity.StatusSuspended {
-													<span class="badge badge-danger">موقوف / معلق</span>
+													<span class="badge badge-rose">موقوف / معلق</span>
 												} else {
-													<span class="badge badge-warning">قيد المراجعة</span>
+													<span class="badge badge-amber">قيد المراجعة</span>
 												}
 											</td>
 											<td class="text-end">
@@ -587,7 +587,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							</div>
 						</div>
 
-						<div class="b2b-table-container">
+						<div class="table-container">
 							<table class="b2b-table">
 								<thead>
 									<tr>
@@ -608,9 +608,9 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											<td class="tabular-nums">{ req.CreatedAt.Format("2006-01-02 15:04") }</td>
 											<td>
 												if req.Status == "pending" {
-													<span class="badge badge-warning">قيد المراجعة</span>
+													<span class="badge badge-amber">قيد المراجعة</span>
 												} else if req.Status == "approved" {
-													<span class="badge badge-danger">تم الحذف</span>
+													<span class="badge badge-rose">تم الحذف</span>
 												} else {
 													<span class="badge badge-slate">مرفوض</span>
 												}
@@ -686,7 +686,7 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					if len(employees) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا يوجد أعضاء مسجلين", Message: "لم يتم إضافة موظفين لهذه المنشأة بعد."})
 					} else {
-						<div class="b2b-table-container">
+						<div class="table-container">
 							<table class="b2b-table">
 								<thead>
 									<tr>
@@ -704,9 +704,9 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 											<td><span class="badge badge-secondary">{ e.RoleName }</span></td>
 											<td>
 												if e.Member != nil && e.Member.IsActive {
-													<span class="badge badge-success">نشط</span>
+													<span class="badge badge-emerald">نشط</span>
 												} else {
-													<span class="badge badge-danger">معطل</span>
+													<span class="badge badge-rose">معطل</span>
 												}
 											</td>
 										</tr>
@@ -721,7 +721,7 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					if len(branches) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مستودعات لهذه المنشأة بعد."})
 					} else {
-						<div class="b2b-table-container">
+						<div class="table-container">
 							<table class="b2b-table">
 								<thead>
 									<tr>
@@ -739,9 +739,9 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 											<td>{ b.Address }</td>
 											<td>
 												if b.Status == "active" {
-													<span class="badge badge-success">مفعل</span>
+													<span class="badge badge-emerald">مفعل</span>
 												} else {
-													<span class="badge badge-danger">غير مفعل</span>
+													<span class="badge badge-rose">غير مفعل</span>
 												}
 											</td>
 										</tr>
@@ -791,7 +791,7 @@ templ AdminBranchesPage(branches []*org.Branch, lang, dir string) {
 			if len(branches) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً."})
 			} else {
-				<div class="b2b-table-container">
+				<div class="table-container">
 					<table class="b2b-table">
 						<thead>
 							<tr>
@@ -812,9 +812,9 @@ templ AdminBranchesPage(branches []*org.Branch, lang, dir string) {
 									<td>{ b.Address }</td>
 									<td>
 										if b.Status == "active" {
-											<span class="badge badge-success">نشط</span>
+											<span class="badge badge-emerald">نشط</span>
 										} else {
-											<span class="badge badge-danger">معطل</span>
+											<span class="badge badge-rose">معطل</span>
 										}
 									</td>
 									<td class="text-end">
@@ -957,7 +957,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 						})
 					</div>
 				} else {
-					<div class="b2b-table-container">
+					<div class="table-container">
 						<table class="b2b-table">
 							<thead>
 								<tr>
@@ -1066,7 +1066,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 						<input type="hidden" name="redirect_org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
 
 						<div>
-							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">المنشأة / المورد المعتمد *</label>
+							<label class="form-label">المنشأة / المورد المعتمد *</label>
 							<select name="organization_id" class="form-select" required style="width:100%; font-size:0.85rem;">
 								for _, o := range data.Organizations {
 									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
@@ -1078,7 +1078,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 
 						<div class="grid-2">
 							<div>
-								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">الفرع أو المستودع المنفذ *</label>
+								<label class="form-label">الفرع أو المستودع المنفذ *</label>
 								<select name="branch_id" class="form-select" required style="width:100%; font-size:0.85rem;">
 									for _, b := range data.Branches {
 										<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -1093,7 +1093,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</div>
 
 							<div>
-								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">المدينة / المحافظة المشمولة</label>
+								<label class="form-label">المدينة / المحافظة المشمولة</label>
 								<select name="city_id" class="form-select" style="width:100%; font-size:0.85rem;">
 									<option value="0">كافة مدن النطاق</option>
 									for _, ct := range data.Cities {
@@ -1107,7 +1107,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 
 						<div class="grid-2">
 							<div>
-								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">يوم التوصيل *</label>
+								<label class="form-label">يوم التوصيل *</label>
 								<select name="day_of_week" class="form-select" required style="width:100%; font-size:0.85rem; font-weight:700;">
 									<option value="0">الأحد (Sunday)</option>
 									<option value="1">الاثنين (Monday)</option>
@@ -1120,25 +1120,25 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</div>
 
 							<div>
-								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">نصف قطر التغطية (كم) *</label>
+								<label class="form-label">نصف قطر التغطية (كم) *</label>
 								<input type="number" name="distance_km" value="50" min="1" max="500" required class="form-input tabular-nums" style="width:100%; font-size:0.85rem; font-weight:700;" />
 							</div>
 						</div>
 
 						<div class="grid-2">
 							<div>
-								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">من الساعة (اختياري)</label>
+								<label class="form-label">من الساعة (اختياري)</label>
 								<input type="text" name="coverage_from" placeholder="مثال: 08:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="form-input tabular-nums" style="width:100%; font-size:0.85rem;" />
 							</div>
 
 							<div>
-								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">إلى الساعة (اختياري)</label>
+								<label class="form-label">إلى الساعة (اختياري)</label>
 								<input type="text" name="coverage_to" placeholder="مثال: 18:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="form-input tabular-nums" style="width:100%; font-size:0.85rem;" />
 							</div>
 						</div>
 
 						<div>
-							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">ملاحظات العنوان أو خط السير</label>
+							<label class="form-label">ملاحظات العنوان أو خط السير</label>
 							<input type="text" name="address" placeholder="مثال: خط سير الصيدليات المركزية والمستشفيات" class="form-input" style="width:100%; font-size:0.85rem;" />
 						</div>
 

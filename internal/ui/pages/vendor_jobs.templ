@@ -70,7 +70,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						💼
 					</div>
 					<div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">إجمالي الوظائف</div>
+						<div class="text-sm fw-700 text-muted">إجمالي الوظائف</div>
 						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
 							{ fmt.Sprintf("%d", data.TotalCount) }
 						</div>
@@ -83,7 +83,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						🟢
 					</div>
 					<div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">الوظائف النشطة</div>
+						<div class="text-sm fw-700 text-muted">الوظائف النشطة</div>
 						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
 							{ fmt.Sprintf("%d", data.PublishedCount) }
 						</div>
@@ -96,7 +96,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						🔒
 					</div>
 					<div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">الوظائف المغلقة</div>
+						<div class="text-sm fw-700 text-muted">الوظائف المغلقة</div>
 						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
 							{ fmt.Sprintf("%d", data.ClosedCount) }
 						</div>
@@ -109,7 +109,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						👥
 					</div>
 					<div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">طلبات التقديم المستلمة</div>
+						<div class="text-sm fw-700 text-muted">طلبات التقديم المستلمة</div>
 						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
 							{ fmt.Sprintf("%d", data.TotalApplications) }
 						</div>
@@ -133,7 +133,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							📋
 						</div>
 						<div>
-							<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">لم يتم نشر أي وظائف بعد</h3>
+							<h3 class="text-lg fw-800 text-primary m-0">لم يتم نشر أي وظائف بعد</h3>
 							<p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
 								ابدأ بنشر أول وظيفة شاغرة لاستقطاب الكفاءات والصيادلة لمؤسستك.
 							</p>
@@ -299,7 +299,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<!-- Titles -->
 					<div class="grid-2">
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 							</label>
 							<input
@@ -313,7 +313,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								المسمى الوظيفي (بالإنجليزية)
 							</label>
 							<input
@@ -329,7 +329,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					<!-- Location -->
 					<div>
-						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+						<label class="form-label">
 							مقر العمل / المحافظة أو المدينة <span class="text-danger">*</span>
 						</label>
 						<input
@@ -345,7 +345,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<!-- Salary Range -->
 					<div class="grid-2">
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								الحد الأدنى للراتب (ج.م)
 							</label>
 							<input
@@ -359,7 +359,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+							<label class="form-label">
 								الحد الأقصى للراتب (ج.م)
 							</label>
 							<input
@@ -375,7 +375,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					<!-- Description -->
 					<div>
-						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+						<label class="form-label">
 							الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 						</label>
 						<textarea
@@ -390,7 +390,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					<!-- Requirements -->
 					<div>
-						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+						<label class="form-label">
 							المؤهلات والمتطلبات والشروط
 						</label>
 						<textarea
@@ -421,7 +421,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			<div class="card" style="max-width:800px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 					<div>
-						<h3 id="applicants-modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+						<h3 id="applicants-modal-title" class="text-xl fw-900 text-primary m-0">
 							قائمة المتقدمين للوظيفة
 						</h3>
 						<p id="applicants-modal-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;"></p>

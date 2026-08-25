@@ -13,7 +13,7 @@ import (
 // VendorIngestPage renders the primary catalog upload and multi-stage matching wizard.
 templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 	@layouts.VendorShell("استيراد وتحديث كتالوج الأدوية والمخزون", "ingest", lang, dir) {
-		<div style="max-width:1200px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:1.75rem;">
+		<div class="max-w-4xl mx-auto stack-lg mb-lg">
 			
 			<!-- AI Processing Loading Modal -->
 			<div id="ai-loading-modal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:1.75rem; text-align:center; padding:2rem;">
@@ -33,31 +33,18 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 				</div>
 			</div>
 
-			<style>
-			@keyframes ai-pulse {
-				0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }
-				50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(124, 58, 237, 0.8); }
-				100% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }
-			}
-			@keyframes indeterminate-progress {
-				0% { transform: translateX(-100%); width: 30%; }
-				50% { width: 70%; }
-				100% { transform: translateX(250%); width: 30%; }
-			}
-			</style>
-
 			<!-- Header & Title Bar -->
 			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+					<div class="row-center-sm mb-sm">
 						<div class="b2b-icon-box">
 							@components.IconUpload("icon-md")
 						</div>
-						<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0;">
+						<h1 class="text-2xl fw-800 text-primary m-0">
 							استيراد وتحديث كتالوج الأدوية والمخزون
 						</h1>
 					</div>
-					<p style="color:var(--text-secondary); font-size:0.925rem; margin:0;">
+					<p class="text-sm text-secondary m-0">
 						معالج الاستيراد والمطابقة الفائقة للأصناف مع الكتالوج العام ومنتجات التوفير والذكاء الاصطناعي.
 					</p>
 				</div>
@@ -111,7 +98,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								سيتم تسجيل وتحديث أرصدة المخزون داخل المستودع الذي تختاره.
 							</p>
 							if len(data.Warehouses) > 0 {
-								<select name="warehouse_id" required class="form-control" style="max-width:480px; height:46px; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);">
+								<select name="warehouse_id" required class="form-input" style="max-width:480px; height:46px; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);">
 									for _, wh := range data.Warehouses {
 										<option value={ fmt.Sprintf("%d", wh.ID) }>
 											{ wh.Name } (كود: { wh.Code })
@@ -139,7 +126,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								<!-- Mode 4: Update & Add (Recommended) -->
 								<label style="border:2px solid var(--accent); background:rgba(37,99,235,0.03); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
 									<div>
-										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+										<div class="row-center-sm mb-sm">
 											<input type="radio" name="import_mode" value="update_and_add" checked style="accent-color:var(--accent); width:18px; height:18px;" />
 											<span style="font-weight:800; font-size:1rem; color:var(--text);">تحديث وإضافة المنتجات (موصى به)</span>
 										</div>
@@ -155,7 +142,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								<!-- Mode 1: Add New Only -->
 								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
 									<div>
-										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+										<div class="row-center-sm mb-sm">
 											<input type="radio" name="import_mode" value="add_new_only" style="accent-color:var(--accent); width:18px; height:18px;" />
 											<span style="font-weight:800; font-size:1rem; color:var(--text);">إضافة المنتجات الجديدة فقط</span>
 										</div>
@@ -171,7 +158,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								<!-- Mode 2: Update Existing Only -->
 								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
 									<div>
-										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+										<div class="row-center-sm mb-sm">
 											<input type="radio" name="import_mode" value="update_existing_only" style="accent-color:var(--accent); width:18px; height:18px;" />
 											<span style="font-weight:800; font-size:1rem; color:var(--text);">تحديث المنتجات الموجودة فقط</span>
 										</div>
@@ -187,7 +174,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								<!-- Mode 3: Clear and Add -->
 								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
 									<div>
-										<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+										<div class="row-center-sm mb-sm">
 											<input type="radio" name="import_mode" value="clear_and_add" style="accent-color:var(--danger); width:18px; height:18px;" />
 											<span style="font-weight:800; font-size:1rem; color:var(--danger);">تفريغ مخزون المستودع بالكامل وإضافة كمنتجات جديدة</span>
 										</div>
@@ -252,7 +239,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;">
 									الصيغ المدعومة: .xlsx, .xls, .csv (معالجة متدفقة ومطابقة فورية بدون استهلاك ذاكرة).
 								</p>
-								<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-control" style="max-width:380px; margin:0 auto;" />
+								<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-input" style="max-width:380px; margin:0 auto;" />
 							</div>
 						</div>
 
@@ -324,7 +311,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_barcode" class="form-control">
+											<select name="target_field_barcode" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldBarcode] == hKey }>
@@ -345,7 +332,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_sku" class="form-control">
+											<select name="target_field_sku" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldSKU] == hKey }>
@@ -366,7 +353,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_price" class="form-control">
+											<select name="target_field_price" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldPrice] == hKey }>
@@ -387,7 +374,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_cost_price" class="form-control">
+											<select name="target_field_cost_price" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldCostPrice] == hKey }>
@@ -408,7 +395,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_discount" class="form-control">
+											<select name="target_field_discount" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldDiscount] == hKey }>
@@ -429,7 +416,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_quantity" class="form-control">
+											<select name="target_field_quantity" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldQuantity] == hKey }>
@@ -450,7 +437,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_batch_number" class="form-control">
+											<select name="target_field_batch_number" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldBatchNumber] == hKey }>
@@ -471,7 +458,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_expiry_date" class="form-control">
+											<select name="target_field_expiry_date" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldExpiryDate] == hKey }>
@@ -492,7 +479,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_dosage_form" class="form-control">
+											<select name="target_field_dosage_form" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldDosageForm] == hKey }>
@@ -513,7 +500,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_concentration" class="form-control">
+											<select name="target_field_concentration" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldConcentration] == hKey }>
@@ -534,7 +521,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
-											<select name="target_field_manufacturer" class="form-control">
+											<select name="target_field_manufacturer" class="form-input">
 												<option value="unmapped">غير محدد (Unmapped)</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldManufacturer] == hKey }>
@@ -607,7 +594,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);">
 							<div>
 								<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-									<h2 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">
+									<h2 class="text-xl fw-800 text-primary m-0">
 										مراجعة وتأكيد نتائج المطابقة
 									</h2>
 									if data.Session.EnableAIMatching {
@@ -650,7 +637,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 										</button>
 									</form>
 								} else {
-									<span class="badge badge-success" style="padding:0.6rem 1.25rem; font-size:0.9rem;">
+									<span class="badge badge-emerald" style="padding:0.6rem 1.25rem; font-size:0.9rem;">
 										✓ تم الاستيراد والاعتماد بنجاح
 									</span>
 								}
@@ -766,15 +753,15 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 																🤖 مطابقة ذكية (AI)
 															</span>
 														} else if row.ConfidenceLevel == ingest.ConfidenceHigh {
-															<span class="badge badge-success" style="font-size:0.775rem; font-weight:800;">
+															<span class="badge badge-emerald" style="font-size:0.775rem; font-weight:800;">
 																✓ مطابقة مؤكدة
 															</span>
 														} else if row.ConfidenceLevel == ingest.ConfidenceReview {
-															<span class="badge badge-warning" style="font-size:0.775rem; font-weight:800;">
+															<span class="badge badge-amber" style="font-size:0.775rem; font-weight:800;">
 																بحاجة لمراجعة
 															</span>
 														} else {
-															<span class="badge badge-danger" style="font-size:0.775rem; font-weight:800;">
+															<span class="badge badge-rose" style="font-size:0.775rem; font-weight:800;">
 																✗ غير مطابق
 															</span>
 														}

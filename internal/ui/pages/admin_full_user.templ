@@ -53,9 +53,9 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 									<td><span class="badge badge-secondary">{ u.Role }</span></td>
 									<td>
 										if u.Status == identity.StatusActive {
-											<span class="badge badge-success">نشط</span>
+											<span class="badge badge-emerald">نشط</span>
 										} else {
-											<span class="badge badge-danger">معطل</span>
+											<span class="badge badge-rose">معطل</span>
 										}
 									</td>
 									<td class="text-end">
@@ -96,9 +96,9 @@ templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 					<div class="text-sm text-secondary">الحالة</div>
 					<div style="margin-top:0.25rem;">
 						if u.Status == identity.StatusActive {
-							<span class="badge badge-success">نشط</span>
+							<span class="badge badge-emerald">نشط</span>
 						} else {
-							<span class="badge badge-danger">معطل</span>
+							<span class="badge badge-rose">معطل</span>
 						}
 					</div>
 				</div>
@@ -133,7 +133,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 									<td class="tabular-nums">#{ fmt.Sprintf("%d", r.ID) }</td>
 									<td>مستخدم #{ fmt.Sprintf("%d", r.UserID) }</td>
 									<td>{ r.Reason }</td>
-									<td><span class="badge badge-warning">{ r.Status }</span></td>
+									<td><span class="badge badge-amber">{ r.Status }</span></td>
 									<td>{ r.CreatedAt.Format("2006-01-02 15:04") }</td>
 									<td class="text-end">
 										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
@@ -225,12 +225,12 @@ templ AdminRoleEditPage(r *org.Role, lang, dir string) {
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/admin-roles/%d", r.ID)) }>
 				<div class="form-group" style="margin-bottom:1.25rem;">
 					<label class="form-label">اسم الدور بالعربي</label>
-					<input type="text" name="name_ar" class="form-control" value={ r.Name.Get("ar") } required />
+					<input type="text" name="name_ar" class="form-input" value={ r.Name.Get("ar") } required />
 				</div>
 
 				<div class="form-group mb-lg">
 					<label class="form-label">الوصف</label>
-					<textarea name="description" class="form-control" rows="2">{ r.Description }</textarea>
+					<textarea name="description" class="form-input" rows="2">{ r.Description }</textarea>
 				</div>
 
 				<h3 style="font-size:1.05rem; font-weight:700; margin-bottom:1rem;">مصفوفة الصلاحيات المتاحة</h3>

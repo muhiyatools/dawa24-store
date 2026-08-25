@@ -138,7 +138,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 						Message: "لم يتم إنشاء أي كتل محتوى أو أقسام بعد. اضغط على إضافة كتلة جديدة للبدء.",
 					})
 				} else {
-					<div class="table-container" style="overflow:visible;">
+					<div class="table-container overflow-visible">
 						<table class="b2b-table">
 							<thead>
 								<tr>
@@ -220,7 +220,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 											if b.IsActive {
 												<span class="badge badge-emerald">نشط ومفعل</span>
 											} else {
-												<span class="badge badge-danger">معطل</span>
+												<span class="badge badge-rose">معطل</span>
 											}
 										</td>
 										<td class="text-end">

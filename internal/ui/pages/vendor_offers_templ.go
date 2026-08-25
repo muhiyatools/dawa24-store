@@ -184,7 +184,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 							return templ_7745c5c3_Err
 						}
 					} else if o.Status == "draft" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"badge badge-gray\" style=\"font-size:0.7rem; font-weight:800;\">مسودة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"badge badge-slate\" style=\"font-size:0.7rem; font-weight:800;\">مسودة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

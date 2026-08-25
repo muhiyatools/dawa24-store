@@ -709,7 +709,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<h3 style=\"font-size:1.25rem; font-weight:900; color:var(--text); margin:0;\">سجل تحديثات الشحنة والمحطات</h3></div><button type=\"button\" class=\"btn btn-secondary btn-icon size-8\" data-modal-close>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<h3 class=\"text-xl fw-900 text-primary m-0\">سجل تحديثات الشحنة والمحطات</h3></div><button type=\"button\" class=\"btn btn-secondary btn-icon size-8\" data-modal-close>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

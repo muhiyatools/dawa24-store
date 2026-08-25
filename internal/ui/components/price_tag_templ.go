@@ -55,12 +55,12 @@ func PriceTag(bd PriceBreakdown) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:2px; align-items:flex-start;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm items-start\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if bd.DiscountAmount.IsPositive() && bd.ListPrice.Minor() > bd.Price.Minor() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;\"><span class=\"tabular-nums\" style=\"font-size:var(--text-xs); color:var(--text-muted); text-decoration:line-through;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"row-center-xs flex-wrap\"><span class=\"tabular-nums text-xs text-muted\" style=\"text-decoration:line-through;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,7 +78,7 @@ func PriceTag(bd PriceBreakdown) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if bd.DiscountBPS > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"badge\" style=\"background:#fee2e2; color:#b91c1c; font-weight:800; font-size:11px; padding:1px 8px; border-radius:var(--radius-sm);\">خصم ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"badge badge-rose fw-800 text-xs\">خصم ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -100,7 +100,7 @@ func PriceTag(bd PriceBreakdown) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var4 = []any{"money", templ.KV("money-lg", bd.Large)}
+			var templ_7745c5c3_Var4 = []any{"money tabular-nums fw-800 text-accent", templ.KV("money-lg", bd.Large)}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -118,7 +118,7 @@ func PriceTag(bd PriceBreakdown) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" style=\"font-variant-numeric: tabular-nums; font-weight:800; color:var(--accent); line-height:1.1;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -131,7 +131,7 @@ func PriceTag(bd PriceBreakdown) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span> <span class=\"tabular-nums\" style=\"font-size:var(--text-xs); font-weight:600; color:#15803d;\">توفير ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span> <span class=\"tabular-nums text-xs fw-600 text-success\">توفير ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -149,7 +149,7 @@ func PriceTag(bd PriceBreakdown) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			var templ_7745c5c3_Var8 = []any{"money", templ.KV("money-lg", bd.Large)}
+			var templ_7745c5c3_Var8 = []any{"money tabular-nums fw-800 text-accent", templ.KV("money-lg", bd.Large)}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -167,7 +167,7 @@ func PriceTag(bd PriceBreakdown) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" style=\"font-variant-numeric: tabular-nums; font-weight:800; color:var(--accent); line-height:1.1;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

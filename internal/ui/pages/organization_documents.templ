@@ -47,9 +47,9 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 									} else if req.Status == attachments.DocReqSubmitted {
 										<span class="badge badge-sky" style="font-size:10px;">تم الرفع (قيد المراجعة)</span>
 									} else if req.IsOverdue() {
-										<span class="badge badge-danger" style="font-size:10px;">انتهت المهلة ⚠️</span>
+										<span class="badge badge-rose" style="font-size:10px;">انتهت المهلة ⚠️</span>
 									} else {
-										<span class="badge badge-warning" style="font-size:10px;">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
+										<span class="badge badge-amber" style="font-size:10px;">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
 									}
 								</div>
 								if req.Description != "" {

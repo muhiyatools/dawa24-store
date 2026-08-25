@@ -91,7 +91,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			}
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"alert alert-danger\" style=\"display:flex; align-items:center; gap:0.85rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--danger-text); font-weight:700; box-shadow:0 4px 16px rgba(239,68,68,0.1);\"><span style=\"font-size:1.4rem;\">⚠️</span> <span style=\"font-size:0.95rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"alert alert-danger\" style=\"display:flex; align-items:center; gap:0.85rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--danger-text); font-weight:700; box-shadow:0 4px 16px rgba(239,68,68,0.1);\"><span class=\"text-2xl\">⚠️</span> <span style=\"font-size:0.95rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -109,7 +109,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"alert alert-success\" style=\"display:flex; align-items:center; gap:0.85rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--primary-700); font-weight:700; box-shadow:0 4px 16px rgba(16,185,129,0.1);\"><span style=\"font-size:1.4rem;\">✅</span> <span style=\"font-size:0.95rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"alert alert-success\" style=\"display:flex; align-items:center; gap:0.85rem; padding:1.1rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--primary-700); font-weight:700; box-shadow:0 4px 16px rgba(16,185,129,0.1);\"><span class=\"text-2xl\">✅</span> <span style=\"font-size:0.95rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -227,7 +227,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div style=\"overflow-x:auto; margin:0 -1.75rem -1.75rem -1.75rem;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.775rem; text-transform:uppercase; font-weight:800; letter-spacing:0.04em;\"><th style=\"padding:1rem 1.5rem;\">الموظف والتعريف</th><th style=\"padding:1rem 1.25rem;\">المسمى الوظيفي</th><th style=\"padding:1rem 1.25rem;\">الدور والصلاحية</th><th style=\"padding:1rem 1.25rem;\">الفرع / الموقع</th><th style=\"padding:1rem 1.25rem;\">البريد الإلكتروني</th><th style=\"padding:1rem 1.25rem;\">رقم الهاتف</th><th style=\"padding:1rem 1.25rem; text-align:center;\">الحالة</th><th style=\"padding:1rem 1.5rem; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div style=\"overflow-x:auto; margin:0 -1.75rem -1.75rem -1.75rem;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.775rem; text-transform:uppercase; font-weight:800; letter-spacing:0.04em;\"><th style=\"padding:1rem 1.5rem;\">الموظف والتعريف</th><th class=\"p-card-sm\">المسمى الوظيفي</th><th class=\"p-card-sm\">الدور والصلاحية</th><th class=\"p-card-sm\">الفرع / الموقع</th><th class=\"p-card-sm\">البريد الإلكتروني</th><th class=\"p-card-sm\">رقم الهاتف</th><th style=\"padding:1rem 1.25rem; text-align:center;\">الحالة</th><th style=\"padding:1rem 1.5rem; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -332,7 +332,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</td><!-- Role Badge --><td style=\"padding:1rem 1.25rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</td><!-- Role Badge --><td class=\"p-card-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

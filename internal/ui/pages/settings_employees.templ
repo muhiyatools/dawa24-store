@@ -64,21 +64,21 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 				<form method="POST" action="/settings/employees/create" style="display:flex; flex-direction:column; gap:1.15rem;">
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								اسم الموظف بالكامل <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="name" placeholder="د. أحمد محمود" class="form-input w-full" required/>
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								البريد الإلكتروني الرسمي <span class="text-danger">*</span>
 							</label>
 							<input type="email" name="email" placeholder="pharmacist@example.com" class="form-input tabular-nums w-full" required/>
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								رقم الهاتف / الواتساب
 							</label>
 							<input type="tel" name="phone" placeholder="01012345678" class="form-input tabular-nums w-full"/>
@@ -87,21 +87,21 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								المسمى الوظيفي <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="job_title" placeholder="مدير فرع / صيدلي مسؤول" class="form-input w-full" required/>
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								كود الموظف الداخلي
 							</label>
 							<input type="text" name="employee_code" placeholder="EMP-0101" class="form-input tabular-nums w-full"/>
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								الدور والصلاحيات
 							</label>
 							<select name="role_key" class="form-input w-full">
@@ -120,7 +120,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								الفرع المخصص
 							</label>
 							<select name="branch_id" class="form-input w-full">
@@ -138,7 +138,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								الراتب الأساسي (ج.م)
 							</label>
 							<input type="number" name="base_salary" placeholder="8000" class="form-input tabular-nums w-full"/>
@@ -327,9 +327,9 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 										</td>
 										<td style="padding:0.9rem 1rem;">
 											if emp.Member.IsActive {
-												<span class="badge badge-emerald" style="font-size:0.725rem;">نشط</span>
+												<span class="badge badge-emerald text-xs">نشط</span>
 											} else {
-												<span class="badge badge-gray" style="font-size:0.725rem;">معطل</span>
+												<span class="badge badge-slate text-xs">معطل</span>
 											}
 										</td>
 										<td style="padding:0.9rem 1rem; text-align:end;">

@@ -86,7 +86,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
 								<select name="city_id" data-map-city class="form-input w-full">
@@ -101,7 +101,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							</div>
 
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									نصف قطر التغطية (بالمتر)
 								</label>
 								<input type="number" name="radius" data-map-radius value="1000" step="100" min="200" max="50000" class="form-input tabular-nums w-full"/>
@@ -109,7 +109,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								العنوان والمنطقة المغطاة (بالعربية)
 							</label>
 							<input type="text" name="address_ar" placeholder="مثال: مدينة نصر ومصر الجديدة والتجمع الخامس" class="form-input w-full"/>
@@ -117,7 +117,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 
 						<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem;">
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									يوم التوصيل
 								</label>
 								<select name="day_of_week" class="form-input w-full">
@@ -128,14 +128,14 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							</div>
 
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									من الساعة
 								</label>
 								<input type="time" name="time_from" value="09:00" class="form-input" style="width:100%; color-scheme:dark;"/>
 							</div>
 
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									إلى الساعة
 								</label>
 								<input type="time" name="time_to" value="18:00" class="form-input" style="width:100%; color-scheme:dark;"/>

@@ -18,11 +18,11 @@ func formatRowsCount(res *compare.ComparisonResultSet) string {
 
 templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, activeFilter string) {
 	@layouts.VendorShell("نتائج تحليل ومقارنة الخصومات", "compare", lang, dir) {
-		<div style="max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
+		<div class="max-w-4xl mx-auto stack-lg">
 			
 			<!-- Header Banner -->
 			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div class="flex-between flex-wrap gap-md">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
 							<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
@@ -73,7 +73,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				
 				<!-- Total Compared -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+					<div class="flex-between mb-sm">
 						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">إجمالي الأصناف المقارنة</span>
 						<span class="text-xl">📦</span>
 					</div>
@@ -93,7 +93,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 				<!-- Average Discount -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+					<div class="flex-between mb-sm">
 						<span style="font-size:0.85rem; font-weight:700; color:var(--success-text);">متوسط الخصم في السوق</span>
 						<span class="text-xl">🔥</span>
 					</div>
@@ -109,7 +109,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 				<!-- Suppliers Analyzed -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+					<div class="flex-between mb-sm">
 						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">الموردون المشمولون</span>
 						<span class="text-xl">🏢</span>
 					</div>
@@ -128,7 +128,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 			<!-- Filter Bar & Search -->
 			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
 				
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div class="flex-between flex-wrap gap-md">
 					<!-- Quick Filter Tabs -->
 					<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
 						<button
@@ -229,7 +229,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										style="border-bottom:1px solid var(--border); font-size:0.875rem;"
 									>
 										<!-- Product Name & Catalog Verification -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											<div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.2rem;">
 												<strong style="color:var(--text); font-size:0.925rem;">{ row.ProductName }</strong>
 												if row.InCatalog {
@@ -244,7 +244,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										</td>
 
 										<!-- Best Price -->
-										<td style="padding:0.85rem 1rem;" class="tabular-nums">
+										<td class="p-sm tabular-nums">
 											if row.BestPrice.IsPositive() {
 												<span>{ row.BestPrice.String() } ج.م</span>
 											} else {
@@ -253,7 +253,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										</td>
 
 										<!-- Best Discount -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											if row.BestDiscount > 0 {
 												<span class="badge badge-emerald" style="font-weight:800; font-size:0.85rem;">
 													{ fmt.Sprintf("%.1f%%", row.BestDiscount) }
@@ -273,14 +273,14 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										</td>
 
 										<!-- Best Supplier -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											<span class="badge badge-sky" style="font-weight:700; font-size:0.8rem;">
 												👑 { row.BestSupplier }
 											</span>
 										</td>
 
 										<!-- Detailed Offers & Gaps Breakdown -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											<div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.25rem;">
 												for supName, off := range row.Offers {
 													if supName == row.BestSupplier {
@@ -288,7 +288,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 															✓ { supName }: { fmt.Sprintf("%.1f%%", off.Discount) } ({ off.PriceAfterDiscount.String() } ج.م)
 														</span>
 													} else {
-														<span class="badge badge-secondary" style="font-size:0.725rem;" title={ fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()) }>
+														<span class="badge badge-secondary text-xs" title={ fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()) }>
 															{ supName }: { fmt.Sprintf("%.1f%%", off.Discount) } ({ off.PriceAfterDiscount.String() } ج.م)
 														</span>
 													}

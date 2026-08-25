@@ -15,7 +15,7 @@ templ JobsPage(lang, dir string, jobs []*hr.JobOffer) {
 			
 			<!-- Hero Header -->
 			<div style="margin-bottom:2rem; background:var(--surface-raised); padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+				<div class="flex-between flex-wrap gap-lg">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
 							<div class="b2b-icon-box-sm">
@@ -30,7 +30,7 @@ templ JobsPage(lang, dir string, jobs []*hr.JobOffer) {
 						</p>
 					</div>
 
-					<div style="display:flex; gap:0.75rem;">
+					<div class="row-center">
 						<a href="/auth/register" class="btn btn-primary fw-700">
 							@components.IconPlus("icon-xs")
 							<span>نشر وظيفة جديدة</span>

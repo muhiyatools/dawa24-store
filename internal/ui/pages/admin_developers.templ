@@ -52,8 +52,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'sql' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'sql' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('sql')"
 				>
 					@components.IconDatabase("icon-xs")
@@ -63,8 +62,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'ai' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'ai' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('ai')"
 				>
 					@components.IconSparkles("icon-xs")
@@ -74,8 +72,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'errors' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'errors' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('errors')"
 				>
 					@components.IconBug("icon-xs")
@@ -85,8 +82,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'audit' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'audit' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('audit')"
 				>
 					@components.IconClock("icon-xs")
@@ -136,7 +132,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							<div style="font-size:0.775rem; color:var(--text-muted);">
 								🔒 الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.
 							</div>
-							<div style="display:flex; gap:0.5rem;">
+							<div class="row-center-sm">
 								<button type="button" @click="sqlQuery = ''" class="btn btn-secondary btn-sm">مسح</button>
 								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.5rem 1.75rem;" :disabled="isRunning">
 									<span x-show="!isRunning">▶ تنفيذ الاستعلام (Execute)</span>
@@ -156,7 +152,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									<span class="badge badge-emerald">نجاح التنفيذ</span>
 								</template>
 								<template x-if="queryResult.error">
-									<span class="badge badge-danger">خطأ في الاستعلام</span>
+									<span class="badge badge-rose">خطأ في الاستعلام</span>
 								</template>
 								<span class="text-sm text-muted tabular-nums" x-text="'المدة: ' + queryResult.duration_ms + ' ms'"></span>
 								<span class="text-sm text-muted tabular-nums" x-text="'الصفوف: ' + queryResult.rows_affected"></span>
@@ -240,7 +236,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 												if log.ErrorMessage == "" {
 													<span class="badge badge-emerald">نجاح</span>
 												} else {
-													<span class="badge badge-danger" title={ log.ErrorMessage }>خطأ</span>
+													<span class="badge badge-rose" title={ log.ErrorMessage }>خطأ</span>
 												}
 											</td>
 										</tr>
@@ -662,7 +658,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
 									<div>
 										<div class="text-xs text-muted">المستخدم المتأثر:</div>
-										<div style="font-weight:700; color:var(--text); font-size:0.875rem;" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
+										<div class="text-sm fw-700 text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
 										<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
 									</div>
 									<div>
@@ -677,7 +673,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									<div>
 										<div class="text-xs text-muted">التوقيت والمستوى:</div>
 										<div style="font-size:0.85rem; font-weight:700; color:var(--text);" x-text="selectedError.created_at"></div>
-										<span class="badge badge-danger" x-text="selectedError.error_level"></span>
+										<span class="badge badge-rose" x-text="selectedError.error_level"></span>
 									</div>
 								</div>
 

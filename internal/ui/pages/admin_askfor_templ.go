@@ -148,17 +148,17 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 						return templ_7745c5c3_Err
 					}
 					if r.Status == workflow.RequestPending {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"badge badge-warning\">قيد الانتظار</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"badge badge-amber\">قيد الانتظار</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if r.Status == workflow.RequestAccepted {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-success\">تم القبول</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald\">تم القبول</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-danger\">مرفوض</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-rose\">مرفوض</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -299,7 +299,7 @@ func AdminAskForDetailPage(r *workflow.Request, lang, dir string) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" style=\"display:flex; justify-content:flex-end; gap:0.75rem;\"><button type=\"submit\" name=\"status\" value=\"declined\" class=\"btn btn-secondary text-danger\">رفض الطلب</button> <button type=\"submit\" name=\"status\" value=\"accepted\" class=\"btn btn-primary\">قبول واعتماد</button></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"row-center justify-end\"><button type=\"submit\" name=\"status\" value=\"declined\" class=\"btn btn-secondary text-danger\">رفض الطلب</button> <button type=\"submit\" name=\"status\" value=\"accepted\" class=\"btn btn-primary\">قبول واعتماد</button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

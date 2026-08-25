@@ -232,7 +232,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										x-show={ fmt.Sprintf("(statusFilter === 'all' || (statusFilter === 'active' && %t)) && (searchQuery === '' || %q.toLowerCase().includes(searchQuery.toLowerCase()) || %q.toLowerCase().includes(searchQuery.toLowerCase()))", item.IsActive, item.Title.Get("ar"), item.Title.Get("en")) }
 									>
 										<!-- 1. Title & Hierarchy -->
-										<td style="padding:1rem 1.25rem;">
+										<td class="p-card-sm">
 											<div class="row-center">
 												<!-- Level Indent Spacer -->
 												if item.Level > 0 {
@@ -274,7 +274,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										</td>
 
 										<!-- 2. Parent -->
-										<td style="padding:1rem 1.25rem;">
+										<td class="p-card-sm">
 											if item.ParentTitle != "" {
 												<span class="badge badge-indigo text-xs fw-700">
 													{ item.ParentTitle }
@@ -285,7 +285,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										</td>
 
 										<!-- 3. Allowed Connections (يتصل بـ) -->
-										<td style="padding:1rem 1.25rem;">
+										<td class="p-card-sm">
 											if len(item.AllowedConnectionNames) > 0 {
 												<div style="display:flex; flex-wrap:wrap; gap:0.35rem; max-width:320px;">
 													for _, name := range item.AllowedConnectionNames {
@@ -300,7 +300,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										</td>
 
 										<!-- 4. View Type & Pricing -->
-										<td style="padding:1rem 1.25rem;">
+										<td class="p-card-sm">
 											<div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;">
 												if item.ViewType == 2 {
 													<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700;">

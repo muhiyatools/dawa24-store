@@ -138,8 +138,8 @@ templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string
 										x-show={ fmt.Sprintf("search === '' || '%s'.toLowerCase().includes(search.toLowerCase()) || '%s'.toLowerCase().includes(search.toLowerCase()) || '%s'.toLowerCase().includes(search.toLowerCase())", e.ActorName, actionLabel, e.EntityID) }
 									>
 										<!-- Actor Info -->
-										<td style="padding:0.85rem 1rem;">
-											<div style="display:flex; align-items:center; gap:0.6rem;">
+										<td class="p-sm">
+											<div class="row-center-sm">
 												<div style="width:32px; height:32px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem; flex-shrink:0;">
 													if len(e.ActorName) > 0 {
 														{ string([]rune(e.ActorName)[0]) }
@@ -165,21 +165,21 @@ templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string
 										</td>
 
 										<!-- Action -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											<span class={ "badge", badgeClass } style="font-weight:700; font-size:0.75rem;">
 												{ actionLabel }
 											</span>
 										</td>
 
 										<!-- Entity Type -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											<span class="badge badge-slate text-xs">
 												{ formatEntityType(e.EntityType, e.EntityTypeAr) }
 											</span>
 										</td>
 
 										<!-- Entity ID -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											if e.EntityID != "" {
 												<code
 													class="tabular-nums"
@@ -194,7 +194,7 @@ templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string
 										</td>
 
 										<!-- IP Address -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											if e.IPAddress != "" {
 												<span class="tabular-nums" style="font-size:0.775rem; color:var(--text-secondary);">
 													{ e.IPAddress }
@@ -205,7 +205,7 @@ templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string
 										</td>
 
 										<!-- Timestamp -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											<span class="tabular-nums" style="font-size:0.8rem; color:var(--text); font-weight:600;">
 												{ e.CreatedAt.Format("2006-01-02 15:04:05") }
 											</span>

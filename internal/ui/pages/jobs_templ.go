@@ -50,7 +50,7 @@ func JobsPage(lang, dir string, jobs []*hr.JobOffer) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-page-container\" style=\"max-width:1200px; margin:1.5rem auto 4rem auto; padding:0 1rem;\"><!-- Hero Header --><div style=\"margin-bottom:2rem; background:var(--surface-raised); padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><div class=\"b2b-icon-box-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-page-container\" style=\"max-width:1200px; margin:1.5rem auto 4rem auto; padding:0 1rem;\"><!-- Hero Header --><div style=\"margin-bottom:2rem; background:var(--surface-raised); padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div class=\"flex-between flex-wrap gap-lg\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><div class=\"b2b-icon-box-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -58,7 +58,7 @@ func JobsPage(lang, dir string, jobs []*hr.JobOffer) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--text); margin:0;\">فرص التوظيف والعمل في القطاع الدوائي</h1></div><p style=\"font-size:0.925rem; color:var(--text-secondary); margin:0; max-width:620px;\">بوابة الوظائف المعتمدة للصيادلة، مساعدي الصيدلة، ومسؤولي التوزيع وسلاسل الإمداد الطبي في مصر.</p></div><div style=\"display:flex; gap:0.75rem;\"><a href=\"/auth/register\" class=\"btn btn-primary fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--text); margin:0;\">فرص التوظيف والعمل في القطاع الدوائي</h1></div><p style=\"font-size:0.925rem; color:var(--text-secondary); margin:0; max-width:620px;\">بوابة الوظائف المعتمدة للصيادلة، مساعدي الصيدلة، ومسؤولي التوزيع وسلاسل الإمداد الطبي في مصر.</p></div><div class=\"row-center\"><a href=\"/auth/register\" class=\"btn btn-primary fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -37,12 +37,12 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Quick Metric Stat Cards -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">إجمالي المستودعات</div>
+					<div class="form-label">إجمالي المستودعات</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
 				</div>
 
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">المستودعات النشطة</div>
+					<div class="form-label">المستودعات النشطة</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
 						{ fmt.Sprintf("%d", func() int {
 							c := 0
@@ -55,7 +55,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				</div>
 
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">الفروع التوزيعية</div>
+					<div class="form-label">الفروع التوزيعية</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(branches)) }</div>
 				</div>
 			</div>
@@ -119,9 +119,9 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										</td>
 										<td>
 											if w.IsActive {
-												<span class="badge badge-success">نشط</span>
+												<span class="badge badge-emerald">نشط</span>
 											} else {
-												<span class="badge badge-danger">معطل</span>
+												<span class="badge badge-rose">معطل</span>
 											}
 										</td>
 										<td class="text-end">
@@ -300,7 +300,7 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
 				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
 					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+						<div class="row-center-sm mb-sm">
 							<div class="b2b-icon-box-sm">
 								@components.IconBuilding("icon-sm")
 							</div>
@@ -308,9 +308,9 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 								مستودع { w.Name }
 							</h1>
 							if w.IsActive {
-								<span class="badge badge-success">نشط</span>
+								<span class="badge badge-emerald">نشط</span>
 							} else {
-								<span class="badge badge-danger">معطل</span>
+								<span class="badge badge-rose">معطل</span>
 							}
 						</div>
 						<div style="display:flex; gap:1.25rem; flex-wrap:wrap; font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">
@@ -324,7 +324,7 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 						</div>
 					</div>
 
-					<div style="display:flex; gap:0.75rem;">
+					<div class="row-center">
 						<a href="/vendor/warehouses" class="btn btn-secondary btn-sm">
 							@components.IconArrowRight("icon-xs")
 							<span>العودة للمستودعات</span>

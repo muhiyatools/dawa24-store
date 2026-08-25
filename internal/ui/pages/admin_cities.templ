@@ -59,7 +59,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				<!-- Left: Cities Table -->
 				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+						<h3 class="text-lg fw-800 text-primary m-0">
 							سجل المدن والمراكز المعتمدة
 						</h3>
 						<span class="badge badge-sky tabular-nums fw-700">{ fmt.Sprintf("%d", len(data.Cities)) } مدينة</span>
@@ -102,7 +102,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 										</td>
 										<td style="padding:0.75rem; text-align:end;">
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } class="m-0 inline">
-												<button type="submit" class="btn btn-secondary btn-xs" style="font-size:0.725rem;">
+												<button type="submit" class="btn btn-secondary btn-xs text-xs">
 													if c.IsActive {
 														<span>تعطيل</span>
 													} else {
@@ -131,14 +131,14 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 
 					<form method="POST" action="/admin/cities/new" class="stack">
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								اسم المدينة / المحافظة بالعربية <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input w-full"/>
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								اسم المدينة / المحافظة بالإنجليزية
 							</label>
 							<input type="text" name="name_en" placeholder="New Mansoura" class="form-input w-full"/>

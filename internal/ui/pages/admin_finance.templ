@@ -114,22 +114,22 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices" || data.ActiveTab == "") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconFile("icon-sm")
 						<span>الفواتير الضريبية والمطالبات</span>
-						<span class="badge badge-secondary" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
+						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
 					</a>
 					<a href="/admin/finance?tab=payments" class={ "tab-btn", templ.KV("active", data.ActiveTab == "payments") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconWallet("icon-sm")
 						<span>سجل المدفوعات والتحصيلات</span>
-						<span class="badge badge-secondary" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalPayments) }</span>
+						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalPayments) }</span>
 					</a>
 					<a href="/admin/finance?tab=wallets" class={ "tab-btn", templ.KV("active", data.ActiveTab == "wallets") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconLayers("icon-sm")
 						<span>محافظ المنشآت والأرصدة</span>
-						<span class="badge badge-emerald" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalWallets) }</span>
+						<span class="badge badge-emerald text-xs">{ fmt.Sprintf("%d", data.TotalWallets) }</span>
 					</a>
 					<a href="/admin/finance?tab=transactions" class={ "tab-btn", templ.KV("active", data.ActiveTab == "transactions") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconLayers("icon-sm")
 						<span>سجل حركات ومعاملات المحافظ</span>
-						<span class="badge badge-secondary" style="font-size:0.72rem;">{ fmt.Sprintf("%d", data.TotalTransactions) }</span>
+						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalTransactions) }</span>
 					</a>
 					<a href="/admin/finance?tab=earnings" class={ "tab-btn", templ.KV("active", data.ActiveTab == "earnings") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconChart("icon-sm")
@@ -376,7 +376,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														<span class="badge badge-secondary" style="font-weight:800; font-family:monospace;">{ fmt.Sprintf("WLT-%d", w.ID) }</span>
 													</td>
 													<td>
-														<div style="display:flex; align-items:center; gap:0.6rem;">
+														<div class="row-center-sm">
 															<div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); display:flex; align-items:center; justify-content:center; font-weight:800; color:#10b981; flex-shrink:0;">
 																if w.OrganizationName != "" {
 																	{ string([]rune(w.OrganizationName)[0:1]) }
@@ -643,7 +643,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 						<!-- Action Type -->
 						<div>
-							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">نوع العملية المحاسبية *</label>
+							<label class="form-label">نوع العملية المحاسبية *</label>
 							<select name="action_type" id="modalActionType" class="form-input" style="width:100%; border-radius:8px; padding:0.6rem 0.85rem;" required>
 								<option value="deposit">إيداع رصيد (شحن مباشر / تحويل)</option>
 								<option value="withdrawal">➖ خصم من الرصيد (سحب / تسوية مدينة)</option>
@@ -653,13 +653,13 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 						<!-- Amount -->
 						<div>
-							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">المبلغ بالجنيه المصري (EGP) *</label>
+							<label class="form-label">المبلغ بالجنيه المصري (EGP) *</label>
 							<input type="number" step="0.01" min="0.01" name="amount" class="form-input" placeholder="0.00" style="width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:1.1rem; font-weight:800;" required/>
 						</div>
 
 						<!-- Reason / Notes -->
 						<div>
-							<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">سبب العملية والملاحظات المحاسبية *</label>
+							<label class="form-label">سبب العملية والملاحظات المحاسبية *</label>
 							<textarea name="reason" rows="2" class="form-input" placeholder="اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)..." style="width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:0.85rem;" required></textarea>
 						</div>
 
@@ -708,7 +708,7 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 			if len(orders) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض", Message: "لم يتم إنشاء طلبات عروض أسعار بعد."})
 			} else {
-				<div class="b2b-table-container">
+				<div class="table-container">
 					<table class="b2b-table">
 						<thead>
 							<tr>
@@ -789,7 +789,7 @@ templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string
 	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "plans", lang, dir) {
 		<div class="card">
 			<h2 class="card-title">الاشتراكات النشطة</h2>
-			<div class="b2b-table-container">
+			<div class="table-container">
 				<table class="b2b-table">
 					<thead>
 						<tr>

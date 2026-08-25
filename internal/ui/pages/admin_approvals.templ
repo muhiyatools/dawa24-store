@@ -166,7 +166,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 templ AdminApprovalsOrgTab(data *AdminApprovalsData) {
 	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
 		<div>
-			<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+			<h3 class="text-lg fw-800 text-primary m-0">
 				طلبات تسجيل واعتماد المنشآت
 			</h3>
 			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
@@ -197,7 +197,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 			Message: "تمت مراجعة جميع المستندات والتراخيص بالكامل، ولا توجد طلبات معلقة حالياً.",
 		})
 	} else {
-		<div class="table-container" style="overflow:visible;">
+		<div class="table-container overflow-visible">
 			<table class="b2b-table">
 				<thead>
 					<tr>
@@ -261,9 +261,9 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 								if string(o.Status) == "approved" {
 									<span class="badge badge-emerald">معتمد ونشط</span>
 								} else if string(o.Status) == "rejected" {
-									<span class="badge badge-danger">مرفوض</span>
+									<span class="badge badge-rose">مرفوض</span>
 								} else if string(o.Status) == "suspended" {
-									<span class="badge badge-warning">معلق مؤقتاً</span>
+									<span class="badge badge-amber">معلق مؤقتاً</span>
 								} else {
 									<span class="badge badge-sky">قيد التدقيق</span>
 								}
@@ -331,7 +331,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 													if string(o.Status) == "approved" {
 														<span class="badge badge-emerald">معتمد ونشط</span>
 													} else if string(o.Status) == "rejected" {
-														<span class="badge badge-danger">مرفوض</span>
+														<span class="badge badge-rose">مرفوض</span>
 													} else {
 														<span class="badge badge-sky">قيد التدقيق</span>
 													}
@@ -464,7 +464,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
 		<div>
-			<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+			<h3 class="text-lg fw-800 text-primary m-0">
 				تدقيق واعتماد وثائق المنشآت المرفوعة
 			</h3>
 			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
@@ -479,7 +479,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 			Message: "لم تقم أي منشأة برفع مستندات إضافية حالياً.",
 		})
 	} else {
-		<div class="table-container" style="overflow:visible;">
+		<div class="table-container overflow-visible">
 			<table class="b2b-table">
 				<thead>
 					<tr>
@@ -529,9 +529,9 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 									case attachments.StatusVerified:
 										<span class="badge badge-emerald">معتمد ومطابق ✓</span>
 									case attachments.StatusRejected:
-										<span class="badge badge-danger">مرفوض ✗</span>
+										<span class="badge badge-rose">مرفوض ✗</span>
 									default:
-										<span class="badge badge-warning">قيد الفحص والتدقيق</span>
+										<span class="badge badge-amber">قيد الفحص والتدقيق</span>
 								}
 							</td>
 							<td>
@@ -644,7 +644,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
 		<div>
-			<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+			<h3 class="text-lg fw-800 text-primary m-0">
 				سجل المستندات المطلوبة ومتابعة المهل
 			</h3>
 			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
@@ -659,7 +659,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 			Message: "لم يتم إصدار طلبات مستندات رسمية للمنشآت بعد.",
 		})
 	} else {
-		<div class="table-container" style="overflow:visible;">
+		<div class="table-container overflow-visible">
 			<table class="b2b-table">
 				<thead>
 					<tr>
@@ -703,9 +703,9 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 									if req.Status == attachments.DocReqFulfilled {
 										<span class="badge badge-emerald" style="font-size:10px;">تم الاستيفاء ✓</span>
 									} else if req.IsOverdue() {
-										<span class="badge badge-danger" style="font-size:10px;">انتهت المهلة ⚠️</span>
+										<span class="badge badge-rose" style="font-size:10px;">انتهت المهلة ⚠️</span>
 									} else {
-										<span class="badge badge-warning" style="font-size:10px;">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
+										<span class="badge badge-amber" style="font-size:10px;">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
 									}
 								</div>
 							</td>
@@ -719,9 +719,9 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 										<span class="badge badge-slate">ملغي</span>
 									default:
 										if req.IsOverdue() {
-											<span class="badge badge-danger">متأخر</span>
+											<span class="badge badge-rose">متأخر</span>
 										} else {
-											<span class="badge badge-warning">بانتظار الرفع</span>
+											<span class="badge badge-amber">بانتظار الرفع</span>
 										}
 								}
 							</td>

@@ -32,7 +32,7 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 						@components.IconFile("icon-xl")
 						<h3 style="font-size:1.15rem; font-weight:700; margin:1rem 0 0.5rem 0; color:var(--text);">اختر ملف النواقص أو الطلبيات</h3>
 						<p style="color:var(--text-secondary); font-size:0.875rem; margin-bottom:1.25rem;">يدعم النظام ملفات Excel (.xlsx, .xls) وملفات CSV النصية حتى 20 ميجابايت.</p>
-						<input type="file" name="automation_file" accept=".xlsx,.xls,.csv" required class="form-control" style="max-width:360px; margin:0 auto;" />
+						<input type="file" name="automation_file" accept=".xlsx,.xls,.csv" required class="form-input" style="max-width:360px; margin:0 auto;" />
 					</div>
 
 					<!-- Priority Toggles -->
@@ -84,7 +84,7 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 						<div>
 							<label class="form-label" style="font-weight:600; display:block; margin-bottom:0.5rem;">الحد الأقصى للميزانية (اختياري)</label>
 							<div class="row-center-sm">
-								<input type="text" name="budget_constraint" placeholder="مثال: 50000.00" class="form-control" />
+								<input type="text" name="budget_constraint" placeholder="مثال: 50000.00" class="form-input" />
 								<span style="font-weight:600; color:var(--text-secondary);">ج.م</span>
 							</div>
 						</div>
@@ -126,11 +126,11 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 										<td>{ h.TotalValue.String() } ج.م</td>
 										<td>
 											if h.Status == workflow.AutomationStatusApproved || h.Status == workflow.AutomationStatusCompleted {
-												<span class="badge badge-success">جاهز للاعتماد</span>
+												<span class="badge badge-emerald">جاهز للاعتماد</span>
 											} else if h.Status == workflow.AutomationStatusProcessing {
 												<span class="badge badge-primary">قيد المعالجة</span>
 											} else {
-												<span class="badge badge-danger">فشل</span>
+												<span class="badge badge-rose">فشل</span>
 											}
 										</td>
 										<td>
@@ -295,7 +295,7 @@ templ CustomerAutomationDetailPage(lang, dir string, req *workflow.AutomationReq
 										<td><strong style="color:var(--emerald-600);">75.00 ج.م</strong></td>
 										<td><span class="badge badge-emerald">25.0%</span></td>
 										<td><strong>{ fmt.Sprintf("%.2f", float64(line.Quantity)*75.0) } ج.م</strong></td>
-										<td><span class="badge badge-success">95%</span></td>
+										<td><span class="badge badge-emerald">95%</span></td>
 									</tr>
 								}
 							} else {
@@ -359,11 +359,11 @@ templ CustomerAutomationPreviousPage(lang, dir string, list []*workflow.Automati
 										<td>{ req.TotalValue.String() } ج.م</td>
 										<td>
 											if req.Status == workflow.AutomationStatusApproved || req.Status == workflow.AutomationStatusCompleted {
-												<span class="badge badge-success">جاهز للاعتماد</span>
+												<span class="badge badge-emerald">جاهز للاعتماد</span>
 											} else if req.Status == workflow.AutomationStatusProcessing {
 												<span class="badge badge-primary">قيد المعالجة</span>
 											} else {
-												<span class="badge badge-danger">فشل</span>
+												<span class="badge badge-rose">فشل</span>
 											}
 										</td>
 										<td>{ req.CreatedAt.Format("2006-01-02 15:04") }</td>

@@ -161,13 +161,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					<form method="POST" action="/customer/branches/new" style="display:flex; flex-direction:column; gap:1.1rem;">
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									اسم الفرع بالعربية <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name_ar" required placeholder="صيدلية الأمل - فرع المعادي" class="form-input w-full"/>
 							</div>
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									اسم الفرع بالإنجليزية
 								</label>
 								<input type="text" name="name_en" placeholder="Al Amal Pharmacy - Maadi" class="form-input w-full"/>
@@ -176,13 +176,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									كود الفرع الداخلي
 								</label>
 								<input type="text" name="code" placeholder="PH-01" class="form-input tabular-nums w-full"/>
 							</div>
 							<div>
-								<label class="field-label">
+								<label class="form-label">
 									المحافظة / المدينة <span class="text-danger">*</span>
 								</label>
 								<select name="city_id" required class="form-input w-full">
@@ -201,14 +201,14 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								العنوان التفصيلي <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input w-full"/>
 						</div>
 
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								رقم الهاتف للتواصل
 							</label>
 							<input type="tel" name="phone" placeholder="01012345678" class="form-input tabular-nums w-full"/>
@@ -232,7 +232,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 						<!-- Google Maps URL Input -->
 						<div>
-							<label class="field-label">
+							<label class="form-label">
 								🔗 رابط خرائط Google (Google Maps URL)
 							</label>
 							<input type="url" name="google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input" style="width:100%; font-size:0.8rem;"/>

@@ -171,7 +171,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 						🚚
 					</div>
 					<div>
-						<h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0;">
+						<h1 class="text-2xl fw-800 text-primary m-0">
 							جدول التغطية الجغرافية والتوصيل الأسبوعي
 						</h1>
 						<p style="color:var(--text-muted); font-size:0.875rem; margin:0.25rem 0 0 0;">
@@ -201,7 +201,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				<!-- Quick Metrics Grid -->
 				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem;">
 					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.4rem; border-inline-start:4px solid var(--accent);">
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">إجمالي نطاقات التغطية</div>
+						<div class="text-sm fw-700 text-muted">إجمالي نطاقات التغطية</div>
 						<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
 							{ fmt.Sprintf("%d", len(data.Coverages)) }
 						</div>
@@ -209,7 +209,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 					</div>
 
 					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.4rem; border-inline-start:4px solid var(--success);">
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">الفروع والمستودعات</div>
+						<div class="text-sm fw-700 text-muted">الفروع والمستودعات</div>
 						<div style="font-size:1.85rem; font-weight:800; color:var(--success); margin-top:0.25rem;" class="tabular-nums">
 							{ fmt.Sprintf("%d", len(data.Branches)) }
 						</div>
@@ -217,7 +217,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 					</div>
 
 					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.4rem; border-inline-start:4px solid var(--info);">
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">أيام التغطية المفعلة</div>
+						<div class="text-sm fw-700 text-muted">أيام التغطية المفعلة</div>
 						<div style="font-size:1.85rem; font-weight:800; color:var(--info); margin-top:0.25rem;" class="tabular-nums">
 							{ fmt.Sprintf("%d / 7", countActiveDays(data.Coverages)) }
 						</div>
@@ -225,7 +225,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 					</div>
 
 					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.4rem; border-inline-start:4px solid var(--secondary);">
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">شرائح تسعير الشحن</div>
+						<div class="text-sm fw-700 text-muted">شرائح تسعير الشحن</div>
 						<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
 							{ fmt.Sprintf("%d", len(data.Bands)) }
 						</div>
@@ -254,7 +254,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 							{{ dayCovs := coveragesForDay(data.Coverages, dayIdx) }}
 							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem; display:flex; flex-direction:column; justify-content:space-between; min-height:140px; transition:border-color 0.2s;" class="day-matrix-card">
 								<div>
-									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+									<div class="flex-between mb-sm">
 										<span class={ "badge", dayBadgeClass(dayIdx) } style="font-weight:700; font-size:0.8rem;">
 											{ dayNameArabic(dayIdx) }
 										</span>
@@ -563,10 +563,10 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 								
 								<!-- Quick distance presets -->
 								<div style="display:flex; gap:0.4rem; margin-top:0.4rem; flex-wrap:wrap;">
-									<button type="button" @click="setAddDistance(10000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">10 كم</button>
-									<button type="button" @click="setAddDistance(25000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">25 كم</button>
-									<button type="button" @click="setAddDistance(50000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">50 كم</button>
-									<button type="button" @click="setAddDistance(100000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">100 كم</button>
+									<button type="button" @click="setAddDistance(10000)" class="btn btn-xs btn-secondary text-xs">10 كم</button>
+									<button type="button" @click="setAddDistance(25000)" class="btn btn-xs btn-secondary text-xs">25 كم</button>
+									<button type="button" @click="setAddDistance(50000)" class="btn btn-xs btn-secondary text-xs">50 كم</button>
+									<button type="button" @click="setAddDistance(100000)" class="btn btn-xs btn-secondary text-xs">100 كم</button>
 								</div>
 							</div>
 
@@ -588,9 +588,9 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 									</div>
 								</div>
 								<div style="display:flex; gap:0.4rem; margin-top:0.4rem; flex-wrap:wrap;">
-									<button type="button" @click="setAddTime('09:00', '17:00')" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">صباحي (9 - 5)</button>
-									<button type="button" @click="setAddTime('16:00', '23:00')" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">مسائي (4 - 11)</button>
-									<button type="button" @click="setAddTime('', '')" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">طوال اليوم</button>
+									<button type="button" @click="setAddTime('09:00', '17:00')" class="btn btn-xs btn-secondary text-xs">صباحي (9 - 5)</button>
+									<button type="button" @click="setAddTime('16:00', '23:00')" class="btn btn-xs btn-secondary text-xs">مسائي (4 - 11)</button>
+									<button type="button" @click="setAddTime('', '')" class="btn btn-xs btn-secondary text-xs">طوال اليوم</button>
 								</div>
 							</div>
 
@@ -704,10 +704,10 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 								<input type="number" name="distance_meters" x-model="editCov.distance_meters" min="500" max="500000" step="500" class="form-input" required style="width:100%; padding:0.6rem 0.8rem; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface-sunken); color:var(--text); font-size:0.9rem;"/>
 								
 								<div style="display:flex; gap:0.4rem; margin-top:0.35rem; flex-wrap:wrap;">
-									<button type="button" @click="setEditDistance(10000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">10 كم</button>
-									<button type="button" @click="setEditDistance(25000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">25 كم</button>
-									<button type="button" @click="setEditDistance(50000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">50 كم</button>
-									<button type="button" @click="setEditDistance(100000)" class="btn btn-xs btn-secondary" style="font-size:0.72rem;">100 كم</button>
+									<button type="button" @click="setEditDistance(10000)" class="btn btn-xs btn-secondary text-xs">10 كم</button>
+									<button type="button" @click="setEditDistance(25000)" class="btn btn-xs btn-secondary text-xs">25 كم</button>
+									<button type="button" @click="setEditDistance(50000)" class="btn btn-xs btn-secondary text-xs">50 كم</button>
+									<button type="button" @click="setEditDistance(100000)" class="btn btn-xs btn-secondary text-xs">100 كم</button>
 								</div>
 							</div>
 

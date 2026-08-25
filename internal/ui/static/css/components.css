@@ -590,6 +590,16 @@ dialog.modal::backdrop {
 .p-card-sm  { padding: 1.25rem; }
 .p-modal    { padding: 2rem; }
 
+.tab-btn-header {
+	font-weight: 800;
+	border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+	padding: 0.65rem 1.25rem;
+}
+
+.overflow-visible { overflow: visible !important; }
+.overflow-hidden  { overflow: hidden !important; }
+.overflow-auto    { overflow: auto !important; }
+
 .inline       { display: inline; }
 .inline-block { display: inline-block; }
 .block        { display: block; }
@@ -1366,4 +1376,380 @@ dialog.modal::backdrop {
 @media (prefers-reduced-motion: reduce) {
 	.wiz-progress-fill { transition: none; }
 	.wiz-progress-fill.is-indeterminate { animation: none; width: 100%; opacity: 0.5; }
+}
+
+/* ===========================================================================
+   Auth, Registration & Onboarding Suite
+   =========================================================================== */
+.auth-page-wrapper {
+	min-height: 100dvh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem 1.5rem;
+	background: radial-gradient(circle at 50% 20%, rgba(2, 132, 199, 0.08) 0%, transparent 65%), var(--surface);
+}
+.auth-card {
+	width: 100%;
+	max-width: 460px;
+	margin-bottom: 0;
+	padding: 2.5rem;
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-2xl);
+	box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+.auth-card-wide {
+	width: 100%;
+	max-width: 680px;
+	margin-bottom: 0;
+	padding: 2.5rem;
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-2xl);
+	box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+.auth-header {
+	text-align: center;
+	margin-bottom: 2rem;
+}
+.auth-title {
+	font-size: 1.5rem;
+	font-weight: 800;
+	color: var(--text);
+	margin: 0.5rem 0 0.25rem 0;
+}
+.auth-subtitle {
+	font-size: 0.875rem;
+	color: var(--text-secondary);
+	margin: 0;
+}
+.auth-footer {
+	text-align: center;
+	margin-top: 1.75rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--border);
+	font-size: 0.875rem;
+	color: var(--text-secondary);
+}
+
+.auth-stepper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 2rem;
+	position: relative;
+	gap: 0.5rem;
+}
+.auth-step {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.825rem;
+	font-weight: 700;
+	color: var(--text-muted);
+}
+.auth-step.active { color: var(--accent); }
+.auth-step.done   { color: var(--success, #10b981); }
+.auth-step-bubble {
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-full);
+	border: 1px solid var(--border);
+	background: var(--surface-sunken);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.85rem;
+	font-weight: 800;
+}
+.auth-step.active .auth-step-bubble {
+	border-color: var(--accent);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.auth-step.done .auth-step-bubble {
+	border-color: var(--success, #10b981);
+	background: color-mix(in srgb, var(--success, #10b981) 12%, var(--surface));
+	color: var(--success, #10b981);
+}
+
+.type-selector-card {
+	display: block;
+	padding: 1.25rem;
+	border: 1.5px solid var(--border);
+	border-radius: var(--radius-xl);
+	background: var(--surface-raised);
+	cursor: pointer;
+	transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+	text-align: start;
+}
+.type-selector-card:hover {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 4%, var(--surface-raised));
+	transform: translateY(-2px);
+}
+.type-selector-card.selected {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 8%, var(--surface-raised));
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.pwd-strength-bar {
+	height: 4px;
+	border-radius: var(--radius-full);
+	background: var(--border);
+	overflow: hidden;
+	margin-top: 0.35rem;
+	display: flex;
+	gap: 2px;
+}
+.pwd-strength-seg {
+	flex: 1;
+	height: 100%;
+	background: transparent;
+	transition: background 0.2s ease;
+}
+.pwd-checklist {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	font-size: 0.75rem;
+	color: var(--text-muted);
+	margin-top: 0.5rem;
+}
+.pwd-checklist-item {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+.pwd-checklist-item.valid {
+	color: var(--success, #10b981);
+	font-weight: 600;
+}
+
+/* ===========================================================================
+   Compare Suite & Workspace
+   =========================================================================== */
+.compare-workspace-grid {
+	display: grid;
+	grid-template-columns: 1.25fr 1fr 1fr;
+	gap: 1.25rem;
+	align-items: start;
+}
+@media (max-width: 1100px) {
+	.compare-workspace-grid { grid-template-columns: 1fr; }
+}
+.file-selection-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.85rem 1rem;
+	background: var(--surface-sunken);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	transition: all 0.15s ease;
+}
+.file-selection-card:hover {
+	border-color: var(--accent);
+	background: var(--surface-raised);
+}
+.file-item-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.65rem 0.85rem;
+	border-radius: var(--radius-md);
+	border: 1px solid var(--border);
+	background: var(--surface);
+	transition: background 0.12s ease;
+}
+.file-item-row:hover {
+	background: var(--surface-sunken);
+	border-color: var(--accent);
+}
+
+/* ===========================================================================
+   Market Discounts & Public Highlights
+   =========================================================================== */
+.market-banner {
+	padding: 1.75rem 2rem;
+	border-radius: var(--radius-2xl);
+	background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--surface-raised)), var(--surface-raised));
+	border: 1px solid var(--border);
+	margin-bottom: 1.5rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1.25rem;
+}
+.market-filter-card {
+	padding: 1.25rem 1.5rem;
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-xl);
+	margin-bottom: 1.5rem;
+}
+.market-list-row {
+	transition: background-color 0.12s ease;
+}
+.market-list-row:hover {
+	background-color: var(--surface-sunken);
+}
+.market-savings-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: var(--radius-full);
+	background: color-mix(in srgb, var(--success, #10b981) 12%, transparent);
+	color: var(--success-text, #065f46);
+	font-weight: 800;
+	font-size: 0.825rem;
+}
+
+/* ===========================================================================
+   Marketing & Public Primitives
+   =========================================================================== */
+.marketing-hero {
+	padding: 3.5rem 1.5rem;
+	text-align: center;
+	max-width: 860px;
+	margin: 0 auto 2.5rem auto;
+}
+.hero-badge-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.35rem 0.95rem;
+	border-radius: var(--radius-full);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	font-weight: 800;
+	font-size: 0.825rem;
+	border: 1px solid var(--border);
+	margin-bottom: 1.25rem;
+}
+.search-suggestion-tag {
+	font-size: 0.775rem;
+	padding: 0.25rem 0.65rem;
+	border-radius: var(--radius-full);
+	background: var(--surface-sunken);
+	border: 1px solid var(--border);
+	color: var(--text-secondary);
+	text-decoration: none;
+	transition: all 150ms ease;
+	white-space: nowrap;
+}
+.search-suggestion-tag:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+	background: var(--accent-subtle);
+}
+.product-catalog-card {
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-xl);
+	padding: var(--space-5);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.product-catalog-card:hover {
+	border-color: var(--accent);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-sm);
+}
+.category-tile-card {
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	padding: 1.25rem 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	text-align: center;
+	text-decoration: none;
+	color: var(--text);
+	transition: all 150ms ease;
+}
+.category-tile-card:hover {
+	border-color: var(--accent);
+	background: var(--accent-subtle);
+	transform: translateY(-2px);
+}
+.feature-benefit-card {
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-xl);
+	padding: 1.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+.feature-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2.5rem;
+}
+.contact-layout {
+	display: grid;
+	grid-template-columns: 1fr 1.35fr;
+	gap: 2rem;
+	align-items: start;
+}
+@media (max-width: 860px) {
+	.contact-layout { grid-template-columns: 1fr; }
+}
+.contact-channel-card {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1.15rem 1.25rem;
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-xl);
+	transition: border-color 0.15s ease;
+}
+.contact-channel-card:hover {
+	border-color: var(--accent);
+}
+.supplier-section-btn {
+	padding: 0.6rem 1.15rem;
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--border);
+	background: var(--surface-raised);
+	color: var(--text-secondary);
+	font-weight: 700;
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+}
+.supplier-section-btn:hover,
+.supplier-section-btn.active {
+	border-color: var(--accent);
+	background: var(--accent);
+	color: #ffffff;
+}
+
+/* ===========================================================================
+   AI & Processing Keyframes
+   =========================================================================== */
+@keyframes ai-pulse {
+	0%, 100% { opacity: 1; transform: scale(1); }
+	50%      { opacity: 0.65; transform: scale(0.97); }
+}
+@keyframes indeterminate-progress {
+	0%   { transform: translateX(-100%); }
+	50%  { transform: translateX(0%); }
+	100% { transform: translateX(100%); }
 }

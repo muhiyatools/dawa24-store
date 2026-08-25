@@ -34,7 +34,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 		if data.Subscription != nil && data.Subscription.HasSubscription {
 			<div class="card" style="margin-bottom:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<div style="display:flex; align-items:center; gap:0.6rem;">
+					<div class="row-center-sm">
 						<span class="text-xl">🏢</span>
 						<div>
 							<h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">
@@ -147,7 +147,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
 			<div class="b2b-table-card p-card-sm">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+				<div class="flex-between mb-md">
 					<h2 class="card-title" style="margin:0; font-size:1.1rem; font-weight:700;">متابعة الطلبات</h2>
 					<a href="/orders" class="btn btn-secondary btn-sm fw-600">كل الطلبات</a>
 				</div>
@@ -157,7 +157,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						Message: "ابدأ التصفح وأضف منتجات لسلتك لإنشاء طلبيتك الأولى.",
 					})
 				} else {
-					<div class="b2b-table-container">
+					<div class="table-container">
 						<table class="b2b-table">
 							<thead>
 								<tr>
@@ -181,7 +181,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 			</div>
 
 			<div class="b2b-table-card p-card-sm">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+				<div class="flex-between mb-md">
 					<h2 class="card-title" style="margin:0; font-size:1.1rem; font-weight:700;">عروض توريد مقترحة لك</h2>
 					<a href="/offers" class="btn btn-secondary btn-sm fw-600">كل العروض</a>
 				</div>

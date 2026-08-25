@@ -42,14 +42,14 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
 						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
-							<span style="font-size:1.4rem;">⚠️</span>
+							<span class="text-2xl">⚠️</span>
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
 				} else {
 					<div class="alert alert-success" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
 						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
-							<span style="font-size:1.4rem;">✅</span>
+							<span class="text-2xl">✅</span>
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
@@ -250,7 +250,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 										</td>
 
 										<!-- Org Product Name -->
-										<td style="padding:0.85rem 1rem;">
+										<td class="p-sm">
 											<strong style="color:var(--text); font-size:0.95rem;">{ item.NameProduct }</strong>
 										</td>
 
@@ -385,7 +385,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		<div id="saving-product-modal" class="modal-overlay hidden">
 			<div class="card" style="max-width:620px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-					<h3 id="modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+					<h3 id="modal-title" class="text-xl fw-900 text-primary m-0">
 						إضافة منتج مساعدة جديد
 					</h3>
 					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeCreateModal()">
@@ -400,7 +400,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						
 						<!-- Product Name -->
 						<div>
-							<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+							<label class="form-label text-sm fw-700 text-primary">
 								اسم الصنف الدوائي للمنظمة <span class="text-danger">*</span>
 							</label>
 							<input
@@ -417,7 +417,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						<!-- SKU & Qty Row -->
 						<div class="grid-2">
 							<div>
-								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+								<label class="form-label text-sm fw-700 text-primary">
 									رمز SKU (اختياري)
 								</label>
 								<input
@@ -431,7 +431,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							</div>
 
 							<div>
-								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+								<label class="form-label text-sm fw-700 text-primary">
 									الكمية المتوفرة
 								</label>
 								<input
@@ -448,7 +448,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 						<!-- Price Row -->
 						<div>
-							<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
+							<label class="form-label text-sm fw-700 text-primary">
 								السعر المستهدف / سعر الوحدة (ج.م)
 							</label>
 							<input
@@ -510,8 +510,8 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 			<div class="card" style="max-width:600px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 					<div class="row-center-sm">
-						<span style="font-size:1.4rem;">📥</span>
-						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+						<span class="text-2xl">📥</span>
+						<h3 class="text-xl fw-900 text-primary m-0">
 							استيراد ملف منتجات المساعدة (Excel / CSV)
 						</h3>
 					</div>
@@ -533,7 +533,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							<strong style="color:var(--text); font-size:1rem; display:block; margin-bottom:0.25rem;">
 								انقر هنا لاختيار الملف أو اسحبه هنا
 							</strong>
-							<p style="color:var(--text-muted); font-size:0.8rem; margin:0;">
+							<p class="text-sm text-muted m-0">
 								يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 10 ميجابايت
 							</p>
 							<div id="import-filename-preview" style="margin-top:0.75rem; font-weight:800; color:var(--accent); font-size:0.85rem;"></div>
@@ -554,7 +554,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							<label style="font-weight:800; color:var(--text); font-size:0.875rem; display:block; margin-bottom:0.5rem;">
 								طريقة المعالجة والتحديث:
 							</label>
-							<div style="display:flex; gap:1rem;">
+							<div class="row-center gap-lg">
 								<label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; color:var(--text); cursor:pointer;">
 									<input type="radio" name="import_mode" value="add_or_update" checked style="accent-color:var(--accent);" />
 									<span>إضافة وتحديث الأصناف المتطابقة</span>
@@ -591,7 +591,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 			<div class="card" style="max-width:860px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 					<div>
-						<h3 id="providers-modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+						<h3 id="providers-modal-title" class="text-xl fw-900 text-primary m-0">
 							عروض الموردين والمنظمات المتوفرة
 						</h3>
 						<p id="providers-modal-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;"></p>

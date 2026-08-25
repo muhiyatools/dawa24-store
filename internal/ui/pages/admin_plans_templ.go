@@ -90,7 +90,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"adminPlansManager()\" class=\"stack-lg\"><!-- Top KPI & Overview Header --><div class=\"card mb-0\" style=\"border:1px solid var(--border); padding:1.25rem 1.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem;\"><h1 class=\"card-title\" style=\"margin:0; font-size:1.4rem; font-weight:800; color:var(--text);\">باقات واشتراكات المنظومة الموحدة</h1><span class=\"badge badge-primary text-sm fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"adminPlansManager()\" class=\"stack-lg\"><!-- Top KPI & Overview Header --><div class=\"card mb-0\" style=\"border:1px solid var(--border); padding:1.25rem 1.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;\"><div><div class=\"row-center-sm\"><h1 class=\"card-title\" style=\"margin:0; font-size:1.4rem; font-weight:800; color:var(--text);\">باقات واشتراكات المنظومة الموحدة</h1><span class=\"badge badge-primary text-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -113,7 +113,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"badge badge-warning\" style=\"padding:0.2rem 0.5rem; font-size:0.75rem;\" title=\"جاري الاتصال بـ Endpoint\">جاهزة للربط</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"badge badge-amber\" style=\"padding:0.2rem 0.5rem; font-size:0.75rem;\" title=\"جاري الاتصال بـ Endpoint\">جاهزة للربط</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

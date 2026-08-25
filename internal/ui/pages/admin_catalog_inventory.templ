@@ -44,9 +44,9 @@ templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 					<div class="text-sm text-secondary">الحالة</div>
 					<div style="margin-top:0.25rem;">
 						if p.Status == catalog.StatusActive {
-							<span class="badge badge-success">نشط ومتاح</span>
+							<span class="badge badge-emerald">نشط ومتاح</span>
 						} else {
-							<span class="badge badge-danger">معطل</span>
+							<span class="badge badge-rose">معطل</span>
 						}
 					</div>
 				</div>
@@ -115,7 +115,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 						Message: "لم يقم الموردون بتسجيل أصناف أو عروض توريد مطابقة لبحثك بعد.",
 					})
 				} else {
-					<div class="table-container" style="overflow:visible;">
+					<div class="table-container overflow-visible">
 						<table class="b2b-table">
 							<thead>
 								<tr>
@@ -208,7 +208,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 													{ fmt.Sprintf("%d", v.StockQty) } وحدة
 												</span>
 											} else {
-												<span class="badge badge-danger" style="font-size:0.825rem; font-weight:800;">
+												<span class="badge badge-rose" style="font-size:0.825rem; font-weight:800;">
 													نفذ المخزون (0)
 												</span>
 											}
@@ -226,7 +226,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											} else if string(v.Status) == "pending" {
 												<span class="badge badge-sky">قيد التدقيق</span>
 											} else if string(v.Status) == "rejected" {
-												<span class="badge badge-danger">مرفوض</span>
+												<span class="badge badge-rose">مرفوض</span>
 											} else {
 												<span class="badge badge-slate">موقوف / معطل</span>
 											}
@@ -239,7 +239,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											} else if item.IsParentImage {
 												<span class="badge badge-sky" style="font-size:11px; font-weight:700;" title="تم استخدام صورة الصنف الأساسي المعتمد">من الصنف الأساسي ⮞</span>
 											} else {
-												<span class="badge badge-warning" style="font-size:11px; font-weight:700;">غير متوفرة ⚠️</span>
+												<span class="badge badge-amber" style="font-size:11px; font-weight:700;">غير متوفرة ⚠️</span>
 											}
 										</td>
 
@@ -543,7 +543,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 						<!-- Empty State inside modal -->
 						<div x-show="!loading && !error && filteredStocks.length === 0" style="padding:3rem 1rem; text-align:center;">
 							<div style="font-size:2.5rem; margin-bottom:0.5rem;"></div>
-							<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">لا توجد أصناف مخزنة مطابقة</h4>
+							<h4 class="text-base fw-800 text-primary m-0">لا توجد أصناف مخزنة مطابقة</h4>
 							<p style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem;">لم يتم تسجيل أي رصيد مخزني لهذا المستودع يطابق معايير البحث.</p>
 						</div>
 
@@ -583,16 +583,16 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 											</td>
 											<td>
 												<span class="badge badge-amber" x-show="st.is_negotiable" style="font-size:0.725rem; font-weight:800;">نعم</span>
-												<span class="badge badge-slate" x-show="!st.is_negotiable" style="font-size:0.725rem;">لا (ثابت)</span>
+												<span class="badge badge-slate text-xs" x-show="!st.is_negotiable">لا (ثابت)</span>
 											</td>
 											<td class="tabular-nums">
 												<strong class="text-base" :style="st.quantity > st.min_threshold ? 'color:var(--primary-600);' : 'color:var(--danger-text);'" x-text="st.quantity"></strong>
 											</td>
 											<td class="tabular-nums" style="color:var(--text-muted); font-size:0.85rem;" x-text="st.min_threshold"></td>
 											<td>
-												<span class="badge badge-success" x-show="st.quantity > st.min_threshold">متوفر</span>
+												<span class="badge badge-emerald" x-show="st.quantity > st.min_threshold">متوفر</span>
 												<span class="badge badge-amber" x-show="st.quantity > 0 && st.quantity <= st.min_threshold">منخفض</span>
-												<span class="badge badge-danger" x-show="st.quantity <= 0">نفد المخزون</span>
+												<span class="badge badge-rose" x-show="st.quantity <= 0">نفد المخزون</span>
 											</td>
 										</tr>
 									</template>
@@ -677,13 +677,13 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 							<div class="b2b-icon-box">
 								@components.IconTag("icon-md")
 							</div>
-							<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">منتجات التوفير لجميع مستخدمي المنصة</h1>
+							<h1 class="text-xl fw-800 text-primary m-0">منتجات التوفير لجميع مستخدمي المنصة</h1>
 						</div>
-						<p style="font-size:0.9rem; color:var(--text-secondary); margin:0;">
+						<p class="text-sm text-secondary m-0">
 							متابعة ورصد قوائم منتجات التوفير والأسعار المستهدفة المسجلة من قبل الصيدليات والعملاء بالمنظومة.
 						</p>
 					</div>
-					<div style="display:flex; gap:0.75rem;">
+					<div class="row-center">
 						<a href="/admin/saving-products" class="btn btn-secondary btn-sm row-center-sm">
 							@components.IconRefresh("icon-xs")
 							<span>تحديث البيانات</span>
@@ -716,8 +716,8 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 					<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface);">
 						<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.35rem;">حالة الربط بالكتالوج</div>
 						<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
-							<span class="badge badge-success" style="font-size:0.825rem; padding:0.3rem 0.6rem;">{ fmt.Sprintf("%d", data.Stats.CountLinked) } مربوط</span>
-							<span class="badge badge-warning" style="font-size:0.825rem; padding:0.3rem 0.6rem;">{ fmt.Sprintf("%d", data.Stats.CountUnlinked) } غير مربوط</span>
+							<span class="badge badge-emerald" style="font-size:0.825rem; padding:0.3rem 0.6rem;">{ fmt.Sprintf("%d", data.Stats.CountLinked) } مربوط</span>
+							<span class="badge badge-amber" style="font-size:0.825rem; padding:0.3rem 0.6rem;">{ fmt.Sprintf("%d", data.Stats.CountUnlinked) } غير مربوط</span>
 						</div>
 						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">ربط مع الأدوية المعتمدة</div>
 					</div>
@@ -866,7 +866,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 										<td>
 											if item.ProductID != nil && *item.ProductID > 0 {
 												<div>
-													<span class="badge badge-success" style="font-size:0.75rem; padding:2px 8px; display:inline-flex; align-items:center; gap:4px; margin-bottom:3px;">
+													<span class="badge badge-emerald" style="font-size:0.75rem; padding:2px 8px; display:inline-flex; align-items:center; gap:4px; margin-bottom:3px;">
 														@components.IconCheck("icon-xs")
 														<span>مربوط: #{ fmt.Sprintf("%d", *item.ProductID) }</span>
 													</span>
@@ -875,7 +875,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 													</div>
 												</div>
 											} else {
-												<span class="badge badge-warning" style="font-size:0.75rem; padding:2px 8px;">
+												<span class="badge badge-amber" style="font-size:0.75rem; padding:2px 8px;">
 													غير مربوط بكتالوج
 												</span>
 											}

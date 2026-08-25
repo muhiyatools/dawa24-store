@@ -204,7 +204,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><div style=\"display:flex; gap:0.5rem;\"><a href=\"/admin/approvals\" class=\"btn btn-primary btn-sm fw-700\">فحص واعتماد</a></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><div class=\"row-center-sm\"><a href=\"/admin/approvals\" class=\"btn btn-primary btn-sm fw-700\">فحص واعتماد</a></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

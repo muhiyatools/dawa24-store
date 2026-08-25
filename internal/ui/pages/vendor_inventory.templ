@@ -42,12 +42,12 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 				<!-- Inventory Metrics -->
 				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">إجمالي الأصناف بالمخزن</div>
+						<div class="form-label">إجمالي الأصناف بالمخزن</div>
 						<div style="font-size:1.65rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(stocks)) }</div>
 					</div>
 
 					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">إجمالي العبوات المتوفرة</div>
+						<div class="form-label">إجمالي العبوات المتوفرة</div>
 						<div style="font-size:1.65rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								total := 0
@@ -60,7 +60,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 					</div>
 
 					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">تنبيهات انخفاض المخزون</div>
+						<div class="form-label">تنبيهات انخفاض المخزون</div>
 						<div style="font-size:1.65rem; font-weight:900; color:var(--warning-text);" class="tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								low := 0
@@ -75,7 +75,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 					</div>
 
 					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-bottom:0.35rem;">المستودعات المغذية</div>
+						<div class="form-label">المستودعات المغذية</div>
 						<div style="font-size:1.65rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
 					</div>
 				</div>
@@ -208,9 +208,9 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 							</td>
 							<td>
 								if s.Quantity > 0 {
-									<span class="badge badge-success">جاهز للبيع</span>
+									<span class="badge badge-emerald">جاهز للبيع</span>
 								} else {
-									<span class="badge badge-danger">غير متوفر</span>
+									<span class="badge badge-rose">غير متوفر</span>
 								}
 							</td>
 							<td class="text-end">

@@ -39,8 +39,7 @@ func buildAdminBrandsPageURL(page, limit int, q, status string) string {
 templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize int, searchQuery, statusFilter, lang, dir string) {
 	@layouts.AdminShell("دليل الشركات المصنعة والماركات", "brands", lang, dir) {
 		<div
-			class="card mb-0"
-			style="overflow:visible;"
+			class="card mb-0 overflow-visible"
 			x-data="{
 				isCreateModalOpen: false,
 				isEditModalOpen: false,
@@ -128,7 +127,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 					</select>
 				</div>
 
-				<div style="display:flex; gap:0.5rem;">
+				<div class="row-center-sm">
 					<button type="submit" class="btn btn-primary" style="font-weight:700; padding:0.5rem 1rem;">
 						تصفية
 					</button>

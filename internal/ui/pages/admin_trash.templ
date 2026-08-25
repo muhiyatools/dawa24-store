@@ -47,9 +47,9 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 								<td><strong>{ m.NameAr }</strong></td>
 								<td class="tabular-nums">
 									if m.TrashedCount > 0 {
-										<span class="badge badge-danger">{ fmt.Sprintf("%d محذوف", m.TrashedCount) }</span>
+										<span class="badge badge-rose">{ fmt.Sprintf("%d محذوف", m.TrashedCount) }</span>
 									} else {
-										<span class="badge badge-success">فارغ</span>
+										<span class="badge badge-emerald">فارغ</span>
 									}
 								</td>
 								<td class="text-end">

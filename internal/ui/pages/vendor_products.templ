@@ -41,14 +41,14 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 					if data.NoticeType == "error" {
 						<div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
 							<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
-								<span style="font-size:1.4rem;">⚠️</span>
+								<span class="text-2xl">⚠️</span>
 								<span>{ data.NoticeMsg }</span>
 							</div>
 						</div>
 					} else {
 						<div class="alert alert-success" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
 							<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
-								<span style="font-size:1.4rem;">✅</span>
+								<span class="text-2xl">✅</span>
 								<span>{ data.NoticeMsg }</span>
 							</div>
 						</div>
@@ -179,8 +179,8 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				<div class="card" style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 						<div class="row-center-sm">
-							<span style="font-size:1.4rem;">🌐</span>
-							<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+							<span class="text-2xl">🌐</span>
+							<h3 class="text-xl fw-900 text-primary m-0">
 								إضافة صنف من الكتالوج المركزي العام
 							</h3>
 						</div>
@@ -382,7 +382,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			<div id="edit-variant-modal" class="modal-overlay hidden">
 				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-						<h3 id="edit-modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+						<h3 id="edit-modal-title" class="text-xl fw-900 text-primary m-0">
 							تعديل بيانات وسعر صنف التوريد
 						</h3>
 						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditVariantModal()">
@@ -548,7 +548,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			<div id="add-custom-variant-modal" class="modal-overlay hidden">
 				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+						<h3 class="text-xl fw-900 text-primary m-0">
 							إضافة صنف أو تنويعة توريد مخصصة
 						</h3>
 						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddCustomVariantModal()">
@@ -870,7 +870,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 			ActionURL:   "#",
 		})
 	} else {
-		<div class="b2b-table-container">
+		<div class="table-container">
 			<table class="b2b-table" style="min-width:1050px;">
 				<thead>
 					<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
@@ -907,7 +907,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							style="border-bottom:1px solid var(--border); transition:background 0.15s;"
 						>
 							<!-- Product Info & Avatar -->
-							<td style="padding:1rem 1.25rem;">
+							<td class="p-card-sm">
 								<div style="display:flex; align-items:center; gap:0.85rem;">
 									<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
 										if v.MasterProduct != nil && v.MasterProduct.Image != "" {
@@ -940,7 +940,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 
 							<!-- Variant Name & SKU -->
 							<td class="p-md">
-								<div style="font-weight:700; color:var(--text); font-size:0.875rem;">
+								<div class="text-sm fw-700 text-primary">
 									{ v.Variant.Name.Get(i18n.Lang(lang)) }
 								</div>
 								if v.Variant.SKU != "" {

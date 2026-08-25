@@ -76,8 +76,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'all' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'all' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('all')"
 				>
 					@components.IconUser("icon-xs")
@@ -87,8 +86,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'pharmacies' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'pharmacies' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('pharmacies')"
 				>
 					@components.IconBuilding("icon-xs")
@@ -98,8 +96,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'suppliers' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'suppliers' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('suppliers')"
 				>
 					@components.IconTruck("icon-xs")
@@ -109,8 +106,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'staff' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem;"
+					:class="activeTab === 'staff' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
 					@click="setTab('staff')"
 				>
 					@components.IconShield("icon-xs")
@@ -127,7 +123,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 					@components.IconTrash("icon-xs")
 					<span>طلبات حذف الحسابات</span>
 					if countPendingDeletions(data.DeletionRequests) > 0 {
-						<span class="badge badge-danger" style="font-size:0.7rem; font-weight:800; padding:0.15rem 0.45rem;">
+						<span class="badge badge-rose" style="font-size:0.7rem; font-weight:800; padding:0.15rem 0.45rem;">
 							{ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) }
 						</span>
 					} else {
@@ -236,7 +232,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 												if u.Status == identity.StatusActive {
 													<span class="badge badge-emerald">نشط ومفعل</span>
 												} else if u.Status == identity.StatusSuspended {
-													<span class="badge badge-danger">موقوف</span>
+													<span class="badge badge-rose">موقوف</span>
 												} else {
 													<span class="badge badge-amber">قيد المراجعة</span>
 												}

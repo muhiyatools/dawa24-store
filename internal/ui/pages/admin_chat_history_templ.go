@@ -635,7 +635,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div></div></div><div style=\"display:flex; gap:0.5rem;\"><a href=\"/admin/chat/history?tab=ai\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div></div><!-- Stats Strip --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.75rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);\"><div style=\"background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);\"><div style=\"font-size:0.725rem; color:var(--text-muted);\">إجمالي الرسائل</div><div style=\"font-size:1.15rem; font-weight:800; color:var(--text);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div></div></div><div class=\"row-center-sm\"><a href=\"/admin/chat/history?tab=ai\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div></div><!-- Stats Strip --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.75rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);\"><div style=\"background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);\"><div style=\"font-size:0.725rem; color:var(--text-muted);\">إجمالي الرسائل</div><div style=\"font-size:1.15rem; font-weight:800; color:var(--text);\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

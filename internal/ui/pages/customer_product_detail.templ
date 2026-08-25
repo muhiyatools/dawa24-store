@@ -287,7 +287,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 								for _, off := range offers {
 									<tr style="border-bottom:1px solid var(--border);" class="hover-row">
 										<!-- Supplier -->
-										<td style="padding:1rem 1.25rem;">
+										<td class="p-card-sm">
 											<div class="fw-800 text-primary">
 												{ off.SupplierName }
 												if off.IsVerified {

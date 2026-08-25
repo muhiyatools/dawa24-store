@@ -683,7 +683,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 					return templ_7745c5c3_Err
 				}
 				for _, off := range offers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<tr style=\"border-bottom:1px solid var(--border);\" class=\"hover-row\"><!-- Supplier --><td style=\"padding:1rem 1.25rem;\"><div class=\"fw-800 text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<tr style=\"border-bottom:1px solid var(--border);\" class=\"hover-row\"><!-- Supplier --><td class=\"p-card-sm\"><div class=\"fw-800 text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
