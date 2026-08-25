@@ -334,3 +334,19 @@ func (s *Service) AddSpecialOfferLocation(ctx context.Context, loc *SpecialOffer
 func (s *Service) ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*SpecialOfferLocation, error) {
 	return s.repo.ListSpecialOfferLocations(ctx, offerID)
 }
+
+// ListAllSpecialOffers lists all special offers across the platform for admin review.
+func (s *Service) ListAllSpecialOffers(ctx context.Context, limit, offset int) ([]*SpecialOffer, error) {
+	return s.repo.ListAllSpecialOffers(ctx, limit, offset)
+}
+
+// UpdateSpecialOfferAdminStatus handles approval/rejection moderation by platform staff.
+func (s *Service) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, adminStatus, notes string, approvedBy int64) error {
+	return s.repo.UpdateSpecialOfferAdminStatus(ctx, id, adminStatus, notes, approvedBy)
+}
+
+// ToggleSpecialOfferStatus activates or deactivates a special offer.
+func (s *Service) ToggleSpecialOfferStatus(ctx context.Context, id int64, isActive bool) error {
+	return s.repo.ToggleSpecialOfferStatus(ctx, id, isActive)
+}
+

@@ -3,6 +3,7 @@
 package ingest
 
 import (
+	"sort"
 	"strings"
 	"time"
 )
@@ -110,6 +111,25 @@ type ImportRow struct {
 	CreatedAt        time.Time        `json:"created_at"`
 }
 
+// RowMatchUpdate encapsulates batched match update parameters for a staged row.
+type RowMatchUpdate struct {
+	RowID            int64
+	MatchedProductID *int64
+	Score            float64
+	ConfidenceLevel  ConfidenceLevel
+	MatchReason      string
+	Candidates       []CandidateMatch
+	IsApproved       bool
+	Status           string
+}
+
+// RowActionUpdate records the committed execution action of a staged row.
+type RowActionUpdate struct {
+	RowID        int64
+	ImportAction string
+	ErrorDetails string
+}
+
 // Standard target fields expected by the catalog ingest pipeline.
 const (
 	FieldProductName   = "product_name"
@@ -129,98 +149,196 @@ const (
 	FieldConcentration = "concentration"
 )
 
-var knownColumnSynonyms = map[string][]string{
-	FieldProductName: {
-		"اسم الصنف", "اسم المنتج", "الصنف", "الاسم", "اسم الدواء", "المنتج", "اسم_الصنف", "اسم_المنتج",
-		"name", "product_name", "item_name", "item_description", "description", "product", "title",
+type columnRule struct {
+	field   string
+	exact   []string
+	strong  []string
+	weak    []string
+	blocked []string
+}
+
+const (
+	scoreExactCol  = 100
+	scoreStrongCol = 60
+	scoreWeakCol   = 25
+)
+
+var columnRules = []columnRule{
+	{
+		field: FieldBarcode,
+		exact: []string{"الباركود", "باركود", "كود دولي", "الرقم الدولي", "الباركود الدولي", "barcode", "gtin", "ean", "ean13", "upc"},
+		strong: []string{"كود دولي", "باركود دولي", "رقم باركود", "international code"},
+		weak:   []string{"باركود", "barcode"},
 	},
-	FieldPrice: {
-		"السعر", "سعر الجمهور", "سعر البيع", "سعر الوحدة", "السعر للجمهور", "سعر المستهلك", "سعر_الجمهور",
-		"price", "unit_price", "public_price", "selling_price", "retail_price",
+	{
+		field: FieldSKU,
+		exact: []string{"كود الصنف", "رقم الصنف", "كود المورد", "كود الشركة", "كود المنتج", "sku", "item code", "code", "item no", "product code"},
+		strong: []string{"كود الصنف", "رقم الصنف", "كود المورد", "كود الشركة", "item code", "product code"},
+		weak:   []string{"كود", "code", "sku"},
+		blocked: []string{"باركود", "barcode", "دولي", "gtin", "ean"},
 	},
-	FieldCostPrice: {
-		"سعر التكلفة", "سعر الشراء", "التكلفة", "سعر_التكلفة", "سعر_الشراء",
-		"cost", "cost_price", "purchase_price", "buy_price", "buying_price",
+	{
+		field: FieldCostPrice,
+		exact: []string{"سعر التكلفة", "سعر الشراء", "التكلفة", "cost price", "cost", "buy price", "purchase price"},
+		strong: []string{"سعر التكلفة", "سعر الشراء", "cost price", "purchase price"},
+		weak:   []string{"تكلفة", "cost"},
 	},
-	FieldQuantity: {
-		"الكمية", "الرصيد", "المخزون", "العدد", "كمية الصنف", "الرصيد المتاح", "كمية_المخزون", "الكميه",
-		"quantity", "qty", "stock", "balance", "count", "inventory", "available_qty",
+	{
+		field: FieldPrice,
+		exact: []string{"سعر البيع", "سعر الصيدلية", "السعر", "سعر التوريد", "سعر الجمهور", "سعر البيع للجمهور", "سعر المستهلك", "سعر الوحدة", "price", "selling price", "pharmacy price", "net price", "public price", "retail price", "unit price"},
+		strong: []string{"سعر البيع", "سعر الصيدلية", "سعر التوريد", "سعر الجمهور", "سعر البيع للجمهور", "selling price", "pharmacy price", "public price", "retail price"},
+		weak:   []string{"سعر", "price"},
+		blocked: []string{"تكلفة", "شراء", "cost", "buy"},
 	},
-	FieldDiscount: {
-		"الخصم", "نسبة الخصم", "الخصم التجاري", "خصم", "قيمة الخصم", "نسبة_الخصم",
-		"discount", "discount_percentage", "disc", "discount_percent", "discount_rate",
+	{
+		field: FieldDiscount,
+		exact: []string{"الخصم", "نسبة الخصم", "الخصم التجاري", "خصم", "قيمة الخصم", "discount", "disc", "discount percentage", "discount rate"},
+		strong: []string{"نسبة الخصم", "الخصم التجاري", "discount percent", "discount rate"},
+		weak:   []string{"خصم", "disc", "discount"},
 	},
-	FieldBarcode: {
-		"الباركود", "باركود", "كود دولي", "الرقم الدولي", "الباركود الدولي",
-		"barcode", "upc", "ean", "international_code", "gtin",
+	{
+		field: FieldQuantity,
+		exact: []string{"الكمية", "الرصيد", "المخزون", "العدد", "كمية الصنف", "الرصيد المتاح", "quantity", "qty", "stock", "balance", "count"},
+		strong: []string{"الرصيد المتاح", "كمية المخزون", "available qty", "stock balance"},
+		weak:   []string{"كمية", "رصيد", "qty", "stock"},
+		blocked: []string{"ادنى", "اقل", "min", "طلب", "order"},
 	},
-	FieldSKU: {
-		"الكود", "كود الصنف", "رقم الصنف", "كود الشركة", "كود المنتج", "كود_الصنف",
-		"sku", "code", "item_code", "product_code", "item_no", "item_id", "product_id",
+	{
+		field: FieldProductName,
+		exact: []string{"اسم الصنف", "اسم المنتج", "الصنف", "اسم الدواء", "المنتج", "اسم المستحضر", "product name", "item name", "description", "item description", "trade name"},
+		strong: []string{"اسم الصنف", "اسم المنتج", "اسم الدواء", "اسم المستحضر", "product name", "item name", "trade name"},
+		weak:   []string{"صنف", "دواء", "product", "item"},
+		blocked: []string{"كود", "code", "سعر", "price", "كمية", "qty", "علمي", "scientific"},
 	},
-	FieldBatchNumber: {
-		"رقم التشغيلة", "التشغيلة", "رقم الباتش", "الباتش", "الطبخة", "رقم_التشغيلة", "تشغيلة",
-		"batch", "batch_number", "batch_no", "lot", "lot_number", "lot_no",
+	{
+		field: FieldBatchNumber,
+		exact: []string{"رقم التشغيلة", "التشغيلة", "رقم الباتش", "الباتش", "الطبخة", "batch", "batch no", "batch number", "lot", "lot no", "lot number"},
+		strong: []string{"رقم التشغيلة", "رقم الباتش", "batch number", "lot number"},
+		weak:   []string{"تشغيلة", "باتش", "batch", "lot"},
 	},
-	FieldExpiryDate: {
-		"تاريخ الصلاحية", "الصلاحية", "تاريخ الانتهاء", "انتهاء الصلاحية", "تاريخ_الصلاحية", "تاريخ_الانتهاء",
-		"expiry", "expiry_date", "exp_date", "expiration_date", "valid_until",
+	{
+		field: FieldExpiryDate,
+		exact: []string{"تاريخ الصلاحية", "الصلاحية", "تاريخ الانتهاء", "انتهاء الصلاحية", "expiry", "exp date", "expiry date", "expiration date"},
+		strong: []string{"تاريخ الصلاحية", "تاريخ الانتهاء", "expiry date", "expiration date"},
+		weak:   []string{"صلاحية", "انتهاء", "expiry", "exp"},
 	},
-	FieldUnit: {
-		"الوحدة", "وحدة القياس", "العبوة", "نوع العبوة", "الوحده",
-		"unit", "pack", "packaging", "uom", "unit_of_measure",
+	{
+		field: FieldMinOrderQty,
+		exact: []string{"الحد الأدنى للطلب", "أقل كمية للطلب", "أقل كمية", "الحد الأدنى", "min order qty", "min order", "moq", "minimum order"},
+		strong: []string{"الحد الأدنى للطلب", "أقل كمية للطلب", "min order qty", "minimum order"},
+		weak:   []string{"moq", "min order"},
 	},
-	FieldMinThreshold: {
-		"حد الأمان", "الحد الأدنى للمخزون", "نقطة إعادة الطلب", "حد_الامان",
-		"min_threshold", "safety_stock", "reorder_point", "min_stock",
+	{
+		field: FieldUnit,
+		exact: []string{"الوحدة", "وحدة القياس", "العبوة", "نوع العبوة", "unit", "pack", "packaging", "uom"},
+		strong: []string{"وحدة القياس", "نوع العبوة", "unit of measure"},
+		weak:   []string{"وحدة", "عبوة", "unit", "pack"},
 	},
-	FieldMinOrderQty: {
-		"الحد الأدنى للطلب", "أقل كمية للطلب", "الحد_الادنى_للطلب",
-		"min_order_qty", "min_order", "moq", "minimum_order",
+	{
+		field: FieldManufacturer,
+		exact: []string{"الشركة المصنعة", "المصنع", "الشركة", "البراند", "المورد", "manufacturer", "brand", "company", "producer"},
+		strong: []string{"الشركة المصنعة", "اسم المصنع", "manufacturer name"},
+		weak:   []string{"شركة", "مصنع", "brand", "company"},
+		blocked: []string{"كود", "code"},
 	},
-	FieldManufacturer: {
-		"الشركة المصنعة", "المصنع", "الشركة", "البراند", "الشركة_المصنعة", "المورد",
-		"manufacturer", "company", "brand", "producer", "vendor",
+	{
+		field: FieldDosageForm,
+		exact: []string{"الشكل الصيدلي", "الشكل الدوائي", "شكل الدواء", "النوع", "dosage form", "form"},
+		strong: []string{"الشكل الصيدلي", "الشكل الدوائي", "dosage form"},
+		weak:   []string{"شكل", "form"},
 	},
-	FieldDosageForm: {
-		"الشكل الدوائي", "شكل الدواء", "النوع", "الشكل_الدوائي",
-		"dosage_form", "form", "type",
-	},
-	FieldConcentration: {
-		"التركيز", "القوة", "عيار", "تركيز الدواء",
-		"concentration", "strength", "dose",
+	{
+		field: FieldConcentration,
+		exact: []string{"التركيز", "القوة", "عيار", "تركيز الدواء", "concentration", "strength", "dose"},
+		strong: []string{"تركيز الدواء", "قوة الدواء"},
+		weak:   []string{"تركيز", "concentration", "strength"},
 	},
 }
 
-// DetectColumns uses deterministic keyword matching to map standard target fields to raw spreadsheet headers.
-// Returns map[targetField]rawHeaderName (e.g. mapping["product_name"] = "اسم الصنف").
+// DetectColumns uses bipartite weighted global scoring to map standard target fields to raw spreadsheet headers.
+// Each column is assigned at most once to the highest-scoring target field, eliminating order-dependent collisions.
 func DetectColumns(headers []string) map[string]string {
-	mapping := make(map[string]string)
-	usedHeaders := make(map[string]bool)
+	type candidatePair struct {
+		field  string
+		header string
+		score  int
+	}
 
-	for targetField, synonyms := range knownColumnSynonyms {
-		for _, header := range headers {
-			if usedHeaders[header] {
+	var pairs []candidatePair
+	for _, h := range headers {
+		clean := strings.ToLower(strings.TrimSpace(h))
+		clean = strings.ReplaceAll(clean, "_", " ")
+		clean = strings.ReplaceAll(clean, "-", " ")
+		clean = strings.ReplaceAll(clean, ".", " ")
+
+		for _, rule := range columnRules {
+			// Check blocked words first
+			blocked := false
+			for _, b := range rule.blocked {
+				if strings.Contains(clean, strings.ToLower(b)) {
+					blocked = true
+					break
+				}
+			}
+			if blocked {
 				continue
 			}
-			clean := strings.ToLower(strings.TrimSpace(header))
-			clean = strings.ReplaceAll(clean, "_", " ")
-			clean = strings.ReplaceAll(clean, "-", " ")
 
+			// 1. Exact matches
 			matched := false
-			for _, syn := range synonyms {
-				synClean := strings.ToLower(strings.TrimSpace(syn))
-				if clean == synClean || strings.Contains(clean, synClean) || strings.Contains(synClean, clean) {
-					mapping[targetField] = header
-					usedHeaders[header] = true
+			for _, ex := range rule.exact {
+				exClean := strings.ToLower(strings.TrimSpace(ex))
+				if clean == exClean {
+					pairs = append(pairs, candidatePair{field: rule.field, header: h, score: scoreExactCol})
 					matched = true
 					break
 				}
 			}
 			if matched {
-				break
+				continue
+			}
+
+			// 2. Strong substring matches
+			for _, st := range rule.strong {
+				stClean := strings.ToLower(strings.TrimSpace(st))
+				if strings.Contains(clean, stClean) {
+					pairs = append(pairs, candidatePair{field: rule.field, header: h, score: scoreStrongCol})
+					matched = true
+					break
+				}
+			}
+			if matched {
+				continue
+			}
+
+			// 3. Weak matches
+			for _, wk := range rule.weak {
+				wkClean := strings.ToLower(strings.TrimSpace(wk))
+				if strings.Contains(clean, wkClean) {
+					pairs = append(pairs, candidatePair{field: rule.field, header: h, score: scoreWeakCol})
+					break
+				}
 			}
 		}
 	}
+
+	// Sort highest score first
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i].score > pairs[j].score
+	})
+
+	mapping := make(map[string]string)
+	usedFields := make(map[string]bool)
+	usedHeaders := make(map[string]bool)
+
+	for _, p := range pairs {
+		if usedFields[p.field] || usedHeaders[p.header] {
+			continue
+		}
+		mapping[p.field] = p.header
+		usedFields[p.field] = true
+		usedHeaders[p.header] = true
+	}
+
 	return mapping
 }

@@ -238,6 +238,15 @@ func (m *mockPromoRepo) GetSpecialOfferByID(_ context.Context, id int64) (*Speci
 func (m *mockPromoRepo) ListSpecialOffersByOrg(_ context.Context, _ int64) ([]*SpecialOffer, error) {
 	return []*SpecialOffer{{ID: 1, Title: i18n.New("عرض تجريبي", "Demo Special Offer")}}, nil
 }
+func (m *mockPromoRepo) ListAllSpecialOffers(_ context.Context, _, _ int) ([]*SpecialOffer, error) {
+	return []*SpecialOffer{{ID: 1, Title: i18n.New("عرض تجريبي", "Demo Special Offer")}}, nil
+}
+func (m *mockPromoRepo) UpdateSpecialOfferAdminStatus(_ context.Context, _ int64, _, _ string, _ int64) error {
+	return nil
+}
+func (m *mockPromoRepo) ToggleSpecialOfferStatus(_ context.Context, _ int64, _ bool) error {
+	return nil
+}
 func (m *mockPromoRepo) DeleteSpecialOffer(_ context.Context, _, _ int64) error {
 	return nil
 }

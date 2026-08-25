@@ -153,6 +153,7 @@ type SpecialOffer struct {
 	ID                 int64                   `json:"id"`
 	PublicID           string                  `json:"public_id"`
 	OrganizationID     int64                   `json:"organization_id"`
+	OrganizationName   string                  `json:"organization_name,omitempty"`
 	BranchID           *int64                  `json:"branch_id,omitempty"`
 	BranchName         string                  `json:"branch_name,omitempty"`
 	Title              i18n.Text               `json:"title"`

@@ -30,6 +30,8 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("promo.offer.update", h.log))
 		g.Post("/admin/offers/{id}/status", h.AdminOfferStatusSubmit)
+		g.Post("/admin/offers/{id}/approve", h.AdminOfferApproveSubmit)
+		g.Post("/admin/offers/{id}/reject", h.AdminOfferRejectSubmit)
 	})
 
 	// Finance Hub, Invoices, Payments, Wallets & Earnings

@@ -198,13 +198,23 @@ func (r *Repository) UpdateImportSessionProgress(
 	})
 }
 
-// InsertImportRows writes a batch of staged rows.
+// InsertImportRows writes a batch of staged rows using high-performance pipelined batch execution.
 func (r *Repository) InsertImportRows(ctx context.Context, rows []*ingest.ImportRow) error {
+	if len(rows) == 0 {
+		return nil
+	}
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		batch := &pgx.Batch{}
+		const query = `
+			INSERT INTO ingest.import_rows (
+				session_id, organization_id, row_number, raw_data, normalized_name,
+				confidence_level, is_approved, import_action, status
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+		`
 		for _, row := range rows {
 			rawJSON, err := json.Marshal(row.RawData)
 			if err != nil {
-				return err
+				rawJSON = []byte("{}")
 			}
 			conf := string(row.ConfidenceLevel)
 			if conf == "" {
@@ -214,19 +224,18 @@ func (r *Repository) InsertImportRows(ctx context.Context, rows []*ingest.Import
 			if action == "" {
 				action = "pending"
 			}
-
-			query := `
-				INSERT INTO ingest.import_rows (
-					session_id, organization_id, row_number, raw_data, normalized_name,
-					confidence_level, is_approved, import_action, status
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-				RETURNING id, created_at;
-			`
-			if err := tx.QueryRow(txCtx, query,
+			batch.Queue(query,
 				row.SessionID, row.OrganizationID, row.RowNumber, rawJSON, row.NormalizedName,
 				conf, row.IsApproved, action, row.Status,
-			).Scan(&row.ID, &row.CreatedAt); err != nil {
-				return fmt.Errorf("ingest postgres: insert row %d: %w", row.RowNumber, err)
+			)
+		}
+
+		br := tx.SendBatch(txCtx, batch)
+		defer br.Close()
+
+		for i := 0; i < len(rows); i++ {
+			if _, err := br.Exec(); err != nil {
+				return fmt.Errorf("ingest postgres: batch insert row %d: %w", rows[i].RowNumber, err)
 			}
 		}
 		return nil
@@ -494,3 +503,72 @@ func (r *Repository) UpdateImportRowAction(ctx context.Context, rowID int64, act
 		return err
 	})
 }
+
+// BatchUpdateImportRowMatches updates matching results for multiple staged rows in a single pipelined transaction.
+func (r *Repository) BatchUpdateImportRowMatches(ctx context.Context, updates []ingest.RowMatchUpdate) error {
+	if len(updates) == 0 {
+		return nil
+	}
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		batch := &pgx.Batch{}
+		const query = `
+			UPDATE ingest.import_rows
+			SET matched_product_id = $2, similarity_score = $3, confidence_level = $4,
+			    match_reason = $5, candidate_matches = $6, is_approved = $7, status = $8
+			WHERE id = $1;
+		`
+		for _, u := range updates {
+			candidatesJSON, err := json.Marshal(u.Candidates)
+			if err != nil {
+				candidatesJSON = []byte("[]")
+			}
+			conf := string(u.ConfidenceLevel)
+			if conf == "" {
+				conf = string(ingest.ConfidenceUnmatched)
+			}
+			batch.Queue(query,
+				u.RowID, u.MatchedProductID, u.Score, conf,
+				u.MatchReason, candidatesJSON, u.IsApproved, u.Status,
+			)
+		}
+
+		br := tx.SendBatch(txCtx, batch)
+		defer br.Close()
+
+		for i := 0; i < len(updates); i++ {
+			if _, err := br.Exec(); err != nil {
+				return fmt.Errorf("ingest postgres: batch update match row %d: %w", updates[i].RowID, err)
+			}
+		}
+		return nil
+	})
+}
+
+// BatchUpdateImportRowActions records execution outcomes for multiple committed rows in a single pipelined transaction.
+func (r *Repository) BatchUpdateImportRowActions(ctx context.Context, updates []ingest.RowActionUpdate) error {
+	if len(updates) == 0 {
+		return nil
+	}
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		batch := &pgx.Batch{}
+		const query = `
+			UPDATE ingest.import_rows
+			SET import_action = $2, error_details = $3
+			WHERE id = $1;
+		`
+		for _, u := range updates {
+			batch.Queue(query, u.RowID, u.ImportAction, u.ErrorDetails)
+		}
+
+		br := tx.SendBatch(txCtx, batch)
+		defer br.Close()
+
+		for i := 0; i < len(updates); i++ {
+			if _, err := br.Exec(); err != nil {
+				return fmt.Errorf("ingest postgres: batch update action row %d: %w", updates[i].RowID, err)
+			}
+		}
+		return nil
+	})
+}
+

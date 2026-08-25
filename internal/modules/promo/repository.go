@@ -39,6 +39,9 @@ type Repository interface {
 	CreateSpecialOffer(ctx context.Context, o *SpecialOffer) error
 	GetSpecialOfferByID(ctx context.Context, id int64) (*SpecialOffer, error)
 	ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*SpecialOffer, error)
+	ListAllSpecialOffers(ctx context.Context, limit, offset int) ([]*SpecialOffer, error)
+	UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, adminStatus, notes string, approvedBy int64) error
+	ToggleSpecialOfferStatus(ctx context.Context, id int64, isActive bool) error
 	DeleteSpecialOffer(ctx context.Context, id, orgID int64) error
 	AddSpecialOfferLocation(ctx context.Context, loc *SpecialOfferLocation) error
 	ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*SpecialOfferLocation, error)

@@ -94,9 +94,15 @@ func (s *Service) CommitSessionWithReconciliation(
 	minThresholdCol := session.ColumnMapping[FieldMinThreshold]
 	minOrderQtyCol := session.ColumnMapping[FieldMinOrderQty]
 
+	var actionUpdates []RowActionUpdate
+
 	for _, row := range rows {
 		if !row.IsApproved {
-			_ = s.repo.UpdateImportRowAction(ctx, row.ID, "skip", "تم استبعاد الصنف يدوياً بواسطة المستخدم")
+			actionUpdates = append(actionUpdates, RowActionUpdate{
+				RowID:        row.ID,
+				ImportAction: "skip",
+				ErrorDetails: "تم استبعاد الصنف يدوياً بواسطة المستخدم",
+			})
 			outcome.Skipped++
 			continue
 		}
@@ -150,53 +156,91 @@ func (s *Service) CommitSessionWithReconciliation(
 		switch session.ImportMode {
 		case ModeAddNewOnly:
 			if existingVariant != nil {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "skip", "تم التخطي: الصنف موجود مسبقاً (نمط الإضافة فقط)")
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "skip",
+					ErrorDetails: "تم التخطي: الصنف موجود مسبقاً (نمط الإضافة فقط)",
+				})
 				outcome.Skipped++
 				continue
 			}
-			// Create new variant
 			if productID <= 0 {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج")
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "error",
+					ErrorDetails: "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج",
+				})
 				outcome.Errors++
 				continue
 			}
 			v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
 			if err != nil {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", err.Error())
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "error",
+					ErrorDetails: err.Error(),
+				})
 				outcome.Errors++
 			} else {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "insert", fmt.Sprintf("تمت إضافة الصنف بنجاح (معرف: %d)", v.ID))
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "insert",
+					ErrorDetails: fmt.Sprintf("تمت إضافة الصنف بنجاح (معرف: %d)", v.ID),
+				})
 				outcome.Inserted++
 			}
 
 		case ModeUpdateExistingOnly:
 			if existingVariant == nil {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "skip", "تم التخطي: الصنف غير موجود مسبقاً (نمط التحديث فقط)")
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "skip",
+					ErrorDetails: "تم التخطي: الصنف غير موجود مسبقاً (نمط التحديث فقط)",
+				})
 				outcome.Skipped++
 				continue
 			}
-			// Update existing variant
 			err := s.updateVariantAndStock(ctx, existingVariant, warehouseID, price, costPrice, discount, rawUnit, rawBarcode, rawSKU, qty, minThreshold, catAdapter, invAdapter)
 			if err != nil {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", err.Error())
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "error",
+					ErrorDetails: err.Error(),
+				})
 				outcome.Errors++
 			} else {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "update", fmt.Sprintf("تم تحديث الصنف بنجاح (معرف: %d)", existingVariant.ID))
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "update",
+					ErrorDetails: fmt.Sprintf("تم تحديث الصنف بنجاح (معرف: %d)", existingVariant.ID),
+				})
 				outcome.Updated++
 			}
 
 		case ModeClearAndAdd:
 			if productID <= 0 {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج")
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "error",
+					ErrorDetails: "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج",
+				})
 				outcome.Errors++
 				continue
 			}
 			v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
 			if err != nil {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", err.Error())
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "error",
+					ErrorDetails: err.Error(),
+				})
 				outcome.Errors++
 			} else {
-				_ = s.repo.UpdateImportRowAction(ctx, row.ID, "insert", fmt.Sprintf("تمت الإضافة للمستودع المفرغ (معرف: %d)", v.ID))
+				actionUpdates = append(actionUpdates, RowActionUpdate{
+					RowID:        row.ID,
+					ImportAction: "insert",
+					ErrorDetails: fmt.Sprintf("تمت الإضافة للمستودع المفرغ (معرف: %d)", v.ID),
+				})
 				outcome.Inserted++
 			}
 
@@ -204,32 +248,60 @@ func (s *Service) CommitSessionWithReconciliation(
 			fallthrough
 		default:
 			if existingVariant != nil {
-				// Update
 				err := s.updateVariantAndStock(ctx, existingVariant, warehouseID, price, costPrice, discount, rawUnit, rawBarcode, rawSKU, qty, minThreshold, catAdapter, invAdapter)
 				if err != nil {
-					_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", err.Error())
+					actionUpdates = append(actionUpdates, RowActionUpdate{
+						RowID:        row.ID,
+						ImportAction: "error",
+						ErrorDetails: err.Error(),
+					})
 					outcome.Errors++
 				} else {
-					_ = s.repo.UpdateImportRowAction(ctx, row.ID, "update", fmt.Sprintf("تم تحديث الصنف بنجاح (معرف: %d)", existingVariant.ID))
+					actionUpdates = append(actionUpdates, RowActionUpdate{
+						RowID:        row.ID,
+						ImportAction: "update",
+						ErrorDetails: fmt.Sprintf("تم تحديث الصنف بنجاح (معرف: %d)", existingVariant.ID),
+					})
 					outcome.Updated++
 				}
 			} else {
-				// Insert
 				if productID <= 0 {
-					_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج")
+					actionUpdates = append(actionUpdates, RowActionUpdate{
+						RowID:        row.ID,
+						ImportAction: "error",
+						ErrorDetails: "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج",
+					})
 					outcome.Errors++
 					continue
 				}
 				v, err := s.createVariantAndStock(ctx, orgID, productID, warehouseID, rawName, rawSKU, rawBarcode, rawUnit, price, costPrice, discount, qty, minThreshold, minOrderQty, catAdapter, invAdapter)
 				if err != nil {
-					_ = s.repo.UpdateImportRowAction(ctx, row.ID, "error", err.Error())
+					actionUpdates = append(actionUpdates, RowActionUpdate{
+						RowID:        row.ID,
+						ImportAction: "error",
+						ErrorDetails: err.Error(),
+					})
 					outcome.Errors++
 				} else {
-					_ = s.repo.UpdateImportRowAction(ctx, row.ID, "insert", fmt.Sprintf("تمت إضافة الصنف بنجاح (معرف: %d)", v.ID))
+					actionUpdates = append(actionUpdates, RowActionUpdate{
+						RowID:        row.ID,
+						ImportAction: "insert",
+						ErrorDetails: fmt.Sprintf("تمت إضافة الصنف بنجاح (معرف: %d)", v.ID),
+					})
 					outcome.Inserted++
 				}
 			}
 		}
+	}
+
+	// Flush all row action updates in batches of 250 rows per statement
+	const batchChunk = 250
+	for i := 0; i < len(actionUpdates); i += batchChunk {
+		end := i + batchChunk
+		if end > len(actionUpdates) {
+			end = len(actionUpdates)
+		}
+		_ = s.repo.BatchUpdateImportRowActions(ctx, actionUpdates[i:end])
 	}
 
 	_ = s.repo.UpdateSessionStatus(ctx, sessionID, StatusCompleted)

@@ -728,6 +728,28 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 														</div>
 													}
 
+													<!-- Quick 1-Click Candidate Suggestions -->
+													if len(row.CandidateMatches) > 0 && data.Session.Status != ingest.StatusCompleted {
+														<div style="margin-top:0.5rem; background:var(--surface-sunken); padding:0.4rem 0.6rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+															<div style="font-size:0.725rem; font-weight:800; color:var(--text-secondary); margin-bottom:0.25rem;">
+																مقترحات المطابقة البديلة:
+															</div>
+															<div style="display:flex; flex-direction:column; gap:0.25rem;">
+																for _, cand := range row.CandidateMatches {
+																	if row.MatchedProductID == nil || *row.MatchedProductID != cand.ProductID {
+																		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d", data.Session.ID, row.ID)) }>
+																			<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", cand.ProductID) } />
+																			<button type="submit" class="btn btn-secondary btn-xs" style="text-align:right; justify-content:space-between; width:100%; font-size:0.75rem; padding:0.2rem 0.45rem;" title={ cand.Reason }>
+																				<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">🎯 { cand.ProductName }</span>
+																				<span class="badge badge-amber text-xs" style="font-size:0.7rem;">{ fmt.Sprintf("%d%%", int(cand.Similarity*100)) }</span>
+																			</button>
+																		</form>
+																	}
+																}
+															</div>
+														</div>
+													}
+
 													<!-- Manual Override Dropdown -->
 													if data.Session.Status != ingest.StatusCompleted {
 														<div style="margin-top:0.5rem;">

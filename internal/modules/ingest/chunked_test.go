@@ -141,6 +141,14 @@ func (m *mockIngestRepo) UpdateImportRowAction(ctx context.Context, rowID int64,
 	return nil
 }
 
+func (m *mockIngestRepo) BatchUpdateImportRowMatches(ctx context.Context, updates []ingest.RowMatchUpdate) error {
+	return nil
+}
+
+func (m *mockIngestRepo) BatchUpdateImportRowActions(ctx context.Context, updates []ingest.RowActionUpdate) error {
+	return nil
+}
+
 func TestChunkedUploadFullFlow(t *testing.T) {
 	repo := newMockIngestRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

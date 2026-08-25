@@ -78,6 +78,15 @@ func (s *stubPromoRepo) GetSpecialOfferByID(context.Context, int64) (*SpecialOff
 func (s *stubPromoRepo) ListSpecialOffersByOrg(context.Context, int64) ([]*SpecialOffer, error) {
 	return nil, nil
 }
+func (s *stubPromoRepo) ListAllSpecialOffers(context.Context, int, int) ([]*SpecialOffer, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) UpdateSpecialOfferAdminStatus(context.Context, int64, string, string, int64) error {
+	return nil
+}
+func (s *stubPromoRepo) ToggleSpecialOfferStatus(context.Context, int64, bool) error {
+	return nil
+}
 func (s *stubPromoRepo) DeleteSpecialOffer(context.Context, int64, int64) error { return nil }
 func (s *stubPromoRepo) AddSpecialOfferLocation(context.Context, *SpecialOfferLocation) error {
 	return nil

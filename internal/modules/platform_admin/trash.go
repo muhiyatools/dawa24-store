@@ -37,16 +37,19 @@ type TrashRow struct {
 // registry is built from information_schema, not from this map, so a new
 // soft-deletable table shows up without a code change.
 var trashTableLabels = map[string][2]string{
-	"catalog.products":         {"المنتجات والأدوية", "Products"},
-	"catalog.product_variants": {"أصناف الموردين", "Product Variants"},
-	"catalog.categories":       {"التصنيفات", "Categories"},
-	"catalog.brands":           {"الشركات المصنعة", "Brands"},
-	"org.organizations":        {"المنشآت والشركات", "Organizations"},
-	"org.branches":             {"الفروع والمستودعات", "Branches"},
-	"identity.users":           {"المستخدمين", "Users"},
-	"commerce.orders":          {"الطلبات وأوامر التوريد", "Orders"},
-	"billing.invoices":         {"الفواتير", "Invoices"},
-	"promo.offers":             {"العروض والخصومات", "Offers"},
+	"catalog.products":                 {"المنتجات والأدوية بالكتالوج المعتمد", "Master Products"},
+	"catalog.product_variants":         {"عروض وأسعار أصناف الموردين", "Product Variants"},
+	"catalog.categories":               {"التصنيفات والمجموعات العلاجية", "Categories"},
+	"catalog.brands":                   {"الشركات المصنعة والماركات", "Brands & Manufacturers"},
+	"org.organizations":                {"المنشآت (صيدليات وشركات موردة)", "Organizations"},
+	"org.branches":                     {"الفروع والمستودعات", "Branches & Warehouses"},
+	"identity.users":                   {"حسابات المستخدمين والمدراء", "User Accounts"},
+	"commerce.orders":                  {"أوامر التوريد والطلبيات", "Orders & Procurement"},
+	"billing.invoices":                 {"الفواتير والمطالبات المالية", "Invoices"},
+	"promo.offers":                     {"العروض الخاصة وباقات التوريد", "Special Offers"},
+	"hr.job_offers":                    {"إعلانات وفرص التوظيف", "Job Vacancies"},
+	"billing.platform_payment_methods": {"وسائل وقنوات الدفع", "Payment Methods"},
+	"platform_admin.policies":          {"السياسات والبنود القانونية", "Policies"},
 }
 
 // ListTrashModels returns every table that carries a deleted_at column, with

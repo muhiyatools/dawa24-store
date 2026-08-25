@@ -25,4 +25,7 @@ type Repository interface {
 	UpdateImportRowMatchDetailed(ctx context.Context, rowID int64, matchedProductID *int64, score float64, confLevel ConfidenceLevel, reason string, candidates []CandidateMatch, isApproved bool, status string) error
 	UpdateImportRowApproval(ctx context.Context, rowID int64, isApproved bool) error
 	UpdateImportRowAction(ctx context.Context, rowID int64, action, errorDetails string) error
+	BatchUpdateImportRowMatches(ctx context.Context, updates []RowMatchUpdate) error
+	BatchUpdateImportRowActions(ctx context.Context, updates []RowActionUpdate) error
 }
+

@@ -95,6 +95,14 @@ func (r stubRepo) UpdateImportRowAction(context.Context, int64, string, string) 
 	r.fail("UpdateImportRowAction")
 	return nil
 }
+func (r stubRepo) BatchUpdateImportRowMatches(context.Context, []ingest.RowMatchUpdate) error {
+	r.fail("BatchUpdateImportRowMatches")
+	return nil
+}
+func (r stubRepo) BatchUpdateImportRowActions(context.Context, []ingest.RowActionUpdate) error {
+	r.fail("BatchUpdateImportRowActions")
+	return nil
+}
 
 type happyRepo struct{}
 
@@ -149,6 +157,12 @@ func (happyRepo) UpdateImportRowApproval(ctx context.Context, id int64, isApprov
 	return nil
 }
 func (happyRepo) UpdateImportRowAction(ctx context.Context, id int64, action, errorDetails string) error {
+	return nil
+}
+func (happyRepo) BatchUpdateImportRowMatches(ctx context.Context, updates []ingest.RowMatchUpdate) error {
+	return nil
+}
+func (happyRepo) BatchUpdateImportRowActions(ctx context.Context, updates []ingest.RowActionUpdate) error {
 	return nil
 }
 

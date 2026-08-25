@@ -116,6 +116,8 @@ type ProductVariant struct {
 	Status               ProductStatus `json:"status"`
 	IsFeatured           bool          `json:"is_featured"`
 	IsNegotiable         bool          `json:"is_negotiable"`
+	VariantType          string        `json:"variant_type,omitempty"` // standard, offer
+	OfferID              *int64        `json:"offer_id,omitempty"`
 	InstitutionalWorkIDs []int64       `json:"institutional_work_ids,omitempty"`
 	CreatedAt            time.Time     `json:"created_at"`
 	UpdatedAt            time.Time     `json:"updated_at"`

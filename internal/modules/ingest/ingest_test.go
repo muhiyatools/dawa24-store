@@ -189,6 +189,31 @@ func (m *mockIngestRepo) UpdateImportRowAction(_ context.Context, rowID int64, a
 	return nil
 }
 
+func (m *mockIngestRepo) BatchUpdateImportRowMatches(_ context.Context, updates []RowMatchUpdate) error {
+	for _, u := range updates {
+		if r, ok := m.rows[u.RowID]; ok {
+			r.MatchedProductID = u.MatchedProductID
+			r.SimilarityScore = &u.Score
+			r.ConfidenceLevel = u.ConfidenceLevel
+			r.MatchReason = u.MatchReason
+			r.CandidateMatches = u.Candidates
+			r.IsApproved = u.IsApproved
+			r.Status = u.Status
+		}
+	}
+	return nil
+}
+
+func (m *mockIngestRepo) BatchUpdateImportRowActions(_ context.Context, updates []RowActionUpdate) error {
+	for _, u := range updates {
+		if r, ok := m.rows[u.RowID]; ok {
+			r.ImportAction = u.ImportAction
+			r.ErrorDetails = u.ErrorDetails
+		}
+	}
+	return nil
+}
+
 func TestColumnDetection(t *testing.T) {
 	rawHeaders := []string{
 		"اسم الدواء",

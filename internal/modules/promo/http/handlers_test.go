@@ -132,6 +132,18 @@ func (r stubRepo) ListSpecialOffersByOrg(context.Context, int64) ([]*promo.Speci
 	r.fail("ListSpecialOffersByOrg")
 	return nil, nil
 }
+func (r stubRepo) ListAllSpecialOffers(context.Context, int, int) ([]*promo.SpecialOffer, error) {
+	r.fail("ListAllSpecialOffers")
+	return nil, nil
+}
+func (r stubRepo) UpdateSpecialOfferAdminStatus(context.Context, int64, string, string, int64) error {
+	r.fail("UpdateSpecialOfferAdminStatus")
+	return nil
+}
+func (r stubRepo) ToggleSpecialOfferStatus(context.Context, int64, bool) error {
+	r.fail("ToggleSpecialOfferStatus")
+	return nil
+}
 func (r stubRepo) DeleteSpecialOffer(context.Context, int64, int64) error {
 	r.fail("DeleteSpecialOffer")
 	return nil
@@ -246,6 +258,15 @@ func (happyRepo) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.Spec
 }
 func (happyRepo) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*promo.SpecialOffer, error) {
 	return []*promo.SpecialOffer{{ID: 1, Title: i18n.New("عرض خاص", "Special Offer")}}, nil
+}
+func (happyRepo) ListAllSpecialOffers(ctx context.Context, limit, offset int) ([]*promo.SpecialOffer, error) {
+	return []*promo.SpecialOffer{{ID: 1, Title: i18n.New("عرض خاص", "Special Offer")}}, nil
+}
+func (happyRepo) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, adminStatus, notes string, approvedBy int64) error {
+	return nil
+}
+func (happyRepo) ToggleSpecialOfferStatus(ctx context.Context, id int64, isActive bool) error {
+	return nil
 }
 func (happyRepo) DeleteSpecialOffer(ctx context.Context, id, orgID int64) error {
 	return nil

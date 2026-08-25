@@ -260,6 +260,7 @@ func (s *Service) ExecuteMultiStageMatching(
 	manufCol := session.ColumnMapping[FieldManufacturer]
 
 	var matchedCount, reviewCount, unmatchedCount int
+	var updates []RowMatchUpdate
 
 	for _, row := range rows {
 		rawName := getRawStringWithFallback(row.RawData, nameCol, FieldProductName)
@@ -303,17 +304,29 @@ func (s *Service) ExecuteMultiStageMatching(
 		}
 
 		isApproved := result.ConfidenceLevel == ConfidenceHigh || result.ConfidenceLevel == ConfidenceReview
-		_ = s.repo.UpdateImportRowMatchDetailed(
-			ctx,
-			row.ID,
-			result.MatchedProductID,
-			result.ConfidenceScore,
-			result.ConfidenceLevel,
-			result.MatchReason,
-			result.CandidateMatches,
-			isApproved,
-			result.Status,
-		)
+		updates = append(updates, RowMatchUpdate{
+			RowID:            row.ID,
+			MatchedProductID: result.MatchedProductID,
+			Score:            result.ConfidenceScore,
+			ConfidenceLevel:  result.ConfidenceLevel,
+			MatchReason:      result.MatchReason,
+			Candidates:       result.CandidateMatches,
+			IsApproved:       isApproved,
+			Status:           result.Status,
+		})
+	}
+
+	// Flush all matching updates in batches of 250 rows per statement
+	const batchChunk = 250
+	for i := 0; i < len(updates); i += batchChunk {
+		end := i + batchChunk
+		if end > len(updates) {
+			end = len(updates)
+		}
+		if err := s.repo.BatchUpdateImportRowMatches(ctx, updates[i:end]); err != nil {
+			s.log.ErrorContext(ctx, "failed batch update import row matches", "session_id", sessionID, "error", err)
+			return err
+		}
 	}
 
 	total := len(rows)
@@ -461,14 +474,21 @@ func getRawStringWithFallback(m map[string]any, colName, targetField string) str
 	if m == nil {
 		return ""
 	}
-	if synonyms, ok := knownColumnSynonyms[targetField]; ok {
-		for _, syn := range synonyms {
-			for k, v := range m {
-				kClean := strings.ToLower(strings.TrimSpace(k))
-				kClean = strings.ReplaceAll(kClean, "_", " ")
-				synClean := strings.ToLower(strings.TrimSpace(syn))
-				if kClean == synClean || strings.Contains(kClean, synClean) || strings.Contains(synClean, kClean) {
-					if v != nil {
+	for _, rule := range columnRules {
+		if rule.field == targetField {
+			for _, ex := range rule.exact {
+				for k, v := range m {
+					if strings.EqualFold(strings.TrimSpace(k), ex) && v != nil {
+						str := strings.TrimSpace(fmt.Sprintf("%v", v))
+						if str != "" {
+							return str
+						}
+					}
+				}
+			}
+			for _, st := range rule.strong {
+				for k, v := range m {
+					if strings.Contains(strings.ToLower(strings.TrimSpace(k)), strings.ToLower(st)) && v != nil {
 						str := strings.TrimSpace(fmt.Sprintf("%v", v))
 						if str != "" {
 							return str
