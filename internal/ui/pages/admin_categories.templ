@@ -47,34 +47,23 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 	@layouts.AdminShell("فئات المنتجات", "categories", lang, dir) {
 		<div class="stack-lg">
 			
-			<!-- Header Card -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-					<div class="row-center-sm">
-						@components.IconFolder("icon-lg")
-						<div>
-							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
-								فئات المنتجات ({ fmt.Sprintf("%d", totalCount) })
-							</h2>
-							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
-								إدارة الشجرة التصنيفية للأصناف الدوائية والطبية، وتحديد الفئات الرئيسية والفرعية المعتمدة.
-							</p>
-						</div>
-					</div>
-
-					<div style="display:flex; gap:0.75rem; align-items:center;">
-						<button
-							type="button"
-							class="btn btn-primary"
-							data-modal-open="create-category-modal"
-							style="font-weight:800; gap:0.4rem;"
-						>
-							@components.IconPlus("icon-xs")
-							<span>إضافة فئة جديدة +</span>
-						</button>
-					</div>
+			<!-- Page Header -->
+			@components.PageHeader(components.PageHeaderProps{
+				Title:    "فئات المنتجات والتصنيفات المركزية",
+				Subtitle: "إدارة الشجرة التصنيفية للأصناف الدوائية والطبية، وتحديد الفئات الرئيسية والفرعية المعتمدة",
+				Count:    &totalCount,
+			}) {
+				<div class="row-center">
+					<button
+						type="button"
+						class="btn btn-primary fw-800"
+						data-modal-open="create-category-modal"
+					>
+						@components.IconPlus("icon-xs")
+						<span>إضافة فئة جديدة +</span>
+					</button>
 				</div>
-			</div>
+			}
 
 			<!-- Search and Filter Bar -->
 			<form
@@ -114,7 +103,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 				</div>
 
 				<div class="row-center-sm">
-					<button type="submit" class="btn btn-primary" style="font-weight:700; padding:0.5rem 1rem;">
+					<button type="submit" class="btn btn-primary fw-700" style="padding:0.5rem 1rem;">
 						تصفية
 					</button>
 					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
@@ -137,14 +126,14 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						<table class="b2b-table">
 							<thead>
 								<tr>
-									<th>#</th>
-									<th>اسم الفئة</th>
-									<th>الفئة الأب (Parent)</th>
-									<th>الوصف</th>
-									<th>الأصناف المرتبطة</th>
-									<th>ترتيب العرض</th>
-									<th>الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th style="width:60px; text-align:center;">#</th>
+									<th style="width:24%; text-align:start;">اسم الفئة</th>
+									<th style="width:20%; text-align:start;">الفئة الأب (Parent)</th>
+									<th style="width:22%; text-align:start;">الوصف</th>
+									<th style="width:14%; text-align:center;">الأصناف المرتبطة</th>
+									<th style="width:8%; text-align:center;">ترتيب</th>
+									<th style="width:10%; text-align:center;">الحالة</th>
+									<th style="width:12%; text-align:end;">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -152,10 +141,10 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 									{{ c := item.Category }}
 									{{ parentName := getParentCategoryName(c.ParentID, allCategories) }}
 									<tr id={ fmt.Sprintf("category-row-%d", c.ID) }>
-										<td class="tabular-nums" style="font-weight:700; color:var(--neutral-500);">
+										<td class="tabular-nums" style="text-align:center; font-weight:700; color:var(--text-muted);">
 											#{ fmt.Sprintf("%d", c.ID) }
 										</td>
-										<td>
+										<td style="text-align:start;">
 											<div class="fw-800 text-primary text-base">
 												{ c.Name.Get("ar") }
 											</div>
@@ -165,16 +154,16 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 												</div>
 											}
 										</td>
-										<td>
+										<td style="text-align:start;">
 											if parentName != "" {
-												<span class="badge badge-secondary fw-700">
+												<span class="badge badge-slate fw-700">
 													📁 { parentName }
 												</span>
 											} else {
 												<span style="color:var(--text-muted); font-size:0.825rem;">-- رئيسية (مستوى أول) --</span>
 											}
 										</td>
-										<td style="max-width:240px;">
+										<td style="text-align:start; max-width:240px;">
 											if c.Description.Get("ar") != "" {
 												<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;">
 													{ c.Description.Get("ar") }
@@ -187,19 +176,25 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 												<span class="text-sm text-muted">لا يوجد وصف</span>
 											}
 										</td>
-										<td>
-											<span class="badge badge-secondary" style="font-weight:700; font-size:0.8rem; padding:0.3rem 0.65rem;">
-												{ fmt.Sprintf("%d صنف", item.ProductCount) }
-											</span>
+										<td style="text-align:center;">
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/admin/products?category_id=%d", c.ID)) }
+												class="badge badge-indigo fw-700"
+												style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; font-size:0.825rem; cursor:pointer;"
+												title="عرض كافة أصناف هذه الفئة"
+											>
+												@components.IconLayers("icon-xs")
+												<span class="tabular-nums">{ fmt.Sprintf("%d صنف", item.ProductCount) }</span>
+											</a>
 										</td>
-										<td class="tabular-nums fw-600">
+										<td class="tabular-nums fw-600" style="text-align:center;">
 											{ fmt.Sprintf("%d", c.SortOrder) }
 										</td>
-										<td>
+										<td style="text-align:center;">
 											if c.Status == "active" || c.Status == "" {
-												<span class="badge badge-success fw-700">نشط</span>
+												<span class="badge badge-emerald fw-700">نشط</span>
 											} else {
-												<span class="badge badge-neutral fw-700">معطل</span>
+												<span class="badge badge-slate fw-700">معطل</span>
 											}
 										</td>
 										<td class="text-end">
