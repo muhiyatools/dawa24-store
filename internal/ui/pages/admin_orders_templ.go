@@ -266,7 +266,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>رقم الطلب</th><th>المنشأة المشتية</th><th>حالة التفاوض</th><th>المبلغ الإجمالي</th><th>ملاحظات التفاوض</th><th>حالة الطلب</th><th>التاريخ</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>رقم الطلب</th><th>المنشأة المشتية</th><th>حالة التفاوض</th><th>المبلغ الإجمالي</th><th>ملاحظات التفاوض</th><th>حالة الطلب</th><th>التاريخ</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -437,7 +437,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>رقم الطلب</th><th>العميل / المنشأة</th><th>طريقة الدفع</th><th>حالة الدفع</th><th>حالة الطلب</th><th>الإجمالي</th><th>التاريخ</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>رقم الطلب</th><th>العميل / المنشأة</th><th>طريقة الدفع</th><th>حالة الدفع</th><th>حالة الطلب</th><th>الإجمالي</th><th>التاريخ</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -588,7 +588,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>رقم الطلب</th><th>النوع</th><th>العميل / المنشأة</th><th>طريقة الدفع</th><th>حالة الدفع</th><th>حالة الطلب</th><th>الإجمالي</th><th>التاريخ</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>رقم الطلب</th><th>النوع</th><th>العميل / المنشأة</th><th>طريقة الدفع</th><th>حالة الدفع</th><th>حالة الطلب</th><th>الإجمالي</th><th>التاريخ</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

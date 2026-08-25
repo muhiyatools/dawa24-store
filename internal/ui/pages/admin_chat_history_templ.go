@@ -158,7 +158,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>#</th><th>المستخدم المنشئ</th><th>المنشأة</th><th>عنوان / موضوع الجلسة</th><th>عدد الرسائل</th><th>استهلاك الرموز (Tokens)</th><th>آخر تحديث</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>#</th><th>المستخدم المنشئ</th><th>المنشأة</th><th>عنوان / موضوع الجلسة</th><th>عدد الرسائل</th><th>استهلاك الرموز (Tokens)</th><th>آخر تحديث</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -382,7 +382,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>#</th><th>الموضوع</th><th>المنشأة المبادرة</th><th>الطرف الآخر</th><th>النوع</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>#</th><th>الموضوع</th><th>المنشأة المبادرة</th><th>الطرف الآخر</th><th>النوع</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -596,14 +596,14 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, ")</div><div>🏢 <strong>المنشأة:</strong> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, ")</div><div><strong>المنشأة:</strong> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(summary.OrganizationName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 190, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 190, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
@@ -616,7 +616,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", summary.OrganizationID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 190, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 190, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {

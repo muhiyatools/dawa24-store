@@ -171,7 +171,7 @@ func AdminDocuments(docs []*attachments.Document, total int, filter attachments.
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"data-table\"><thead><tr><th>المستند والملف</th><th>نوع المستند</th><th>المنشأة / المستخدم</th><th>الحجم</th><th>تاريخ الرفع</th><th>الحالة</th><th class=\"text-end\">الإجراء</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"b2b-table\"><thead><tr><th>المستند والملف</th><th>نوع المستند</th><th>المنشأة / المستخدم</th><th>الحجم</th><th>تاريخ الرفع</th><th>الحالة</th><th class=\"text-end\">الإجراء</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

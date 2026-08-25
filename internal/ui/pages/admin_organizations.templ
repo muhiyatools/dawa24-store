@@ -103,13 +103,13 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
 						<span class="badge badge-sky" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
-							🏢 { fmt.Sprintf("%d", len(data.Organizations)) } منشأة
+							{ fmt.Sprintf("%d", len(data.Organizations)) } منشأة
 						</span>
 						<span class="badge badge-emerald" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
-							📦 { fmt.Sprintf("%d", len(data.Branches)) } فرع ومستودع
+							{ fmt.Sprintf("%d", len(data.Branches)) } فرع ومستودع
 						</span>
 						<span class="badge badge-indigo" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
-							👥 { fmt.Sprintf("%d", len(data.Users)) } مستخدم
+							{ fmt.Sprintf("%d", len(data.Users)) } مستخدم
 						</span>
 					</div>
 				</div>
@@ -217,8 +217,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							Message: "لم يتم العثور على منشآت مسجلة في هذا القسم حالياً.",
 						})
 					} else {
-						<div class="table-container" style="overflow:visible;">
-							<table class="data-table">
+						<div class="b2b-table-container">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>الاسم والبيانات التجارية</th>
@@ -274,7 +274,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 														@click={ fmt.Sprintf("setTab('branches'); branchOrgFilter = '%d';", o.ID) }
 														title="انتقال لاستعراض فروع هذه المنشأة"
 													>
-														📦 { fmt.Sprintf("%d", data.BranchCounts[o.ID]) } فرع
+														{ fmt.Sprintf("%d", data.BranchCounts[o.ID]) } فرع
 													</button>
 												</div>
 											</td>
@@ -359,8 +359,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً.",
 						})
 					} else {
-						<div class="table-container">
-							<table class="data-table">
+						<div class="b2b-table-container">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>اسم الفرع والكود</th>
@@ -494,8 +494,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							Message: "لم يتم العثور على أي مستخدمين مسجلين في هذا القسم.",
 						})
 					} else {
-						<div class="table-container">
-							<table class="data-table">
+						<div class="b2b-table-container">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>المستخدم</th>
@@ -587,8 +587,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							</div>
 						</div>
 
-						<div class="table-container">
-							<table class="data-table">
+						<div class="b2b-table-container">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>المستخدم</th>
@@ -686,8 +686,8 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					if len(employees) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا يوجد أعضاء مسجلين", Message: "لم يتم إضافة موظفين لهذه المنشأة بعد."})
 					} else {
-						<div class="table-container">
-							<table class="data-table">
+						<div class="b2b-table-container">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>الاسم</th>
@@ -721,8 +721,8 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					if len(branches) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مستودعات لهذه المنشأة بعد."})
 					} else {
-						<div class="table-container">
-							<table class="data-table">
+						<div class="b2b-table-container">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>اسم الفرع</th>
@@ -791,8 +791,8 @@ templ AdminBranchesPage(branches []*org.Branch, lang, dir string) {
 			if len(branches) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً."})
 			} else {
-				<div class="table-container">
-					<table class="data-table">
+				<div class="b2b-table-container">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>اسم الفرع</th>
@@ -900,7 +900,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 					<div>
 						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
 							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-								🚚
+								
 							</div>
 							<div>
 								<h1 style="font-size:1.4rem; font-weight:900; color:var(--text); margin:0;">نطاقات وجداول التغطية الأسبوعية</h1>
@@ -914,7 +914,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 						<form method="GET" action="/admin/weekly-coverages" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
 							<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); white-space:nowrap;">تصفية المنشأة:</label>
 							<select name="org_id" class="form-select" onchange="this.form.submit()" style="font-size:0.85rem; padding:0.45rem 0.85rem; min-width:240px; border-radius:var(--radius-lg); font-weight:700;">
-								<option value="0" selected?={ data.SelectedOrgID == 0 }>🏢 كافة المنشآت والموردين</option>
+								<option value="0" selected?={ data.SelectedOrgID == 0 }>كافة المنشآت والموردين</option>
 								for _, o := range data.Organizations {
 									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
 										{ o.LegalName }
@@ -924,7 +924,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 						</form>
 
 						<button type="button" class="btn btn-primary" @click="addModalOpen = true" style="font-weight:800; font-size:0.85rem; padding:0.55rem 1.1rem; border-radius:var(--radius-lg); gap:0.4rem;">
-							<span>➕</span>
+							<span></span>
 							<span>إضافة جدول تغطية جديد</span>
 						</button>
 					</div>
@@ -957,8 +957,8 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 						})
 					</div>
 				} else {
-					<div class="table-container">
-						<table class="data-table">
+					<div class="b2b-table-container">
+						<table class="b2b-table">
 							<thead>
 								<tr>
 									<th>يوم التوصيل</th>
@@ -976,7 +976,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 									<tr>
 										<td>
 											<span class="badge badge-sky" style="font-weight:800; font-size:0.825rem; padding:0.3rem 0.75rem;">
-												📅 { dayOfWeekAr(c.DayOfWeek) }
+												{ dayOfWeekAr(c.DayOfWeek) }
 											</span>
 										</td>
 										<td>
@@ -1038,7 +1038,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف جدول التغطية هذا؟');" style="margin:0;">
 													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
 													<button type="submit" class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.25rem 0.5rem;" title="حذف">
-														🗑️
+														
 													</button>
 												</form>
 											</div>
@@ -1052,11 +1052,11 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 			</div>
 
 			<!-- Add Schedule Modal -->
-			<div x-show="addModalOpen" x-cloak style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;">
-				<div @click.away="addModalOpen = false" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;">
+			<div x-show="addModalOpen" x-cloak class="modal-overlay">
+				<div @click.away="addModalOpen = false" class="modal-card modal-md">
 					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);">
 						<div style="display:flex; align-items:center; gap:0.5rem;">
-							<span style="font-size:1.2rem;">🚚</span>
+							<span style="font-size:1.2rem;"></span>
 							<h3 style="font-size:1.1rem; font-weight:800; margin:0; color:var(--text);">إضافة جدول تغطية أسبوعية جديد</h3>
 						</div>
 						<button type="button" @click="addModalOpen = false" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);">✕</button>

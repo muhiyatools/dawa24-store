@@ -24,7 +24,7 @@ templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir stri
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أعمال مؤسسية معتمدة", Message: "تتيح الأعمال المؤسسية تقديم عروض حصرية لفئات محددة من الصيدليات والجهات الطبية."})
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>اسم الهيكل المؤسسي</th>
@@ -161,7 +161,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 					})
 				} else {
 					<div class="table-container">
-						<table class="data-table">
+						<table class="b2b-table">
 							<thead>
 								<tr>
 									<th>الصيدلية والفرع</th>

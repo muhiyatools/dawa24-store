@@ -57,7 +57,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 							download="dawa24_supplier_template.xlsx"
 						>
 							@components.IconDownload("icon-xs")
-							<span>تحميل نموذج تجريبي (Excel) 📥</span>
+							<span>تحميل نموذج تجريبي (Excel)</span>
 						</a>
 						<span class="badge badge-secondary" style="font-size:0.85rem; padding:0.5rem 0.85rem;">
 							{ fmt.Sprintf("%d ملفات موردين مسجلة", len(files)) }
@@ -94,7 +94,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 								class="btn btn-primary"
 								style="font-weight:800; font-size:0.875rem; padding:0.5rem 1.25rem; border-radius:var(--radius-lg);"
 							>
-								<span>بدء التحليل والمقارنة 🚀</span>
+								<span>بدء التحليل والمقارنة</span>
 							</button>
 						</div>
 
@@ -105,7 +105,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 								<strong style="color:var(--text); font-size:0.95rem; display:block; margin-bottom:0.25rem;">لا توجد ملفات مرفوعة بعد</strong>
 								<p style="color:var(--text-muted); font-size:0.8rem; margin:0 0 1rem 0;">استخدم نموذج الرفع المجاور أو حمل النموذج التجريبي لاختبار المقارنة فوراً.</p>
 								<a href="/compare/sample" class="btn btn-secondary btn-sm" style="font-weight:700;">
-									📥 تحميل النموذج التجريبي
+									تحميل النموذج التجريبي
 								</a>
 							</div>
 						} else {
@@ -237,7 +237,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 								style="font-weight:800; font-size:0.775rem; padding:0.35rem 0.75rem; color:var(--accent);"
 								download="dawa24_supplier_template.xlsx"
 							>
-								📥 تحميل نموذج Excel
+								تحميل نموذج Excel
 							</a>
 						</div>
 
@@ -248,7 +248,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 							style="width:100%; justify-content:center; font-weight:800; font-size:0.95rem; padding:0.75rem; cursor:pointer;"
 						>
 							@components.IconCheck("icon-xs")
-							<span id="upload-btn-text">رفع ومعالجة الملفات المختارة فورياً 🚀</span>
+							<span id="upload-btn-text">رفع ومعالجة الملفات المختارة فورياً</span>
 						</button>
 					</form>
 				</div>

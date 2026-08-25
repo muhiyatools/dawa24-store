@@ -231,7 +231,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"data-table\" style=\"width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr><th style=\"width:25%; text-align:start;\">الاسم وبيانات المستخدم</th><th style=\"width:25%; text-align:start;\">البريد الإلكتروني</th><th style=\"width:15%; text-align:start;\">الدور / الصلاحية</th><th style=\"width:15%; text-align:center;\">الحالة</th><th style=\"width:20%; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"b2b-table\" style=\"width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr><th style=\"width:25%; text-align:start;\">الاسم وبيانات المستخدم</th><th style=\"width:25%; text-align:start;\">البريد الإلكتروني</th><th style=\"width:15%; text-align:start;\">الدور / الصلاحية</th><th style=\"width:15%; text-align:center;\">الحالة</th><th style=\"width:20%; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -483,7 +483,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"data-table\" style=\"width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr><th style=\"width:20%; text-align:start;\">المستخدم</th><th style=\"width:15%; text-align:start;\">نوع الحساب / المنشأة</th><th style=\"width:25%; text-align:start;\">سبب طلب الحذف</th><th style=\"width:15%; text-align:start;\">تاريخ الطلب</th><th style=\"width:10%; text-align:center;\">الحالة</th><th style=\"width:15%; text-align:end;\">الإجراء</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"b2b-table\" style=\"width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr><th style=\"width:20%; text-align:start;\">المستخدم</th><th style=\"width:15%; text-align:start;\">نوع الحساب / المنشأة</th><th style=\"width:25%; text-align:start;\">سبب طلب الحذف</th><th style=\"width:15%; text-align:start;\">تاريخ الطلب</th><th style=\"width:10%; text-align:center;\">الحالة</th><th style=\"width:15%; text-align:end;\">الإجراء</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

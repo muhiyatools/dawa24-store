@@ -457,7 +457,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"data-table\"><thead><tr><th>المنشأة والاسم التجاري</th><th>النوع</th><th>السجل والبطاقة الضريبية</th><th>ترخيص هيئة الدواء</th><th>المستندات المرفقة</th><th>الحالة الحالية</th><th class=\"text-end\">الإجراء والتدقيق</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"b2b-table\"><thead><tr><th>المنشأة والاسم التجاري</th><th>النوع</th><th>السجل والبطاقة الضريبية</th><th>ترخيص هيئة الدواء</th><th>المستندات المرفقة</th><th>الحالة الحالية</th><th class=\"text-end\">الإجراء والتدقيق</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1279,7 +1279,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"data-table\"><thead><tr><th>نوع المستند</th><th>المنشأة المالكة</th><th>الملف والاسم الأصلي</th><th>تاريخ الرفع</th><th>الحالة</th><th>ملاحظات الإدارة</th><th class=\"text-end\">الإجراء والتدقيق</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"b2b-table\"><thead><tr><th>نوع المستند</th><th>المنشأة المالكة</th><th>الملف والاسم الأصلي</th><th>تاريخ الرفع</th><th>الحالة</th><th>ملاحظات الإدارة</th><th class=\"text-end\">الإجراء والتدقيق</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1850,7 +1850,7 @@ func AdminApprovalsRequestsTab(data *AdminApprovalsData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 181, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"data-table\"><thead><tr><th>#</th><th>المنشأة</th><th>المستند المطلوب</th><th>عنوان الطلب وتفاصيله</th><th>تاريخ الطلب</th><th>تاريخ المهلة والمدة المتبقية</th><th>الحالة</th><th class=\"text-end\">الإجراء</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 181, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"b2b-table\"><thead><tr><th>#</th><th>المنشأة</th><th>المستند المطلوب</th><th>عنوان الطلب وتفاصيله</th><th>تاريخ الطلب</th><th>تاريخ المهلة والمدة المتبقية</th><th>الحالة</th><th class=\"text-end\">الإجراء</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

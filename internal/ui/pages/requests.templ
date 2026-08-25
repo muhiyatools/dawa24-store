@@ -69,7 +69,7 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد طلبات.</p>
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead><tr><th>العنوان</th><th>النوع</th><th>الاتجاه</th><th>الحالة</th><th></th></tr></thead>
 						<tbody>
 							for _, q := range data.Requests {

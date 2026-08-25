@@ -227,7 +227,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>العنوان</th><th>النوع</th><th>الاتجاه</th><th>الحالة</th><th></th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>العنوان</th><th>النوع</th><th>الاتجاه</th><th>الحالة</th><th></th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

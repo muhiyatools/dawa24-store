@@ -177,9 +177,9 @@ func importReviewBanner(view ImportReviewView) templ.Component {
 		switch view.Session.Status {
 		case catalog.SessionCommitted:
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs("✅ تم حفظ الأصناف في الكتالوج المعتمد")
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs("تم حفظ الأصناف في الكتالوج المعتمد")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 52, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 52, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -187,9 +187,9 @@ func importReviewBanner(view ImportReviewView) templ.Component {
 			}
 		case catalog.SessionFailed:
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("⚠️ فشل حفظ الأصناف")
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("فشل حفظ الأصناف")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 54, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 54, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -197,9 +197,9 @@ func importReviewBanner(view ImportReviewView) templ.Component {
 			}
 		default:
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs("🔍 مراجعة ما سيتم تنفيذه")
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs("مراجعة ما سيتم تنفيذه")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 56, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 56, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -510,7 +510,7 @@ func importStructureCard(view ImportReviewView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(view.Bindings) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>العمود</th><th>عنوانه في الملف</th><th>الحقل المرتبط</th><th>الثقة</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>العمود</th><th>عنوانه في الملف</th><th>الحقل المرتبط</th><th>الثقة</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1134,7 +1134,7 @@ func importRowsCard(view ImportReviewView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = rowFilterChip(view, string(catalog.ActionInsert), "➕ الجديدة").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = rowFilterChip(view, string(catalog.ActionInsert), "الجديدة").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1163,7 +1163,7 @@ func importRowsCard(view ImportReviewView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" placeholder=\"بحث بالاسم أو الكود\" style=\"width:14rem;\"> <button type=\"submit\" class=\"wiz-chip\">بحث</button></form></div><div class=\"table-container wiz-scroll\"><table class=\"data-table\"><thead><tr><th>الصف</th><th>الإجراء</th><th>الصنف</th><th>التفاصيل</th><th>الحالة</th><th>تضمين</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" placeholder=\"بحث بالاسم أو الكود\" style=\"width:14rem;\"> <button type=\"submit\" class=\"wiz-chip\">بحث</button></form></div><div class=\"table-container wiz-scroll\"><table class=\"b2b-table\"><thead><tr><th>الصف</th><th>الإجراء</th><th>الصنف</th><th>التفاصيل</th><th>الحالة</th><th>تضمين</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1582,7 +1582,7 @@ func importConfirmCard(view ImportReviewView) templ.Component {
 			templ_7745c5c3_Var75 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "<div class=\"card mb-0\"><h2 class=\"wiz-head\">✅ تأكيد الحفظ في الكتالوج</h2><p class=\"wiz-sub\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "<div class=\"card mb-0\"><h2 class=\"wiz-head\">تأكيد الحفظ في الكتالوج</h2><p class=\"wiz-sub\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1601,7 +1601,7 @@ func importConfirmCard(view ImportReviewView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if view.ModeIsDestructive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div class=\"import-banner import-banner--error\" style=\"margin-bottom:1rem;\"><p class=\"import-banner-text\">⚠️ سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع، لكنها ستختفي من الكتالوج والبحث فوراً.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div class=\"import-banner import-banner--error\" style=\"margin-bottom:1rem;\"><p class=\"import-banner-text\">سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع، لكنها ستختفي من الكتالوج والبحث فوراً.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

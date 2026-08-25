@@ -116,7 +116,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 					})
 				} else {
 					<div class="table-container" style="overflow:visible;">
-						<table class="data-table">
+						<table class="b2b-table">
 							<thead>
 								<tr>
 									<th style="width:50px;">الصورة</th>
@@ -301,7 +301,7 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 				@components.EmptyState(components.EmptyStateProps{Title: "المخزون فارغ", Message: "لم يتم تسجيل أرصدة مخزون في المستودعات بعد."})
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>#</th>
@@ -411,7 +411,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 					</div>
 				} else {
 					<div class="table-container">
-						<table class="data-table">
+						<table class="b2b-table">
 							<thead>
 								<tr>
 									<th>اسم المستودع</th>
@@ -439,7 +439,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 										<td>
 											if row.OrgName != "" {
 												<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem;">
-													🏢 { row.OrgName }
+													{ row.OrgName }
 												</span>
 											} else {
 												<span style="color:var(--text-muted); font-size:0.8rem;">منشأة #{ fmt.Sprintf("%d", row.Warehouse.OrganizationID) }</span>
@@ -549,7 +549,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 
 						<!-- Live Table -->
 						<div x-show="!loading && !error && filteredStocks.length > 0" class="table-container" style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
-							<table class="data-table" style="margin:0;">
+							<table class="b2b-table" style="margin:0;">
 								<thead>
 									<tr>
 										<th>اسم الدواء والصنف</th>
@@ -820,7 +820,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container">
-						<table class="data-table" style="margin:0;">
+						<table class="b2b-table" style="margin:0;">
 							<thead>
 								<tr>
 									<th style="width:60px;">#</th>

@@ -16,26 +16,15 @@ templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 	} else {
 		@layouts.CustomerShell("سلة المشتريات | Shopping Cart", "cart", lang, dir, nil) {
 			<div class="cart-page-container" style="max-width:1160px; margin:1.5rem auto 8rem auto; min-height:75vh;">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
-					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
-								@components.IconCart("icon-sm")
-							</div>
-							<h1 style="font-size:1.85rem; font-weight:900; color:var(--neutral-900); margin:0;">
-								سلة المشتريات وأوامر التوريد
-							</h1>
-						</div>
-						<p style="color:var(--neutral-500); font-size:0.925rem; margin:0;">
-							مراجعة أصناف الأدوية، الكميات المطلوبة، وتقسيم الشحنات حسب الموردين المعتمدين
-						</p>
-					</div>
-
-					<a href="/catalog" class="btn btn-secondary" style="font-weight:700;">
+				@components.PageHeader(components.PageHeaderProps{
+					Title:    "سلة المشتريات وأوامر التوريد",
+					Subtitle: "مراجعة أصناف الأدوية، الكميات المطلوبة، وتقسيم الشحنات حسب الموردين المعتمدين",
+				}) {
+					<a href="/catalog" class="btn btn-secondary" style="font-weight:600; gap:0.4rem;">
 						@components.IconArrowRight("icon-xs")
 						<span>متابعة إضافة أدوية</span>
 					</a>
-				</div>
+				}
 
 				<div id="cart-content">
 					@CustomerCartContent(cart, lang)
@@ -165,7 +154,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 												}
 												if !item.IsCovered && item.CoverageReason != "" {
 													<span class="badge" style="background:#fee2e2; color:#b91c1c; font-size:10px; font-weight:700;">
-														⚠️ { item.CoverageReason }
+														{ item.CoverageReason }
 													</span>
 												}
 											</div>

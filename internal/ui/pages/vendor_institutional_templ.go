@@ -74,7 +74,7 @@ func VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir strin
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>اسم الهيكل المؤسسي</th><th>الوصف</th><th>نوع التسعير</th><th>الحالة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>اسم الهيكل المؤسسي</th><th>الوصف</th><th>نوع التسعير</th><th>الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -460,7 +460,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الصيدلية والفرع</th><th>المدينة والعنوان</th><th>فرع التوزيع والمسافة</th><th>أيام ومواعيد التوصيل</th><th>حالة التغطية اليوم</th><th class=\"text-end\">التواصل</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الصيدلية والفرع</th><th>المدينة والعنوان</th><th>فرع التوزيع والمسافة</th><th>أيام ومواعيد التوصيل</th><th>حالة التغطية اليوم</th><th class=\"text-end\">التواصل</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

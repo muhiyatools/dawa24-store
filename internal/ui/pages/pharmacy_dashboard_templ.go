@@ -59,14 +59,14 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div><div style=\"font-weight:800; color:#92400e; font-size:0.95rem;\">⚠️ تنبيه إداري عاجل: مطلوب رفع مستند رسمي (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div><div style=\"font-weight:800; color:#92400e; font-size:0.95rem;\">تنبيه إداري عاجل: مطلوب رفع مستند رسمي (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.PendingDocRequests[0].Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 20, Col: 119}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 20, Col: 112}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {

@@ -49,11 +49,11 @@ templ importReviewBanner(view ImportReviewView) {
 		<h1 class="import-banner-title">
 			switch view.Session.Status {
 				case catalog.SessionCommitted:
-					{ "✅ تم حفظ الأصناف في الكتالوج المعتمد" }
+					{ "تم حفظ الأصناف في الكتالوج المعتمد" }
 				case catalog.SessionFailed:
-					{ "⚠️ فشل حفظ الأصناف" }
+					{ "فشل حفظ الأصناف" }
 				default:
-					{ "🔍 مراجعة ما سيتم تنفيذه" }
+					{ "مراجعة ما سيتم تنفيذه" }
 			}
 		</h1>
 		<p class="import-banner-text">{ view.SourceSummary() }</p>
@@ -125,7 +125,7 @@ templ importStructureCard(view ImportReviewView) {
 			</p>
 			if len(view.Bindings) > 0 {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>العمود</th>
@@ -281,7 +281,7 @@ templ importRowsCard(view ImportReviewView) {
 		</p>
 		<div class="wiz-toolbar">
 			@rowFilterChip(view, "", "الكل")
-			@rowFilterChip(view, string(catalog.ActionInsert), "➕ الجديدة")
+			@rowFilterChip(view, string(catalog.ActionInsert), "الجديدة")
 			@rowFilterChip(view, string(catalog.ActionUpdate), "🔄 التحديثات")
 			@rowFilterChip(view, "issues", "⚠ الملاحظات")
 			@rowFilterChip(view, "ai", "🤖 استكمال ذكي")
@@ -299,7 +299,7 @@ templ importRowsCard(view ImportReviewView) {
 			</form>
 		</div>
 		<div class="table-container wiz-scroll">
-			<table class="data-table">
+			<table class="b2b-table">
 				<thead>
 					<tr>
 						<th>الصف</th>
@@ -382,7 +382,7 @@ templ importRowsPager(view ImportReviewView) {
 
 templ importConfirmCard(view ImportReviewView) {
 	<div class="card mb-0">
-		<h2 class="wiz-head">✅ تأكيد الحفظ في الكتالوج</h2>
+		<h2 class="wiz-head">تأكيد الحفظ في الكتالوج</h2>
 		<p class="wiz-sub">
 			{ fmt.Sprintf("سيتم إضافة %s صنف وتحديث %s صنف. العملية تتم بالكامل أو لا تتم إطلاقاً.",
 				FormatCount(view.Counts.Insert), FormatCount(view.Counts.Update)) }
@@ -390,7 +390,7 @@ templ importConfirmCard(view ImportReviewView) {
 		if view.ModeIsDestructive() {
 			<div class="import-banner import-banner--error" style="margin-bottom:1rem;">
 				<p class="import-banner-text">
-					⚠️ سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع،
+					سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع،
 					لكنها ستختفي من الكتالوج والبحث فوراً.
 				</p>
 			</div>

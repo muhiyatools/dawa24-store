@@ -384,7 +384,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		</div>
 
 		<!-- MODAL 1: Create / Edit Saving Product Modal -->
-		<div id="saving-product-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+		<div id="saving-product-modal" class="modal-overlay hidden" class="modal-overlay hidden">
 			<div class="card" style="max-width:620px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 					<h3 id="modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
@@ -508,7 +508,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		</div>
 
 		<!-- MODAL 2: Bulk Import Modal -->
-		<div id="saving-import-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+		<div id="saving-import-modal" class="modal-overlay hidden" class="modal-overlay hidden">
 			<div class="card" style="max-width:600px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 					<div style="display:flex; align-items:center; gap:0.5rem;">
@@ -589,7 +589,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		</div>
 
 		<!-- MODAL 3: Providing Organizations & Offers Modal -->
-		<div id="providers-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+		<div id="providers-modal" class="modal-overlay hidden" class="modal-overlay hidden">
 			<div class="card" style="max-width:860px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 					<div>

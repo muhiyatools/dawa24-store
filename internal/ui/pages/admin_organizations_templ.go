@@ -140,40 +140,40 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">إدارة المنشآت والفروع والمستخدمين</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمستودعات، وحسابات الكوادر والمشرفين.</p></div></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">🏢 ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">إدارة المنشآت والفروع والمستخدمين</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمستودعات، وحسابات الكوادر والمشرفين.</p></div></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Organizations)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 106, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 106, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " منشأة</span> <span class=\"badge badge-emerald\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">📦 ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " منشأة</span> <span class=\"badge badge-emerald\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 109, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 109, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " فرع ومستودع</span> <span class=\"badge badge-indigo\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">👥 ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " فرع ومستودع</span> <span class=\"badge badge-indigo\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Users)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 112, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 112, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -299,7 +299,7 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"data-table\"><thead><tr><th>الاسم والبيانات التجارية</th><th>نوع المنشأة</th><th>السجل والبطاقة الضريبية</th><th>ترخيص هيئة الدواء</th><th>الهيكل التابع</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>الاسم والبيانات التجارية</th><th>نوع المنشأة</th><th>السجل والبطاقة الضريبية</th><th>ترخيص هيئة الدواء</th><th>الهيكل التابع</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -447,14 +447,14 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" title=\"انتقال لاستعراض فروع هذه المنشأة\">📦 ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" title=\"انتقال لاستعراض فروع هذه المنشأة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.BranchCounts[o.ID]))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 277, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 277, Col: 58}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -552,7 +552,7 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>اسم الفرع والكود</th><th>المنشأة التابع لها</th><th>نوع المنشأة اللوجستية</th><th>العنوان وبيانات التواصل</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>اسم الفرع والكود</th><th>المنشأة التابع لها</th><th>نوع المنشأة اللوجستية</th><th>العنوان وبيانات التواصل</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -791,7 +791,7 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>الدور الوظيفي</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>الدور الوظيفي</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1015,7 +1015,7 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, ")</h2><p class=\"subtitle\" style=\"margin:0.2rem 0 0 0;\">مراجعة طلبات المستخدمين لحذف حساباتهم بموجب لوائح الخصوصية وحماية البيانات.</p></div></div><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>سبب الحذف</th><th>تاريخ الطلب</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, ")</h2><p class=\"subtitle\" style=\"margin:0.2rem 0 0 0;\">مراجعة طلبات المستخدمين لحذف حساباتهم بموجب لوائح الخصوصية وحماية البيانات.</p></div></div><div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>سبب الحذف</th><th>تاريخ الطلب</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1434,7 +1434,7 @@ func AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employ
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الدور الوظيفي</th><th>الحالة</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "<div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الدور الوظيفي</th><th>الحالة</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1515,7 +1515,7 @@ func AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employ
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>العنوان</th><th>الحالة</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>العنوان</th><th>الحالة</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1714,7 +1714,7 @@ func AdminBranchesPage(branches []*org.Branch, lang, dir string) templ.Component
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 165, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>المنشأة التابع لها</th><th>العنوان</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 165, "<div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>المنشأة التابع لها</th><th>العنوان</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2012,7 +2012,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 184, "<div style=\"display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;\" x-data=\"{ addModalOpen: false, editModalOpen: false, currentItem: {} }\"><!-- Header Card --><div class=\"card mb-0\" style=\"border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">🚚</div><div><h1 style=\"font-size:1.4rem; font-weight:900; color:var(--text); margin:0;\">نطاقات وجداول التغطية الأسبوعية</h1><span style=\"font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;\">Weekly Delivery Schedules & Routes</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;\">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><form method=\"GET\" action=\"/admin/weekly-coverages\" style=\"display:flex; align-items:center; gap:0.5rem; margin:0;\"><label style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary); white-space:nowrap;\">تصفية المنشأة:</label> <select name=\"org_id\" class=\"form-select\" onchange=\"this.form.submit()\" style=\"font-size:0.85rem; padding:0.45rem 0.85rem; min-width:240px; border-radius:var(--radius-lg); font-weight:700;\"><option value=\"0\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 184, "<div style=\"display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;\" x-data=\"{ addModalOpen: false, editModalOpen: false, currentItem: {} }\"><!-- Header Card --><div class=\"card mb-0\" style=\"border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\"></div><div><h1 style=\"font-size:1.4rem; font-weight:900; color:var(--text); margin:0;\">نطاقات وجداول التغطية الأسبوعية</h1><span style=\"font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;\">Weekly Delivery Schedules & Routes</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;\">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><form method=\"GET\" action=\"/admin/weekly-coverages\" style=\"display:flex; align-items:center; gap:0.5rem; margin:0;\"><label style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary); white-space:nowrap;\">تصفية المنشأة:</label> <select name=\"org_id\" class=\"form-select\" onchange=\"this.form.submit()\" style=\"font-size:0.85rem; padding:0.45rem 0.85rem; min-width:240px; border-radius:var(--radius-lg); font-weight:700;\"><option value=\"0\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2022,7 +2022,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 186, ">🏢 كافة المنشآت والموردين</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 186, ">كافة المنشآت والموردين</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2068,7 +2068,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 192, "</select></form><button type=\"button\" class=\"btn btn-primary\" @click=\"addModalOpen = true\" style=\"font-weight:800; font-size:0.85rem; padding:0.55rem 1.1rem; border-radius:var(--radius-lg); gap:0.4rem;\"><span>➕</span> <span>إضافة جدول تغطية جديد</span></button></div></div><!-- Stats KPI Strip --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;\"><div style=\"background:var(--surface-raised); padding:0.85rem 1.1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700;\">إجمالي جداول التغطية</div><div class=\"tabular-nums\" style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin-top:2px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 192, "</select></form><button type=\"button\" class=\"btn btn-primary\" @click=\"addModalOpen = true\" style=\"font-weight:800; font-size:0.85rem; padding:0.55rem 1.1rem; border-radius:var(--radius-lg); gap:0.4rem;\"><span></span> <span>إضافة جدول تغطية جديد</span></button></div></div><!-- Stats KPI Strip --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;\"><div style=\"background:var(--surface-raised); padding:0.85rem 1.1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700;\">إجمالي جداول التغطية</div><div class=\"tabular-nums\" style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin-top:2px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2128,19 +2128,19 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المستودع المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"text-end\">الإجراءات والتحكم</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "<div class=\"b2b-table-container\"><table class=\"b2b-table\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المستودع المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"text-end\">الإجراءات والتحكم</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, c := range data.Coverages {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 199, "<tr><td><span class=\"badge badge-sky\" style=\"font-weight:800; font-size:0.825rem; padding:0.3rem 0.75rem;\">📅 ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 199, "<tr><td><span class=\"badge badge-sky\" style=\"font-weight:800; font-size:0.825rem; padding:0.3rem 0.75rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var107 string
 					templ_7745c5c3_Var107, templ_7745c5c3_Err = templ.JoinStringErrs(dayOfWeekAr(c.DayOfWeek))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 979, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 979, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var107))
 					if templ_7745c5c3_Err != nil {
@@ -2392,7 +2392,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 230, "\"> <button type=\"submit\" class=\"btn btn-danger btn-sm\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem;\" title=\"حذف\">🗑️</button></form></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 230, "\"> <button type=\"submit\" class=\"btn btn-danger btn-sm\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem;\" title=\"حذف\"></button></form></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2402,7 +2402,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 232, "</div><!-- Add Schedule Modal --><div x-show=\"addModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;\"><div @click.away=\"addModalOpen = false\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;\"><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);\"><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.2rem;\">🚚</span><h3 style=\"font-size:1.1rem; font-weight:800; margin:0; color:var(--text);\">إضافة جدول تغطية أسبوعية جديد</h3></div><button type=\"button\" @click=\"addModalOpen = false\" style=\"background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);\">✕</button></div><form method=\"POST\" action=\"/admin/weekly-coverages/new\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1rem; margin:0;\"><input type=\"hidden\" name=\"redirect_org_id\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 232, "</div><!-- Add Schedule Modal --><div x-show=\"addModalOpen\" x-cloak class=\"modal-overlay\"><div @click.away=\"addModalOpen = false\" class=\"modal-card modal-md\"><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);\"><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.2rem;\"></span><h3 style=\"font-size:1.1rem; font-weight:800; margin:0; color:var(--text);\">إضافة جدول تغطية أسبوعية جديد</h3></div><button type=\"button\" @click=\"addModalOpen = false\" style=\"background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);\">✕</button></div><form method=\"POST\" action=\"/admin/weekly-coverages/new\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1rem; margin:0;\"><input type=\"hidden\" name=\"redirect_org_id\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

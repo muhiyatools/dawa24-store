@@ -128,7 +128,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>المستودع</th><th>الكود</th><th>الفرع المرتبط</th><th>العنوان ورقم التواصل</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>المستودع</th><th>الكود</th><th>الفرع المرتبط</th><th>العنوان ورقم التواصل</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -662,7 +662,7 @@ func VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stock
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>#</th><th>معرف الصنف والتشغيلة</th><th>الرصيد الفعلي المتاح</th><th>حد إعادة الطلب</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>#</th><th>معرف الصنف والتشغيلة</th><th>الرصيد الفعلي المتاح</th><th>حد إعادة الطلب</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

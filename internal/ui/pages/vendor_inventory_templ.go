@@ -200,7 +200,7 @@ func VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.War
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الصنف والتشغيلة</th><th>المستودع / الفرع</th><th>الرصيد المتاح</th><th>حد إعادة الطلب</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الصنف والتشغيلة</th><th>المستودع / الفرع</th><th>الرصيد المتاح</th><th>حد إعادة الطلب</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

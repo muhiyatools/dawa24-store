@@ -175,7 +175,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			</div>
 
 			<!-- MODAL 1: Master Catalog Selection Modal -->
-			<div id="add-from-catalog-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+			<div id="add-from-catalog-modal" class="modal-overlay hidden" class="modal-overlay hidden">
 				<div class="card" style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 						<div style="display:flex; align-items:center; gap:0.5rem;">
@@ -379,7 +379,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			</div>
 
 			<!-- MODAL 2: Quick Edit Variant Modal -->
-			<div id="edit-variant-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+			<div id="edit-variant-modal" class="modal-overlay hidden" class="modal-overlay hidden">
 				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 						<h3 id="edit-modal-title" style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
@@ -545,7 +545,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			</div>
 
 			<!-- MODAL 3: Add Custom Variant Modal -->
-			<div id="add-custom-variant-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem;">
+			<div id="add-custom-variant-modal" class="modal-overlay hidden" class="modal-overlay hidden">
 				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
@@ -870,7 +870,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 			ActionURL:   "#",
 		})
 	} else {
-		<div class="b2b-table-card"><div class="b2b-table-container">
+		<div class="b2b-table-container">
 			<table class="b2b-table" style="min-width:1050px;">
 				<thead>
 					<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
@@ -1058,7 +1058,6 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 					}
 				</tbody>
 			</table>
-		</div>
 		</div>
 	}
 }

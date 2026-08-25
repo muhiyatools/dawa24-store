@@ -220,7 +220,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th style=\"width:50px;\">الشعار</th><th style=\"width:28%;\">اسم الشركة المصنعة</th><th style=\"width:32%;\">الوصف ونبذة التعريف</th><th style=\"width:14%;\">الأصناف المرتبطة</th><th style=\"width:12%;\">الحالة</th><th style=\"width:14%; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th style=\"width:50px;\">الشعار</th><th style=\"width:28%;\">اسم الشركة المصنعة</th><th style=\"width:32%;\">الوصف ونبذة التعريف</th><th style=\"width:14%;\">الأصناف المرتبطة</th><th style=\"width:12%;\">الحالة</th><th style=\"width:14%; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

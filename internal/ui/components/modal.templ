@@ -18,13 +18,12 @@ type ModalProps struct {
 templ Modal(props ModalProps) {
 	<dialog id={ props.ID } class="modal" aria-labelledby={ props.ID + "-title" }>
 		<div
-			class="modal-box"
-			if props.Size == "lg" {
-				style="max-width:min(94vw, 780px);"
-			}
-			if props.Size == "sm" {
-				style="max-width:min(92vw, 400px);"
-			}
+			class={ "modal-box",
+				templ.KV("modal-sm", props.Size == "sm"),
+				templ.KV("modal-lg", props.Size == "lg"),
+				templ.KV("modal-xl", props.Size == "xl"),
+				templ.KV("modal-full", props.Size == "full"),
+				templ.KV("modal-md", props.Size == "" || props.Size == "md") }
 		>
 			<div class="modal-header">
 				<h3 class="modal-title" id={ props.ID + "-title" }>{ props.Title }</h3>

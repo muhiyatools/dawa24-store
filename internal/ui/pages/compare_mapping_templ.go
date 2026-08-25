@@ -470,7 +470,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			return templ_7745c5c3_Err
 		}
 		if len(headers) > 0 && len(preview) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column; gap:0.6rem;\"><div style=\"font-weight:800; font-size:0.875rem; color:var(--text);\">🔍 عينة من بيانات الملف (أول صفوف):</div><div style=\"overflow-x:auto; max-height:180px;\"><table class=\"table\" style=\"width:100%; border-collapse:collapse; font-size:0.8rem; text-align:start;\"><thead><tr style=\"border-bottom:2px solid var(--border); color:var(--text-muted);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column; gap:0.6rem;\"><div style=\"font-weight:800; font-size:0.875rem; color:var(--text);\">عينة من بيانات الملف (أول صفوف):</div><div style=\"overflow-x:auto; max-height:180px;\"><table class=\"table\" style=\"width:100%; border-collapse:collapse; font-size:0.8rem; text-align:start;\"><thead><tr style=\"border-bottom:2px solid var(--border); color:var(--text-muted);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

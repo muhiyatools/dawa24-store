@@ -74,7 +74,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>رقم الفاتورة</th><th>رقم الطلبية</th><th>المبلغ الإجمالي</th><th>ضريبة القيمة المضافة (VAT)</th><th>تاريخ الإصدار</th><th>الحالة الضريبية</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>رقم الفاتورة</th><th>رقم الطلبية</th><th>المبلغ الإجمالي</th><th>ضريبة القيمة المضافة (VAT)</th><th>تاريخ الإصدار</th><th>الحالة الضريبية</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

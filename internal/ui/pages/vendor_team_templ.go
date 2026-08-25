@@ -373,14 +373,14 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					} else if m.RoleKey == "org_warehouse" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge\" style=\"font-size:0.775rem; font-weight:800; padding:0.3rem 0.75rem; border-radius:var(--radius-pill); background:rgba(16,185,129,0.12); color:#047857; border:1px solid rgba(16,185,129,0.3);\">📦 ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge\" style=\"font-size:0.775rem; font-weight:800; padding:0.3rem 0.75rem; border-radius:var(--radius-pill); background:rgba(16,185,129,0.12); color:#047857; border:1px solid rgba(16,185,129,0.3);\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(m.RoleName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 308, Col: 30}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 308, Col: 25}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {

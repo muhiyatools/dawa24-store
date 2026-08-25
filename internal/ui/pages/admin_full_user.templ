@@ -33,7 +33,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 				@components.EmptyState(components.EmptyStateProps{Title: "لا يوجد مستخدمون", Message: "لم يتم العثور على مستخدمين مسجلين في هذا القسم."})
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>الاسم</th>
@@ -116,7 +116,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات حذف معلقة", Message: "لا توجد أي طلبات لحذف الحسابات حالياً."})
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>#</th>
@@ -180,7 +180,7 @@ templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أدوار مخصصة", Message: "يتم استخدام الأدوار القياسية للنظام."})
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>اسم الدور</th>

@@ -25,7 +25,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد دفعات مسجلة", Message: "ستظهر هنا الدفعات والتحويلات المالية فور تسويتها."})
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>رقم العملية / المرجع</th>
@@ -102,7 +102,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض واردة", Message: "ستظهر هنا الشحنات الخاصة بالطلبيات المقدمة من الصيدليات."})
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>رقم الشحنة</th>

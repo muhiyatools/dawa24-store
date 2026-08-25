@@ -16,7 +16,7 @@ templ AdminOffers(lang, dir string, offers []*promo.Offer) {
 				<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد عروض.</p>
 			} else {
 				<div class="table-container">
-					<table class="data-table">
+					<table class="b2b-table">
 						<thead><tr><th>العنوان</th><th>المؤسسة</th><th>الخصم</th><th>الحالة</th><th>إجراءات</th></tr></thead>
 						<tbody>
 							for _, o := range offers {

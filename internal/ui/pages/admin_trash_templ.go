@@ -72,7 +72,7 @@ func AdminTrashListPage(models []ModelMetaEntry, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</h2><p class=\"subtitle\">استرجاع البيانات المحذوفة مؤقتاً أو الحذف النهائي مع الحفاظ على سلامة العلاقات.</p></div></div><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الجدول / النموذج</th><th>الاسم</th><th>السجلات في السلة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</h2><p class=\"subtitle\">استرجاع البيانات المحذوفة مؤقتاً أو الحذف النهائي مع الحفاظ على سلامة العلاقات.</p></div></div><div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الجدول / النموذج</th><th>الاسم</th><th>السجلات في السلة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -231,7 +231,7 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th style=\"width:90px;\">المعرف</th><th>السجل</th><th style=\"width:160px;\">تاريخ الحذف</th><th style=\"width:220px; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th style=\"width:90px;\">المعرف</th><th>السجل</th><th style=\"width:160px;\">تاريخ الحذف</th><th style=\"width:220px; text-align:end;\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

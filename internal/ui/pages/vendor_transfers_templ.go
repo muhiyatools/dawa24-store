@@ -107,7 +107,7 @@ func VendorTransfersTable(transfers []*inventory.WarehouseTransfer) templ.Compon
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"padding:0; overflow:hidden; margin-bottom:0;\"><table class=\"data-table\"><thead><tr><th>رقم التحويل</th><th>من مخزن</th><th>إلى مخزن</th><th>الكمية</th><th>الحالة</th><th>التاريخ</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"padding:0; overflow:hidden; margin-bottom:0;\"><table class=\"b2b-table\"><thead><tr><th>رقم التحويل</th><th>من مخزن</th><th>إلى مخزن</th><th>الكمية</th><th>الحالة</th><th>التاريخ</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

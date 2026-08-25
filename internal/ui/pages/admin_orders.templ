@@ -70,7 +70,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات تفاوض على الأسعار", Message: "لم يتم تقديم أي طلبات تفاوض على أسعار الأصناف حتى الآن."})
 					} else {
 						<div class="table-container">
-							<table class="data-table">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>رقم الطلب</th>
@@ -125,7 +125,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أوامر توريد مباشر", Message: "لم يتم تسجيل أوامر توريد مباشر تطابق معايير البحث."})
 					} else {
 						<div class="table-container">
-							<table class="data-table">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>رقم الطلب</th>
@@ -166,7 +166,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات مطابقة", Message: "لم يتم تسجيل أي طلبات شراء تطابق معايير البحث."})
 					} else {
 						<div class="table-container">
-							<table class="data-table">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th>رقم الطلب</th>

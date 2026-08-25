@@ -162,7 +162,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الهاتف</th><th>الدور</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الهاتف</th><th>الدور</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -456,7 +456,7 @@ func AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lang
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>#</th><th>معرف المستخدم</th><th>السبب</th><th>الحالة</th><th>تاريخ الطلب</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>#</th><th>معرف المستخدم</th><th>السبب</th><th>الحالة</th><th>تاريخ الطلب</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -689,7 +689,7 @@ func AdminRolesPage(roles []*org.Role, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>اسم الدور</th><th>الكود التعريفي</th><th>الوصف</th><th>عدد الصلاحيات</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>اسم الدور</th><th>الكود التعريفي</th><th>الوصف</th><th>عدد الصلاحيات</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -59,14 +59,14 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div><div style=\"font-weight:800; color:#92400e; font-size:0.95rem;\">⚠️ تنبيه إداري عاجل: مطلوب رفع مستند رسمي (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div><div style=\"font-weight:800; color:#92400e; font-size:0.95rem;\">تنبيه إداري عاجل: مطلوب رفع مستند رسمي (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.PendingDocRequests[0].Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 20, Col: 119}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 20, Col: 112}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -314,7 +314,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الشحنة</th><th>الإجمالي</th><th></th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الشحنة</th><th>الإجمالي</th><th></th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -386,7 +386,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الصنف</th><th>الكمية</th><th>الحد</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الصنف</th><th>الكمية</th><th>الحد</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

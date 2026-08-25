@@ -171,7 +171,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						<!-- Results Table -->
 						<template x-if="!queryResult.error && queryResult.columns && queryResult.columns.length > 0">
 							<div class="table-container" style="max-height:400px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-lg);">
-								<table class="data-table" style="width:100%; border-collapse:collapse; font-family:monospace; font-size:0.8rem;">
+								<table class="b2b-table" style="width:100%; border-collapse:collapse; font-family:monospace; font-size:0.8rem;">
 									<thead>
 										<tr style="background:var(--surface-sunken); position:sticky; top:0; z-index:1;">
 											<template x-for="col in queryResult.columns" :key="col">
@@ -210,7 +210,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						</div>
 					} else {
 						<div class="table-container" style="overflow-x:auto;">
-							<table class="data-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+							<table class="b2b-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;">
 								<thead>
 									<tr>
 										<th style="width:18%; text-align:start;">التوقيت والمستخدم</th>
@@ -399,7 +399,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</div>
 							if values.GatewaySettings.VirtualKey != "" {
 								<div style="font-size:0.78rem; color:var(--success, #10b981);">
-									✅ تم إنشاؤه تلقائياً — المستخدم:
+									تم إنشاؤه تلقائياً — المستخدم:
 									<code dir="ltr">{ values.GatewaySettings.AIUserID }</code>
 								</div>
 							} else {
@@ -551,7 +551,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					})
 				} else {
 					<div class="table-container" style="overflow-x:auto; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-						<table class="data-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
+						<table class="b2b-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
 							<thead>
 								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
 									<th style="width:7%; text-align:center;">المعرف</th>
@@ -763,7 +763,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						})
 					} else {
 						<div class="table-container" style="overflow-x:auto;">
-							<table class="data-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
+							<table class="b2b-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
 								<thead>
 									<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
 										<th style="width:6%; text-align:center;">المعرف</th>

@@ -379,7 +379,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"table-container\" style=\"margin:0; border:none;\"><table class=\"data-table\" style=\"margin:0;\"><thead><tr><th>رقم المعاملة</th><th>نوع العملية</th><th>البيان والتفاصيل</th><th>المبلغ</th><th>الرصيد بعدها</th><th>التاريخ والوقت</th><th>الحالة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"table-container\" style=\"margin:0; border:none;\"><table class=\"b2b-table\" style=\"margin:0;\"><thead><tr><th>رقم المعاملة</th><th>نوع العملية</th><th>البيان والتفاصيل</th><th>المبلغ</th><th>الرصيد بعدها</th><th>التاريخ والوقت</th><th>الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1207,7 +1207,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "<span>تأكيد تسجيل الإيداع</span></button></div></form></div></div><!-- Dynamic Modal 3: Withdraw Funds Modal (Centered Popup) --><div x-show=\"isWithdrawModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.5rem;\" @keydown.escape.window=\"isWithdrawModalOpen = false\"><div @click.outside=\"isWithdrawModalOpen = false\" class=\"card\" style=\"max-width:540px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div class=\"row-center-sm\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "<span>تأكيد تسجيل الإيداع</span></button></div></form></div></div><!-- Dynamic Modal 3: Withdraw Funds Modal (Centered Popup) --><div x-show=\"isWithdrawModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isWithdrawModalOpen = false\"><div @click.outside=\"isWithdrawModalOpen = false\" class=\"modal-card modal-md\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div class=\"row-center-sm\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1236,7 +1236,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var46 string
 					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(pm.AccountIdentifier)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 1007, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 1006, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 					if templ_7745c5c3_Err != nil {
@@ -1249,7 +1249,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var47 string
 					templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(paymentProviderTitle(pm.Provider))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 1007, Col: 84}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 1006, Col: 84}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 					if templ_7745c5c3_Err != nil {
@@ -1262,7 +1262,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var48 string
 					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(pm.AccountIdentifier)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 1007, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 1006, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 					if templ_7745c5c3_Err != nil {
@@ -1287,7 +1287,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 139, "<span>تأكيد طلب السحب</span></button></div></form></div></div><!-- Dynamic Modal 4: Request Account Deletion Modal (Centered Popup) --><div x-show=\"isDeleteAccountModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.5rem;\" @keydown.escape.window=\"isDeleteAccountModalOpen = false\"><div @click.outside=\"isDeleteAccountModalOpen = false\" class=\"card\" style=\"max-width:540px; width:100%; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--danger-text);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 139, "<span>تأكيد طلب السحب</span></button></div></form></div></div><!-- Dynamic Modal 4: Request Account Deletion Modal (Centered Popup) --><div x-show=\"isDeleteAccountModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isDeleteAccountModalOpen = false\"><div @click.outside=\"isDeleteAccountModalOpen = false\" class=\"modal-card modal-md\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--danger-text);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

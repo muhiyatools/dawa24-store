@@ -164,7 +164,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 										</p>
 									</div>
 									<div style="margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;">
-										⚠️ لن يتم تحديث أي منتج موجود بالفعل
+										لن يتم تحديث أي منتج موجود بالفعل
 									</div>
 								</label>
 
@@ -180,7 +180,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 										</p>
 									</div>
 									<div style="margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;">
-										⚠️ لن تتم إضافة أي أصناف غير مسجلة
+										لن تتم إضافة أي أصناف غير مسجلة
 									</div>
 								</label>
 
@@ -196,7 +196,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 										</p>
 									</div>
 									<div style="margin-top:0.75rem; font-size:0.75rem; color:var(--danger); font-weight:800;">
-										⚠️ سيتم مسح أرصدة هذا المستودع بالكامل!
+										سيتم مسح أرصدة هذا المستودع بالكامل!
 									</div>
 								</label>
 
@@ -284,7 +284,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/mapping", data.Session.ID)) } onsubmit="document.getElementById('ai-loading-modal').style.display='flex'">
 						
 						<div class="table-container" style="margin-bottom:2rem;">
-							<table class="data-table">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th style="width:30%;">حقل النظام المعياري</th>
@@ -586,7 +586,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 						</div>
 
 						<div class="card" style="margin-bottom:0; padding:1.5rem; background:rgba(245,158,11,0.04); border-radius:var(--radius-xl); border:1px solid rgba(245,158,11,0.25);">
-							<div style="font-size:0.825rem; color:#d97706; font-weight:800;">⚠️ بحاجة لمراجعة وتأكيد (Review)</div>
+							<div style="font-size:0.825rem; color:#d97706; font-weight:800;">بحاجة لمراجعة وتأكيد (Review)</div>
 							<div style="font-size:1.85rem; font-weight:900; color:#d97706; margin-top:0.25rem;">
 								{ fmt.Sprintf("%d", data.Session.ReviewRows) }
 							</div>
@@ -675,7 +675,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 
 						<!-- Rows Table -->
 						<div class="table-container">
-							<table class="data-table">
+							<table class="b2b-table">
 								<thead>
 									<tr>
 										<th style="width:40px;">#</th>
@@ -737,7 +737,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 														}
 													} else {
 														<div style="color:var(--danger); font-weight:800; font-size:0.875rem;">
-															⚠️ لم يتم الربط بصنف معتمد
+															لم يتم الربط بصنف معتمد
 														</div>
 													}
 
@@ -771,7 +771,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 															</span>
 														} else if row.ConfidenceLevel == ingest.ConfidenceReview {
 															<span class="badge badge-warning" style="font-size:0.775rem; font-weight:800;">
-																⚠️ بحاجة لمراجعة
+																بحاجة لمراجعة
 															</span>
 														} else {
 															<span class="badge badge-danger" style="font-size:0.775rem; font-weight:800;">

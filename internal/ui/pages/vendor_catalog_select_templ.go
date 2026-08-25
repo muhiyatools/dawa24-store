@@ -86,7 +86,7 @@ func VendorCatalogSelectPage(products []*catalog.Product, search string, lang, d
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/vendor/catalog/select\"><div class=\"table-container\" style=\"margin-bottom:1.5rem;\"><table class=\"data-table\"><thead><tr><th style=\"width:40px;\">اختيار</th><th>المنتج</th><th>الاسم العلمي</th><th>سعر الجمهور</th><th>الحالة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/vendor/catalog/select\"><div class=\"table-container\" style=\"margin-bottom:1.5rem;\"><table class=\"b2b-table\"><thead><tr><th style=\"width:40px;\">اختيار</th><th>المنتج</th><th>الاسم العلمي</th><th>سعر الجمهور</th><th>الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

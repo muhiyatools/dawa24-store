@@ -470,7 +470,7 @@ func importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpti
 			return templ_7745c5c3_Err
 		}
 		if !aiAvailable {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<p class=\"wiz-sub\" style=\"margin-top:0.75rem;\">⚠️ خدمة الذكاء الاصطناعي غير متصلة حالياً. يمكنك ضبط بوابة الذكاء الاصطناعي من <a href=\"/admin/developers?tab=ai\">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<p class=\"wiz-sub\" style=\"margin-top:0.75rem;\">خدمة الذكاء الاصطناعي غير متصلة حالياً. يمكنك ضبط بوابة الذكاء الاصطناعي من <a href=\"/admin/developers?tab=ai\">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -683,7 +683,7 @@ func importHistoryCard(sessions []*catalog.ImportSession) templ.Component {
 			templ_7745c5c3_Var28 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"card mb-0\"><h2 class=\"wiz-head\">🕘 آخر عمليات الاستيراد</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الملف</th><th>الطريقة</th><th>إضافة</th><th>تحديث</th><th>الحالة</th><th>التاريخ</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"card mb-0\"><h2 class=\"wiz-head\">🕘 آخر عمليات الاستيراد</h2><div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الملف</th><th>الطريقة</th><th>إضافة</th><th>تحديث</th><th>الحالة</th><th>التاريخ</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

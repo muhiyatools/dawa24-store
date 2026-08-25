@@ -227,7 +227,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"data-table\"><thead><tr><th>#</th><th>اسم الفئة</th><th>الفئة الأب (Parent)</th><th>الوصف</th><th>الأصناف المرتبطة</th><th>ترتيب العرض</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"b2b-table\"><thead><tr><th>#</th><th>اسم الفئة</th><th>الفئة الأب (Parent)</th><th>الوصف</th><th>الأصناف المرتبطة</th><th>ترتيب العرض</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

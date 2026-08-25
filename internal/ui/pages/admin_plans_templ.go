@@ -243,7 +243,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>رقم الاشتراك</th><th>المنشأة / المستفيد</th><th>باقة الاشتراك</th><th>الحالة</th><th>نظام التفعيل</th><th>تاريخ البدء</th><th>تاريخ الانتهاء</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>رقم الاشتراك</th><th>المنشأة / المستفيد</th><th>باقة الاشتراك</th><th>الحالة</th><th>نظام التفعيل</th><th>تاريخ البدء</th><th>تاريخ الانتهاء</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -17,7 +17,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					@components.IconAlert("icon-lg")
 					<div>
 						<div style="font-weight:800; color:#92400e; font-size:0.95rem;">
-							⚠️ تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
+							تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
 						</div>
 						<div style="font-size:0.8rem; color:#b45309; margin-top:0.2rem;">
 							المهلة الممنوحة: متبقي <strong class="tabular-nums">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف وتجميد حساب المورد.
@@ -135,7 +135,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد شحنات معلّقة حالياً.</p>
 				} else {
 					<div class="table-container">
-						<table class="data-table">
+						<table class="b2b-table">
 							<thead><tr><th>الشحنة</th><th>الإجمالي</th><th></th></tr></thead>
 							<tbody>
 								for _, s := range data.Shipments {
@@ -164,7 +164,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<p style="color:var(--neutral-500); font-size:0.9rem;">جميع الأرصدة فوق حد إعادة الطلب.</p>
 				} else {
 					<div class="table-container">
-						<table class="data-table">
+						<table class="b2b-table">
 							<thead><tr><th>الصنف</th><th>الكمية</th><th>الحد</th></tr></thead>
 							<tbody>
 								for _, s := range data.LowStock {

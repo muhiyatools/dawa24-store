@@ -427,7 +427,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"data-table\" style=\"min-width:1000px; width:100%; border-collapse:collapse;\"><thead><tr><th style=\"width:18%; text-align:start;\">التاريخ والوقت</th><th style=\"width:22%; text-align:start;\">الدولة والمدينة</th><th style=\"width:18%; text-align:center;\">عنوان IP (المحمي)</th><th style=\"width:14%; text-align:center;\">نوع الجهاز</th><th style=\"width:14%; text-align:center;\">المتصفح</th><th style=\"width:14%; text-align:center;\">نظام التشغيل</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<div class=\"table-container\" style=\"overflow-x:auto;\"><table class=\"b2b-table\" style=\"min-width:1000px; width:100%; border-collapse:collapse;\"><thead><tr><th style=\"width:18%; text-align:start;\">التاريخ والوقت</th><th style=\"width:22%; text-align:start;\">الدولة والمدينة</th><th style=\"width:18%; text-align:center;\">عنوان IP (المحمي)</th><th style=\"width:14%; text-align:center;\">نوع الجهاز</th><th style=\"width:14%; text-align:center;\">المتصفح</th><th style=\"width:14%; text-align:center;\">نظام التشغيل</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -59,7 +59,7 @@ func AdminOffers(lang, dir string, offers []*promo.Offer) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>العنوان</th><th>المؤسسة</th><th>الخصم</th><th>الحالة</th><th>إجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>العنوان</th><th>المؤسسة</th><th>الخصم</th><th>الحالة</th><th>إجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

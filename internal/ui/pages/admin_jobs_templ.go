@@ -90,7 +90,7 @@ func AdminJobs(lang, dir string, jobs []*AdminJobView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"data-table\"><thead><tr><th>المسمى الوظيفي</th><th>الجهة المعلنة (الشركة / الصيدلية)</th><th>طبيعة العمل</th><th>الموقع</th><th>الراتب / المكافأة</th><th>تاريخ النشر</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"b2b-table\"><thead><tr><th>المسمى الوظيفي</th><th>الجهة المعلنة (الشركة / الصيدلية)</th><th>طبيعة العمل</th><th>الموقع</th><th>الراتب / المكافأة</th><th>تاريخ النشر</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

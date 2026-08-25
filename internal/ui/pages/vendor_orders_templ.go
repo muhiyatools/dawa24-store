@@ -733,7 +733,7 @@ func VendorOrdersContent(data VendorOrdersData, lang, dir string) templ.Componen
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, " صنف)</span></h4><span class=\"badge badge-sky\" style=\"font-size:0.75rem;\">شحن مبرد معتمد Cold-Chain</span></div><div style=\"border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;\"><table class=\"data-table\" style=\"margin:0; width:100%;\"><thead><tr style=\"background:var(--surface-sunken);\"><th style=\"font-size:0.8rem; font-weight:700;\">اسم الدواء / الصنف</th><th style=\"font-size:0.8rem; font-weight:700; text-align:center;\">الكمية المطلوبة</th><th style=\"font-size:0.8rem; font-weight:700; text-align:center;\">سعر الوحدة</th><th style=\"font-size:0.8rem; font-weight:700; text-align:end;\">الإجمالي</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, " صنف)</span></h4><span class=\"badge badge-sky\" style=\"font-size:0.75rem;\">شحن مبرد معتمد Cold-Chain</span></div><div style=\"border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;\"><table class=\"b2b-table\" style=\"margin:0; width:100%;\"><thead><tr style=\"background:var(--surface-sunken);\"><th style=\"font-size:0.8rem; font-weight:700;\">اسم الدواء / الصنف</th><th style=\"font-size:0.8rem; font-weight:700; text-align:center;\">الكمية المطلوبة</th><th style=\"font-size:0.8rem; font-weight:700; text-align:center;\">سعر الوحدة</th><th style=\"font-size:0.8rem; font-weight:700; text-align:end;\">الإجمالي</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

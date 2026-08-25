@@ -17,7 +17,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					@components.IconAlert("icon-lg")
 					<div>
 						<div style="font-weight:800; color:#92400e; font-size:0.95rem;">
-							⚠️ تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
+							تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
 						</div>
 						<div style="font-size:0.8rem; color:#b45309; margin-top:0.2rem;">
 							المهلة الممنوحة: متبقي <strong class="tabular-nums">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف وتجميد الحساب.

@@ -215,7 +215,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"data-table\"><thead><tr><th>السياسة القانونية</th><th>رقم الإصدار</th><th>العنوان (عربي / English)</th><th>ملخص التعديلات</th><th>حالة النشر</th><th>تاريخ التحديث</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container\" style=\"overflow:visible;\"><table class=\"b2b-table\"><thead><tr><th>السياسة القانونية</th><th>رقم الإصدار</th><th>العنوان (عربي / English)</th><th>ملخص التعديلات</th><th>حالة النشر</th><th>تاريخ التحديث</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
