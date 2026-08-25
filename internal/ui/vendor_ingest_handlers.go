@@ -319,7 +319,7 @@ func (h *UIHandler) VendorIngestRowsExport(w http.ResponseWriter, r *http.Reques
 
 	out := csv.NewWriter(w)
 	defer out.Flush()
-	_ = out.Write([]string{"رقم الصف", "الاسم", "الكود", "النتيجة", "درجة المطابقة", "الملاحظة"})
+	_ = out.Write([]string{"رقم الصف", "اسم الصنف في الملف", "الصنف المطابق المعتمد بالكتالوج", "كود الصنف بالملف", "النتيجة", "درجة المطابقة", "الملاحظة"})
 
 	for offset := 0; offset < 20000; offset += filter.Limit {
 		filter.Offset = offset
@@ -329,7 +329,7 @@ func (h *UIHandler) VendorIngestRowsExport(w http.ResponseWriter, r *http.Reques
 		}
 		for _, row := range rows {
 			_ = out.Write([]string{
-				strconv.Itoa(row.SourceRow), row.DisplayName, row.SourceCode,
+				strconv.Itoa(row.SourceRow), row.DisplayName, row.MatchedCatalogName(), row.SourceCode,
 				pages.OutcomeLabel(row.Outcome), pages.PercentText(row.MatchScore), row.Message,
 			})
 		}
