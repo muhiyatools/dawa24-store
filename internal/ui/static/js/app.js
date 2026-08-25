@@ -1,6 +1,60 @@
 // Dawa24 Frontend Application Script
 // Resilient Vanilla JS Engine: Tabs, Modals, Steppers, Dropdowns, HTMX & Flash Notices.
 
+// Global Cookie Helper
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+// 0. Auto-inject _csrf token into all Native HTML form submissions
+document.addEventListener('submit', (e) => {
+  const form = e.target;
+  if (form && form.tagName === 'FORM') {
+    const method = (form.getAttribute('method') || 'GET').toUpperCase();
+    if (method !== 'GET') {
+      const csrfToken = getCookie('dawa_csrf');
+      if (csrfToken) {
+        let input = form.querySelector('input[name="_csrf"]');
+        if (!input) {
+          input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = '_csrf';
+          form.appendChild(input);
+        }
+        input.value = csrfToken;
+      }
+    }
+  }
+}, true);
+
+// 0.1 Global Fetch Interceptor for CSRF
+if (typeof window.fetch === 'function') {
+  const _origFetch = window.fetch;
+  window.fetch = function(url, options = {}) {
+    const method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+      const csrfToken = getCookie('dawa_csrf');
+      if (csrfToken) {
+        if (!options.headers) {
+          options.headers = { 'X-CSRF-Token': csrfToken };
+        } else if (options.headers instanceof Headers) {
+          if (!options.headers.has('X-CSRF-Token')) {
+            options.headers.set('X-CSRF-Token', csrfToken);
+          }
+        } else if (Array.isArray(options.headers)) {
+          options.headers.push(['X-CSRF-Token', csrfToken]);
+        } else if (typeof options.headers === 'object') {
+          if (!options.headers['X-CSRF-Token'] && !options.headers['x-csrf-token']) {
+            options.headers['X-CSRF-Token'] = csrfToken;
+          }
+        }
+      }
+    }
+    return _origFetch.call(this, url, options);
+  };
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // 1. HTMX CSRF Attachment
   document.body.addEventListener('htmx:configRequest', (evt) => {
@@ -878,11 +932,6 @@ function showToast(message, type = 'info') {
     toast.classList.add('fade-out');
     setTimeout(() => toast.remove(), 300);
   }, 4000);
-}
-
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? match[2] : null;
 }
 
 // Scroll Reveal: IntersectionObserver for .reveal elements

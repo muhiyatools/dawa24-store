@@ -59,6 +59,10 @@ func JSON(w http.ResponseWriter, status int, v any) {
 func Error(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
 	status, appError := classify(err)
 
+	if log == nil {
+		log = slog.Default()
+	}
+
 	if status >= 500 {
 		log.ErrorContext(r.Context(), "request failed",
 			"error", err, "path", r.URL.Path, "method", r.Method)

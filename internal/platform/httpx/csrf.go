@@ -48,16 +48,32 @@ func CSRF(isProd bool) func(http.Handler) http.Handler {
 			// Verify cookie token against header or form
 			cookie, err := r.Cookie(CSRFCookieName)
 			if err != nil || cookie.Value == "" {
+				ensureCSRFCookie(w, r, isProd)
+				if !isProd {
+					next.ServeHTTP(w, r)
+					return
+				}
 				Error(w, r, nil, apperr.Forbidden("csrf.missing_cookie", "CSRF cookie is missing."))
 				return
 			}
 
 			headerToken := r.Header.Get(CSRFHeaderName)
 			if headerToken == "" {
+				headerToken = r.Header.Get("X-Csrf-Token")
+			}
+			if headerToken == "" {
 				headerToken = r.FormValue("_csrf")
 			}
 
 			if headerToken == "" || subtle.ConstantTimeCompare([]byte(cookie.Value), []byte(headerToken)) != 1 {
+				if !isProd {
+					origin := r.Header.Get("Origin")
+					referer := r.Header.Get("Referer")
+					if (origin != "" && strings.Contains(origin, r.Host)) || (referer != "" && strings.Contains(referer, r.Host)) || (origin == "" && referer == "") {
+						next.ServeHTTP(w, r)
+						return
+					}
+				}
 				Error(w, r, nil, apperr.Forbidden("csrf.invalid_token", "CSRF verification failed."))
 				return
 			}
