@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // Writing one batch.
@@ -31,8 +31,8 @@ type counters struct {
 
 // decision is what the run resolved for one row, before any write.
 type decision struct {
-	row   *engine.Row
-	match engine.MatchResult
+	row   *productmatch.Row
+	match productmatch.MatchResult
 	// productID is the catalogue product the variant will point at, once any
 	// newly created product has an id.
 	productID int64
@@ -53,9 +53,9 @@ type importWriter struct {
 	svc      *Service
 	session  *Session
 	settings Settings
-	index    *engine.Index
+	index    *productmatch.Index
 	variants *variantIndex
-	match    engine.MatchOptions
+	match    productmatch.MatchOptions
 
 	counts    counters
 	touched   []int64
@@ -63,7 +63,7 @@ type importWriter struct {
 }
 
 // write handles one batch of parsed rows.
-func (w *importWriter) write(ctx context.Context, batch []*engine.Row) error {
+func (w *importWriter) write(ctx context.Context, batch []*productmatch.Row) error {
 	decisions := w.decide(batch)
 	if err := w.createProducts(ctx, decisions); err != nil {
 		return err
@@ -84,7 +84,7 @@ func (w *importWriter) write(ctx context.Context, batch []*engine.Row) error {
 }
 
 // decide resolves every row in the batch without writing anything.
-func (w *importWriter) decide(batch []*engine.Row) []*decision {
+func (w *importWriter) decide(batch []*productmatch.Row) []*decision {
 	out := make([]*decision, 0, len(batch))
 	for i, row := range batch {
 		d := &decision{row: row, ref: i}
@@ -120,11 +120,11 @@ func (w *importWriter) decide(batch []*engine.Row) []*decision {
 }
 
 // countMatch tallies how the shared catalogue answered.
-func (w *importWriter) countMatch(m engine.MatchResult) {
+func (w *importWriter) countMatch(m productmatch.MatchResult) {
 	switch {
 	case m.Level.Settled():
 		w.counts.matched++
-	case m.Level == engine.MatchReview || m.Level == engine.MatchAmbiguous:
+	case m.Level == productmatch.MatchReview || m.Level == productmatch.MatchAmbiguous:
 		w.counts.review++
 	default:
 		w.counts.unmatched++
@@ -150,8 +150,8 @@ func (w *importWriter) modeMessage(variantID int64) string {
 	return "تم التخطي: الصنف موجود لديك بالفعل، والوضع الحالي يضيف الجديد فقط."
 }
 
-func (w *importWriter) unmatchedMessage(m engine.MatchResult) string {
-	if m.Level == engine.MatchAmbiguous {
+func (w *importWriter) unmatchedMessage(m productmatch.MatchResult) string {
+	if m.Level == productmatch.MatchAmbiguous {
 		return "تم التخطي: أكثر من صنف في الكتالوج المركزي يطابق هذا السطر بنفس الدرجة."
 	}
 	return "تم التخطي: لا يوجد صنف مطابق في الكتالوج المركزي."
@@ -283,10 +283,10 @@ func (w *importWriter) writeStocks(ctx context.Context, decisions []*decision) e
 			// a written row, not a failed row, and saying otherwise would have
 			// the results screen contradict the catalogue.
 			d.message = appendMessage(d.message, "تعذر تحديث الرصيد: "+f.Message)
-			d.row.Issues = append(d.row.Issues, engine.Issue{
+			d.row.Issues = append(d.row.Issues, productmatch.Issue{
 				Row:      d.row.Number,
-				Field:    engine.FieldQuantity,
-				Severity: engine.SeverityWarning,
+				Field:    productmatch.FieldQuantity,
+				Severity: productmatch.SeverityWarning,
 				Message:  f.Message,
 			})
 		}

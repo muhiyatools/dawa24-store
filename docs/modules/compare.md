@@ -78,3 +78,20 @@ The `compare` bounded context implements the platform's flagship supplier-vs-sup
 - `GET /compare/results` — View multi-supplier comparison results table and summaries.
 - `GET /compare/head-to-head` — Head-to-head comparison view between two suppliers.
 - `GET /market-discounts` — Market-wide approved discounts and supplier comparison.
+
+
+## Shared Matching (2026-08-25)
+
+`compare`'s normalisation and string-similarity helpers now live in
+`internal/shared/productmatch` (`NormalizeText`, `FirstMeaningfulWord`,
+`TextSimilarity`), carried across unchanged. They were duplicating the engine
+that `ingest` already had, and two implementations of "are these the same product
+name" drift invisibly until two features disagree about the same spreadsheet.
+
+`compare`'s DB-backed strategy ladder (`MatchLadder`) stays in this module:
+candidate retrieval needs SQL and is legitimately module-owned. What is shared is
+the scorer, not the retrieval.
+
+The engine itself was promoted from `modules/ingest/engine` to
+`internal/shared/productmatch` so `ingest`, `compare` and `smartorder` all use
+one implementation. See `docs/modules/smartorder.md`.

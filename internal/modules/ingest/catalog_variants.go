@@ -2,7 +2,7 @@ package ingest
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -77,7 +77,7 @@ func packKey(productID int64, unit, batch string) string {
 // The barcode is next but weaker than it looks — several pack sizes of one
 // product legitimately share one — so it only settles a row that carried no
 // code. Everything after that is inference and is treated as such.
-func (idx *variantIndex) resolve(row *engine.Row, productID int64) (int64, string) {
+func (idx *variantIndex) resolve(row *productmatch.Row, productID int64) (int64, string) {
 	if key := sheet.NormalizeKey(row.SKU); key != "" {
 		if id, ok := idx.bySKU[key]; ok {
 			return id, "مطابقة بكود الصنف لديك"
@@ -101,7 +101,7 @@ func (idx *variantIndex) resolve(row *engine.Row, productID int64) (int64, strin
 
 // remember records a newly written variant so a later row in the same file
 // updates it rather than inserting a second copy of it.
-func (idx *variantIndex) remember(row *engine.Row, productID, variantID int64) {
+func (idx *variantIndex) remember(row *productmatch.Row, productID, variantID int64) {
 	if variantID <= 0 {
 		return
 	}

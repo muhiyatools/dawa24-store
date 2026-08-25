@@ -1,0 +1,260 @@
+package postgres
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+)
+
+const lineColumns = `
+	id, run_id, organization_id, row_number, raw, raw_name, raw_sku, raw_barcode,
+	imported_qty, qty_parse_note, edited_qty, effective_qty,
+	norm_name, identity_key, matched_product_id, match_method, match_confidence,
+	match_corrected_by_user, outcome, outcome_reason, consolidated_into_line_id,
+	created_at, updated_at`
+
+func scanLine(row pgx.Row) (*smartorder.Line, error) {
+	var l smartorder.Line
+	var raw []byte
+	var method, outcome string
+	if err := row.Scan(
+		&l.ID, &l.RunID, &l.OrganizationID, &l.RowNumber, &raw,
+		&l.RawName, &l.RawSKU, &l.RawBarcode,
+		&l.ImportedQty, &l.QtyParseNote, &l.EditedQty, &l.EffectiveQty,
+		&l.NormName, &l.IdentityKey, &l.MatchedProductID, &method, &l.MatchConfidence,
+		&l.CorrectedByUser, &outcome, &l.OutcomeReason, &l.ConsolidatedInto,
+		&l.CreatedAt, &l.UpdatedAt,
+	); err != nil {
+		return nil, err
+	}
+	l.MatchMethod = smartorder.MatchMethod(method)
+	l.Outcome = smartorder.Outcome(outcome)
+	if len(raw) > 0 {
+		_ = json.Unmarshal(raw, &l.Raw)
+	}
+	return &l, nil
+}
+
+// insertBatchSize matches the ingest pipeline. Large enough that a ten-thousand
+// row file is twenty round trips rather than ten thousand; small enough that one
+// failed batch does not roll back an hour of work.
+const insertBatchSize = 500
+
+// InsertLines writes staged rows in batches inside one transaction.
+//
+// Built as a multi-row VALUES rather than a loop of single inserts: FR-017a
+// forbids per-row work, and at ten thousand rows the difference is minutes.
+func (r *Repository) InsertLines(ctx context.Context, lines []*smartorder.Line) error {
+	if len(lines) == 0 {
+		return nil
+	}
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		for start := 0; start < len(lines); start += insertBatchSize {
+			end := start + insertBatchSize
+			if end > len(lines) {
+				end = len(lines)
+			}
+			if err := insertLineBatch(txCtx, tx, lines[start:end]); err != nil {
+				return fmt.Errorf("insert lines %d-%d: %w", start, end, err)
+			}
+		}
+		return nil
+	})
+}
+
+func insertLineBatch(ctx context.Context, tx pgx.Tx, batch []*smartorder.Line) error {
+	const cols = 14
+	values := make([]string, 0, len(batch))
+	args := make([]any, 0, len(batch)*cols)
+
+	for i, l := range batch {
+		base := i * cols
+		ph := make([]string, cols)
+		for j := 0; j < cols; j++ {
+			ph[j] = "$" + strconv.Itoa(base+j+1)
+		}
+		values = append(values, "("+strings.Join(ph, ",")+")")
+
+		rawJSON, _ := json.Marshal(l.Raw)
+		if l.MatchMethod == "" {
+			l.MatchMethod = smartorder.MethodNone
+		}
+		if l.Outcome == "" {
+			l.Outcome = smartorder.OutcomeUnmatched
+		}
+		args = append(args,
+			l.RunID, l.OrganizationID, l.RowNumber, rawJSON,
+			l.RawName, l.RawSKU, l.RawBarcode,
+			l.ImportedQty, l.QtyParseNote, l.EditedQty, l.EffectiveQty,
+			l.NormName, l.IdentityKey, string(l.Outcome))
+	}
+
+	query := `
+		INSERT INTO smartorder.run_lines (
+			run_id, organization_id, row_number, raw, raw_name, raw_sku, raw_barcode,
+			imported_qty, qty_parse_note, edited_qty, effective_qty,
+			norm_name, identity_key, outcome
+		) VALUES ` + strings.Join(values, ",") + `
+		ON CONFLICT (run_id, row_number) DO NOTHING;`
+
+	_, err := tx.Exec(ctx, query, args...)
+	return err
+}
+
+// ListLines returns a filtered page of results plus the total matching count.
+func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.LineFilter) ([]*smartorder.Line, int, error) {
+	if f.Limit <= 0 || f.Limit > 200 {
+		f.Limit = 50
+	}
+	var out []*smartorder.Line
+	var total int
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		where := []string{"run_id = $1"}
+		args := []any{runID}
+
+		if f.Outcome != "" {
+			args = append(args, f.Outcome)
+			where = append(where, "outcome = $"+strconv.Itoa(len(args)))
+		}
+		if f.Method != "" {
+			args = append(args, f.Method)
+			where = append(where, "match_method = $"+strconv.Itoa(len(args)))
+		}
+		if f.Search != "" {
+			args = append(args, "%"+f.Search+"%")
+			where = append(where, "raw_name ILIKE $"+strconv.Itoa(len(args)))
+		}
+		clause := strings.Join(where, " AND ")
+
+		if err := tx.QueryRow(txCtx,
+			`SELECT count(*) FROM smartorder.run_lines WHERE `+clause+`;`, args...).Scan(&total); err != nil {
+			return err
+		}
+
+		args = append(args, f.Limit, f.Offset)
+		rows, err := tx.Query(txCtx,
+			`SELECT `+lineColumns+` FROM smartorder.run_lines WHERE `+clause+`
+			 ORDER BY row_number
+			 LIMIT $`+strconv.Itoa(len(args)-1)+` OFFSET $`+strconv.Itoa(len(args))+`;`, args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			l, err := scanLine(rows)
+			if err != nil {
+				return err
+			}
+			out = append(out, l)
+		}
+		return rows.Err()
+	})
+	return out, total, err
+}
+
+// GetLine loads one line, scoped to the caller's organisation.
+func (r *Repository) GetLine(ctx context.Context, orgID, lineID int64) (*smartorder.Line, error) {
+	var l *smartorder.Line
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		row := tx.QueryRow(txCtx,
+			`SELECT `+lineColumns+` FROM smartorder.run_lines WHERE id = $1 AND organization_id = $2;`,
+			lineID, orgID)
+		var err error
+		l, err = scanLine(row)
+		if err == pgx.ErrNoRows {
+			return apperr.NotFound("smart_order_line")
+		}
+		return err
+	})
+	return l, err
+}
+
+// UpdateLines writes match results back for a whole batch.
+//
+// One statement per batch using unnest, so a ten-thousand-row file costs twenty
+// statements rather than ten thousand.
+func (r *Repository) UpdateLines(ctx context.Context, lines []*smartorder.Line) error {
+	if len(lines) == 0 {
+		return nil
+	}
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		for start := 0; start < len(lines); start += insertBatchSize {
+			end := start + insertBatchSize
+			if end > len(lines) {
+				end = len(lines)
+			}
+			batch := lines[start:end]
+
+			ids := make([]int64, len(batch))
+			productIDs := make([]*int64, len(batch))
+			methods := make([]string, len(batch))
+			confidences := make([]float64, len(batch))
+			outcomes := make([]string, len(batch))
+			reasons := make([]string, len(batch))
+			quantities := make([]float64, len(batch))
+			normNames := make([]string, len(batch))
+			identityKeys := make([]string, len(batch))
+
+			for i, l := range batch {
+				ids[i] = l.ID
+				productIDs[i] = l.MatchedProductID
+				methods[i] = string(l.MatchMethod)
+				confidences[i] = l.MatchConfidence
+				outcomes[i] = string(l.Outcome)
+				reasons[i] = l.OutcomeReason
+				quantities[i] = l.EffectiveQty
+				normNames[i] = l.NormName
+				identityKeys[i] = l.IdentityKey
+			}
+
+			_, err := tx.Exec(txCtx, `
+				UPDATE smartorder.run_lines AS l SET
+					matched_product_id = u.product_id,
+					match_method       = u.method,
+					match_confidence   = u.confidence,
+					outcome            = u.outcome,
+					outcome_reason     = u.reason,
+					effective_qty      = u.qty,
+					norm_name          = u.norm_name,
+					identity_key       = u.identity_key
+				FROM (
+					SELECT * FROM unnest(
+						$1::bigint[], $2::bigint[], $3::text[], $4::numeric[],
+						$5::text[], $6::text[], $7::numeric[], $8::text[], $9::text[]
+					) AS t(id, product_id, method, confidence, outcome, reason, qty, norm_name, identity_key)
+				) AS u
+				WHERE l.id = u.id;`,
+				ids, productIDs, methods, confidences, outcomes, reasons,
+				quantities, normNames, identityKeys)
+			if err != nil {
+				return fmt.Errorf("update lines %d-%d: %w", start, end, err)
+			}
+		}
+		return nil
+	})
+}
+
+// UpdateLineQuantity applies a buyer's edit to one line.
+func (r *Repository) UpdateLineQuantity(ctx context.Context, orgID, lineID int64, qty float64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		tag, err := tx.Exec(txCtx, `
+			UPDATE smartorder.run_lines
+			SET edited_qty = $3, effective_qty = $3
+			WHERE id = $1 AND organization_id = $2;`, lineID, orgID, qty)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("smart_order_line")
+		}
+		return nil
+	})
+}

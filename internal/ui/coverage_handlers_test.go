@@ -134,18 +134,6 @@ func (m *mockCoverageRepo) UpdatePriorityRequestStatus(_ context.Context, _ int6
 func (m *mockCoverageRepo) GetCandidateProducts(_ context.Context, _ int64, _ []int64, _ []int64, _ *money.Amount, _ int) ([]workflow.CandidateProduct, error) {
 	return nil, nil
 }
-func (m *mockCoverageRepo) CreateAutomationRequest(_ context.Context, _ *workflow.AutomationRequest) error {
-	return nil
-}
-func (m *mockCoverageRepo) GetAutomationRequestByID(_ context.Context, _ int64) (*workflow.AutomationRequest, error) {
-	return nil, nil
-}
-func (m *mockCoverageRepo) ListAutomationRequestsByUser(_ context.Context, _ int64, _, _ int) ([]*workflow.AutomationRequest, error) {
-	return nil, nil
-}
-func (m *mockCoverageRepo) UpdateAutomationRequestStatus(_ context.Context, _ int64, _ workflow.AutomationRequestStatus, _ map[string]any, _ *money.Amount, _, _ int) error {
-	return nil
-}
 
 type mockOrgCoverageRepo struct {
 	org.Repository

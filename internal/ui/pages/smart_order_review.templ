@@ -1,0 +1,179 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// The review cart.
+//
+// This is deliberately its own screen and its own data, not the ordinary
+// shopping cart. A smart order in progress is not the buyer's cart: mixing them
+// would mean an abandoned import silently filling a cart the buyer believed was
+// empty, and a cart edit silently changing a generated order.
+
+// SmartOrderReviewLine is one line as the review screen shows it.
+type SmartOrderReviewLine struct {
+	Line         *smartorder.Line
+	VendorName   string
+	UnitPrice    money.Amount
+	DiscountPct  float64
+	LineNet      money.Amount
+	DecidedBy    smartorder.DecidedBy
+	SkippedName  string
+	SkippedExcess float64
+	Alternatives int
+}
+
+// SmartOrderReviewGroup is the lines going to one supplier.
+type SmartOrderReviewGroup struct {
+	VendorName string
+	Lines      []SmartOrderReviewLine
+	Subtotal   money.Amount
+}
+
+// SmartOrderReviewData is the review screen's payload.
+type SmartOrderReviewData struct {
+	Run        *smartorder.Run
+	Groups     []SmartOrderReviewGroup
+	Excluded   []*smartorder.Line
+	BranchName string
+	Stale      []smartorder.StaleLine
+}
+
+func decidedLabel(d smartorder.DecidedBy) string {
+	switch d {
+	case smartorder.DecidedLowestPrice:
+		return "أقل سعر"
+	case smartorder.DecidedHighestDiscount:
+		return "أعلى خصم"
+	case smartorder.DecidedFollowedSuppliers:
+		return "مورد متابَع"
+	case smartorder.DecidedOnlyCandidate:
+		return "المورد الوحيد"
+	case smartorder.DecidedUser:
+		return "اختيارك"
+	case smartorder.DecidedDefault:
+		return "الترتيب الافتراضي"
+	}
+	return "—"
+}
+
+// SmartOrderReviewPage is step 5: review and place.
+templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
+	@layouts.CustomerShell("مراجعة الطلب الذكي", "purchase-request", lang, dir, nil) {
+		<div class="container-fluid" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
+			<h1 style="font-size:1.6rem; font-weight:800; margin:0 0 1.5rem 0;">
+				مراجعة الطلب — { data.Run.RunNumber }
+			</h1>
+			@stepBar(5)
+
+			if len(data.Stale) > 0 {
+				<div style="padding:1.25rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.10); border:1px solid var(--danger); margin-bottom:1.5rem;">
+					<strong style="display:block; margin-bottom:0.5rem;">تغيّرت بعض الأصناف منذ إنشاء الطلب</strong>
+					<p style="font-size:0.88rem; color:var(--text-secondary); margin:0 0 0.75rem 0;">
+						لم يُستبدل أي مورد ولم يُحذف أي صنف. راجع الأصناف التالية وقرّر بشأنها قبل اعتماد الطلب.
+					</p>
+					<ul style="margin:0; padding-inline-start:1.25rem;">
+						for _, s := range data.Stale {
+							<li style="margin-bottom:0.35rem;">
+								<strong>{ s.RawName }</strong> — { s.Detail }
+							</li>
+						}
+					</ul>
+				</div>
+			}
+
+			<div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center; margin-bottom:1.5rem; padding:1rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
+				<div><strong>فرع التسليم:</strong> { data.BranchName }</div>
+				<div style="margin-inline-start:auto; font-size:1.15rem; font-weight:800;">
+					الإجمالي: { data.Run.EstimatedTotal.String() }
+				</div>
+			</div>
+
+			if data.Run.BudgetExceeded != nil && *data.Run.BudgetExceeded {
+				<div style="padding:0.9rem 1.25rem; border-radius:var(--radius-lg); background:rgba(245,158,11,0.12); border:1px solid var(--warning); margin-bottom:1.5rem;">
+					تجاوز الطلب الميزانية المحددة
+					if data.Run.BudgetOverage != nil {
+						<span> بزيادة { data.Run.BudgetOverage.String() }</span>
+					}
+					<span> — يمكنك المتابعة على أي حال.</span>
+				</div>
+			}
+
+			for _, g := range data.Groups {
+				<div class="card" style="padding:0; margin-bottom:1.25rem; overflow:hidden;">
+					<div style="padding:0.9rem 1.25rem; background:var(--surface-sunken); display:flex; align-items:center; gap:1rem;">
+						<strong>{ g.VendorName }</strong>
+						<span style="margin-inline-start:auto; font-weight:700;">{ g.Subtotal.String() }</span>
+					</div>
+					<table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+						<tbody>
+							for _, l := range g.Lines {
+								<tr style="border-top:1px solid var(--border);">
+									<td style="padding:0.7rem;">
+										<div>{ l.Line.RawName }</div>
+										<div style="font-size:0.75rem; color:var(--text-secondary);">
+											اختير بـ { decidedLabel(l.DecidedBy) }
+											if l.SkippedName != "" {
+												<span style="color:var(--warning);">
+													{ fmt.Sprintf(" — تُخطّي %s لتجاوزه نطاق التسامح بنسبة %.0f%%", l.SkippedName, l.SkippedExcess) }
+												</span>
+											}
+										</div>
+									</td>
+									<td style="padding:0.7rem; white-space:nowrap;">{ l.UnitPrice.String() }</td>
+									<td style="padding:0.7rem; white-space:nowrap;">{ fmt.Sprintf("%.1f%%", l.DiscountPct) }</td>
+									<td style="padding:0.7rem;">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) } style="display:flex; gap:0.35rem;">
+											<input type="number" name="quantity" value={ fmt.Sprintf("%g", l.Line.EffectiveQty) } min="0" style="width:80px; padding:0.35rem; border:1px solid var(--border); border-radius:var(--radius-md);"/>
+											<button type="submit" class="btn btn-secondary btn-sm">حفظ</button>
+										</form>
+									</td>
+									<td style="padding:0.7rem; font-weight:700; white-space:nowrap;">{ l.LineNet.String() }</td>
+									<td style="padding:0.7rem; white-space:nowrap;">
+										if l.Alternatives > 0 {
+											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/candidates", data.Run.PublicID, l.Line.ID)) } class="btn btn-secondary btn-sm">
+												{ fmt.Sprintf("موردون بدلاء (%d)", l.Alternatives) }
+											</a>
+										}
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } style="display:inline;">
+											<button type="submit" class="btn btn-secondary btn-sm">حذف</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+
+			if len(data.Excluded) > 0 {
+				<div class="card" style="padding:1.25rem; margin-bottom:1.5rem; border:1px dashed var(--border);">
+					<strong style="display:block; margin-bottom:0.75rem;">أصناف لن تُطلب</strong>
+					<table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+						<tbody>
+							for _, l := range data.Excluded {
+								<tr style="border-top:1px solid var(--border);">
+									<td style="padding:0.5rem;">{ l.RawName }</td>
+									<td style="padding:0.5rem;">
+										<span style={ outcomeChip(l.Outcome) }>{ outcomeLabel(l.Outcome) }</span>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) }>
+				<button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-weight:800; padding:1rem; font-size:1.05rem;" disabled?={ len(data.Groups) == 0 }>
+					اعتماد الطلب وإرساله
+				</button>
+			</form>
+		</div>
+	}
+}

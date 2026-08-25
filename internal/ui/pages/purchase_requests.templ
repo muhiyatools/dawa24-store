@@ -64,6 +64,27 @@ templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option strin
 						</a>
 					</div>
 
+					<!-- Option 3: Smart Ordering (نظام الطلب الذكي) -->
+					<div
+						class="card"
+						style="padding:2rem; border:2px solid var(--primary-600); border-radius:var(--radius-xl); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-sunken);"
+						onclick="window.location='/customer/smart-order/new'"
+					>
+						<div>
+							<div style="width:64px; height:64px; border-radius:50%; background:rgba(139,92,246,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+								@components.IconSparkles("icon-lg")
+							</div>
+							<h3 style="font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);">الطلب الذكي من ملف</h3>
+							<p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;">
+								ارفع ملف الأصناف المطلوبة بالكميات، ويتولى النظام مطابقتها بالكتالوج، واختيار المورد المناسب لكل صنف حسب معاييرك، وتجهيز الطلب للمراجعة.
+							</p>
+						</div>
+						<a href="/customer/smart-order/new" class="btn btn-primary" style="width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);">
+							<span>ابدأ الطلب الذكي</span>
+							@components.IconArrowLeft("icon-xs")
+						</a>
+					</div>
+
 				</div>
 			</div>
 		</div>

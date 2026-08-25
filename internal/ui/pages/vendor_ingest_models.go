@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // The vendor catalogue import screen.
@@ -17,7 +17,7 @@ import (
 // VendorImportView is everything the import screen renders.
 type VendorImportView struct {
 	Session  *ingest.Session
-	Analysis *engine.Analysis
+	Analysis *productmatch.Analysis
 
 	Warehouses []*inventory.Warehouse
 	Recent     []*ingest.Session
@@ -90,7 +90,7 @@ func VendorImportSteps(phase ingest.Phase) []VendorImportStep {
 
 // MappedColumns are the analysed columns, or the stored snapshot once the run
 // has finished and the file may already have been reaped.
-func (v VendorImportView) MappedColumns() []*engine.Column {
+func (v VendorImportView) MappedColumns() []*productmatch.Column {
 	if v.Analysis != nil && v.Analysis.Mapping != nil {
 		return v.Analysis.Mapping.Columns
 	}
@@ -99,32 +99,32 @@ func (v VendorImportView) MappedColumns() []*engine.Column {
 
 // FieldChoices lists the fields a column may be bound to, grouped for the
 // dropdown.
-func FieldChoices() []engine.Spec { return engine.Specs }
+func FieldChoices() []productmatch.Spec { return productmatch.Specs }
 
 // FieldGroups lists the review screen's sections in order.
-func FieldGroups() []engine.Group { return engine.Groups }
+func FieldGroups() []productmatch.Group { return productmatch.Groups }
 
 // ConfidenceTone maps a confidence onto the badge palette.
-func ConfidenceTone(c engine.Confidence) string {
+func ConfidenceTone(c productmatch.Confidence) string {
 	switch c {
-	case engine.ConfidenceCertain:
+	case productmatch.ConfidenceCertain:
 		return "badge-emerald"
-	case engine.ConfidenceHigh:
+	case productmatch.ConfidenceHigh:
 		return "badge-sky"
-	case engine.ConfidenceMedium:
+	case productmatch.ConfidenceMedium:
 		return "badge-amber"
-	case engine.ConfidenceLow:
+	case productmatch.ConfidenceLow:
 		return "badge-rose"
 	}
 	return "badge-slate"
 }
 
 // SeverityTone maps a finding's severity onto the badge palette.
-func SeverityTone(s engine.Severity) string {
+func SeverityTone(s productmatch.Severity) string {
 	switch s {
-	case engine.SeverityError:
+	case productmatch.SeverityError:
 		return "badge-rose"
-	case engine.SeverityWarning:
+	case productmatch.SeverityWarning:
 		return "badge-amber"
 	}
 	return "badge-slate"
@@ -158,17 +158,17 @@ func OutcomeLabel(outcome string) string {
 
 // MatchLevelLabel renders a match level in Arabic.
 func MatchLevelLabel(level string) string {
-	return engine.MatchLevel(level).Label()
+	return productmatch.MatchLevel(level).Label()
 }
 
 // MatchLevelBadgeClass maps a match level to a badge tone.
 func MatchLevelBadgeClass(level string) string {
-	switch engine.MatchLevel(level) {
-	case engine.MatchBarcode, engine.MatchCode, engine.MatchExact, engine.MatchStrong:
+	switch productmatch.MatchLevel(level) {
+	case productmatch.MatchBarcode, productmatch.MatchCode, productmatch.MatchExact, productmatch.MatchStrong:
 		return "badge-emerald"
-	case engine.MatchReview:
+	case productmatch.MatchReview:
 		return "badge-amber"
-	case engine.MatchAmbiguous:
+	case productmatch.MatchAmbiguous:
 		return "badge-purple"
 	default:
 		return "badge-slate"

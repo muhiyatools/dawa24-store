@@ -42,11 +42,11 @@ var allowedMIMEs = map[string]string{
 	"video/webm": KindVideo,
 
 	// Documents
-	"application/pdf":                                                           KindDocument,
-	"text/plain":                                                                KindDocument,
-	"text/csv":                                                                  KindDocument,
-	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":         KindDocument,
-	"application/vnd.openxmlformats-officedocument.wordprocessingml.document":   KindDocument,
+	"application/pdf": KindDocument,
+	"text/plain":      KindDocument,
+	"text/csv":        KindDocument,
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       KindDocument,
+	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": KindDocument,
 }
 
 var forbiddenExtensions = map[string]bool{

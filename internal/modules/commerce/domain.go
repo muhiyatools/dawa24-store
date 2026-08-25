@@ -77,103 +77,103 @@ type CartItem struct {
 // Order represents a master customer order placed against one offer
 // (main_orders parity, Rebuild V2 §3.3).
 type Order struct {
-	ID             int64            `json:"id"`
-	PublicID       string           `json:"public_id"`
-	OrderNumber    string           `json:"order_number"`
-	CustomerID     int64            `json:"customer_id"`
-	OrganizationID *int64           `json:"organization_id,omitempty"`
-	OfferID        int64            `json:"offer_id"`                   // the offer this order belongs to (063)
-	BranchID       *int64           `json:"branch_id,omitempty"`        // customer branch buying for
-	VendorBranchID *int64           `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
-	UserAddressID  *int64           `json:"user_address_id,omitempty"`
-	Status         OrderStatus      `json:"status"`
-	Subtotal       money.Amount     `json:"subtotal"`
-	DiscountAmount money.Amount     `json:"discount_amount"`
-	TotalDiscount  money.Amount     `json:"total_discount"` // offer discounts over lines (063)
-	ShippingFee    money.Amount     `json:"shipping_fee"`
-	TaxAmount      money.Amount     `json:"tax_amount"`
-	TotalAmount    money.Amount     `json:"total_amount"`
-	FinalPrice     money.Amount     `json:"final_price"` // paid after discount (063)
-	PaymentMethod  string           `json:"payment_method"`
-	PaymentStatus  PaymentStatus    `json:"payment_status"`
-	Notes          string           `json:"notes,omitempty"`
-	IsNegotiation     bool          `json:"is_negotiation"`
-	NegotiationStatus string        `json:"negotiation_status"` // "none", "pending", "accepted", "rejected"
-	NegotiationNotes  string        `json:"negotiation_notes,omitempty"`
-	Rating                *float64         `json:"rating,omitempty"`
-	Review                *string          `json:"review,omitempty"`
-	RatedAt               *time.Time       `json:"rated_at,omitempty"`
-	DeliveredAt           *time.Time       `json:"delivered_at,omitempty"`
-	Shipments             []*OrderShipment `json:"shipments,omitempty"`
-	Lines                 []*OrderLine     `json:"lines,omitempty"`
-	CreatedAt             time.Time        `json:"created_at"`
-	UpdatedAt             time.Time        `json:"updated_at"`
-	DeletedAt             *time.Time       `json:"deleted_at,omitempty"`
+	ID                int64            `json:"id"`
+	PublicID          string           `json:"public_id"`
+	OrderNumber       string           `json:"order_number"`
+	CustomerID        int64            `json:"customer_id"`
+	OrganizationID    *int64           `json:"organization_id,omitempty"`
+	OfferID           int64            `json:"offer_id"`                   // the offer this order belongs to (063)
+	BranchID          *int64           `json:"branch_id,omitempty"`        // customer branch buying for
+	VendorBranchID    *int64           `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
+	UserAddressID     *int64           `json:"user_address_id,omitempty"`
+	Status            OrderStatus      `json:"status"`
+	Subtotal          money.Amount     `json:"subtotal"`
+	DiscountAmount    money.Amount     `json:"discount_amount"`
+	TotalDiscount     money.Amount     `json:"total_discount"` // offer discounts over lines (063)
+	ShippingFee       money.Amount     `json:"shipping_fee"`
+	TaxAmount         money.Amount     `json:"tax_amount"`
+	TotalAmount       money.Amount     `json:"total_amount"`
+	FinalPrice        money.Amount     `json:"final_price"` // paid after discount (063)
+	PaymentMethod     string           `json:"payment_method"`
+	PaymentStatus     PaymentStatus    `json:"payment_status"`
+	Notes             string           `json:"notes,omitempty"`
+	IsNegotiation     bool             `json:"is_negotiation"`
+	NegotiationStatus string           `json:"negotiation_status"` // "none", "pending", "accepted", "rejected"
+	NegotiationNotes  string           `json:"negotiation_notes,omitempty"`
+	Rating            *float64         `json:"rating,omitempty"`
+	Review            *string          `json:"review,omitempty"`
+	RatedAt           *time.Time       `json:"rated_at,omitempty"`
+	DeliveredAt       *time.Time       `json:"delivered_at,omitempty"`
+	Shipments         []*OrderShipment `json:"shipments,omitempty"`
+	Lines             []*OrderLine     `json:"lines,omitempty"`
+	CreatedAt         time.Time        `json:"created_at"`
+	UpdatedAt         time.Time        `json:"updated_at"`
+	DeletedAt         *time.Time       `json:"deleted_at,omitempty"`
 
 	// Enriched metadata for views
-	CustomerOrgName       i18n.Text        `json:"customer_org_name,omitempty"`
-	CustomerBranchName    i18n.Text        `json:"customer_branch_name,omitempty"`
-	CustomerBranchAddress string           `json:"customer_branch_address,omitempty"`
-	CustomerBranchPhone   string           `json:"customer_branch_phone,omitempty"`
-	CustomerManagerName   string           `json:"customer_manager_name,omitempty"`
+	CustomerOrgName       i18n.Text `json:"customer_org_name,omitempty"`
+	CustomerBranchName    i18n.Text `json:"customer_branch_name,omitempty"`
+	CustomerBranchAddress string    `json:"customer_branch_address,omitempty"`
+	CustomerBranchPhone   string    `json:"customer_branch_phone,omitempty"`
+	CustomerManagerName   string    `json:"customer_manager_name,omitempty"`
 }
 
 // OrderShipment represents a vendor-specific shipment split from a master order.
 type OrderShipment struct {
-	ID                    int64        `json:"id"`
-	PublicID              string       `json:"public_id"`
-	OrderID               int64        `json:"order_id"`
-	OrganizationID        int64        `json:"organization_id"`
-	BranchID              *int64       `json:"branch_id,omitempty"`
-	ShipmentNumber        string       `json:"shipment_number"`
-	Status                OrderStatus  `json:"status"`
-	Subtotal              money.Amount `json:"subtotal"`
-	ShippingFee           money.Amount `json:"shipping_fee"`
-	TotalAmount           money.Amount `json:"total_amount"`
-	TrackingNumber        string       `json:"tracking_number,omitempty"`
-	CarrierName           string       `json:"carrier_name,omitempty"`
-	Lines                 []*OrderLine `json:"lines,omitempty"`
-	ShippedAt             *time.Time   `json:"shipped_at,omitempty"`
-	DeliveredAt           *time.Time   `json:"delivered_at,omitempty"`
-	CreatedAt             time.Time    `json:"created_at"`
-	UpdatedAt             time.Time    `json:"updated_at"`
+	ID             int64        `json:"id"`
+	PublicID       string       `json:"public_id"`
+	OrderID        int64        `json:"order_id"`
+	OrganizationID int64        `json:"organization_id"`
+	BranchID       *int64       `json:"branch_id,omitempty"`
+	ShipmentNumber string       `json:"shipment_number"`
+	Status         OrderStatus  `json:"status"`
+	Subtotal       money.Amount `json:"subtotal"`
+	ShippingFee    money.Amount `json:"shipping_fee"`
+	TotalAmount    money.Amount `json:"total_amount"`
+	TrackingNumber string       `json:"tracking_number,omitempty"`
+	CarrierName    string       `json:"carrier_name,omitempty"`
+	Lines          []*OrderLine `json:"lines,omitempty"`
+	ShippedAt      *time.Time   `json:"shipped_at,omitempty"`
+	DeliveredAt    *time.Time   `json:"delivered_at,omitempty"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
 
 	// Enriched metadata for views
-	OrderNumber           string       `json:"order_number,omitempty"`
-	VendorName            i18n.Text    `json:"vendor_name,omitempty"`
-	CustomerOrgName       i18n.Text    `json:"customer_org_name,omitempty"`
-	CustomerBranchName    i18n.Text    `json:"customer_branch_name,omitempty"`
-	CustomerBranchAddress string       `json:"customer_branch_address,omitempty"`
-	CustomerBranchPhone   string       `json:"customer_branch_phone,omitempty"`
-	CustomerManagerName   string       `json:"customer_manager_name,omitempty"`
-	PaymentMethod         string       `json:"payment_method,omitempty"`
+	OrderNumber           string        `json:"order_number,omitempty"`
+	VendorName            i18n.Text     `json:"vendor_name,omitempty"`
+	CustomerOrgName       i18n.Text     `json:"customer_org_name,omitempty"`
+	CustomerBranchName    i18n.Text     `json:"customer_branch_name,omitempty"`
+	CustomerBranchAddress string        `json:"customer_branch_address,omitempty"`
+	CustomerBranchPhone   string        `json:"customer_branch_phone,omitempty"`
+	CustomerManagerName   string        `json:"customer_manager_name,omitempty"`
+	PaymentMethod         string        `json:"payment_method,omitempty"`
 	PaymentStatus         PaymentStatus `json:"payment_status,omitempty"`
-	Notes                 string       `json:"notes,omitempty"`
+	Notes                 string        `json:"notes,omitempty"`
 }
 
 // OrderLine is an immutable snapshot of a product variant purchased in an order.
 type OrderLine struct {
-	ID               int64        `json:"id"`
-	OrderID          int64        `json:"order_id"`
-	ShipmentID       int64        `json:"shipment_id"`
-	OrganizationID   int64        `json:"organization_id"`
-	ProductID        *int64       `json:"product_id,omitempty"`
-	ProductVariantID *int64       `json:"product_variant_id,omitempty"`
-	ProductName      i18n.Text    `json:"product_name"`
-	VariantName      i18n.Text    `json:"variant_name,omitempty"`
-	SKU              string       `json:"sku,omitempty"`
-	OfferProductID   *int64       `json:"offer_product_id,omitempty"` // offer_product sold under (063)
-	UnitPrice        money.Amount `json:"unit_price"`
-	Quantity         int          `json:"quantity"`
-	DiscountAmount   money.Amount `json:"discount_amount"`
-	TotalPrice       money.Amount `json:"total_price"`
-	ListPrice        money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
-	OriginalPrice    money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
-	OriginalDiscount money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
+	ID                int64        `json:"id"`
+	OrderID           int64        `json:"order_id"`
+	ShipmentID        int64        `json:"shipment_id"`
+	OrganizationID    int64        `json:"organization_id"`
+	ProductID         *int64       `json:"product_id,omitempty"`
+	ProductVariantID  *int64       `json:"product_variant_id,omitempty"`
+	ProductName       i18n.Text    `json:"product_name"`
+	VariantName       i18n.Text    `json:"variant_name,omitempty"`
+	SKU               string       `json:"sku,omitempty"`
+	OfferProductID    *int64       `json:"offer_product_id,omitempty"` // offer_product sold under (063)
+	UnitPrice         money.Amount `json:"unit_price"`
+	Quantity          int          `json:"quantity"`
+	DiscountAmount    money.Amount `json:"discount_amount"`
+	TotalPrice        money.Amount `json:"total_price"`
+	ListPrice         money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
+	OriginalPrice     money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
+	OriginalDiscount  money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
 	IsNegotiated      bool         `json:"is_negotiated"`
 	ProposedUnitPrice money.Amount `json:"proposed_unit_price,omitempty"`
-	Rating           *float64     `json:"rating,omitempty"`            // per-line rating (Laravel adv_orders.rating parity)
-	CreatedAt        time.Time    `json:"created_at"`
+	Rating            *float64     `json:"rating,omitempty"` // per-line rating (Laravel adv_orders.rating parity)
+	CreatedAt         time.Time    `json:"created_at"`
 }
 
 // CalculateAverageRating computes the exact 2-decimal scalar average of review criteria (audit §3.3).

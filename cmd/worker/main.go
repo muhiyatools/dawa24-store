@@ -13,11 +13,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/riverqueue/river"
 
+	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
-	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 )
 
@@ -52,6 +52,11 @@ func run() error {
 	river.AddWorker(workers, &ingestBatchWorker{db: db, log: log})
 	river.AddWorker(workers, &expirePromotionsWorker{db: db, log: log})
 	river.AddWorker(workers, catalogJobs.NewProductReindexWorker(db, log))
+
+	// Smart ordering (specs/001-smart-ordering-system). Registered last because
+	// it is the only worker with an optional AI dependency; the rest run
+	// regardless of Gateway state.
+	registerSmartOrderWorker(workers, db, nil, log)
 
 	queueClient, err := queue.New(db, workers, cfg.Worker, log)
 	if err != nil {

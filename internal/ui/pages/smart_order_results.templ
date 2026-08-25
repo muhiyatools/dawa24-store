@@ -1,0 +1,183 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// SmartOrderResultsData is what the results screen renders.
+type SmartOrderResultsData struct {
+	Run    *smartorder.Run
+	Lines  []*smartorder.Line
+	Total  int
+	Page   int
+	Filter string
+}
+
+// outcomeLabel renders an outcome in Arabic.
+//
+// Each one is a distinct answer with a distinct remedy, which is why they are
+// not collapsed into "غير متاح": a pharmacy reading "خارج نطاق التغطية" tries
+// again tomorrow, while "لا يوجد مورد" sends them elsewhere entirely.
+func outcomeLabel(o smartorder.Outcome) string {
+	switch o {
+	case smartorder.OutcomeOrdered:
+		return "جاهز للطلب"
+	case smartorder.OutcomeNoSupplier:
+		return "لا يوجد مورد لهذا الصنف"
+	case smartorder.OutcomeCoverageBlocked:
+		return "خارج نطاق التغطية لفرعك"
+	case smartorder.OutcomeInstitutionalBlocked:
+		return "غير متاح حسب العمل المؤسسي"
+	case smartorder.OutcomeOutOfStock:
+		return "غير متوفر بالمخزون"
+	case smartorder.OutcomeBelowMinQty:
+		return "الكمية أقل من الحد الأدنى للمورد"
+	case smartorder.OutcomeUnmatched:
+		return "لم يُطابَق في الكتالوج"
+	case smartorder.OutcomeZeroQty:
+		return "الكمية صفر"
+	case smartorder.OutcomeRemoved:
+		return "تم حذفه"
+	}
+	return string(o)
+}
+
+func methodLabel(m smartorder.MatchMethod) string {
+	switch m {
+	case smartorder.MethodSavingProduct:
+		return "منتجات التوفير"
+	case smartorder.MethodLearnedMapping:
+		return "ربط سابق"
+	case smartorder.MethodBarcode:
+		return "باركود"
+	case smartorder.MethodSKU:
+		return "كود الصنف"
+	case smartorder.MethodExactName:
+		return "اسم مطابق"
+	case smartorder.MethodIdentityKey:
+		return "تركيب وتركيز"
+	case smartorder.MethodFuzzy:
+		return "تشابه"
+	case smartorder.MethodAlias:
+		return "اسم بديل"
+	case smartorder.MethodAI:
+		return "ذكاء اصطناعي"
+	case smartorder.MethodManual:
+		return "تصحيح يدوي"
+	}
+	return "—"
+}
+
+func outcomeChip(o smartorder.Outcome) string {
+	base := "display:inline-block; padding:0.2rem 0.6rem; border-radius:999px; font-size:0.75rem; font-weight:700;"
+	switch o {
+	case smartorder.OutcomeOrdered:
+		return base + "background:rgba(16,185,129,0.14); color:var(--primary-700);"
+	case smartorder.OutcomeUnmatched, smartorder.OutcomeNoSupplier:
+		return base + "background:rgba(239,68,68,0.12); color:var(--danger);"
+	default:
+		return base + "background:rgba(245,158,11,0.14); color:var(--warning);"
+	}
+}
+
+// statCard renders one figure from the run statistics.
+templ statCard(label string, value string, tone string) {
+	<div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); min-width:150px; flex:1;">
+		<div style="font-size:1.5rem; font-weight:800; color:var(--text);">{ value }</div>
+		<div style={ "font-size:0.8rem; color:" + tone + ";" }>{ label }</div>
+	</div>
+}
+
+// SmartOrderResultsPage is step 4: matching and supplier results.
+templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
+	@layouts.CustomerShell("نتائج الطلب الذكي", "purchase-request", lang, dir, nil) {
+		<div class="container-fluid" style="max-width:1300px; margin:0 auto; padding:1.5rem 1rem;">
+			<h1 style="font-size:1.6rem; font-weight:800; margin:0 0 1.5rem 0;">
+				نتائج المطابقة — { data.Run.RunNumber }
+			</h1>
+			@stepBar(4)
+
+			<div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+				@statCard("إجمالي الأصناف", fmt.Sprintf("%d", data.Run.Stats.TotalRows), "var(--text-secondary)")
+				@statCard("تمت مطابقته", fmt.Sprintf("%d", data.Run.Stats.MatchedRows), "var(--primary-700)")
+				@statCard("لم يُطابَق", fmt.Sprintf("%d", data.Run.Stats.UnmatchedRows), "var(--danger)")
+				@statCard("بلا مورد", fmt.Sprintf("%d", data.Run.Stats.NoSupplierRows), "var(--warning)")
+				@statCard("خارج التغطية", fmt.Sprintf("%d", data.Run.Stats.CoverageBlockedRows), "var(--warning)")
+				@statCard("العمل المؤسسي", fmt.Sprintf("%d", data.Run.Stats.InstitutionalBlockedRows), "var(--warning)")
+				@statCard("التكلفة التقديرية", data.Run.EstimatedTotal.String(), "var(--text-secondary)")
+			</div>
+
+			if data.Run.BudgetExceeded != nil && *data.Run.BudgetExceeded {
+				<div style="padding:1rem 1.25rem; border-radius:var(--radius-lg); background:rgba(245,158,11,0.12); border:1px solid var(--warning); margin-bottom:1.5rem;">
+					<strong>تجاوز الميزانية المحددة</strong>
+					if data.Run.BudgetOverage != nil {
+						<span> — بزيادة { data.Run.BudgetOverage.String() }</span>
+					}
+					<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.35rem;">
+						هذا تنبيه فقط: لم يُحذف أي صنف ولم يتوقف الطلب.
+					</div>
+				</div>
+			}
+
+			if data.Run.AI.CeilingHit {
+				<div style="padding:0.9rem 1.25rem; border-radius:var(--radius-lg); background:rgba(245,158,11,0.10); border:1px solid var(--warning); margin-bottom:1.5rem; font-size:0.9rem;">
+					تم بلوغ حد المطابقة الذكية لهذا الطلب، وبقيت بعض الأصناف بمطابقتها الحتمية فقط.
+				</div>
+			}
+
+			<div class="card" style="padding:0; overflow-x:auto;">
+				<table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+					<thead>
+						<tr style="background:var(--surface-sunken); text-align:start;">
+							<th style="padding:0.75rem;">#</th>
+							<th style="padding:0.75rem;">الصنف كما ورد</th>
+							<th style="padding:0.75rem;">المنتج المطابق</th>
+							<th style="padding:0.75rem;">طريقة المطابقة</th>
+							<th style="padding:0.75rem;">الثقة</th>
+							<th style="padding:0.75rem;">الكمية</th>
+							<th style="padding:0.75rem;">الحالة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, l := range data.Lines {
+							<tr style="border-top:1px solid var(--border);">
+								<td style="padding:0.7rem; color:var(--text-secondary);">{ fmt.Sprintf("%d", l.RowNumber) }</td>
+								<td style="padding:0.7rem;">
+									<div>{ l.RawName }</div>
+									if l.QtyParseNote != "" {
+										<div style="font-size:0.75rem; color:var(--warning);">{ l.QtyParseNote }</div>
+									}
+								</td>
+								<td style="padding:0.7rem;">
+									if l.Matched() {
+										{ fmt.Sprintf("#%d", *l.MatchedProductID) }
+									} else {
+										<span style="color:var(--text-secondary);">—</span>
+									}
+								</td>
+								<td style="padding:0.7rem;">{ methodLabel(l.MatchMethod) }</td>
+								<td style="padding:0.7rem;">{ fmt.Sprintf("%.0f%%", l.MatchConfidence*100) }</td>
+								<td style="padding:0.7rem;">{ fmt.Sprintf("%g", l.EffectiveQty) }</td>
+								<td style="padding:0.7rem;">
+									<span style={ outcomeChip(l.Outcome) }>{ outcomeLabel(l.Outcome) }</span>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+
+			<div style="display:flex; gap:0.75rem; margin-top:1.5rem; justify-content:flex-end;">
+				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary">
+					تصدير النتائج
+				</a>
+				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary" style="font-weight:700;">
+					مراجعة الطلب
+				</a>
+			</div>
+		</div>
+	}
+}

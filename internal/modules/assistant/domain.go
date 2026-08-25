@@ -57,14 +57,14 @@ type Message struct {
 
 // Attachment holds uploaded file metadata and content references.
 type Attachment struct {
-	Handle      string `json:"handle"`
-	Filename    string `json:"filename"`
-	MIMEType    string `json:"mime_type"`
+	Handle      string  `json:"handle"`
+	Filename    string  `json:"filename"`
+	MIMEType    string  `json:"mime_type"`
 	SizeMB      float64 `json:"size_mb"`
-	DataURL     string `json:"data_url,omitempty"`
-	ContentHash string `json:"content_hash"`
-	UserID      int64  `json:"user_id"`
-	OrgID       int64  `json:"org_id"`
+	DataURL     string  `json:"data_url,omitempty"`
+	ContentHash string  `json:"content_hash"`
+	UserID      int64   `json:"user_id"`
+	OrgID       int64   `json:"org_id"`
 }
 
 // Digest is the attachment model's structured understanding of one file.

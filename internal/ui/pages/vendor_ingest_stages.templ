@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // Stages two to five of the vendor catalogue import.
@@ -57,7 +57,7 @@ templ importMappingStage(view VendorImportView) {
 	}
 }
 
-templ importColumnRow(col *engine.Column) {
+templ importColumnRow(col *productmatch.Column) {
 	<tr>
 		<td>
 			<div class="fw-800">
@@ -97,7 +97,7 @@ templ importColumnRow(col *engine.Column) {
 	</tr>
 }
 
-templ importFindings(a *engine.Analysis) {
+templ importFindings(a *productmatch.Analysis) {
 	if len(a.Mapping.Conflicts) > 0 || len(a.Mapping.Notes) > 0 {
 		<div class="card">
 			<h2 class="wiz-head">التحقق</h2>
@@ -105,9 +105,9 @@ templ importFindings(a *engine.Analysis) {
 			for _, c := range a.Mapping.Conflicts {
 				<div class="row-center-sm mb-2">
 					<span class={ "badge", SeverityTone(c.Severity), "text-xs" }>
-						if c.Severity == engine.SeverityError {
+						if c.Severity == productmatch.SeverityError {
 							خطأ
-						} else if c.Severity == engine.SeverityWarning {
+						} else if c.Severity == productmatch.SeverityWarning {
 							تنبيه
 						} else {
 							معلومة

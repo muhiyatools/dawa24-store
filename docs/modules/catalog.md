@@ -25,7 +25,23 @@ The `catalog` bounded context manages pharmaceutical products, packaging variant
    - Laravel's `product_infos` is a 25-column denormalized read model (also backing `all_products` view and `product_search_index`).
    - In Go, this read model is named `catalog.product_index` to prevent collision with Go's pre-existing 5-column `catalog.product_infos` key-value attribute bag.
 3. **Deterministic Fallback (Rule R3 Spirit):** If the `catalog.product_index` read model is empty or stale, `catalog.Service.FastSearch` automatically falls back to querying `catalog.products` directly rather than returning an empty result.
-4. **Asynchronous Read Model Synchronization:**
+4. **Read Model Carries Variants and Stock (repaired 2026-08-25):**
+   - `catalog.product_index` holds **both** parent rows (`product_type='parent'`)
+     and vendor variant rows (`product_type='variant'`). Without the variant half
+     the read model cannot answer "who sells this", which is the question the
+     marketplace is built around.
+   - `variant_id` and `stock_quantity` were previously written as the literal
+     `NULL` and `0` for every row. On the live database that produced 28,786
+     indexed products of which zero had a variant and zero had stock, while
+     `inventory.stocks` held 14,539 real rows — so any query of the documented
+     form "active products with `stock_quantity > 0`" returned nothing at all,
+     silently. See `internal/modules/catalog/jobs/reindex_sql.go`.
+   - **Availability must still not be read from this table.** It is excellent at
+     finding a product by name; the authority on whether anyone has it is
+     `catalog.product_variants` joined to `inventory.stocks`. `smartorder` reads
+     the authoritative tables for exactly this reason.
+
+8. **Asynchronous Read Model Synchronization:**
    - Background updates are dispatched as River worker jobs (`catalog.reindex` via `internal/modules/catalog/jobs/reindex.go`) on product/variant/stock/branch mutations.
    - Batch full-rebuilds are executed via `dawa24 cli reindex` or `RebuildProductIndex`.
 5. **Arabic Trigram & Fulltext Search:** Indexed with `pg_trgm` GIN indexes over `search_simple` (generated via `internal/shared/arabic.Normalize`) and Postgres `tsvector` over `(search_text, search_simple)`.

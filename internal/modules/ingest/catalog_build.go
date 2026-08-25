@@ -2,9 +2,9 @@ package ingest
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // Turning a read row into catalogue records.
@@ -49,7 +49,7 @@ func (w *importWriter) buildVariant(d *decision) *catalog.ProductVariant {
 // percentage, so that what a pharmacy is charged always equals what the
 // supplier's file said the net was — even where the percentage and the net
 // disagreed by a piastre, which they routinely do.
-func listAndDiscount(row *engine.Row) (list, discount money.Amount) {
+func listAndDiscount(row *productmatch.Row) (list, discount money.Amount) {
 	list = row.PublicPrice
 	if !list.IsPositive() {
 		return row.NetPrice, money.Zero
@@ -70,7 +70,7 @@ func listAndDiscount(row *engine.Row) (list, discount money.Amount) {
 // The supplier's spelling is kept rather than the shared catalogue's. It is the
 // name on their invoices and in their warehouse, and replacing it with the
 // canonical one makes their catalogue unsearchable to their own staff.
-func variantName(row *engine.Row) i18n.Text {
+func variantName(row *productmatch.Row) i18n.Text {
 	name := row.Name
 	if name == "" {
 		name = row.NameEN
@@ -79,7 +79,7 @@ func variantName(row *engine.Row) i18n.Text {
 }
 
 // variantStatus decides whether the imported row goes on sale.
-func (w *importWriter) variantStatus(row *engine.Row) catalog.ProductStatus {
+func (w *importWriter) variantStatus(row *productmatch.Row) catalog.ProductStatus {
 	switch row.Status {
 	case "active":
 		return catalog.StatusActive
@@ -98,7 +98,7 @@ func (w *importWriter) variantStatus(row *engine.Row) catalog.ProductStatus {
 // across, plus the two fields the engine read out of the name; the price is the
 // public one because that is the figure the catalogue is meant to hold, and the
 // vendor's own discount belongs to their variant, not to the shared record.
-func buildProduct(row *engine.Row) *catalog.Product {
+func buildProduct(row *productmatch.Row) *catalog.Product {
 	// The supplier's own item code is deliberately not carried across. A shared
 	// catalogue keyed on one vendor's internal numbering collides the moment a
 	// second vendor uploads; their code stays on their variant, where it means

@@ -1073,5 +1073,3 @@ func TestSearchAcrossSuppliersAndCatalog_ThreeWayDifferentiation(t *testing.T) {
 		t.Errorf("expected Congestal to be missing from both 2 active suppliers, got %v", congestalItem.MissingFromSuppliers)
 	}
 }
-
-

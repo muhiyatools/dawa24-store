@@ -1,0 +1,172 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// SmartOrderMappingField is one target field with its detected column.
+type SmartOrderMappingField struct {
+	Key        string
+	Label      string
+	Required   bool
+	Column     int
+	Assigned   bool
+	Confidence float64
+}
+
+// SmartOrderMappingData is what the mapping screen renders.
+type SmartOrderMappingData struct {
+	Run       *smartorder.Run
+	Headers   []string
+	Fields    []SmartOrderMappingField
+	Preview   [][]string
+	HeaderRow int
+	Error     string
+}
+
+// confidenceChip renders how sure the automatic detection was.
+//
+// Shown per field rather than as one overall score, because the buyer needs to
+// know *which* column to check, not that something somewhere is uncertain.
+func confidenceChip(c float64) string {
+	base := "display:inline-block; padding:0.15rem 0.5rem; border-radius:999px; font-size:0.72rem; font-weight:700; margin-inline-start:0.5rem;"
+	switch {
+	case c >= 0.85:
+		return base + "background:rgba(16,185,129,0.14); color:var(--primary-700);"
+	case c >= 0.6:
+		return base + "background:rgba(245,158,11,0.14); color:var(--warning);"
+	default:
+		return base + "background:rgba(239,68,68,0.10); color:var(--danger);"
+	}
+}
+
+// SmartOrderMappingPage is step 2: confirm or correct the column mapping.
+templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
+	@layouts.CustomerShell("تعيين الأعمدة", "purchase-request", lang, dir, nil) {
+		<div class="container-fluid" style="max-width:1100px; margin:0 auto; padding:1.5rem 1rem;">
+			<h1 style="font-size:1.6rem; font-weight:800; margin:0 0 1.5rem 0;">تعيين أعمدة الملف</h1>
+			@stepBar(2)
+
+			if data.Error != "" {
+				<div style="padding:1rem 1.25rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.10); border:1px solid var(--danger); margin-bottom:1.5rem;">
+					{ data.Error }
+				</div>
+			}
+
+			<p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
+				تعرّف النظام على الأعمدة تلقائيًا. راجع الاختيارات وصحّح أي عمود قبل بدء المطابقة — تعيين خاطئ ينتج طلبًا خاطئًا بثقة.
+			</p>
+
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", data.Run.PublicID)) } class="card" style="padding:2rem; display:grid; gap:1.25rem;">
+				<input type="hidden" name="header_row" value={ fmt.Sprintf("%d", data.HeaderRow) }/>
+				for _, f := range data.Fields {
+					<div>
+						<label style="display:block; font-weight:700; margin-bottom:0.4rem;">
+							{ f.Label }
+							if f.Required {
+								<span style="color:var(--danger);">*</span>
+							}
+							if f.Assigned {
+								<span style={ confidenceChip(f.Confidence) }>{ fmt.Sprintf("%.0f%%", f.Confidence*100) }</span>
+							}
+						</label>
+						<select name={ "mapping_" + f.Key } style="width:100%; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-lg);">
+							<option value="">— بدون —</option>
+							for i, h := range data.Headers {
+								<option value={ fmt.Sprintf("%d", i) } selected?={ f.Assigned && f.Column == i }>
+									{ fmt.Sprintf("عمود %d: %s", i+1, h) }
+								</option>
+							}
+						</select>
+					</div>
+				}
+
+				<div>
+					<strong style="display:block; margin-bottom:0.6rem;">معاينة أول الصفوف</strong>
+					<div style="overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-lg);">
+						<table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+							<thead>
+								<tr style="background:var(--surface-sunken);">
+									for i, h := range data.Headers {
+										<th style="padding:0.5rem; text-align:start; white-space:nowrap;">{ fmt.Sprintf("%d: %s", i+1, h) }</th>
+									}
+								</tr>
+							</thead>
+							<tbody>
+								for _, row := range data.Preview {
+									<tr style="border-top:1px solid var(--border);">
+										for _, cell := range row {
+											<td style="padding:0.5rem; white-space:nowrap;">{ cell }</td>
+										}
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary" style="justify-content:center; font-weight:700; padding:0.85rem;">
+					حفظ التعيين وبدء المطابقة
+				</button>
+			</form>
+		</div>
+	}
+}
+
+// SmartOrderProgressData drives the live progress screen.
+type SmartOrderProgressData struct {
+	Run     *smartorder.Run
+	Events  []*smartorder.Event
+	Failed  bool
+	Message string
+}
+
+// SmartOrderProgressPage is step 3: processing.
+//
+// Everything shown here comes from the database, not from the connection that
+// started the run — which is what lets a buyer close the tab, come back from
+// another device, and find the run where it got to.
+templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
+	@layouts.CustomerShell("جارٍ المطابقة", "purchase-request", lang, dir, nil) {
+		<div class="container-fluid" style="max-width:820px; margin:0 auto; padding:1.5rem 1rem;">
+			<h1 style="font-size:1.6rem; font-weight:800; margin:0 0 1.5rem 0;">جارٍ تجهيز الطلب</h1>
+			@stepBar(3)
+
+			if data.Failed {
+				<div style="padding:1.25rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.10); border:1px solid var(--danger);">
+					<strong>تعذّر إكمال المطابقة</strong>
+					<p style="margin:0.5rem 0 0 0; font-size:0.88rem;">{ data.Message }</p>
+				</div>
+			} else {
+				<div class="card" style="padding:2rem;">
+					<div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+						<div class="spinner" style="width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--primary-600); border-radius:50%; animation:spin 800ms linear infinite;"></div>
+						<div>
+							<div style="font-weight:700;">{ data.Message }</div>
+							<div style="font-size:0.85rem; color:var(--text-secondary);">
+								يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.
+							</div>
+						</div>
+					</div>
+					<ul style="margin:0; padding-inline-start:1.25rem; font-size:0.88rem; color:var(--text-secondary);">
+						for _, e := range data.Events {
+							<li style="margin-bottom:0.3rem;">
+								{ e.Message["ar"] }
+								if e.Processed != nil && e.Total != nil && *e.Total > 0 {
+									{ fmt.Sprintf(" (%d / %d)", *e.Processed, *e.Total) }
+								}
+							</li>
+						}
+					</ul>
+				</div>
+				<style>
+					@keyframes spin { to { transform: rotate(360deg); } }
+				</style>
+				<meta http-equiv="refresh" content="3"/>
+			}
+		</div>
+	}
+}

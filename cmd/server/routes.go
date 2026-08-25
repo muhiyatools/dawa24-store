@@ -58,9 +58,9 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -284,6 +284,11 @@ func mountModuleRoutes(
 	}
 	uiHandler.SetAssistantRepository(assistantPostgres.NewRepository(db))
 
+	// Smart ordering (specs/001-smart-ordering-system). The server has no queue
+	// client, so runs are left queued and the worker collects them — which is
+	// also what makes a run survive a server restart mid-import.
+	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, nil, log)
+
 	// Audience-gated UI groups (Rebuild V2 §1.3). Every route is registered
 	// under exactly one group; a route living outside these groups means it is
 	// reachable by anyone regardless of account type — test/route_audience_test.go
@@ -301,6 +306,7 @@ func mountModuleRoutes(
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiRouter.Use(uiHandler.BuyingBranchSelector)
 		uiHandler.RegisterCustomerRoutes(uiRouter)
+		uiHandler.RegisterSmartOrderRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(httpx.CSRF(isProd))

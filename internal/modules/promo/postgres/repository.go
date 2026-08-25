@@ -708,4 +708,3 @@ func (r *Repository) ToggleSpecialOfferStatus(ctx context.Context, id int64, isA
 		return nil
 	})
 }
-

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // Stages four to five: confirmation, the running import, and the results.
@@ -44,9 +44,9 @@ templ importConfirmStage(view VendorImportView) {
 									<td>{ col.Label }</td>
 									<td>
 										<span class={ "badge", ConfidenceTone(col.Confidence), "text-xs" }>
-											if col.Source == engine.SourceManual {
+											if col.Source == productmatch.SourceManual {
 												تحديد يدوي
-											} else if col.Source == engine.SourceCompleted {
+											} else if col.Source == productmatch.SourceCompleted {
 												أُكمل تلقائياً بعد مراجعتك
 											} else {
 												تحليل تلقائي · { PercentText(col.Score) }
@@ -185,9 +185,9 @@ templ importResultsStage(view VendorImportView) {
 									<td class="text-xs text-muted">{ f.Value }</td>
 									<td>
 										<span class={ "badge", SeverityTone(f.Severity), "text-xs" }>
-											if f.Severity == engine.SeverityError {
+											if f.Severity == productmatch.SeverityError {
 												خطأ
-											} else if f.Severity == engine.SeverityWarning {
+											} else if f.Severity == productmatch.SeverityWarning {
 												تنبيه
 											} else {
 												معلومة

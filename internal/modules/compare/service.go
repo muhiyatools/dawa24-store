@@ -808,4 +808,3 @@ func extractNumber(s string) (float64, error) {
 func (s *Service) ListMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (*MarketDiscountsResult, error) {
 	return s.repo.ListMarketDiscounts(ctx, filter)
 }
-

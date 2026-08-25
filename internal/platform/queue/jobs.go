@@ -52,3 +52,20 @@ func (ProductReindexArgs) Kind() string { return "catalog.reindex" }
 func (ProductReindexArgs) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{Queue: "maintenance"}
 }
+
+// SmartOrderRunArgs defines job parameters for executing a smart ordering run.
+//
+// The job carries only identifiers. Everything else — the configuration, the
+// staged rows — lives in the database, so a worker restart resumes from state
+// rather than from a payload that may no longer be true.
+type SmartOrderRunArgs struct {
+	RunID          int64 `json:"run_id"`
+	OrganizationID int64 `json:"organization_id"`
+}
+
+func (SmartOrderRunArgs) Kind() string { return "smartorder.run" }
+func (SmartOrderRunArgs) InsertOpts() river.InsertOpts {
+	// A ten-thousand-row import is minutes of work, so it gets its own queue
+	// rather than blocking short jobs behind it.
+	return river.InsertOpts{Queue: "smartorder", MaxAttempts: 3}
+}

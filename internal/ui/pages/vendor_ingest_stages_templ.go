@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // Stages two to five of the vendor catalogue import.
@@ -94,7 +94,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 	})
 }
 
-func importColumnRow(col *engine.Column) templ.Component {
+func importColumnRow(col *productmatch.Column) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -341,7 +341,7 @@ func importColumnRow(col *engine.Column) templ.Component {
 	})
 }
 
-func importFindings(a *engine.Analysis) templ.Component {
+func importFindings(a *productmatch.Analysis) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -394,12 +394,12 @@ func importFindings(a *engine.Analysis) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if c.Severity == engine.SeverityError {
+				if c.Severity == productmatch.SeverityError {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "خطأ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if c.Severity == engine.SeverityWarning {
+				} else if c.Severity == productmatch.SeverityWarning {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "تنبيه")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

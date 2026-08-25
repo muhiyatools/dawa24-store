@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -108,13 +108,13 @@ func (s *Service) runImport(ctx context.Context, session *Session) error {
 		_ = book.Use(session.Source.Sheet)
 	}
 
-	opts := engine.DefaultProcessOptions()
+	opts := productmatch.DefaultProcessOptions()
 	opts.Parse = parseOptionsFrom(session.Settings)
 	opts.Duplicates = session.Settings.Duplicates
 	opts.Vocabulary = s.vocabulary(ctx, session.OrganizationID)
 
-	result, err := engine.Process(book, analysis.Layout, analysis.Mapping, opts,
-		func(batch []*engine.Row) error { return writer.write(ctx, batch) })
+	result, err := productmatch.Process(book, analysis.Layout, analysis.Mapping, opts,
+		func(batch []*productmatch.Row) error { return writer.write(ctx, batch) })
 	if err != nil {
 		return err
 	}
@@ -140,9 +140,9 @@ func (s *Service) prepareWriter(ctx context.Context, session *Session) (*importW
 	if err != nil {
 		return nil, fmt.Errorf("load shared catalogue: %w", err)
 	}
-	master := make([]engine.MasterProduct, 0, len(products))
+	master := make([]productmatch.MasterProduct, 0, len(products))
 	for _, p := range products {
-		master = append(master, engine.MasterProduct{
+		master = append(master, productmatch.MasterProduct{
 			ID: p.ID, NameAR: p.NameAR, NameEN: p.NameEN, SKU: p.SKU,
 			Barcode: p.Barcode, Scientific: p.Scientific, DosageForm: p.DosageForm,
 			Concentration: p.Concentration, Unit: p.Unit,
@@ -155,7 +155,7 @@ func (s *Service) prepareWriter(ctx context.Context, session *Session) (*importW
 		return nil, fmt.Errorf("load existing variants: %w", err)
 	}
 
-	matchOpts := engine.DefaultMatchOptions()
+	matchOpts := productmatch.DefaultMatchOptions()
 	matchOpts.MinStrong = session.Settings.MinMatchScore
 	matchOpts.TrustSupplierCode = session.Settings.TrustSupplierCode
 
@@ -163,7 +163,7 @@ func (s *Service) prepareWriter(ctx context.Context, session *Session) (*importW
 		svc:      s,
 		session:  session,
 		settings: session.Settings,
-		index:    engine.NewIndex(master),
+		index:    productmatch.NewIndex(master),
 		variants: newVariantIndex(keys),
 		match:    matchOpts,
 	}, nil
@@ -191,7 +191,7 @@ func (s *Service) retireAbsent(ctx context.Context, session *Session, w *importW
 
 // applyRunResult folds the engine's account and the writer's counters onto the
 // session.
-func applyRunResult(session *Session, result *engine.Result, w *importWriter) {
+func applyRunResult(session *Session, result *productmatch.Result, w *importWriter) {
 	session.Stats = result.Stats
 	session.Findings = result.Issues
 	session.TotalRows = result.Stats.SheetRows
@@ -207,8 +207,8 @@ func applyRunResult(session *Session, result *engine.Result, w *importWriter) {
 }
 
 // parseOptionsFrom translates the vendor's settings into reading rules.
-func parseOptionsFrom(s Settings) engine.ParseOptions {
-	return engine.ParseOptions{
+func parseOptionsFrom(s Settings) productmatch.ParseOptions {
+	return productmatch.ParseOptions{
 		DefaultMinOrderQty:  s.DefaultMinOrderQty,
 		DefaultMinThreshold: s.DefaultMinThreshold,
 		BlankQuantityIsZero: s.BlankQuantityIsZero,

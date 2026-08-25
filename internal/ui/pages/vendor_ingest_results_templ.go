@@ -12,7 +12,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // Stages four to five: confirmation, the running import, and the results.
@@ -130,12 +130,12 @@ func importConfirmStage(view VendorImportView) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if col.Source == engine.SourceManual {
+					if col.Source == productmatch.SourceManual {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "تحديد يدوي")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					} else if col.Source == engine.SourceCompleted {
+					} else if col.Source == productmatch.SourceCompleted {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "أُكمل تلقائياً بعد مراجعتك")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
@@ -541,12 +541,12 @@ func importResultsStage(view VendorImportView) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if f.Severity == engine.SeverityError {
+					if f.Severity == productmatch.SeverityError {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "خطأ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					} else if f.Severity == engine.SeverityWarning {
+					} else if f.Severity == productmatch.SeverityWarning {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "تنبيه")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err

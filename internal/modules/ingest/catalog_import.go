@@ -3,8 +3,8 @@ package ingest
 import (
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -195,7 +195,7 @@ type Settings struct {
 	Unmatched UnmatchedPolicy     `json:"unmatched"`
 
 	// Duplicates decides what a repeated identity inside one file means.
-	Duplicates engine.DuplicatePolicy `json:"duplicates"`
+	Duplicates productmatch.DuplicatePolicy `json:"duplicates"`
 
 	// MinMatchScore is the similarity at or above which a match is applied
 	// without asking. Below it the row is recorded for review and, depending on
@@ -227,7 +227,7 @@ func DefaultSettings() Settings {
 		Mode:                ModeUpsert,
 		StockMode:           inventory.StockReplace,
 		Unmatched:           UnmatchedCreate,
-		Duplicates:          engine.DuplicateLastWins,
+		Duplicates:          productmatch.DuplicateLastWins,
 		MinMatchScore:       0.78,
 		BlankQuantityIsZero: false,
 		InferDosageForm:     true,
@@ -252,7 +252,7 @@ func (s Settings) Normalize() Settings {
 		s.Unmatched = UnmatchedCreate
 	}
 	if s.Duplicates == "" {
-		s.Duplicates = engine.DuplicateLastWins
+		s.Duplicates = productmatch.DuplicateLastWins
 	}
 	// Below about half, similarity stops meaning anything: two pharmaceutical
 	// names share that much by sharing a manufacturer's house style.
@@ -286,13 +286,13 @@ type Session struct {
 	// is re-derived from the file, which is safe because the engine is
 	// deterministic and means a stored mapping can never drift from the one the
 	// processing run actually uses.
-	Overrides map[int]engine.Field `json:"overrides,omitempty"`
+	Overrides map[int]productmatch.Field `json:"overrides,omitempty"`
 	// Mapping is the confirmed reading, stored once the vendor accepts it, for
 	// the results screen and the audit trail.
 	Mapping *MappingSnapshot `json:"mapping,omitempty"`
 
-	Stats    engine.Stats   `json:"stats"`
-	Findings []engine.Issue `json:"findings,omitempty"`
+	Stats    productmatch.Stats   `json:"stats"`
+	Findings []productmatch.Issue `json:"findings,omitempty"`
 
 	TotalRows       int `json:"total_rows"`
 	InsertedRows    int `json:"inserted_rows"`
@@ -320,29 +320,29 @@ func (s *Session) Affected() int { return s.InsertedRows + s.UpdatedRows }
 
 // MappingSnapshot is the confirmed column reading, flattened for storage.
 type MappingSnapshot struct {
-	HeaderRow    int               `json:"header_row"`
-	FirstDataRow int               `json:"first_data_row"`
-	Headers      []string          `json:"headers"`
-	Columns      []MappedColumn    `json:"columns"`
-	Conflicts    []engine.Conflict `json:"conflicts,omitempty"`
-	Notes        []engine.Note     `json:"notes,omitempty"`
+	HeaderRow    int                     `json:"header_row"`
+	FirstDataRow int                     `json:"first_data_row"`
+	Headers      []string                `json:"headers"`
+	Columns      []MappedColumn          `json:"columns"`
+	Conflicts    []productmatch.Conflict `json:"conflicts,omitempty"`
+	Notes        []productmatch.Note     `json:"notes,omitempty"`
 }
 
 // MappedColumn is one column as the vendor confirmed it.
 type MappedColumn struct {
-	Index      int               `json:"index"`
-	Header     string            `json:"header"`
-	Field      engine.Field      `json:"field,omitempty"`
-	Label      string            `json:"label,omitempty"`
-	Confidence engine.Confidence `json:"confidence,omitempty"`
-	Source     engine.Source     `json:"source,omitempty"`
-	Score      float64           `json:"score"`
-	Why        []string          `json:"why,omitempty"`
-	Ignored    bool              `json:"ignored"`
+	Index      int                     `json:"index"`
+	Header     string                  `json:"header"`
+	Field      productmatch.Field      `json:"field,omitempty"`
+	Label      string                  `json:"label,omitempty"`
+	Confidence productmatch.Confidence `json:"confidence,omitempty"`
+	Source     productmatch.Source     `json:"source,omitempty"`
+	Score      float64                 `json:"score"`
+	Why        []string                `json:"why,omitempty"`
+	Ignored    bool                    `json:"ignored"`
 }
 
 // SnapshotMapping flattens a resolved mapping for storage.
-func SnapshotMapping(layout engine.Layout, m *engine.Mapping) *MappingSnapshot {
+func SnapshotMapping(layout productmatch.Layout, m *productmatch.Mapping) *MappingSnapshot {
 	if m == nil {
 		return nil
 	}
@@ -374,21 +374,21 @@ func SnapshotMapping(layout engine.Layout, m *engine.Mapping) *MappingSnapshot {
 
 // RowOutcome is what the run did with one spreadsheet row.
 type RowOutcome struct {
-	ID                 int64                   `json:"id"`
-	SourceRow          int                     `json:"source_row"`
-	Outcome            string                  `json:"outcome"`
-	MatchLevel         string                  `json:"match_level"`
-	MatchScore         float64                 `json:"match_score"`
-	ProductID          *int64                  `json:"product_id,omitempty"`
-	MatchedProductName string                  `json:"matched_product_name,omitempty"`
-	MatchedProductSKU  string                  `json:"matched_product_sku,omitempty"`
-	VariantID          *int64                  `json:"variant_id,omitempty"`
-	DisplayName        string                  `json:"display_name"`
-	SourceCode         string                  `json:"source_code"`
-	Payload            *engine.Row             `json:"payload,omitempty"`
-	Candidates         []engine.MatchCandidate `json:"candidates,omitempty"`
-	Issues             []engine.Issue          `json:"issues,omitempty"`
-	Message            string                  `json:"message"`
+	ID                 int64                         `json:"id"`
+	SourceRow          int                           `json:"source_row"`
+	Outcome            string                        `json:"outcome"`
+	MatchLevel         string                        `json:"match_level"`
+	MatchScore         float64                       `json:"match_score"`
+	ProductID          *int64                        `json:"product_id,omitempty"`
+	MatchedProductName string                        `json:"matched_product_name,omitempty"`
+	MatchedProductSKU  string                        `json:"matched_product_sku,omitempty"`
+	VariantID          *int64                        `json:"variant_id,omitempty"`
+	DisplayName        string                        `json:"display_name"`
+	SourceCode         string                        `json:"source_code"`
+	Payload            *productmatch.Row             `json:"payload,omitempty"`
+	Candidates         []productmatch.MatchCandidate `json:"candidates,omitempty"`
+	Issues             []productmatch.Issue          `json:"issues,omitempty"`
+	Message            string                        `json:"message"`
 }
 
 // MatchedCatalogName returns the name of the matched master product, or top candidate.

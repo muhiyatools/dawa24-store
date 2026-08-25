@@ -11,9 +11,9 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -144,7 +144,7 @@ func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	overrides := map[int]engine.Field{}
+	overrides := map[int]productmatch.Field{}
 	for key, values := range r.PostForm {
 		if !strings.HasPrefix(key, "column_") || len(values) == 0 {
 			continue
@@ -157,11 +157,11 @@ func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Req
 		case "":
 			// "Decide for me" — left out so the completion pass may bind it.
 		case "__ignore":
-			overrides[index] = engine.IgnoreField
+			overrides[index] = productmatch.IgnoreField
 		case "__none":
 			overrides[index] = ""
 		default:
-			overrides[index] = engine.Field(values[0])
+			overrides[index] = productmatch.Field(values[0])
 		}
 	}
 
@@ -192,7 +192,7 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	if r.PostFormValue("unmatched") == string(ingest.UnmatchedSkip) {
 		settings.Unmatched = ingest.UnmatchedSkip
 	}
-	settings.Duplicates = engine.DuplicatePolicy(r.PostFormValue("duplicates"))
+	settings.Duplicates = productmatch.DuplicatePolicy(r.PostFormValue("duplicates"))
 	if score, err := strconv.ParseFloat(r.PostFormValue("min_match_score"), 64); err == nil {
 		settings.MinMatchScore = score / 100
 	}

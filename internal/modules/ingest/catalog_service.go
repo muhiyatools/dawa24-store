@@ -6,10 +6,10 @@ import (
 	"sync"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -102,7 +102,7 @@ func (r *runRegistry) running(id string) bool {
 // the review screen — which is the first of the three stages the vendor owns.
 func (s *Service) StartImport(
 	ctx context.Context, userID int64, filename string, content []byte,
-) (*Session, *engine.Analysis, error) {
+) (*Session, *productmatch.Analysis, error) {
 	if s.imports == nil {
 		return nil, nil, ErrImportStoreUnavailable
 	}
@@ -131,7 +131,7 @@ func (s *Service) StartImport(
 	}
 	defer func() { _ = book.Close() }()
 
-	analysis, err := engine.Analyze(book, s.vocabulary(ctx, orgID))
+	analysis, err := productmatch.Analyze(book, s.vocabulary(ctx, orgID))
 	if err != nil {
 		return nil, nil, apperr.Validation("import.unreadable", err.Error(), nil)
 	}
@@ -160,7 +160,7 @@ func (s *Service) StartImport(
 
 // Analysis re-derives the reading of a stored file, with the vendor's own
 // column corrections applied.
-func (s *Service) Analysis(ctx context.Context, publicID string) (*Session, *engine.Analysis, error) {
+func (s *Service) Analysis(ctx context.Context, publicID string) (*Session, *productmatch.Analysis, error) {
 	session, err := s.LoadImport(ctx, publicID)
 	if err != nil {
 		return nil, nil, err
@@ -174,7 +174,7 @@ func (s *Service) Analysis(ctx context.Context, publicID string) (*Session, *eng
 
 // analyse reads the stored file and applies whatever the vendor has decided so
 // far.
-func (s *Service) analyse(ctx context.Context, session *Session) (*engine.Analysis, error) {
+func (s *Service) analyse(ctx context.Context, session *Session) (*productmatch.Analysis, error) {
 	content, err := s.imports.File(ctx, session.ID)
 	if err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func (s *Service) analyse(ctx context.Context, session *Session) (*engine.Analys
 		}
 	}
 
-	analysis, err := engine.Analyze(book, s.vocabulary(ctx, session.OrganizationID))
+	analysis, err := productmatch.Analyze(book, s.vocabulary(ctx, session.OrganizationID))
 	if err != nil {
 		return nil, apperr.Validation("import.unreadable", err.Error(), nil)
 	}
@@ -223,8 +223,8 @@ func (s *Service) LoadImport(ctx context.Context, publicID string) (*Session, er
 // filled in on their behalf. An import must never write a column the vendor was
 // not shown.
 func (s *Service) SaveMapping(
-	ctx context.Context, publicID string, overrides map[int]engine.Field,
-) (*Session, *engine.Analysis, error) {
+	ctx context.Context, publicID string, overrides map[int]productmatch.Field,
+) (*Session, *productmatch.Analysis, error) {
 	session, err := s.LoadImport(ctx, publicID)
 	if err != nil {
 		return nil, nil, err
@@ -370,14 +370,14 @@ func (s *Service) Warehouses(ctx context.Context) ([]*inventory.Warehouse, error
 // A failure here is not fatal: without the vocabulary the header and the value
 // shapes still decide every column, and refusing to analyse a file because the
 // brand list would not load would be a poor trade.
-func (s *Service) vocabulary(ctx context.Context, orgID int64) *engine.Vocabulary {
+func (s *Service) vocabulary(ctx context.Context, orgID int64) *productmatch.Vocabulary {
 	if s.catalog == nil {
-		return engine.NewVocabulary(nil, nil, nil, nil)
+		return productmatch.NewVocabulary(nil, nil, nil, nil)
 	}
 	vocab, err := s.catalog.ImportVocabulary(ctx, orgID)
 	if err != nil {
 		s.log.WarnContext(ctx, "import vocabulary unavailable", "error", err)
-		return engine.NewVocabulary(nil, nil, nil, nil)
+		return productmatch.NewVocabulary(nil, nil, nil, nil)
 	}
 	brands := make([]string, 0, len(vocab.Brands))
 	for _, b := range vocab.Brands {
@@ -399,7 +399,7 @@ func (s *Service) vocabulary(ctx context.Context, orgID int64) *engine.Vocabular
 			}
 		}
 	}
-	return engine.NewVocabulary(brands, categories, warehouses, branches)
+	return productmatch.NewVocabulary(brands, categories, warehouses, branches)
 }
 
 // describeStore is used by the handlers to explain an unavailable feature.

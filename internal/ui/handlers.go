@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -26,6 +27,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -58,6 +60,15 @@ type UIHandler struct {
 	gatewayKeys   GatewayKeyCache
 	log           *slog.Logger
 
+	// Smart ordering (specs/001-smart-ordering-system). Optional: when the
+	// service is nil the wizard reports itself unavailable rather than panicking,
+	// which keeps the rest of the customer surface working if it is not wired.
+	smartOrderSvc       *smartorder.Service
+	smartOrderFiles     *smartOrderFileStore
+	smartOrderEnqueue   SmartOrderEnqueueFunc
+	smartOrderFinalizer *smartorder.Finalizer
+	smartOrderStale     *smartOrderStaleStore
+
 	cacheMu sync.Mutex
 	cache   map[string]uiCacheEntry
 }
@@ -65,6 +76,24 @@ type UIHandler struct {
 // SetAssistantRepository attaches the Assistant database repository for auditing and history.
 func (h *UIHandler) SetAssistantRepository(repo assistant.Repository) {
 	h.assistantRepo = repo
+}
+
+// SmartOrderEnqueueFunc hands a prepared run to the background worker.
+//
+// A function rather than the queue client itself: the UI has no business knowing
+// what a River job is, and a test can hand it a closure.
+type SmartOrderEnqueueFunc func(ctx context.Context, runID, orgID int64) error
+
+// SetSmartOrder wires the smart ordering wizard.
+func (h *UIHandler) SetSmartOrder(svc *smartorder.Service, enqueue SmartOrderEnqueueFunc) {
+	h.smartOrderSvc = svc
+	h.smartOrderEnqueue = enqueue
+	if h.smartOrderFiles == nil {
+		h.smartOrderFiles = newSmartOrderFileStore()
+	}
+	if h.smartOrderStale == nil {
+		h.smartOrderStale = newSmartOrderStaleStore()
+	}
 }
 
 // SetGatewayClient attaches the Gateway client instance for health probes and AI services.
@@ -328,11 +357,16 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/customer/purchase-priority/run", h.CustomerPurchasePriorityRunSubmit)
 	r.Get("/customer/purchase-priority/{id}", h.CustomerPurchasePriorityDetailPage)
 
-	// Automatic Purchase Requests & Optimization (Plan V5 Phase 3 Task 3.3)
-	r.Get("/customer/automation", h.CustomerAutomationPage)
-	r.Post("/customer/automation/upload", h.CustomerAutomationUploadSubmit)
-	r.Get("/customer/automation/previous", h.CustomerAutomationPreviousPage)
-	r.Get("/customer/automation/{id}", h.CustomerAutomationDetailPage)
+	// The former Automatic Purchase Request feature is superseded by Smart
+	// Ordering (specs/001-smart-ordering-system). Its table held zero rows, so
+	// no detail URL can resolve to real content and only the two entry points
+	// are redirected. Remove these after one release.
+	r.Get("/customer/automation", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/customer/smart-order", http.StatusMovedPermanently)
+	})
+	r.Get("/customer/automation/previous", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/customer/smart-order/history", http.StatusMovedPermanently)
+	})
 
 	// Subscription & Membership
 	r.Get("/customer/subscription", h.TenantSubscriptionPage)

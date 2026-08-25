@@ -108,22 +108,6 @@ func (r stubRepo) GetCandidateProducts(ctx context.Context, userID int64, author
 	r.fail("GetCandidateProducts")
 	return nil, nil
 }
-func (r stubRepo) CreateAutomationRequest(ctx context.Context, req *workflow.AutomationRequest) error {
-	r.fail("CreateAutomationRequest")
-	return nil
-}
-func (r stubRepo) GetAutomationRequestByID(ctx context.Context, id int64) (*workflow.AutomationRequest, error) {
-	r.fail("GetAutomationRequestByID")
-	return nil, nil
-}
-func (r stubRepo) ListAutomationRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.AutomationRequest, error) {
-	r.fail("ListAutomationRequestsByUser")
-	return nil, nil
-}
-func (r stubRepo) UpdateAutomationRequestStatus(ctx context.Context, id int64, status workflow.AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error {
-	r.fail("UpdateAutomationRequestStatus")
-	return nil
-}
 
 type happyRepo struct{}
 
@@ -196,20 +180,6 @@ func (happyRepo) UpdatePriorityRequestStatus(ctx context.Context, id int64, stat
 }
 func (happyRepo) GetCandidateProducts(ctx context.Context, userID int64, authorizedWorkIDs []int64, preferredSupplierIDs []int64, budget *money.Amount, limit int) ([]workflow.CandidateProduct, error) {
 	return []workflow.CandidateProduct{}, nil
-}
-func (happyRepo) CreateAutomationRequest(ctx context.Context, req *workflow.AutomationRequest) error {
-	req.ID = 1
-	req.Status = workflow.AutomationStatusPending
-	return nil
-}
-func (happyRepo) GetAutomationRequestByID(ctx context.Context, id int64) (*workflow.AutomationRequest, error) {
-	return &workflow.AutomationRequest{ID: id, UserID: 1, Status: workflow.AutomationStatusCompleted}, nil
-}
-func (happyRepo) ListAutomationRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*workflow.AutomationRequest, error) {
-	return []*workflow.AutomationRequest{{ID: 1, UserID: userID, Status: workflow.AutomationStatusCompleted}}, nil
-}
-func (happyRepo) UpdateAutomationRequestStatus(ctx context.Context, id int64, status workflow.AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error {
-	return nil
 }
 
 const testCookieName = "dawa24_session"

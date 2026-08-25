@@ -12,20 +12,18 @@ import (
 )
 
 type mockWorkflowRepo struct {
-	requests    map[int64]*PurchasePriorityRequest
-	automations map[int64]*AutomationRequest
-	coverage    map[int64][]*WeeklyCoverage
-	issues      map[int64]*ReportIssue
-	nextID      int64
+	requests map[int64]*PurchasePriorityRequest
+	coverage map[int64][]*WeeklyCoverage
+	issues   map[int64]*ReportIssue
+	nextID   int64
 }
 
 func newMockWorkflowRepo() *mockWorkflowRepo {
 	return &mockWorkflowRepo{
-		requests:    map[int64]*PurchasePriorityRequest{},
-		automations: map[int64]*AutomationRequest{},
-		coverage:    map[int64][]*WeeklyCoverage{},
-		issues:      map[int64]*ReportIssue{},
-		nextID:      1,
+		requests: map[int64]*PurchasePriorityRequest{},
+		coverage: map[int64][]*WeeklyCoverage{},
+		issues:   map[int64]*ReportIssue{},
+		nextID:   1,
 	}
 }
 
@@ -191,53 +189,6 @@ func (m *mockWorkflowRepo) GetCandidateProducts(_ context.Context, userID int64,
 			EstimatedDelivery:    1,
 		},
 	}, nil
-}
-
-func (m *mockWorkflowRepo) CreateAutomationRequest(_ context.Context, req *AutomationRequest) error {
-	req.ID = m.nextID
-	m.nextID++
-	if m.automations == nil {
-		m.automations = make(map[int64]*AutomationRequest)
-	}
-	m.automations[req.ID] = req
-	return nil
-}
-
-func (m *mockWorkflowRepo) GetAutomationRequestByID(_ context.Context, id int64) (*AutomationRequest, error) {
-	if m.automations != nil {
-		if req, ok := m.automations[id]; ok {
-			return req, nil
-		}
-	}
-	return nil, apperr.NotFound("automation_request")
-}
-
-func (m *mockWorkflowRepo) ListAutomationRequestsByUser(_ context.Context, userID int64, limit, offset int) ([]*AutomationRequest, error) {
-	var list []*AutomationRequest
-	if m.automations != nil {
-		for _, req := range m.automations {
-			if req.UserID == userID {
-				list = append(list, req)
-			}
-		}
-	}
-	return list, nil
-}
-
-func (m *mockWorkflowRepo) UpdateAutomationRequestStatus(_ context.Context, id int64, status AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error {
-	if m.automations != nil {
-		if req, ok := m.automations[id]; ok {
-			req.Status = status
-			req.ComparisonResults = results
-			if totalVal != nil {
-				req.TotalValue = *totalVal
-			}
-			req.MatchedProducts = matchedCount
-			req.ApprovedProducts = approvedCount
-			return nil
-		}
-	}
-	return apperr.NotFound("automation_request")
 }
 
 func TestWorkflowPurchasePriorityAndCoverage(t *testing.T) {

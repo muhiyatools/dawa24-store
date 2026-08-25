@@ -704,4 +704,3 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 
 	return result, err
 }
-

@@ -14,11 +14,6 @@ type Repository interface {
 	UpdatePriorityRequestStatus(ctx context.Context, id int64, status string, notes string, processedBy *int64, results map[string]any) error
 	GetCandidateProducts(ctx context.Context, userID int64, authorizedWorkIDs []int64, preferredSupplierIDs []int64, budget *money.Amount, limit int) ([]CandidateProduct, error)
 
-	CreateAutomationRequest(ctx context.Context, req *AutomationRequest) error
-	GetAutomationRequestByID(ctx context.Context, id int64) (*AutomationRequest, error)
-	ListAutomationRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*AutomationRequest, error)
-	UpdateAutomationRequestStatus(ctx context.Context, id int64, status AutomationRequestStatus, results map[string]any, totalVal *money.Amount, matchedCount, approvedCount int) error
-
 	SaveWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error
 	UpdateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error
 	DeleteWeeklyCoverage(ctx context.Context, id int64) error

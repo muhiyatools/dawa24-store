@@ -381,11 +381,11 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 
 // SavingProductsPreviewResponse represents the preview payload returned to UI.
 type SavingProductsPreviewResponse struct {
-	Success    bool              `json:"success"`
-	Error      string            `json:"error,omitempty"`
-	Headers    []string          `json:"headers"`
+	Success    bool               `json:"success"`
+	Error      string             `json:"error,omitempty"`
+	Headers    []string           `json:"headers"`
 	Detected   SavingDetectedCols `json:"detected"`
-	SampleRows [][]string        `json:"sample_rows"`
+	SampleRows [][]string         `json:"sample_rows"`
 }
 
 type SavingDetectedCols struct {

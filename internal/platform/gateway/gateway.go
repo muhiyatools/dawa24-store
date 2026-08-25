@@ -43,6 +43,11 @@ const (
 	CapOrderOptimize Capability = "order.optimize"
 	CapCatalogChat   Capability = "catalog.chat"
 	CapSearchExpand  Capability = "search.expand_query"
+	// CapMatchAdjudicate resolves a *batch* of ambiguous product rows against a
+	// shortlist supplied with the request. It is separate from CapProductMatch
+	// because that one answers a single row: sending ten thousand of those is how
+	// a weekly budget disappears in one import.
+	CapMatchAdjudicate Capability = "matching.adjudicate"
 )
 
 // Tier is the class of model a capability needs, not a model itself.
@@ -87,6 +92,11 @@ var budgets = map[Capability]budget{
 	CapOrderOptimize: {timeout: 15 * time.Second, retries: 1, tier: TierFast},
 	CapCatalogChat:   {timeout: 120 * time.Second, retries: 0, tier: TierQuality},
 	CapSearchExpand:  {timeout: 5 * time.Second, retries: 0, tier: TierFast},
+	// A batch of 25 rows with five candidates each is a large prompt but a small
+	// completion, so the timeout is generous and the retry count low: a retry
+	// costs a whole batch again, and the pipeline's bisection handles failure
+	// better than a blind repeat would.
+	CapMatchAdjudicate: {timeout: 90 * time.Second, retries: 1, tier: TierFast},
 }
 
 // modelFor resolves a capability's tier to the model name to send.

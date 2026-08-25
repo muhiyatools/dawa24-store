@@ -349,4 +349,3 @@ func (s *Service) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, a
 func (s *Service) ToggleSpecialOfferStatus(ctx context.Context, id int64, isActive bool) error {
 	return s.repo.ToggleSpecialOfferStatus(ctx, id, isActive)
 }
-

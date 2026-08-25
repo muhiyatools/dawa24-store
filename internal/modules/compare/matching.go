@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"math"
 	"strings"
-	"unicode"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
-	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // CandidateProduct represents a catalog product candidate evaluated during matching.
@@ -252,89 +251,15 @@ func (s *Service) SaveManualCorrection(ctx context.Context, orgID *int64, rowID 
 }
 
 // Helper utilities
+//
+// The normalisation and similarity functions that used to live here now live in
+// internal/shared/productmatch, so that compare, ingest and smart ordering all
+// answer "are these the same product name" the same way. These wrappers keep
+// compare's call sites unchanged.
 
-func normalizeProductText(s string) string {
-	s = arabic.Normalize(s)
-	s = strings.ToLower(strings.TrimSpace(s))
-	var b strings.Builder
-	for _, r := range s {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) {
-			b.WriteRune(r)
-		}
-	}
-	return strings.Join(strings.Fields(b.String()), " ")
-}
+func normalizeProductText(s string) string { return productmatch.NormalizeText(s) }
 
-func extractFirstMeaningfulWord(s string) string {
-	normalized := normalizeProductText(s)
-	words := strings.Fields(normalized)
-	for _, w := range words {
-		// Skip short stop words
-		if len([]rune(w)) >= 3 {
-			return w
-		}
-	}
-	if len(words) > 0 {
-		return words[0]
-	}
-	return ""
-}
+func extractFirstMeaningfulWord(s string) string { return productmatch.FirstMeaningfulWord(s) }
 
 // CalculateTextSimilarity computes string similarity between two normalized strings.
-func CalculateTextSimilarity(s1, s2 string) float64 {
-	if s1 == "" || s2 == "" {
-		return 0.0
-	}
-	if s1 == s2 {
-		return 1.0
-	}
-
-	// Substring bonus
-	if strings.Contains(s1, s2) || strings.Contains(s2, s1) {
-		lenMin := min(len(s1), len(s2))
-		lenMax := max(len(s1), len(s2))
-		ratio := float64(lenMin) / float64(lenMax)
-		return 0.70 + (0.30 * ratio)
-	}
-
-	// Character bigram similarity (Dice coefficient)
-	bigrams1 := getBigrams(s1)
-	bigrams2 := getBigrams(s2)
-
-	bigramScore := 0.0
-	if len(bigrams1) > 0 && len(bigrams2) > 0 {
-		intersection := 0
-		for bg := range bigrams1 {
-			if bigrams2[bg] {
-				intersection++
-			}
-		}
-		bigramScore = (2.0 * float64(intersection)) / float64(len(bigrams1)+len(bigrams2))
-	}
-
-	// Word token overlap bonus
-	w1 := strings.Fields(s1)
-	w2 := strings.Fields(s2)
-	if len(w1) > 0 && len(w2) > 0 {
-		commonWords := 0
-		w2Map := make(map[string]bool)
-		for _, w := range w2 {
-			w2Map[w] = true
-		}
-		for _, w := range w1 {
-			if len([]rune(w)) >= 3 && w2Map[w] {
-				commonWords++
-			}
-		}
-		if commonWords > 0 {
-			overlapScore := float64(commonWords) / float64(max(len(w1), len(w2)))
-			// If primary initial drug token matches, baseline similarity is 0.60
-			if w1[0] == w2[0] {
-				return math.Max(0.60+(0.35*overlapScore), bigramScore)
-			}
-			return math.Max(0.50+(0.40*overlapScore), bigramScore)
-		}
-	}
-
-	return bigramScore
-}
+func CalculateTextSimilarity(s1, s2 string) float64 { return productmatch.TextSimilarity(s1, s2) }
