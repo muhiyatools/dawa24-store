@@ -2,6 +2,7 @@ package ui
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -143,7 +144,7 @@ func (h *UIHandler) smartOrderRecalculate(r *http.Request, run *smartorder.Run) 
 func (h *UIHandler) smartOrderBack(w http.ResponseWriter, r *http.Request, run *smartorder.Run, message string) {
 	target := "/customer/smart-order/" + run.PublicID + "/review"
 	if message != "" {
-		target += "?error=" + message
+		target += "?error=" + url.QueryEscape(message)
 	}
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }

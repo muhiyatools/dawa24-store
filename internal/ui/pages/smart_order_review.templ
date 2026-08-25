@@ -42,6 +42,7 @@ type SmartOrderReviewData struct {
 	Excluded   []*smartorder.Line
 	BranchName string
 	Stale      []smartorder.StaleLine
+	Error      string
 }
 
 func decidedLabel(d smartorder.DecidedBy) string {
@@ -70,6 +71,12 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				مراجعة الطلب — { data.Run.RunNumber }
 			</h1>
 			@stepBar(5)
+
+			if data.Error != "" {
+				<div style="padding:1rem 1.25rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.10); border:1px solid var(--danger); margin-bottom:1.5rem; font-weight:600;">
+					{ data.Error }
+				</div>
+			}
 
 			if len(data.Stale) > 0 {
 				<div style="padding:1.25rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.10); border:1px solid var(--danger); margin-bottom:1.5rem;">

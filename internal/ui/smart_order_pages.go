@@ -117,6 +117,7 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 
 	data := pages.SmartOrderReviewData{
 		Run:        run,
+		Error:      r.URL.Query().Get("error"),
 		BranchName: h.branchName(ctx, run),
 		// Shown once, on the render that follows a refused finalisation.
 		Stale: h.smartOrderStale.take(run.PublicID),

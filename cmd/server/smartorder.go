@@ -11,7 +11,7 @@ import (
 	smartorderPG "github.com/muhiya/dawa24-store/internal/modules/smartorder/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-	"github.com/muhiya/dawa24-store/internal/platform/queue"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
@@ -32,7 +32,7 @@ func wireSmartOrder(
 	orgSvc *org.Service,
 	wfCoverage *workflow.CoverageService,
 	commSvc *commerce.Service,
-	q *queue.Client,
+	ai gateway.Client,
 	log *slog.Logger,
 ) *smartorder.Service {
 	if db == nil || uiHandler == nil {
@@ -41,7 +41,11 @@ func wireSmartOrder(
 
 	repo := smartorderPG.New(db)
 	svc := smartorder.NewService(repo, log)
-	uiHandler.SetSmartOrder(svc, enqueueSmartOrderRun(q, log))
+
+	// Process in this process. The River worker stays registered for
+	// deployments that run it, and the two cannot collide: the runner only
+	// claims a run that is still `queued`. See smartorder_runner.go.
+	uiHandler.SetSmartOrder(svc, inlineSmartOrderRunner(db, orgSvc, ai, log))
 
 	if commSvc != nil {
 		uiHandler.SetFinalizer(smartorder.NewFinalizer(
@@ -51,23 +55,6 @@ func wireSmartOrder(
 		))
 	}
 	return svc
-}
-
-// enqueueSmartOrderRun hands a prepared run to the worker.
-//
-// When the queue is unavailable the run stays queued rather than failing: the
-// worker picks it up when it returns, and the buyer sees a progress page rather
-// than an error for something that is merely late.
-func enqueueSmartOrderRun(q *queue.Client, log *slog.Logger) ui.SmartOrderEnqueueFunc {
-	return func(ctx context.Context, runID, orgID int64) error {
-		if q == nil {
-			log.WarnContext(ctx, "queue unavailable; smart order run will start when the worker returns",
-				"run_id", runID)
-			return nil
-		}
-		_, err := q.Enqueue(ctx, queue.SmartOrderRunArgs{RunID: runID, OrganizationID: orgID}, nil)
-		return err
-	}
 }
 
 // placeSmartOrder adapts commerce checkout.

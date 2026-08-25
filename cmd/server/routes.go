@@ -287,7 +287,7 @@ func mountModuleRoutes(
 	// Smart ordering (specs/001-smart-ordering-system). The server has no queue
 	// client, so runs are left queued and the worker collects them — which is
 	// also what makes a run survive a server restart mid-import.
-	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, nil, log)
+	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, ai, log)
 
 	// Audience-gated UI groups (Rebuild V2 §1.3). Every route is registered
 	// under exactly one group; a route living outside these groups means it is

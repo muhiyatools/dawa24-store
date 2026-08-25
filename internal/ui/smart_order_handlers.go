@@ -3,6 +3,7 @@ package ui
 import (
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -22,9 +23,14 @@ import (
 // scripted callers; these handlers are what the pharmacy actually uses. Both go
 // through the same service, so there is one set of rules rather than two.
 
-// maxUploadBytes caps a direct upload. Larger files go through the chunked
-// endpoint the ingest module already provides.
-const maxUploadBytes = 20 << 20
+// maxUploadBytes caps a direct upload.
+//
+// 64 MB. A ten-thousand-row workbook of the shape a pharmacy actually sends is
+// around 250 KB, so this is not a row-count limit in disguise — it is a guard
+// against a mis-selected file. The previous 20 MB was low enough that a workbook
+// carrying embedded images (which pharmacy exports routinely do) was refused,
+// and the refusal was reported as if the file were unreadable.
+const maxUploadBytes = 64 << 20
 
 // SmartOrderNewPage renders step 1: upload and configuration.
 func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +42,7 @@ func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := pages.SmartOrderNewData{}
+	data := pages.SmartOrderNewData{Error: r.URL.Query().Get("error")}
 
 	if h.orgSvc != nil {
 		branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
@@ -83,8 +89,11 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadBytes)
-	if err := r.ParseMultipartForm(maxUploadBytes); err != nil {
-		h.smartOrderFail(w, r, "تعذّر رفع الملف. تأكد من أن حجمه لا يتجاوز 20 ميجابايت.")
+	// The in-memory portion is capped well below the body limit so a large
+	// upload spills to a temp file instead of being held whole in RAM.
+	if err := r.ParseMultipartForm(8 << 20); err != nil {
+		h.smartOrderFail(w, r,
+			"تعذّر رفع الملف. تأكد من أن حجمه لا يتجاوز 64 ميجابايت وأن الرفع اكتمل.")
 		return
 	}
 
@@ -105,6 +114,12 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 	// half-formed run in the buyer's history.
 	parsed, err := pipeline.Inspect(content, header.Filename)
 	if err != nil {
+		// The reader's own message names the cause — empty file, unsupported
+		// container, no readable sheet — and is already in Arabic. Passing it
+		// through beats a generic "could not read the file", which tells the
+		// buyer nothing they can act on.
+		h.log.WarnContext(ctx, "could not read the uploaded file",
+			"filename", header.Filename, "bytes", len(content), "error", err)
 		h.smartOrderFail(w, r, "تعذّرت قراءة الملف: "+err.Error())
 		return
 	}
@@ -316,9 +331,18 @@ func (h *UIHandler) smartOrderRun(w http.ResponseWriter, r *http.Request) (*smar
 	return run, true
 }
 
+// smartOrderFail sends the buyer back with an explanation they can read.
+//
+// The message is URL-encoded, which it previously was not: an Arabic sentence
+// dropped raw into a query string produces a mangled address and, on some
+// proxies, no redirect at all. It is then rendered on the destination page —
+// also new. Before this the only place the reason appeared was the address bar,
+// which is where the buyer reported finding it.
 func (h *UIHandler) smartOrderFail(w http.ResponseWriter, r *http.Request, message string) {
 	h.log.WarnContext(r.Context(), "smart order step refused", "message", message)
-	http.Redirect(w, r, "/customer/smart-order/new?error="+message, http.StatusSeeOther)
+	http.Redirect(w, r,
+		"/customer/smart-order/new?error="+url.QueryEscape(message),
+		http.StatusSeeOther)
 }
 
 // translateSmartOrderError turns a domain error into something a pharmacist can
