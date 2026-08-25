@@ -874,16 +874,32 @@ dialog.modal::backdrop {
 }
 
 .import-banner {
-	border-radius: var(--radius-md);
+	border-radius: var(--radius-2xl);
 	border: 1px solid var(--border);
-	padding: 1.25rem 1.5rem;
-	background: var(--surface-sunken);
+	padding: 1.75rem 2rem;
+	background: var(--surface-raised);
+	box-shadow: var(--shadow-sm);
+	position: relative;
+	overflow: hidden;
 }
-.import-banner--ok    { border-inline-start: 4px solid var(--success, #10b981); }
-.import-banner--error { border-inline-start: 4px solid var(--danger, #ef4444); }
-.import-banner-title  { font-size: 1.25rem; font-weight: 800; margin: 0 0 0.35rem 0; }
-.import-banner-text   { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
-.import-banner-detail { font-size: 0.8rem; color: var(--text-muted); margin: 0.5rem 0 0 0; }
+.import-banner--ok {
+	border-inline-start: 6px solid var(--success, #10b981);
+	background: linear-gradient(135deg, color-mix(in srgb, var(--success, #10b981) 6%, var(--surface-raised)), var(--surface-raised));
+}
+.import-banner--error {
+	border-inline-start: 6px solid var(--danger, #ef4444);
+	background: linear-gradient(135deg, color-mix(in srgb, var(--danger, #ef4444) 6%, var(--surface-raised)), var(--surface-raised));
+}
+.import-banner-title  { font-size: 1.4rem; font-weight: 900; margin: 0 0 0.4rem 0; color: var(--text); }
+.import-banner-text   { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+.import-banner-detail {
+	font-size: 0.85rem;
+	color: var(--text-muted);
+	margin: 0.75rem 0 0 0;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--border);
+	line-height: 1.5;
+}
 
 .import-stats {
 	display: grid;
@@ -943,17 +959,12 @@ dialog.modal::backdrop {
 }
 
 /* ---------------------------------------------------------------------------
-   Catalogue import wizard
-   ---------------------------------------------------------------------------
-   Three screens sharing one visual language: a progress rail, choosable cards
-   for the strategy, switch rows for the enrichment options, and a dense review
-   table. The old import screen was a wall of explanatory prose; here the shape
-   of a control carries the meaning and the words are labels, not paragraphs.
+   Catalogue Import Wizard & Ingestion Studio
    --------------------------------------------------------------------------- */
 .wizard {
 	display: flex;
 	flex-direction: column;
-	gap: 1.25rem;
+	gap: 1.5rem;
 	max-width: 1180px;
 	margin: 0 auto 3rem auto;
 }
@@ -962,43 +973,59 @@ dialog.modal::backdrop {
 .wiz-rail {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: 0.75rem;
 	flex-wrap: wrap;
-	padding: 0.9rem 1.25rem;
+	padding: 1rem 1.5rem;
 	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	background: var(--surface);
+	border-radius: var(--radius-xl);
+	background: var(--surface-raised);
+	box-shadow: var(--shadow-xs);
 }
 .wiz-node {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
-	font-size: 0.85rem;
+	gap: 0.6rem;
+	font-size: 0.875rem;
 	color: var(--text-muted);
 	font-weight: 700;
 }
 .wiz-node.is-active { color: var(--text); }
 .wiz-node.is-done   { color: var(--success, #10b981); }
 .wiz-bubble {
-	width: 1.85rem;
-	height: 1.85rem;
-	border-radius: 50%;
-	display: grid;
-	place-items: center;
-	border: 1px solid var(--border);
+	width: 2rem;
+	height: 2rem;
+	border-radius: var(--radius-full);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1.5px solid var(--border);
 	background: var(--surface-sunken);
-	font-size: 0.9rem;
+	font-size: 0.875rem;
+	font-weight: 800;
+	transition: all 0.2s ease;
 }
 .wiz-node.is-active .wiz-bubble {
 	border-color: var(--accent);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
-.wiz-node.is-done .wiz-bubble { border-color: var(--success, #10b981); }
-.wiz-sep { flex: 1 1 1.5rem; height: 1px; background: var(--border); min-width: 1rem; }
+.wiz-node.is-done .wiz-bubble {
+	border-color: var(--success, #10b981);
+	background: color-mix(in srgb, var(--success, #10b981) 12%, var(--surface));
+	color: var(--success, #10b981);
+}
+.wiz-sep {
+	flex: 1 1 2rem;
+	height: 2px;
+	background: var(--border);
+	min-width: 1rem;
+	border-radius: var(--radius-full);
+}
 
 /* Section head ------------------------------------------------------------ */
-.wiz-head { margin: 0 0 0.25rem 0; font-size: 1.1rem; font-weight: 800; color: var(--text); }
-.wiz-sub  { margin: 0 0 1.15rem 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+.wiz-head { margin: 0 0 0.35rem 0; font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.wiz-sub  { margin: 0 0 1.25rem 0; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55; }
 
 /* Dropzone and File Ingestion -------------------------------------------- */
 .wiz-drop {
@@ -1006,7 +1033,7 @@ dialog.modal::backdrop {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 2.75rem 1.5rem;
+	padding: 3.25rem 2rem;
 	border: 2px dashed var(--border);
 	border-radius: var(--radius-2xl);
 	background: var(--surface-sunken);
@@ -1014,13 +1041,15 @@ dialog.modal::backdrop {
 	text-align: center;
 	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 	position: relative;
-	margin-bottom: 0.75rem;
+	margin-bottom: 1rem;
 }
 .wiz-drop:hover,
-.wiz-drop.is-dragover {
+.wiz-drop.is-dragover,
+.wiz-drop.is-over {
 	border-color: var(--accent);
-	background: color-mix(in srgb, var(--accent) 6%, var(--surface-raised));
+	background: color-mix(in srgb, var(--accent) 5%, var(--surface-raised));
 	box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+	transform: translateY(-2px);
 }
 .wiz-drop input[type="file"] {
 	position: absolute;
@@ -1032,56 +1061,199 @@ dialog.modal::backdrop {
 	z-index: 10;
 }
 .wiz-drop-icon {
-	width: 56px;
-	height: 56px;
+	width: 64px;
+	height: 64px;
 	border-radius: var(--radius-full);
 	background: var(--accent-subtle);
 	color: var(--accent);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-bottom: 1rem;
+	margin-bottom: 1.15rem;
 	transition: transform 0.2s ease;
 }
 .wiz-drop:hover .wiz-drop-icon {
 	transform: scale(1.1) translateY(-2px);
 }
 .wiz-drop-title {
-	font-size: 1.05rem;
+	font-size: 1.125rem;
 	font-weight: 800;
 	color: var(--text);
-	margin-bottom: 0.35rem;
+	margin-bottom: 0.4rem;
 }
 .wiz-drop-text {
-	font-size: 0.825rem;
+	font-size: 0.85rem;
 	color: var(--text-muted);
 }
 .wiz-chip {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.4rem;
-	padding: 0.45rem 0.9rem;
-	border-radius: var(--radius-md);
-	background: var(--surface-sunken);
+	gap: 0.45rem;
+	padding: 0.5rem 1rem;
+	border-radius: var(--radius-lg);
+	background: var(--surface-raised);
 	border: 1px solid var(--border);
 	color: var(--text-secondary);
-	font-size: 0.8rem;
+	font-size: 0.825rem;
 	font-weight: 700;
 	text-decoration: none;
 	transition: all 0.15s ease;
+	box-shadow: var(--shadow-xs);
 }
 .wiz-chip:hover {
 	background: var(--accent-subtle);
 	border-color: var(--accent);
 	color: var(--accent);
+	transform: translateY(-1px);
 }
+.wiz-chip.is-on {
+	border-color: var(--accent);
+	color: var(--accent);
+	background: var(--accent-subtle);
+}
+
+/* Strategy choices -------------------------------------------------------- */
+.wiz-choices {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1rem;
+}
+.wiz-choice {
+	position: relative;
+	display: block;
+	cursor: pointer;
+}
+.wiz-choice input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+.wiz-choice-body {
+	height: 100%;
+	display: flex;
+	gap: 0.85rem;
+	padding: 1.15rem 1.25rem;
+	border: 1.5px solid var(--border);
+	border-radius: var(--radius-xl);
+	background: var(--surface-raised);
+	transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+	box-shadow: var(--shadow-xs);
+}
+.wiz-choice:hover .wiz-choice-body {
+	border-color: var(--accent);
+	transform: translateY(-2px);
+}
+.wiz-choice input:checked + .wiz-choice-body {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 7%, var(--surface-raised));
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.wiz-choice-icon { font-size: 1.5rem; line-height: 1.3; }
+.wiz-choice-title { font-size: 0.95rem; font-weight: 800; margin: 0 0 0.25rem 0; color: var(--text); }
+.wiz-choice-text  { font-size: 0.825rem; color: var(--text-secondary); margin: 0; line-height: 1.55; }
+.wiz-choice-warn {
+	display: inline-block;
+	margin-top: 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--danger, #ef4444);
+	background: color-mix(in srgb, var(--danger, #ef4444) 10%, transparent);
+	padding: 0.15rem 0.5rem;
+	border-radius: var(--radius-sm);
+}
+
+/* Switch rows ------------------------------------------------------------- */
+.wiz-switches {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+.wiz-switch {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.9rem 1.15rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-xl);
+	background: var(--surface-raised);
+	cursor: pointer;
+	position: relative;
+	transition: all 0.15s ease;
+}
+.wiz-switch:hover {
+	border-color: var(--border-strong, #cbd5e1);
+	background: var(--surface-sunken);
+}
+.wiz-switch.is-disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+.wiz-switch-icon { font-size: 1.35rem; }
+.wiz-switch-main { flex: 1; min-width: 0; }
+.wiz-switch-title { font-size: 0.9rem; font-weight: 800; color: var(--text); }
+.wiz-switch-text  { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-top: 0.15rem; }
+.wiz-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.wiz-track {
+	flex: 0 0 2.8rem;
+	height: 1.6rem;
+	border-radius: 999px;
+	background: var(--border-strong, #cbd5e1);
+	position: relative;
+	transition: background 0.2s ease;
+}
+.wiz-track::after {
+	content: "";
+	position: absolute;
+	inset-inline-start: 0.2rem;
+	top: 0.2rem;
+	width: 1.2rem;
+	height: 1.2rem;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wiz-switch input:checked ~ .wiz-track { background: var(--accent); }
+.wiz-switch input:checked ~ .wiz-track::after { transform: translateX(-1.2rem); }
+[dir="ltr"] .wiz-switch input:checked ~ .wiz-track::after { transform: translateX(1.2rem); }
+
+/* Mapping grid ------------------------------------------------------------ */
+.wiz-map {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 0.75rem;
+}
+.wiz-map-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	background: var(--surface-raised);
+}
+.wiz-map-label { font-size: 0.825rem; font-weight: 700; color: var(--text); }
+.wiz-map-hint  { font-size: 0.75rem; color: var(--text-muted); }
+.wiz-map-input {
+	width: 100%;
+	padding: 0.45rem 0.65rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	background: var(--surface-sunken);
+	font-size: 0.85rem;
+	color: var(--text);
+}
+
+/* Actions footer ---------------------------------------------------------- */
 .wiz-actions {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	gap: 1rem;
 	flex-wrap: wrap;
-	padding: 0.25rem 0;
+	padding: 0.5rem 0;
 }
 .wiz-actions-note {
 	font-size: 0.85rem;
@@ -1089,146 +1261,36 @@ dialog.modal::backdrop {
 	font-weight: 600;
 }
 
-/* Strategy cards ---------------------------------------------------------- */
-.wiz-choices {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-	gap: 0.75rem;
-}
-.wiz-choice { position: relative; display: block; cursor: pointer; }
-/* The radio stays in the accessibility tree and drives :checked, but the card
-   is what the admin sees and clicks. */
-.wiz-choice input { position: absolute; opacity: 0; width: 0; height: 0; }
-.wiz-choice-body {
-	height: 100%;
-	display: flex;
-	gap: 0.7rem;
-	padding: 0.9rem;
-	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	background: var(--surface);
-	transition: border-color 0.15s ease, background 0.15s ease;
-}
-.wiz-choice:hover .wiz-choice-body { border-color: var(--accent); }
-.wiz-choice input:checked + .wiz-choice-body {
-	border-color: var(--accent);
-	background: color-mix(in srgb, var(--accent) 7%, var(--surface));
-	box-shadow: inset 0 0 0 1px var(--accent);
-}
-.wiz-choice input:focus-visible + .wiz-choice-body {
-	outline: 2px solid var(--accent);
-	outline-offset: 2px;
-}
-.wiz-choice-icon { font-size: 1.3rem; line-height: 1.4; }
-.wiz-choice-title { font-size: 0.9rem; font-weight: 800; margin: 0 0 0.15rem 0; }
-.wiz-choice-text  { font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.55; }
-.wiz-choice-warn {
-	display: inline-block;
-	margin-top: 0.4rem;
-	font-size: 0.72rem;
-	font-weight: 700;
-	color: var(--danger, #ef4444);
-}
-
-/* Switch rows ------------------------------------------------------------- */
-.wiz-switches { display: flex; flex-direction: column; gap: 0.5rem; }
-.wiz-switch {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 0.7rem 0.9rem;
-	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	background: var(--surface);
-	cursor: pointer;
-	position: relative;
-}
-.wiz-switch.is-disabled { opacity: 0.55; cursor: not-allowed; }
-.wiz-switch-icon { font-size: 1.15rem; }
-.wiz-switch-main { flex: 1; min-width: 0; }
-.wiz-switch-title { font-size: 0.87rem; font-weight: 700; }
-.wiz-switch-text  { font-size: 0.76rem; color: var(--text-secondary); line-height: 1.5; }
-.wiz-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
-.wiz-track {
-	flex: 0 0 2.6rem;
-	height: 1.45rem;
-	border-radius: 999px;
-	background: var(--border);
-	position: relative;
-	transition: background 0.15s ease;
-}
-.wiz-track::after {
-	content: "";
-	position: absolute;
-	inset-inline-start: 0.15rem;
-	top: 0.15rem;
-	width: 1.15rem;
-	height: 1.15rem;
-	border-radius: 50%;
-	background: var(--surface);
-	transition: transform 0.15s ease;
-}
-.wiz-switch input:checked ~ .wiz-track { background: var(--accent); }
-/* Right-to-left is the default here, so the knob travels the other way. */
-.wiz-switch input:checked ~ .wiz-track::after { transform: translateX(-1.15rem); }
-[dir="ltr"] .wiz-switch input:checked ~ .wiz-track::after { transform: translateX(1.15rem); }
-.wiz-switch input:focus-visible ~ .wiz-track { outline: 2px solid var(--accent); outline-offset: 2px; }
-
 /* Stat strip -------------------------------------------------------------- */
 .wiz-stats {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-	gap: 0.6rem;
+	grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
 }
 .wiz-stat {
 	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	background: var(--surface);
-	padding: 0.8rem 0.6rem;
+	border-radius: var(--radius-xl);
+	background: var(--surface-raised);
+	padding: 1rem 0.75rem;
 	text-align: center;
+	box-shadow: var(--shadow-xs);
 }
 .wiz-stat-value {
 	display: block;
-	font-size: 1.4rem;
+	font-size: 1.5rem;
 	font-weight: 800;
 	line-height: 1.2;
 	font-variant-numeric: tabular-nums;
+	color: var(--text);
 }
-.wiz-stat-label { font-size: 0.74rem; color: var(--text-secondary); }
+.wiz-stat-label { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem; }
 .wiz-stat--add    .wiz-stat-value { color: var(--success, #10b981); }
-.wiz-stat--update .wiz-stat-value { color: var(--info, #0ea5e9); }
+.wiz-stat--update .wiz-stat-value { color: var(--accent); }
 .wiz-stat--warn   .wiz-stat-value { color: var(--warning, #f59e0b); }
 .wiz-stat--error  .wiz-stat-value { color: var(--danger, #ef4444); }
 .wiz-stat--ai     .wiz-stat-value { color: var(--accent); }
 
-/* Toolbar, chips, tables -------------------------------------------------- */
-.wiz-toolbar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.5rem;
-	margin-bottom: 0.9rem;
-}
-.wiz-toolbar-spacer { flex: 1 1 auto; }
-.wiz-chip {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.3rem;
-	padding: 0.32rem 0.7rem;
-	border-radius: 999px;
-	border: 1px solid var(--border);
-	background: var(--surface);
-	font-size: 0.78rem;
-	font-weight: 700;
-	color: var(--text-secondary);
-	cursor: pointer;
-	text-decoration: none;
-}
-.wiz-chip.is-on {
-	border-color: var(--accent);
-	color: var(--text);
-	background: color-mix(in srgb, var(--accent) 10%, var(--surface));
-}
 .wiz-scroll { max-height: 34rem; overflow: auto; }
 .wiz-row-name { font-weight: 700; }
 .wiz-row-meta { font-size: 0.75rem; color: var(--text-muted); }
@@ -1242,69 +1304,6 @@ dialog.modal::backdrop {
 }
 .wiz-row--excluded { opacity: 0.45; }
 
-/* Mapping grid ------------------------------------------------------------ */
-.wiz-map {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
-	gap: 0.6rem;
-}
-.wiz-map-item {
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	padding: 0.55rem 0.7rem;
-	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
-	background: var(--surface);
-}
-.wiz-map-label { font-size: 0.78rem; font-weight: 700; }
-.wiz-map-hint  { font-size: 0.7rem; color: var(--text-muted); }
-.wiz-map-input {
-	width: 100%;
-	padding: 0.35rem 0.5rem;
-	border: 1px solid var(--border);
-	border-radius: var(--radius-sm, 6px);
-	background: var(--surface-sunken);
-	font-size: 0.8rem;
-	color: var(--text);
-}
-
-/* Footer bar -------------------------------------------------------------- */
-.wiz-actions {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.7rem;
-	justify-content: flex-end;
-	padding-top: 1rem;
-	border-top: 1px solid var(--border);
-}
-.wiz-actions-note { margin-inline-end: auto; font-size: 0.8rem; color: var(--text-secondary); }
-
-/* Drop zone --------------------------------------------------------------- */
-.wiz-drop {
-	display: block;
-	position: relative;
-	border: 2px dashed var(--border);
-	border-radius: var(--radius-md);
-	background: var(--surface-sunken);
-	padding: 1.75rem 1rem;
-	text-align: center;
-	cursor: pointer;
-	transition: border-color 0.15s ease, background 0.15s ease;
-}
-.wiz-drop:hover, .wiz-drop.is-over {
-	border-color: var(--accent);
-	background: color-mix(in srgb, var(--accent) 6%, var(--surface-sunken));
-}
-.wiz-drop-icon  { font-size: 1.9rem; }
-.wiz-drop-title { font-weight: 800; font-size: 0.95rem; margin-top: 0.4rem; }
-.wiz-drop-text  { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
-.wiz-drop input { position: absolute; opacity: 0; width: 0; height: 0; }
-
-@media (prefers-reduced-motion: reduce) {
-	.wiz-choice-body, .wiz-track, .wiz-track::after, .wiz-drop { transition: none; }
-}
 
 /* Import progress ---------------------------------------------------------
    Shown while a file is being processed. AI enrichment turns a large import

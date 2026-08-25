@@ -36,7 +36,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 			if view.Fatal != "" {
 				@wizardFatal(view.Fatal, view.FatalDetail)
 			}
-			<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false">
+			<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" onsubmit="handleImportSubmit()">
 				@importUploadCard()
 				@importModeCard(view.Modes, view.SelectedMode)
 				@importOptionsCard(view.Toggles, view.Categories, 0, view.AIAvailable)
@@ -45,11 +45,13 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 						<span class="wiz-actions-note">
 							لن يتم حفظ أي صنف الآن — ستظهر لك نتيجة التحليل لمراجعتها قبل التأكيد.
 						</span>
-						<a href="/admin/products" class="btn btn-ghost">إلغاء</a>
-						<button type="submit" class="btn btn-primary">
-							@components.IconUpload("icon-xs")
-							<span>تحليل الملف ومعاينة النتائج</span>
-						</button>
+						<div class="row-center">
+							<a href="/admin/products" class="btn btn-ghost">إلغاء</a>
+							<button type="submit" id="import-submit-btn" class="btn btn-primary">
+								@components.IconUpload("icon-xs")
+								<span id="import-submit-text">تحليل الملف ومعاينة النتائج</span>
+							</button>
+						</div>
 					</div>
 				</div>
 			</form>
@@ -57,6 +59,50 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 				@importHistoryCard(view.Recent)
 			}
 		</div>
+
+		<script>
+			const dropZone = document.getElementById('import-drop');
+			const fileInput = document.getElementById('import-file-input');
+			const titleEl = document.getElementById('import-drop-title');
+			const textEl = document.getElementById('import-drop-text');
+
+			if (dropZone && fileInput) {
+				fileInput.addEventListener('change', function(e) {
+					if (this.files && this.files[0]) {
+						const f = this.files[0];
+						const sizeMb = (f.size / (1024 * 1024)).toFixed(2);
+						if (titleEl) titleEl.textContent = '✓ ' + f.name;
+						if (textEl) textEl.textContent = 'الحجم: ' + sizeMb + ' ميجابايت — جاهز للتحليل';
+						dropZone.classList.add('is-over');
+					}
+				});
+
+				['dragenter', 'dragover'].forEach(eventName => {
+					dropZone.addEventListener(eventName, e => {
+						e.preventDefault();
+						e.stopPropagation();
+						dropZone.classList.add('is-dragover');
+					}, false);
+				});
+
+				['dragleave', 'drop'].forEach(eventName => {
+					dropZone.addEventListener(eventName, e => {
+						e.preventDefault();
+						e.stopPropagation();
+						dropZone.classList.remove('is-dragover');
+					}, false);
+				});
+			}
+
+			function handleImportSubmit() {
+				const btn = document.getElementById('import-submit-btn');
+				const txt = document.getElementById('import-submit-text');
+				if (btn && txt) {
+					btn.disabled = true;
+					txt.textContent = '⏳ جاري رفع وتحليل الكتالوج...';
+				}
+			}
+		</script>
 	}
 }
 
@@ -87,7 +133,7 @@ templ wizardRail(current ImportStep) {
 
 templ wizardFatal(message, detail string) {
 	<div class="import-banner import-banner--error">
-		<h2 class="import-banner-title">تعذر قراءة الملف</h2>
+		<h2 class="import-banner-title text-danger">تعذر قراءة الملف</h2>
 		<p class="import-banner-text">{ message }</p>
 		if detail != "" {
 			<p class="import-banner-detail">{ detail }</p>
@@ -114,9 +160,9 @@ templ importUploadCard() {
 				@components.IconUpload("icon-md")
 			</div>
 			<div class="wiz-drop-title" id="import-drop-title">اختر ملف الكتالوج أو اسحبه إلى هنا</div>
-			<div class="wiz-drop-text">الحد الأقصى 32 ميجابايت · يدعم تنسيقات Excel (.xlsx, .xlsm) وملفات القيم المفصولة (.csv, .tsv)</div>
+			<div class="wiz-drop-text" id="import-drop-text">الحد الأقصى 32 ميجابايت · يدعم تنسيقات Excel (.xlsx, .xlsm) وملفات القيم المفصولة (.csv, .tsv)</div>
 		</label>
-		<div class="import-chip-list" style="margin-top:1rem;">
+		<div class="import-chip-list">
 			<a href="/admin/products/sample.xlsx" class="wiz-chip">
 				@components.IconDownload("icon-xs")
 				<span>تحميل نموذج Excel القياسي (.xlsx)</span>
@@ -144,7 +190,7 @@ templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMo
 					/>
 					<span class="wiz-choice-body">
 						<span class="wiz-choice-icon" aria-hidden="true">{ mode.Icon }</span>
-						<span>
+						<span class="flex-1">
 							<span class="wiz-choice-title">{ mode.Title }</span>
 							<p class="wiz-choice-text">{ mode.Description }</p>
 							if mode.Destructive {
@@ -168,15 +214,15 @@ templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpt
 			}
 		</div>
 		if !aiAvailable {
-			<p class="wiz-sub" style="margin-top:0.75rem;">
+			<p class="wiz-sub mt-md">
 				خدمة الذكاء الاصطناعي غير متصلة حالياً. يمكنك ضبط بوابة الذكاء الاصطناعي من
-				<a href="/admin/developers?tab=ai">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.
+				<a href="/admin/developers?tab=ai" class="text-accent fw-700">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.
 			</p>
 		}
 		if len(categories) > 0 {
-			<div class="wiz-map-item" style="margin-top:0.75rem;">
+			<div class="wiz-map-item mt-md">
 				<label class="wiz-map-label" for="default-category">الفئة الافتراضية عند تعذّر التحديد</label>
-				<select id="default-category" name="default_category_id" class="wiz-map-input">
+				<select id="default-category" name="default_category_id" class="form-select">
 					<option value="0">بدون فئة</option>
 					for _, category := range categories {
 						<option
@@ -234,7 +280,7 @@ templ importHistoryCard(sessions []*catalog.ImportSession) {
 						<tr>
 							<td>
 								if session.IsReviewable() {
-									<a href={ templ.SafeURL("/admin/products/import/" + session.PublicID) }>{ session.Filename }</a>
+									<a href={ templ.SafeURL("/admin/products/import/" + session.PublicID) } class="text-accent fw-700">{ session.Filename }</a>
 								} else {
 									{ session.Filename }
 								}
@@ -255,3 +301,4 @@ templ importHistoryCard(sessions []*catalog.ImportSession) {
 		</div>
 	</div>
 }
+
