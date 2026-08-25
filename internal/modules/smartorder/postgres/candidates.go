@@ -13,7 +13,9 @@ import (
 
 const candidateColumns = `
 	id, line_id, organization_id, vendor_org_id, variant_id, branch_id,
-	price, discount, net_unit_price, unit, min_order_qty, stock_qty,
+	price, discount, net_unit_price,
+	COALESCE(unit, '') AS unit,
+	min_order_qty, stock_qty,
 	is_followed, eligible, ineligible_reason, coverage_distance_m`
 
 func scanCandidate(row pgx.Row) (*smartorder.Candidate, error) {

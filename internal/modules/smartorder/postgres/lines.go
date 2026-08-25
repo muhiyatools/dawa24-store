@@ -14,10 +14,19 @@ import (
 )
 
 const lineColumns = `
-	id, run_id, organization_id, row_number, raw, raw_name, raw_sku, raw_barcode,
-	imported_qty, qty_parse_note, edited_qty, effective_qty,
-	norm_name, identity_key, matched_product_id, match_method, match_confidence,
-	match_corrected_by_user, outcome, outcome_reason, consolidated_into_line_id,
+	id, run_id, organization_id, row_number, raw,
+	COALESCE(raw_name, '')        AS raw_name,
+	COALESCE(raw_sku, '')         AS raw_sku,
+	COALESCE(raw_barcode, '')     AS raw_barcode,
+	imported_qty,
+	COALESCE(qty_parse_note, '')  AS qty_parse_note,
+	edited_qty, effective_qty,
+	COALESCE(norm_name, '')       AS norm_name,
+	COALESCE(identity_key, '')    AS identity_key,
+	matched_product_id, match_method, match_confidence,
+	match_corrected_by_user, outcome,
+	COALESCE(outcome_reason, '')  AS outcome_reason,
+	consolidated_into_line_id,
 	created_at, updated_at`
 
 func scanLine(row pgx.Row) (*smartorder.Line, error) {

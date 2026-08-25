@@ -307,3 +307,18 @@ func (s *Service) StageLines(ctx context.Context, lines []*Line) error {
 func (s *Service) Selection(ctx context.Context, orgID, lineID int64) (*Selection, error) {
 	return s.repo.GetSelection(ctx, orgID, lineID)
 }
+
+// SaveFile stores the uploaded workbook until the mapping is confirmed.
+func (s *Service) SaveFile(ctx context.Context, runID, orgID int64, filename string, content []byte) error {
+	return s.repo.SaveRunFile(ctx, runID, orgID, filename, content)
+}
+
+// File returns the stored workbook.
+func (s *Service) File(ctx context.Context, runID, orgID int64) ([]byte, string, error) {
+	return s.repo.GetRunFile(ctx, runID, orgID)
+}
+
+// DropFile removes the workbook once its rows are staged.
+func (s *Service) DropFile(ctx context.Context, runID, orgID int64) error {
+	return s.repo.DeleteRunFile(ctx, runID, orgID)
+}

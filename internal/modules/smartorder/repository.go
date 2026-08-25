@@ -36,6 +36,14 @@ type Repository interface {
 	GetProfile(ctx context.Context, orgID int64) (*Profile, error)
 	SaveProfile(ctx context.Context, p *Profile) error
 
+	// --- the uploaded file -------------------------------------------------
+	//
+	// Held only between step 1 and step 2, then deleted. See migration 127.
+
+	SaveRunFile(ctx context.Context, runID, orgID int64, filename string, content []byte) error
+	GetRunFile(ctx context.Context, runID, orgID int64) ([]byte, string, error)
+	DeleteRunFile(ctx context.Context, runID, orgID int64) error
+
 	// --- column mapping ---------------------------------------------------
 
 	SaveMapping(ctx context.Context, m *Mapping) error

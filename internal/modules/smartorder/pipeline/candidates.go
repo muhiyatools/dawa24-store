@@ -96,13 +96,10 @@ func (m *Matcher) Score(lines []*smartorder.Line) []Residual {
 		if l.Matched() && l.MatchConfidence >= Cutoff {
 			continue
 		}
-		row := &productmatch.Row{
-			Number:  l.RowNumber,
-			Name:    l.RawName,
-			SKU:     l.RawSKU,
-			Barcode: l.RawBarcode,
-		}
-		res := m.index.Match(row, m.opts)
+		// The line is decomposed first: strength, form and pack move into the
+		// structured fields the scorer compares separately, and therapeutic
+		// prose is dropped. See query.go for what happens without this.
+		res := m.index.Match(BuildRow(l), m.opts)
 
 		switch {
 		case res.Matched() && res.Score >= Cutoff:

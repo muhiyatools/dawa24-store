@@ -29,13 +29,14 @@ var _ smartorder.Repository = (*Repository)(nil)
 
 const runColumns = `
 	id, public_id, run_number, organization_id, user_id, branch_id, upload_id,
-	original_filename, status, current_step,
+	COALESCE(original_filename, '') AS original_filename, status, current_step,
 	total_rows, matched_rows, unmatched_rows, no_supplier_rows,
 	coverage_blocked_rows, institutional_blocked_rows, below_min_qty_rows,
 	estimated_total, budget_exceeded, budget_overage,
 	order_id, finalized_at,
 	ai_enabled, ai_calls, ai_lines_adjudicated, ai_cost_estimate, ai_ceiling_hit,
-	deterministic_ms, total_ms, failure_reason, created_at, updated_at`
+	deterministic_ms, total_ms, COALESCE(failure_reason, '') AS failure_reason,
+	created_at, updated_at`
 
 func scanRun(row pgx.Row) (*smartorder.Run, error) {
 	var r smartorder.Run

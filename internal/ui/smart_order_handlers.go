@@ -137,9 +137,15 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// The file is held for the mapping step. Storing it against the run rather
-	// than in the session is what lets the buyer come back to it later.
-	h.smartOrderFiles.put(run.PublicID, content, header.Filename)
+	// The file is held for the mapping step, against the run in the database.
+	// It used to live in process memory, which lost it on every redeploy and on
+	// any request that landed on a second instance — and asked the pharmacy to
+	// upload a nine-thousand-line workbook again for no visible reason.
+	if err := h.smartOrderSvc.SaveFile(ctx, run.ID, run.OrganizationID, header.Filename, content); err != nil {
+		h.log.ErrorContext(ctx, "could not store the uploaded file", "run_id", run.ID, "error", err)
+		h.smartOrderFail(w, r, "تعذّر حفظ الملف المرفوع. حاول مرة أخرى.")
+		return
+	}
 	_ = parsed
 
 	http.Redirect(w, r, "/customer/smart-order/"+run.PublicID+"/mapping", http.StatusSeeOther)
@@ -185,9 +191,9 @@ func (h *UIHandler) SmartOrderMappingPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	content, filename, found := h.smartOrderFiles.get(run.PublicID)
-	if !found {
-		h.smartOrderFail(w, r, "انتهت صلاحية الملف المرفوع. يرجى رفعه مرة أخرى.")
+	content, filename, err := h.smartOrderSvc.File(ctx, run.ID, run.OrganizationID)
+	if err != nil {
+		h.smartOrderFail(w, r, "لم يعد الملف المرفوع متاحًا. يرجى رفعه مرة أخرى.")
 		return
 	}
 
@@ -235,9 +241,9 @@ func (h *UIHandler) SmartOrderMappingSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	content, filename, found := h.smartOrderFiles.get(run.PublicID)
-	if !found {
-		h.smartOrderFail(w, r, "انتهت صلاحية الملف المرفوع. يرجى رفعه مرة أخرى.")
+	content, filename, err := h.smartOrderSvc.File(ctx, run.ID, run.OrganizationID)
+	if err != nil {
+		h.smartOrderFail(w, r, "لم يعد الملف المرفوع متاحًا. يرجى رفعه مرة أخرى.")
 		return
 	}
 
@@ -282,7 +288,10 @@ func (h *UIHandler) SmartOrderMappingSubmit(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	h.smartOrderFiles.drop(run.PublicID)
+	// The file has served its purpose the moment the rows exist.
+	if err := h.smartOrderSvc.DropFile(ctx, run.ID, run.OrganizationID); err != nil {
+		h.log.WarnContext(ctx, "could not drop the uploaded file", "run_id", run.ID, "error", err)
+	}
 	http.Redirect(w, r, "/customer/smart-order/"+run.PublicID+"/progress", http.StatusSeeOther)
 }
 

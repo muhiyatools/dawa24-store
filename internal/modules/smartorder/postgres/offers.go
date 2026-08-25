@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -91,6 +93,33 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 	return out, err
 }
 
+// matchableStatuses is which catalogue products the matcher may resolve to.
+//
+// `active` only, by default, and deliberately: a product awaiting approval is
+// not purchasable, and matching a pharmacy's order line to one would produce an
+// order that cannot be fulfilled.
+//
+// It is configurable because a catalogue can legitimately be mid-approval. On
+// the live database on 2026-08-26 every one of the 2,021 *pharmaceutical*
+// products was `pending` while the 28,786 `active` ones were cosmetics — so a
+// pharmacy's order list matched nothing, and the few things it did match were
+// toiletries. Widening this is a way to test against such a catalogue without
+// approving products as a side effect; it is not a fix for the underlying data.
+func matchableStatuses() []string {
+	if raw := strings.TrimSpace(os.Getenv("SMARTORDER_MATCH_STATUSES")); raw != "" {
+		var out []string
+		for _, s := range strings.Split(raw, ",") {
+			if s = strings.TrimSpace(s); s != "" {
+				out = append(out, s)
+			}
+		}
+		if len(out) > 0 {
+			return out
+		}
+	}
+	return []string{"active"}
+}
+
 // LoadMatchIndex loads the catalogue projection the in-memory matcher scores
 // against.
 //
@@ -114,7 +143,7 @@ func (r *Repository) LoadMatchIndex(ctx context.Context) ([]smartorder.IndexedPr
 				COALESCE(p.unit, '')                   AS unit,
 				COALESCE(NULLIF(p.manufacturing_companies, ''), p.company, '') AS manufacturer
 			FROM catalog.products p
-			WHERE p.deleted_at IS NULL AND p.status = 'active';`)
+			WHERE p.deleted_at IS NULL AND p.status = ANY($1::text[]);`, matchableStatuses())
 		if err != nil {
 			return err
 		}

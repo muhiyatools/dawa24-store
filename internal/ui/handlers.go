@@ -64,7 +64,6 @@ type UIHandler struct {
 	// service is nil the wizard reports itself unavailable rather than panicking,
 	// which keeps the rest of the customer surface working if it is not wired.
 	smartOrderSvc       *smartorder.Service
-	smartOrderFiles     *smartOrderFileStore
 	smartOrderEnqueue   SmartOrderEnqueueFunc
 	smartOrderFinalizer *smartorder.Finalizer
 	smartOrderStale     *smartOrderStaleStore
@@ -88,9 +87,6 @@ type SmartOrderEnqueueFunc func(ctx context.Context, runID, orgID int64) error
 func (h *UIHandler) SetSmartOrder(svc *smartorder.Service, enqueue SmartOrderEnqueueFunc) {
 	h.smartOrderSvc = svc
 	h.smartOrderEnqueue = enqueue
-	if h.smartOrderFiles == nil {
-		h.smartOrderFiles = newSmartOrderFileStore()
-	}
 	if h.smartOrderStale == nil {
 		h.smartOrderStale = newSmartOrderStaleStore()
 	}
