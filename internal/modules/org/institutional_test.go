@@ -145,6 +145,12 @@ func (m *institutionalMockRepo) DeleteBranch(_ context.Context, _, _ int64) erro
 func (m *institutionalMockRepo) ListBranchesByOrg(_ context.Context, _ int64) ([]*org.Branch, error) {
 	return nil, nil
 }
+func (m *institutionalMockRepo) GetBranchesByIDs(_ context.Context, _ []int64) ([]*org.Branch, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) GetOrganizationsByIDs(_ context.Context, _ []int64) ([]*org.Organization, error) {
+	return nil, nil
+}
 func (m *institutionalMockRepo) UnsetMainBranches(_ context.Context, _ int64) error { return nil }
 func (m *institutionalMockRepo) AssignBranchManager(_ context.Context, _, _ int64, _ *int64) error {
 	return nil

@@ -815,7 +815,9 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 	lang, dir := h.localeAndDir(r)
 
 	if _, ok := database.TenantFrom(ctx); !ok {
-		ctx = database.WithTenant(ctx, 1)
+		if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
+			ctx = database.WithTenant(ctx, actor.OrganizationID)
+		}
 	}
 
 	if h.invSvc == nil {
@@ -1357,6 +1359,25 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 
 	orderID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if h.commSvc != nil && orderID > 0 {
+		order, err := h.commSvc.GetOrder(ctx, orderID)
+		if err != nil || order == nil {
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", "الطلب غير موجود.")
+			return
+		}
+		if !actor.IsStaff && !actor.Can("commerce.admin") {
+			isVendorOrder := false
+			for _, sh := range order.Shipments {
+				if sh.OrganizationID == actor.OrganizationID {
+					isVendorOrder = true
+					break
+				}
+			}
+			if !isVendorOrder {
+				h.redirectWithNotice(w, r, "/vendor/orders", "error", "غير مصرح لك بإدارة هذا الطلب.")
+				return
+			}
+		}
+
 		if err := h.commSvc.AcceptNegotiation(ctx, orderID, actor.UserID); err != nil {
 			h.log.ErrorContext(ctx, "vendor accept negotiation failed", "error", err, "order_id", orderID)
 			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر قبول التفاوض: "+h.safeMessage(err, langOf(r)))
@@ -1384,6 +1405,25 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 	}
 
 	if h.commSvc != nil && orderID > 0 {
+		order, err := h.commSvc.GetOrder(ctx, orderID)
+		if err != nil || order == nil {
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", "الطلب غير موجود.")
+			return
+		}
+		if !actor.IsStaff && !actor.Can("commerce.admin") {
+			isVendorOrder := false
+			for _, sh := range order.Shipments {
+				if sh.OrganizationID == actor.OrganizationID {
+					isVendorOrder = true
+					break
+				}
+			}
+			if !isVendorOrder {
+				h.redirectWithNotice(w, r, "/vendor/orders", "error", "غير مصرح لك بإدارة هذا الطلب.")
+				return
+			}
+		}
+
 		if err := h.commSvc.RejectNegotiation(ctx, orderID, reason, actor.UserID); err != nil {
 			h.log.ErrorContext(ctx, "vendor reject negotiation failed", "error", err, "order_id", orderID)
 			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر رفض التفاوض: "+h.safeMessage(err, langOf(r)))

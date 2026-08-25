@@ -508,3 +508,17 @@ func TestOrgLifecycleAndBranches(t *testing.T) {
 func (m *mockOrgRepo) CountOrganizations(_ context.Context, _ *OrganizationType, _ *OrganizationStatus) (int, error) {
 	return len(m.orgs), nil
 }
+
+func (m *mockOrgRepo) GetOrganizationsByIDs(_ context.Context, ids []int64) ([]*Organization, error) {
+	var out []*Organization
+	for _, id := range ids {
+		if o, ok := m.orgs[id]; ok {
+			out = append(out, o)
+		}
+	}
+	return out, nil
+}
+
+func (m *mockOrgRepo) GetBranchesByIDs(_ context.Context, _ []int64) ([]*Branch, error) {
+	return nil, nil
+}

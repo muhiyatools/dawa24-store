@@ -1113,7 +1113,6 @@ func (h *UIHandler) renderAdminEnterpriseHub(w http.ResponseWriter, r *http.Requ
 	orgNames := make(map[int64]string)
 	orgTypes := make(map[int64]string)
 	branchCounts := make(map[int64]int)
-	userCounts := make(map[int64]int)
 
 	if h.orgSvc != nil {
 		var filterType *org.OrganizationType
@@ -1152,7 +1151,6 @@ func (h *UIHandler) renderAdminEnterpriseHub(w http.ResponseWriter, r *http.Requ
 		OrgNames:         orgNames,
 		OrgTypes:         orgTypes,
 		BranchCounts:     branchCounts,
-		UserCounts:       userCounts,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

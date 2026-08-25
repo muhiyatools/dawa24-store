@@ -43,6 +43,10 @@ func (r stubRepo) ListOffersForProduct(context.Context, int64) ([]*promo.OfferPr
 	r.fail("ListOffersForProduct")
 	return nil, nil
 }
+func (r stubRepo) ListOffersForProducts(context.Context, []int64) ([]*promo.OfferProductWithOffer, error) {
+	r.fail("ListOffersForProducts")
+	return nil, nil
+}
 func (r stubRepo) ListOffersVisibleTo(context.Context, float64, float64, int, int, int, []int64) ([]*promo.VisibleOffer, error) {
 	r.fail("ListOffersVisibleTo")
 	return nil, nil
@@ -169,6 +173,9 @@ func (happyRepo) ListActiveOffers(ctx context.Context, limit, offset int) ([]*pr
 }
 
 func (happyRepo) ListOffersForProduct(ctx context.Context, productID int64) ([]*promo.OfferProductWithOffer, error) {
+	return nil, nil
+}
+func (happyRepo) ListOffersForProducts(context.Context, []int64) ([]*promo.OfferProductWithOffer, error) {
 	return nil, nil
 }
 func (happyRepo) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*promo.VisibleOffer, error) {

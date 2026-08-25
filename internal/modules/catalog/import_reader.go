@@ -221,8 +221,11 @@ func readCSVRows(content []byte, delimiter rune) ([][]string, error) {
 		// several lines through a quoted newline leaves blank rows behind it,
 		// which parse as empty and keep every later row number honest.
 		if line, _ := reader.FieldPos(0); line > 0 {
-			for len(rows) < line-1 {
-				rows = append(rows, nil)
+			gap := line - 1 - len(rows)
+			if gap > 0 && gap <= 1000 {
+				for len(rows) < line-1 {
+					rows = append(rows, nil)
+				}
 			}
 		}
 		rows = append(rows, record)

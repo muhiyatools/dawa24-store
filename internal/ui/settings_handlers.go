@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -574,9 +576,13 @@ func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 	if err == nil && existingUser != nil {
 		targetUserID = existingUser.ID
 	} else {
+		randBytes := make([]byte, 8)
+		_, _ = rand.Read(randBytes)
+		tempPassword := fmt.Sprintf("Dawa24!%s", hex.EncodeToString(randBytes))
+
 		newUser, _, err := h.idSvc.Register(ctx, identity.RegisterInput{
 			Email:    email,
-			Password: "Password123!",
+			Password: tempPassword,
 			NameAr:   name,
 			NameEn:   name,
 			Phone:    phone,

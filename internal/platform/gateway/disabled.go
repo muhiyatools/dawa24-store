@@ -20,8 +20,6 @@ import (
 // degraded one.
 type Disabled struct{}
 
-func NewDisabled() Disabled { return Disabled{} }
-
 func (Disabled) Invoke(context.Context, Request) (*Response, error) { return nil, ErrDisabled }
 func (Disabled) Stream(context.Context, ChatRequest) (<-chan StreamEvent, error) {
 	ch := make(chan StreamEvent, 1)

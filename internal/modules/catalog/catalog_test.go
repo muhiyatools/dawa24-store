@@ -126,6 +126,20 @@ func (m *mockCatalogRepo) ListVariantsByProduct(_ context.Context, productID int
 	return list, nil
 }
 
+func (m *mockCatalogRepo) ListVariantsByProducts(_ context.Context, productIDs []int64) ([]*ProductVariant, error) {
+	wanted := make(map[int64]struct{}, len(productIDs))
+	for _, id := range productIDs {
+		wanted[id] = struct{}{}
+	}
+	var list []*ProductVariant
+	for _, v := range m.variants {
+		if _, ok := wanted[v.ProductID]; ok {
+			list = append(list, v)
+		}
+	}
+	return list, nil
+}
+
 func (m *mockCatalogRepo) ListVariantsByOrganization(_ context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error) {
 	var list []*ProductVariant
 	for _, v := range m.variants {

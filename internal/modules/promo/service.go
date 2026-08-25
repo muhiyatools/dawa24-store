@@ -86,6 +86,26 @@ func (s *Service) ListOffersForProduct(ctx context.Context, productID int64) ([]
 	return s.repo.ListOffersForProduct(ctx, productID)
 }
 
+// ListOffersForProducts lists the approved, running offers selling any of the
+// given products in one query, grouped by product ID.
+func (s *Service) ListOffersForProducts(ctx context.Context, productIDs []int64) (map[int64][]*OfferProductWithOffer, error) {
+	out := make(map[int64][]*OfferProductWithOffer)
+	if len(productIDs) == 0 {
+		return out, nil
+	}
+	rows, err := s.repo.ListOffersForProducts(ctx, productIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		if row == nil || row.Product == nil || row.Product.ProductID <= 0 {
+			continue
+		}
+		out[row.Product.ProductID] = append(out[row.Product.ProductID], row)
+	}
+	return out, nil
+}
+
 // ListOffersVisibleTo lists the offers a pharmacy branch can buy: vendor
 // branches whose weekly coverage contains the pharmacy branch coordinates.
 func (s *Service) ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int) ([]*VisibleOffer, error) {

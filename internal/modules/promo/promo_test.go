@@ -79,6 +79,28 @@ func (m *mockPromoRepo) ListOffersForProduct(_ context.Context, productID int64)
 	return list, nil
 }
 
+func (m *mockPromoRepo) ListOffersForProducts(_ context.Context, productIDs []int64) ([]*OfferProductWithOffer, error) {
+	wanted := make(map[int64]struct{}, len(productIDs))
+	for _, id := range productIDs {
+		wanted[id] = struct{}{}
+	}
+	var list []*OfferProductWithOffer
+	for _, o := range m.offers {
+		if !o.IsActive {
+			continue
+		}
+		for _, pid := range o.ProductIDs {
+			if _, ok := wanted[pid]; ok {
+				list = append(list, &OfferProductWithOffer{
+					Offer:   o,
+					Product: &OfferProduct{ProductID: pid, CustomQty: 1},
+				})
+			}
+		}
+	}
+	return list, nil
+}
+
 func (m *mockPromoRepo) ListOffersVisibleTo(_ context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*VisibleOffer, error) {
 	var list []*VisibleOffer
 	for _, o := range m.offers {

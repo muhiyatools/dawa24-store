@@ -10,6 +10,9 @@ type Repository interface {
 	GetOfferByID(ctx context.Context, id int64) (*Offer, error)
 	ListActiveOffers(ctx context.Context, limit, offset int) ([]*Offer, error)
 	ListOffersForProduct(ctx context.Context, productID int64) ([]*OfferProductWithOffer, error)
+	// ListOffersForProducts returns the approved running offers selling any of
+	// the given products in one query; callers group by op.product_id.
+	ListOffersForProducts(ctx context.Context, productIDs []int64) ([]*OfferProductWithOffer, error)
 	ListOffers(ctx context.Context, limit, offset int) ([]*Offer, error)
 	ListOffersVisibleTo(ctx context.Context, latitude, longitude float64, dayOfWeek, limit, offset int, allowedWorkIDs []int64) ([]*VisibleOffer, error)
 	SetOfferActive(ctx context.Context, id int64, active bool) error

@@ -99,6 +99,18 @@ func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r 
 	responderID := actor.UserID
 
 	if h.commSvc != nil {
+		req, err := h.commSvc.GetPurchaseRequest(ctx, reqID)
+		if err != nil || req == nil {
+			h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", "طلب الشراء غير موجود.")
+			return
+		}
+		if !actor.IsStaff && !actor.Can("commerce.admin") {
+			if req.VendorOrgID != actor.OrganizationID {
+				h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", "غير مصرح لك بإدارة هذا الطلب.")
+				return
+			}
+		}
+
 		if err := h.commSvc.RespondPurchaseRequest(ctx, reqID, status, vendorNotes, &responderID); err != nil {
 			h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "error", h.safeMessage(err, langOf(r)))
 			return
@@ -111,7 +123,8 @@ func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r 
 // VendorPurchaseRequestLineRespondSubmit updates vendor price/discount counter-offer for a specific line item.
 func (h *UIHandler) VendorPurchaseRequestLineRespondSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if _, ok := authctx.From(ctx); !ok {
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}

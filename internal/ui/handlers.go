@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/go-chi/chi/v5"
 
@@ -56,6 +57,9 @@ type UIHandler struct {
 	aiClient      gateway.Client
 	gatewayKeys   GatewayKeyCache
 	log           *slog.Logger
+
+	cacheMu sync.Mutex
+	cache   map[string]uiCacheEntry
 }
 
 // SetAssistantRepository attaches the Assistant database repository for auditing and history.
@@ -144,6 +148,15 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 	// the root mux already carries routes, and chi panics on a Use() after the
 	// first route is defined. Group gives these routes their own middleware
 	// stack without touching the parent, and without wrapping them in a gate.
+	// Assets are served on their own group without the audience middlewares:
+	// no session lookup, branch listing or settings query is worth running for
+	// every CSS/JS/image request, and they are typically the majority of
+	// traffic.
+	r.Group(func(assets chi.Router) {
+		RegisterStaticRoutes(assets)
+		RegisterUploadRoutes(assets)
+	})
+
 	r.Group(func(pub chi.Router) {
 		if h.idSvc != nil {
 			pub.Use(identityHttp.OptionalAuth(h.idSvc, "dawa24_session"))
@@ -151,8 +164,6 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Use(h.BuyingBranchSelector)
 		pub.Use(h.siteSettingsMiddleware)
 		pub.Use(h.visitorMiddleware)
-		RegisterStaticRoutes(pub)
-		RegisterUploadRoutes(pub)
 
 		// Public & Auth (marketing, catalogue browsing, sign-in)
 		pub.Get("/", h.HomePage)

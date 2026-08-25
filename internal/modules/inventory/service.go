@@ -176,6 +176,18 @@ func (s *Service) AvailableQuantity(ctx context.Context, variantID int64) (int, 
 	return s.repo.AvailableQuantity(ctx, variantID)
 }
 
+// AvailableQuantities totals many variants' sellable stock in one query,
+// keyed by variant ID; missing keys mean zero availability.
+func (s *Service) AvailableQuantities(ctx context.Context, variantIDs []int64) (map[int64]int, error) {
+	filtered := make([]int64, 0, len(variantIDs))
+	for _, id := range variantIDs {
+		if id > 0 {
+			filtered = append(filtered, id)
+		}
+	}
+	return s.repo.AvailableQuantities(ctx, filtered)
+}
+
 // SetStock creates or updates the stock row for one variant in one warehouse.
 // It is how an opening quantity gets recorded when a supplier publishes a
 // variant — inventory.stocks is the only place stock lives, and its

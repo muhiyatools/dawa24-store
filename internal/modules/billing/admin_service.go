@@ -21,16 +21,6 @@ func (s *Service) AdminListPayments(ctx context.Context, limit, offset int) ([]*
 	return s.repo.AdminListPayments(ctx, limit, offset)
 }
 
-// AdminListInvoices provides cross-tenant invoice listing.
-func (s *Service) AdminListInvoices(ctx context.Context, limit, offset int) ([]*Invoice, error) {
-	return s.repo.AdminListInvoices(ctx, limit, offset)
-}
-
-// AdminListWallets provides cross-tenant wallet listing with computed balances.
-func (s *Service) AdminListWallets(ctx context.Context, limit, offset int) ([]*Wallet, error) {
-	return s.repo.AdminListWallets(ctx, limit, offset)
-}
-
 // EnsureAllOrgWallets guarantees all registered organizations have wallet rows.
 func (s *Service) EnsureAllOrgWallets(ctx context.Context) error {
 	return s.repo.EnsureAllOrgWallets(ctx)

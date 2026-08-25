@@ -46,6 +46,7 @@ type CatalogMatchIndex struct {
 	byExactName    map[string]*MasterProductData
 	bySavingsName  map[string]*MasterProductData
 	bySavingsSKU   map[string]*MasterProductData
+	savingsTokens  map[string][]string // normalized savings name -> significant tokens
 	tokenIndex     map[string][]*MasterProductData
 	allProducts    []*MasterProductData
 	productsByID   map[int64]*MasterProductData
@@ -62,6 +63,7 @@ func NewCatalogMatchIndex(
 		byExactName:   make(map[string]*MasterProductData),
 		bySavingsName: make(map[string]*MasterProductData),
 		bySavingsSKU:  make(map[string]*MasterProductData),
+		savingsTokens: make(map[string][]string),
 		tokenIndex:    make(map[string][]*MasterProductData),
 		allProducts:   masterProducts,
 		productsByID:  make(map[int64]*MasterProductData),
@@ -115,6 +117,7 @@ func NewCatalogMatchIndex(
 		normName := normalizePharmaceutical(s.NameProduct)
 		if normName != "" {
 			idx.bySavingsName[normName] = master
+			idx.savingsTokens[normName] = extractSignificantTokens(normName)
 		}
 		if cleanSKU := strings.ToUpper(strings.TrimSpace(s.SKU)); cleanSKU != "" {
 			idx.bySavingsSKU[cleanSKU] = master
@@ -232,21 +235,51 @@ func (idx *CatalogMatchIndex) Match(
 				Status:           "matched",
 			}
 		}
-		for sNorm, master := range idx.bySavingsName {
-			sim := arabic.Similarity(normName, sNorm)
-			tokOverlap := tokenOverlapScore(normName, sNorm)
-			if sim >= 0.65 || tokOverlap >= 0.50 || strings.Contains(normName, sNorm) || strings.Contains(sNorm, normName) {
-				pID := master.ID
-				return MatchRowResult{
-					MatchedProductID: &pID,
-					MatchedProduct:   master,
-					ConfidenceScore:  0.92,
-					ConfidenceLevel:  ConfidenceHigh,
-					MatchReason:      "مطابقة فائقة عبر قائمة منتجات التوفير المعتمدة 🛒 (92%)",
-					Status:           "matched",
-				}
+	// Fuzzy sweep over the savings index. The expensive similarity scores are
+	// guarded by cheap pre-filters with identical outcomes: containment is
+	// checked directly, the token overlap uses precomputed token lists, and
+	// the edit-distance branch of arabic.Similarity can never reach 0.65 when
+	// the shorter string holds fewer than 65% of the longer one's runes.
+	rowTokens := extractSignificantTokens(normName)
+	for sNorm, master := range idx.bySavingsName {
+		if strings.Contains(normName, sNorm) || strings.Contains(sNorm, normName) {
+			pID := master.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   master,
+				ConfidenceScore:  0.92,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة فائقة عبر قائمة منتجات التوفير المعتمدة 🛒 (92%)",
+				Status:           "matched",
 			}
 		}
+		tokOverlap := overlapScore(rowTokens, idx.savingsTokens[sNorm])
+		if tokOverlap >= 0.50 {
+			pID := master.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   master,
+				ConfidenceScore:  0.92,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة فائقة عبر قائمة منتجات التوفير المعتمدة 🛒 (92%)",
+				Status:           "matched",
+			}
+		}
+		if runeLengthRatio(normName, sNorm) < 0.65 {
+			continue
+		}
+		if arabic.Similarity(normName, sNorm) >= 0.65 {
+			pID := master.ID
+			return MatchRowResult{
+				MatchedProductID: &pID,
+				MatchedProduct:   master,
+				ConfidenceScore:  0.92,
+				ConfidenceLevel:  ConfidenceHigh,
+				MatchReason:      "مطابقة فائقة عبر قائمة منتجات التوفير المعتمدة 🛒 (92%)",
+				Status:           "matched",
+			}
+		}
+	}
 	}
 	if input.EnableSavings && cleanSKU != "" {
 		if p, ok := idx.bySavingsSKU[cleanSKU]; ok && p != nil {
@@ -490,8 +523,12 @@ func (idx *CatalogMatchIndex) findCandidates(
 }
 
 func tokenOverlapScore(a, b string) float64 {
-	toksA := extractSignificantTokens(a)
-	toksB := extractSignificantTokens(b)
+	return overlapScore(extractSignificantTokens(a), extractSignificantTokens(b))
+}
+
+// overlapScore is the shared body of tokenOverlapScore: matched tokens over
+// the larger token count, 0 when either side has no significant tokens.
+func overlapScore(toksA, toksB []string) float64 {
 	if len(toksA) == 0 || len(toksB) == 0 {
 		return 0
 	}
@@ -510,6 +547,22 @@ func tokenOverlapScore(a, b string) float64 {
 		return 0
 	}
 	return float64(matches) / float64(maxLen)
+}
+
+// runeLengthRatio reports shorter/longer rune lengths of the raw strings.
+// For non-containment pairs, arabic.Similarity's edit-distance branch scores
+// at most this ratio, so anything below the match threshold lets a caller
+// skip the O(n·m) levenshtein entirely.
+func runeLengthRatio(a, b string) float64 {
+	ra, rb := len([]rune(a)), len([]rune(b))
+	if ra == 0 || rb == 0 {
+		return 0
+	}
+	shorter, longer := ra, rb
+	if shorter > longer {
+		shorter, longer = longer, shorter
+	}
+	return float64(shorter) / float64(longer)
 }
 
 // normalizePharmaceutical strips common pharmaceutical punctuation, suffixes, and noise.

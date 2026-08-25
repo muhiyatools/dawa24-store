@@ -25,6 +25,9 @@ type Repository interface {
 	// catalog.ProductVariant.StockQty is never populated by any query; this is
 	// the real source.
 	AvailableQuantity(ctx context.Context, variantID int64) (int, error)
+	// AvailableQuantities totals many variants' sellable stock in one query,
+	// keyed by variant ID.
+	AvailableQuantities(ctx context.Context, variantIDs []int64) (map[int64]int, error)
 	ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*Stock, error)
 	ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*DetailedWarehouseStockView, error)
 	ListStocksByOrg(ctx context.Context, orgID int64) ([]*Stock, error)

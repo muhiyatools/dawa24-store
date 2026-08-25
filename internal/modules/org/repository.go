@@ -16,6 +16,7 @@ type Repository interface {
 	UpdateOrganization(ctx context.Context, o *Organization) error
 	DeleteOrganization(ctx context.Context, id int64) error
 	ListOrganizations(ctx context.Context, orgType *OrganizationType, status *OrganizationStatus, limit, offset int) ([]*Organization, error)
+	GetOrganizationsByIDs(ctx context.Context, ids []int64) ([]*Organization, error)
 	CountOrganizations(ctx context.Context, orgType *OrganizationType, status *OrganizationStatus) (int, error)
 
 	CreateBranch(ctx context.Context, b *Branch) error
@@ -23,6 +24,7 @@ type Repository interface {
 	UpdateBranch(ctx context.Context, b *Branch) error
 	DeleteBranch(ctx context.Context, id, orgID int64) error
 	ListBranchesByOrg(ctx context.Context, orgID int64) ([]*Branch, error)
+	GetBranchesByIDs(ctx context.Context, ids []int64) ([]*Branch, error)
 	UnsetMainBranches(ctx context.Context, orgID int64) error
 	AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error
 

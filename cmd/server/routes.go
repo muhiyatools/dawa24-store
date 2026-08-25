@@ -58,6 +58,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
@@ -280,7 +281,10 @@ func mountModuleRoutes(
 	// walks the app the same way admin_guard_test.go does and forbids that.
 	uiHandler.RegisterPublicRoutes(r)
 
+	isProd := cfg.Env == "production"
+
 	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
@@ -290,6 +294,7 @@ func mountModuleRoutes(
 		uiHandler.RegisterCustomerRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
@@ -298,6 +303,7 @@ func mountModuleRoutes(
 		uiHandler.RegisterVendorRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
@@ -305,6 +311,7 @@ func mountModuleRoutes(
 		uiHandler.RegisterAdminRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)

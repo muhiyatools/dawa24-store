@@ -17,9 +17,18 @@ import (
 
 // offersForProduct turns the approved vendor variants and promo offers selling the product into
 // storefront rows. Every price passes through promo.EffectivePrice when discounts apply.
-func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Product, variants []*catalog.ProductVariant) []pages.SupplierOffer {
+//
+// env carries batch-prefetched org/branch/stock/promo lookups; build it once
+// per page with buildOfferEnv so rendering a page costs constant queries
+// instead of a few per variant.
+func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Product, variants []*catalog.ProductVariant, env *offerEnv) []pages.SupplierOffer {
 	if product == nil {
 		return nil
+	}
+	if env == nil {
+		env = h.buildOfferEnv(ctx, []int64{product.ID}, map[int64][]*catalog.ProductVariant{
+			product.ID: variants,
+		})
 	}
 
 	offers := make([]pages.SupplierOffer, 0, len(variants)+2)
@@ -38,11 +47,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			continue
 		}
 
-		// Verify supplier organization
-		var orgn *org.Organization
-		if h.orgSvc != nil {
-			orgn, _ = h.orgSvc.GetOrganization(ctx, v.OrganizationID)
-		}
+		orgn := env.org(v.OrganizationID)
 		supplierName := orgName(orgn)
 		if supplierName == "" {
 			supplierName = "مورد معتمد"
@@ -79,24 +84,19 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			oldPrice = price
 		}
 
-		// Resolve actual stock from inventory.stocks
-		stockQty := 0
-		if h.invSvc != nil {
-			if s, err := h.invSvc.AvailableQuantity(ctx, v.ID); err == nil && s > 0 {
-				stockQty = s
-			}
-		}
+		// Resolve actual stock from inventory.stocks (prefetched).
+		stockQty := env.stockQty(v.ID)
 		if stockQty == 0 && v.StockQty > 0 {
 			stockQty = v.StockQty
 		}
 
-		branchName := ""
-		if v.BranchID != nil && *v.BranchID > 0 && h.orgSvc != nil {
-			if b, err := h.orgSvc.GetBranch(ctx, *v.BranchID); err == nil && b != nil {
+		branchNameStr := ""
+		if v.BranchID != nil && *v.BranchID > 0 {
+			if b := env.branch(*v.BranchID); b != nil {
 				if b.Name["ar"] != "" {
-					branchName = b.Name["ar"]
+					branchNameStr = b.Name["ar"]
 				} else {
-					branchName = b.Name["en"]
+					branchNameStr = b.Name["en"]
 				}
 			}
 		}
@@ -169,7 +169,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			ExpiryDate:       expiryStr,
 			DeliveryEstimate: "توصيل خلال 24 ساعة",
 			ColdChain:        true,
-			BranchName:       branchName,
+			BranchName:       branchNameStr,
 			IsCovered:        isCovered,
 			CanAddToCart:     canAddToCart,
 			CoverageReason:   covReason,
@@ -180,59 +180,49 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		offers = append(offers, off)
 	}
 
-	// 2. Check for promotional discounts from promo module
-	if h.promoSvc != nil {
-		rows, err := h.promoSvc.ListOffersForProduct(ctx, product.ID)
-		if err != nil {
-			h.log.WarnContext(ctx, "offers storefront: list offers for product", "product_id", product.ID, "error", err)
+	// 2. Check for promotional discounts from promo module (prefetched)
+	for _, row := range env.offersFor(product.ID) {
+		if row == nil || row.Offer == nil || row.Product == nil {
+			continue
+		}
+
+		listPrice := product.EffectivePrice()
+		price, bd := promo.EffectivePrice(listPrice, row.Product, row.Offer)
+
+		if idx, found := seenSuppliers[row.Offer.OrganizationID]; found {
+			// Apply promo discount to existing supplier offer
+			offers[idx].OfferID = row.Offer.ID
+			offers[idx].Price = price
+			offers[idx].OldPrice = bd.ListPrice
+			offers[idx].DiscountAmount = bd.DiscountAmount
+			offers[idx].DiscountBPS = bd.DiscountBPS
 		} else {
-			listPrice := product.EffectivePrice()
-			for _, row := range rows {
-				if row == nil || row.Offer == nil || row.Product == nil {
-					continue
-				}
-
-				price, bd := promo.EffectivePrice(listPrice, row.Product, row.Offer)
-
-				if idx, found := seenSuppliers[row.Offer.OrganizationID]; found {
-					// Apply promo discount to existing supplier offer
-					offers[idx].OfferID = row.Offer.ID
-					offers[idx].Price = price
-					offers[idx].OldPrice = bd.ListPrice
-					offers[idx].DiscountAmount = bd.DiscountAmount
-					offers[idx].DiscountBPS = bd.DiscountBPS
-				} else {
-					var orgn *org.Organization
-					if h.orgSvc != nil {
-						orgn, _ = h.orgSvc.GetOrganization(ctx, row.Offer.OrganizationID)
-					}
-					sName := orgName(orgn)
-					if sName == "" {
-						sName = "مورد معتمد"
-					}
-
-					newOffer := pages.SupplierOffer{
-						OfferID:          row.Offer.ID,
-						SupplierID:       row.Offer.OrganizationID,
-						SupplierName:     sName,
-						IsVerified:       orgn == nil || orgn.Status == org.StatusApproved,
-						Price:            price,
-						OldPrice:         bd.ListPrice,
-						DiscountAmount:   bd.DiscountAmount,
-						DiscountBPS:      bd.DiscountBPS,
-						MinOrderQty:      row.Product.CustomQty,
-						DeliveryEstimate: "توصيل خلال 24 ساعة",
-						ColdChain:        true,
-						IsCovered:        true,
-						CanAddToCart:     true,
-					}
-					if newOffer.MinOrderQty <= 0 {
-						newOffer.MinOrderQty = 1
-					}
-					seenSuppliers[row.Offer.OrganizationID] = len(offers)
-					offers = append(offers, newOffer)
-				}
+			orgn := env.org(row.Offer.OrganizationID)
+			sName := orgName(orgn)
+			if sName == "" {
+				sName = "مورد معتمد"
 			}
+
+			newOffer := pages.SupplierOffer{
+				OfferID:          row.Offer.ID,
+				SupplierID:       row.Offer.OrganizationID,
+				SupplierName:     sName,
+				IsVerified:       orgn == nil || orgn.Status == org.StatusApproved,
+				Price:            price,
+				OldPrice:         bd.ListPrice,
+				DiscountAmount:   bd.DiscountAmount,
+				DiscountBPS:      bd.DiscountBPS,
+				MinOrderQty:      row.Product.CustomQty,
+				DeliveryEstimate: "توصيل خلال 24 ساعة",
+				ColdChain:        true,
+				IsCovered:        true,
+				CanAddToCart:     true,
+			}
+			if newOffer.MinOrderQty <= 0 {
+				newOffer.MinOrderQty = 1
+			}
+			seenSuppliers[row.Offer.OrganizationID] = len(offers)
+			offers = append(offers, newOffer)
 		}
 	}
 
@@ -250,39 +240,6 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 	return offers
 }
 
-// pharmacyBranchID resolves the branch the actor is buying for: the
-// branch chosen in the shell selector, else the member-bound branch, else
-// the main branch, else the first active one.
-func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) int64 {
-	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
-		return 0
-	}
-	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
-		return *selection.Active
-	}
-	if actor.BranchID != nil && *actor.BranchID > 0 {
-		return *actor.BranchID
-	}
-	branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-	if err != nil {
-		return 0
-	}
-	for _, b := range branches {
-		if b == nil || b.Status != "active" {
-			continue
-		}
-		if b.IsMain {
-			return b.ID
-		}
-	}
-	for _, b := range branches {
-		if b != nil && b.Status == "active" {
-			return b.ID
-		}
-	}
-	return 0
-}
-
 // orgName prefers the Arabic trade name, then the English one, then the
 // registered legal name.
 func orgName(o *org.Organization) string {
@@ -296,55 +253,6 @@ func orgName(o *org.Organization) string {
 		return o.TradeName["en"]
 	}
 	return o.LegalName
-}
-
-// pharmacyBranchCoords resolves the branch the actor is buying for: the
-// branch chosen in the shell selector, else the member-bound branch, else
-// the main branch, else the first active one. Returns false when the pharmacy
-// has no branch with coordinates. Coordinates come from the database branch
-// record, never from the request (Rebuild V2 §3.2).
-func (h *UIHandler) pharmacyBranchCoords(ctx context.Context, actor *authctx.Actor) (lat, lng float64, ok bool) {
-	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
-		return 0, 0, false
-	}
-
-	var branch *org.Branch
-	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
-		if b, err := h.orgSvc.GetBranch(ctx, *selection.Active); err != nil {
-			h.log.DebugContext(ctx, "pharmacy branch coords: get branch selection optional", "branch_id", *selection.Active, "error", err)
-		} else if b != nil {
-			branch = b
-		}
-	}
-	if branch == nil && actor.BranchID != nil && *actor.BranchID > 0 {
-		if b, err := h.orgSvc.GetBranch(ctx, *actor.BranchID); err != nil {
-			h.log.DebugContext(ctx, "pharmacy branch coords: get actor branch optional", "branch_id", *actor.BranchID, "error", err)
-		} else if b != nil {
-			branch = b
-		}
-	}
-	if branch == nil {
-		branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-		if err != nil {
-			return 0, 0, false
-		}
-		for _, b := range branches {
-			if b == nil {
-				continue
-			}
-			if branch == nil {
-				branch = b
-			}
-			if b.IsMain {
-				branch = b
-				break
-			}
-		}
-	}
-	if branch == nil || branch.Latitude == nil || branch.Longitude == nil {
-		return 0, 0, false
-	}
-	return *branch.Latitude, *branch.Longitude, true
 }
 
 // visibleOffersForActor lists the offers reachable from the pharmacy branch

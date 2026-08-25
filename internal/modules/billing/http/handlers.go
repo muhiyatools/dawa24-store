@@ -82,7 +82,24 @@ func (h *Handler) Deposit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.service.Deposit(r.Context(), req.UserID, req.Currency, req.Amount, "manual", nil, req.Description)
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
+	// Direct manual wallet deposits require billing administrator authorization
+	if !actor.IsStaff && !actor.Can("billing.admin") {
+		httpx.Error(w, r, h.log, apperr.Forbidden("billing.admin_required", "Direct manual wallet deposits require administrator permission."))
+		return
+	}
+
+	targetUserID := req.UserID
+	if targetUserID <= 0 {
+		targetUserID = actor.UserID
+	}
+
+	tx, err := h.service.Deposit(r.Context(), targetUserID, req.Currency, req.Amount, "manual_admin", nil, req.Description)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
@@ -99,7 +116,24 @@ func (h *Handler) Withdraw(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.service.Withdraw(r.Context(), req.UserID, req.Currency, req.Amount, "manual", nil, req.Description)
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
+	// Direct manual wallet withdrawals require billing administrator authorization
+	if !actor.IsStaff && !actor.Can("billing.admin") {
+		httpx.Error(w, r, h.log, apperr.Forbidden("billing.admin_required", "Direct manual wallet withdrawals require administrator permission."))
+		return
+	}
+
+	targetUserID := req.UserID
+	if targetUserID <= 0 {
+		targetUserID = actor.UserID
+	}
+
+	tx, err := h.service.Withdraw(r.Context(), targetUserID, req.Currency, req.Amount, "manual_admin", nil, req.Description)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
@@ -134,7 +168,22 @@ func (h *Handler) Subscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sub, err := h.service.Subscribe(r.Context(), req.UserID, nil, req.PlanSlug, "api_direct", nil)
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
+	targetUserID := actor.UserID
+	if req.UserID > 0 && req.UserID != actor.UserID {
+		if !actor.IsStaff && !actor.Can("billing.admin") {
+			httpx.Error(w, r, h.log, apperr.Forbidden("billing.admin_required", "Cannot activate subscription for another user."))
+			return
+		}
+		targetUserID = req.UserID
+	}
+
+	sub, err := h.service.Subscribe(r.Context(), targetUserID, nil, req.PlanSlug, "api_direct", nil)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
@@ -233,6 +282,25 @@ func (h *Handler) PayInvoice(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		httpx.Error(w, r, h.log, apperr.Validation("id.invalid", "Invalid invoice ID", nil))
 		return
+	}
+
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
+	inv, err := h.service.GetInvoice(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	if !actor.IsStaff && !actor.Can("billing.admin") {
+		if inv.OrganizationID != actor.OrganizationID {
+			httpx.Error(w, r, h.log, apperr.Forbidden("billing.unauthorized", "Cannot pay an invoice belonging to another organization."))
+			return
+		}
 	}
 
 	if err := h.service.MarkInvoicePaid(r.Context(), id); err != nil {

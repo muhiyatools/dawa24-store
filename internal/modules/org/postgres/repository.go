@@ -468,6 +468,8 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 }
 
 // ListBranchesByOrg returns all active branches for an organization.
+// Institutional works ride along as a single aggregate subquery instead of a
+// follow-up query per branch.
 func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org.Branch, error) {
 	var list []*org.Branch
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
@@ -479,7 +481,10 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''),
 			       COALESCE(b.warehouse_type, 'warehouse'), COALESCE(b.has_cold_storage, false),
 			       COALESCE(b.capacity_sqm, 0), COALESCE(b.operating_hours, ''),
-			       COALESCE(b.status, 'active'), b.is_main, COALESCE(b.phone, ''), b.created_at, b.updated_at
+			       COALESCE(b.status, 'active'), b.is_main, COALESCE(b.phone, ''), b.created_at, b.updated_at,
+			       COALESCE((SELECT array_agg(w.work_category)
+			                 FROM org.branch_institutional_works w
+			                 WHERE w.branch_id = b.id), '{}')
 			FROM org.branches b
 			LEFT JOIN identity.users u ON u.id = b.manager_id
 			WHERE ($1::bigint = 0 OR b.organization_id = $1) AND b.deleted_at IS NULL
@@ -501,23 +506,11 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 				&b.WarehouseType, &b.HasColdStorage,
 				&b.CapacitySQM, &b.OperatingHours,
 				&b.Status, &b.IsMain, &b.Phone, &b.CreatedAt, &b.UpdatedAt,
+				&b.InstitutionalWorks,
 			); err != nil {
 				return err
 			}
 			list = append(list, &b)
-		}
-
-		for _, b := range list {
-			iwRows, _ := tx.Query(txCtx, `SELECT work_category FROM org.branch_institutional_works WHERE branch_id = $1`, b.ID)
-			if iwRows != nil {
-				for iwRows.Next() {
-					var cat string
-					if err := iwRows.Scan(&cat); err == nil {
-						b.InstitutionalWorks = append(b.InstitutionalWorks, cat)
-					}
-				}
-				iwRows.Close()
-			}
 		}
 		return rows.Err()
 	})

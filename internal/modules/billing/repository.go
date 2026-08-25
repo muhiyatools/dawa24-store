@@ -48,8 +48,6 @@ type Repository interface {
 	AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error
 	AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType TransactionType, reason string, actorID int64) error
 	AdminListPayments(ctx context.Context, limit, offset int) ([]*Payment, error)
-	AdminListInvoices(ctx context.Context, limit, offset int) ([]*Invoice, error)
-	AdminListWallets(ctx context.Context, limit, offset int) ([]*Wallet, error)
 	EnsureAllOrgWallets(ctx context.Context) error
 	AdminListDetailedWallets(ctx context.Context, filter WalletFilter) ([]*AdminWalletView, int, error)
 	AdminListDetailedTransactions(ctx context.Context, filter TransactionFilter) ([]*AdminWalletTransactionView, int, error)

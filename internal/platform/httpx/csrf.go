@@ -37,10 +37,12 @@ func CSRF(isProd bool) func(http.Handler) http.Handler {
 				return
 			}
 
-			// Skip CSRF if client authenticates via Authorization header (API / programmatic clients)
+			// Skip CSRF if client authenticates exclusively via Authorization header (API clients with no session cookie)
 			if auth := r.Header.Get("Authorization"); auth != "" && strings.HasPrefix(auth, "Bearer ") {
-				next.ServeHTTP(w, r)
-				return
+				if _, sessErr := r.Cookie("dawa24_session"); sessErr != nil {
+					next.ServeHTTP(w, r)
+					return
+				}
 			}
 
 			// Verify cookie token against header or form

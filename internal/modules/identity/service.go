@@ -263,6 +263,9 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, currentPassw
 	if err := s.repo.UpdateUser(ctx, user); err != nil {
 		return err
 	}
+	if s.sessionStore != nil {
+		_ = s.sessionStore.DeleteAllForUser(ctx, userID)
+	}
 	s.log.InfoContext(ctx, "user password updated", "user_id", userID)
 	return nil
 }

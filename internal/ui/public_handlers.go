@@ -426,28 +426,6 @@ func (h *UIHandler) OrgSwitchSubmit(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, landingPathForSession(sess), http.StatusSeeOther)
 }
 
-func parseInt64Ptr(s string) *int64 {
-	if s == "" {
-		return nil
-	}
-	v, err := strconv.ParseInt(s, 10, 64)
-	if err != nil {
-		return nil
-	}
-	return &v
-}
-
-func parseIntPtr(s string) *int {
-	if s == "" {
-		return nil
-	}
-	v, err := strconv.Atoi(s)
-	if err != nil {
-		return nil
-	}
-	return &v
-}
-
 // landingPathForSession routes a fresh session to the right surface: the
 // platform admin dashboard for platform staff, the approval gate for a pending
 // or rejected organization, and the type's own dashboard otherwise.

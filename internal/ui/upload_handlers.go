@@ -39,20 +39,42 @@ func RegisterUploadRoutes(r chi.Router) {
 	})
 }
 
-// saveUploadedFile handles parsing a multipart file header and writing it safely to disk.
-func saveUploadedFile(r *http.Request, formKey, category string) (string, error) {
-	file, header, err := r.FormFile(formKey)
+var allowedUploadCategories = map[string]bool{
+	"products":  true,
+	"licenses":  true,
+	"avatars":   true,
+	"resumes":   true,
+	"documents": true,
+	"brands":    true,
+	"compare":   true,
+	"imports":   true,
+}
+
+func sanitizeCategory(category string) string {
+	clean := strings.ToLower(strings.TrimSpace(category))
+	clean = filepath.Base(clean)
+	if strings.Contains(clean, "..") || strings.Contains(clean, "/") || strings.Contains(clean, "\\") {
+		return "products"
+	}
+	if allowedUploadCategories[clean] {
+		return clean
+	}
+	return "products"
+}
+
+// saveUploadedFile safely processes multipart uploads, validates extensions, and prevents path traversal.
+func saveUploadedFile(r *http.Request, fieldName, category string) (string, error) {
+	file, header, err := r.FormFile(fieldName)
 	if err != nil {
-		if err == http.ErrMissingFile {
-			return "", nil // No file was attached, which is optional or handled by validator
-		}
-		return "", err
+		return "", fmt.Errorf("no file uploaded or invalid form field: %w", err)
 	}
 	defer file.Close()
 
 	if header.Size > MaxUploadBytes {
 		return "", fmt.Errorf("file size exceeds maximum allowed limit (20MB)")
 	}
+
+	category = sanitizeCategory(category)
 
 	ext := strings.ToLower(filepath.Ext(header.Filename))
 	if ext == "" {
@@ -87,6 +109,8 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 		return "", fmt.Errorf("file size exceeds maximum allowed limit (20MB)")
 	}
 
+	category = sanitizeCategory(category)
+
 	ext := strings.ToLower(filepath.Ext(originalFilename))
 	if ext == "" {
 		ext = ".bin"
@@ -116,10 +140,7 @@ func (h *UIHandler) UploadAPISubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	category := r.URL.Query().Get("category")
-	if category == "" {
-		category = "products"
-	}
+	category := sanitizeCategory(r.URL.Query().Get("category"))
 
 	url, err := saveUploadedFile(r, "file", category)
 	if err != nil {

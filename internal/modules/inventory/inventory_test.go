@@ -308,3 +308,7 @@ func TestInterWarehouseTransfer(t *testing.T) {
 func (m *mockInventoryRepo) AvailableQuantity(context.Context, int64) (int, error) {
 	return 0, nil
 }
+
+func (m *mockInventoryRepo) AvailableQuantities(context.Context, []int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}

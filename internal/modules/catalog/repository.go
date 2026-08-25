@@ -51,6 +51,7 @@ type Repository interface {
 	GetVariantBySKUOrBarcode(ctx context.Context, orgID int64, sku, barcode string) (*ProductVariant, error)
 	GetVariantByProductAndOrg(ctx context.Context, orgID int64, productID int64) (*ProductVariant, error)
 	ListVariantsByProduct(ctx context.Context, productID int64) ([]*ProductVariant, error)
+	ListVariantsByProducts(ctx context.Context, productIDs []int64) ([]*ProductVariant, error)
 	ListVariantsByOrganization(ctx context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error)
 	ListAllVariants(ctx context.Context, params VariantSearchParams) ([]*ProductVariant, int, error)
 	UpdateVariant(ctx context.Context, v *ProductVariant) error

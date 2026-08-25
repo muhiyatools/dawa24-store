@@ -84,14 +84,35 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	var variantCards []*pages.SupplierVariantCard
 
+	// Batch-prefetch variants for every filtered product, then resolve all
+	// supplier/branch/stock/offer lookups in a handful of queries instead of
+	// one to four per variant.
+	filtered := make([]*catalog.Product, 0, len(products))
 	for _, p := range products {
 		if p == nil {
 			continue
 		}
-
 		if dosageForm != "" && !strings.EqualFold(p.DosageForm, dosageForm) {
 			continue
 		}
+		filtered = append(filtered, p)
+	}
+
+	productIDs := make([]int64, 0, len(filtered))
+	for _, p := range filtered {
+		productIDs = append(productIDs, p.ID)
+	}
+
+	variantsByProduct := make(map[int64][]*catalog.ProductVariant)
+	if h.catSvc != nil {
+		if grouped, err := h.catSvc.ListVariantsByProducts(ctx, productIDs); err == nil && grouped != nil {
+			variantsByProduct = grouped
+		}
+	}
+	env := h.buildOfferEnv(ctx, productIDs, variantsByProduct)
+
+	for _, p := range filtered {
+		variants := variantsByProduct[p.ID]
 
 		var brandID *int64
 		var brandName string
@@ -110,8 +131,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 			brandName = p.ManufacturingCompanies
 		}
 
-		variants, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
-		offers := h.offersForProduct(ctx, p, variants)
+		offers := h.offersForProduct(ctx, p, variants, env)
 
 		if len(offers) > 0 {
 			for _, off := range offers {
@@ -249,7 +269,11 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	offers := h.offersForProduct(ctx, product, variants)
+	env := h.buildOfferEnv(ctx,
+		[]int64{product.ID},
+		map[int64][]*catalog.ProductVariant{product.ID: variants},
+	)
+	offers := h.offersForProduct(ctx, product, variants, env)
 
 	// If target variant was specified, prioritize its offer to the top
 	if targetVariantID > 0 && len(offers) > 1 {
@@ -527,21 +551,23 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		Quantity:         qty,
 	}
 
-	if priceStr := r.PostFormValue("offer_price"); priceStr != "" {
-		if amt, err := money.Parse(priceStr); err == nil {
-			item.UnitPrice = amt
-		}
-	}
-
-	// Keep the offer identity so checkout can carry it into the order
+	// Keep the offer identity
 	if offerID, err := strconv.ParseInt(r.PostFormValue("offer_id"), 10, 64); err == nil && offerID > 0 {
 		item.OfferID = &offerID
 	}
 
-	if h.catSvc != nil && productID > 0 && item.UnitPrice.IsZero() {
-		if prod, _, err := h.catSvc.GetProduct(ctx, productID); err == nil && prod != nil {
-			item.ProductName = prod.Name
-			item.UnitPrice = prod.EffectivePrice()
+	// Authoritative catalog price lookup
+	if item.UnitPrice.IsZero() && h.catSvc != nil {
+		if variantID > 0 {
+			if v, err := h.catSvc.GetVariant(ctx, variantID); err == nil && v != nil && !v.Price.IsZero() {
+				item.UnitPrice = v.Price
+			}
+		}
+		if item.UnitPrice.IsZero() && productID > 0 {
+			if prod, _, err := h.catSvc.GetProduct(ctx, productID); err == nil && prod != nil {
+				item.ProductName = prod.Name
+				item.UnitPrice = prod.EffectivePrice()
+			}
 		}
 	}
 

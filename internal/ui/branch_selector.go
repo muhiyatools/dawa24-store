@@ -66,15 +66,13 @@ func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) 
 }
 
 // validatedCookieBranch accepts the cookie value only when it names one of
-// the actor's own branches.
+// the actor's own branches. The options already come from an
+// organization-scoped database listing, so membership alone proves ownership;
+// no extra per-request branch fetch is needed.
 func (h *UIHandler) validatedCookieBranch(r *http.Request, actor authctx.Actor, options []authctx.BranchOption) *int64 {
 	cookie, err := r.Cookie(buyingBranchCookie)
 	id := parseBranchID(cookie)
 	if err != nil || id <= 0 {
-		return nil
-	}
-	branch, err := h.orgSvc.GetBranch(r.Context(), id)
-	if err != nil || branch == nil || branch.OrganizationID != actor.OrganizationID {
 		return nil
 	}
 	for _, o := range options {

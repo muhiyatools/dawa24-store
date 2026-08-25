@@ -118,11 +118,20 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	// Fetch master products for manual override select dropdowns
+	// Fetch master products for manual override select dropdowns. Cached
+	// briefly: rebuilding a 2,000-row list on every wizard page view costs far
+	// more than the few seconds of staleness is worth.
 	if h.catSvc != nil {
-		sysCtx := database.AsSystem(ctx)
-		if prods, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 2000}); err == nil {
-			data.MasterProducts = prods
+		if cached, ok := h.cacheGet("ui:ingest:dropdown-products"); ok {
+			if prods, cast := cached.([]*catalog.Product); cast {
+				data.MasterProducts = prods
+			}
+		} else {
+			sysCtx := database.AsSystem(ctx)
+			if prods, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 2000}); err == nil {
+				data.MasterProducts = prods
+				h.cacheSet("ui:ingest:dropdown-products", prods, dropdownListCacheTTL)
+			}
 		}
 	}
 
@@ -402,8 +411,18 @@ func (h *UIHandler) VendorIngestRowsPartial(w http.ResponseWriter, r *http.Reque
 	_ = json.NewEncoder(w).Encode(map[string]any{"rows": rows, "count": len(rows)})
 }
 
-// prepareMatchingData aggregates master products and saving products for the in-memory matching index.
+// prepareMatchingData aggregates master products and saving products for the
+// in-memory matching index. The snapshot is cached briefly per organization:
+// the wizard rebuilds it on upload submit and on every mapping resubmit, and
+// re-scanning a thousand rows each time dominates the request.
 func (h *UIHandler) prepareMatchingData(ctx context.Context, orgID int64) ([]*ingest.MasterProductData, []*ingest.SavingProductData) {
+	cacheKey := fmt.Sprintf("ui:ingest:matching:%d", orgID)
+	if cached, ok := h.cacheGet(cacheKey); ok {
+		if pair, cast := cached.(*matchingDataPair); cast && pair != nil {
+			return pair.master, pair.saving
+		}
+	}
+
 	var masterList []*ingest.MasterProductData
 	var savingList []*ingest.SavingProductData
 
@@ -446,5 +465,6 @@ func (h *UIHandler) prepareMatchingData(ctx context.Context, orgID int64) ([]*in
 		}
 	}
 
+	h.cacheSet(cacheKey, &matchingDataPair{master: masterList, saving: savingList}, matchingDataCacheTTL)
 	return masterList, savingList
 }

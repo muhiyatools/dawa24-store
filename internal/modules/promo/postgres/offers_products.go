@@ -54,6 +54,52 @@ func (r *Repository) ListOffersForProduct(ctx context.Context, productID int64) 
 	return matches, err
 }
 
+// ListOffersForProducts returns every approved, currently running offer that
+// sells any of the given products, newest first. The storefront catalog used
+// to issue one query per product; this keeps the page at a single query.
+func (r *Repository) ListOffersForProducts(ctx context.Context, productIDs []int64) ([]*promo.OfferProductWithOffer, error) {
+	if len(productIDs) == 0 {
+		return nil, nil
+	}
+	var matches []*promo.OfferProductWithOffer
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT op.id, op.offer_id, op.product_id, op.variant_id,
+			       op.custom_price, op.custom_discount_percentage, op.custom_discount_amount,
+			       op.custom_qty, op.max_qty_per_order, op.created_at,
+			       o.id, o.public_id, o.organization_id, o.branch_id,
+			       o.title, o.description, o.discount_type, o.discount_value,
+			       o.min_order_amount,
+			       o.admin_status, o.admin_notes, o.approved_at, o.approved_by,
+			       o.rejected_at, o.rejected_by, o.starts_at, o.expires_at, o.is_active,
+			       o.views_count, o.clicks_count, o.created_at, o.updated_at, o.deleted_at
+			FROM promo.offer_products op
+			JOIN promo.offers o ON o.id = op.offer_id
+			WHERE op.product_id = ANY($1)
+			  AND o.deleted_at IS NULL
+			  AND o.is_active = true
+			  AND o.admin_status = 'approved'
+			  AND o.starts_at <= now() AND o.expires_at >= now()
+			ORDER BY o.id DESC;
+		`
+		rows, err := tx.Query(txCtx, query, productIDs)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			item, err := scanOfferProductWithOffer(rows)
+			if err != nil {
+				return err
+			}
+			matches = append(matches, item)
+		}
+		return rows.Err()
+	})
+	return matches, err
+}
+
 // offerColumns is the canonical promo.offers projection; scanOffer reads it in
 // exactly this order. Every offer SELECT (storefront, dashboard, moderation,
 // visibility) should reuse it so the column order lives in one place.

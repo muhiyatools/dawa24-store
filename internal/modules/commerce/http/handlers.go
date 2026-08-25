@@ -63,6 +63,18 @@ func (h *Handler) Checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
+	// Always bind customer identity strictly to the authenticated actor
+	input.CustomerID = actor.UserID
+	if actor.OrganizationID > 0 {
+		input.CustomerOrgID = actor.OrganizationID
+	}
+
 	order, err := h.service.Checkout(r.Context(), input)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -81,10 +93,23 @@ func (h *Handler) GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
 	order, err := h.service.GetOrder(r.Context(), id)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
+	}
+
+	if !actor.IsStaff && !actor.Can("commerce.admin") {
+		if order.CustomerID != actor.UserID && (order.OrganizationID == nil || *order.OrganizationID != actor.OrganizationID) {
+			httpx.Error(w, r, h.log, apperr.Forbidden("order.unauthorized", "Not authorized to view this order"))
+			return
+		}
 	}
 
 	httpx.JSON(w, http.StatusOK, order)
@@ -131,13 +156,33 @@ func (h *Handler) TransitionStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
+	order, err := h.service.GetOrder(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	if !actor.IsStaff && !actor.Can("commerce.admin") {
+		if (order.OrganizationID == nil || *order.OrganizationID != actor.OrganizationID) && order.CustomerID != actor.UserID {
+			httpx.Error(w, r, h.log, apperr.Forbidden("order.unauthorized", "Not authorized to update this order"))
+			return
+		}
+	}
+
 	var req TransitionStatusRequest
 	if err := httpx.DecodeJSON(w, r, &req); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
 
-	if err := h.service.TransitionOrderStatus(r.Context(), id, req.Status, req.ChangedByUserID, req.Notes); err != nil {
+	actorUserID := actor.UserID
+	if err := h.service.TransitionOrderStatus(r.Context(), id, req.Status, &actorUserID, req.Notes); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -237,13 +282,32 @@ func (h *Handler) CancelOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
+	order, err := h.service.GetOrder(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	if !actor.IsStaff && !actor.Can("commerce.admin") {
+		if order.CustomerID != actor.UserID && (order.OrganizationID == nil || *order.OrganizationID != actor.OrganizationID) {
+			httpx.Error(w, r, h.log, apperr.Forbidden("order.unauthorized", "Not authorized to cancel this order"))
+			return
+		}
+	}
+
 	var body struct {
-		UserID *int64 `json:"user_id,omitempty"`
 		Reason string `json:"reason,omitempty"`
 	}
 	_ = httpx.DecodeJSON(w, r, &body)
 
-	if err := h.service.CancelOrder(r.Context(), id, body.UserID, body.Reason); err != nil {
+	actorUserID := actor.UserID
+	if err := h.service.CancelOrder(r.Context(), id, &actorUserID, body.Reason); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}

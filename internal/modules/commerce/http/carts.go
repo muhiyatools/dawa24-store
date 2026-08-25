@@ -36,13 +36,18 @@ func (h *Handler) GetCart(w http.ResponseWriter, r *http.Request) {
 // AddCartItem adds or updates item quantity in the cart.
 func (h *Handler) AddCartItem(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		UserID           int64        `json:"user_id"`
 		ProductID        int64        `json:"product_id"`
 		ProductVariantID int64        `json:"product_variant_id"`
 		Quantity         int          `json:"quantity"`
-		UnitPrice        money.Amount `json:"unit_price"`
+		UnitPrice        money.Amount `json:"unit_price,omitempty"`
 	}
 	if err := httpx.DecodeJSON(w, r, &body); err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
@@ -54,7 +59,7 @@ func (h *Handler) AddCartItem(w http.ResponseWriter, r *http.Request) {
 		UnitPrice:        body.UnitPrice,
 	}
 
-	cart, err := h.service.AddToCart(r.Context(), body.UserID, item)
+	cart, err := h.service.AddToCart(r.Context(), userID, item)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return

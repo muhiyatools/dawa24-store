@@ -187,6 +187,10 @@ func (s *UserSecurity) RecordFailedAttempt(now time.Time) {
 	if s == nil {
 		return
 	}
+	if s.LockedUntil != nil && now.After(*s.LockedUntil) {
+		s.LoginAttempts = 0
+		s.LockedUntil = nil
+	}
 	s.LoginAttempts++
 	if s.LoginAttempts >= MaxFailedLoginsBeforeLockout {
 		lockout := now.Add(DefaultLockoutDuration)

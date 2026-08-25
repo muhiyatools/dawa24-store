@@ -202,6 +202,9 @@ func (mockCatalogRepoStub) GetVariantByProductAndOrg(context.Context, int64, int
 func (mockCatalogRepoStub) ListVariantsByProduct(context.Context, int64) ([]*catalog.ProductVariant, error) {
 	return nil, nil
 }
+func (mockCatalogRepoStub) ListVariantsByProducts(context.Context, []int64) ([]*catalog.ProductVariant, error) {
+	return nil, nil
+}
 func (mockCatalogRepoStub) ListVariantsByOrganization(context.Context, int64, catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
 	return nil, 0, nil
 }

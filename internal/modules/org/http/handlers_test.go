@@ -60,6 +60,10 @@ func (r stubRepo) ListOrganizations(ctx context.Context, orgType *org.Organizati
 	r.fail("ListOrganizations")
 	return nil, nil
 }
+func (r stubRepo) GetOrganizationsByIDs(ctx context.Context, ids []int64) ([]*org.Organization, error) {
+	r.fail("GetOrganizationsByIDs")
+	return nil, nil
+}
 
 func (r stubRepo) CreateBranch(ctx context.Context, b *org.Branch) error {
 	r.fail("CreateBranch")
@@ -79,6 +83,10 @@ func (r stubRepo) DeleteBranch(ctx context.Context, id, orgID int64) error {
 }
 func (r stubRepo) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org.Branch, error) {
 	r.fail("ListBranchesByOrg")
+	return nil, nil
+}
+func (r stubRepo) GetBranchesByIDs(ctx context.Context, ids []int64) ([]*org.Branch, error) {
+	r.fail("GetBranchesByIDs")
 	return nil, nil
 }
 func (r stubRepo) UnsetMainBranches(ctx context.Context, orgID int64) error {
@@ -369,6 +377,9 @@ func (happyRepo) DeleteOrganization(ctx context.Context, id int64) error {
 func (happyRepo) ListOrganizations(ctx context.Context, orgType *org.OrganizationType, status *org.OrganizationStatus, limit, offset int) ([]*org.Organization, error) {
 	return []*org.Organization{{ID: 1, LegalName: "Al-Amal Pharmacy", CommercialRegister: "CR-101", Status: org.StatusApproved}}, nil
 }
+func (happyRepo) GetOrganizationsByIDs(ctx context.Context, ids []int64) ([]*org.Organization, error) {
+	return nil, nil
+}
 func (happyRepo) CreateBranch(ctx context.Context, b *org.Branch) error {
 	b.ID = 1
 	return nil
@@ -384,6 +395,9 @@ func (happyRepo) DeleteBranch(ctx context.Context, id, orgID int64) error {
 }
 func (happyRepo) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org.Branch, error) {
 	return []*org.Branch{{ID: 1, OrganizationID: orgID, Code: "BR-01", Name: i18n.Text{"en": "Main"}}}, nil
+}
+func (happyRepo) GetBranchesByIDs(ctx context.Context, ids []int64) ([]*org.Branch, error) {
+	return nil, nil
 }
 func (happyRepo) UnsetMainBranches(ctx context.Context, orgID int64) error {
 	return nil

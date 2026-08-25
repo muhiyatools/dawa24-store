@@ -138,9 +138,18 @@ func (h *Handler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Guarded for the same reason as the handlers in mutations.go: the id comes
-	// from the URL, so without this any authenticated user could act on any
-	// organization. Status changes belong to platform staff, who hold org.admin.
+	// Status changes (approving, rejecting, suspending an organization) strictly
+	// require platform staff with org.admin permission. A tenant member cannot self-approve.
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+	if !actor.IsStaff && !actor.Can("org.admin") {
+		httpx.Error(w, r, h.log, apperr.Forbidden("org.admin_required", "Only platform administrators can change organization approval status."))
+		return
+	}
+
 	if err := authctx.SameOrgOrForbidden(r.Context(), id, "org.admin"); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
