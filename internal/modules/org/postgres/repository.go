@@ -590,13 +590,13 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 				employee_code, job_title, base_salary, variable_salary, is_active
 			) VALUES (
 				$1, $2, $3, $4, COALESCE(NULLIF($5, ''), 'org_employee'),
-				NULLIF($6, ''), NULLIF($7, ''), $8, $9, $10
+				COALESCE(NULLIF($6, ''), 'EMP-' || $2), NULLIF($7, ''), $8, $9, $10
 			)
 			ON CONFLICT (organization_id, user_id) DO UPDATE
 			SET branch_id = COALESCE(EXCLUDED.branch_id, org.members.branch_id),
 			    role_id = EXCLUDED.role_id,
 			    role_key = EXCLUDED.role_key,
-			    employee_code = COALESCE(NULLIF(EXCLUDED.employee_code, ''), org.members.employee_code),
+			    employee_code = COALESCE(NULLIF(EXCLUDED.employee_code, ''), org.members.employee_code, 'EMP-' || EXCLUDED.user_id),
 			    job_title = COALESCE(NULLIF(EXCLUDED.job_title, ''), org.members.job_title),
 			    base_salary = CASE WHEN EXCLUDED.base_salary > 0 THEN EXCLUDED.base_salary ELSE org.members.base_salary END,
 			    is_active = EXCLUDED.is_active,

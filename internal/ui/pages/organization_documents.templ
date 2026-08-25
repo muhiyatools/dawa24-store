@@ -21,15 +21,17 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 	<div style="display:flex; flex-direction:column; gap:var(--space-5);">
 
 		if data != nil && len(data.Requests) > 0 {
-			<div class="card" style="margin-bottom:0; padding:var(--space-5); border:2px solid #f59e0b; background:#fffbeb;">
+			<div class="card" style="margin-bottom:0; padding:var(--space-5); border:1px solid rgba(245, 158, 11, 0.35); background:rgba(245, 158, 11, 0.08); border-radius:var(--radius-xl);">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:0.5rem;">
 					<div class="row-center-sm">
-						@components.IconClock("icon-md")
+						<div style="color:#f59e0b; flex-shrink:0;">
+							@components.IconClock("icon-md")
+						</div>
 						<div>
-							<h3 style="font-size:var(--text-md); font-weight:800; color:#92400e; margin:0 0 2px;">
+							<h3 style="font-size:var(--text-md); font-weight:800; color:#f59e0b; margin:0 0 2px;">
 								مستندات وتراخيص رسمية مطلوبة من إدارة المنصة
 							</h3>
-							<p style="font-size:var(--text-xs); color:#b45309; margin:0;">
+							<p style="font-size:var(--text-xs); color:var(--text-secondary); margin:0;">
 								يرجى رفع المستندات المطلوبة أدناه خلال المهلة المحددة لتجنب إيقاف وتجميد حساب المنشأة.
 							</p>
 						</div>
@@ -38,9 +40,9 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 
 				<div style="display:flex; flex-direction:column; gap:var(--space-3);">
 					for _, req := range data.Requests {
-						<div style="background:#ffffff; border:1px solid #fde68a; border-radius:var(--radius-lg); padding:var(--space-4); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-3);">
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-3);">
 							<div>
-								<div style="font-weight:700; color:#92400e; font-size:var(--text-sm); display:flex; align-items:center; gap:var(--space-2);">
+								<div style="font-weight:700; color:var(--text); font-size:var(--text-sm); display:flex; align-items:center; gap:var(--space-2);">
 									<span>{ req.Title }</span>
 									if req.Status == attachments.DocReqFulfilled {
 										<span class="badge badge-emerald" style="font-size:10px;">معتمد ومطابق ✓</span>
@@ -58,7 +60,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 									</div>
 								}
 								<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;">
-									تاريخ المهلة: <strong class="tabular-nums">{ format.Date(req.DeadlineAt, "ar") }</strong>
+									تاريخ المهلة: <strong class="tabular-nums text-primary">{ format.Date(req.DeadlineAt, "ar") }</strong>
 								</div>
 							</div>
 
@@ -83,7 +85,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 		}
 
 		if data != nil && len(data.Missing) > 0 {
-			<div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:var(--radius-lg); padding:var(--space-4); display:flex; gap:var(--space-3); align-items:flex-start;">
+			<div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; border-radius:var(--radius-lg); padding:var(--space-4); display:flex; gap:var(--space-3); align-items:flex-start;">
 				@components.IconAlert("icon-md")
 				<div style="font-size:var(--text-sm); line-height:1.6;">
 					<strong>مستندات إلزامية غير معتمدة:</strong> { data.MissingTitles() }
@@ -93,7 +95,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 		}
 
 		if data != nil && data.Error != "" {
-			<div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:var(--radius-lg); padding:var(--space-4); font-size:var(--text-sm);">
+			<div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; border-radius:var(--radius-lg); padding:var(--space-4); font-size:var(--text-sm);">
 				{ data.Error }
 			</div>
 		}

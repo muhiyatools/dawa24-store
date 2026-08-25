@@ -549,6 +549,76 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							/>
 						</div>
 
+						<!-- Column Mapping Customizer -->
+						<div id="vendor-import-columns-panel" style="display:none; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
+							<div style="font-weight:800; font-size:0.9rem; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+								<span>⚙️</span>
+								<span>مطابقة وتحديد أعمدة الملف (تم التحديد الذكي تلقائياً):</span>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;">
+										عمود اسم الصنف / المنتج <span class="text-danger">*</span>
+									</label>
+									<select name="col_name" id="vendor-col-name" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
+										<option value="">تلقائي (التعرف الذكي)</option>
+										<option value="0">العمود A (الأول)</option>
+										<option value="1">العمود B (الثاني)</option>
+										<option value="2">العمود C (الثالث)</option>
+										<option value="3">العمود D (الرابع)</option>
+										<option value="4">العمود E (الخامس)</option>
+										<option value="5">العمود F (السادس)</option>
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;">
+										عمود كود الصنف / SKU / الباركود
+									</label>
+									<select name="col_sku" id="vendor-col-sku" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
+										<option value="">تلقائي (التعرف الذكي)</option>
+										<option value="0">العمود A (الأول)</option>
+										<option value="1">العمود B (الثاني)</option>
+										<option value="2">العمود C (الثالث)</option>
+										<option value="3">العمود D (الرابع)</option>
+										<option value="4">العمود E (الخامس)</option>
+										<option value="5">العمود F (السادس)</option>
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;">
+										عمود الكمية المطلوبة
+									</label>
+									<select name="col_qty" id="vendor-col-qty" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
+										<option value="">تلقائي (التعرف الذكي)</option>
+										<option value="0">العمود A (الأول)</option>
+										<option value="1">العمود B (الثاني)</option>
+										<option value="2">العمود C (الثالث)</option>
+										<option value="3">العمود D (الرابع)</option>
+										<option value="4">العمود E (الخامس)</option>
+										<option value="5">العمود F (السادس)</option>
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label" style="font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;">
+										عمود السعر المستهدف (ج.م)
+									</label>
+									<select name="col_price" id="vendor-col-price" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
+										<option value="">تلقائي (التعرف الذكي)</option>
+										<option value="0">العمود A (الأول)</option>
+										<option value="1">العمود B (الثاني)</option>
+										<option value="2">العمود C (الثالث)</option>
+										<option value="3">العمود D (الرابع)</option>
+										<option value="4">العمود E (الخامس)</option>
+										<option value="5">العمود F (السادس)</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
 						<!-- Import Mode Selection -->
 						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
 							<label style="font-weight:800; color:var(--text); font-size:0.875rem; display:block; margin-bottom:0.5rem;">
@@ -568,7 +638,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 						<!-- Smart Matcher Explanatory Note -->
 						<div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5; background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:0.75rem 1rem; border-radius:var(--radius-lg);">
-							ℹ️ <strong>المطابقة الذكية:</strong> سيقوم النظام بمطابقة أسماء وأكواد الأصناف مع الكتالوج العام المعتمد للمنصة تلقائياً. الأصناف غير المتطابقة سيتم استيرادها كأصناف غير مرتبطة لتتمكن من ربطها لاحقاً.
+							ℹ️ <strong>المطابقة الذكية:</strong> سيقوم النظام بمطابقة أسماء وأكواد الأصناف مع الكتالوج العام المعتمد للمنصة تلقائياً مع حماية تلقائية ضد تبديل الاسم والـ SKU.
 						</div>
 
 					</div>
@@ -769,7 +839,61 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					const f = input.files[0];
 					const size = (f.size / 1024 / 1024).toFixed(2);
 					document.getElementById('import-filename-preview').innerHTML = '✓ تم اختيار: ' + f.name + ' (' + size + ' MB)';
+
+					const panel = document.getElementById('vendor-import-columns-panel');
+					if (panel) panel.style.display = 'block';
+
+					if (f.name.endsWith('.csv')) {
+						const reader = new FileReader();
+						reader.onload = function(e) {
+							const text = e.target.result;
+							const firstLine = text.split(/\r\n|\n/)[0];
+							if (firstLine) {
+								let delimiter = ',';
+								if (firstLine.includes('\t')) delimiter = '\t';
+								else if (firstLine.includes(';') && !firstLine.includes(',')) delimiter = ';';
+								const rawHeaders = firstLine.split(delimiter).map(s => s.replace(/^["']|["']$/g, '').trim());
+								if (rawHeaders.length > 0) {
+									populateColumnDropdowns('vendor', rawHeaders);
+								}
+							}
+						};
+						reader.readAsText(f.slice(0, 4096));
+					}
 				}
+			}
+
+			function populateColumnDropdowns(prefix, headers) {
+				const selects = ['name', 'sku', 'qty', 'price'];
+				selects.forEach(field => {
+					const el = document.getElementById(prefix + '-col-' + field);
+					if (!el) return;
+					el.innerHTML = '<option value="">تلقائي (التعرف الذكي)</option>';
+					headers.forEach((h, idx) => {
+						const colLetter = String.fromCharCode(65 + idx);
+						const opt = document.createElement('option');
+						opt.value = idx;
+						opt.textContent = `العمود ${colLetter}: [${h}]`;
+						el.appendChild(opt);
+					});
+				});
+
+				headers.forEach((h, idx) => {
+					const norm = h.toLowerCase().replace(/[\s_\-]/g, '');
+					if (norm.includes('sku') || norm.includes('كود') || norm.includes('رمز') || norm.includes('barcode') || norm.includes('باركود')) {
+						const el = document.getElementById(prefix + '-col-sku');
+						if (el && !el.value) el.value = idx;
+					} else if (norm.includes('name') || norm.includes('اسم') || norm.includes('صنف') || norm.includes('منتج') || norm.includes('دواء')) {
+						const el = document.getElementById(prefix + '-col-name');
+						if (el && !el.value) el.value = idx;
+					} else if (norm.includes('qty') || norm.includes('كمية') || norm.includes('الكمية') || norm.includes('stock')) {
+						const el = document.getElementById(prefix + '-col-qty');
+						if (el && !el.value) el.value = idx;
+					} else if (norm.includes('price') || norm.includes('سعر') || norm.includes('السعر') || norm.includes('cost') || norm.includes('شراء')) {
+						const el = document.getElementById(prefix + '-col-price');
+						if (el && !el.value) el.value = idx;
+					}
+				});
 			}
 
 			function handleImportSubmit(e) {

@@ -714,6 +714,10 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 		targetUserID = newUser.ID
 	}
 
+	if employeeCode == "" {
+		employeeCode = fmt.Sprintf("EMP-%d", targetUserID)
+	}
+
 	// 2. Link member to vendor organization with all specified attributes
 	member := &org.Member{
 		OrganizationID: actor.OrganizationID,

@@ -595,6 +595,10 @@ func (h *UIHandler) SettingsEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		targetUserID = newUser.ID
 	}
 
+	if employeeCode == "" {
+		employeeCode = fmt.Sprintf("EMP-%d", targetUserID)
+	}
+
 	// 2. Add to organization members
 	member := &org.Member{
 		OrganizationID: actor.OrganizationID,

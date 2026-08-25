@@ -246,58 +246,28 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
-	// 1. Detect column mapping from header row
+	// 1. Detect column mapping from header row & optional user overrides
 	headers := rawRows[0]
-	nameCol := -1
-	skuCol := -1
-	qtyCol := -1
-	priceCol := -1
-	productIDCol := -1
+	colNameOverride := strings.TrimSpace(r.FormValue("col_name"))
+	colSKUOverride := strings.TrimSpace(r.FormValue("col_sku"))
+	colQtyOverride := strings.TrimSpace(r.FormValue("col_qty"))
+	colPriceOverride := strings.TrimSpace(r.FormValue("col_price"))
+	colProductIDOverride := strings.TrimSpace(r.FormValue("col_product_id"))
 
-	for idx, hName := range headers {
-		norm := strings.TrimSpace(strings.ToLower(hName))
-		norm = strings.ReplaceAll(norm, "_", "")
-		norm = strings.ReplaceAll(norm, "-", "")
-		norm = strings.ReplaceAll(norm, " ", "")
-
-		if strings.Contains(norm, "productid") || strings.Contains(norm, "معرفالمنتج") || strings.Contains(norm, "رقمصنف") || strings.Contains(norm, "رقممنتج") || norm == "id" || norm == "pid" {
-			if productIDCol == -1 {
-				productIDCol = idx
-			}
-		} else if strings.Contains(norm, "name") || strings.Contains(norm, "اسم") || strings.Contains(norm, "صنف") || strings.Contains(norm, "منتج") || strings.Contains(norm, "item") {
-			if nameCol == -1 {
-				nameCol = idx
-			}
-		} else if strings.Contains(norm, "sku") || strings.Contains(norm, "كود") || strings.Contains(norm, "رمز") || strings.Contains(norm, "barcode") || strings.Contains(norm, "باركود") {
-			if skuCol == -1 {
-				skuCol = idx
-			}
-		} else if strings.Contains(norm, "qty") || strings.Contains(norm, "quantity") || strings.Contains(norm, "كمية") || strings.Contains(norm, "الكمية") || strings.Contains(norm, "stock") {
-			if qtyCol == -1 {
-				qtyCol = idx
-			}
-		} else if strings.Contains(norm, "price") || strings.Contains(norm, "سعر") || strings.Contains(norm, "السعر") || strings.Contains(norm, "cost") {
-			if priceCol == -1 {
-				priceCol = idx
-			}
-		}
+	sampleRows := rawRows[1:]
+	if len(sampleRows) > 10 {
+		sampleRows = sampleRows[:10]
 	}
 
-	// Positional fallback if names not detected
-	if nameCol == -1 {
-		if len(headers) >= 1 {
-			nameCol = 0
-		}
-	}
-	if skuCol == -1 && len(headers) >= 2 {
-		skuCol = 1
-	}
-	if qtyCol == -1 && len(headers) >= 3 {
-		qtyCol = 2
-	}
-	if priceCol == -1 && len(headers) >= 4 {
-		priceCol = 3
-	}
+	nameCol, skuCol, qtyCol, priceCol, productIDCol := detectSavingProductColumns(
+		headers,
+		sampleRows,
+		colNameOverride,
+		colSKUOverride,
+		colQtyOverride,
+		colPriceOverride,
+		colProductIDOverride,
+	)
 
 	// 2. Pre-cache catalog lookup map for instant ultra-fast smart matching
 	skuToProductID := make(map[string]int64)
@@ -335,13 +305,22 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		if nameCol >= 0 && nameCol < len(row) {
 			name = strings.TrimSpace(row[nameCol])
 		}
-		if name == "" {
-			continue
-		}
 
 		var sku string
 		if skuCol >= 0 && skuCol < len(row) {
 			sku = strings.TrimSpace(row[skuCol])
+		}
+
+		// Double-check row-level swap: if name looks like a pure numeric SKU/barcode (>= 4 digits) and sku looks like Arabic descriptive drug name, swap them
+		if isAllDigitsOrCode(name) && len(name) >= 4 && isDescriptiveArabicText(sku) {
+			name, sku = sku, name
+		}
+
+		if name == "" && sku != "" {
+			name = sku
+		}
+		if name == "" {
+			continue
 		}
 
 		var qty float64

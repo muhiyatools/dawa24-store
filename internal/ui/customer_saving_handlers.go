@@ -255,53 +255,26 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 	}
 
 	headers := rawRows[0]
-	nameCol := -1
-	skuCol := -1
-	qtyCol := -1
-	priceCol := -1
-	productIDCol := -1
+	colNameOverride := strings.TrimSpace(r.FormValue("col_name"))
+	colSKUOverride := strings.TrimSpace(r.FormValue("col_sku"))
+	colQtyOverride := strings.TrimSpace(r.FormValue("col_qty"))
+	colPriceOverride := strings.TrimSpace(r.FormValue("col_price"))
+	colProductIDOverride := strings.TrimSpace(r.FormValue("col_product_id"))
 
-	for idx, hName := range headers {
-		norm := strings.TrimSpace(strings.ToLower(hName))
-		norm = strings.ReplaceAll(norm, "_", "")
-		norm = strings.ReplaceAll(norm, "-", "")
-		norm = strings.ReplaceAll(norm, " ", "")
-
-		if strings.Contains(norm, "productid") || strings.Contains(norm, "معرفالمنتج") || strings.Contains(norm, "رقمصنف") || strings.Contains(norm, "رقممنتج") || norm == "id" || norm == "pid" {
-			if productIDCol == -1 {
-				productIDCol = idx
-			}
-		} else if strings.Contains(norm, "name") || strings.Contains(norm, "اسم") || strings.Contains(norm, "صنف") || strings.Contains(norm, "منتج") || strings.Contains(norm, "item") {
-			if nameCol == -1 {
-				nameCol = idx
-			}
-		} else if strings.Contains(norm, "sku") || strings.Contains(norm, "كود") || strings.Contains(norm, "رمز") || strings.Contains(norm, "barcode") || strings.Contains(norm, "باركود") {
-			if skuCol == -1 {
-				skuCol = idx
-			}
-		} else if strings.Contains(norm, "qty") || strings.Contains(norm, "quantity") || strings.Contains(norm, "كمية") || strings.Contains(norm, "الكمية") || strings.Contains(norm, "stock") {
-			if qtyCol == -1 {
-				qtyCol = idx
-			}
-		} else if strings.Contains(norm, "price") || strings.Contains(norm, "سعر") || strings.Contains(norm, "السعر") || strings.Contains(norm, "cost") {
-			if priceCol == -1 {
-				priceCol = idx
-			}
-		}
+	sampleRows := rawRows[1:]
+	if len(sampleRows) > 10 {
+		sampleRows = sampleRows[:10]
 	}
 
-	if nameCol == -1 && len(headers) >= 1 {
-		nameCol = 0
-	}
-	if skuCol == -1 && len(headers) >= 2 {
-		skuCol = 1
-	}
-	if qtyCol == -1 && len(headers) >= 3 {
-		qtyCol = 2
-	}
-	if priceCol == -1 && len(headers) >= 4 {
-		priceCol = 3
-	}
+	nameCol, skuCol, qtyCol, priceCol, productIDCol := detectSavingProductColumns(
+		headers,
+		sampleRows,
+		colNameOverride,
+		colSKUOverride,
+		colQtyOverride,
+		colPriceOverride,
+		colProductIDOverride,
+	)
 
 	skuToProductID := make(map[string]int64)
 	nameToProductID := make(map[string]int64)
@@ -337,13 +310,22 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 		if nameCol >= 0 && nameCol < len(row) {
 			name = strings.TrimSpace(row[nameCol])
 		}
-		if name == "" {
-			continue
-		}
 
 		var sku string
 		if skuCol >= 0 && skuCol < len(row) {
 			sku = strings.TrimSpace(row[skuCol])
+		}
+
+		// Double-check row-level swap: if name looks like a pure numeric SKU/barcode (>= 4 digits) and sku looks like Arabic descriptive drug name, swap them
+		if isAllDigitsOrCode(name) && len(name) >= 4 && isDescriptiveArabicText(sku) {
+			name, sku = sku, name
+		}
+
+		if name == "" && sku != "" {
+			name = sku
+		}
+		if name == "" {
+			continue
 		}
 
 		var qty float64
@@ -602,4 +584,194 @@ func (h *UIHandler) GuestOrderTrackingPage(w http.ResponseWriter, r *http.Reques
 	if err := pages.GuestOrderTrackingPage(orderNumber, order, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render guest tracking", "error", err)
 	}
+}
+
+func parseColOverride(val string, numCols int) int {
+	if val == "" {
+		return -1
+	}
+	if idx, err := strconv.Atoi(val); err == nil && idx >= 0 && idx < numCols {
+		return idx
+	}
+	return -1
+}
+
+func detectSavingProductColumns(
+	headers []string,
+	sampleRows [][]string,
+	customName, customSKU, customQty, customPrice, customProductID string,
+) (nameCol, skuCol, qtyCol, priceCol, productIDCol int) {
+	numCols := len(headers)
+	nameCol = parseColOverride(customName, numCols)
+	skuCol = parseColOverride(customSKU, numCols)
+	qtyCol = parseColOverride(customQty, numCols)
+	priceCol = parseColOverride(customPrice, numCols)
+	productIDCol = parseColOverride(customProductID, numCols)
+
+	for idx, hName := range headers {
+		norm := strings.TrimSpace(strings.ToLower(hName))
+		norm = strings.ReplaceAll(norm, "_", "")
+		norm = strings.ReplaceAll(norm, "-", "")
+		norm = strings.ReplaceAll(norm, " ", "")
+
+		// 1. Product ID
+		if productIDCol == -1 && (strings.Contains(norm, "productid") || strings.Contains(norm, "معرفالمنتج") ||
+			strings.Contains(norm, "معرفالصنف") || strings.Contains(norm, "معرفصنف") ||
+			strings.Contains(norm, "رقمصنف") || strings.Contains(norm, "رقممنتج") ||
+			norm == "id" || norm == "pid") {
+			productIDCol = idx
+			continue
+		}
+
+		// 2. SKU / Barcode / Item Code
+		if skuCol == -1 && (strings.Contains(norm, "sku") || strings.Contains(norm, "كود") ||
+			strings.Contains(norm, "رمز") || strings.Contains(norm, "barcode") ||
+			strings.Contains(norm, "باركود") || strings.Contains(norm, "code")) {
+			skuCol = idx
+			continue
+		}
+
+		// 3. Product / Drug Name
+		if nameCol == -1 && (strings.Contains(norm, "name") || strings.Contains(norm, "اسم") ||
+			strings.Contains(norm, "صنف") || strings.Contains(norm, "منتج") ||
+			strings.Contains(norm, "دواء") || strings.Contains(norm, "مستحضر") ||
+			strings.Contains(norm, "item") || strings.Contains(norm, "description")) {
+			nameCol = idx
+			continue
+		}
+
+		// 4. Quantity
+		if qtyCol == -1 && (strings.Contains(norm, "qty") || strings.Contains(norm, "quantity") ||
+			strings.Contains(norm, "كمية") || strings.Contains(norm, "الكمية") ||
+			strings.Contains(norm, "stock") || strings.Contains(norm, "رصيد") ||
+			strings.Contains(norm, "الرصيد")) {
+			qtyCol = idx
+			continue
+		}
+
+		// 5. Price
+		if priceCol == -1 && (strings.Contains(norm, "price") || strings.Contains(norm, "سعر") ||
+			strings.Contains(norm, "السعر") || strings.Contains(norm, "cost") ||
+			strings.Contains(norm, "شراء") || strings.Contains(norm, "الشراء")) {
+			priceCol = idx
+			continue
+		}
+	}
+
+	// Positional fallbacks for missing columns
+	used := map[int]bool{}
+	if productIDCol >= 0 {
+		used[productIDCol] = true
+	}
+	if nameCol >= 0 {
+		used[nameCol] = true
+	}
+	if skuCol >= 0 {
+		used[skuCol] = true
+	}
+	if qtyCol >= 0 {
+		used[qtyCol] = true
+	}
+	if priceCol >= 0 {
+		used[priceCol] = true
+	}
+
+	if nameCol == -1 {
+		for i := 0; i < numCols; i++ {
+			if !used[i] {
+				nameCol = i
+				used[i] = true
+				break
+			}
+		}
+	}
+	if skuCol == -1 {
+		for i := 0; i < numCols; i++ {
+			if !used[i] {
+				skuCol = i
+				used[i] = true
+				break
+			}
+		}
+	}
+	if qtyCol == -1 {
+		for i := 0; i < numCols; i++ {
+			if !used[i] {
+				qtyCol = i
+				used[i] = true
+				break
+			}
+		}
+	}
+	if priceCol == -1 {
+		for i := 0; i < numCols; i++ {
+			if !used[i] {
+				priceCol = i
+				used[i] = true
+				break
+			}
+		}
+	}
+
+	// Heuristic content-based validation:
+	// If custom overrides were NOT specified, check if nameCol and skuCol were accidentally swapped
+	if customName == "" && customSKU == "" && nameCol >= 0 && skuCol >= 0 && nameCol < numCols && skuCol < numCols {
+		nameNumericCount := 0
+		skuArabicTextCount := 0
+		checkedRows := 0
+
+		for _, row := range sampleRows {
+			if len(row) <= nameCol || len(row) <= skuCol {
+				continue
+			}
+			checkedRows++
+			nameVal := strings.TrimSpace(row[nameCol])
+			skuVal := strings.TrimSpace(row[skuCol])
+
+			if isAllDigitsOrCode(nameVal) && len(nameVal) >= 4 {
+				nameNumericCount++
+			}
+			if isDescriptiveArabicText(skuVal) {
+				skuArabicTextCount++
+			}
+		}
+
+		if checkedRows > 0 && nameNumericCount >= (checkedRows+1)/2 && skuArabicTextCount >= (checkedRows+1)/2 {
+			nameCol, skuCol = skuCol, nameCol
+		}
+	}
+
+	return nameCol, skuCol, qtyCol, priceCol, productIDCol
+}
+
+func isAllDigitsOrCode(s string) bool {
+	if s == "" {
+		return false
+	}
+	digits := 0
+	for _, r := range s {
+		if r >= '0' && r <= '9' {
+			digits++
+		} else if r != '-' && r != '_' && r != '.' && r != '/' && r != ' ' {
+			return false
+		}
+	}
+	return digits > 0
+}
+
+func isDescriptiveArabicText(s string) bool {
+	if len(s) < 3 {
+		return false
+	}
+	hasArabic := false
+	hasSpace := false
+	for _, r := range s {
+		if (r >= 0x0600 && r <= 0x06FF) || (r >= 0x0750 && r <= 0x077F) {
+			hasArabic = true
+		}
+		if r == ' ' {
+			hasSpace = true
+		}
+	}
+	return hasArabic && hasSpace
 }
