@@ -190,17 +190,26 @@ func mountModuleRoutes(
 		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
 	}))
 
+	invSvcUI := inventory.NewService(invRepoUI, log)
+
 	ingSvcUI := ingest.NewService(ingRepoUI, log)
 	if storageClient != nil {
 		ingSvcUI.SetStorage(storageClient)
 	}
+	// The rebuilt vendor catalogue import. All three ports are required for the
+	// screen to be offered: without the store there is nowhere to hold a review,
+	// and without the catalogue there is nothing to match against. Wiring them
+	// here keeps the module free of the composition root.
+	ingSvcUI.SetImportStore(ingRepoUI)
+	ingSvcUI.SetCatalogPort(catSvcUI)
+	ingSvcUI.SetInventoryPort(invSvcUI)
 
 	uiHandler := ui.NewUIHandler(
 		catSvcUI,
 		orgSvcUI,
 		ingSvcUI,
 		commSvcUI,
-		inventory.NewService(invRepoUI, log),
+		invSvcUI,
 		idSvc,
 		notifications.NewService(notifRepoUI, log),
 		promoSvcUI,

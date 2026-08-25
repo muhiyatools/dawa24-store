@@ -21,15 +21,15 @@ import (
 
 type mockIdentityRepoTeamTest struct {
 	identity.Repository
-	users map[string]*identity.User
-	byID  map[int64]*identity.User
+	users  map[string]*identity.User
+	byID   map[int64]*identity.User
 	nextID int64
 }
 
 func newMockIdentityRepoTeamTest() *mockIdentityRepoTeamTest {
 	return &mockIdentityRepoTeamTest{
-		users: make(map[string]*identity.User),
-		byID:  make(map[int64]*identity.User),
+		users:  make(map[string]*identity.User),
+		byID:   make(map[int64]*identity.User),
 		nextID: 100,
 	}
 }

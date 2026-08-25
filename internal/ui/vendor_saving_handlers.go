@@ -595,4 +595,3 @@ func (h *UIHandler) VendorSavingProductSearchJSON(w http.ResponseWriter, r *http
 func (h *UIHandler) VendorSavingProductsAlias(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/vendor/saving-products", http.StatusMovedPermanently)
 }
-

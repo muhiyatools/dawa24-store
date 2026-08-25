@@ -360,12 +360,12 @@ func TestVendorCoverageRoutes(t *testing.T) {
 	t.Run("Vendor POST /vendor/coverage with apply_to_all_days creates 7 days", func(t *testing.T) {
 		initialCount := len(wfRepo.coverages)
 		form := url.Values{
-			"branch_id":          {"100"},
-			"apply_to_all_days":  {"true"},
-			"distance_meters":    {"20000"},
-			"coverage_from":      {"09:00"},
-			"coverage_to":        {"17:00"},
-			"is_active":          {"true"},
+			"branch_id":         {"100"},
+			"apply_to_all_days": {"true"},
+			"distance_meters":   {"20000"},
+			"coverage_from":     {"09:00"},
+			"coverage_to":       {"17:00"},
+			"is_active":         {"true"},
 		}
 		req := httptest.NewRequest("POST", "/vendor/coverage", strings.NewReader(form.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")

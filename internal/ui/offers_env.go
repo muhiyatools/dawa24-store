@@ -23,9 +23,9 @@ type offerEnv struct {
 	promo    map[int64][]*promo.OfferProductWithOffer
 }
 
-func (e *offerEnv) org(id int64) *org.Organization          { return e.orgs[id] }
-func (e *offerEnv) branch(id int64) *org.Branch             { return e.branches[id] }
-func (e *offerEnv) stockQty(id int64) int                   { return e.stock[id] }
+func (e *offerEnv) org(id int64) *org.Organization                    { return e.orgs[id] }
+func (e *offerEnv) branch(id int64) *org.Branch                       { return e.branches[id] }
+func (e *offerEnv) stockQty(id int64) int                             { return e.stock[id] }
 func (e *offerEnv) offersFor(id int64) []*promo.OfferProductWithOffer { return e.promo[id] }
 
 // buildOfferEnv prefetches organizations, branches, stock levels and running

@@ -262,8 +262,11 @@ func TestVendorIngestAndRolesRoutes(t *testing.T) {
 		}
 	})
 
-	t.Run("GET /vendor/ingest/export", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/vendor/ingest/export", nil)
+	t.Run("GET /vendor/ingest/inventory.csv", func(t *testing.T) {
+		// The vendor's live inventory dump. The import's own results export now
+		// lives under a run id, because it exports one run rather than the
+		// catalogue.
+		req := httptest.NewRequest("GET", "/vendor/ingest/inventory.csv", nil)
 		rec := httptest.NewRecorder()
 		router.ServeHTTP(rec, req)
 

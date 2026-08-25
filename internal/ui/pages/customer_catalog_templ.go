@@ -103,7 +103,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 43, Col: 56}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 43, Col: 56}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 					if templ_7745c5c3_Err != nil {
@@ -130,7 +130,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 				if templ_7745c5c3_Err != nil {
@@ -153,7 +153,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 					var templ_7745c5c3_Var8 templ.SafeURL
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 63, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 63, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -166,7 +166,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var7).String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(cat.Name["ar"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 69, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 69, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -190,7 +190,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(cat.Name["en"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 71, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 71, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -209,7 +209,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.MinPrice)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 86, Col: 69}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 86, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 				if templ_7745c5c3_Err != nil {
@@ -222,7 +222,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.MaxPrice)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 89, Col: 69}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 89, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 				if templ_7745c5c3_Err != nil {
@@ -244,7 +244,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var14).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 				if templ_7745c5c3_Err != nil {
@@ -266,7 +266,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var16).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
@@ -288,7 +288,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var18).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 				if templ_7745c5c3_Err != nil {
@@ -310,7 +310,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var20).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -349,7 +349,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 166, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 166, Col: 27}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 				if templ_7745c5c3_Err != nil {
@@ -493,7 +493,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.ProductImage)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 228, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 228, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 					if templ_7745c5c3_Err != nil {
@@ -506,7 +506,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.ProductNameAr)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 228, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 228, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 					if templ_7745c5c3_Err != nil {
@@ -534,7 +534,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", v.DiscountPercent))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 239, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 239, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -553,7 +553,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(v.DosageForm)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 244, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 244, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -571,7 +571,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 				var templ_7745c5c3_Var29 templ.SafeURL
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 251, Col: 100}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 251, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -593,7 +593,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(v.ProductNameAr)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 263, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 263, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -603,7 +603,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(v.ProductNameEn)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 265, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 265, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -622,7 +622,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(v.ProductNameEn)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 271, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 271, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
@@ -650,7 +650,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var33 string
 						templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.BrandLogo)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 280, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 280, Col: 31}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 						if templ_7745c5c3_Err != nil {
@@ -674,7 +674,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var34 string
 						templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(v.BrandName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 287, Col: 23}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 287, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 						if templ_7745c5c3_Err != nil {
@@ -684,7 +684,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var35 string
 						templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(v.Manufacturer)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 289, Col: 26}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 289, Col: 26}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 						if templ_7745c5c3_Err != nil {
@@ -708,7 +708,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(v.ScientificName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 299, Col: 122}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 299, Col: 122}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -726,7 +726,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 				var templ_7745c5c3_Var37 string
 				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(v.SupplierName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 311, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 311, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 				if templ_7745c5c3_Err != nil {
@@ -744,7 +744,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var38 string
 					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(v.BranchName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 315, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 315, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
@@ -777,7 +777,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var39 string
 					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", v.AvailableStock))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 333, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 333, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
@@ -805,7 +805,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var40 string
 					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(v.ExpiryDate)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 343, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 343, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 					if templ_7745c5c3_Err != nil {
@@ -834,7 +834,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var41 string
 						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(v.CoverageReason)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 360, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 360, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 						if templ_7745c5c3_Err != nil {
@@ -863,7 +863,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var42 string
 					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(v.OriginalPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 378, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 378, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 					if templ_7745c5c3_Err != nil {
@@ -881,7 +881,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var43 string
 					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(v.PublicPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 382, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 382, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -900,7 +900,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var44 string
 					templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(v.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 388, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 388, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 					if templ_7745c5c3_Err != nil {
@@ -928,7 +928,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var45 string
 					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.VariantID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 399, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 399, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
 					if templ_7745c5c3_Err != nil {
@@ -941,7 +941,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var46 string
 					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ProductID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 400, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 400, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 					if templ_7745c5c3_Err != nil {
@@ -954,7 +954,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var47 string
 					templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.SupplierID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 401, Col: 92}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 401, Col: 92}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var47)
 					if templ_7745c5c3_Err != nil {
@@ -967,7 +967,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var48 string
 					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.SupplierID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 402, Col: 90}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 402, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
 					if templ_7745c5c3_Err != nil {
@@ -980,7 +980,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var49 string
 					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 403, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 403, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var49)
 					if templ_7745c5c3_Err != nil {
@@ -993,7 +993,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var50 string
 					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", max(1, v.MinOrderQty)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 408, Col: 58}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 408, Col: 58}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
 					if templ_7745c5c3_Err != nil {
@@ -1006,7 +1006,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var51 string
 					templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", max(1, v.MinOrderQty)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 409, Col: 56}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 409, Col: 56}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
 					if templ_7745c5c3_Err != nil {
@@ -1019,7 +1019,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var52 string
 					templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", max(1, v.AvailableStock)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 410, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 410, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
 					if templ_7745c5c3_Err != nil {
@@ -1045,7 +1045,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var53 string
 						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.VariantID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 425, Col: 58}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 425, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
 						if templ_7745c5c3_Err != nil {
@@ -1058,7 +1058,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var54 string
 						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 426, Col: 58}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 426, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var54)
 						if templ_7745c5c3_Err != nil {
@@ -1071,7 +1071,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var55 string
 						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.SupplierID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 427, Col: 58}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 427, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var55)
 						if templ_7745c5c3_Err != nil {
@@ -1084,7 +1084,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var56 string
 						templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.ProductNameAr)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 428, Col: 45}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 428, Col: 45}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var56)
 						if templ_7745c5c3_Err != nil {
@@ -1097,7 +1097,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var57 string
 						templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.Price.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 429, Col: 47}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 429, Col: 47}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
 						if templ_7745c5c3_Err != nil {
@@ -1110,7 +1110,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 						var templ_7745c5c3_Var58 string
 						templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", max(1, v.MinOrderQty)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 430, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 430, Col: 65}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var58)
 						if templ_7745c5c3_Err != nil {
@@ -1133,7 +1133,7 @@ func CustomerCatalogList(variants []*SupplierVariantCard, lang string) templ.Com
 					var templ_7745c5c3_Var59 templ.SafeURL
 					templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 441, Col: 102}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 441, Col: 102}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 					if templ_7745c5c3_Err != nil {

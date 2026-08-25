@@ -78,7 +78,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 36, Col: 28}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 36, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 41, Col: 28}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 41, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -123,7 +123,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 75, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 75, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -136,7 +136,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PublishedCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 88, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 88, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -149,7 +149,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ClosedCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 101, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 101, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -162,7 +162,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalApplications))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 114, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 114, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d وظيفة", len(data.Jobs)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 126, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 126, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -211,7 +211,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 166, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 166, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.Description)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 170, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 170, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.Location)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 180, Col: 38}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 180, Col: 38}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -281,7 +281,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 							var templ_7745c5c3_Var13 string
 							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.SalaryMin.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 192, Col: 43}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 192, Col: 43}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 							if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 							var templ_7745c5c3_Var14 string
 							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.SalaryMax.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 198, Col: 43}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 198, Col: 43}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 							if templ_7745c5c3_Err != nil {
@@ -347,7 +347,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d متقدم", item.ApplicationsCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 216, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 216, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -375,7 +375,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.CreatedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 235, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 235, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -388,7 +388,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var18 templ.SafeURL
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 243, Col: 106}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 243, Col: 106}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -416,7 +416,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var19 templ.SafeURL
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 256, Col: 106}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_jobs.templ`, Line: 256, Col: 106}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {

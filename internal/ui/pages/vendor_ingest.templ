@@ -2,888 +2,207 @@ package pages
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// VendorIngestPage renders the primary catalog upload and multi-stage matching wizard.
-templ VendorIngestPage(data IngestWizardData, lang, dir string) {
-	@layouts.VendorShell("استيراد وتحديث كتالوج الأدوية والمخزون", "ingest", lang, dir) {
-		<div class="max-w-4xl mx-auto stack-lg mb-lg">
-			
-			<!-- AI Processing Loading Modal -->
-			<div id="ai-loading-modal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:1.75rem; text-align:center; padding:2rem;">
-				<div style="width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); display:flex; align-items:center; justify-content:center; box-shadow:0 0 40px rgba(124, 58, 237, 0.6); animation:ai-pulse 1.8s infinite ease-in-out;">
-					<span style="font-size:3rem; line-height:1;">🤖</span>
-				</div>
-				<div>
-					<h2 style="color:#ffffff; font-size:1.6rem; font-weight:900; margin:0 0 0.5rem 0;">
-						جاري تحليل ومطابقة الأصناف عبر محرك الذكاء الاصطناعي...
-					</h2>
-					<p style="color:#94a3b8; font-size:0.95rem; margin:0; max-width:480px; line-height:1.6;">
-						يتم فحص الباركود، الكود الداخلي، المعايرة اللغوية للأدوية، واستدعاء الذكاء الاصطناعي لربط الأصناف بالكتالوج العام المعتمد.
-					</p>
-				</div>
-				<div style="width:280px; height:8px; background:#1e293b; border-radius:999px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.1);">
-					<div style="width:50%; height:100%; background:linear-gradient(90deg, #2563eb, #a855f7); border-radius:999px; animation:indeterminate-progress 1.5s infinite ease-in-out;"></div>
-				</div>
+// The vendor catalogue import.
+//
+// One page that renders whichever stage the import has reached, because the
+// stage lives on the session rather than in the URL: a vendor who reloads, or
+// comes back to yesterday's link, lands where they left off.
+
+templ VendorIngestPage(view VendorImportView, lang, dir string) {
+	@layouts.VendorShell("استيراد الكتالوج الذكي | Dawa24", "ingest", lang, dir) {
+		@components.PageHeader(components.PageHeaderProps{
+			Title:    "استيراد الكتالوج الذكي",
+			Subtitle: "ارفع ملف الأسعار، راجع ربط الأعمدة، واعتمد الإعدادات قبل أن يُكتب أي صنف",
+		}) {
+			<div class="row-center">
+				<a href="/vendor/products" class="btn btn-secondary btn-sm fw-700">
+					@components.IconPackage("icon-xs")
+					<span>أصناف المورد</span>
+				</a>
 			</div>
-
-			<!-- Header & Title Bar -->
-			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-				<div>
-					<div class="row-center-sm mb-sm">
-						<div class="b2b-icon-box">
-							@components.IconUpload("icon-md")
-						</div>
-						<h1 class="text-2xl fw-800 text-primary m-0">
-							استيراد وتحديث كتالوج الأدوية والمخزون
-						</h1>
-					</div>
-					<p class="text-sm text-secondary m-0">
-						معالج الاستيراد والمطابقة الفائقة للأصناف مع الكتالوج العام ومنتجات التوفير والذكاء الاصطناعي.
-					</p>
-				</div>
-
-				<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-					<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:700; font-size:0.875rem;">
-						@components.IconPlus("icon-xs")
-						<span>استيراد ملف جديد</span>
-					</a>
-				</div>
-			</div>
-
-			<!-- Notice Alerts -->
-			if data.NoticeMessage != "" {
-				<div class={ "card", templ.KV("alert-success", data.NoticeType == "success"), templ.KV("alert-danger", data.NoticeType == "error"), templ.KV("alert-info", data.NoticeType == "info") } style="padding:1rem 1.5rem; margin-bottom:0; font-weight:700;">
-					<span>{ data.NoticeMessage }</span>
-				</div>
+		}
+		<div class="wizard">
+			@importRail(view)
+			if view.NoticeMessage != "" {
+				@importNotice(view.NoticeType, view.NoticeMessage)
 			}
-
-			<!-- Stepper Indicator -->
-			<div class="card" style="margin-bottom:0; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
-					<div style={ templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 1), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 1) }>
-						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 1</div>
-						<div style="font-weight:800; font-size:1.05rem; color:var(--text);">المستودع، النمط ورفع الملف</div>
-					</div>
-
-					<div style={ templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 2), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 2) }>
-						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 2</div>
-						<div style="font-weight:800; font-size:1.05rem; color:var(--text);">مطابقة الأعمدة والبيانات</div>
-					</div>
-
-					<div style={ templ.KV("border-inline-start:4px solid var(--accent); padding-inline-start:1rem;", data.Step == 3), templ.KV("opacity:0.5; border-inline-start:4px solid var(--border); padding-inline-start:1rem;", data.Step != 3) }>
-						<div style="font-size:0.8rem; color:var(--accent); font-weight:800;">الخطوة 3</div>
-						<div style="font-weight:800; font-size:1.05rem; color:var(--text);">المطابقة الذكية والمراجعة والاعتماد</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- STEP 1: Upload, Target Warehouse & Import Mode -->
-			if data.Step == 1 {
-				<div class="card" style="padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-					<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" onsubmit="document.getElementById('ai-loading-modal').style.display='flex'">
-						
-						<!-- Target Warehouse Selection -->
-						<div style="margin-bottom:2rem;">
-							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
-								1. اختر المستودع المستهدف <span class="text-danger">*</span>
-							</label>
-							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.75rem 0;">
-								سيتم تسجيل وتحديث أرصدة المخزون داخل المستودع الذي تختاره.
-							</p>
-							if len(data.Warehouses) > 0 {
-								<select name="warehouse_id" required class="form-input" style="max-width:480px; height:46px; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);">
-									for _, wh := range data.Warehouses {
-										<option value={ fmt.Sprintf("%d", wh.ID) }>
-											{ wh.Name } (كود: { wh.Code })
-										</option>
-									}
-								</select>
-							} else {
-								<div class="alert alert-warning" style="margin-bottom:0; max-width:480px;">
-									لا يوجد لديك مستودعات نشطة حالياً. يرجى <a href="/vendor/warehouses" style="font-weight:800; text-decoration:underline;">إضافة مستودع أولاً</a> للمتابعة.
-								</div>
-							}
-						</div>
-
-						<!-- Import Mode Selection (4 Modes) -->
-						<div style="margin-bottom:2.25rem;">
-							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
-								2. اختر نمط الاستيراد <span class="text-danger">*</span>
-							</label>
-							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0;">
-								حدد كيفية معالجة وتحديث الأصناف والمخزون الموجود مقارنة بالملف المرفوع:
-							</p>
-
-							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
-								
-								<!-- Mode 4: Update & Add (Recommended) -->
-								<label style="border:2px solid var(--accent); background:rgba(37,99,235,0.03); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
-									<div>
-										<div class="row-center-sm mb-sm">
-											<input type="radio" name="import_mode" value="update_and_add" checked style="accent-color:var(--accent); width:18px; height:18px;" />
-											<span style="font-weight:800; font-size:1rem; color:var(--text);">تحديث وإضافة المنتجات (موصى به)</span>
-										</div>
-										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
-											سيتم تحديث الأصناف والمخزونات الموجودة، وإذا لم تكن موجودة سيتم إضافتها كأصناف جديدة.
-										</p>
-									</div>
-									<div style="margin-top:0.75rem; font-size:0.75rem; color:var(--accent); font-weight:700;">
-										✓ النمط الشامل الأكثر مرونة
-									</div>
-								</label>
-
-								<!-- Mode 1: Add New Only -->
-								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
-									<div>
-										<div class="row-center-sm mb-sm">
-											<input type="radio" name="import_mode" value="add_new_only" style="accent-color:var(--accent); width:18px; height:18px;" />
-											<span style="font-weight:800; font-size:1rem; color:var(--text);">إضافة المنتجات الجديدة فقط</span>
-										</div>
-										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
-											سيتم إضافة المنتجات الجديدة فقط في الأصناف والمخزون، ولن يتم تعديل أي منتج موجود مسبقاً.
-										</p>
-									</div>
-									<div style="margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;">
-										لن يتم تحديث أي منتج موجود بالفعل
-									</div>
-								</label>
-
-								<!-- Mode 2: Update Existing Only -->
-								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
-									<div>
-										<div class="row-center-sm mb-sm">
-											<input type="radio" name="import_mode" value="update_existing_only" style="accent-color:var(--accent); width:18px; height:18px;" />
-											<span style="font-weight:800; font-size:1rem; color:var(--text);">تحديث المنتجات الموجودة فقط</span>
-										</div>
-										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
-											سيتم تحديث المنتجات الموجودة فقط في الأصناف والمخزون، ولن تتم إضافة أي منتجات جديدة.
-										</p>
-									</div>
-									<div style="margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;">
-										لن تتم إضافة أي أصناف غير مسجلة
-									</div>
-								</label>
-
-								<!-- Mode 3: Clear and Add -->
-								<label style="border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
-									<div>
-										<div class="row-center-sm mb-sm">
-											<input type="radio" name="import_mode" value="clear_and_add" style="accent-color:var(--danger); width:18px; height:18px;" />
-											<span style="font-weight:800; font-size:1rem; color:var(--danger);">تفريغ مخزون المستودع بالكامل وإضافة كمنتجات جديدة</span>
-										</div>
-										<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;">
-											سيتم حذف وتفريغ جميع مخزونات هذا المستودع بالكامل أولاً ثم إضافة الأصناف المرفوعة.
-										</p>
-									</div>
-									<div style="margin-top:0.75rem; font-size:0.75rem; color:var(--danger); font-weight:800;">
-										سيتم مسح أرصدة هذا المستودع بالكامل!
-									</div>
-								</label>
-
-							</div>
-						</div>
-
-						<!-- Smart Matching Engine Switches -->
-						<div style="margin-bottom:2.25rem; background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.85rem; color:var(--text);">
-								3. إعدادات محرك المطابقة الذكي
-							</label>
-
-							<div class="stack-md">
-								<!-- Savings Products Matching (Default On) -->
-								<label style="display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;">
-									<input type="checkbox" name="enable_savings_matching" value="1" checked style="accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;" />
-									<div>
-										<div class="fw-800 text-primary text-base">
-											اعتماد منتجات التوفير للمطابقة الفائقة 🛒
-										</div>
-										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
-											استخدام قائمة منتجات التوفير لربط الأصناف بمنتجاتك المعتمدة فوراً، بدقة وسرعة عالية.
-										</div>
-									</div>
-								</label>
-
-								<!-- AI-Powered Matching (Default On) -->
-								<label style="display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;">
-									<input type="checkbox" name="enable_ai_matching" value="1" checked style="accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;" />
-									<div>
-										<div class="fw-800 text-primary text-base">
-											تفعيل المطابقة الذكية بالذكاء الاصطناعي (AI Matching) 🤖
-										</div>
-										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
-											استدعاء محرك الذكاء الاصطناعي بشكل انتقائي للأصناف الغامضة والمعقدة لتحقيق أعلى دقة ممكنة.
-										</div>
-									</div>
-								</label>
-							</div>
-						</div>
-
-						<!-- File Upload Dropzone -->
-						<div style="margin-bottom:2rem;">
-							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
-								4. رفع ملف الكتالوج والأرصدة <span class="text-danger">*</span>
-							</label>
-
-							<div style="border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--surface-sunken);">
-								<div style="width:54px; height:54px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
-									@components.IconUpload("icon-lg")
-								</div>
-								<h3 style="font-weight:800; color:var(--text); font-size:1.2rem; margin:0 0 0.5rem 0;">اختر ملف Excel أو CSV أو اسحبه هنا</h3>
-								<p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;">
-									الصيغ المدعومة: .xlsx, .xls, .csv (معالجة متدفقة ومطابقة فورية بدون استهلاك ذاكرة).
-								</p>
-								<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-input" style="max-width:380px; margin:0 auto;" />
-							</div>
-						</div>
-
-						<!-- Form Actions -->
-						<div style="display:flex; justify-content:flex-end; align-items:center; gap:1rem; padding-top:1.5rem; border-top:1px solid var(--border);">
-							<button type="submit" class="btn btn-primary" style="padding:0.85rem 2.5rem; font-weight:800; font-size:1rem; gap:0.5rem;">
-								<span>🚀 رفع الملف وبدء المطابقة الفائقة</span>
-								@components.IconArrowLeft("icon-xs")
-							</button>
-						</div>
-
-					</form>
-				</div>
+			if view.Fatal != "" {
+				@importFatal(view.Fatal, view.Session)
+			} else if !view.Started() {
+				@importUploadStage(view)
+			} else {
+				switch view.Phase() {
+					case ingest.PhaseMapping:
+						@importMappingStage(view)
+					case ingest.PhaseSettings:
+						@importSettingsStage(view)
+					case ingest.PhaseConfirm:
+						@importConfirmStage(view)
+					case ingest.PhaseProcessing:
+						@importProcessingStage(view)
+					default:
+						@importResultsStage(view)
+				}
 			}
-
-			<!-- STEP 2: Column Mapping Step -->
-			if data.Step == 2 && data.Session != nil {
-				<div class="card" style="padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-					
-					<div style="margin-bottom:2rem;">
-						<h2 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
-							الخطوة 2: تعيين وتحديد أعمدة الملف
-						</h2>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">
-							قم بمطابقة أعمدة ملفك المرفوع مع حقول النظام المعيارية. حقل <strong>اسم الصنف</strong> إلزامي للمتابعة.
-						</p>
-					</div>
-
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/mapping", data.Session.ID)) } onsubmit="document.getElementById('ai-loading-modal').style.display='flex'">
-						
-						<div class="table-container" style="margin-bottom:2rem;">
-							<table class="b2b-table">
-								<thead>
-									<tr>
-										<th style="width:30%;">حقل النظام المعياري</th>
-										<th style="width:15%;">الحالة</th>
-										<th style="width:55%;">العمود المطابق في ملفك</th>
-									</tr>
-								</thead>
-								<tbody>
-									<!-- Product Name (Required) -->
-									<tr style="background:rgba(37,99,235,0.03);">
-										<td>
-											<strong style="color:var(--text); font-size:0.95rem;">اسم الصنف / Product Name</strong>
-											<div class="text-xs text-secondary">الاسم التجاري أو العلمي للدواء</div>
-										</td>
-										<td>
-											<span class="badge badge-danger text-xs">إلزامي</span>
-										</td>
-										<td>
-											<select name="target_field_product_name" required class="form-control fw-700">
-												<option value="">-- اختر العمود من الملف --</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldProductName] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Barcode -->
-									<tr>
-										<td>
-											<strong class="text-primary">الباركود الدولي / Barcode</strong>
-											<div class="text-xs text-secondary">كود الترقيم الدولي (EAN/UPC/GTIN)</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_barcode" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldBarcode] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- SKU -->
-									<tr>
-										<td>
-											<strong class="text-primary">كود الصنف / SKU</strong>
-											<div class="text-xs text-secondary">كود الصنف الداخلي لدى المورد</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_sku" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldSKU] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Price -->
-									<tr>
-										<td>
-											<strong class="text-primary">سعر البيع للجمهور / Public Price</strong>
-											<div class="text-xs text-secondary">السعر الرسمي للجمهور (ج.م)</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_price" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldPrice] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Cost Price -->
-									<tr>
-										<td>
-											<strong class="text-primary">سعر التكلفة / Cost Price</strong>
-											<div class="text-xs text-secondary">سعر الشراء أو التكلفة</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_cost_price" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldCostPrice] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Discount -->
-									<tr>
-										<td>
-											<strong class="text-primary">نسبة / قيمة الخصم / Discount</strong>
-											<div class="text-xs text-secondary">الخصم الممنوح للصيدلية</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_discount" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldDiscount] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Quantity -->
-									<tr>
-										<td>
-											<strong class="text-primary">الكمية / الرصيد / Stock Qty</strong>
-											<div class="text-xs text-secondary">الرصيد المتاح بالمستودع</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_quantity" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldQuantity] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Batch Number -->
-									<tr>
-										<td>
-											<strong class="text-primary">رقم التشغيلة / Batch Number</strong>
-											<div class="text-xs text-secondary">رقم الباتش أو التشغيلة</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_batch_number" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldBatchNumber] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Expiry Date -->
-									<tr>
-										<td>
-											<strong class="text-primary">تاريخ الصلاحية / Expiry Date</strong>
-											<div class="text-xs text-secondary">تاريخ انتهاء صلاحية الصنف</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_expiry_date" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldExpiryDate] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Dosage Form -->
-									<tr>
-										<td>
-											<strong class="text-primary">الشكل الدوائي / Dosage Form</strong>
-											<div class="text-xs text-secondary">أقراص، شراب، كبسول، إلخ</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_dosage_form" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldDosageForm] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Concentration -->
-									<tr>
-										<td>
-											<strong class="text-primary">التركيز / Concentration</strong>
-											<div class="text-xs text-secondary">مثل: 500mg, 1000mg</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_concentration" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldConcentration] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-									<!-- Manufacturer -->
-									<tr>
-										<td>
-											<strong class="text-primary">الشركة المصنعة / Manufacturer</strong>
-											<div class="text-xs text-secondary">اسم المصنع أو الشركة المنتجة</div>
-										</td>
-										<td>
-											<span class="badge badge-secondary text-xs">اختياري</span>
-										</td>
-										<td>
-											<select name="target_field_manufacturer" class="form-input">
-												<option value="unmapped">غير محدد (Unmapped)</option>
-												for _, hKey := range getAvailableHeaders(data) {
-													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldManufacturer] == hKey }>
-														{ hKey }
-													</option>
-												}
-											</select>
-										</td>
-									</tr>
-
-								</tbody>
-							</table>
-						</div>
-
-						<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem;">
-							<a href="/vendor/ingest" class="btn btn-secondary">
-								@components.IconArrowRight("icon-xs")
-								<span>رجوع لاختيار ملف آخر</span>
-							</a>
-							<button type="submit" class="btn btn-primary" style="padding:0.85rem 2.5rem; font-weight:800; font-size:1rem; gap:0.5rem;">
-								<span>🚀 بدء المطابقة الذكية للأصناف</span>
-								@components.IconArrowLeft("icon-xs")
-							</button>
-						</div>
-
-					</form>
-
-				</div>
-			}
-
-			<!-- STEP 3: Matching Results, Interactive Review & Commit -->
-			if data.Step == 3 && data.Session != nil {
-				<div style="display:flex; flex-direction:column; gap:1.75rem;">
-					
-					<!-- KPI Strip -->
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem;">
-						<div class="card" style="margin-bottom:0; padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.825rem; color:var(--text-secondary); font-weight:700;">إجمالي الأصناف بالملف</div>
-							<div style="font-size:1.85rem; font-weight:900; color:var(--text); margin-top:0.25rem;">
-								{ fmt.Sprintf("%d", data.Session.TotalRows) }
-							</div>
-						</div>
-
-						<div class="card" style="margin-bottom:0; padding:1.5rem; background:rgba(16,185,129,0.04); border-radius:var(--radius-xl); border:1px solid rgba(16,185,129,0.25);">
-							<div style="font-size:0.825rem; color:#059669; font-weight:800;">✓ مطابقة فائقة ومؤكدة (High)</div>
-							<div style="font-size:1.85rem; font-weight:900; color:#059669; margin-top:0.25rem;">
-								{ fmt.Sprintf("%d", data.Session.MatchedRows) }
-							</div>
-						</div>
-
-						<div class="card" style="margin-bottom:0; padding:1.5rem; background:rgba(245,158,11,0.04); border-radius:var(--radius-xl); border:1px solid rgba(245,158,11,0.25);">
-							<div style="font-size:0.825rem; color:#d97706; font-weight:800;">بحاجة لمراجعة وتأكيد (Review)</div>
-							<div style="font-size:1.85rem; font-weight:900; color:#d97706; margin-top:0.25rem;">
-								{ fmt.Sprintf("%d", data.Session.ReviewRows) }
-							</div>
-						</div>
-
-						<div class="card" style="margin-bottom:0; padding:1.5rem; background:rgba(239,68,68,0.04); border-radius:var(--radius-xl); border:1px solid rgba(239,68,68,0.25);">
-							<div style="font-size:0.825rem; color:var(--danger); font-weight:800;">✗ غير مطابق بالكتالوج (Unmatched)</div>
-							<div style="font-size:1.85rem; font-weight:900; color:var(--danger); margin-top:0.25rem;">
-								{ fmt.Sprintf("%d", data.Session.UnmatchedRows) }
-							</div>
-						</div>
-					</div>
-
-					<!-- Main Review Card -->
-					<div class="card" style="padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-						
-						<!-- Header & Actions -->
-						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);">
-							<div>
-								<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-									<h2 class="text-xl fw-800 text-primary m-0">
-										مراجعة وتأكيد نتائج المطابقة
-									</h2>
-									if data.Session.EnableAIMatching {
-										<span class="badge" style="background:linear-gradient(135deg, rgba(37,99,235,0.15), rgba(124,58,237,0.15)); color:#7c3aed; border:1px solid rgba(124,58,237,0.3); font-size:0.75rem; font-weight:800; display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem;">
-											<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
-											<span>محرك AI نشط 🤖</span>
-										</span>
-									}
-								</div>
-								<div class="text-sm text-secondary">
-									المستودع: 
-									<strong>
-										if data.CurrentWarehouse != nil {
-											{ data.CurrentWarehouse.Name }
-										} else {
-											مستودع عام
-										}
-									</strong>
-									• نمط الاستيراد: <strong>{ string(data.Session.ImportMode) }</strong>
-								</div>
-							</div>
-
-							<div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?step=2", data.Session.ID)) } class="btn btn-secondary btn-sm fw-700">
-									@components.IconArrowRight("icon-xs")
-									<span>تعديل مطابقة الأعمدة</span>
-								</a>
-
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/cancel", data.Session.ID)) }>
-									<button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('هل أنت متأكد من إلغاء جلسة الاستيراد هذه؟')">
-										إلغاء الجلسة
-									</button>
-								</form>
-
-								if data.Session.Status != ingest.StatusCompleted {
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/commit", data.Session.ID)) }>
-										<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem 1.75rem; font-size:0.95rem; gap:0.4rem;" onclick="return confirm('هل أنت متأكد من اعتماد ومزامنة البيانات في المستودع المحدد؟')">
-											@components.IconCheck("icon-xs")
-											<span>✓ تأكيد واعتماد الاستيراد بالمستودع</span>
-										</button>
-									</form>
-								} else {
-									<span class="badge badge-emerald" style="padding:0.6rem 1.25rem; font-size:0.9rem;">
-										✓ تم الاستيراد والاعتماد بنجاح
-									</span>
-								}
-							</div>
-						</div>
-
-						<!-- Filter Pills -->
-						<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap;">
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == ""), templ.KV("btn-secondary", data.ConfidenceFilter != "") } class="fw-700">
-								الكل ({ fmt.Sprintf("%d", data.Session.TotalRows) })
-							</a>
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=high", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "high"), templ.KV("btn-secondary", data.ConfidenceFilter != "high") } class="fw-700">
-								المطابقة المؤكدة ({ fmt.Sprintf("%d", data.Session.MatchedRows) })
-							</a>
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=review", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "review"), templ.KV("btn-secondary", data.ConfidenceFilter != "review") } class="fw-700">
-								بحاجة لمراجعة ({ fmt.Sprintf("%d", data.Session.ReviewRows) })
-							</a>
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=unmatched", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "unmatched"), templ.KV("btn-secondary", data.ConfidenceFilter != "unmatched") } class="fw-700">
-								غير المطابقة ({ fmt.Sprintf("%d", data.Session.UnmatchedRows) })
-							</a>
-						</div>
-
-						<!-- Rows Table -->
-						<div class="table-container">
-							<table class="b2b-table">
-								<thead>
-									<tr>
-										<th style="width:40px;">#</th>
-										<th style="width:32%;">بيانات الصنف بالملف المرفوع</th>
-										<th style="width:35%;">الصنف المعتمد المطابق بالكتالوج</th>
-										<th style="width:23%;">دقة وسبب المطابقة</th>
-										<th style="width:10%;">الحالة</th>
-									</tr>
-								</thead>
-								<tbody>
-									if len(data.Rows) > 0 {
-										for _, row := range data.Rows {
-											<tr style={ templ.KV("opacity:0.45; background:var(--surface-sunken);", !row.IsApproved) }>
-												<td>{ fmt.Sprintf("%d", row.RowNumber) }</td>
-												
-												<!-- Raw Data Column -->
-												<td>
-													<div style="font-weight:800; color:var(--text); font-size:0.95rem; margin-bottom:0.35rem;">
-														if row.NormalizedName != "" {
-															{ row.NormalizedName }
-														} else if name := getRawField(row.RawData, ingest.FieldProductName, data.Session.ColumnMapping); name != "" {
-															{ name }
-														} else {
-															<span style="color:var(--text-secondary); font-style:italic;">(بدون اسم)</span>
-														}
-													</div>
-													<div style="display:flex; flex-wrap:wrap; gap:0.4rem; font-size:0.75rem; color:var(--text-secondary);">
-														if b := getRawField(row.RawData, ingest.FieldBarcode, data.Session.ColumnMapping); b != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الباركود: <code>{ b }</code></span>
-														}
-														if s := getRawField(row.RawData, ingest.FieldSKU, data.Session.ColumnMapping); s != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الكود: <code>{ s }</code></span>
-														}
-														if p := getRawField(row.RawData, ingest.FieldPrice, data.Session.ColumnMapping); p != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">السعر: <strong class="text-primary">{ p } ج.م</strong></span>
-														}
-														if q := getRawField(row.RawData, ingest.FieldQuantity, data.Session.ColumnMapping); q != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الكمية: <strong class="text-primary">{ q }</strong></span>
-														}
-														if d := getRawField(row.RawData, ingest.FieldDosageForm, data.Session.ColumnMapping); d != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الشكل: <strong>{ d }</strong></span>
-														}
-														if c := getRawField(row.RawData, ingest.FieldConcentration, data.Session.ColumnMapping); c != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">التركيز: <strong>{ c }</strong></span>
-														}
-													</div>
-												</td>
-
-												<!-- Matched Master Product Column -->
-												<td>
-													if row.MatchedProductID != nil && *row.MatchedProductID > 0 {
-														<div style="font-weight:800; color:var(--accent); font-size:0.95rem;">
-															{ row.MatchedProdName }
-														</div>
-														if row.MatchedProdSKU != "" {
-															<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:0.15rem;">
-																كود الصنف بالكتالوج: <code>{ row.MatchedProdSKU }</code>
-															</div>
-														}
-													} else {
-														<div style="color:var(--danger); font-weight:800; font-size:0.875rem;">
-															لم يتم الربط بصنف معتمد
-														</div>
-													}
-
-													<!-- Quick 1-Click Candidate Suggestions -->
-													if len(row.CandidateMatches) > 0 && data.Session.Status != ingest.StatusCompleted {
-														<div style="margin-top:0.5rem; background:var(--surface-sunken); padding:0.4rem 0.6rem; border-radius:var(--radius-md); border:1px solid var(--border);">
-															<div style="font-size:0.725rem; font-weight:800; color:var(--text-secondary); margin-bottom:0.25rem;">
-																مقترحات المطابقة البديلة:
-															</div>
-															<div style="display:flex; flex-direction:column; gap:0.25rem;">
-																for _, cand := range row.CandidateMatches {
-																	if row.MatchedProductID == nil || *row.MatchedProductID != cand.ProductID {
-																		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d", data.Session.ID, row.ID)) }>
-																			<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", cand.ProductID) } />
-																			<button type="submit" class="btn btn-secondary btn-xs" style="text-align:right; justify-content:space-between; width:100%; font-size:0.75rem; padding:0.2rem 0.45rem;" title={ cand.Reason }>
-																				<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">🎯 { cand.ProductName }</span>
-																				<span class="badge badge-amber text-xs" style="font-size:0.7rem;">{ fmt.Sprintf("%d%%", int(cand.Similarity*100)) }</span>
-																			</button>
-																		</form>
-																	}
-																}
-															</div>
-														</div>
-													}
-
-													<!-- Manual Override Dropdown -->
-													if data.Session.Status != ingest.StatusCompleted {
-														<div style="margin-top:0.5rem;">
-															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d", data.Session.ID, row.ID)) } style="display:flex; gap:0.35rem; align-items:center;">
-																<select name="product_id" class="form-control form-control-sm" style="font-size:0.8rem; max-width:280px;" onchange="this.form.submit()">
-																	<option value="">-- تغيير الصنف المعتمد يدوياً --</option>
-																	for _, mp := range data.MasterProducts {
-																		<option value={ fmt.Sprintf("%d", mp.ID) } selected?={ row.MatchedProductID != nil && *row.MatchedProductID == mp.ID }>
-																			{ mp.Name.Get(i18n.Lang(lang)) }
-																		</option>
-																	}
-																</select>
-															</form>
-														</div>
-													}
-												</td>
-
-												<!-- Confidence Level & Match Reason -->
-												<td>
-													<div style="margin-bottom:0.25rem;">
-														if strings.Contains(row.MatchReason, "الذكاء الاصطناعي") || strings.Contains(row.MatchReason, "AI") {
-															<span class="badge" style="background:linear-gradient(135deg, #7c3aed, #2563eb); color:#ffffff; font-size:0.775rem; font-weight:800;">
-																🤖 مطابقة ذكية (AI)
-															</span>
-														} else if row.ConfidenceLevel == ingest.ConfidenceHigh {
-															<span class="badge badge-emerald" style="font-size:0.775rem; font-weight:800;">
-																✓ مطابقة مؤكدة
-															</span>
-														} else if row.ConfidenceLevel == ingest.ConfidenceReview {
-															<span class="badge badge-amber" style="font-size:0.775rem; font-weight:800;">
-																بحاجة لمراجعة
-															</span>
-														} else {
-															<span class="badge badge-rose" style="font-size:0.775rem; font-weight:800;">
-																✗ غير مطابق
-															</span>
-														}
-													</div>
-													<div style="font-size:0.775rem; color:var(--text-secondary); line-height:1.35;">
-														{ row.MatchReason }
-													</div>
-												</td>
-
-												<!-- Action Column -->
-												<td>
-													if data.Session.Status != ingest.StatusCompleted {
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d/toggle", data.Session.ID, row.ID)) }>
-															if row.IsApproved {
-																<input type="hidden" name="approved" value="false" />
-																<button type="submit" class="btn btn-secondary btn-xs text-danger" title="استبعاد هذا الصنف من الاستيراد">
-																	استبعاد
-																</button>
-															} else {
-																<input type="hidden" name="approved" value="true" />
-																<button type="submit" class="btn btn-primary btn-xs" title="تضمين هذا الصنف في الاستيراد">
-																	تضمين
-																</button>
-															}
-														</form>
-													} else {
-														<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">
-															{ row.ImportAction }
-														</span>
-													}
-												</td>
-
-											</tr>
-										}
-									} else {
-										<tr>
-											<td colspan="5" style="text-align:center; padding:3rem; color:var(--text-secondary);">
-												لا توجد أصناف تطابق الفلتر المحدد.
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-
-					</div>
-
-				</div>
-			}
-
 		</div>
 	}
 }
 
-func getAvailableHeaders(data IngestWizardData) []string {
-	if len(data.AvailableHeaders) > 0 {
-		return data.AvailableHeaders
-	}
-	if len(data.Rows) > 0 && data.Rows[0].RawData != nil {
-		var headers []string
-		for k := range data.Rows[0].RawData {
-			headers = append(headers, k)
-		}
-		return headers
-	}
-	var headers []string
-	if data.Session != nil {
-		for _, v := range data.Session.ColumnMapping {
-			if v != "" && v != "unmapped" {
-				headers = append(headers, v)
+templ importRail(view VendorImportView) {
+	<nav class="wiz-rail" aria-label="مراحل الاستيراد">
+		for i, step := range VendorImportSteps(view.Phase()) {
+			if i > 0 {
+				<span class="wiz-sep" aria-hidden="true"></span>
 			}
+			<span
+				class={ "wiz-node", templ.KV("is-active", step.Active), templ.KV("is-done", step.Done) }
+				if step.Active {
+					aria-current="step"
+				}
+			>
+				<span class="wiz-bubble" aria-hidden="true">
+					if step.Done {
+						✓
+					} else {
+						{ step.Icon }
+					}
+				</span>
+				<span>{ fmt.Sprintf("%d. %s", step.Number, step.Title) }</span>
+			</span>
 		}
-	}
-	return headers
+	</nav>
 }
 
-func getRawField(m map[string]any, field string, mapping map[string]string) string {
-	if m == nil {
-		return ""
-	}
-	if mapping != nil {
-		if header, ok := mapping[field]; ok && header != "" && header != "unmapped" {
-			if v, ok := m[header]; ok && v != nil {
-				str := strings.TrimSpace(fmt.Sprintf("%v", v))
-				if str != "" {
-					return str
-				}
+templ importNotice(kind, message string) {
+	<div
+		class={ "alert",
+			templ.KV("alert-danger", kind == "error"),
+			templ.KV("alert-success", kind == "success"),
+			templ.KV("alert-info", kind != "error" && kind != "success") }
+		role="alert"
+	>
+		{ message }
+	</div>
+}
+
+templ importFatal(message string, session *ingest.Session) {
+	<div class="card">
+		<h2 class="wiz-head">تعذر قراءة الملف</h2>
+		<p class="wiz-sub">{ message }</p>
+		<div class="row-center">
+			<a href="/vendor/ingest" class="btn btn-primary">رفع ملف آخر</a>
+			if session != nil {
+				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + session.PublicID + "/cancel") }>
+					<button type="submit" class="btn btn-ghost">إلغاء هذه الجلسة</button>
+				</form>
 			}
-		}
+		</div>
+	</div>
+}
+
+// --- stage 1: upload -------------------------------------------------------
+
+templ importUploadStage(view VendorImportView) {
+	<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" hx-boost="false" id="import-upload-form">
+		<div class="card">
+			<h2 class="wiz-head">1. اختر ملف الكتالوج</h2>
+			<p class="wiz-sub">
+				الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML.
+				لا يشترط ترتيب معين للأعمدة ولا أسماء محددة لها — سيتعرف النظام عليها من العناوين
+				ومن محتوى الصفوف معاً، وستراجع النتيجة بنفسك قبل أن يُكتب أي شيء.
+			</p>
+			<label class="wiz-drop" id="import-drop">
+				<input type="file" name="file" accept=".xlsx,.xls,.csv,.txt" required id="import-file-input"/>
+				<span class="wiz-drop-icon" aria-hidden="true">📤</span>
+				<span class="wiz-drop-title" id="import-drop-title">اسحب الملف إلى هنا أو اضغط للاختيار</span>
+				<span class="wiz-drop-text" id="import-drop-text">الحد الأقصى 25 ميجابايت</span>
+			</label>
+			<div class="wiz-actions">
+				<span class="wiz-actions-note">
+					لن يتم حفظ أي صنف الآن — الخطوة التالية هي مراجعة ربط الأعمدة.
+				</span>
+				<div class="row-center">
+					<a href="/vendor/ingest/sample.csv" class="btn btn-ghost">تنزيل ملف نموذجي</a>
+					<button type="submit" class="btn btn-primary" id="import-submit-btn">
+						<span id="import-submit-text">تحليل الملف</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</form>
+	if len(view.Recent) > 0 {
+		@importHistory(view.Recent)
 	}
-	for k, v := range m {
-		kClean := strings.ToLower(strings.TrimSpace(k))
-		if strings.Contains(kClean, field) {
-			if v != nil {
-				str := strings.TrimSpace(fmt.Sprintf("%v", v))
-				if str != "" {
-					return str
-				}
-			}
-		}
-	}
-	return ""
+	<script>
+		(function () {
+			const input = document.getElementById('import-file-input');
+			const drop = document.getElementById('import-drop');
+			const title = document.getElementById('import-drop-title');
+			const text = document.getElementById('import-drop-text');
+			if (!input || !drop) return;
+			input.addEventListener('change', function () {
+				if (!this.files || !this.files[0]) return;
+				const f = this.files[0];
+				title.textContent = '✓ ' + f.name;
+				text.textContent = 'الحجم: ' + (f.size / 1048576).toFixed(2) + ' ميجابايت — جاهز للتحليل';
+				drop.classList.add('is-over');
+			});
+			['dragenter', 'dragover'].forEach(function (name) {
+				drop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.add('is-dragover'); });
+			});
+			['dragleave', 'drop'].forEach(function (name) {
+				drop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.remove('is-dragover'); });
+			});
+			const form = document.getElementById('import-upload-form');
+			form.addEventListener('submit', function () {
+				const btn = document.getElementById('import-submit-btn');
+				const label = document.getElementById('import-submit-text');
+				if (btn) { btn.disabled = true; }
+				if (label) { label.textContent = '⏳ جارٍ تحليل الملف...'; }
+			});
+		})();
+	</script>
+}
+
+templ importHistory(recent []*ingest.Session) {
+	<div class="card">
+		<h2 class="wiz-head">عمليات الاستيراد السابقة</h2>
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>الملف</th>
+						<th>الحالة</th>
+						<th>أضيف</th>
+						<th>حُدّث</th>
+						<th>تخطي</th>
+						<th>أخطاء</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, s := range recent {
+						<tr>
+							<td class="fw-700">{ s.Filename }</td>
+							<td><span class="badge badge-slate text-xs">{ s.Phase.Label() }</span></td>
+							<td>{ fmt.Sprint(s.InsertedRows) }</td>
+							<td>{ fmt.Sprint(s.UpdatedRows) }</td>
+							<td>{ fmt.Sprint(s.SkippedRows) }</td>
+							<td>{ fmt.Sprint(s.ErrorRows) }</td>
+							<td>
+								<a class="btn btn-ghost btn-sm" href={ templ.SafeURL("/vendor/ingest/" + s.PublicID) }>فتح</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 }

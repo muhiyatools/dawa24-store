@@ -334,4 +334,3 @@ func haversineCoverageDistance(lat1, lon1, lat2, lon2 float64) int {
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 	return int(earthRadius * c)
 }
-

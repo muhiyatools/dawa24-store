@@ -1,0 +1,262 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+)
+
+// Stages four to five: confirmation, the running import, and the results.
+
+// --- stage 4: confirmation -------------------------------------------------
+
+templ importConfirmStage(view VendorImportView) {
+	@importFileSummary(view)
+	<div class="card">
+		<h2 class="wiz-head">4. راجع ثم أكّد</h2>
+		<p class="wiz-sub">هذا ما سيحدث عند الضغط على «ابدأ الاستيراد». لا شيء قد كُتب حتى الآن.</p>
+		<div class="wiz-map">
+			@importSummaryItem("المخزن", importWarehouseName(view))
+			@importSummaryItem("طريقة التعامل مع الأصناف", view.Session.Settings.Mode.Label())
+			@importSummaryItem("طريقة التعامل مع الأرصدة", view.Session.Settings.StockMode.Label())
+			@importSummaryItem("الأصناف غير المطابقة", view.Session.Settings.Unmatched.Label())
+			@importSummaryItem("عدد صفوف الملف", fmt.Sprint(view.Session.Source.TotalRows))
+		</div>
+	</div>
+	if view.Session.Mapping != nil {
+		<div class="card">
+			<h3 class="wiz-head">الأعمدة التي ستُقرأ</h3>
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>العمود في ملفك</th>
+							<th>سيُقرأ كـ</th>
+							<th>المصدر</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, col := range view.Session.Mapping.Columns {
+							if col.Field != "" {
+								<tr>
+									<td class="fw-700">{ col.Header }</td>
+									<td>{ col.Label }</td>
+									<td>
+										<span class={ "badge", ConfidenceTone(col.Confidence), "text-xs" }>
+											if col.Source == engine.SourceManual {
+												تحديد يدوي
+											} else if col.Source == engine.SourceCompleted {
+												أُكمل تلقائياً بعد مراجعتك
+											} else {
+												تحليل تلقائي · { PercentText(col.Score) }
+											}
+										</span>
+									</td>
+								</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+	<div class="card mb-0">
+		<div class="wiz-actions">
+			<span class="wiz-actions-note">
+				if view.Session.Settings.Mode.Destructive() {
+					تنبيه: سيتم إيقاف عرض كل صنف لديك غير موجود في هذا الملف.
+				} else {
+					يمكنك العودة وتعديل أي خطوة قبل البدء.
+				}
+			</span>
+			<div class="row-center">
+				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
+					<button type="submit" class="btn btn-ghost">← تعديل الربط</button>
+				</form>
+				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/confirm") } hx-boost="false"
+					if view.Session.Settings.Mode.Destructive() {
+						onsubmit="return confirm('سيتم إيقاف عرض كل صنف غير موجود في هذا الملف. هل أنت متأكد؟');"
+					}
+				>
+					<button type="submit" class="btn btn-primary">ابدأ الاستيراد</button>
+				</form>
+			</div>
+		</div>
+	</div>
+}
+
+templ importSummaryItem(label, value string) {
+	<div class="wiz-map-item">
+		<span class="wiz-map-label">{ label }</span>
+		<span class="wiz-map-hint">{ value }</span>
+	</div>
+}
+
+// --- stage 5: processing ---------------------------------------------------
+
+templ importProcessingStage(view VendorImportView) {
+	<div class="card" id="import-progress-card" data-import={ view.Session.PublicID }>
+		<h2 class="wiz-head">جارٍ تنفيذ الاستيراد</h2>
+		<p class="wiz-sub" id="import-progress-note">{ view.Session.ProgressNote }</p>
+		<div class="progress">
+			<div class="progress-bar" id="import-progress-bar" style="width:0%"></div>
+		</div>
+		<p class="text-xs text-muted mt-2">
+			يمكنك إغلاق هذه الصفحة؛ ستستمر العملية وستجد نتيجتها في سجل عمليات الاستيراد.
+		</p>
+	</div>
+	<script>
+		(function () {
+			const card = document.getElementById('import-progress-card');
+			if (!card) return;
+			const id = card.dataset.import;
+			const bar = document.getElementById('import-progress-bar');
+			const note = document.getElementById('import-progress-note');
+			function poll() {
+				fetch('/vendor/ingest/' + id + '/progress', { headers: { 'Accept': 'application/json' } })
+					.then(function (r) { return r.json(); })
+					.then(function (p) {
+						if (bar) { bar.style.width = (p.percent || 0) + '%'; }
+						if (note && p.note) { note.textContent = p.note; }
+						if (p.done) { window.location.reload(); return; }
+						setTimeout(poll, 1500);
+					})
+					.catch(function () { setTimeout(poll, 4000); });
+			}
+			poll();
+		})();
+	</script>
+}
+
+// --- stage 6: results ------------------------------------------------------
+
+templ importResultsStage(view VendorImportView) {
+	<div class="card">
+		<h2 class="wiz-head">
+			if view.Session.Phase == ingest.PhaseFailed {
+				لم يكتمل الاستيراد
+			} else if view.Session.Phase == ingest.PhaseCancelled {
+				تم إلغاء الاستيراد
+			} else {
+				اكتمل الاستيراد
+			}
+		</h2>
+		if view.Session.ErrorMessage != "" {
+			<p class="wiz-sub text-danger">{ view.Session.ErrorMessage }</p>
+		}
+		<div class="wiz-stats">
+			@importStat("أضيف", fmt.Sprint(view.Session.InsertedRows))
+			@importStat("حُدّث", fmt.Sprint(view.Session.UpdatedRows))
+			@importStat("تم تخطيه", fmt.Sprint(view.Session.SkippedRows))
+			@importStat("أخطاء", fmt.Sprint(view.Session.ErrorRows))
+			@importStat("مطابق بالكتالوج", fmt.Sprint(view.Session.MatchedRows))
+			@importStat("يحتاج مراجعة", fmt.Sprint(view.Session.ReviewRows))
+			@importStat("غير مطابق", fmt.Sprint(view.Session.UnmatchedRows))
+			@importStat("أصناف جديدة بالكتالوج", fmt.Sprint(view.Session.CreatedProducts))
+		</div>
+		<p class="text-xs text-muted mt-2">
+			{ fmt.Sprintf("قرأ النظام %d صفاً: %d صف بيانات، %d صف فارغ، %d صف عناوين مكررة.",
+				view.Session.Stats.SheetRows, view.Session.Stats.DataRows,
+				view.Session.Stats.BlankRows, view.Session.Stats.RepeatedHeaders) }
+		</p>
+		<div class="row-center mt-3">
+			<a href="/vendor/products" class="btn btn-primary btn-sm">عرض أصنافي</a>
+			<a href="/vendor/ingest" class="btn btn-secondary btn-sm">استيراد ملف آخر</a>
+			<a class="btn btn-ghost btn-sm" href={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/export?outcome=skipped") }>
+				تنزيل الأصناف المتخطاة (CSV)
+			</a>
+		</div>
+	</div>
+	if len(view.Session.Findings) > 0 {
+		<div class="card">
+			<h3 class="wiz-head">ملاحظات على الصفوف</h3>
+			<div class="table-wrap">
+				<table class="table">
+					<thead>
+						<tr><th>الصف</th><th>الحقل</th><th>القيمة</th><th>الملاحظة</th></tr>
+					</thead>
+					<tbody>
+						for i, f := range view.Session.Findings {
+							if i < 100 {
+								<tr>
+									<td>{ fmt.Sprint(f.Row) }</td>
+									<td class="text-xs">{ f.Column }</td>
+									<td class="text-xs text-muted">{ f.Value }</td>
+									<td>
+										<span class={ "badge", SeverityTone(f.Severity), "text-xs" }>
+											if f.Severity == engine.SeverityError {
+												خطأ
+											} else if f.Severity == engine.SeverityWarning {
+												تنبيه
+											} else {
+												معلومة
+											}
+										</span>
+										<span class="text-sm">{ f.Message }</span>
+									</td>
+								</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+	if len(view.Rows) > 0 {
+		@importRowsTable(view)
+	}
+}
+
+templ importRowsTable(view VendorImportView) {
+	<div class="card">
+		<h3 class="wiz-head">{ fmt.Sprintf("سجل الصفوف (%d)", view.RowTotal) }</h3>
+		<div class="row-center mb-3">
+			@importRowFilter(view, "", "الكل")
+			@importRowFilter(view, ingest.OutcomeInserted, "أضيف")
+			@importRowFilter(view, ingest.OutcomeUpdated, "حُدّث")
+			@importRowFilter(view, ingest.OutcomeSkipped, "تخطي")
+			@importRowFilter(view, ingest.OutcomeError, "أخطاء")
+		</div>
+		<div class="table-wrap">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>الصف</th>
+						<th>الصنف</th>
+						<th>الكود</th>
+						<th>النتيجة</th>
+						<th>المطابقة</th>
+						<th>التفاصيل</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, row := range view.Rows {
+						<tr>
+							<td>{ fmt.Sprint(row.SourceRow) }</td>
+							<td class="fw-700">{ row.DisplayName }</td>
+							<td class="text-xs text-muted">{ row.SourceCode }</td>
+							<td><span class={ "badge", OutcomeTone(row.Outcome), "text-xs" }>{ OutcomeLabel(row.Outcome) }</span></td>
+							<td class="text-xs">
+								{ MatchLevelLabel(row.MatchLevel) }
+								if row.MatchScore > 0 {
+									<span class="text-muted"> · { PercentText(row.MatchScore) }</span>
+								}
+							</td>
+							<td class="text-xs text-muted">{ row.Message }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
+
+templ importRowFilter(view VendorImportView, outcome, label string) {
+	<a
+		class={ "wiz-chip", templ.KV("is-on", view.Filter.Outcome == outcome) }
+		href={ templ.SafeURL(importRowsURL(view.Session.PublicID, outcome)) }
+	>
+		{ label }
+	</a>
+}

@@ -43,16 +43,16 @@ type SavingProductData struct {
 
 // CatalogMatchIndex provides high-performance multi-index candidate lookups.
 type CatalogMatchIndex struct {
-	byBarcode      map[string]*MasterProductData
-	bySKU          map[string]*MasterProductData
-	byExactName    map[string]*MasterProductData
-	bySavingsName  map[string]*MasterProductData
-	bySavingsSKU   map[string]*MasterProductData
-	savingsTokens  map[string][]string
-	tokenIndex     map[string][]*MasterProductData
-	trigramIndex   map[string][]*MasterProductData
-	allProducts    []*MasterProductData
-	productsByID   map[int64]*MasterProductData
+	byBarcode     map[string]*MasterProductData
+	bySKU         map[string]*MasterProductData
+	byExactName   map[string]*MasterProductData
+	bySavingsName map[string]*MasterProductData
+	bySavingsSKU  map[string]*MasterProductData
+	savingsTokens map[string][]string
+	tokenIndex    map[string][]*MasterProductData
+	trigramIndex  map[string][]*MasterProductData
+	allProducts   []*MasterProductData
+	productsByID  map[int64]*MasterProductData
 }
 
 // NewCatalogMatchIndex builds in-memory inverted indices from master catalog and saving products.
@@ -149,16 +149,16 @@ func NewCatalogMatchIndex(
 
 // MatchRowInput encapsulates extracted data from an imported spreadsheet row.
 type MatchRowInput struct {
-	RawName        string
-	Barcode        string
-	SKU            string
-	DosageForm     string
-	Concentration  string
-	Unit           string
-	Manufacturer   string
-	EnableAI       bool
-	EnableSavings  bool
-	MinSimilarity  float64
+	RawName       string
+	Barcode       string
+	SKU           string
+	DosageForm    string
+	Concentration string
+	Unit          string
+	Manufacturer  string
+	EnableAI      bool
+	EnableSavings bool
+	MinSimilarity float64
 }
 
 // MatchRowResult contains the complete outcome of multi-stage matching.

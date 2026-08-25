@@ -1,0 +1,52 @@
+package ingest
+
+import (
+	"context"
+	"errors"
+)
+
+// ErrImportStoreUnavailable means the catalogue import store was never wired,
+// which makes the vendor import screen unavailable rather than broken.
+var ErrImportStoreUnavailable = errors.New("ingest: catalogue import store is not configured")
+
+// ImportStore is the persistence the vendor catalogue import needs.
+//
+// It is a narrow port on purpose. The engine is pure, the service orchestrates,
+// and everything that touches Postgres is behind these fourteen calls — which
+// is what lets the whole seven-stage flow be tested against a fake without a
+// database.
+type ImportStore interface {
+	// Create opens an import and stores the uploaded bytes with it.
+	Create(ctx context.Context, s *Session, file []byte) error
+	// Get loads an import by its public id.
+	Get(ctx context.Context, publicID string) (*Session, error)
+	// File returns the stored upload, so the mapping can be re-derived and the
+	// rows streamed without asking the vendor to upload again.
+	File(ctx context.Context, id int64) ([]byte, error)
+	// SaveDraft persists the vendor's corrections and settings and moves the
+	// phase. It never touches the counters or the stored file.
+	SaveDraft(ctx context.Context, s *Session) error
+	// Begin marks the run started and clears any previous outcome.
+	Begin(ctx context.Context, id int64) error
+	// Progress records how far a run has reached, for the progress screen.
+	Progress(ctx context.Context, id int64, percent int, note string) error
+	// Finish records the outcome of a completed run.
+	Finish(ctx context.Context, s *Session) error
+	// Fail records a run that stopped on an error.
+	Fail(ctx context.Context, id int64, message string) error
+	// Cancel discards an import without touching the catalogue.
+	Cancel(ctx context.Context, id int64) error
+	// List backs the history panel on the upload screen.
+	List(ctx context.Context, orgID int64, limit int) ([]*Session, error)
+
+	// AppendRows records the per-row outcome ledger in batches.
+	AppendRows(ctx context.Context, importID, orgID int64, rows []RowOutcome) error
+	// Rows reads a page of the results table.
+	Rows(ctx context.Context, importID int64, filter RowFilter) ([]*RowOutcome, int, error)
+	// RowCounts tallies the ledger by outcome, for the results screen's tabs.
+	RowCounts(ctx context.Context, importID int64) (map[string]int, error)
+
+	// Sweep collects abandoned imports and the files they hold. It runs when a
+	// new import is opened, so no scheduled job is needed.
+	Sweep(ctx context.Context) error
+}

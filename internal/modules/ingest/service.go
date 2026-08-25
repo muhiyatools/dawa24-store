@@ -42,6 +42,14 @@ type Service struct {
 	aiMatcher AIMatcher
 	storage   StorageClient
 	log       *slog.Logger
+
+	// The rebuilt vendor catalogue import. The three ports are optional: a
+	// deployment that has not wired them simply does not offer the screen,
+	// which is better than offering one that fails at the last step.
+	imports   ImportStore
+	catalog   CatalogPort
+	inventory InventoryPort
+	runs      runRegistry
 }
 
 // NewService creates a new ingest service.

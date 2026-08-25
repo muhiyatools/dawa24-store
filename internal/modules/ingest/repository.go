@@ -28,4 +28,3 @@ type Repository interface {
 	BatchUpdateImportRowMatches(ctx context.Context, updates []RowMatchUpdate) error
 	BatchUpdateImportRowActions(ctx context.Context, updates []RowActionUpdate) error
 }
-

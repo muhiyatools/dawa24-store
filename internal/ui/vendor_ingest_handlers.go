@@ -1,163 +1,96 @@
 package ui
 
 import (
-	"context"
+	"encoding/csv"
 	"encoding/json"
-	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// VendorIngestPage renders the primary catalog upload, column mapping, and matching wizard.
+// The vendor catalogue import screen.
+//
+// Seven stages behind six handlers. Everything a stage needs is re-derived from
+// the stored file on each request, which costs a few hundred milliseconds and
+// buys the guarantee that matters: the mapping the vendor is looking at is the
+// mapping that will run.
+
+// maxImportUpload bounds the multipart body. It matches the service's own limit
+// so an oversized file is refused by the reader rather than after being read.
+const maxImportUpload = ingest.MaxImportBytes
+
+// VendorIngestPage renders the upload screen and the import history.
 func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/ingest", http.StatusSeeOther)
 		return
 	}
 
-	data := pages.IngestWizardData{
-		Step:             1,
-		NoticeType:       r.URL.Query().Get("notice"),
-		NoticeMessage:    r.URL.Query().Get("msg"),
-		ConfidenceFilter: r.URL.Query().Get("filter"),
+	view := pages.VendorImportView{
+		NoticeType:    r.URL.Query().Get("notice"),
+		NoticeMessage: r.URL.Query().Get("msg"),
 	}
-
-	if h.invSvc != nil && actor.OrganizationID > 0 {
-		whs, err := h.invSvc.ListWarehouses(ctx)
-		if err == nil {
-			data.Warehouses = whs
-		}
-	}
-
+	view.Warehouses = h.vendorWarehouses(r)
 	if h.ingSvc != nil && actor.OrganizationID > 0 {
-		sList, err := h.ingSvc.ListSessions(ctx, actor.OrganizationID, 20, 0)
-		if err == nil {
-			data.Sessions = sList
+		recent, err := h.ingSvc.RecentImports(ctx, actor.OrganizationID, 12)
+		if err != nil {
+			h.log.WarnContext(ctx, "import history unavailable", "error", err)
 		}
+		view.Recent = recent
 	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorIngestPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor ingest page", "error", err)
-	}
+	h.renderImport(w, r, view)
 }
 
-// VendorIngestSessionPage loads an ongoing or completed session to display at the exact wizard step.
+// VendorIngestSessionPage renders whichever stage the import has reached.
 func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/ingest", http.StatusSeeOther)
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
 		return
 	}
 
-	idStr := chi.URLParam(r, "sessionID")
-	sessionID, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || sessionID <= 0 {
-		http.Redirect(w, r, "/vendor/ingest", http.StatusSeeOther)
+	session, err := h.ingSvc.LoadImport(ctx, publicID)
+	if err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	data := pages.IngestWizardData{
-		NoticeType:       r.URL.Query().Get("notice"),
-		NoticeMessage:    r.URL.Query().Get("msg"),
-		ConfidenceFilter: r.URL.Query().Get("filter"),
+	view := pages.VendorImportView{
+		Session:       session,
+		Warehouses:    h.vendorWarehouses(r),
+		NoticeType:    r.URL.Query().Get("notice"),
+		NoticeMessage: r.URL.Query().Get("msg"),
 	}
 
-	if h.invSvc != nil && actor.OrganizationID > 0 {
-		whs, err := h.invSvc.ListWarehouses(ctx)
-		if err == nil {
-			data.Warehouses = whs
-		}
-	}
-
-	if h.ingSvc != nil && actor.OrganizationID > 0 {
-		sList, err := h.ingSvc.ListSessions(ctx, actor.OrganizationID, 20, 0)
-		if err == nil {
-			data.Sessions = sList
-		}
-		sItem, err := h.ingSvc.GetSessionProgress(ctx, sessionID)
-		if err == nil && sItem != nil {
-			data.Session = sItem
-			rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, data.ConfidenceFilter, 500, 0)
-			data.Rows = rList
-
-			if len(rList) > 0 && rList[0].RawData != nil {
-				for k := range rList[0].RawData {
-					data.AvailableHeaders = append(data.AvailableHeaders, k)
-				}
-			}
-		}
-	}
-
-	if data.Session == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "جلسة الاستيراد غير موجودة.")
-		return
-	}
-
-	// Find current warehouse
-	if data.Session.WarehouseID != nil && len(data.Warehouses) > 0 {
-		for _, wh := range data.Warehouses {
-			if wh.ID == *data.Session.WarehouseID {
-				data.CurrentWarehouse = wh
-				break
-			}
-		}
-	}
-
-	// Fetch master products for manual override select dropdowns. Cached
-	// briefly: rebuilding a 2,000-row list on every wizard page view costs far
-	// more than the few seconds of staleness is worth.
-	if h.catSvc != nil {
-		if cached, ok := h.cacheGet("ui:ingest:dropdown-products"); ok {
-			if prods, cast := cached.([]*catalog.Product); cast {
-				data.MasterProducts = prods
-			}
+	switch {
+	case session.Phase.Terminal():
+		h.loadImportResults(r, &view)
+	case session.Phase == ingest.PhaseProcessing:
+		// Nothing to analyse: the run owns the file and the screen polls.
+	default:
+		_, analysis, aErr := h.ingSvc.Analysis(ctx, publicID)
+		if aErr != nil {
+			view.Fatal = h.safeMessage(aErr, langOf(r))
 		} else {
-			sysCtx := database.AsSystem(ctx)
-			if prods, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 2000}); err == nil {
-				data.MasterProducts = prods
-				h.cacheSet("ui:ingest:dropdown-products", prods, dropdownListCacheTTL)
-			}
+			view.Analysis = analysis
 		}
 	}
-
-	// Determine wizard step
-	reqStep := r.URL.Query().Get("step")
-	if reqStep == "2" {
-		data.Step = 2
-	} else if reqStep == "3" {
-		data.Step = 3
-	} else if data.Session.Status == ingest.StatusCompleted {
-		data.Step = 3
-	} else if data.Session.MatchedRows > 0 || data.Session.ReviewRows > 0 || data.Session.UnmatchedRows > 0 {
-		data.Step = 3
-	} else if len(data.Rows) > 0 {
-		data.Step = 2
-	} else {
-		data.Step = 1
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorIngestPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor ingest session page", "error", err)
-	}
+	h.renderImport(w, r, view)
 }
 
-// VendorIngestUploadSubmit handles the initial file upload, warehouse choice, mode, and switches.
+// VendorIngestUploadSubmit analyses an uploaded file and opens an import.
 func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -165,306 +98,295 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/ingest", http.StatusSeeOther)
 		return
 	}
-
-	// Limit upload size to 50MB
-	r.Body = http.MaxBytesReader(w, r.Body, 50<<20)
-	if err := r.ParseMultipartForm(50 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "حجم الملف كبير جداً (الحد الأقصى 50 ميجابايت).")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
 		return
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, maxImportUpload)
+	if err := r.ParseMultipartForm(8 << 20); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error",
+			"تعذر قراءة الملف المرفوع — قد يتجاوز حجمه الحد المسموح (25 ميجابايت).")
+		return
+	}
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "يرجى اختيار ملف صالح للاستيراد (.xlsx أو .csv).")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error",
+			"يرجى اختيار ملف صالح للاستيراد (.xlsx أو .xls أو CSV).")
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
-	var warehouseID *int64
-	whStr := r.PostFormValue("warehouse_id")
-	if whID, err := strconv.ParseInt(whStr, 10, 64); err == nil && whID > 0 {
-		warehouseID = &whID
-	}
-
-	importMode := ingest.ImportMode(r.PostFormValue("import_mode"))
-	if importMode == "" {
-		importMode = ingest.ModeUpdateAndAdd
-	}
-
-	enableAI := r.PostFormValue("enable_ai_matching") == "1" || r.PostFormValue("enable_ai_matching") == "on" || r.PostFormValue("enable_ai_matching") == "true"
-	if r.PostFormValue("enable_ai_matching_submitted") == "" && r.PostFormValue("enable_ai_matching") == "" {
-		enableAI = true
-	}
-
-	enableSavings := r.PostFormValue("enable_savings_matching") == "1" || r.PostFormValue("enable_savings_matching") == "on" || r.PostFormValue("enable_savings_matching") == "true"
-	if r.PostFormValue("enable_savings_matching_submitted") == "" && r.PostFormValue("enable_savings_matching") == "" {
-		enableSavings = true
-	}
-
-	if h.ingSvc != nil {
-		fileUpload := &ingest.FileUpload{
-			OrganizationID: actor.OrganizationID,
-			UserID:         actor.UserID,
-			Filename:       header.Filename,
-			StorageKey:     fmt.Sprintf("orgs/%d/uploads/%s", actor.OrganizationID, header.Filename),
-			FileSizeBytes:  header.Size,
-			MimeType:       "application/octet-stream",
-		}
-		createdUpload, err := h.ingSvc.RegisterUpload(ctx, fileUpload)
-		if err != nil {
-			h.redirectWithNotice(w, r, "/vendor/ingest", "error", h.safeMessage(err, langOf(r)))
-			return
-		}
-
-		session, err := h.ingSvc.StartSessionWithConfig(
-			ctx,
-			createdUpload.ID,
-			nil,
-			warehouseID,
-			importMode,
-			enableAI,
-			enableSavings,
-			0.85,
-		)
-		if err != nil {
-			h.redirectWithNotice(w, r, "/vendor/ingest", "error", h.safeMessage(err, langOf(r)))
-			return
-		}
-
-		// Stream spreadsheet rows into staging and auto-detect columns
-		_, err = h.ingSvc.ProcessSpreadsheetStream(ctx, session.ID, file, header.Filename, "", nil)
-		if err != nil {
-			h.log.WarnContext(ctx, "stream rows warning", "session_id", session.ID, "error", err)
-		}
-
-		// Run immediate matching so Step 3 is instantly ready
-		masterProducts, savingProducts := h.prepareMatchingData(ctx, actor.OrganizationID)
-		if err := h.ingSvc.ExecuteMultiStageMatching(ctx, session.ID, masterProducts, savingProducts); err != nil {
-			h.log.WarnContext(ctx, "auto matching warning", "session_id", session.ID, "error", err)
-		}
-
-		http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", session.ID), http.StatusSeeOther)
+	content, err := io.ReadAll(file)
+	if err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "تعذر قراءة محتوى الملف.")
 		return
 	}
 
-	http.Redirect(w, r, "/vendor/ingest", http.StatusSeeOther)
+	session, _, err := h.ingSvc.StartImport(ctx, actor.UserID, header.Filename, content)
+	if err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	http.Redirect(w, r, "/vendor/ingest/"+session.PublicID, http.StatusSeeOther)
 }
 
-// VendorIngestMappingSubmit updates column mapping and triggers the multi-stage matching engine.
+// VendorIngestMappingSubmit records the vendor's column corrections.
 func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/ingest", http.StatusSeeOther)
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج المرسل.")
 		return
 	}
 
-	idStr := chi.URLParam(r, "id")
-	sessionID, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || sessionID <= 0 {
-		http.Redirect(w, r, "/vendor/ingest", http.StatusSeeOther)
-		return
-	}
-
-	_ = r.ParseForm()
-	mapping := make(map[string]string)
-
-	// Collect form mappings: target field -> header name
-	for k, v := range r.PostForm {
-		if strings.HasPrefix(k, "target_field_") {
-			targetField := strings.TrimPrefix(k, "target_field_")
-			if len(v) > 0 && v[0] != "" && v[0] != "unmapped" {
-				mapping[targetField] = v[0]
-			}
-		} else if len(v) > 0 && v[0] != "" && v[0] != "unmapped" {
-			mapping[k] = v[0]
+	overrides := map[int]engine.Field{}
+	for key, values := range r.PostForm {
+		if !strings.HasPrefix(key, "column_") || len(values) == 0 {
+			continue
+		}
+		index, convErr := strconv.Atoi(strings.TrimPrefix(key, "column_"))
+		if convErr != nil {
+			continue
+		}
+		switch values[0] {
+		case "":
+			// "Decide for me" — left out so the completion pass may bind it.
+		case "__ignore":
+			overrides[index] = engine.IgnoreField
+		case "__none":
+			overrides[index] = ""
+		default:
+			overrides[index] = engine.Field(values[0])
 		}
 	}
 
-	// Validate product_name is mapped
-	if mapping[ingest.FieldProductName] == "" {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "error", "حقل (اسم الصنف / Product Name) إلزامي للمتابعة.")
+	if _, _, err := h.ingSvc.SaveMapping(ctx, publicID, overrides); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
+}
+
+// VendorIngestSettingsSubmit records the import rules.
+func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج المرسل.")
 		return
 	}
 
+	settings := ingest.DefaultSettings()
+	settings.WarehouseID, _ = strconv.ParseInt(r.PostFormValue("warehouse_id"), 10, 64)
+	settings.Mode = ingest.ParseMode(r.PostFormValue("mode"))
+	settings.StockMode = inventory.StockMode(r.PostFormValue("stock_mode"))
+	if r.PostFormValue("unmatched") == string(ingest.UnmatchedSkip) {
+		settings.Unmatched = ingest.UnmatchedSkip
+	}
+	settings.Duplicates = engine.DuplicatePolicy(r.PostFormValue("duplicates"))
+	if score, err := strconv.ParseFloat(r.PostFormValue("min_match_score"), 64); err == nil {
+		settings.MinMatchScore = score / 100
+	}
+	settings.TrustSupplierCode = checked(r, "trust_supplier_code")
+	settings.BlankQuantityIsZero = checked(r, "blank_quantity_is_zero")
+	settings.InferDosageForm = checked(r, "infer_dosage_form")
+	settings.InferConcentration = checked(r, "infer_concentration")
+	settings.RejectExpired = checked(r, "reject_expired")
+	settings.MarkNegotiable = checked(r, "mark_negotiable")
+	settings.PublishImmediately = checked(r, "publish_immediately")
+	settings.RecordRows = checked(r, "record_rows")
+	if v, err := strconv.Atoi(r.PostFormValue("default_min_order_qty")); err == nil {
+		settings.DefaultMinOrderQty = v
+	}
+	if v, err := strconv.Atoi(r.PostFormValue("default_min_threshold")); err == nil {
+		settings.DefaultMinThreshold = v
+	}
+
+	if _, err := h.ingSvc.SaveSettings(ctx, publicID, settings); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
+}
+
+// checked reads an HTML checkbox, which is absent rather than false when off.
+func checked(r *http.Request, name string) bool {
+	v := r.PostFormValue(name)
+	return v == "1" || v == "on" || v == "true"
+}
+
+// VendorIngestBackSubmit reopens the column review.
+func (h *UIHandler) VendorIngestBackSubmit(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
 	if h.ingSvc != nil {
-		_ = h.ingSvc.UpdateColumnMapping(ctx, sessionID, mapping)
-
-		// Prepare candidate data
-		masterProducts, savingProducts := h.prepareMatchingData(ctx, actor.OrganizationID)
-
-		// Run multi-stage matching
-		if err := h.ingSvc.ExecuteMultiStageMatching(ctx, sessionID, masterProducts, savingProducts); err != nil {
-			h.log.ErrorContext(ctx, "failed multi-stage matching", "session_id", sessionID, "error", err)
-			h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "error", "حدث خطأ أثناء مطابقة الأصناف: "+h.safeMessage(err, langOf(r)))
+		if _, err := h.ingSvc.BackToMapping(r.Context(), publicID); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
-
-	h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "success", "تمت مطابقة الأصناف بنجاح. يمكنك الآن مراجعة النتائج واعتماد الاستيراد.")
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
 }
 
-// VendorIngestRowUpdateSubmit overrides a staged row's matched master product.
-func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	sessionID, _ := strconv.ParseInt(idStr, 10, 64)
-	rowIDStr := chi.URLParam(r, "rid")
-	rowID, _ := strconv.ParseInt(rowIDStr, 10, 64)
-
-	productIDStr := r.FormValue("product_id")
-	productID, _ := strconv.ParseInt(productIDStr, 10, 64)
-
-	if h.ingSvc != nil && rowID > 0 && productID > 0 {
-		_ = h.ingSvc.OverrideRowMatchDetailed(ctx, rowID, productID)
-	}
-
-	if r.Header.Get("HX-Request") == "true" {
-		w.WriteHeader(http.StatusOK)
+// VendorIngestConfirmSubmit starts the processing run.
+func (h *UIHandler) VendorIngestConfirmSubmit(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
 		return
 	}
-
-	http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), http.StatusSeeOther)
+	if _, err := h.ingSvc.ConfirmImport(r.Context(), publicID); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
 }
 
-// VendorIngestRowToggleSubmit toggles whether a row is included/approved for import.
-func (h *UIHandler) VendorIngestRowToggleSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	sessionID, _ := strconv.ParseInt(idStr, 10, 64)
-	rowIDStr := chi.URLParam(r, "rid")
-	rowID, _ := strconv.ParseInt(rowIDStr, 10, 64)
-
-	approved := r.FormValue("approved") == "1" || r.FormValue("approved") == "true"
-	if h.ingSvc != nil && rowID > 0 {
-		_ = h.ingSvc.ToggleRowApproval(ctx, rowID, approved)
-	}
-
-	if r.Header.Get("HX-Request") == "true" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), http.StatusSeeOther)
-}
-
-// VendorIngestCommitSubmit commits the session and reconciles catalog variants & warehouse stocks.
-func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	sessionID, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || sessionID <= 0 {
-		http.Redirect(w, r, "/vendor/ingest", http.StatusSeeOther)
-		return
-	}
-
-	if h.ingSvc != nil {
-		outcome, err := h.ingSvc.CommitSessionWithReconciliation(ctx, sessionID, h.catSvc, h.invSvc)
-		if err != nil {
-			h.log.ErrorContext(ctx, "failed to commit ingest session", "session_id", sessionID, "error", err)
-			h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), "error", "تعذر إتمام الاستيراد: "+h.safeMessage(err, langOf(r)))
-			return
-		}
-
-		msg := fmt.Sprintf("تم استيراد واعتماد البيانات بنجاح: تمت إضافة %d صنف جديد، وتحديث %d صنف موجود، وتخطي %d صنف.", outcome.Inserted, outcome.Updated, outcome.Skipped)
-		h.redirectWithNotice(w, r, "/vendor/products", "success", msg)
-		return
-	}
-
-	http.Redirect(w, r, fmt.Sprintf("/vendor/ingest/%d", sessionID), http.StatusSeeOther)
-}
-
-// VendorIngestCancelSubmit cancels the session.
+// VendorIngestCancelSubmit discards an import.
 func (h *UIHandler) VendorIngestCancelSubmit(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc != nil {
+		if err := h.ingSvc.CancelImport(r.Context(), publicID); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+	h.redirectWithNotice(w, r, "/vendor/ingest", "info", "تم إلغاء عملية الاستيراد.")
+}
+
+// VendorIngestProgress reports a running import, for the progress screen's poll.
+func (h *UIHandler) VendorIngestProgress(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	if h.ingSvc == nil {
+		http.Error(w, `{"error":"unavailable"}`, http.StatusServiceUnavailable)
+		return
+	}
+	session, err := h.ingSvc.LoadImport(r.Context(), publicID)
+	if err != nil {
+		http.Error(w, `{"error":"not_found"}`, http.StatusNotFound)
+		return
+	}
+	payload := map[string]any{
+		"phase":    session.Phase,
+		"percent":  session.ProgressPercent,
+		"note":     session.ProgressNote,
+		"done":     session.Phase.Terminal(),
+		"inserted": session.InsertedRows,
+		"updated":  session.UpdatedRows,
+		"skipped":  session.SkippedRows,
+		"errors":   session.ErrorRows,
+		"message":  session.ErrorMessage,
+	}
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		h.log.WarnContext(r.Context(), "import progress encode failed", "error", err)
+	}
+}
+
+// VendorIngestRowsExport downloads the rows a vendor still has to deal with.
+//
+// Distinct from VendorIngestExport, which dumps their live inventory: this is
+// the ledger of one run, filtered to whatever the results screen was showing.
+func (h *UIHandler) VendorIngestRowsExport(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	sessionID, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || sessionID <= 0 {
-		http.Redirect(w, r, "/vendor/ingest", http.StatusSeeOther)
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		http.Error(w, "unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	filter := ingest.RowFilter{
+		Outcome:    r.URL.Query().Get("outcome"),
+		MatchLevel: r.URL.Query().Get("match"),
+		Limit:      500,
+	}
+
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", `attachment; filename="import-rows.csv"`)
+	// The BOM is what makes Excel open an Arabic CSV as UTF-8 instead of as
+	// mojibake, which is the difference between a usable export and a support
+	// ticket.
+	if _, err := w.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
 		return
 	}
 
-	if h.ingSvc != nil {
-		_ = h.ingSvc.CancelSession(ctx, sessionID)
-	}
+	out := csv.NewWriter(w)
+	defer out.Flush()
+	_ = out.Write([]string{"رقم الصف", "الاسم", "الكود", "النتيجة", "درجة المطابقة", "الملاحظة"})
 
-	h.redirectWithNotice(w, r, "/vendor/ingest", "info", "تم إلغاء جلسة الاستيراد.")
+	for offset := 0; offset < 20000; offset += filter.Limit {
+		filter.Offset = offset
+		rows, total, err := h.ingSvc.ImportRows(ctx, publicID, filter)
+		if err != nil || len(rows) == 0 {
+			return
+		}
+		for _, row := range rows {
+			_ = out.Write([]string{
+				strconv.Itoa(row.SourceRow), row.DisplayName, row.SourceCode,
+				pages.OutcomeLabel(row.Outcome), pages.PercentText(row.MatchScore), row.Message,
+			})
+		}
+		out.Flush()
+		if offset+len(rows) >= total {
+			return
+		}
+	}
 }
 
-// VendorIngestRowsPartial returns rows JSON for review.
-func (h *UIHandler) VendorIngestRowsPartial(w http.ResponseWriter, r *http.Request) {
+// loadImportResults fills the results table for a finished import.
+func (h *UIHandler) loadImportResults(r *http.Request, view *pages.VendorImportView) {
 	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	sessionID, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil || sessionID <= 0 {
-		http.Error(w, "invalid session", http.StatusBadRequest)
+	filter := ingest.RowFilter{
+		Outcome:    r.URL.Query().Get("outcome"),
+		MatchLevel: r.URL.Query().Get("match"),
+		Search:     r.URL.Query().Get("q"),
+		Limit:      50,
+	}
+	if page, err := strconv.Atoi(r.URL.Query().Get("page")); err == nil && page > 1 {
+		filter.Offset = (page - 1) * filter.Limit
+	}
+	view.Filter = filter
+
+	rows, total, err := h.ingSvc.ImportRows(ctx, view.Session.PublicID, filter)
+	if err != nil {
+		h.log.WarnContext(ctx, "import rows unavailable", "error", err)
 		return
 	}
+	view.Rows, view.RowTotal = rows, total
 
-	var rows []*ingest.ImportRow
-	if h.ingSvc != nil {
-		rList, _ := h.ingSvc.ListImportRows(ctx, sessionID, "", 50, 0)
-		rows = rList
+	counts, err := h.ingSvc.ImportRowCounts(ctx, view.Session.PublicID)
+	if err != nil {
+		h.log.WarnContext(ctx, "import row counts unavailable", "error", err)
+		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"rows": rows, "count": len(rows)})
+	view.RowCounts = counts
 }
 
-// prepareMatchingData aggregates master products and saving products for the
-// in-memory matching index. The snapshot is cached briefly per organization:
-// the wizard rebuilds it on upload submit and on every mapping resubmit, and
-// re-scanning a thousand rows each time dominates the request.
-func (h *UIHandler) prepareMatchingData(ctx context.Context, orgID int64) ([]*ingest.MasterProductData, []*ingest.SavingProductData) {
-	cacheKey := fmt.Sprintf("ui:ingest:matching:%d", orgID)
-	if cached, ok := h.cacheGet(cacheKey); ok {
-		if pair, cast := cached.(*matchingDataPair); cast && pair != nil {
-			return pair.master, pair.saving
-		}
+// vendorWarehouses lists the vendor's warehouses for the settings stage.
+func (h *UIHandler) vendorWarehouses(r *http.Request) []*inventory.Warehouse {
+	if h.invSvc == nil {
+		return nil
 	}
-
-	var masterList []*ingest.MasterProductData
-	var savingList []*ingest.SavingProductData
-
-	if h.catSvc != nil {
-		sysCtx := database.AsSystem(ctx)
-		prods, err := h.catSvc.Search(sysCtx, catalog.SearchParams{Limit: 10000})
-		if err == nil {
-			for _, p := range prods {
-				if p != nil {
-					masterList = append(masterList, &ingest.MasterProductData{
-						ID:             p.ID,
-						NameAR:         p.Name.Get("ar"),
-						NameEN:         p.Name.Get("en"),
-						SKU:            p.SKU,
-						Barcode:        p.Barcode,
-						DosageForm:     p.DosageForm,
-						Concentration:  p.Concentration,
-						Unit:           p.Unit,
-						Manufacturer:   p.ManufacturingCompanies,
-						ScientificName: p.ScientificName,
-						PublicPrice:    p.Price.String(),
-					})
-				}
-			}
-		}
-
-		if orgID > 0 {
-			sProds, err := h.catSvc.ListSavingProducts(sysCtx, orgID, 5000, 0)
-			if err == nil {
-				for _, sp := range sProds {
-					if sp != nil && sp.ProductID != nil && *sp.ProductID > 0 {
-						savingList = append(savingList, &ingest.SavingProductData{
-							ProductID:   *sp.ProductID,
-							NameProduct: sp.NameProduct,
-							SKU:         sp.SKU,
-						})
-					}
-				}
-			}
-		}
+	list, err := h.invSvc.ListWarehouses(r.Context())
+	if err != nil {
+		h.log.WarnContext(r.Context(), "warehouses unavailable for import", "error", err)
+		return nil
 	}
+	return list
+}
 
-	h.cacheSet(cacheKey, &matchingDataPair{master: masterList, saving: savingList}, matchingDataCacheTTL)
-	return masterList, savingList
+// renderImport writes the page.
+func (h *UIHandler) renderImport(w http.ResponseWriter, r *http.Request, view pages.VendorImportView) {
+	lang, dir := h.localeAndDir(r)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.VendorIngestPage(view, lang, dir).Render(r.Context(), w); err != nil {
+		h.log.ErrorContext(r.Context(), "render vendor import page", "error", err)
+	}
 }

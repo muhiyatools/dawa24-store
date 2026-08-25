@@ -48,7 +48,7 @@ func (m *mockCompareRepoE2E) GetPlanBySlug(ctx context.Context, slug string) (*c
 }
 func (m *mockCompareRepoE2E) CreatePlan(ctx context.Context, p *compare.Plan) error { return nil }
 func (m *mockCompareRepoE2E) UpdatePlan(ctx context.Context, p *compare.Plan) error { return nil }
-func (m *mockCompareRepoE2E) DeletePlan(ctx context.Context, id int64) error         { return nil }
+func (m *mockCompareRepoE2E) DeletePlan(ctx context.Context, id int64) error        { return nil }
 func (m *mockCompareRepoE2E) ListPlanFeatures(ctx context.Context, planID int64) ([]*compare.PlanFeature, error) {
 	return nil, nil
 }
@@ -101,7 +101,9 @@ func (m *mockCompareRepoE2E) EvictOldestSessions(ctx context.Context, userID int
 func (m *mockCompareRepoE2E) ListActiveSessions(ctx context.Context, userID int64) ([]*compare.UserSession, error) {
 	return nil, nil
 }
-func (m *mockCompareRepoE2E) TerminateSession(ctx context.Context, sessionID string) error { return nil }
+func (m *mockCompareRepoE2E) TerminateSession(ctx context.Context, sessionID string) error {
+	return nil
+}
 func (m *mockCompareRepoE2E) DeactivateUserSession(ctx context.Context, sessionID string) error {
 	return nil
 }

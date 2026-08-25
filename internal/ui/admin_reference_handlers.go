@@ -573,4 +573,3 @@ func (h *UIHandler) AdminApiIntegrationsPage(w http.ResponseWriter, r *http.Requ
 		h.log.ErrorContext(ctx, "render admin api integrations", "error", err)
 	}
 }
-

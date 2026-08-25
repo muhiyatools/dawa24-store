@@ -1,0 +1,297 @@
+package pages
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest/engine"
+)
+
+// Stages two to five of the vendor catalogue import.
+
+// --- stage 2: mapping and validation ---------------------------------------
+
+templ importMappingStage(view VendorImportView) {
+	@importFileSummary(view)
+	if view.Analysis != nil {
+		@importFindings(view.Analysis)
+		<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping") } hx-boost="false">
+			<div class="card">
+				<h2 class="wiz-head">2. راجع ربط الأعمدة</h2>
+				<p class="wiz-sub">
+					تم تحديد كل عمود من عنوانه ومن محتوى صفوفه معاً، ودرجة الثقة مذكورة بجانبه مع سبب
+					القرار. غيّر ما تريد؛ أي عمود تتركه على «حدد تلقائياً» سيربطه النظام بعد اعتمادك
+					إن كان لديه دليل كافٍ، وسيظهر لك في شاشة التأكيد.
+				</p>
+				<div class="table-wrap">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>العمود في ملفك</th>
+								<th>عينة من القيم</th>
+								<th>الحقل</th>
+								<th>الثقة</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, col := range view.Analysis.Mapping.Columns {
+								@importColumnRow(col)
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="card mb-0">
+				<div class="wiz-actions">
+					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي الإعدادات.</span>
+					<div class="row-center">
+						<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }>
+							<button type="submit" class="btn btn-ghost">إلغاء</button>
+						</form>
+						<button type="submit" class="btn btn-primary">اعتماد الربط والمتابعة</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	}
+}
+
+templ importColumnRow(col *engine.Column) {
+	<tr>
+		<td>
+			<div class="fw-800">
+				if col.Header != "" {
+					{ col.Header }
+				} else {
+					{ fmt.Sprintf("العمود %d", col.Index+1) }
+				}
+			</div>
+			<div class="text-xs text-muted">{ fmt.Sprintf("العمود رقم %d", col.Index+1) }</div>
+		</td>
+		<td class="text-xs text-muted">{ strings.Join(col.Preview, " · ") }</td>
+		<td>
+			<select name={ fmt.Sprintf("column_%d", col.Index) } class="form-input">
+				<option value="" selected?={ col.Field == "" && !col.Ignored }>— حدد تلقائياً —</option>
+				<option value="__none" selected?={ false }>لا تستورد هذا العمود</option>
+				<option value="__ignore" selected?={ col.Ignored }>تجاهل نهائياً</option>
+				for _, spec := range FieldChoices() {
+					<option value={ string(spec.Field) } selected?={ col.Field == spec.Field }>
+						{ spec.Label }
+					</option>
+				}
+			</select>
+		</td>
+		<td>
+			if col.Field != "" {
+				<span class={ "badge", ConfidenceTone(col.Confidence), "text-xs" }>
+					{ col.Confidence.Label() } · { PercentText(col.Score) }
+				</span>
+				for _, why := range col.Why {
+					<div class="text-xs text-muted mt-1">· { why }</div>
+				}
+			} else {
+				<span class="badge badge-slate text-xs">بدون ربط</span>
+			}
+		</td>
+	</tr>
+}
+
+templ importFindings(a *engine.Analysis) {
+	if len(a.Mapping.Conflicts) > 0 || len(a.Mapping.Notes) > 0 {
+		<div class="card">
+			<h2 class="wiz-head">التحقق</h2>
+			<p class="wiz-sub">ما يجب أن تنظر إليه قبل المتابعة. لا شيء هنا يمنع الاستيراد إلا ما هو موسوم بـ«خطأ».</p>
+			for _, c := range a.Mapping.Conflicts {
+				<div class="row-center-sm mb-2">
+					<span class={ "badge", SeverityTone(c.Severity), "text-xs" }>
+						if c.Severity == engine.SeverityError {
+							خطأ
+						} else if c.Severity == engine.SeverityWarning {
+							تنبيه
+						} else {
+							معلومة
+						}
+					</span>
+					<span class="text-sm">{ c.Message }</span>
+				</div>
+			}
+			for _, n := range a.Mapping.Notes {
+				<div class="row-center-sm mb-2">
+					<span class="badge badge-slate text-xs">معلومة</span>
+					<span class="text-sm">{ n.Message }</span>
+				</div>
+			}
+		</div>
+	}
+}
+
+templ importFileSummary(view VendorImportView) {
+	<div class="card">
+		<div class="wiz-stats">
+			@importStat("الملف", view.Session.Filename)
+			@importStat("الصيغة", view.Session.Source.Format.Label())
+			if view.Session.Source.Sheet != "" {
+				@importStat("ورقة العمل", view.Session.Source.Sheet)
+			}
+			@importStat("عدد الصفوف", fmt.Sprint(view.Session.Source.TotalRows))
+			@importStat("الحجم", FileSizeText(view.Session.FileSizeBytes))
+		</div>
+	</div>
+}
+
+templ importStat(label, value string) {
+	<div class="wiz-stat">
+		<div class="wiz-stat-value text-sm">{ value }</div>
+		<div class="wiz-stat-label">{ label }</div>
+	</div>
+}
+
+// --- stage 3: settings -----------------------------------------------------
+
+templ importSettingsStage(view VendorImportView) {
+	<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/settings") } hx-boost="false">
+		<div class="card">
+			<h2 class="wiz-head">3. إعدادات الاستيراد</h2>
+			<p class="wiz-sub">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p>
+			<div class="stack-lg">
+				<div>
+					<label class="form-label">المخزن الذي ستُسجَّل فيه الأرصدة <span class="text-danger">*</span></label>
+					<select name="warehouse_id" class="form-input" required>
+						<option value="">— اختر المخزن —</option>
+						for _, wh := range view.Warehouses {
+							<option value={ fmt.Sprint(wh.ID) } selected?={ view.Session.Settings.WarehouseID == wh.ID }>
+								{ wh.Name }
+							</option>
+						}
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<h3 class="wiz-head">ماذا نفعل بأصناف كتالوجك؟</h3>
+			<div class="wiz-choices">
+				for _, opt := range ImportModeOptions() {
+					<label class="wiz-choice">
+						<input type="radio" name="mode" value={ string(opt.Mode) } checked?={ view.Session.Settings.Mode == opt.Mode }/>
+						<span class="wiz-choice-body">
+							<span class="wiz-choice-icon">{ opt.Icon }</span>
+							<span>
+								<span class="wiz-choice-title">{ opt.Title }</span>
+								<span class="wiz-choice-text">{ opt.Description }</span>
+								if opt.Destructive {
+									<span class="wiz-choice-warn">سيوقف عرض الأصناف غير الموجودة في الملف</span>
+								}
+							</span>
+						</span>
+					</label>
+				}
+			</div>
+		</div>
+		<div class="card">
+			<h3 class="wiz-head">ماذا تعني الكمية في ملفك؟</h3>
+			<div class="wiz-choices">
+				for _, mode := range StockModeOptions() {
+					<label class="wiz-choice">
+						<input type="radio" name="stock_mode" value={ string(mode) } checked?={ view.Session.Settings.StockMode == mode }/>
+						<span class="wiz-choice-body">
+							<span class="wiz-choice-icon">📦</span>
+							<span><span class="wiz-choice-title">{ mode.Label() }</span></span>
+						</span>
+					</label>
+				}
+			</div>
+		</div>
+		<div class="card">
+			<h3 class="wiz-head">الأصناف غير المطابقة للكتالوج المركزي</h3>
+			<div class="wiz-choices">
+				<label class="wiz-choice">
+					<input type="radio" name="unmatched" value="create" checked?={ view.Session.Settings.Unmatched != ingest.UnmatchedSkip }/>
+					<span class="wiz-choice-body">
+						<span class="wiz-choice-icon">🆕</span>
+						<span>
+							<span class="wiz-choice-title">{ ingest.UnmatchedCreate.Label() }</span>
+							<span class="wiz-choice-text">سيظهر الصنف في كتالوجك فوراً، وسيراجعه فريق دواء 24 لاعتماده مركزياً.</span>
+						</span>
+					</span>
+				</label>
+				<label class="wiz-choice">
+					<input type="radio" name="unmatched" value="skip" checked?={ view.Session.Settings.Unmatched == ingest.UnmatchedSkip }/>
+					<span class="wiz-choice-body">
+						<span class="wiz-choice-icon">⏭️</span>
+						<span>
+							<span class="wiz-choice-title">{ ingest.UnmatchedSkip.Label() }</span>
+							<span class="wiz-choice-text">لن يُضاف شيء غير مؤكد، وستحصل على قائمة قابلة للتنزيل بالأصناف المتخطاة.</span>
+						</span>
+					</span>
+				</label>
+			</div>
+		</div>
+		<div class="card">
+			<h3 class="wiz-head">خيارات دقيقة</h3>
+			<div class="wiz-switches">
+				@vendorImportSwitch("publish_immediately", "🟢", "نشر الأصناف فور استيرادها",
+					"إن أُوقف، ستُضاف الأصناف موقوفة لتراجعها في صفحة أصنافك قبل عرضها.",
+					view.Session.Settings.PublishImmediately)
+				@vendorImportSwitch("reject_expired", "⛔", "رفض الأصناف منتهية الصلاحية",
+					"لن يُستورد أي سطر تاريخ صلاحيته قد مضى.", view.Session.Settings.RejectExpired)
+				@vendorImportSwitch("blank_quantity_is_zero", "0️⃣", "اعتبار الخلية الفارغة رصيداً صفرياً",
+					"فعّله فقط إذا كان الملف يمثل جرد المخزن كاملاً.", view.Session.Settings.BlankQuantityIsZero)
+				@vendorImportSwitch("infer_dosage_form", "💊", "استنتاج الشكل الصيدلي من اسم الصنف",
+					"يُستخدم فقط إذا لم يوجد عمود للشكل الصيدلي.", view.Session.Settings.InferDosageForm)
+				@vendorImportSwitch("infer_concentration", "🧪", "استخراج التركيز من اسم الصنف",
+					"يُقتبس التركيز حرفياً من الاسم ولا يُخمَّن.", view.Session.Settings.InferConcentration)
+				@vendorImportSwitch("trust_supplier_code", "🔢", "مطابقة الكتالوج المركزي بكودك الداخلي",
+					"لا تفعّله إلا إذا كنت تستخدم أكواد دواء 24 نفسها.", view.Session.Settings.TrustSupplierCode)
+				@vendorImportSwitch("mark_negotiable", "🤝", "تعليم الأصناف كقابلة للتفاوض", "",
+					view.Session.Settings.MarkNegotiable)
+				@vendorImportSwitch("record_rows", "🧾", "حفظ سجل تفصيلي لكل صف",
+					"يتيح لك تصفية النتائج وتنزيل الأصناف التي تحتاج معالجة.", view.Session.Settings.RecordRows)
+			</div>
+			<div class="wiz-map">
+				<div class="wiz-map-item">
+					<span class="wiz-map-label">أقل كمية للطلب (افتراضياً)</span>
+					<input class="wiz-map-input" type="number" name="default_min_order_qty" min="1"
+						value={ fmt.Sprint(view.Session.Settings.DefaultMinOrderQty) }/>
+				</div>
+				<div class="wiz-map-item">
+					<span class="wiz-map-label">حد التنبيه للمخزون (افتراضياً)</span>
+					<input class="wiz-map-input" type="number" name="default_min_threshold" min="0"
+						value={ fmt.Sprint(view.Session.Settings.DefaultMinThreshold) }/>
+				</div>
+				<div class="wiz-map-item">
+					<span class="wiz-map-label">أقل درجة مطابقة تُعتمد تلقائياً (%)</span>
+					<input class="wiz-map-input" type="number" name="min_match_score" min="50" max="100"
+						value={ fmt.Sprint(int(view.Session.Settings.MinMatchScore*100)) }/>
+					<span class="wiz-map-hint">ما دون ذلك يُعامَل كغير مطابق.</span>
+				</div>
+			</div>
+			<input type="hidden" name="duplicates" value={ string(view.Session.Settings.Duplicates) }/>
+		</div>
+		<div class="card mb-0">
+			<div class="wiz-actions">
+				<span class="wiz-actions-note">ستُعرض عليك خلاصة كاملة قبل التنفيذ.</span>
+				<div class="row-center">
+					<button type="submit" class="btn btn-primary">حفظ الإعدادات والمتابعة</button>
+				</div>
+			</div>
+		</div>
+	</form>
+	<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
+		<button type="submit" class="btn btn-ghost btn-sm">← العودة لربط الأعمدة</button>
+	</form>
+}
+
+templ vendorImportSwitch(name, icon, title, text string, on bool) {
+	<label class="wiz-switch">
+		<input type="checkbox" name={ name } value="1" checked?={ on }/>
+		<span class="wiz-switch-icon">{ icon }</span>
+		<span class="wiz-switch-main">
+			<span class="wiz-switch-title">{ title }</span>
+			if text != "" {
+				<span class="wiz-switch-text">{ text }</span>
+			}
+		</span>
+		<span class="wiz-track" aria-hidden="true"></span>
+	</label>
+}

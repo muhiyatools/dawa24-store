@@ -231,4 +231,3 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		h.log.ErrorContext(ctx, "render market discounts", "error", err)
 	}
 }
-
