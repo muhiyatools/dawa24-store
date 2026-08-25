@@ -33,7 +33,7 @@ templ PublicShell(title string, lang string, dir string) {
 					</nav>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.875rem;">
+				<div style="display:flex; align-items:center; gap:0.75rem;">
 					if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 						@PharmacyBranchSelector(ctx)
 					}
@@ -155,61 +155,22 @@ templ PublicShell(title string, lang string, dir string) {
 									</a>
 								} else {
 									<a href="/customer/dashboard" class="dropdown-item fw-600">
-										@components.IconChart("icon-xs")
+										@components.IconHome("icon-xs")
 										<span>لوحة تحكم الصيدلية</span>
 									</a>
 								}
 
-								<!-- 3. Profile -->
-								if actor.IsStaff {
-									<a href="/admin/dashboard" class="dropdown-item">
-										@components.IconUser("icon-xs")
-										<span>الملف الشخصي والحساب</span>
-									</a>
-								} else if actor.IsVendor() {
-									<a href="/vendor/dashboard" class="dropdown-item">
-										@components.IconUser("icon-xs")
-										<span>الملف الشخصي والحساب</span>
-									</a>
-								} else {
-									<a href="/customer/dashboard" class="dropdown-item">
-										@components.IconUser("icon-xs")
-										<span>الملف الشخصي والحساب</span>
-									</a>
-								}
-
-								<!-- 4. Orders -->
-								if actor.IsCustomer() {
-									<a href="/orders" class="dropdown-item">
-										@components.IconPackage("icon-xs")
-										<span>طلبياتي وأوامر التوريد</span>
-									</a>
-								} else if actor.IsVendor() {
-									<a href="/vendor/orders" class="dropdown-item">
-										@components.IconTruck("icon-xs")
-										<span>أوامر التوريد والشحنات</span>
-									</a>
-								}
-
-								<!-- 5. Favourites -->
-								<a href="/favorites" class="dropdown-item">
-									@components.IconHeart("icon-xs")
-									<span>قائمة المفضلة</span>
+								<!-- 3. Profile & Settings -->
+								<a href="/settings/profile" class="dropdown-item">
+									@components.IconSettings("icon-xs")
+									<span>الملف الشخصي والإعدادات</span>
 								</a>
-
-								<!-- 6. Followed Suppliers (for customers) -->
-								if actor.IsCustomer() {
-									<a href="/suppliers/followed" class="dropdown-item">
-										@components.IconBuilding("icon-xs")
-										<span>الموردون المتابعون</span>
-									</a>
-								}
 
 								<div class="dropdown-divider"></div>
 
-								<!-- 7. Logout -->
-								<form action="/auth/logout" method="POST" class="m-0">
-									<button type="submit" class="dropdown-item" style="color:var(--danger); font-weight:600; width:100%; border:none; background:none; cursor:pointer; text-align:start; padding:0.5rem 1rem; display:flex; align-items:center; gap:0.5rem;">
+								<!-- 4. Sign Out -->
+								<form action="/auth/logout" method="POST" style="margin:0;">
+									<button type="submit" class="dropdown-item text-danger" style="width:100%;">
 										@components.IconLogout("icon-xs")
 										<span>تسجيل الخروج</span>
 									</button>
@@ -217,13 +178,14 @@ templ PublicShell(title string, lang string, dir string) {
 							</div>
 						</div>
 					} else {
-						<div class="row-center">
-							<a href="/auth/login" class="btn btn-secondary fw-600">
+						<div class="row-center-xs">
+							<a href="/auth/login" class="btn btn-secondary btn-sm fw-700" style="padding-inline:0.9rem;">
+								@components.IconUser("icon-xs")
 								<span>تسجيل الدخول</span>
 							</a>
-							<a href="/auth/register" class="btn btn-primary fw-600">
+							<a href="/auth/register" class="btn btn-primary btn-sm fw-800" style="padding-inline:1rem;">
 								@components.IconPlus("icon-xs")
-								<span>تسجيل صيدلية / مورد</span>
+								<span>تسجيل حساب</span>
 							</a>
 						</div>
 					}
@@ -231,42 +193,38 @@ templ PublicShell(title string, lang string, dir string) {
 			</header>
 
 			<main class="page-body">
-				{ children... }
+				<div class="page-container">
+					{ children... }
+				</div>
 			</main>
 
-			<!-- Redesigned Production Footer with clean dynamic links and ample spacing -->
 			<footer class="site-footer">
 				<div class="footer-content">
-					<!-- Company Info & Mission -->
+					<!-- Brand & Bio -->
 					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;">
-							<img src={ site.LogoURL } alt={ site.SiteName } style="object-fit:contain; border-radius:var(--radius-lg); background:var(--surface-raised); padding:3px;" />
+						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+							<img src={ site.LogoURL } alt={ site.SiteName } style="height:44px; max-height:46px; object-fit:contain;" />
+							<div>
+								<div style="font-weight:900; font-size:1.35rem; color:var(--text); line-height:1.2;">
+									دواء <span class="text-accent">24</span>
+								</div>
+								<div style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">
+									منظومة الربط والتوريد الدوائي المباشر
+								</div>
+							</div>
 						</div>
-						<h3 style="font-size:1.15rem; font-weight:600; color:var(--text); margin-bottom:0.75rem;">
-							{ site.SiteName }
-						</h3>
-						<p style="color:var(--text-secondary); font-size:0.925rem; line-height:1.8; max-width:540px;">
+						<p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.75; margin-bottom:1.25rem; max-width:42ch;">
 							{ site.SiteDescription }
 						</p>
 						<div class="footer-social-links">
-							if site.SocialLinks["whatsapp"] != "" {
-								<a href={ templ.SafeURL(site.SocialLinks["whatsapp"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تواصل عبر واتساب">
-									@components.IconWhatsApp("icon-xs")
-								</a>
-							}
 							if site.SocialLinks["facebook"] != "" {
 								<a href={ templ.SafeURL(site.SocialLinks["facebook"]) } target="_blank" rel="noopener" class="footer-social-btn" title="فيسبوك">
 									@components.IconFacebook("icon-xs")
 								</a>
 							}
 							if site.SocialLinks["twitter"] != "" {
-								<a href={ templ.SafeURL(site.SocialLinks["twitter"]) } target="_blank" rel="noopener" class="footer-social-btn" title="منصة إكس (Twitter)">
+								<a href={ templ.SafeURL(site.SocialLinks["twitter"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تويتر (X)">
 									@components.IconTwitter("icon-xs")
-								</a>
-							}
-							if site.SocialLinks["instagram"] != "" {
-								<a href={ templ.SafeURL(site.SocialLinks["instagram"]) } target="_blank" rel="noopener" class="footer-social-btn" title="انستجرام">
-									@components.IconInstagram("icon-xs")
 								</a>
 							}
 							if site.SocialLinks["linkedin"] != "" {
@@ -274,9 +232,14 @@ templ PublicShell(title string, lang string, dir string) {
 									@components.IconLinkedIn("icon-xs")
 								</a>
 							}
-							if site.SocialLinks["youtube"] != "" {
-								<a href={ templ.SafeURL(site.SocialLinks["youtube"]) } target="_blank" rel="noopener" class="footer-social-btn" title="يوتيوب">
-									@components.IconYouTube("icon-xs")
+							if site.SocialLinks["whatsapp"] != "" {
+								<a href={ templ.SafeURL("https://wa.me/" + site.SocialLinks["whatsapp"]) } target="_blank" rel="noopener" class="footer-social-btn" title="واتساب">
+									@components.IconWhatsApp("icon-xs")
+								</a>
+							}
+							if site.SocialLinks["instagram"] != "" {
+								<a href={ templ.SafeURL(site.SocialLinks["instagram"]) } target="_blank" rel="noopener" class="footer-social-btn" title="إنستغرام">
+									@components.IconInstagram("icon-xs")
 								</a>
 							}
 							if site.SocialLinks["tiktok"] != "" {
@@ -284,39 +247,32 @@ templ PublicShell(title string, lang string, dir string) {
 									@components.IconTikTok("icon-xs")
 								</a>
 							}
-							if site.SocialLinks["telegram"] != "" {
-								<a href={ templ.SafeURL(site.SocialLinks["telegram"]) } target="_blank" rel="noopener" class="footer-social-btn" title="تيليجرام">
-									@components.IconTelegram("icon-xs")
-								</a>
-							}
 						</div>
 					</div>
 
 					<!-- Quick Links -->
 					<div>
-						<h4 style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;">
-							روابط المنصة
+						<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;">
+							خدمات وروابط المنصة
 						</h4>
 						<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
 							<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
 							if features.Enabled(ctx, "offers.enabled") {
-								<li><a href="/offers">العروض والتخفيضات</a></li>
+								<li><a href="/offers">العروض والتخفيضات الحية</a></li>
 							}
-							<li><a href="/suppliers">دليل الموردين المعتمدين</a></li>
+							<li><a href="/suppliers">دليل الموردين والمصانع</a></li>
 							if features.Enabled(ctx, "jobs.enabled") {
-								<li><a href="/jobs">وظائف التوظيف الصيدلي والمهني</a></li>
+								<li><a href="/jobs">وظائف التوظيف الصيدلي</a></li>
 							}
 							<li><a href="/about">من نحن (عن دواء 24)</a></li>
 							<li><a href="/faq">الأسئلة الشائعة (FAQ)</a></li>
-							<li><a href="/auth/register">انضمام الشركاء والموردين</a></li>
-							<li><a href="/privacy">سياسة الخصوصية</a></li>
-							<li><a href="/terms">الشروط والأحكام</a></li>
+							<li><a href="/auth/register">انضمام الصيدليات والموردين</a></li>
 						</ul>
 					</div>
 
 					<!-- Contact & Support -->
 					<div>
-						<h4 style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:1.25rem;">
+						<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;">
 							التواصل والدعم الفني
 						</h4>
 						<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);">
@@ -335,7 +291,7 @@ templ PublicShell(title string, lang string, dir string) {
 								</li>
 							}
 							<li style="font-size:0.825rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.6;">
-								الدعم الفني متاح على مدار الساعة للمؤسسات والصيدليات المعتمدة.
+								خدمة العملاء والدعم الفني متاح 24/7 للمؤسسات والصيدليات المعتمدة.
 							</li>
 						</ul>
 					</div>

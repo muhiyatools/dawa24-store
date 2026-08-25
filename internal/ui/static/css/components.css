@@ -119,12 +119,12 @@ dialog.modal::backdrop {
   max-width: 100vw !important;
   max-height: 100vh !important;
   margin: 0 !important;
-  background: rgba(15, 23, 42, 0.72) !important;
+  background: rgba(15, 23, 42, 0.75) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: var(--z-modal, 9999) !important;
   padding: 1.5rem !important;
   box-sizing: border-box !important;
@@ -132,9 +132,13 @@ dialog.modal::backdrop {
 
 .modal-overlay.hidden,
 .modal-overlay[style*="display: none"],
+.modal-overlay[x-cloak],
 .modal-backdrop.hidden,
-.modal-backdrop[style*="display: none"] {
+.modal-backdrop[style*="display: none"],
+.modal-backdrop[x-cloak] {
   display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none !important;
 }
 

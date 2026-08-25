@@ -19,26 +19,27 @@ type HomeStats struct {
 
 templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, stats HomeStats, lang, dir string) {
 	@layouts.PublicShell("دواء 24 — منصة التوريد والربط الدوائي المباشر في مصر", lang, dir) {
+		
 		<!-- 1. Hero Section -->
-		<section class="card mb-0" style="background:var(--surface-raised); padding:3.5rem 1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); margin-bottom:2rem; text-align:center;">
+		<section class="card mb-0" style="background:linear-gradient(180deg, var(--surface-raised) 0%, color-mix(in srgb, var(--accent) 3%, var(--surface-raised)) 100%); padding:4rem 1.5rem; border-radius:var(--radius-2xl); border:1px solid var(--border); margin-bottom:2.5rem; text-align:center; box-shadow:var(--shadow-sm);">
 			<div class="hero-badge-pill">
 				@components.IconShield("icon-xs")
 				if stats.HeroBadge != "" {
 					<span>{ stats.HeroBadge }</span>
 				} else {
-					<span>المنظومة الرقمية المعتمدة لربط وتوريد الأدوية في مصر</span>
+					<span>المنظومة الرقمية المعتمدة لربط وتوريد الأدوية في مصر (EDA)</span>
 				}
 			</div>
 			
-			<h1 style="font-size:2.5rem; font-weight:900; color:var(--text); margin:0 auto 1rem auto; max-width:800px; line-height:1.25; letter-spacing:-0.02em;">
+			<h1 style="font-size:clamp(1.75rem, 4vw, 2.75rem); font-weight:900; color:var(--text); margin:0 auto 1.25rem auto; max-width:840px; line-height:1.25; letter-spacing:-0.02em;">
 				if stats.HeroTitle != "" {
 					{ stats.HeroTitle }
 				} else {
-					سوق التوريد الدوائي المباشر للصيدليات والمستودعات
+					سوق التوريد والربط الدوائي المباشر للصيدليات والمستودعات
 				}
 			</h1>
 			
-			<p style="font-size:1.05rem; font-weight:500; color:var(--text-secondary); margin:0 auto 2rem auto; max-width:680px; line-height:1.75; white-space:pre-wrap;">
+			<p style="font-size:1.05rem; font-weight:500; color:var(--text-secondary); margin:0 auto 2.25rem auto; max-width:680px; line-height:1.8; text-wrap:pretty;">
 				if stats.HeroSubtitle != "" {
 					{ stats.HeroSubtitle }
 				} else {
@@ -46,24 +47,28 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 				}
 			</p>
 
-			<!-- Live Catalog Search Box -->
-			<form action="/catalog" method="GET" style="max-width:620px; margin:0 auto 1.25rem auto; display:flex; gap:0.5rem; background:var(--surface-sunken); padding:0.4rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-				<input
-					type="search"
-					name="q"
-					placeholder="ابحث بالاسم التجاري (مثل Panadol)، المادة الفعالة، أو اسم الشركة..."
-					class="form-input"
-					style="flex:1; border:none; background:transparent; font-size:0.95rem; padding:0.6rem 0.85rem;"
-				/>
-				<button type="submit" class="btn btn-primary" style="padding-inline:1.5rem; font-weight:800; border-radius:var(--radius-md);">
-					@components.IconSearch("icon-xs")
+			<!-- Live Catalog Search Capsule -->
+			<form action="/catalog" method="GET" style="max-width:640px; margin:0 auto 1.25rem auto; display:flex; gap:0.5rem; background:var(--surface-sunken); padding:0.45rem; border-radius:var(--radius-xl); border:1.5px solid var(--border); box-shadow:var(--shadow-md);">
+				<div style="display:flex; align-items:center; flex:1; padding-inline-start:0.75rem; gap:0.5rem;">
+					<span class="text-muted">
+						@components.IconSearch("icon-sm")
+					</span>
+					<input
+						type="search"
+						name="q"
+						placeholder="ابحث بالاسم التجاري (مثل Panadol)، المادة الفعالة، أو اسم الشركة..."
+						class="form-input"
+						style="flex:1; border:none; background:transparent; font-size:0.95rem; padding:0.6rem 0.5rem; box-shadow:none;"
+					/>
+				</div>
+				<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800; border-radius:var(--radius-lg); flex-shrink:0;">
 					<span>بحث في الكتالوج</span>
 				</button>
 			</form>
 
 			<!-- Quick Search Suggestion Tags -->
-			<div style="display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:0.45rem; margin-bottom:2rem;">
-				<span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">الأكثر طلباً:</span>
+			<div style="display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:2.25rem;">
+				<span style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">الأكثر طلباً:</span>
 				<a href="/catalog?q=Augmentin" class="search-suggestion-tag">أوجمنتين</a>
 				<a href="/catalog?q=Panadol" class="search-suggestion-tag">بنادول</a>
 				<a href="/catalog?q=Cataflam" class="search-suggestion-tag">كتافلام</a>
@@ -74,11 +79,11 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			
 			<!-- Direct Action CTAs -->
 			<div style="display:flex; justify-content:center; gap:0.85rem; flex-wrap:wrap;">
-				<a href="/auth/register" class="btn btn-primary" style="padding:0.7rem 1.75rem; font-weight:800; font-size:0.95rem;">
+				<a href="/auth/register" class="btn btn-primary" style="padding:0.75rem 2rem; font-weight:800; font-size:0.95rem; border-radius:var(--radius-lg);">
 					@components.IconPlus("icon-xs")
 					<span>تسجيل صيدلية جديدة</span>
 				</a>
-				<a href="/catalog" class="btn btn-secondary" style="padding:0.7rem 1.75rem; font-weight:700; font-size:0.95rem;">
+				<a href="/catalog" class="btn btn-secondary" style="padding:0.75rem 2rem; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);">
 					@components.IconPill("icon-xs")
 					<span>تصفح كتالوج الأدوية</span>
 				</a>
@@ -86,81 +91,81 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		</section>
 
 		<!-- 2. Trust Metrics Strip -->
-		<section class="card mb-0" style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:1.25rem 2rem; margin-bottom:2.5rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised);">
+		<section class="card mb-0" style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:1.75rem; padding:1.5rem 2rem; margin-bottom:3rem; border:1px solid var(--border); border-radius:var(--radius-2xl); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
 			<div class="row-center">
-				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+				<div class="b2b-icon-box">
 					@components.IconBuilding("icon-sm")
 				</div>
 				<div>
-					<div class="tabular-nums" style="font-weight:900; font-size:1.35rem; color:var(--text); line-height:1.1;">
+					<div class="tabular-nums" style="font-weight:900; font-size:1.45rem; color:var(--text); line-height:1.1;">
 						if stats.TotalSuppliers > 0 {
 							{ fmt.Sprintf("%d", stats.TotalSuppliers) }
 						} else {
 							47
 						}
 					</div>
-					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem;">مورد ومصنع معتمد</div>
+					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem; margin-top:2px;">مورد ومصنع معتمد</div>
 				</div>
 			</div>
 			
-			<div style="border-inline-start:1px solid var(--border); height:2rem;" class="hide-mobile"></div>
+			<div style="border-inline-start:1px solid var(--border); height:2.25rem;" class="hide-mobile"></div>
 			
 			<div class="row-center">
-				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+				<div class="b2b-icon-box">
 					@components.IconPill("icon-sm")
 				</div>
 				<div>
-					<div class="tabular-nums" style="font-weight:900; font-size:1.35rem; color:var(--text); line-height:1.1;">
+					<div class="tabular-nums" style="font-weight:900; font-size:1.45rem; color:var(--text); line-height:1.1;">
 						if stats.TotalProducts > 0 {
 							{ fmt.Sprintf("%d", stats.TotalProducts) }
 						} else {
 							8,340
 						}
 					</div>
-					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem;">صنف دوائي مسجل</div>
+					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem; margin-top:2px;">صنف دوائي مسجل</div>
 				</div>
 			</div>
 			
-			<div style="border-inline-start:1px solid var(--border); height:2rem;" class="hide-mobile"></div>
+			<div style="border-inline-start:1px solid var(--border); height:2.25rem;" class="hide-mobile"></div>
 			
 			<div class="row-center">
-				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+				<div class="b2b-icon-box">
 					@components.IconTruck("icon-sm")
 				</div>
 				<div>
-					<div class="tabular-nums" style="font-weight:900; font-size:1.35rem; color:var(--text); line-height:1.1;">
+					<div class="tabular-nums" style="font-weight:900; font-size:1.45rem; color:var(--text); line-height:1.1;">
 						if stats.TotalCities > 0 {
 							{ fmt.Sprintf("%d", stats.TotalCities) }
 						} else {
 							86
 						}
 					</div>
-					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem;">مدينة ومنطقة مغطاة</div>
+					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem; margin-top:2px;">مدينة ومنطقة مغطاة</div>
 				</div>
 			</div>
 
-			<div style="border-inline-start:1px solid var(--border); height:2rem;" class="hide-mobile"></div>
+			<div style="border-inline-start:1px solid var(--border); height:2.25rem;" class="hide-mobile"></div>
 
 			<div class="row-center">
-				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+				<div class="b2b-icon-box">
 					@components.IconCheckCircle("icon-sm")
 				</div>
 				<div>
-					<div style="font-weight:900; font-size:1.15rem; color:var(--text); line-height:1.1;">فواتير إلكترونية</div>
-					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem;">متوافقة مع الضرائب المصرية</div>
+					<div style="font-weight:900; font-size:1.2rem; color:var(--text); line-height:1.1;">فواتير إلكترونية</div>
+					<div style="font-weight:600; color:var(--text-secondary); font-size:0.775rem; margin-top:2px;">متوافقة مع مصلحة الضرائب</div>
 				</div>
 			</div>
 		</section>
 
 		<!-- 3. Featured Products for Direct Procurement -->
-		<section style="margin-bottom:3rem;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+		<section style="margin-bottom:3.5rem;">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem; flex-wrap:wrap; gap:0.75rem;">
 				<div>
-					<h2 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
+					<h2 style="font-size:1.55rem; font-weight:900; color:var(--text); margin:0;">
 						أصناف دوائية متوفرة للتوريد الفوري
 					</h2>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-						أدوية ومستلزمات صيدلانية معتمدة متوفرة بأرصدة حية لدى كبار الموردين
+						أدوية ومستلزمات صيدلانية معتمدة متوفرة بأرصدة حية لدى كبار الموردين والموزعين
 					</p>
 				</div>
 				<a href="/catalog" class="btn btn-secondary btn-sm fw-700">
@@ -177,11 +182,12 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					})
 				</div>
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem;">
+				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); gap:1.25rem;">
 					for _, prod := range featured {
 						<div class="product-catalog-card">
 							<div>
-								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+								<!-- Badges row -->
+								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
 									if prod.DosageForm != "" {
 										<span class="badge badge-sky" style="font-size:0.725rem; font-weight:700;">
 											@components.IconPill("icon-xs")
@@ -193,8 +199,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									<span class="badge badge-emerald text-xs">متوفر للتوريد</span>
 								</div>
 								
+								<!-- Product Name -->
 								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", prod.ID)) } style="text-decoration:none; color:inherit;">
-									<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0; line-height:1.4;">
+									<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0; line-height:1.4;">
 										if prod.Name["ar"] != "" {
 											{ prod.Name["ar"] }
 										} else {
@@ -203,12 +210,14 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									</h3>
 								</a>
 								
+								<!-- Scientific Name / Active Ingredient -->
 								if prod.ScientificName != "" {
-									<div style="font-size:0.775rem; color:var(--text-muted); margin-bottom:0.4rem; direction:ltr; text-align:right;">
+									<div style="font-size:0.775rem; color:var(--text-muted); margin-bottom:0.4rem; direction:ltr; text-align:start; font-family:monospace;">
 										{ prod.ScientificName }
 									</div>
 								}
 
+								<!-- Manufacturer -->
 								if prod.ManufacturingCompanies != "" {
 									<div style="font-size:0.775rem; color:var(--text-secondary); margin-bottom:0.75rem;">
 										<span class="text-muted">الشركة:</span> { prod.ManufacturingCompanies }
@@ -216,9 +225,10 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 								}
 							</div>
 							
-							<div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", prod.ID)) } class="btn btn-primary btn-sm" style="width:100%; justify-content:center; font-weight:800;">
-									@components.IconFileText("icon-xs")
+							<!-- Action Footer -->
+							<div style="margin-top:1.25rem; padding-top:0.85rem; border-top:1px solid var(--border);">
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", prod.ID)) } class="btn btn-primary btn-sm" style="width:100%; justify-content:center; font-weight:800; padding:0.6rem 1rem;">
+									@components.IconCart("icon-xs")
 									<span>عروض الموردين والطلب</span>
 								</a>
 							</div>
@@ -230,23 +240,23 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 
 		<!-- 4. Therapeutic Categories -->
 		if len(categories) > 0 {
-			<section style="margin-bottom:3rem;">
-				<div style="margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<h2 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
+			<section style="margin-bottom:3.5rem;">
+				<div style="margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
+					<h2 style="font-size:1.55rem; font-weight:900; color:var(--text); margin:0;">
 						الأقسام والمجموعات العلاجية
 					</h2>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-						تغطية لكافة التخصصات الدوائية والمستلزمات الصيدلانية
+						تغطية شاملة لكافة التخصصات الدوائية والمستلزمات الصيدلانية المعتمدة
 					</p>
 				</div>
 
 				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:1rem;">
 					for _, cat := range categories {
 						<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="category-tile-card">
-							<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box">
 								@components.IconPill("icon-sm")
 							</div>
-							<div style="font-size:0.875rem; font-weight:700; color:var(--text);">
+							<div style="font-size:0.875rem; font-weight:800; color:var(--text);">
 								if cat.Name["ar"] != "" {
 									{ cat.Name["ar"] }
 								} else {
@@ -260,53 +270,53 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		}
 
 		<!-- 5. Core Platform Guarantees -->
-		<section style="margin-bottom:3rem;">
-			<div style="text-align:center; margin-bottom:2rem;">
-				<h2 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0 0 0.35rem 0;">
+		<section style="margin-bottom:3.5rem;">
+			<div style="text-align:center; margin-bottom:2.25rem;">
+				<h2 style="font-size:1.75rem; font-weight:900; color:var(--text); margin:0 0 0.4rem 0;">
 					لماذا تعتمد الصيدليات على منصة دواء 24
 				</h2>
 				<p class="text-sm text-secondary m-0">
-					منظومة متكاملة صُممت لتسهيل التوريد الدوائي وحماية الصيدلي
+					منظومة متكاملة صُممت لتسهيل التوريد الدوائي وحماية الصيدلي والمنشآت الطبية
 				</p>
 			</div>
 
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1.25rem;">
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
 				<div class="feature-benefit-card">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="b2b-icon-box-lg">
 						@components.IconShield("icon-md")
 					</div>
 					<h3 class="text-lg fw-800 text-primary m-0">موردون وشركات معتمدة</h3>
-					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.75; margin:0;">
 						تدقيق دوري للتراخيص والسجلات التجارية من هيئة الدواء ونقابة الصيادلة لضمان أصالة المصادر وجودة المنتجات.
 					</p>
 				</div>
 
 				<div class="feature-benefit-card">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="b2b-icon-box-lg">
 						@components.IconTruck("icon-md")
 					</div>
 					<h3 class="text-lg fw-800 text-primary m-0">شحن وسلسلة تبريد مجهزة</h3>
-					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.75; margin:0;">
 						سيارات مجهزة بحاويات تبريد ومجسات حرارية (2° - 8°C) لنقل الأنسولين والأمصال والأدوية الحيوية بأمان تام.
 					</p>
 				</div>
 
 				<div class="feature-benefit-card">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="b2b-icon-box-lg">
 						@components.IconFileText("icon-md")
 					</div>
 					<h3 class="text-lg fw-800 text-primary m-0">فواتير ضريبية إلكترونية</h3>
-					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.75; margin:0;">
 						إصدار وتوثيق مباشر مع مصلحة الضرائب المصرية لتسوية المصروفات والامتثال المالي للصيدلية بدون تعقيد.
 					</p>
 				</div>
 
 				<div class="feature-benefit-card">
-					<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="b2b-icon-box-lg">
 						@components.IconPhone("icon-md")
 					</div>
 					<h3 class="text-lg fw-800 text-primary m-0">دعم صيدلي مباشر 24/7</h3>
-					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+					<p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.75; margin:0;">
 						فريق دعم متخصص من الصيادلة لمساعدتك في تتبع الشحنات، حل أي نواقص دوائية، والإجابة عن الاستفسارات.
 					</p>
 				</div>
@@ -314,61 +324,61 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		</section>
 
 		<!-- 6. How Procurement Works -->
-		<section class="card mb-0" style="padding:2.5rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); margin-bottom:3rem; text-align:center;">
-			<h2 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0 0 0.35rem 0;">
+		<section class="card mb-0" style="padding:3rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); margin-bottom:3.5rem; text-align:center; box-shadow:var(--shadow-xs);">
+			<h2 style="font-size:1.65rem; font-weight:900; color:var(--text); margin:0 0 0.4rem 0;">
 				كيف تتم عملية التوريد عبر المنصة
 			</h2>
-			<p style="color:var(--text-secondary); font-size:0.875rem; margin:0 auto 2rem auto; max-width:500px;">
-				خطوات رقمية مبسطة تختصر الوقت وتوفر أفضل أسعار الشراء للصيدلية
+			<p style="color:var(--text-secondary); font-size:0.875rem; margin:0 auto 2.25rem auto; max-width:540px; line-height:1.7;">
+				خطوات رقمية مبسطة تختصر الوقت وتوفر أفضل أسعار الشراء للصيدلية مباشرة من المصدر
 			</p>
 
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem; text-align:center;">
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.75rem; text-align:center;">
 				<div class="p-md">
-					<div style="width:44px; height:44px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto; font-weight:900; font-size:1.1rem;">
+					<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.85rem auto; font-weight:900; font-size:1.2rem; border:1.5px solid var(--border);">
 						1
 					</div>
-					<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">ابحث وقارن العروض</h4>
-					<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.6; margin:0;">
-						ابحث بالاسم أو الباركود وقارن عروض الأسعار ونسب الخصم والكميات المتاحة لدى الموردين.
+					<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">ابحث وقارن العروض</h4>
+					<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+						ابحث بالاسم أو الباركود وقارن عروض الأسعار ونسب الخصم والكميات المتاحة لدى الموردين والمستودعات.
 					</p>
 				</div>
 
 				<div class="p-md">
-					<div style="width:44px; height:44px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto; font-weight:900; font-size:1.1rem;">
+					<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.85rem auto; font-weight:900; font-size:1.2rem; border:1.5px solid var(--border);">
 						2
 					</div>
-					<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">اطلب بضغطة زر</h4>
-					<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.6; margin:0;">
-						اجمع أصنافك من موردين متعددين في طلبية واحدة موحدة يتم تجزئتها آلياً لكل مورد.
+					<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">اطلب بضغطة زر واحدة</h4>
+					<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+						اجمع أصنافك من موردين متعددين في طلبية واحدة موحدة يتم تجزئتها وتوجيهها آلياً لكل مورد.
 					</p>
 				</div>
 
 				<div class="p-md">
-					<div style="width:44px; height:44px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto; font-weight:900; font-size:1.1rem;">
+					<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.85rem auto; font-weight:900; font-size:1.2rem; border:1.5px solid var(--border);">
 						3
 					</div>
-					<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">استلم وتتبع الشحنة</h4>
-					<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.6; margin:0;">
-						استلم الطلبية في صيدليتك مع الفاتورة الضريبية المعتمدة والدفع عند الاستلام أو بالائتمان.
+					<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">استلم وتتبع الشحنة</h4>
+					<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.7; margin:0;">
+						استلم الطلبية في صيدليتك مع الفاتورة الضريبية المعتمدة مع إمكانية الدفع عند الاستلام أو بالائتمان.
 					</p>
 				</div>
 			</div>
 		</section>
 
-		<!-- 7. Call To Action -->
-		<section class="card mb-0" style="background:var(--accent-subtle); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 1.5rem; text-align:center; margin-bottom:1.5rem;">
-			<h2 style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;">
-				انضم إلى مستقبل التوريد الدوائي الآن
+		<!-- 7. Call To Action Banner -->
+		<section class="card mb-0" style="background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--surface-raised)), var(--surface-raised)); border:1.5px solid var(--border); border-radius:var(--radius-2xl); padding:3.5rem 1.5rem; text-align:center; margin-bottom:1.5rem; box-shadow:var(--shadow-sm);">
+			<h2 style="font-size:2rem; font-weight:900; color:var(--text); margin:0 0 0.6rem 0;">
+				انضم إلى مستقبل التوريد الدوائي الذكي الآن
 			</h2>
-			<p style="font-size:0.95rem; color:var(--text-secondary); max-width:580px; margin:0 auto 1.75rem auto; line-height:1.7;">
-				سجل حساب صيدليتك الآن للاستفادة من أفضل عروض التوريد والخصومات المباشرة من كبرى شركات ومستودعات الأدوية.
+			<p style="font-size:0.95rem; color:var(--text-secondary); max-width:600px; margin:0 auto 2rem auto; line-height:1.75;">
+				سجل حساب صيدليتك الآن للاستفادة من أفضل عروض التوريد والخصومات المباشرة وسلاسل الإمداد الموثقة في جمهورية مصر العربية.
 			</p>
-			<div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
-				<a href="/auth/register" class="btn btn-primary" style="padding:0.7rem 1.75rem; font-weight:800; font-size:0.95rem;">
+			<div style="display:flex; justify-content:center; gap:0.85rem; flex-wrap:wrap;">
+				<a href="/auth/register" class="btn btn-primary" style="padding:0.75rem 2rem; font-weight:800; font-size:0.95rem; border-radius:var(--radius-lg);">
 					@components.IconCheck("icon-xs")
 					<span>تسجيل صيدلية الآن</span>
 				</a>
-				<a href="/auth/register" class="btn btn-secondary" style="padding:0.7rem 1.75rem; font-weight:700; font-size:0.95rem;">
+				<a href="/auth/register" class="btn btn-secondary" style="padding:0.75rem 2rem; font-weight:700; font-size:0.95rem; border-radius:var(--radius-lg);">
 					@components.IconBuilding("icon-xs")
 					<span>انضمام كمورد أو موزع</span>
 				</a>

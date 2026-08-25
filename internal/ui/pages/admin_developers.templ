@@ -52,7 +52,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'sql' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					:class="activeTab === 'sql' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
 					@click="setTab('sql')"
 				>
 					@components.IconDatabase("icon-xs")
@@ -62,7 +62,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'ai' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					:class="activeTab === 'ai' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
 					@click="setTab('ai')"
 				>
 					@components.IconSparkles("icon-xs")
@@ -72,7 +72,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'errors' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					:class="activeTab === 'errors' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
 					@click="setTab('errors')"
 				>
 					@components.IconBug("icon-xs")
@@ -82,7 +82,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<button
 					type="button"
 					class="btn"
-					:class="activeTab === 'audit' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					:class="activeTab === 'audit' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
 					@click="setTab('audit')"
 				>
 					@components.IconClock("icon-xs")

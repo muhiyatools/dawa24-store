@@ -140,8 +140,7 @@ func getBrandLabel(bid *int64, brands []*catalog.Brand, fallback string) string 
 templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category, totalCount, currentPage, pageSize int, searchQuery, statusFilter, dosageFilter string, brandFilterVal, catFilterVal int64) {
 	@layouts.AdminShell("دليل الأدوية والأصناف الأساسية", "products", lang, dir) {
 		<div
-			class="card"
-			style="margin-bottom:0; overflow:visible;"
+			class="stack-lg"
 			x-data="{
 				searchQuery: '',
 				dosageFilter: 'all',
@@ -214,12 +213,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				</button>
 			}
 
-			<!-- Search & Filter Controls (Server-Side Full Database Search) -->
-			<form
-				method="GET"
-				action="/admin/products"
-				class="b2b-filter-bar"
-			>
+			<!-- Table & Search Card -->
+			<div class="card mb-0 overflow-visible">
+				<!-- Search & Filter Controls (Server-Side Full Database Search) -->
+				<form
+					method="GET"
+					action="/admin/products"
+					class="b2b-filter-bar"
+				>
 				<div class="b2b-filter-grid" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;">
 				<div class="search-input-group w-full">
 					<span class="search-icon">
@@ -505,6 +506,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</div>
 				}
 			}
+			</div>
 
 			<!-- Master Product Creation Modal -->
 			<div

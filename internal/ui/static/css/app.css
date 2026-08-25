@@ -7,7 +7,16 @@
 @import url('components.css');
 
 /* ---- Visibility and Cloaking primitives ---- */
-[x-cloak] { display: none !important; }
+[x-cloak],
+[x-cloak] *,
+.modal-overlay[x-cloak],
+.modal[x-cloak],
+.modal-backdrop[x-cloak] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
 dialog:not([open]) { display: none !important; }
 .modal-overlay.hidden,
 .modal.hidden,
@@ -35,12 +44,6 @@ img, svg, video {
 .data-table img, .brand-logo-img, .product-thumb-img {
   aspect-ratio: 1 / 1;
   object-fit: contain;
-}
-.table-container {
-  contain: layout style;
-}
-.card {
-  contain: layout style;
 }
 
 /* ============================================================
