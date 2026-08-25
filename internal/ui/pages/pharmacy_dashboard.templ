@@ -115,49 +115,63 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 			</div>
 		}
 
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">طلبات مفتوحة</span>
-				<div style="font-size:1.9rem; font-weight:900; color:var(--warning); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.OpenOrders) }</div>
-			</div>
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">إنفاق الشهر</span>
-				<div style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin-top:0.6rem;" class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthSpend })</div>
-			</div>
+		<div class="b2b-metric-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));">
+			@components.StatCard(components.StatCardProps{
+				Label: "طلبات مفتوحة",
+				Value: fmt.Sprintf("%d طلب", data.OpenOrders),
+				Tone:  "warning",
+			})
+			@components.StatCard(components.StatCardProps{
+				Label: "إنفاق الشهر",
+				Money: &data.MonthSpend,
+				Tone:  "neutral",
+			})
 			if data.HasWallet {
-				<div class="card hover-lift" style="margin-bottom:0;">
-					<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">رصيد المحفظة</span>
-					<div style="font-size:1.4rem; font-weight:900; color:var(--info); margin-top:0.6rem;" class="tabular-nums">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })</div>
-				</div>
+				@components.StatCard(components.StatCardProps{
+					Label: "رصيد المحفظة",
+					Money: &data.WalletBalance,
+					Tone:  "info",
+				})
 			}
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">المفضلة</span>
-				<div style="font-size:1.9rem; font-weight:900; color:var(--primary-700); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.Favorites) }</div>
-			</div>
-			<div class="card hover-lift" style="margin-bottom:0;">
-				<span style="font-size:0.8rem; color:var(--neutral-500); font-weight:600;">عروض متاحة</span>
-				<div style="font-size:1.9rem; font-weight:900; color:var(--neutral-800); margin-top:0.6rem;" class="tabular-nums">{ fmt.Sprintf("%d", data.ActiveOffers) }</div>
-			</div>
+			@components.StatCard(components.StatCardProps{
+				Label: "المفضلة",
+				Value: fmt.Sprintf("%d صنف", data.Favorites),
+				Tone:  "primary",
+			})
+			@components.StatCard(components.StatCardProps{
+				Label: "عروض متاحة",
+				Value: fmt.Sprintf("%d عرض", data.ActiveOffers),
+				Tone:  "primary",
+			})
 		</div>
 
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
-			<div class="card">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title" style="margin:0;">متابعة الطلبات</h2>
-					<a href="/orders" class="btn btn-secondary btn-sm">كل الطلبات</a>
+			<div class="b2b-table-card" style="padding:1.25rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+					<h2 class="card-title" style="margin:0; font-size:1.1rem; font-weight:700;">متابعة الطلبات</h2>
+					<a href="/orders" class="btn btn-secondary btn-sm" style="font-weight:600;">كل الطلبات</a>
 				</div>
 				if len(data.Orders) == 0 {
-					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد طلبات بعد. ابدأ التصفح وأضف منتجات لسلتك.</p>
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد طلبات بعد",
+						Message: "ابدأ التصفح وأضف منتجات لسلتك لإنشاء طلبيتك الأولى.",
+					})
 				} else {
-					<div class="table-container">
-						<table class="data-table">
-							<thead><tr><th>الطلب</th><th>الحالة</th><th>الإجمالي</th></tr></thead>
+					<div class="b2b-table-container">
+						<table class="b2b-table">
+							<thead>
+								<tr>
+									<th>الطلب</th>
+									<th>الحالة</th>
+									<th class="td-numeric">الإجمالي</th>
+								</tr>
+							</thead>
 							<tbody>
 								for _, o := range data.Orders {
 									<tr>
-										<td><a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) }>{ o.OrderNumber }</a></td>
-										<td><span class="badge badge-emerald">{ o.Status }</span></td>
-										<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: o.TotalAmount })</td>
+										<td><a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } style="font-weight:700; color:var(--accent); text-decoration:none;">{ o.OrderNumber }</a></td>
+										<td>@components.StatusBadge(string(o.Status))</td>
+										<td class="td-numeric">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: o.TotalAmount })</td>
 									</tr>
 								}
 							</tbody>
@@ -166,22 +180,28 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				}
 			</div>
 
-			<div class="card">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title" style="margin:0;">عروض لك</h2>
-					<a href="/offers" class="btn btn-secondary btn-sm">كل العروض</a>
+			<div class="b2b-table-card" style="padding:1.25rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+					<h2 class="card-title" style="margin:0; font-size:1.1rem; font-weight:700;">عروض توريد مقترحة لك</h2>
+					<a href="/offers" class="btn btn-secondary btn-sm" style="font-weight:600;">كل العروض</a>
 				</div>
 				if len(data.Offers) == 0 {
-					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد عروض نشطة في منطقتك حالياً.</p>
+					@components.EmptyState(components.EmptyStateProps{
+						Title:   "لا توجد عروض حالياً",
+						Message: "لا توجد عروض توريد نشطة في منطقتك حالياً.",
+					})
 				} else {
-					for _, o := range data.Offers {
-						<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
-							<div>
-								<div style="font-weight:700; color:var(--neutral-900);">{ o.Title.Get(i18n.Lang(lang)) }</div>
-								<div style="font-size:0.8rem; color:var(--neutral-500);">خصم { o.DiscountValue.String() }</div>
+					<div style="display:flex; flex-direction:column; gap:0.5rem;">
+						for _, o := range data.Offers {
+							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
+								<div>
+									<div style="font-weight:700; color:var(--text); font-size:0.9375rem;">{ o.Title.Get(i18n.Lang(lang)) }</div>
+									<div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:0.15rem;">قيمة الخصم: <strong class="tabular-nums">{ o.DiscountValue.String() }</strong> ج.م</div>
+								</div>
+								<a href="/offers" class="btn btn-secondary btn-sm" style="font-weight:600;">عرض التفاصيل</a>
 							</div>
-						</div>
-					}
+						}
+					</div>
 				}
 			</div>
 		</div>

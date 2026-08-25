@@ -55,79 +55,67 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 					}
 				}
 
+				{{
+					totalVariantsCount := len(data.Variants)
+				}}
 				<!-- Header Bar -->
-				<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-							<div style="width:42px; height:42px; border-radius:var(--radius-xl); background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color:#ffffff; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(59,130,246,0.3);">
-								@components.IconPackage("icon-sm")
-							</div>
-							<h1 style="font-size:1.75rem; font-weight:900; color:var(--text); margin:0;">
-								أصناف التوريد والمخزون
-							</h1>
-						</div>
-						<p style="color:var(--text-muted); font-size:0.9rem; margin:0;">
-							إدارة عروض أسعار الجملة، أرقام التشغيلات، تواريخ الصلاحية والربط السلس مع الكتالوج المركزي
-						</p>
-					</div>
+				@components.PageHeader(components.PageHeaderProps{
+					Title:      "أصناف وعروض التوريد والمخزون",
+					Subtitle:   "إدارة عروض أسعار الجملة، أرقام التشغيلات، وتواريخ الصلاحية والربط مع الكتالوج المركزي",
+					Count:      &totalVariantsCount,
+					CountLabel: "عرض توريد",
+				}) {
+					<button
+						type="button"
+						class="btn btn-primary"
+						data-modal-open="add-from-catalog-modal"
+						style="font-weight:700; gap:0.4rem;"
+						onclick="openAddFromCatalogModal()"
+					>
+						@components.IconPlus("icon-xs")
+						<span>إضافة من الكتالوج العام</span>
+					</button>
 
-					<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-						<button
-							type="button"
-							class="btn btn-primary"
-							data-modal-open="add-from-catalog-modal"
-							style="background:#2563eb; border-color:#2563eb; color:#ffffff; font-weight:800; padding:0.65rem 1.35rem; border-radius:var(--radius-lg);"
-							onclick="openAddFromCatalogModal()"
-						>
-							@components.IconPlus("icon-xs")
-							<span>إضافة من الكتالوج العام 🌐</span>
-						</button>
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-modal-open="add-custom-variant-modal"
+						style="font-weight:600; gap:0.4rem;"
+						onclick="openAddCustomVariantModal()"
+					>
+						@components.IconPlus("icon-xs")
+						<span>إضافة صنف مخصص</span>
+					</button>
 
-						<button
-							type="button"
-							class="btn btn-secondary"
-							data-modal-open="add-custom-variant-modal"
-							style="font-weight:800; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
-							onclick="openAddCustomVariantModal()"
-						>
-							@components.IconPlus("icon-xs")
-							<span>إضافة صنف مخصص ➕</span>
-						</button>
-
-						<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:800; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);">
-							@components.IconUpload("icon-xs")
-							<span>استيراد الكتالوج (Excel) 📥</span>
-						</a>
-					</div>
-				</div>
+					<a href="/vendor/ingest" class="btn btn-secondary" style="font-weight:600; gap:0.4rem;">
+						@components.IconUpload("icon-xs")
+						<span>استيراد ملف الكتالوج (Excel)</span>
+					</a>
+				}
 
 				<!-- Stats Strip -->
 				if len(data.Variants) > 0 {
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">إجمالي أصناف التوريد</div>
-							<div style="font-size:1.8rem; font-weight:900; color:var(--text);" class="tabular-nums">
-								{ fmt.Sprintf("%d", len(data.Variants)) }
-							</div>
-						</div>
-						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">إجمالي الرصيد والعبوات</div>
-							<div style="font-size:1.8rem; font-weight:900; color:var(--accent);" class="tabular-nums">
-								{ fmt.Sprintf("%d", calculateTotalStock(data.Variants)) }
-							</div>
-						</div>
-						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">الأصناف الجاهزة للتوريد</div>
-							<div style="font-size:1.8rem; font-weight:900; color:#10b981;" class="tabular-nums">
-								{ fmt.Sprintf("%d", calculateActiveCount(data.Variants)) }
-							</div>
-						</div>
-						<div class="card" style="margin-bottom:0; padding:1.25rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">أصناف نفدت أو منخفضة</div>
-							<div style="font-size:1.8rem; font-weight:900; color:#f59e0b;" class="tabular-nums">
-								{ fmt.Sprintf("%d", calculateLowStockCount(data.Variants)) }
-							</div>
-						</div>
+					<div class="b2b-metric-grid">
+						@components.StatCard(components.StatCardProps{
+							Label: "إجمالي أصناف التوريد",
+							Value: fmt.Sprintf("%d صنف", len(data.Variants)),
+							Tone:  "neutral",
+						})
+						@components.StatCard(components.StatCardProps{
+							Label: "إجمالي الرصيد والعبوات",
+							Value: fmt.Sprintf("%d عبوة", calculateTotalStock(data.Variants)),
+							Tone:  "primary",
+						})
+						@components.StatCard(components.StatCardProps{
+							Label: "الأصناف الجاهزة للتوريد",
+							Value: fmt.Sprintf("%d صنف", calculateActiveCount(data.Variants)),
+							Tone:  "primary",
+						})
+						@components.StatCard(components.StatCardProps{
+							Label: "أصناف منخفضة الرصيد",
+							Value: fmt.Sprintf("%d صنف", calculateLowStockCount(data.Variants)),
+							Tone:  "warning",
+						})
 					</div>
 				}
 
@@ -882,8 +870,8 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 			ActionURL:   "#",
 		})
 	} else {
-		<div class="table-container" style="border-radius:var(--radius-xl); overflow-x:auto;">
-			<table class="data-table" style="min-width:1050px; width:100%; border-collapse:collapse;">
+		<div class="b2b-table-card"><div class="b2b-table-container">
+			<table class="b2b-table" style="min-width:1050px;">
 				<thead>
 					<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
 						<th style="width:26%; padding:1rem 1.25rem;">الصنف الدوائي المعتمد</th>
@@ -1070,6 +1058,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 					}
 				</tbody>
 			</table>
+		</div>
 		</div>
 	}
 }

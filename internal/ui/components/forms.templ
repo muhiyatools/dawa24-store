@@ -1,8 +1,19 @@
 package components
 
+type SelectOption struct {
+	Value    string
+	Label    string
+	Selected bool
+}
+
 templ FormInput(label, name, inputType, value, placeholder string, required bool) {
 	<div class="form-group">
-		<label class="form-label" for={ name }>{ label }</label>
+		<label class="form-label" for={ name }>
+			{ label }
+			if required {
+				<span style="color:var(--danger); margin-inline-start:0.2rem;">*</span>
+			}
+		</label>
 		<input
 			type={ inputType }
 			id={ name }
@@ -17,9 +28,37 @@ templ FormInput(label, name, inputType, value, placeholder string, required bool
 	</div>
 }
 
+templ FormSelect(label, name string, options []SelectOption, required bool) {
+	<div class="form-group">
+		<label class="form-label" for={ name }>
+			{ label }
+			if required {
+				<span style="color:var(--danger); margin-inline-start:0.2rem;">*</span>
+			}
+		</label>
+		<select
+			id={ name }
+			name={ name }
+			if required {
+				required
+			}
+			class="form-select"
+		>
+			for _, opt := range options {
+				<option value={ opt.Value } selected?={ opt.Selected }>{ opt.Label }</option>
+			}
+		</select>
+	</div>
+}
+
 templ FormTextarea(label, name, value, placeholder string, rows int, required bool) {
 	<div class="form-group">
-		<label class="form-label" for={ name }>{ label }</label>
+		<label class="form-label" for={ name }>
+			{ label }
+			if required {
+				<span style="color:var(--danger); margin-inline-start:0.2rem;">*</span>
+			}
+		</label>
 		<textarea
 			id={ name }
 			name={ name }
@@ -32,3 +71,23 @@ templ FormTextarea(label, name, value, placeholder string, rows int, required bo
 		>{ value }</textarea>
 	</div>
 }
+
+templ FormCheckbox(label, name string, checked bool, description string) {
+	<div class="form-group" style="display:flex; align-items:flex-start; gap:0.6rem;">
+		<input
+			type="checkbox"
+			id={ name }
+			name={ name }
+			checked?={ checked }
+			class="form-checkbox"
+			style="width:1.15rem; height:1.15rem; margin-top:0.2rem; accent-color:var(--accent);"
+		/>
+		<div>
+			<label class="form-label" for={ name } style="margin-bottom:0; cursor:pointer; font-weight:600;">{ label }</label>
+			if description != "" {
+				<p style="margin:0.15rem 0 0 0; font-size:var(--text-xs); color:var(--text-secondary);">{ description }</p>
+			}
+		</div>
+	</div>
+}
+

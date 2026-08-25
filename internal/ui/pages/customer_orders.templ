@@ -12,19 +12,21 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 		@CustomerOrdersList(orders)
 	} else {
 		@layouts.CustomerShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
+			{{
+				ordersCount := len(orders)
+			}}
 			<div class="orders-page-container" style="max-width:100%;">
-				<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-					<div class="row-center-sm">
-						@components.IconPackage("icon-md")
-						<h2 style="font-size:1.5rem; font-weight:900; color:var(--neutral-900); margin:0;">
-							سجل طلبيات وأوامر التوريد
-						</h2>
-					</div>
-					<a href="/catalog" class="btn btn-primary btn-sm" style="font-weight:800;">
+				@components.PageHeader(components.PageHeaderProps{
+					Title:      "سجل طلبيات وأوامر التوريد",
+					Subtitle:   "متابعة كافة طلبيات الشراء وفواتير التوريد وحالات الشحن المباشرة للصيدلية",
+					Count:      &ordersCount,
+					CountLabel: "طلبية",
+				}) {
+					<a href="/catalog" class="btn btn-primary" style="font-weight:700; gap:0.4rem;">
 						@components.IconPlus("icon-xs")
 						<span>طلب توريد جديد</span>
 					</a>
-				</div>
+				}
 				<div id="orders-list">
 					@CustomerOrdersList(orders)
 				</div>
@@ -39,33 +41,32 @@ templ CustomerOrdersList(orders []*commerce.Order) {
 			Title:       "لا توجد طلبيات سابقة",
 			Message:     "لم تقم بإجراء أي طلبات شراء حتى الآن عبر منصة دواء 24.",
 			ActionLabel: "تصفح الكتالوج الدوائي",
+			ActionURL:   "/catalog",
 		})
 	} else {
-		<div class="stack">
+		<div style="display:flex; flex-direction:column; gap:0.875rem;">
 			for _, o := range orders {
-				<div class="card hover-lift" style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; margin-bottom:0;">
+				<div class="b2b-table-card" style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; margin-bottom:0; flex-wrap:wrap; gap:1rem;">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
-							<span style="font-weight:800; font-size:1.1rem; color:var(--primary-800);" class="tabular-nums">
+							<span style="font-weight:800; font-size:1.1rem; color:var(--text);" class="tabular-nums">
 								#{ o.OrderNumber }
 							</span>
-							<span class="badge badge-emerald" style="font-size:0.775rem;">
-								{ string(o.Status) }
-							</span>
+							@components.StatusBadge(string(o.Status))
 						</div>
-						<div style="font-size:0.85rem; color:var(--neutral-500); display:flex; gap:1.25rem;">
-							<span>التاريخ: { o.CreatedAt.Format("2006-01-02 15:04") }</span>
+						<div style="font-size:0.85rem; color:var(--text-secondary); display:flex; gap:1.25rem; flex-wrap:wrap;">
+							<span>التاريخ: <strong class="tabular-nums">{ o.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
 							<span>طريقة الدفع: { string(o.PaymentMethod) }</span>
 						</div>
 					</div>
-					<div style="text-align:inline-end; display:flex; align-items:center; gap:1.5rem;">
-						<div>
-							<div style="font-size:0.75rem; color:var(--neutral-400); font-weight:700;">إجمالي الطلب</div>
-							<div style="font-weight:900; font-size:1.2rem; color:var(--neutral-900);" class="tabular-nums">
-								{ o.TotalAmount.String() } ج.م
+					<div style="display:flex; align-items:center; gap:1.5rem;">
+						<div style="text-align:end;">
+							<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">إجمالي الطلبية</div>
+							<div style="font-weight:800; font-size:1.2rem; color:var(--text);" class="tabular-nums">
+								{ o.TotalAmount.String() } <span style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
 							</div>
 						</div>
-						<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:800;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.35rem;">
 							<span>تفاصيل الطلب</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -75,3 +76,4 @@ templ CustomerOrdersList(orders []*commerce.Order) {
 		</div>
 	}
 }
+

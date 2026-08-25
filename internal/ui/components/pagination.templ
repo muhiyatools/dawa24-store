@@ -1,5 +1,150 @@
 package components
 
+import (
+	"fmt"
+	"net/url"
+)
+
+type PaginationProps struct {
+	CurrentPage int
+	PageSize    int
+	TotalCount  int
+	BaseURL     string
+	QueryValues url.Values
+}
+
+func minIntHelper(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func totalPagesHelper(total, pageSize int) int {
+	if pageSize <= 0 {
+		return 1
+	}
+	p := (total + pageSize - 1) / pageSize
+	if p < 1 {
+		return 1
+	}
+	return p
+}
+
+func pageRange(current, total int) []int {
+	if total <= 1 {
+		return []int{1}
+	}
+	start := current - 2
+	if start < 1 {
+		start = 1
+	}
+	end := start + 4
+	if end > total {
+		end = total
+		start = end - 4
+		if start < 1 {
+			start = 1
+		}
+	}
+	var nums []int
+	for i := start; i <= end; i++ {
+		nums = append(nums, i)
+	}
+	return nums
+}
+
+func buildPaginationURL(baseURL string, page, limit int, q url.Values) string {
+	vals := url.Values{}
+	if q != nil {
+		for k, v := range q {
+			if k != "page" && k != "limit" && k != "offset" {
+				for _, val := range v {
+					vals.Add(k, val)
+				}
+			}
+		}
+	}
+	vals.Set("page", fmt.Sprintf("%d", page))
+	vals.Set("limit", fmt.Sprintf("%d", limit))
+	return fmt.Sprintf("%s?%s", baseURL, vals.Encode())
+}
+
+templ B2BPagination(props PaginationProps) {
+	{{
+		totalP := totalPagesHelper(props.TotalCount, props.PageSize)
+		startItem := (props.CurrentPage-1)*props.PageSize + 1
+		if props.TotalCount == 0 {
+			startItem = 0
+		}
+		endItem := minIntHelper(props.CurrentPage*props.PageSize, props.TotalCount)
+		pages := pageRange(props.CurrentPage, totalP)
+	}}
+	<div class="b2b-pagination">
+		<div class="b2b-pagination-info">
+			<span>عرض <strong>{ fmt.Sprintf("%d - %d", startItem, endItem) }</strong> من إجمالي <strong>{ fmt.Sprintf("%d", props.TotalCount) }</strong> سجل</span>
+		</div>
+
+		<div class="b2b-pagination-controls">
+			// First page
+			if props.CurrentPage > 1 {
+				<a
+					href={ templ.SafeURL(buildPaginationURL(props.BaseURL, 1, props.PageSize, props.QueryValues)) }
+					class="b2b-pagination-btn"
+					title="الصفحة الأولى"
+				>
+					&laquo;
+				</a>
+				<a
+					href={ templ.SafeURL(buildPaginationURL(props.BaseURL, props.CurrentPage-1, props.PageSize, props.QueryValues)) }
+					class="b2b-pagination-btn"
+					title="السابق"
+				>
+					&lsaquo;
+				</a>
+			} else {
+				<span class="b2b-pagination-btn disabled">&laquo;</span>
+				<span class="b2b-pagination-btn disabled">&lsaquo;</span>
+			}
+
+			// Page numbers
+			for _, p := range pages {
+				if p == props.CurrentPage {
+					<span class="b2b-pagination-btn active">{ fmt.Sprintf("%d", p) }</span>
+				} else {
+					<a
+						href={ templ.SafeURL(buildPaginationURL(props.BaseURL, p, props.PageSize, props.QueryValues)) }
+						class="b2b-pagination-btn"
+					>
+						{ fmt.Sprintf("%d", p) }
+					</a>
+				}
+			}
+
+			// Next & Last page
+			if props.CurrentPage < totalP {
+				<a
+					href={ templ.SafeURL(buildPaginationURL(props.BaseURL, props.CurrentPage+1, props.PageSize, props.QueryValues)) }
+					class="b2b-pagination-btn"
+					title="التالي"
+				>
+					&rsaquo;
+				</a>
+				<a
+					href={ templ.SafeURL(buildPaginationURL(props.BaseURL, totalP, props.PageSize, props.QueryValues)) }
+					class="b2b-pagination-btn"
+					title="الصفحة الأخيرة"
+				>
+					&raquo;
+				</a>
+			} else {
+				<span class="b2b-pagination-btn disabled">&rsaquo;</span>
+				<span class="b2b-pagination-btn disabled">&raquo;</span>
+			}
+		</div>
+	</div>
+}
+
 templ PaginationNav(prevCursor string, nextCursor string, baseURL string) {
 	<div class="pagination-container" style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem;">
 		if prevCursor != "" {
@@ -28,3 +173,4 @@ templ PaginationNav(prevCursor string, nextCursor string, baseURL string) {
 		}
 	</div>
 }
+

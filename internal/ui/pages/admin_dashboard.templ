@@ -18,66 +18,31 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 	@layouts.AdminShell("لوحة التحكم والمؤشرات الرئيسية", "dashboard", lang, dir) {
 		<div style="display:flex; flex-direction:column; gap:2rem;">
 			<!-- 1. KPI Stats Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
-				<div class="card hover-lift" style="margin-bottom:0; padding:1.75rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:700;">المستخدمين المسجلين</span>
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-							@components.IconUsers("icon-sm")
-						</div>
-					</div>
-					<div style="font-size:2.25rem; font-weight:900; color:var(--text);" class="tabular-nums">
-						{ fmt.Sprintf("%d", stats.TotalUsers) }
-					</div>
-					<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;">
-						صيادلة، مديرو فروع، ومسؤولو توريد
-					</div>
-				</div>
-
-				<div class="card hover-lift" style="margin-bottom:0; padding:1.75rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:700;">المؤسسات والشركات</span>
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-							@components.IconBuilding("icon-sm")
-						</div>
-					</div>
-					<div style="font-size:2.25rem; font-weight:900; color:var(--accent);" class="tabular-nums">
-						{ fmt.Sprintf("%d", stats.TotalOrganizations) }
-					</div>
-					<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;">
-						صيدليات مرخصة ومستودعات أدوية
-					</div>
-				</div>
-
-				<div class="card hover-lift" style="margin-bottom:0; padding:1.75rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:700;">طلبات الاعتماد المعلقة</span>
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(245, 158, 11, 0.15); color:#f59e0b; display:flex; align-items:center; justify-content:center;">
-							@components.IconShield("icon-sm")
-						</div>
-					</div>
-					<div style="font-size:2.25rem; font-weight:900; color:#f59e0b;" class="tabular-nums">
-						{ fmt.Sprintf("%d", stats.PendingApprovals) }
-					</div>
-					<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;">
-						منشآت جديدة بانتظار مراجعة التراخيص
-					</div>
-				</div>
-
-				<div class="card hover-lift" style="margin-bottom:0; padding:1.75rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:700;">إجمالي العمليات والطلبات</span>
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(16, 185, 129, 0.15); color:#10b981; display:flex; align-items:center; justify-content:center;">
-							@components.IconPackage("icon-sm")
-						</div>
-					</div>
-					<div style="font-size:2.25rem; font-weight:900; color:#10b981;" class="tabular-nums">
-						{ fmt.Sprintf("%d", stats.TotalOrders) }
-					</div>
-					<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;">
-						أوامر شراء مسجلة عبر المنظومة
-					</div>
-				</div>
+			<div class="b2b-metric-grid">
+				@components.StatCard(components.StatCardProps{
+					Label:    "المستخدمين المسجلين",
+					Value:    fmt.Sprintf("%d مستخدم", stats.TotalUsers),
+					Subtitle: "صيادلة، مديرو فروع، ومسؤولو توريد",
+					Tone:     "neutral",
+				})
+				@components.StatCard(components.StatCardProps{
+					Label:    "المؤسسات والشركات",
+					Value:    fmt.Sprintf("%d منشأة", stats.TotalOrganizations),
+					Subtitle: "صيدليات مرخصة ومستودعات أدوية",
+					Tone:     "primary",
+				})
+				@components.StatCard(components.StatCardProps{
+					Label:    "طلبات الاعتماد المعلقة",
+					Value:    fmt.Sprintf("%d طلب", stats.PendingApprovals),
+					Subtitle: "منشآت جديدة بانتظار مراجعة التراخيص",
+					Tone:     "warning",
+				})
+				@components.StatCard(components.StatCardProps{
+					Label:    "إجمالي العمليات والطلبات",
+					Value:    fmt.Sprintf("%d طلبية", stats.TotalOrders),
+					Subtitle: "أوامر شراء مسجلة عبر المنظومة",
+					Tone:     "primary",
+				})
 			</div>
 
 			<!-- 2. Quick Actions & Management Links -->

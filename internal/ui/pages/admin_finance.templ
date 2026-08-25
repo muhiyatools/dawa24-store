@@ -39,30 +39,19 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 	@layouts.AdminShell("الإدارة المالية والمحافظ والتحصيل", "finance", lang, dir) {
 		<div class="admin-finance-hub space-y-6">
 			<!-- Header Title & Quick Export Row -->
-			<div class="card mb-4" style="border:1px solid var(--border); box-shadow:var(--shadow-sm); border-radius:18px; padding:1.5rem 1.75rem;">
-				<div class="header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-					<div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
-							<span class="badge badge-emerald" style="font-size:0.72rem; padding:0.2rem 0.6rem;">المركز المالي الموحد</span>
-							<span style="font-size:0.75rem; color:var(--text-muted);">نظام القيود المزدوجة والمحافظ</span>
-						</div>
-						<h1 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800; color:var(--text);">المركز المالي والمحافظ والتحصيل</h1>
-						<p class="subtitle" style="margin:0.25rem 0 0; color:var(--text-secondary); font-size:0.88rem;">
-							إدارة ومتابعة فواتير التوريد، تسويات بوابات الدفع، محافظ الصيدليات والموردين الحية، وسجل حركات الأرصدة.
-						</p>
-					</div>
-					<div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-						<button onclick="window.print()" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem;">
-							@components.IconFile("icon-sm")
-							<span>طباعة تقرير</span>
-						</button>
-						<a href="/admin/finance?tab=wallets" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem;">
-							@components.IconWallet("icon-sm")
-							<span>محافظ المنشآت</span>
-						</a>
-					</div>
-				</div>
-			</div>
+			@components.PageHeader(components.PageHeaderProps{
+				Title:    "المركز المالي والمحافظ والتحصيل",
+				Subtitle: "إدارة ومتابعة فواتير التوريد، تسويات بوابات الدفع، محافظ الصيدليات والموردين، وسجل القيود المحاسبية",
+			}) {
+				<button onclick="window.print()" class="btn btn-secondary" style="font-weight:600; gap:0.4rem;">
+					@components.IconFile("icon-xs")
+					<span>طباعة تقرير</span>
+				</button>
+				<a href="/admin/finance?tab=wallets" class="btn btn-primary" style="font-weight:700; gap:0.4rem;">
+					@components.IconWallet("icon-xs")
+					<span>محافظ المنشآت</span>
+				</a>
+			}
 
 			<!-- Live Financial KPIs Bar -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
@@ -182,7 +171,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مطابقة", Message: "لم يتم إصدار فواتير ضريبية أو لم يتم العثور على نتائج تطابق معايير البحث."})
 							} else {
 								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="data-table">
+									<table class="b2b-table">
 										<thead>
 											<tr>
 												<th>رقم الفاتورة</th>
@@ -276,7 +265,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "تظهر عمليات التحصيل فور إتمام العميل للدفع الإلكتروني أو تأكيد التحويل."})
 							} else {
 								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="data-table">
+									<table class="b2b-table">
 										<thead>
 											<tr>
 												<th>رقم المعاملة / المرجع</th>
@@ -367,7 +356,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مطابقة", Message: "تنشأ المحافظ الرقمية تلقائياً لجميع المنشآت والمستخدمين عند التسجيل في المنصة."})
 							} else {
 								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="data-table">
+									<table class="b2b-table">
 										<thead>
 											<tr>
 												<th>رقم المحفظة</th>
@@ -495,7 +484,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد معاملات مسجلة", Message: "تظهر جميع قيود الخصم والإيداع والتسويات في هذا السجل فور حدوثها."})
 							} else {
 								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="data-table">
+									<table class="b2b-table">
 										<thead>
 											<tr>
 												<th>رقم الحركة</th>
@@ -719,8 +708,8 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 			if len(orders) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض", Message: "لم يتم إنشاء طلبات عروض أسعار بعد."})
 			} else {
-				<div class="table-container">
-					<table class="data-table">
+				<div class="b2b-table-container">
+					<table class="b2b-table">
 						<thead>
 							<tr>
 								<th>رقم الطلب</th>
@@ -800,8 +789,8 @@ templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string
 	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "plans", lang, dir) {
 		<div class="card">
 			<h2 class="card-title">الاشتراكات النشطة</h2>
-			<div class="table-container">
-				<table class="data-table">
+			<div class="b2b-table-container">
+				<table class="b2b-table">
 					<thead>
 						<tr>
 							<th>#</th>
