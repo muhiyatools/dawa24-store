@@ -29,7 +29,13 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// VendorProductsPage renders the vendor's supply variants/offers.
+// VendorProductsPage renders one page of the vendor's supply variants.
+//
+// Everything is paged, searched and filtered at the database. The screen this
+// replaces asked for five hundred variants, rendered all of them, and filtered
+// them in the browser — so a vendor with nine thousand could not reach the
+// other eight and a half thousand, and the counters above the table told them
+// they owned five hundred.
 func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -40,99 +46,142 @@ func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var branchOptions []pages.VendorBranchOption
-	branchMap := make(map[int64]string)
-	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-		if err == nil {
-			for _, b := range branches {
-				bName := b.Name.Get(i18n.AR)
-				if bName == "" {
-					bName = b.Name.Get(i18n.EN)
-				}
-				branchOptions = append(branchOptions, pages.VendorBranchOption{
-					ID:   b.ID,
-					Name: bName,
-				})
-				branchMap[b.ID] = bName
-			}
-		}
-	}
+	branchOptions, branchMap := h.vendorBranchOptions(ctx, actor.OrganizationID)
+	query := vendorVariantQueryFrom(r)
 
-	var variantViews []*pages.VendorVariantView
-	if h.catSvc != nil {
-		variants, _, err := h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{
-			Limit: 500,
-		})
-		if err == nil && len(variants) > 0 {
-			productCache := make(map[int64]*catalog.Product)
-			for _, v := range variants {
-				var mp *catalog.Product
-				if v.ProductID > 0 {
-					if cached, found := productCache[v.ProductID]; found {
-						mp = cached
-					} else {
-						p, _, pErr := h.catSvc.GetProduct(database.AsSystem(ctx), v.ProductID)
-						if pErr == nil && p != nil {
-							productCache[v.ProductID] = p
-							mp = p
-						}
-					}
-				}
-
-				bName := "المستودع الرئيسي"
-				if v.BranchID != nil && *v.BranchID > 0 {
-					if name, ok := branchMap[*v.BranchID]; ok {
-						bName = name
-					}
-				}
-
-				variantViews = append(variantViews, &pages.VendorVariantView{
-					Variant:       v,
-					MasterProduct: mp,
-					BranchName:    bName,
-					StockQuantity: v.StockQty,
-				})
-			}
-		} else {
-			// Fallback: search products and check variants
-			products, _ := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 100})
-			for _, p := range products {
-				pVars, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
-				for _, v := range pVars {
-					if v.OrganizationID == actor.OrganizationID || v.OrganizationID == 0 {
-						bName := "المستودع الرئيسي"
-						if v.BranchID != nil && *v.BranchID > 0 {
-							if name, ok := branchMap[*v.BranchID]; ok {
-								bName = name
-							}
-						}
-						variantViews = append(variantViews, &pages.VendorVariantView{
-							Variant:       v,
-							MasterProduct: p,
-							BranchName:    bName,
-							StockQuantity: v.StockQty,
-						})
-					}
-				}
-			}
-		}
-	}
-
-	noticeType := r.URL.Query().Get("notice_type")
-	noticeMsg := r.URL.Query().Get("notice")
-
-	pageData := pages.VendorVariantsData{
-		Variants:   variantViews,
+	data := pages.VendorVariantsData{
 		Branches:   branchOptions,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
+		Filter:     query,
+		PageSizes:  catalog.PageSizes,
+		NoticeType: r.URL.Query().Get("notice_type"),
+		NoticeMsg:  r.URL.Query().Get("notice"),
+	}
+
+	if h.catSvc != nil && actor.OrganizationID > 0 {
+		variants, total, err := h.catSvc.ListVendorVariants(ctx, actor.OrganizationID, query)
+		if err != nil {
+			h.log.ErrorContext(ctx, "list vendor variants", "error", err)
+			data.LoadError = h.safeMessage(err, langOf(r))
+		} else {
+			data.Total = total
+			data.Variants = h.decorateVendorVariants(ctx, variants, branchMap)
+		}
+
+		stats, statsErr := h.catSvc.VendorVariantStats(ctx, actor.OrganizationID)
+		if statsErr != nil {
+			h.log.WarnContext(ctx, "vendor variant stats unavailable", "error", statsErr)
+		} else {
+			data.Stats = stats
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorProducts(pageData, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.VendorProducts(data, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor products page", "error", err)
 	}
+}
+
+// vendorVariantQueryFrom reads the listing controls out of the URL.
+//
+// Every value is clamped rather than trusted: the page size to the offered
+// sizes, the page to at least one, so a hand-edited link cannot ask for a
+// hundred thousand rows in one response.
+func vendorVariantQueryFrom(r *http.Request) catalog.VendorVariantQuery {
+	q := r.URL.Query()
+	query := catalog.VendorVariantQuery{
+		Query:      strings.TrimSpace(q.Get("q")),
+		Status:     q.Get("status"),
+		Stock:      catalog.StockFilter(q.Get("stock")),
+		Expiring:   q.Get("expiring") == "1",
+		Sort:       q.Get("sort"),
+		PageNumber: 1,
+		PerPage:    catalog.DefaultPageSize,
+	}
+	if n, err := strconv.Atoi(q.Get("page")); err == nil && n > 1 {
+		query.PageNumber = n
+	}
+	if n, err := strconv.Atoi(q.Get("limit")); err == nil {
+		query.PerPage = n
+	}
+	switch query.Status {
+	case string(catalog.StatusActive), string(catalog.StatusInactive),
+		string(catalog.StatusPending), string(catalog.StatusRejected):
+	default:
+		query.Status = ""
+	}
+	switch query.Stock {
+	case catalog.StockFilterIn, catalog.StockFilterLow, catalog.StockFilterOut:
+	default:
+		query.Stock = catalog.StockFilterAny
+	}
+	return query
+}
+
+// vendorBranchOptions lists the vendor's branches and a lookup for the table.
+func (h *UIHandler) vendorBranchOptions(
+	ctx context.Context, orgID int64,
+) ([]pages.VendorBranchOption, map[int64]string) {
+	names := make(map[int64]string)
+	if h.orgSvc == nil || orgID <= 0 {
+		return nil, names
+	}
+	branches, err := h.orgSvc.ListBranches(ctx, orgID)
+	if err != nil {
+		h.log.WarnContext(ctx, "vendor branches unavailable", "error", err)
+		return nil, names
+	}
+	var options []pages.VendorBranchOption
+	for _, b := range branches {
+		name := b.Name.Get(i18n.AR)
+		if name == "" {
+			name = b.Name.Get(i18n.EN)
+		}
+		options = append(options, pages.VendorBranchOption{ID: b.ID, Name: name})
+		names[b.ID] = name
+	}
+	return options, names
+}
+
+// decorateVendorVariants attaches the shared-catalogue product and the branch
+// name to each row.
+//
+// The products are fetched in one query for the whole page. Fetching them per
+// row is a hundred round trips for a hundred-row page, which is what the
+// previous version did behind a cache that only helped when two variants of the
+// same product happened to land on the same screen.
+func (h *UIHandler) decorateVendorVariants(
+	ctx context.Context, variants []*catalog.ProductVariant, branchMap map[int64]string,
+) []*pages.VendorVariantView {
+	ids := make([]int64, 0, len(variants))
+	seen := make(map[int64]bool, len(variants))
+	for _, v := range variants {
+		if v.ProductID > 0 && !seen[v.ProductID] {
+			seen[v.ProductID] = true
+			ids = append(ids, v.ProductID)
+		}
+	}
+	products, err := h.catSvc.ProductsByIDs(ctx, ids)
+	if err != nil {
+		h.log.WarnContext(ctx, "master products unavailable for vendor listing", "error", err)
+		products = map[int64]*catalog.Product{}
+	}
+
+	out := make([]*pages.VendorVariantView, 0, len(variants))
+	for _, v := range variants {
+		branch := "المستودع الرئيسي"
+		if v.BranchID != nil {
+			if name, ok := branchMap[*v.BranchID]; ok {
+				branch = name
+			}
+		}
+		out = append(out, &pages.VendorVariantView{
+			Variant:       v,
+			MasterProduct: products[v.ProductID],
+			BranchName:    branch,
+			StockQuantity: v.StockQty,
+		})
+	}
+	return out
 }
 
 // VendorVariantNewPage renders the variant creation form with master product selector.
