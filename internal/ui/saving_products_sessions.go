@@ -41,6 +41,16 @@ type StagedSavingItem struct {
 
 // SavingImportSession holds the complete state of a staged saving products import.
 type SavingImportSession struct {
+	// Success is always true on the wire.
+	//
+	// The progress endpoints return this struct directly, and the browser polls
+	// them with `if (!sess.success) { fail }`. Without the field the check reads
+	// `undefined`, which is falsy, so a perfectly healthy import reported
+	// "فشلت معالجة الجلسة" on its first poll and threw the user back to the
+	// upload screen. The failure paths encode their own object with
+	// success:false, so carrying it here is what makes the two shapes agree.
+	Success bool `json:"success"`
+
 	ID            string                   `json:"id"`
 	OrgID         int64                    `json:"org_id"`
 	UserID        int64                    `json:"user_id"`

@@ -646,6 +646,7 @@ func (h *UIHandler) VendorSavingProductsImportProgressJSON(w http.ResponseWriter
 		return
 	}
 
+	session.Success = true
 	_ = json.NewEncoder(w).Encode(session)
 }
 
