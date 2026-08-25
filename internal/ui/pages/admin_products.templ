@@ -226,10 +226,8 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 			<form
 				method="GET"
 				action="/admin/products"
-				style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:0.75rem; margin-bottom:1.5rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); align-items:center;"
+				style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr auto; gap:0.75rem; margin-bottom:1.5rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); align-items:center;"
 			>
-				<input type="hidden" name="limit" value={ fmt.Sprintf("%d", pageSize) } />
-
 				<div class="search-input-group" style="width:100%;">
 					<span class="search-icon">
 						@components.IconSearch("icon-sm")
@@ -275,6 +273,15 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						<option value="active" selected?={ statusFilter == "active" }>نشط ومعتمد (Active)</option>
 						<option value="pending" selected?={ statusFilter == "pending" }>قيد التدقيق (Pending)</option>
 						<option value="inactive" selected?={ statusFilter == "inactive" }>موقوف (Inactive)</option>
+					</select>
+				</div>
+
+				<div>
+					<select name="limit" class="form-select" style="background:var(--surface-raised); height:100%; font-size:0.875rem;" onchange="this.form.submit()">
+						<option value="25" selected?={ pageSize == 25 }>25 صنف لكل صفحة</option>
+						<option value="50" selected?={ pageSize == 50 }>50 صنف لكل صفحة</option>
+						<option value="100" selected?={ pageSize == 100 }>100 صنف لكل صفحة</option>
+						<option value="200" selected?={ pageSize == 200 }>200 صنف لكل صفحة</option>
 					</select>
 				</div>
 
@@ -509,7 +516,8 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 			<div
 				x-show="isCreateModalOpen"
 				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				style="display: none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isCreateModalOpen ? 'display: flex;' : 'display: none;'"
 				@keydown.escape.window="isCreateModalOpen = false"
 			>
 				<div
@@ -639,7 +647,8 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 			<div
 				x-show="isEditModalOpen"
 				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				style="display: none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isEditModalOpen ? 'display: flex;' : 'display: none;'"
 				@keydown.escape.window="isEditModalOpen = false"
 			>
 				<div

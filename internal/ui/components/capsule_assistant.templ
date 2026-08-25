@@ -32,6 +32,7 @@ templ CapsuleAssistant() {
 		<!-- ChatGPT-Style Chat Window -->
 		<div
 			x-show="isOpen"
+			x-cloak
 			x-transition:enter="transition ease-out duration-250"
 			x-transition:enter-start="opacity-0 transform translate-y-6 scale-95"
 			x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
@@ -47,6 +48,7 @@ templ CapsuleAssistant() {
 			<!-- Drag & Drop Overlay Zone -->
 			<div
 				x-show="isDragging"
+				x-cloak
 				x-transition:enter="transition ease-out duration-150"
 				x-transition:enter-start="opacity-0 scale-95"
 				x-transition:enter-end="opacity-100 scale-100"

@@ -146,8 +146,9 @@ function initModalManager() {
 }
 
 window.openModal = function(id) {
-  if (!id) return;
-  const el = document.getElementById(id);
+  if (!id || typeof id !== 'string' || !id.trim()) return;
+  const cleanId = id.trim();
+  const el = document.getElementById(cleanId);
   if (!el) return;
   if (el.tagName === 'DIALOG' && typeof el.showModal === 'function') {
     try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
@@ -161,10 +162,10 @@ window.openModal = function(id) {
   }, 100);
 };
 
-
 window.closeModal = function(id) {
-  if (!id) return;
-  const el = document.getElementById(id);
+  if (!id || typeof id !== 'string' || !id.trim()) return;
+  const cleanId = id.trim();
+  const el = document.getElementById(cleanId);
   if (!el) return;
   if (el.tagName === 'DIALOG' && typeof el.close === 'function') {
     try { el.close(); } catch (_) { el.removeAttribute('open'); }
@@ -309,27 +310,32 @@ function initTabSystem() {
 }
 
 function switchTab(tabId, specificList) {
-  if (!tabId) return;
+  if (!tabId || typeof tabId !== 'string') return;
 
-  const targetPane = document.getElementById('tab-' + tabId) || document.querySelector(`[data-tab-pane="${tabId}"]`);
-  const targetBtn = document.querySelector(`[data-tab-target="${tabId}"]`);
+  const cleanId = tabId.trim();
+  const targetPane = document.getElementById('tab-' + cleanId) || document.querySelector(`[data-tab-pane="${cleanId}"]`);
+  const targetBtn = document.querySelector(`[data-tab-target="${cleanId}"]`);
 
   if (!targetPane) return;
 
-  // Deactivate all sibling panes
-  const allPanes = document.querySelectorAll('.tab-pane');
-  allPanes.forEach((pane) => pane.classList.remove('active'));
+  // Determine container scope to avoid breaking independent tabs on the same page
+  const container = targetPane.closest('.tabs-container, .card, main, form, section') || document.body;
+  const siblingPanes = container.querySelectorAll('.tab-pane');
+  siblingPanes.forEach((pane) => pane.classList.remove('active'));
 
-  // Deactivate all tab buttons
-  const allBtns = document.querySelectorAll('[data-tab-target]');
-  allBtns.forEach((btn) => btn.classList.remove('active'));
+  // Scope button deactivation
+  const btnList = specificList || (targetBtn ? targetBtn.closest('.tab-list') : null) || container;
+  const siblingBtns = btnList.querySelectorAll('[data-tab-target]');
+  siblingBtns.forEach((btn) => btn.classList.remove('active'));
 
-  // Activate target
+  // Activate target smoothly
   targetPane.classList.add('active');
   if (targetBtn) targetBtn.classList.add('active');
 
   // Update hash without scrolling
-  history.replaceState(null, null, '#' + tabId);
+  try {
+    history.replaceState(null, null, '#' + cleanId);
+  } catch (_) {}
 }
 
 // 3-Step Registration Onboarding Controller & Password Strength Meter

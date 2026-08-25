@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -17,12 +18,73 @@ import (
 func (h *UIHandler) AdminCategoriesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	sysCtx := database.AsSystem(ctx)
+
+	search := strings.TrimSpace(r.URL.Query().Get("q"))
+	status := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	pageSize, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if pageSize <= 0 {
+		pageSize = 25
+	}
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page <= 0 {
+		page = 1
+	}
+
+	var allCats []*catalog.Category
+	if h.catSvc != nil {
+		allCats, _ = h.catSvc.ListCategories(sysCtx)
+	}
+
+	var filtered []*catalog.Category
+	normSearch := arabic.Normalize(search)
+	for _, c := range allCats {
+		if c == nil {
+			continue
+		}
+		if status != "" && status != "all" && c.Status != status {
+			continue
+		}
+		if search != "" {
+			nameAr := arabic.Normalize(c.Name.Get("ar"))
+			nameEn := strings.ToLower(c.Name.Get("en"))
+			descAr := arabic.Normalize(c.Description.Get("ar"))
+			descEn := strings.ToLower(c.Description.Get("en"))
+			sLower := strings.ToLower(search)
+
+			if !strings.Contains(nameAr, normSearch) &&
+				!strings.Contains(nameEn, sLower) &&
+				!strings.Contains(descAr, normSearch) &&
+				!strings.Contains(descEn, sLower) {
+				continue
+			}
+		}
+		filtered = append(filtered, c)
+	}
+
+	totalCount := len(filtered)
+	totalPages := (totalCount + pageSize - 1) / pageSize
+	if totalPages < 1 {
+		totalPages = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+
+	start := (page - 1) * pageSize
+	if start < 0 {
+		start = 0
+	}
+	end := start + pageSize
+	if end > totalCount {
+		end = totalCount
+	}
 
 	var items []pages.CategoryViewItem
-	if h.catSvc != nil {
-		cats, _ := h.catSvc.ListCategories(database.AsSystem(ctx))
-		for _, c := range cats {
-			count, _ := h.catSvc.CountProductsInCategory(database.AsSystem(ctx), c.ID)
+	if start < totalCount {
+		for _, c := range filtered[start:end] {
+			count, _ := h.catSvc.CountProductsInCategory(sysCtx, c.ID)
 			items = append(items, pages.CategoryViewItem{
 				Category:     c,
 				ProductCount: count,
@@ -31,7 +93,7 @@ func (h *UIHandler) AdminCategoriesPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminCategoriesPage(items, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminCategoriesPage(items, allCats, totalCount, page, pageSize, search, status, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin categories", "error", err)
 	}
 }
@@ -208,12 +270,73 @@ func (h *UIHandler) AdminCategoryDeleteSubmit(w http.ResponseWriter, r *http.Req
 func (h *UIHandler) AdminBrandsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	sysCtx := database.AsSystem(ctx)
+
+	search := strings.TrimSpace(r.URL.Query().Get("q"))
+	status := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	pageSize, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if pageSize <= 0 {
+		pageSize = 25
+	}
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page <= 0 {
+		page = 1
+	}
+
+	var allBrands []*catalog.Brand
+	if h.catSvc != nil {
+		allBrands, _ = h.catSvc.ListBrands(sysCtx)
+	}
+
+	var filtered []*catalog.Brand
+	normSearch := arabic.Normalize(search)
+	for _, b := range allBrands {
+		if b == nil {
+			continue
+		}
+		if status != "" && status != "all" && b.Status != status {
+			continue
+		}
+		if search != "" {
+			nameAr := arabic.Normalize(b.Name.Get("ar"))
+			nameEn := strings.ToLower(b.Name.Get("en"))
+			descAr := arabic.Normalize(b.Description.Get("ar"))
+			descEn := strings.ToLower(b.Description.Get("en"))
+			sLower := strings.ToLower(search)
+
+			if !strings.Contains(nameAr, normSearch) &&
+				!strings.Contains(nameEn, sLower) &&
+				!strings.Contains(descAr, normSearch) &&
+				!strings.Contains(descEn, sLower) {
+				continue
+			}
+		}
+		filtered = append(filtered, b)
+	}
+
+	totalCount := len(filtered)
+	totalPages := (totalCount + pageSize - 1) / pageSize
+	if totalPages < 1 {
+		totalPages = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+
+	start := (page - 1) * pageSize
+	if start < 0 {
+		start = 0
+	}
+	end := start + pageSize
+	if end > totalCount {
+		end = totalCount
+	}
 
 	var brandItems []pages.BrandViewItem
-	if h.catSvc != nil {
-		brands, _ := h.catSvc.ListBrands(database.AsSystem(ctx))
-		for _, b := range brands {
-			count, _ := h.catSvc.CountProductsInBrand(database.AsSystem(ctx), b.ID)
+	if start < totalCount {
+		for _, b := range filtered[start:end] {
+			count, _ := h.catSvc.CountProductsInBrand(sysCtx, b.ID)
 			brandItems = append(brandItems, pages.BrandViewItem{
 				Brand:        b,
 				ProductCount: count,
@@ -222,7 +345,7 @@ func (h *UIHandler) AdminBrandsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminBrandsPage(brandItems, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminBrandsPage(brandItems, totalCount, page, pageSize, search, status, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin brands", "error", err)
 	}
 }

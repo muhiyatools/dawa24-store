@@ -2,9 +2,10 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -15,15 +16,32 @@ type BrandViewItem struct {
 	ProductCount int
 }
 
+func templateEscape(s string) string {
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "'", "\\'")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", "")
+	return s
+}
+
+func buildAdminBrandsPageURL(page, limit int, q, status string) string {
+	u := fmt.Sprintf("/admin/brands?page=%d&limit=%d", page, limit)
+	if q != "" {
+		u += "&q=" + url.QueryEscape(q)
+	}
+	if status != "" && status != "all" {
+		u += "&status=" + url.QueryEscape(status)
+	}
+	return u
+}
+
 // AdminBrandsPage renders the pharmaceutical brands / manufacturers management console.
-templ AdminBrandsPage(brands []BrandViewItem, lang, dir string) {
+templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize int, searchQuery, statusFilter, lang, dir string) {
 	@layouts.AdminShell("دليل الشركات المصنعة والماركات", "brands", lang, dir) {
 		<div
 			class="card mb-0"
 			style="overflow:visible;"
 			x-data="{
-				searchQuery: '',
-				statusFilter: 'all',
 				isCreateModalOpen: false,
 				isEditModalOpen: false,
 				editData: {
@@ -57,7 +75,7 @@ templ AdminBrandsPage(brands []BrandViewItem, lang, dir string) {
 					</div>
 					<div>
 						<h2 class="card-title" style="margin:0; font-size:1.5rem; font-weight:800;">
-							دليل الشركات المصنعة والماركات ({ fmt.Sprintf("%d", len(brands)) })
+							دليل الشركات المصنعة والماركات ({ fmt.Sprintf("%d", totalCount) })
 						</h2>
 						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
 							إدارة الشركات الدوائية المنتجة والمصنعة المعتمدة وربطها المباشر بالأصناف والمنتجات الأساسية.
@@ -68,42 +86,65 @@ templ AdminBrandsPage(brands []BrandViewItem, lang, dir string) {
 				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
 					<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary" style="font-weight:800;">
 						@components.IconPlus("icon-xs")
-						<span>إضافة شركة مصنعة جديدة</span>
+						<span>إضافة شركة مصنعة جديدة +</span>
 					</button>
 				</div>
 			</div>
 
 			<!-- Search and Filter Bar -->
-			if len(brands) > 0 {
-				<div style="margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-					<div style="flex:1; min-width:280px; max-width:480px; position:relative;">
-						<input
-							type="text"
-							x-model="searchQuery"
-							placeholder="ابحث باسم الشركة بالعربية أو الإنجليزية..."
-							class="form-input"
-							style="padding-inline-start:2.25rem; font-size:0.875rem;"
-						/>
-						<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-							@components.IconSearch("icon-xs")
-						</div>
-					</div>
-
-					<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-						<select x-model="statusFilter" class="form-select" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
-							<option value="all">جميع الحالات</option>
-							<option value="active">نشط ومفعل</option>
-							<option value="inactive">معطل</option>
-						</select>
+			<form
+				method="GET"
+				action="/admin/brands"
+				style="margin-bottom:1.25rem; display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:0.75rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); align-items:center;"
+			>
+				<div style="position:relative; width:100%;">
+					<input
+						type="text"
+						name="q"
+						value={ searchQuery }
+						placeholder="ابحث باسم الشركة بالعربية أو الإنجليزية..."
+						class="form-input"
+						style="padding-inline-start:2.25rem; font-size:0.875rem; background:var(--surface-raised);"
+					/>
+					<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+						@components.IconSearch("icon-xs")
 					</div>
 				</div>
-			}
+
+				<div>
+					<select name="status" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
+						<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
+						<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
+						<option value="inactive" selected?={ statusFilter == "inactive" }>معطل (Inactive)</option>
+					</select>
+				</div>
+
+				<div>
+					<select name="limit" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
+						<option value="25" selected?={ pageSize == 25 }>25 شركة لكل صفحة</option>
+						<option value="50" selected?={ pageSize == 50 }>50 شركة لكل صفحة</option>
+						<option value="100" selected?={ pageSize == 100 }>100 شركة لكل صفحة</option>
+						<option value="200" selected?={ pageSize == 200 }>200 شركة لكل صفحة</option>
+					</select>
+				</div>
+
+				<div style="display:flex; gap:0.5rem;">
+					<button type="submit" class="btn btn-primary" style="font-weight:700; padding:0.5rem 1rem;">
+						تصفية
+					</button>
+					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
+						<a href="/admin/brands" class="btn btn-secondary" style="font-weight:700;">
+							إعادة تعيين
+						</a>
+					}
+				</div>
+			</form>
 
 			<!-- Brands Data Table -->
 			if len(brands) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد شركات مصنعة مسجلة",
-					Message: "يمكنك إضافة الشركات الدوائية المنتجة والمصنعة المعتمدة لتظهر في قوائم ربط الأصناف والمستحضرات.",
+					Title:   "لا توجد شركات مصنعة مطابقة",
+					Message: "لم يتم العثور على أي نتائج وفق معايير البحث الحالية. يمكنك تعديل كلمات البحث أو إضافة شركة جديدة.",
 				})
 			} else {
 				<div class="table-container">
@@ -120,82 +161,72 @@ templ AdminBrandsPage(brands []BrandViewItem, lang, dir string) {
 						</thead>
 						<tbody>
 							for _, item := range brands {
-								<tr
-									x-show={ fmt.Sprintf("(!searchQuery || '%s %s %s'.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || '%s' === statusFilter)",
-										escapeJS(item.Brand.Name.Get("ar")),
-										escapeJS(item.Brand.Name.Get("en")),
-										escapeJS(item.Brand.Description.Get("ar")),
-										item.Brand.Status) }
-								>
-									<td style="width:50px;">
-										if item.Brand.Image != "" {
-											<img src={ item.Brand.Image } alt={ item.Brand.Name.Get(i18n.Lang(lang)) } style="width:40px; height:40px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface-raised); padding:2px;" />
-										} else {
-											<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); border:1px solid var(--border);">
-												@components.IconBuilding("icon-xs")
+								<tr id={ fmt.Sprintf("brand-row-%d", item.Brand.ID) }>
+									<td>
+										<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+											if item.Brand.Image != "" {
+												<img src={ item.Brand.Image } alt={ item.Brand.Name.Get("ar") } style="width:100%; height:100%; object-fit:contain;" />
+											} else {
+												@components.IconTag("icon-xs")
+											}
+										</div>
+									</td>
+									<td>
+										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											{ item.Brand.Name.Get("ar") }
+										</div>
+										if item.Brand.Name.Get("en") != "" {
+											<div style="font-size:0.775rem; color:var(--text-secondary); direction:ltr; text-align:right;">
+												{ item.Brand.Name.Get("en") }
 											</div>
 										}
 									</td>
 									<td>
-										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ item.Brand.Name.Get(i18n.Lang(lang)) }</div>
-										if item.Brand.Name.Get("en") != "" && lang == "ar" {
-											<div style="font-size:0.75rem; color:var(--text-muted);">{ item.Brand.Name.Get("en") }</div>
+										if item.Brand.Description.Get("ar") != "" {
+											<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;">
+												{ item.Brand.Description.Get("ar") }
+											</div>
+										} else if item.Brand.Description.Get("en") != "" {
+											<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4; direction:ltr; text-align:right;">
+												{ item.Brand.Description.Get("en") }
+											</div>
+										} else {
+											<span style="font-size:0.8rem; color:var(--text-muted);">لا يوجد وصف</span>
 										}
 									</td>
 									<td>
-										if item.Brand.Description.Get(i18n.Lang(lang)) != "" {
-											<div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4;">{ item.Brand.Description.Get(i18n.Lang(lang)) }</div>
-										} else {
-											<span style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">لا يوجد وصف مضاف</span>
-										}
+										<span class="badge badge-secondary" style="font-weight:700; font-size:0.8rem; padding:0.3rem 0.65rem;">
+											{ fmt.Sprintf("%d صنف معتمد", item.ProductCount) }
+										</span>
 									</td>
 									<td>
-										if item.ProductCount > 0 {
-											<a href={ templ.SafeURL(fmt.Sprintf("/admin/products?brand_id=%d", item.Brand.ID)) } class="badge badge-emerald" style="font-weight:800; text-decoration:none;">
-												{ fmt.Sprintf("%d صنف دوائي", item.ProductCount) }
-											</a>
+										if item.Brand.Status == "active" {
+											<span class="badge badge-success" style="font-weight:700;">نشط</span>
 										} else {
-											<span class="badge badge-slate" style="font-size:0.75rem;">0 صنف</span>
+											<span class="badge badge-neutral" style="font-weight:700;">معطل</span>
 										}
 									</td>
-									<td>
-										if item.Brand.Status == "active" || item.Brand.Status == "" {
-											<span class="badge badge-emerald" style="font-weight:800;">نشط ومفعل</span>
-										} else {
-											<span class="badge badge-danger" style="font-weight:800;">معطل</span>
-										}
-									</td>
-									<td class="text-end">
-										<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
-											
-											<!-- Edit Button -->
+									<td style="text-align:end;">
+										<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;">
+											<!-- Edit Trigger -->
 											<button
 												type="button"
+												@click={ fmt.Sprintf("openEdit(%d, '%s', '%s', '%s', '%s', '%s', '%s')", item.Brand.ID, templateEscape(item.Brand.Name.Get("ar")), templateEscape(item.Brand.Name.Get("en")), templateEscape(item.Brand.Description.Get("ar")), templateEscape(item.Brand.Description.Get("en")), templateEscape(item.Brand.Image), item.Brand.Status) }
 												class="btn btn-secondary btn-icon"
-												style="width:32px; height:32px; color:var(--accent);"
+												style="width:32px; height:32px;"
 												title="تعديل بيانات الشركة"
-												@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %q)",
-													item.Brand.ID,
-													item.Brand.Name.Get("ar"),
-													item.Brand.Name.Get("en"),
-													item.Brand.Description.Get("ar"),
-													item.Brand.Description.Get("en"),
-													item.Brand.Image,
-													item.Brand.Status) }
 											>
 												@components.IconEdit("icon-xs")
 											</button>
 
 											<!-- Status Toggle -->
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/brands/%d/status", item.Brand.ID)) } class="m-0">
-												if item.Brand.Status == "active" || item.Brand.Status == "" {
-													<input type="hidden" name="status" value="inactive" />
-													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--warning-text);" title="تعطيل الشركة">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/brands/%d/toggle", item.Brand.ID)) } class="m-0">
+												if item.Brand.Status == "active" {
+													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--warning);" title="تعطيل الشركة">
 														@components.IconMinus("icon-xs")
 													</button>
 												} else {
-													<input type="hidden" name="status" value="active" />
-													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--success-text);" title="تفعيل الشركة">
+													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--success);" title="تفعيل الشركة">
 														@components.IconCheck("icon-xs")
 													</button>
 												}
@@ -214,13 +245,81 @@ templ AdminBrandsPage(brands []BrandViewItem, lang, dir string) {
 						</tbody>
 					</table>
 				</div>
+
+				<!-- Pagination Controls -->
+				if totalCount > 0 {
+					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+						<div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">
+							{ fmt.Sprintf("عرض %d - %d من إجمالي %d شركة مصنعة", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
+						</div>
+
+						<!-- Page navigation numbers -->
+						<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+							if currentPage > 1 {
+								<a
+									href={ templ.SafeURL(buildAdminBrandsPageURL(1, pageSize, searchQuery, statusFilter)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.65rem; font-weight:700;"
+									title="الصفحة الأولى"
+								>
+									«
+								</a>
+								<a
+									href={ templ.SafeURL(buildAdminBrandsPageURL(currentPage-1, pageSize, searchQuery, statusFilter)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.75rem; font-weight:700;"
+								>
+									السابق
+								</a>
+							}
+
+							for _, pNum := range calculateAdminPageNumbers(currentPage, totalPages(totalCount, pageSize)) {
+								if pNum == currentPage {
+									<span
+										class="btn btn-primary btn-sm"
+										style="padding:0.4rem 0.85rem; font-weight:800; pointer-events:none;"
+									>
+										{ fmt.Sprintf("%d", pNum) }
+									</span>
+								} else {
+									<a
+										href={ templ.SafeURL(buildAdminBrandsPageURL(pNum, pageSize, searchQuery, statusFilter)) }
+										class="btn btn-secondary btn-sm"
+										style="padding:0.4rem 0.85rem; font-weight:700;"
+									>
+										{ fmt.Sprintf("%d", pNum) }
+									</a>
+								}
+							}
+
+							if currentPage < totalPages(totalCount, pageSize) {
+								<a
+									href={ templ.SafeURL(buildAdminBrandsPageURL(currentPage+1, pageSize, searchQuery, statusFilter)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.75rem; font-weight:700;"
+								>
+									التالي
+								</a>
+								<a
+									href={ templ.SafeURL(buildAdminBrandsPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter)) }
+									class="btn btn-secondary btn-sm"
+									style="padding:0.4rem 0.65rem; font-weight:700;"
+									title="الصفحة الأخيرة"
+								>
+									»
+								</a>
+							}
+						</div>
+					</div>
+				}
 			}
 
 			<!-- Create Brand Modal -->
 			<div
 				x-show="isCreateModalOpen"
 				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				style="display: none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isCreateModalOpen ? 'display: flex;' : 'display: none;'"
 				@keydown.escape.window="isCreateModalOpen = false"
 			>
 				<div
@@ -298,7 +397,8 @@ templ AdminBrandsPage(brands []BrandViewItem, lang, dir string) {
 			<div
 				x-show="isEditModalOpen"
 				x-cloak
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+				style="display: none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
+				:style="isEditModalOpen ? 'display: flex;' : 'display: none;'"
 				@keydown.escape.window="isEditModalOpen = false"
 			>
 				<div

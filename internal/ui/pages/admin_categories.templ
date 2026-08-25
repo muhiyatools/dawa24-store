@@ -2,6 +2,8 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -13,13 +15,13 @@ type CategoryViewItem struct {
 	ProductCount int
 }
 
-func getParentCategoryName(parentID *int64, categories []CategoryViewItem) string {
+func getParentCategoryName(parentID *int64, allCategories []*catalog.Category) string {
 	if parentID != nil && *parentID > 0 {
-		for _, item := range categories {
-			if item.Category != nil && item.Category.ID == *parentID {
-				name := item.Category.Name.Get("ar")
+		for _, c := range allCategories {
+			if c != nil && c.ID == *parentID {
+				name := c.Name.Get("ar")
 				if name == "" {
-					name = item.Category.Name.Get("en")
+					name = c.Name.Get("en")
 				}
 				if name != "" {
 					return name
@@ -30,7 +32,18 @@ func getParentCategoryName(parentID *int64, categories []CategoryViewItem) strin
 	return ""
 }
 
-templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
+func buildAdminCategoriesPageURL(page, limit int, q, status string) string {
+	u := fmt.Sprintf("/admin/categories?page=%d&limit=%d", page, limit)
+	if q != "" {
+		u += "&q=" + url.QueryEscape(q)
+	}
+	if status != "" && status != "all" {
+		u += "&status=" + url.QueryEscape(status)
+	}
+	return u
+}
+
+templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog.Category, totalCount, currentPage, pageSize int, searchQuery, statusFilter, lang, dir string) {
 	@layouts.AdminShell("فئات المنتجات", "categories", lang, dir) {
 		<div style="display:flex; flex-direction:column; gap:1.25rem;">
 			
@@ -41,7 +54,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 						@components.IconFolder("icon-lg")
 						<div>
 							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
-								فئات المنتجات ({ fmt.Sprintf("%d", len(categories)) })
+								فئات المنتجات ({ fmt.Sprintf("%d", totalCount) })
 							</h2>
 							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
 								إدارة الشجرة التصنيفية للأصناف الدوائية والطبية، وتحديد الفئات الرئيسية والفرعية المعتمدة.
@@ -63,12 +76,61 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 				</div>
 			</div>
 
+			<!-- Search and Filter Bar -->
+			<form
+				method="GET"
+				action="/admin/categories"
+				style="margin-bottom:0; display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:0.75rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); align-items:center;"
+			>
+				<div style="position:relative; width:100%;">
+					<input
+						type="text"
+						name="q"
+						value={ searchQuery }
+						placeholder="ابحث باسم الفئة بالعربية أو الإنجليزية..."
+						class="form-input"
+						style="padding-inline-start:2.25rem; font-size:0.875rem; background:var(--surface-raised);"
+					/>
+					<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+						@components.IconSearch("icon-xs")
+					</div>
+				</div>
+
+				<div>
+					<select name="status" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
+						<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
+						<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
+						<option value="inactive" selected?={ statusFilter == "inactive" }>معطل (Inactive)</option>
+					</select>
+				</div>
+
+				<div>
+					<select name="limit" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
+						<option value="25" selected?={ pageSize == 25 }>25 فئة لكل صفحة</option>
+						<option value="50" selected?={ pageSize == 50 }>50 فئة لكل صفحة</option>
+						<option value="100" selected?={ pageSize == 100 }>100 فئة لكل صفحة</option>
+						<option value="200" selected?={ pageSize == 200 }>200 فئة لكل صفحة</option>
+					</select>
+				</div>
+
+				<div style="display:flex; gap:0.5rem;">
+					<button type="submit" class="btn btn-primary" style="font-weight:700; padding:0.5rem 1rem;">
+						تصفية
+					</button>
+					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
+						<a href="/admin/categories" class="btn btn-secondary" style="font-weight:700;">
+							إعادة تعيين
+						</a>
+					}
+				</div>
+			</form>
+
 			<!-- Categories Table Card -->
 			<div class="card" style="margin-bottom:0; overflow:visible;">
 				if len(categories) == 0 {
 					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد فئات مسجلة",
-						Message: "لم يتم إنشاء أي فئات للمنتجات بعد. اضغط على إضافة فئة جديدة للبدء.",
+						Title:   "لا توجد فئات مطابقة",
+						Message: "لم يتم العثور على أي نتائج وفق معايير البحث الحالية. اضغط على إضافة فئة جديدة للبدء.",
 					})
 				} else {
 					<div class="table-container" style="overflow:visible;">
@@ -88,7 +150,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 							<tbody>
 								for _, item := range categories {
 									{{ c := item.Category }}
-									{{ parentName := getParentCategoryName(c.ParentID, categories) }}
+									{{ parentName := getParentCategoryName(c.ParentID, allCategories) }}
 									<tr id={ fmt.Sprintf("category-row-%d", c.ID) }>
 										<td class="tabular-nums" style="font-weight:700; color:var(--neutral-500);">
 											#{ fmt.Sprintf("%d", c.ID) }
@@ -98,79 +160,74 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 												{ c.Name.Get("ar") }
 											</div>
 											if c.Name.Get("en") != "" {
-												<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;" dir="ltr">
+												<div style="font-size:0.775rem; color:var(--text-secondary); direction:ltr; text-align:right;">
 													{ c.Name.Get("en") }
 												</div>
 											}
 										</td>
 										<td>
 											if parentName != "" {
-												<span class="badge badge-sky" style="font-weight:700;">
-													{ parentName }
+												<span class="badge badge-secondary" style="font-weight:700;">
+													📁 { parentName }
 												</span>
 											} else {
-												<span class="badge badge-slate" style="font-size:0.75rem;">
-													فئة رئيسية (مستوى أول)
-												</span>
+												<span style="color:var(--text-muted); font-size:0.825rem;">-- رئيسية (مستوى أول) --</span>
 											}
 										</td>
-										<td>
+										<td style="max-width:240px;">
 											if c.Description.Get("ar") != "" {
-												<div style="font-size:0.85rem; color:var(--text-secondary); max-width:260px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+												<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;">
 													{ c.Description.Get("ar") }
 												</div>
+											} else if c.Description.Get("en") != "" {
+												<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4; direction:ltr; text-align:right;">
+													{ c.Description.Get("en") }
+												</div>
 											} else {
-												<span style="color:var(--neutral-400); font-size:0.8rem;">-</span>
+												<span style="font-size:0.8rem; color:var(--text-muted);">لا يوجد وصف</span>
 											}
 										</td>
 										<td>
-											<span class="badge badge-sky" style="font-weight:700;">
-												{ fmt.Sprintf("%d صنف معتمد", item.ProductCount) }
+											<span class="badge badge-secondary" style="font-weight:700; font-size:0.8rem; padding:0.3rem 0.65rem;">
+												{ fmt.Sprintf("%d صنف", item.ProductCount) }
 											</span>
 										</td>
-										<td>
-											<span class="tabular-nums" style="font-weight:700; color:var(--neutral-700);">
-												{ fmt.Sprintf("%d", c.SortOrder) }
-											</span>
+										<td class="tabular-nums" style="font-weight:600;">
+											{ fmt.Sprintf("%d", c.SortOrder) }
 										</td>
 										<td>
 											if c.Status == "active" || c.Status == "" {
-												<span class="badge badge-emerald">نشط</span>
+												<span class="badge badge-success" style="font-weight:700;">نشط</span>
 											} else {
-												<span class="badge badge-danger">معطل</span>
+												<span class="badge badge-neutral" style="font-weight:700;">معطل</span>
 											}
 										</td>
 										<td class="text-end">
-											<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;">
 												<button
 													type="button"
-													class="btn btn-secondary btn-sm"
+													class="btn btn-secondary btn-icon"
 													data-modal-open={ fmt.Sprintf("edit-category-modal-%d", c.ID) }
+													style="width:32px; height:32px;"
+													title="تعديل بيانات الفئة"
 												>
 													@components.IconEdit("icon-xs")
-													<span>تعديل</span>
 												</button>
 
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/toggle", c.ID)) } style="margin:0; display:inline;">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/toggle", c.ID)) } class="m-0">
 													if c.Status == "active" || c.Status == "" {
-														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--warning-text);" title="تعطيل الفئة">
-															تعطيل
+														<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--warning);" title="تعطيل الفئة">
+															@components.IconMinus("icon-xs")
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--success-text);" title="تفعيل الفئة">
-															تفعيل
+														<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--success);" title="تفعيل الفئة">
+															@components.IconCheck("icon-xs")
 														</button>
 													}
 												</form>
 
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/delete", c.ID)) } style="margin:0; display:inline;">
-													<button
-														type="submit"
-														class="btn btn-secondary btn-sm"
-														style="color:var(--danger-text);"
-														onclick="return confirm('هل أنت متأكد من حذف هذه الفئة؟ سيتم التحقق من عدم وجود منتجات مرتبطة بها.')"
-														title="حذف الفئة"
-													>
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/delete", c.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف فئة المنتجات هذه؟');">
+													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--danger);" title="حذف الفئة">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -185,11 +242,11 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 														<div class="form-grid-2">
 															<div class="form-group" style="margin:0;">
 																<label class="form-label">اسم الفئة (عربي) *</label>
-																<input type="text" name="name_ar" value={ c.Name.Get("ar") } required class="form-input" placeholder="مثال: أدوية الجهاز الهضمي" />
+																<input type="text" name="name_ar" value={ c.Name.Get("ar") } required class="form-input" />
 															</div>
 															<div class="form-group" style="margin:0;">
 																<label class="form-label">اسم الفئة (إنجليزي)</label>
-																<input type="text" name="name_en" value={ c.Name.Get("en") } class="form-input" dir="ltr" placeholder="Gastrointestinal Drugs" />
+																<input type="text" name="name_en" value={ c.Name.Get("en") } class="form-input" dir="ltr" />
 															</div>
 														</div>
 
@@ -198,9 +255,8 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 																<label class="form-label">الفئة الأب (Parent Category)</label>
 																<select name="parent_id" class="form-select">
 																	<option value="" selected?={ c.ParentID == nil || *c.ParentID <= 0 }>-- فئة رئيسية (مستوى أول / بدون فئة أب) --</option>
-																	for _, otherItem := range categories {
-																		{{ other := otherItem.Category }}
-																		if other.ID != c.ID {
+																	for _, other := range allCategories {
+																		if other != nil && other.ID != c.ID {
 																			<option value={ fmt.Sprintf("%d", other.ID) } selected?={ c.ParentID != nil && *c.ParentID == other.ID }>
 																				{ other.Name.Get("ar") }
 																				if other.Name.Get("en") != "" {
@@ -259,6 +315,73 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+
+					<!-- Pagination Controls -->
+					if totalCount > 0 {
+						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+							<div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">
+								{ fmt.Sprintf("عرض %d - %d من إجمالي %d فئة منتجات", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
+							</div>
+
+							<!-- Page navigation numbers -->
+							<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+								if currentPage > 1 {
+									<a
+										href={ templ.SafeURL(buildAdminCategoriesPageURL(1, pageSize, searchQuery, statusFilter)) }
+										class="btn btn-secondary btn-sm"
+										style="padding:0.4rem 0.65rem; font-weight:700;"
+										title="الصفحة الأولى"
+									>
+										«
+									</a>
+									<a
+										href={ templ.SafeURL(buildAdminCategoriesPageURL(currentPage-1, pageSize, searchQuery, statusFilter)) }
+										class="btn btn-secondary btn-sm"
+										style="padding:0.4rem 0.75rem; font-weight:700;"
+									>
+										السابق
+									</a>
+								}
+
+								for _, pNum := range calculateAdminPageNumbers(currentPage, totalPages(totalCount, pageSize)) {
+									if pNum == currentPage {
+										<span
+											class="btn btn-primary btn-sm"
+											style="padding:0.4rem 0.85rem; font-weight:800; pointer-events:none;"
+										>
+											{ fmt.Sprintf("%d", pNum) }
+										</span>
+									} else {
+										<a
+											href={ templ.SafeURL(buildAdminCategoriesPageURL(pNum, pageSize, searchQuery, statusFilter)) }
+											class="btn btn-secondary btn-sm"
+											style="padding:0.4rem 0.85rem; font-weight:700;"
+										>
+											{ fmt.Sprintf("%d", pNum) }
+										</a>
+									}
+								}
+
+								if currentPage < totalPages(totalCount, pageSize) {
+									<a
+										href={ templ.SafeURL(buildAdminCategoriesPageURL(currentPage+1, pageSize, searchQuery, statusFilter)) }
+										class="btn btn-secondary btn-sm"
+										style="padding:0.4rem 0.75rem; font-weight:700;"
+									>
+										التالي
+									</a>
+									<a
+										href={ templ.SafeURL(buildAdminCategoriesPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter)) }
+										class="btn btn-secondary btn-sm"
+										style="padding:0.4rem 0.65rem; font-weight:700;"
+										title="الصفحة الأخيرة"
+									>
+										»
+									</a>
+								}
+							</div>
+						</div>
+					}
 				}
 			</div>
 
@@ -287,9 +410,8 @@ templ AdminCategoriesPage(categories []CategoryViewItem, lang, dir string) {
 						<label class="form-label">الفئة الأب (Parent Category)</label>
 						<select name="parent_id" class="form-select">
 							<option value="" selected>-- فئة رئيسية (مستوى أول / بدون فئة أب) --</option>
-							for _, item := range categories {
-								{{ cat := item.Category }}
-								if cat.Status == "active" || cat.Status == "" {
+							for _, cat := range allCategories {
+								if cat != nil && (cat.Status == "active" || cat.Status == "") {
 									<option value={ fmt.Sprintf("%d", cat.ID) }>
 										{ cat.Name.Get("ar") }
 										if cat.Name.Get("en") != "" {

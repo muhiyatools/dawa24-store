@@ -5,13 +5,25 @@
 
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
 
-/* ---- Visibility primitives ---- */
-.tab-pane        { display: none; }
-.tab-pane.active { display: block; }
-.form-step       { display: none; }
-.form-step.active{ display: block; }
+/* ---- Visibility and Cloaking primitives ---- */
+[x-cloak] { display: none !important; }
+dialog:not([open]) { display: none !important; }
 .modal-overlay.hidden,
-.modal.hidden    { display: none !important; }
+.modal.hidden,
+.drawer-overlay.hidden { display: none !important; }
+.tab-pane {
+  display: none;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+.tab-pane.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+.form-step { display: none; }
+.form-step.active { display: block; }
 
 /* ============================================================
    TOKENS: Light theme (default)

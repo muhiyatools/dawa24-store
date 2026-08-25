@@ -86,14 +86,14 @@ func Base(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</title><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\tvar t = localStorage.getItem('dawa24-theme') || 'system';\n\t\t\t\t\t\tvar isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);\n\t\t\t\t\t\tif (isDark) document.documentElement.setAttribute('data-theme', 'dark');\n\t\t\t\t\t\telse document.documentElement.setAttribute('data-theme', 'light');\n\t\t\t\t\t})();\n\t\t\t\t</script><link rel=\"icon\" type=\"image/png\" href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</title><style>\n\t\t\t\t\t[x-cloak] { display: none !important; }\n\t\t\t\t\tdialog:not([open]) { display: none !important; }\n\t\t\t\t</style><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\tvar t = localStorage.getItem('dawa24-theme') || 'system';\n\t\t\t\t\t\tvar isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);\n\t\t\t\t\t\tif (isDark) document.documentElement.setAttribute('data-theme', 'dark');\n\t\t\t\t\t\telse document.documentElement.setAttribute('data-theme', 'light');\n\t\t\t\t\t})();\n\t\t\t\t</script><link rel=\"icon\" type=\"image/png\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(site.FaviconURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 24, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 28, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -106,7 +106,7 @@ func Base(title string, lang string, dir string) templ.Component {
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(site.FaviconURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 25, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 29, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -119,7 +119,7 @@ func Base(title string, lang string, dir string) templ.Component {
 			var templ_7745c5c3_Var8 templ.SafeURL
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(site.LogoURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 26, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 30, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
