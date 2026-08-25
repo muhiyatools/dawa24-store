@@ -489,24 +489,25 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</div>
 
 						<div id="pharmacy-import-columns-panel" style="display:none; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
-							<div style="font-weight:800; font-size:0.9rem; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
-								<span>⚙️</span>
-								<span>مطابقة وتحديد أعمدة الملف (تم التحديد الذكي تلقائياً):</span>
+							<div style="font-weight:800; font-size:0.9rem; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+								<div class="row-center-sm">
+									<span>⚙️</span>
+									<span>تحديد وتعيين أعمدة الملف:</span>
+								</div>
+								<span class="badge badge-emerald" style="font-size:10px;">تم التحديد الذكي تلقائياً ✓</span>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div id="pharmacy-import-columns-loading" style="display:none; text-align:center; padding:1.5rem; color:var(--accent); font-weight:700;">
+								⏳ جاري قراءة أعمدة الملف وتحليل البيانات...
+							</div>
+
+							<div id="pharmacy-import-columns-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
 								<div>
 									<label class="form-label" style="font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;">
 										عمود اسم الصنف / الدواء <span class="text-danger">*</span>
 									</label>
 									<select name="col_name" id="pharmacy-col-name" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
 										<option value="">تلقائي (التعرف الذكي)</option>
-										<option value="0">العمود A (الأول)</option>
-										<option value="1">العمود B (الثاني)</option>
-										<option value="2">العمود C (الثالث)</option>
-										<option value="3">العمود D (الرابع)</option>
-										<option value="4">العمود E (الخامس)</option>
-										<option value="5">العمود F (السادس)</option>
 									</select>
 								</div>
 
@@ -516,12 +517,6 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									</label>
 									<select name="col_sku" id="pharmacy-col-sku" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
 										<option value="">تلقائي (التعرف الذكي)</option>
-										<option value="0">العمود A (الأول)</option>
-										<option value="1">العمود B (الثاني)</option>
-										<option value="2">العمود C (الثالث)</option>
-										<option value="3">العمود D (الرابع)</option>
-										<option value="4">العمود E (الخامس)</option>
-										<option value="5">العمود F (السادس)</option>
 									</select>
 								</div>
 
@@ -531,12 +526,6 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									</label>
 									<select name="col_qty" id="pharmacy-col-qty" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
 										<option value="">تلقائي (التعرف الذكي)</option>
-										<option value="0">العمود A (الأول)</option>
-										<option value="1">العمود B (الثاني)</option>
-										<option value="2">العمود C (الثالث)</option>
-										<option value="3">العمود D (الرابع)</option>
-										<option value="4">العمود E (الخامس)</option>
-										<option value="5">العمود F (السادس)</option>
 									</select>
 								</div>
 
@@ -546,19 +535,46 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									</label>
 									<select name="col_price" id="pharmacy-col-price" class="form-input" style="width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;">
 										<option value="">تلقائي (التعرف الذكي)</option>
-										<option value="0">العمود A (الأول)</option>
-										<option value="1">العمود B (الثاني)</option>
-										<option value="2">العمود C (الثالث)</option>
-										<option value="3">العمود D (الرابع)</option>
-										<option value="4">العمود E (الخامس)</option>
-										<option value="5">العمود F (السادس)</option>
 									</select>
 								</div>
+							</div>
+
+							<!-- Live Sample Preview Container -->
+							<div id="pharmacy-import-preview-table-container"></div>
+						</div>
+
+						<!-- Match Strategy Selection -->
+						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<label style="font-weight:800; color:var(--text); font-size:0.875rem; display:block; margin-bottom:0.6rem;">
+								🎯 طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
+							</label>
+							<div style="display:flex; flex-direction:column; gap:0.6rem;">
+								<label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;">
+									<input type="radio" name="match_strategy" value="smart_auto" checked style="accent-color:var(--accent); margin-top:2px;" />
+									<div>
+										<strong style="color:var(--text);">مطابقة ذكية شاملة (موصى بها)</strong>
+										<span style="display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;">الربط بكود SKU / الباركود أولاً، ثم الاسم بالتنظيف اللغوي وتصحيح الهمزات والتطابق الصيدلاني.</span>
+									</div>
+								</label>
+								<label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;">
+									<input type="radio" name="match_strategy" value="sku_only" style="accent-color:var(--accent); margin-top:2px;" />
+									<div>
+										<strong style="color:var(--text);">مطابقة عبر كود SKU / الباركود فقط</strong>
+										<span style="display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;">المطابقة الحصرية عبر كود الباركود / SKU؛ الأصناف غير المتطابقة برمجياً لن ترتبط.</span>
+									</div>
+								</label>
+								<label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;">
+									<input type="radio" name="match_strategy" value="name_only" style="accent-color:var(--accent); margin-top:2px;" />
+									<div>
+										<strong style="color:var(--text);">مطابقة عبر اسم الصنف فقط (تجاهل كود الصيدلية الداخلي)</strong>
+										<span style="display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;">مثالي إذا كانت الصيدلية تستخدم أكواد كاشير داخلية خاصة تختلف عن أكواد الكتالوج العام.</span>
+									</div>
+								</label>
 							</div>
 						</div>
 
 						<div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5; background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:0.75rem 1rem; border-radius:var(--radius-lg);">
-							ℹ️ <strong>المطابقة الذكية:</strong> سيتم مطابقة الأدوية تلقائياً مع الكتالوج المركزي لتوفير مقارنة أسعار فورية مع عروض الموردين، مع حماية تلقائية تمنع تبديل الاسم والـ SKU.
+							ℹ️ <strong>حماية البيانات:</strong> يتم تنظيف الأرقام العشرية ورموز العملات وتجاهل صفوف الإجمالي تلقائياً لمنع أي أخطاء أثناء المعالجة.
 						</div>
 					</div>
 
@@ -752,65 +768,120 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 			}
 
 			function handlePharmacyImportFileSelect(input) {
-				if (input.files && input.files[0]) {
-					const f = input.files[0];
-					const size = (f.size / 1024 / 1024).toFixed(2);
-					document.getElementById('pharmacy-import-filename-preview').innerHTML = '✓ تم اختيار: ' + f.name + ' (' + size + ' MB)';
+				if (!input.files || !input.files[0]) return;
+				const f = input.files[0];
+				const size = (f.size / 1024 / 1024).toFixed(2);
+				document.getElementById('pharmacy-import-filename-preview').innerHTML = '✓ تم اختيار: ' + f.name + ' (' + size + ' MB)';
 
-					const panel = document.getElementById('pharmacy-import-columns-panel');
-					if (panel) panel.style.display = 'block';
+				const panel = document.getElementById('pharmacy-import-columns-panel');
+				const loadingEl = document.getElementById('pharmacy-import-columns-loading');
+				const formGrid = document.getElementById('pharmacy-import-columns-grid');
+				const previewTableEl = document.getElementById('pharmacy-import-preview-table-container');
 
-					if (f.name.endsWith('.csv')) {
-						const reader = new FileReader();
-						reader.onload = function(e) {
-							const text = e.target.result;
-							const firstLine = text.split(/\r\n|\n/)[0];
-							if (firstLine) {
-								let delimiter = ',';
-								if (firstLine.includes('\t')) delimiter = '\t';
-								else if (firstLine.includes(';') && !firstLine.includes(',')) delimiter = ';';
-								const rawHeaders = firstLine.split(delimiter).map(s => s.replace(/^["']|["']$/g, '').trim());
-								if (rawHeaders.length > 0) {
-									populateColumnDropdowns('pharmacy', rawHeaders);
-								}
-							}
-						};
-						reader.readAsText(f.slice(0, 4096));
+				if (panel) panel.style.display = 'block';
+				if (loadingEl) loadingEl.style.display = 'block';
+				if (formGrid) formGrid.style.display = 'none';
+				if (previewTableEl) previewTableEl.innerHTML = '';
+
+				const formData = new FormData();
+				formData.append('file', f);
+
+				fetch('/customer/saving-products/preview-columns', {
+					method: 'POST',
+					body: formData,
+				})
+				.then(r => r.json())
+				.then(data => {
+					if (loadingEl) loadingEl.style.display = 'none';
+					if (!data || !data.success || !data.headers || data.headers.length === 0) {
+						if (formGrid) formGrid.style.display = 'none';
+						alert(data.error || 'تعذر قراءة أعمدة الملف المرفوع. تأكد من سلامة ملف Excel.');
+						return;
 					}
-				}
+
+					if (formGrid) formGrid.style.display = 'grid';
+					renderImportColumnDropdowns('pharmacy', data.headers, data.detected);
+					renderImportSamplePreview('pharmacy', data.headers, data.sample_rows, data.detected);
+				})
+				.catch(err => {
+					if (loadingEl) loadingEl.style.display = 'none';
+					console.error('preview error', err);
+				});
 			}
 
-			function populateColumnDropdowns(prefix, headers) {
-				const selects = ['name', 'sku', 'qty', 'price'];
-				selects.forEach(field => {
-					const el = document.getElementById(prefix + '-col-' + field);
+			function renderImportColumnDropdowns(prefix, headers, detected) {
+				const selects = [
+					{ id: prefix + '-col-name', selected: detected.name_col },
+					{ id: prefix + '-col-sku', selected: detected.sku_col },
+					{ id: prefix + '-col-qty', selected: detected.qty_col },
+					{ id: prefix + '-col-price', selected: detected.price_col }
+				];
+
+				selects.forEach(s => {
+					const el = document.getElementById(s.id);
 					if (!el) return;
-					el.innerHTML = '<option value="">تلقائي (التعرف الذكي)</option>';
+					el.innerHTML = '<option value="-1">-- غير محدد (تجاهل) --</option>';
 					headers.forEach((h, idx) => {
 						const colLetter = String.fromCharCode(65 + idx);
 						const opt = document.createElement('option');
 						opt.value = idx;
 						opt.textContent = `العمود ${colLetter}: [${h}]`;
+						if (idx === s.selected) {
+							opt.selected = true;
+						}
 						el.appendChild(opt);
 					});
+
+					el.onchange = function() {
+						const curDetected = {
+							name_col: parseInt(document.getElementById(prefix + '-col-name')?.value || -1),
+							sku_col: parseInt(document.getElementById(prefix + '-col-sku')?.value || -1),
+							qty_col: parseInt(document.getElementById(prefix + '-col-qty')?.value || -1),
+							price_col: parseInt(document.getElementById(prefix + '-col-price')?.value || -1)
+						};
+						if (window[prefix + '_last_sample_rows']) {
+							renderImportSamplePreview(prefix, headers, window[prefix + '_last_sample_rows'], curDetected);
+						}
+					};
 				});
+			}
+
+			function renderImportSamplePreview(prefix, headers, sampleRows, detected) {
+				window[prefix + '_last_sample_rows'] = sampleRows;
+				const container = document.getElementById(prefix + '-import-preview-table-container');
+				if (!container || !sampleRows || sampleRows.length === 0) return;
+
+				let html = '<div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:0.75rem;">';
+				html += '<div style="font-size:0.8rem; font-weight:800; color:var(--text); margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">';
+				html += '<span>👀 معاينة أعمدة الملف والبيانات الحقيقية:</span>';
+				html += '<span style="font-size:0.75rem; color:var(--text-muted);">أول ' + sampleRows.length + ' صفوف</span>';
+				html += '</div>';
+				html += '<div class="table-container" style="max-height:160px; overflow:auto; border-radius:var(--radius-md); border:1px solid var(--border);"><table class="b2b-table" style="font-size:0.75rem; width:100%;"><thead><tr>';
 
 				headers.forEach((h, idx) => {
-					const norm = h.toLowerCase().replace(/[\s_\-]/g, '');
-					if (norm.includes('sku') || norm.includes('كود') || norm.includes('رمز') || norm.includes('barcode') || norm.includes('باركود')) {
-						const el = document.getElementById(prefix + '-col-sku');
-						if (el && !el.value) el.value = idx;
-					} else if (norm.includes('name') || norm.includes('اسم') || norm.includes('صنف') || norm.includes('منتج') || norm.includes('دواء')) {
-						const el = document.getElementById(prefix + '-col-name');
-						if (el && !el.value) el.value = idx;
-					} else if (norm.includes('qty') || norm.includes('كمية') || norm.includes('الكمية') || norm.includes('stock')) {
-						const el = document.getElementById(prefix + '-col-qty');
-						if (el && !el.value) el.value = idx;
-					} else if (norm.includes('price') || norm.includes('سعر') || norm.includes('السعر') || norm.includes('cost') || norm.includes('شراء')) {
-						const el = document.getElementById(prefix + '-col-price');
-						if (el && !el.value) el.value = idx;
-					}
+					let tag = '';
+					if (idx === detected.name_col) tag = ' <span class="badge badge-emerald" style="font-size:9px; margin-inline-start:3px;">اسم الصنف ✓</span>';
+					else if (idx === detected.sku_col) tag = ' <span class="badge badge-sky" style="font-size:9px; margin-inline-start:3px;">كود SKU ✓</span>';
+					else if (idx === detected.qty_col) tag = ' <span class="badge badge-amber" style="font-size:9px; margin-inline-start:3px;">الكمية ✓</span>';
+					else if (idx === detected.price_col) tag = ' <span class="badge badge-purple" style="font-size:9px; margin-inline-start:3px;">السعر ✓</span>';
+					const colLetter = String.fromCharCode(65 + idx);
+					html += `<th style="padding:0.4rem 0.6rem; white-space:nowrap;">${colLetter}: ${h}${tag}</th>`;
 				});
+				html += '</tr></thead><tbody>';
+
+				sampleRows.forEach(row => {
+					html += '<tr>';
+					headers.forEach((_, idx) => {
+						const cellVal = (idx < row.length) ? row[idx] : '';
+						let cellStyle = 'padding:0.4rem 0.6rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
+						if (idx === detected.name_col) cellStyle += ' font-weight:700; color:var(--text);';
+						html += `<td style="${cellStyle}">${cellVal}</td>`;
+					});
+					html += '</tr>';
+				});
+
+				html += '</tbody></table></div></div>';
+				container.innerHTML = html;
 			}
 
 			function handlePharmacyImportSubmit(e) {

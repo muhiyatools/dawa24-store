@@ -304,6 +304,9 @@ func (mockCatalogRepoStub) GetProductProviders(context.Context, int64) ([]*catal
 func (mockCatalogRepoStub) BatchUpsertSavingProducts(context.Context, int64, *int64, []*catalog.SavingProduct) (int, int, error) {
 	return 0, 0, nil
 }
+func (mockCatalogRepoStub) ListAllMasterProductsForMatching(context.Context) ([]*catalog.CatalogMatchSource, error) {
+	return nil, nil
+}
 
 // stagingRepo is the minimal catalog.Repository the commit path needs.
 type stagingRepo struct {

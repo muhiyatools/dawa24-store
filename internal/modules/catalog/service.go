@@ -567,3 +567,8 @@ func (s *Service) BatchUpsertSavingProducts(ctx context.Context, orgID int64, us
 func (s *Service) ListAllSavingProductsAdmin(ctx context.Context, userID *int64, orgID *int64, search string, filter string, limit, offset int) ([]*SavingProductAdminView, *SavingProductAdminStats, error) {
 	return s.repo.ListAllSavingProductsAdmin(ctx, userID, orgID, search, filter, limit, offset)
 }
+
+// ListAllMasterProductsForMatching retrieves all master products for high-speed in-memory matching.
+func (s *Service) ListAllMasterProductsForMatching(ctx context.Context) ([]*CatalogMatchSource, error) {
+	return s.repo.ListAllMasterProductsForMatching(ctx)
+}

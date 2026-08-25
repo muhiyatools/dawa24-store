@@ -226,6 +226,9 @@ func (r stubRepo) ListAllSavingProductsAdmin(ctx context.Context, _ *int64, _ *i
 	r.fail("ListAllSavingProductsAdmin")
 	return nil, nil, nil
 }
+func (r stubRepo) ListAllMasterProductsForMatching(ctx context.Context) ([]*catalog.CatalogMatchSource, error) {
+	return nil, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

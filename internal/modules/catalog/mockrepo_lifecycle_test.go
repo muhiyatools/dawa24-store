@@ -60,3 +60,17 @@ func (m *mockCatalogRepo) CountProductsInBrand(_ context.Context, brandID int64)
 	}
 	return count, nil
 }
+
+func (m *mockCatalogRepo) ListAllMasterProductsForMatching(_ context.Context) ([]*CatalogMatchSource, error) {
+	var list []*CatalogMatchSource
+	for _, p := range m.products {
+		list = append(list, &CatalogMatchSource{
+			ID:      p.ID,
+			SKU:     p.SKU,
+			Barcode: p.Barcode,
+			NameAr:  p.Name.Get("ar"),
+			NameEn:  p.Name.Get("en"),
+		})
+	}
+	return list, nil
+}

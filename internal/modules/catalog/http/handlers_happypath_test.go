@@ -164,6 +164,9 @@ func (happyRepo) BatchUpsertSavingProducts(ctx context.Context, orgID int64, use
 func (happyRepo) ListAllSavingProductsAdmin(ctx context.Context, _ *int64, _ *int64, _ string, _ string, _, _ int) ([]*catalog.SavingProductAdminView, *catalog.SavingProductAdminStats, error) {
 	return nil, &catalog.SavingProductAdminStats{}, nil
 }
+func (happyRepo) ListAllMasterProductsForMatching(ctx context.Context) ([]*catalog.CatalogMatchSource, error) {
+	return nil, nil
+}
 
 func newAuthedRouter(repo catalog.Repository) http.Handler {
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))

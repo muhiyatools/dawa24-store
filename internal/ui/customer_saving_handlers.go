@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -276,23 +277,15 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 		colProductIDOverride,
 	)
 
-	skuToProductID := make(map[string]int64)
-	nameToProductID := make(map[string]int64)
+	matchStrategy := MatchStrategy(strings.TrimSpace(r.FormValue("match_strategy")))
+	if matchStrategy == "" {
+		matchStrategy = StrategySmartAuto
+	}
 
+	var matchEngine *SavingProductMatchEngine
 	if h.catSvc != nil {
-		allCatalog, _ := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 2000})
-		for _, p := range allCatalog {
-			if p.SKU != "" {
-				skuToProductID[strings.ToLower(strings.TrimSpace(p.SKU))] = p.ID
-			}
-			arName := strings.ToLower(strings.TrimSpace(p.Name.Get(i18n.AR)))
-			enName := strings.ToLower(strings.TrimSpace(p.Name.Get(i18n.EN)))
-			if arName != "" {
-				nameToProductID[arName] = p.ID
-			}
-			if enName != "" {
-				nameToProductID[enName] = p.ID
-			}
+		if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(ctx); err == nil && len(catalogSources) > 0 {
+			matchEngine = NewSavingProductMatchEngine(catalogSources)
 		}
 	}
 
@@ -302,7 +295,7 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 
 	for i := 1; i < len(rawRows); i++ {
 		row := rawRows[i]
-		if len(row) == 0 {
+		if len(row) == 0 || IsAllEmptyRow(row) || IsSummaryOrTotalRow(row) {
 			continue
 		}
 
@@ -330,18 +323,12 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 
 		var qty float64
 		if qtyCol >= 0 && qtyCol < len(row) {
-			qStr := strings.TrimSpace(row[qtyCol])
-			qStr = strings.ReplaceAll(qStr, ",", "")
-			qty, _ = strconv.ParseFloat(qStr, 64)
+			qty, _ = ParseFlexibleQuantity(row[qtyCol])
 		}
 
 		var price money.Amount
 		if priceCol >= 0 && priceCol < len(row) {
-			pStr := strings.TrimSpace(row[priceCol])
-			pStr = strings.ReplaceAll(pStr, ",", "")
-			pStr = strings.ReplaceAll(pStr, "EGP", "")
-			pStr = strings.ReplaceAll(pStr, "ج.م", "")
-			price, _ = money.Parse(strings.TrimSpace(pStr))
+			price, _ = ParseFlexibleMoney(row[priceCol])
 		}
 
 		var productID *int64
@@ -351,17 +338,10 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 			}
 		}
 
-		if productID == nil {
-			if sku != "" {
-				if pid, ok := skuToProductID[strings.ToLower(sku)]; ok {
-					productID = &pid
-				}
-			}
-			if productID == nil {
-				cleanName := strings.ToLower(name)
-				if pid, ok := nameToProductID[cleanName]; ok {
-					productID = &pid
-				}
+		if matchEngine != nil {
+			matchRes := matchEngine.Match(matchStrategy, productID, sku, name)
+			if matchRes.ProductID != nil {
+				productID = matchRes.ProductID
 			}
 		}
 
@@ -396,6 +376,77 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 
 	successMsg := fmt.Sprintf("تم استيراد ومعالجة %d منتج بنجاح (جديد: %d، تم تحديثه: %d). تم ربط %d صنف بالكتالوج، و %d صنف غير مرتبطة.", len(parsedItems), added, updated, matchedCount, unlinkedCount)
 	h.redirectWithNotice(w, r, "/customer/saving-products", "success", successMsg)
+}
+
+// SavingProductsPreviewResponse represents the preview payload returned to UI.
+type SavingProductsPreviewResponse struct {
+	Success    bool              `json:"success"`
+	Error      string            `json:"error,omitempty"`
+	Headers    []string          `json:"headers"`
+	Detected   SavingDetectedCols `json:"detected"`
+	SampleRows [][]string        `json:"sample_rows"`
+}
+
+type SavingDetectedCols struct {
+	NameCol      int `json:"name_col"`
+	SKUCol       int `json:"sku_col"`
+	QtyCol       int `json:"qty_col"`
+	PriceCol     int `json:"price_col"`
+	ProductIDCol int `json:"product_id_col"`
+}
+
+// CustomerSavingProductsPreviewColumnsJSON reads uploaded spreadsheet and returns headers and detected columns.
+func (h *UIHandler) CustomerSavingProductsPreviewColumnsJSON(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "الملف كبير جداً أو غير صالح"})
+		return
+	}
+
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "يرجى اختيار ملف Excel أو CSV صالح"})
+		return
+	}
+	defer file.Close()
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil || len(fileBytes) == 0 {
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "تعذر قراءة محتوى الملف"})
+		return
+	}
+
+	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	if err != nil || len(rawRows) == 0 {
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "تعذر قراءة أوراق العمل أو الجداول داخل الملف"})
+		return
+	}
+
+	headers := rawRows[0]
+	var sampleRows [][]string
+	if len(rawRows) > 1 {
+		limit := 4
+		if len(rawRows)-1 < limit {
+			limit = len(rawRows) - 1
+		}
+		sampleRows = rawRows[1 : 1+limit]
+	}
+
+	nameCol, skuCol, qtyCol, priceCol, productIDCol := detectSavingProductColumns(headers, sampleRows, "", "", "", "", "")
+
+	_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{
+		Success: true,
+		Headers: headers,
+		Detected: SavingDetectedCols{
+			NameCol:      nameCol,
+			SKUCol:       skuCol,
+			QtyCol:       qtyCol,
+			PriceCol:     priceCol,
+			ProductIDCol: productIDCol,
+		},
+		SampleRows: sampleRows,
+	})
 }
 
 // CustomerSavingProductsExport streams an Excel spreadsheet of all saving products for the pharmacy.

@@ -254,6 +254,15 @@ type SavingProductStats struct {
 	TotalValue    money.Amount `json:"total_value"`
 }
 
+// CatalogMatchSource holds core metadata of a master product for high-speed matching.
+type CatalogMatchSource struct {
+	ID      int64  `json:"id"`
+	SKU     string `json:"sku"`
+	Barcode string `json:"barcode"`
+	NameAr  string `json:"name_ar"`
+	NameEn  string `json:"name_en"`
+}
+
 // SavingProductAdminView represents a saving product with associated user, org, and master product details.
 type SavingProductAdminView struct {
 	ID                int64        `json:"id"`

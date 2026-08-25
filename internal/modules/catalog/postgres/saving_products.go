@@ -438,3 +438,31 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 	})
 	return list, stats, err
 }
+
+// ListAllMasterProductsForMatching retrieves all active master catalog products for high-performance in-memory matching.
+func (r *Repository) ListAllMasterProductsForMatching(ctx context.Context) ([]*catalog.CatalogMatchSource, error) {
+	var list []*catalog.CatalogMatchSource
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, COALESCE(sku, ''), COALESCE(barcode, ''),
+			       COALESCE(name->>'ar', ''), COALESCE(name->>'en', '')
+			FROM catalog.products
+			WHERE deleted_at IS NULL;
+		`
+		rows, err := tx.Query(txCtx, query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var it catalog.CatalogMatchSource
+			if err := rows.Scan(&it.ID, &it.SKU, &it.Barcode, &it.NameAr, &it.NameEn); err != nil {
+				return err
+			}
+			list = append(list, &it)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
