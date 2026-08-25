@@ -136,7 +136,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" required class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"مثال: سمارت كودز لتوزيع الأدوية\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">اسم المؤسسة بالإنجليزية <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"name_en\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" required class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"مثال: سمارت كودز لتوزيع الأدوية\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">اسم المؤسسة بالإنجليزية <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"name_en\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -149,7 +149,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" required class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"Example: Smart Codes Pharma Distribution\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">النوع / التصنيف <span style=\"color:var(--danger-text);\">*</span></label> <select name=\"type\" class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\"><option value=\"supplier\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" required class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"Example: Smart Codes Pharma Distribution\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">النوع / التصنيف <span style=\"color:var(--danger-text);\">*</span></label> <select name=\"type\" class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\"><option value=\"supplier\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -192,7 +192,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" required class=\"input-field\" style=\"height:44px; font-weight:700; font-family:var(--font-mono, monospace); padding-inline-end:3.75rem; border-radius:var(--radius-lg);\" placeholder=\"10.00\"> <span style=\"position:absolute; inset-inline-end:1rem; font-size:0.8rem; font-weight:800; color:var(--text-muted);\">EGP</span></div></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الحد الأقصى لسعر الطلب <span style=\"color:var(--danger-text);\">*</span></label><div style=\"position:relative; display:flex; align-items:center;\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"max_order_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" required class=\"form-input\" style=\"height:44px; font-weight:700; font-family:var(--font-mono, monospace); padding-inline-end:3.75rem; border-radius:var(--radius-lg);\" placeholder=\"10.00\"> <span style=\"position:absolute; inset-inline-end:1rem; font-size:0.8rem; font-weight:800; color:var(--text-muted);\">EGP</span></div></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الحد الأقصى لسعر الطلب <span style=\"color:var(--danger-text);\">*</span></label><div style=\"position:relative; display:flex; align-items:center;\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"max_order_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -205,7 +205,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" required class=\"input-field\" style=\"height:44px; font-weight:700; font-family:var(--font-mono, monospace); padding-inline-end:3.75rem; border-radius:var(--radius-lg);\" placeholder=\"50.00\"> <span style=\"position:absolute; inset-inline-end:1rem; font-size:0.8rem; font-weight:800; color:var(--text-muted);\">EGP</span></div></div></div></div><!-- 3. Contact & Location Section --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(14,165,233,0.12); display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">📞</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">معلومات الاتصال والضرائب</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0;\">بيانات التواصل الرسمي والعنوان والرقم الضريبي</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">رقم المنظمة</label> <input type=\"text\" name=\"organization_number\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" required class=\"form-input\" style=\"height:44px; font-weight:700; font-family:var(--font-mono, monospace); padding-inline-end:3.75rem; border-radius:var(--radius-lg);\" placeholder=\"50.00\"> <span style=\"position:absolute; inset-inline-end:1rem; font-size:0.8rem; font-weight:800; color:var(--text-muted);\">EGP</span></div></div></div></div><!-- 3. Contact & Location Section --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(14,165,233,0.12); display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">📞</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">معلومات الاتصال والضرائب</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0;\">بيانات التواصل الرسمي والعنوان والرقم الضريبي</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">رقم المنظمة</label> <input type=\"text\" name=\"organization_number\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -218,7 +218,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"مثال: 267244\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">البريد الإلكتروني</label> <input type=\"email\" name=\"email\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"مثال: 267244\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">البريد الإلكتروني</label> <input type=\"email\" name=\"email\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -231,7 +231,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"info@smartcodes.com\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">رقم الهاتف</label> <input type=\"text\" name=\"phone\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"info@smartcodes.com\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">رقم الهاتف</label> <input type=\"text\" name=\"phone\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -244,7 +244,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"01099887766\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الرقم الضريبي</label> <input type=\"text\" name=\"tax_number\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"01099887766\"></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الرقم الضريبي</label> <input type=\"text\" name=\"tax_number\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -257,7 +257,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"TX431256\"></div><div style=\"grid-column:1 / -1;\"><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">العنوان الرئيسي</label> <input type=\"text\" name=\"address\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"TX431256\"></div><div style=\"grid-column:1 / -1;\"><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">العنوان الرئيسي</label> <input type=\"text\" name=\"address\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -270,7 +270,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" class=\"input-field\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"الجيزة، مصر\"></div></div></div><!-- 4. Description, Logo & Cover Section --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(168,85,247,0.12); display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">📝</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">الوصف والشعار وصورة الغلاف</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0;\">نبذة عن المورد وصور الهوية البصرية المعروضة للعملاء</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الوصف (بالعربية)</label> <textarea name=\"description_ar\" rows=\"3\" class=\"input-field\" style=\"padding:0.75rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem;\" placeholder=\"شركة متخصصة في توزيع وتوريد الأدوية والمستلزمات الطبية...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" class=\"form-input\" style=\"height:44px; font-weight:600; border-radius:var(--radius-lg);\" placeholder=\"الجيزة، مصر\"></div></div></div><!-- 4. Description, Logo & Cover Section --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(168,85,247,0.12); display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">📝</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">الوصف والشعار وصورة الغلاف</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0;\">نبذة عن المورد وصور الهوية البصرية المعروضة للعملاء</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الوصف (بالعربية)</label> <textarea name=\"description_ar\" rows=\"3\" class=\"form-input\" style=\"padding:0.75rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem;\" placeholder=\"شركة متخصصة في توزيع وتوريد الأدوية والمستلزمات الطبية...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -283,7 +283,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</textarea></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الوصف (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"3\" class=\"input-field\" style=\"padding:0.75rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem;\" placeholder=\"Specialized company in pharmaceutical and healthcare distribution...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</textarea></div><div><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;\">الوصف (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"3\" class=\"form-input\" style=\"padding:0.75rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem;\" placeholder=\"Specialized company in pharmaceutical and healthcare distribution...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -319,7 +319,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div style=\"flex:1; min-width:160px;\"><input type=\"file\" name=\"logo_file\" accept=\"image/*\" class=\"input-field\" style=\"height:44px; padding:0.35rem 0.5rem; font-size:0.8rem; border-radius:var(--radius-lg);\"></div></div></div><!-- Coverage Image Upload --><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:1rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:800; margin:0; color:var(--text);\">صورة الغلاف (Coverage Image)</label> <span style=\"font-size:0.75rem; color:var(--text-muted);\">PNG, JPG (Max: 2MB)</span></div><div style=\"display:flex; align-items:center; gap:1rem; flex-wrap:wrap;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div style=\"flex:1; min-width:160px;\"><input type=\"file\" name=\"logo_file\" accept=\"image/*\" class=\"form-input\" style=\"height:44px; padding:0.35rem 0.5rem; font-size:0.8rem; border-radius:var(--radius-lg);\"></div></div></div><!-- Coverage Image Upload --><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:1rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><label class=\"form-label\" style=\"font-size:0.825rem; font-weight:800; margin:0; color:var(--text);\">صورة الغلاف (Coverage Image)</label> <span style=\"font-size:0.75rem; color:var(--text-muted);\">PNG, JPG (Max: 2MB)</span></div><div style=\"display:flex; align-items:center; gap:1rem; flex-wrap:wrap;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -342,7 +342,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div style=\"flex:1; min-width:160px;\"><input type=\"file\" name=\"coverage_file\" accept=\"image/*\" class=\"input-field\" style=\"height:44px; padding:0.35rem 0.5rem; font-size:0.8rem; border-radius:var(--radius-lg);\"></div></div></div></div></div><!-- Form Actions --><div style=\"display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1.5rem; flex-wrap:wrap; gap:1rem;\"><a href=\"/vendor/dashboard\" class=\"btn btn-secondary\" style=\"font-weight:700; border-radius:var(--radius-xl); padding:0.65rem 1.5rem;\">إلغاء والعودة</a> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; font-size:0.95rem; border-radius:var(--radius-xl); padding:0.75rem 2rem; box-shadow:0 4px 14px rgba(16,185,129,0.25);\"><span>حفظ التعديلات والتحديث الفوري 💾</span></button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div style=\"flex:1; min-width:160px;\"><input type=\"file\" name=\"coverage_file\" accept=\"image/*\" class=\"form-input\" style=\"height:44px; padding:0.35rem 0.5rem; font-size:0.8rem; border-radius:var(--radius-lg);\"></div></div></div></div></div><!-- Form Actions --><div style=\"display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:1.5rem; flex-wrap:wrap; gap:1rem;\"><a href=\"/vendor/dashboard\" class=\"btn btn-secondary\" style=\"font-weight:700; border-radius:var(--radius-xl); padding:0.65rem 1.5rem;\">إلغاء والعودة</a> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; font-size:0.95rem; border-radius:var(--radius-xl); padding:0.75rem 2rem; box-shadow:0 4px 14px rgba(16,185,129,0.25);\"><span>حفظ التعديلات والتحديث الفوري 💾</span></button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

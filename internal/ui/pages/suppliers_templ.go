@@ -138,7 +138,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" placeholder=\"ابحث باسم شركة الأدوية، الموزع، أو رقم السجل...\" class=\"input-field\" style=\"width:100%; padding-inline-start:2.5rem; height:44px; border-radius:var(--radius-lg);\"><div style=\"position:absolute; inset-inline-start:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" placeholder=\"ابحث باسم شركة الأدوية، الموزع، أو رقم السجل...\" class=\"form-input\" style=\"width:100%; padding-inline-start:2.5rem; height:44px; border-radius:var(--radius-lg);\"><div style=\"position:absolute; inset-inline-start:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

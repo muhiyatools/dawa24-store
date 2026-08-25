@@ -235,7 +235,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										value={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
 										min={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
 										max={ fmt.Sprintf("%d", max(1, offers[0].AvailableStock)) }
-										class="input-field tabular-nums"
+										class="form-input tabular-nums"
 										style="flex:1; height:42px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
 									/>
 								</div>

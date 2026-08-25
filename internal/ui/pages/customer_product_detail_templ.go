@@ -636,7 +636,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" class=\"input-field tabular-nums\" style=\"flex:1; height:42px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; font-weight:800; height:44px; border-radius:var(--radius-lg); font-size:0.95rem; justify-content:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" class=\"form-input tabular-nums\" style=\"flex:1; height:42px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; font-weight:800; height:44px; border-radius:var(--radius-lg); font-size:0.95rem; justify-content:center;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

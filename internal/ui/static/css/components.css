@@ -826,13 +826,102 @@ dialog.modal::backdrop {
 .wiz-sep { flex: 1 1 1.5rem; height: 1px; background: var(--border); min-width: 1rem; }
 
 /* Section head ------------------------------------------------------------ */
-.wiz-head { margin: 0 0 0.25rem 0; font-size: 1.05rem; font-weight: 800; }
-.wiz-sub  { margin: 0 0 1rem 0; font-size: 0.83rem; color: var(--text-secondary); }
+.wiz-head { margin: 0 0 0.25rem 0; font-size: 1.1rem; font-weight: 800; color: var(--text); }
+.wiz-sub  { margin: 0 0 1.15rem 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+
+/* Dropzone and File Ingestion -------------------------------------------- */
+.wiz-drop {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 2.75rem 1.5rem;
+	border: 2px dashed var(--border);
+	border-radius: var(--radius-2xl);
+	background: var(--surface-sunken);
+	cursor: pointer;
+	text-align: center;
+	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	position: relative;
+	margin-bottom: 0.75rem;
+}
+.wiz-drop:hover,
+.wiz-drop.is-dragover {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 6%, var(--surface-raised));
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.wiz-drop input[type="file"] {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 10;
+}
+.wiz-drop-icon {
+	width: 56px;
+	height: 56px;
+	border-radius: var(--radius-full);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 1rem;
+	transition: transform 0.2s ease;
+}
+.wiz-drop:hover .wiz-drop-icon {
+	transform: scale(1.1) translateY(-2px);
+}
+.wiz-drop-title {
+	font-size: 1.05rem;
+	font-weight: 800;
+	color: var(--text);
+	margin-bottom: 0.35rem;
+}
+.wiz-drop-text {
+	font-size: 0.825rem;
+	color: var(--text-muted);
+}
+.wiz-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.45rem 0.9rem;
+	border-radius: var(--radius-md);
+	background: var(--surface-sunken);
+	border: 1px solid var(--border);
+	color: var(--text-secondary);
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-decoration: none;
+	transition: all 0.15s ease;
+}
+.wiz-chip:hover {
+	background: var(--accent-subtle);
+	border-color: var(--accent);
+	color: var(--accent);
+}
+.wiz-actions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+	padding: 0.25rem 0;
+}
+.wiz-actions-note {
+	font-size: 0.85rem;
+	color: var(--text-muted);
+	font-weight: 600;
+}
 
 /* Strategy cards ---------------------------------------------------------- */
 .wiz-choices {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 	gap: 0.75rem;
 }
 .wiz-choice { position: relative; display: block; cursor: pointer; }

@@ -17,7 +17,20 @@ import (
 
 // AdminProductsImportPage is step one: the file, the strategy, and the switches.
 templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
-	@layouts.AdminShell("استيراد الأصناف إلى الكتالوج المعتمد", "import", lang, dir) {
+	@layouts.AdminShell("استيراد وتحديث الكتالوج المعتمد | Master Catalog Ingestion Studio", "import", lang, dir) {
+		<!-- Header -->
+		@components.PageHeader(components.PageHeaderProps{
+			Title:    "استيراد وتحديث الكتالوج المركزي العام",
+			Subtitle: "معالجة ملفات Excel و CSV، التعرف الذكي على الأعمدة، واستكمال البيانات والأسماء العلمية بالذكاء الاصطناعي",
+		}) {
+			<div class="row-center">
+				<a href="/admin/products" class="btn btn-secondary btn-sm" style="font-weight:700;">
+					@components.IconLayers("icon-xs")
+					<span>العودة للأصناف المعتمدة</span>
+				</a>
+			</div>
+		}
+
 		<div class="wizard">
 			@wizardRail(StepConfigure)
 			if view.Fatal != "" {
@@ -84,7 +97,7 @@ templ wizardFatal(message, detail string) {
 
 templ importUploadCard() {
 	<div class="card mb-0">
-		<h2 class="wiz-head">📤 ملف الأصناف</h2>
+		<h2 class="wiz-head">ملف الأصناف</h2>
 		<p class="wiz-sub">
 			Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة
 			التي يتكرر فيها صف العناوين.
@@ -97,20 +110,28 @@ templ importUploadCard() {
 				accept=".xlsx,.xlsm,.csv,.tsv,.txt"
 				required
 			/>
-			<div class="wiz-drop-icon" aria-hidden="true">📁</div>
-			<div class="wiz-drop-title" id="import-drop-title">اختر الملف أو اسحبه إلى هنا</div>
-			<div class="wiz-drop-text">الحد الأقصى 32 ميجابايت · لا تدعم صيغة Excel 97-2003 القديمة (.xls)</div>
+			<div class="wiz-drop-icon" aria-hidden="true">
+				@components.IconUpload("icon-md")
+			</div>
+			<div class="wiz-drop-title" id="import-drop-title">اختر ملف الكتالوج أو اسحبه إلى هنا</div>
+			<div class="wiz-drop-text">الحد الأقصى 32 ميجابايت · يدعم تنسيقات Excel (.xlsx, .xlsm) وملفات القيم المفصولة (.csv, .tsv)</div>
 		</label>
-		<div class="import-chip-list" style="margin-top:0.75rem;">
-			<a href="/admin/products/sample.xlsx" class="wiz-chip">⬇ قالب Excel</a>
-			<a href="/admin/products/sample.csv" class="wiz-chip">⬇ قالب CSV</a>
+		<div class="import-chip-list" style="margin-top:1rem;">
+			<a href="/admin/products/sample.xlsx" class="wiz-chip">
+				@components.IconDownload("icon-xs")
+				<span>تحميل نموذج Excel القياسي (.xlsx)</span>
+			</a>
+			<a href="/admin/products/sample.csv" class="wiz-chip">
+				@components.IconDownload("icon-xs")
+				<span>تحميل نموذج CSV القياسي (.csv)</span>
+			</a>
 		</div>
 	</div>
 }
 
 templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMode) {
 	<div class="card mb-0">
-		<h2 class="wiz-head">⚡ طريقة وخطة معالجة الاستيراد</h2>
+		<h2 class="wiz-head">طريقة وخطة معالجة الاستيراد</h2>
 		<p class="wiz-sub">حدد سلوك الاستيراد للأصناف المستخرجة</p>
 		<div class="wiz-choices">
 			for _, mode := range modes {
@@ -127,7 +148,7 @@ templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMo
 							<span class="wiz-choice-title">{ mode.Title }</span>
 							<p class="wiz-choice-text">{ mode.Description }</p>
 							if mode.Destructive {
-								<span class="wiz-choice-warn">⚠ يؤثر على كل الأصناف الحالية</span>
+								<span class="wiz-choice-warn">يؤثر على كل الأصناف الحالية</span>
 							}
 						</span>
 					</span>
@@ -139,7 +160,7 @@ templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMo
 
 templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOption, defaultCategory int64, aiAvailable bool) {
 	<div class="card mb-0">
-		<h2 class="wiz-head">🧩 استكمال بيانات الأصناف</h2>
+		<h2 class="wiz-head">استكمال بيانات الأصناف</h2>
 		<p class="wiz-sub">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p>
 		<div class="wiz-switches">
 			for _, toggle := range toggles {
@@ -195,7 +216,7 @@ templ importSwitch(toggle ImportToggle) {
 
 templ importHistoryCard(sessions []*catalog.ImportSession) {
 	<div class="card mb-0">
-		<h2 class="wiz-head">🕘 آخر عمليات الاستيراد</h2>
+		<h2 class="wiz-head">آخر عمليات الاستيراد</h2>
 		<div class="table-container">
 			<table class="b2b-table">
 				<thead>

@@ -172,7 +172,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								type="text"
 								name="q"
 								value={ filter.Query }
-								class="input-field"
+								class="form-input"
 								style="padding-right:2.75rem; border-radius:var(--radius-xl); height:46px; font-size:0.9rem;"
 								placeholder="اسم الدواء، المادة الفعالة، الكود..."
 							/>
@@ -184,7 +184,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 						<label class="form-label" style="font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">
 							المورد / الشركة
 						</label>
-						<select name="supplier" class="input-field" style="border-radius:var(--radius-xl); height:46px; font-size:0.875rem;" onchange="this.form.submit()">
+						<select name="supplier" class="form-input" style="border-radius:var(--radius-xl); height:46px; font-size:0.875rem;" onchange="this.form.submit()">
 							<option value="">كل الشركات</option>
 							for _, sup := range result.AvailableSuppliers {
 								<option value={ sup } selected?={ filter.Supplier == sup }>{ sup }</option>
@@ -197,7 +197,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 						<label class="form-label" style="font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">
 							ترتيب النتائج
 						</label>
-						<select name="sort" class="input-field" style="border-radius:var(--radius-xl); height:46px; font-size:0.875rem;" onchange="this.form.submit()">
+						<select name="sort" class="form-input" style="border-radius:var(--radius-xl); height:46px; font-size:0.875rem;" onchange="this.form.submit()">
 							<option value="newest" selected?={ filter.SortBy == "" || filter.SortBy == "newest" }>الأحدث</option>
 							<option value="oldest" selected?={ filter.SortBy == "oldest" }>الأقدم</option>
 							<option value="discount_desc" selected?={ filter.SortBy == "discount_desc" }>الأعلى خصماً 🔥</option>
@@ -240,7 +240,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								step="0.1"
 								name="min_price"
 								value={ formatOptionalFloat(filter.MinPrice) }
-								class="input-field"
+								class="form-input"
 								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
 								placeholder="الحد الأدنى"
 							/>
@@ -250,7 +250,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								step="0.1"
 								name="max_price"
 								value={ formatOptionalFloat(filter.MaxPrice) }
-								class="input-field"
+								class="form-input"
 								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
 								placeholder="الحد الأقصى"
 							/>
@@ -268,7 +268,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								step="0.5"
 								name="min_discount"
 								value={ formatOptionalFloat(filter.MinDiscount) }
-								class="input-field"
+								class="form-input"
 								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
 								placeholder="الخصم الأدنى %"
 							/>
@@ -278,7 +278,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								step="0.5"
 								name="max_discount"
 								value={ formatOptionalFloat(filter.MaxDiscount) }
-								class="input-field"
+								class="form-input"
 								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
 								placeholder="الخصم الأقصى %"
 							/>

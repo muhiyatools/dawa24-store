@@ -83,10 +83,10 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 								</label>
 								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
 									<div>
-										<input type="number" name="min_price" value={ data.MinPrice } placeholder="من 0" class="input-field tabular-nums" style="height:36px; padding:0.35rem 0.5rem; font-size:0.825rem;" />
+										<input type="number" name="min_price" value={ data.MinPrice } placeholder="من 0" class="form-input tabular-nums" style="height:36px; padding:0.35rem 0.5rem; font-size:0.825rem;" />
 									</div>
 									<div>
-										<input type="number" name="max_price" value={ data.MaxPrice } placeholder="إلى 1000" class="input-field tabular-nums" style="height:36px; padding:0.35rem 0.5rem; font-size:0.825rem;" />
+										<input type="number" name="max_price" value={ data.MaxPrice } placeholder="إلى 1000" class="form-input tabular-nums" style="height:36px; padding:0.35rem 0.5rem; font-size:0.825rem;" />
 									</div>
 								</div>
 							</div>
@@ -165,7 +165,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									name="q"
 									value={ data.Query }
 									placeholder="ابحث بالاسم التجاري، المادة الفعالة، المورد، أو الباركود..."
-									class="input-field"
+									class="form-input"
 									style="font-size:0.85rem; height:40px; padding-inline-start:2.25rem; border-radius:var(--radius-lg);"
 									hx-get="/catalog"
 									hx-trigger="keyup changed delay:300ms, search"
@@ -178,7 +178,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 								<label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); white-space:nowrap;">الترتيب:</label>
 								<select
 									name="sort"
-									class="input-field"
+									class="form-input"
 									style="font-size:0.8rem; height:40px; width:auto; border-radius:var(--radius-lg); font-weight:600;"
 									onchange="window.location = '/catalog?q=' + encodeURIComponent(document.querySelector('input[name=q]').value) + '&sort=' + this.value"
 								>
@@ -408,7 +408,7 @@ templ CustomerCatalogList(variants []*SupplierVariantCard, lang string) {
 										value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
 										min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
 										max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
-										class="input-field tabular-nums"
+										class="form-input tabular-nums"
 										style="width:68px; height:42px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg); border:1px solid var(--border);"
 										title="الكمية المطلوبة"
 									/>
@@ -517,7 +517,7 @@ templ CustomerNegotiationModal() {
 							id="neg-proposed-price"
 							required
 							placeholder="0.00"
-							class="input-field tabular-nums"
+							class="form-input tabular-nums"
 							style="width:100%; font-weight:800; font-size:1rem; border-radius:var(--radius-lg);"
 						/>
 					</div>
@@ -533,7 +533,7 @@ templ CustomerNegotiationModal() {
 							id="neg-qty"
 							value="1"
 							required
-							class="input-field tabular-nums"
+							class="form-input tabular-nums"
 							style="width:100%; font-weight:800; font-size:1rem; border-radius:var(--radius-lg);"
 						/>
 					</div>
@@ -547,7 +547,7 @@ templ CustomerNegotiationModal() {
 						name="notes"
 						rows="2"
 						placeholder="اكتب أي شروط أو تفاصيل إضافية بخصوص خط الدفع أو جدول التوريد..."
-						class="input-field"
+						class="form-input"
 						style="width:100%; font-size:0.85rem; border-radius:var(--radius-lg); resize:vertical;"
 					></textarea>
 				</div>

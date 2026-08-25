@@ -85,7 +85,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"input-field\" style=\"padding-right:2.75rem; border-radius:var(--radius-xl); height:46px; font-size:0.9rem;\" placeholder=\"اسم الدواء، المادة الفعالة، الكود...\"></div></div><!-- Supplier Select --><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;\">المورد / الشركة</label> <select name=\"supplier\" class=\"input-field\" style=\"border-radius:var(--radius-xl); height:46px; font-size:0.875rem;\" onchange=\"this.form.submit()\"><option value=\"\">كل الشركات</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"form-input\" style=\"padding-right:2.75rem; border-radius:var(--radius-xl); height:46px; font-size:0.9rem;\" placeholder=\"اسم الدواء، المادة الفعالة، الكود...\"></div></div><!-- Supplier Select --><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;\">المورد / الشركة</label> <select name=\"supplier\" class=\"form-input\" style=\"border-radius:var(--radius-xl); height:46px; font-size:0.875rem;\" onchange=\"this.form.submit()\"><option value=\"\">كل الشركات</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -131,7 +131,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</select></div><!-- Sort Order --><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;\">ترتيب النتائج</label> <select name=\"sort\" class=\"input-field\" style=\"border-radius:var(--radius-xl); height:46px; font-size:0.875rem;\" onchange=\"this.form.submit()\"><option value=\"newest\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</select></div><!-- Sort Order --><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;\">ترتيب النتائج</label> <select name=\"sort\" class=\"form-input\" style=\"border-radius:var(--radius-xl); height:46px; font-size:0.875rem;\" onchange=\"this.form.submit()\"><option value=\"newest\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -194,7 +194,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"input-field\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الحد الأدنى\"> <span style=\"color:var(--text-muted);\">-</span> <input type=\"number\" step=\"0.1\" name=\"max_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الحد الأدنى\"> <span style=\"color:var(--text-muted);\">-</span> <input type=\"number\" step=\"0.1\" name=\"max_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,7 +207,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"input-field\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الحد الأقصى\"></div></div><!-- Discount Range --><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem;\">📉 نطاق نسبة الخصم %</label><div style=\"display:flex; gap:0.75rem; align-items:center;\"><input type=\"number\" step=\"0.5\" name=\"min_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الحد الأقصى\"></div></div><!-- Discount Range --><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem;\">📉 نطاق نسبة الخصم %</label><div style=\"display:flex; gap:0.75rem; align-items:center;\"><input type=\"number\" step=\"0.5\" name=\"min_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -220,7 +220,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"input-field\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأدنى %\"> <span style=\"color:var(--text-muted);\">-</span> <input type=\"number\" step=\"0.5\" name=\"max_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأدنى %\"> <span style=\"color:var(--text-muted);\">-</span> <input type=\"number\" step=\"0.5\" name=\"max_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -233,7 +233,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"input-field\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأقصى %\"></div></div></div></form><!-- 3. Control & Stats Bar --><div class=\"market-control-bar\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div class=\"badge badge-neutral\" style=\"font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:var(--surface-raised); border:1px solid var(--border);\"><span>عرض النتائج:</span> <strong style=\"color:var(--primary-600); margin-right:0.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأقصى %\"></div></div></div></form><!-- 3. Control & Stats Bar --><div class=\"market-control-bar\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div class=\"badge badge-neutral\" style=\"font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:var(--surface-raised); border:1px solid var(--border);\"><span>عرض النتائج:</span> <strong style=\"color:var(--primary-600); margin-right:0.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
