@@ -192,7 +192,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"badge badge-slate\" style=\"font-size:0.7rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"badge badge-slate text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -210,12 +210,12 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</button></div><!-- ========================================== --><!-- TABS 1-4: Users Tables with Live Filter   --><!-- ========================================== --><div x-show=\"activeTab !== 'deletion_requests'\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Search and Filter Toolstrip --><div class=\"card\" style=\"padding:1rem 1.25rem; margin-bottom:0; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"display:grid; grid-template-columns:2fr 1fr 1fr; gap:0.75rem; align-items:center;\"><div class=\"form-group\" style=\"margin:0;\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"البحث بالاسم، البريد الإلكتروني، أو الدور...\" class=\"form-input\" style=\"font-size:0.875rem;\"></div><div class=\"form-group\" style=\"margin:0;\"><select x-model=\"statusFilter\" class=\"form-select\" style=\"font-size:0.875rem;\"><option value=\"all\">جميع الحالات (All Status)</option> <option value=\"active\">نشط (Active)</option> <option value=\"suspended\">موقوف / معلق (Suspended)</option> <option value=\"pending\">قيد التفعيل (Pending)</option></select></div><div class=\"form-group\" style=\"margin:0;\"><select x-model=\"roleFilter\" class=\"form-select\" style=\"font-size:0.875rem;\"><option value=\"all\">جميع الصلاحيات (All Roles)</option> <option value=\"super_admin\">مدير نظام عام (Super Admin)</option> <option value=\"admin\">مدير (Admin)</option> <option value=\"pharmacy\">صيدلية (Pharmacy)</option> <option value=\"supplier\">مورد (Supplier)</option> <option value=\"vendor\">بائع / متجر (Vendor)</option> <option value=\"customer\">عميل / فرد (Customer)</option></select></div></div></div><!-- Users Data Card --><div class=\"card\" style=\"padding:0; overflow:visible; margin-bottom:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</button></div><!-- ========================================== --><!-- TABS 1-4: Users Tables with Live Filter   --><!-- ========================================== --><div x-show=\"activeTab !== 'deletion_requests'\" class=\"stack-lg\"><!-- Search and Filter Toolstrip --><div class=\"card\" style=\"padding:1rem 1.25rem; margin-bottom:0; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"display:grid; grid-template-columns:2fr 1fr 1fr; gap:0.75rem; align-items:center;\"><div class=\"form-group m-0\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"البحث بالاسم، البريد الإلكتروني، أو الدور...\" class=\"form-input text-sm\"></div><div class=\"form-group m-0\"><select x-model=\"statusFilter\" class=\"form-select text-sm\"><option value=\"all\">جميع الحالات (All Status)</option> <option value=\"active\">نشط (Active)</option> <option value=\"suspended\">موقوف / معلق (Suspended)</option> <option value=\"pending\">قيد التفعيل (Pending)</option></select></div><div class=\"form-group m-0\"><select x-model=\"roleFilter\" class=\"form-select text-sm\"><option value=\"all\">جميع الصلاحيات (All Roles)</option> <option value=\"super_admin\">مدير نظام عام (Super Admin)</option> <option value=\"admin\">مدير (Admin)</option> <option value=\"pharmacy\">صيدلية (Pharmacy)</option> <option value=\"supplier\">مورد (Supplier)</option> <option value=\"vendor\">بائع / متجر (Vendor)</option> <option value=\"customer\">عميل / فرد (Customer)</option></select></div></div></div><!-- Users Data Card --><div class=\"card\" style=\"padding:0; overflow:visible; margin-bottom:0;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Users) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div style=\"padding:2rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"p-modal\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -251,20 +251,20 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						string(u.Status),
 					))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 214, Col: 12}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 213, Col: 12}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><td class=\"text-start\"><div style=\"font-weight:700; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><td class=\"text-start\"><div class=\"fw-700 text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(userDisplayName(u))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 218, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 217, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -282,7 +282,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(u.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 222, Col: 23}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 221, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -300,7 +300,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(u.Email)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 228, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 227, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -335,13 +335,13 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(roleDisplayAr(u.Role))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 233, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 232, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span></td><td style=\"text-align:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span></td><td class=\"text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -373,7 +373,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var17 templ.SafeURL
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 248, Col: 102}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 247, Col: 102}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -399,13 +399,13 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var18 templ.SafeURL
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 255, Col: 105}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 254, Col: 105}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-sm\" style=\"font-size:0.75rem; font-weight:700;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-sm text-xs fw-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -425,7 +425,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var19 templ.SafeURL
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 263, Col: 103}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 262, Col: 103}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -449,14 +449,14 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></div><!-- ========================================== --><!-- TAB 5: Account Deletion Requests           --><!-- ========================================== --><div x-show=\"activeTab === 'deletion_requests'\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"card\" style=\"padding:0; overflow:visible; margin-bottom:0;\"><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><h3 class=\"card-title\" style=\"margin:0; font-size:1.15rem; font-weight:800;\">طلبات حذف الحسابات المقدمة من الصيدليات والموردين (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></div><!-- ========================================== --><!-- TAB 5: Account Deletion Requests           --><!-- ========================================== --><div x-show=\"activeTab === 'deletion_requests'\" class=\"stack-lg\"><div class=\"card\" style=\"padding:0; overflow:visible; margin-bottom:0;\"><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><h3 class=\"card-title\" style=\"margin:0; font-size:1.15rem; font-weight:800;\">طلبات حذف الحسابات المقدمة من الصيدليات والموردين (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.DeletionRequests)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 289, Col: 149}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 288, Col: 149}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -488,14 +488,14 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, req := range data.DeletionRequests {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<tr><td class=\"text-start\"><div style=\"font-weight:700; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<tr><td class=\"text-start\"><div class=\"fw-700 text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(req.UserName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 321, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 320, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -508,7 +508,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(req.UserEmail)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 322, Col: 138}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 321, Col: 138}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -543,7 +543,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(roleDisplayAr(req.UserRole))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 326, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 325, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -561,7 +561,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(req.OrganizationName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 329, Col: 112}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 328, Col: 112}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -584,7 +584,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(req.Reason)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 334, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 333, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
@@ -607,28 +607,28 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(req.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 340, Col: 115}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 339, Col: 115}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</span></td><td style=\"text-align:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</span></td><td class=\"text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if req.Status == "pending" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"badge badge-amber\" style=\"font-weight:800;\">قيد المراجعة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"badge badge-amber fw-800\">قيد المراجعة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if req.Status == "approved" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<span class=\"badge badge-emerald\" style=\"font-weight:800;\">تم الحذف</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<span class=\"badge badge-emerald fw-800\">تم الحذف</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"badge badge-danger\" style=\"font-weight:800;\">مرفوض</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"badge badge-danger fw-800\">مرفوض</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -645,7 +645,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var29 templ.SafeURL
 						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", req.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 354, Col: 113}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 353, Col: 113}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 						if templ_7745c5c3_Err != nil {
@@ -666,7 +666,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var30 templ.SafeURL
 						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", req.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 361, Col: 112}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_users.templ`, Line: 360, Col: 112}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 						if templ_7745c5c3_Err != nil {
@@ -677,7 +677,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span style=\"font-size:0.75rem; color:var(--text-muted);\">تمت المعالجة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span class=\"text-xs text-muted\">تمت المعالجة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

@@ -50,7 +50,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
 				<div>
 					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						<div class="b2b-icon-box">
 							@components.IconUpload("icon-md")
 						</div>
 						<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0;">
@@ -105,7 +105,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 						<!-- Target Warehouse Selection -->
 						<div style="margin-bottom:2rem;">
 							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
-								1. اختر المستودع المستهدف <span style="color:var(--danger);">*</span>
+								1. اختر المستودع المستهدف <span class="text-danger">*</span>
 							</label>
 							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.75rem 0;">
 								سيتم تسجيل وتحديث أرصدة المخزون داخل المستودع الذي تختاره.
@@ -128,7 +128,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 						<!-- Import Mode Selection (4 Modes) -->
 						<div style="margin-bottom:2.25rem;">
 							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
-								2. اختر نمط الاستيراد <span style="color:var(--danger);">*</span>
+								2. اختر نمط الاستيراد <span class="text-danger">*</span>
 							</label>
 							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0;">
 								حدد كيفية معالجة وتحديث الأصناف والمخزون الموجود مقارنة بالملف المرفوع:
@@ -209,12 +209,12 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								3. إعدادات محرك المطابقة الذكي
 							</label>
 
-							<div style="display:flex; flex-direction:column; gap:1rem;">
+							<div class="stack-md">
 								<!-- Savings Products Matching (Default On) -->
 								<label style="display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;">
 									<input type="checkbox" name="enable_savings_matching" value="1" checked style="accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;" />
 									<div>
-										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+										<div class="fw-800 text-primary text-base">
 											اعتماد منتجات التوفير للمطابقة الفائقة 🛒
 										</div>
 										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
@@ -227,7 +227,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 								<label style="display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;">
 									<input type="checkbox" name="enable_ai_matching" value="1" checked style="accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;" />
 									<div>
-										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+										<div class="fw-800 text-primary text-base">
 											تفعيل المطابقة الذكية بالذكاء الاصطناعي (AI Matching) 🤖
 										</div>
 										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
@@ -241,7 +241,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 						<!-- File Upload Dropzone -->
 						<div style="margin-bottom:2rem;">
 							<label style="display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);">
-								4. رفع ملف الكتالوج والأرصدة <span style="color:var(--danger);">*</span>
+								4. رفع ملف الكتالوج والأرصدة <span class="text-danger">*</span>
 							</label>
 
 							<div style="border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--surface-sunken);">
@@ -297,13 +297,13 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<tr style="background:rgba(37,99,235,0.03);">
 										<td>
 											<strong style="color:var(--text); font-size:0.95rem;">اسم الصنف / Product Name</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">الاسم التجاري أو العلمي للدواء</div>
+											<div class="text-xs text-secondary">الاسم التجاري أو العلمي للدواء</div>
 										</td>
 										<td>
-											<span class="badge badge-danger" style="font-size:0.75rem;">إلزامي</span>
+											<span class="badge badge-danger text-xs">إلزامي</span>
 										</td>
 										<td>
-											<select name="target_field_product_name" required class="form-control" style="font-weight:700;">
+											<select name="target_field_product_name" required class="form-control fw-700">
 												<option value="">-- اختر العمود من الملف --</option>
 												for _, hKey := range getAvailableHeaders(data) {
 													<option value={ hKey } selected?={ data.Session.ColumnMapping[ingest.FieldProductName] == hKey }>
@@ -317,11 +317,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Barcode -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">الباركود الدولي / Barcode</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">كود الترقيم الدولي (EAN/UPC/GTIN)</div>
+											<strong class="text-primary">الباركود الدولي / Barcode</strong>
+											<div class="text-xs text-secondary">كود الترقيم الدولي (EAN/UPC/GTIN)</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_barcode" class="form-control">
@@ -338,11 +338,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- SKU -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">كود الصنف / SKU</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">كود الصنف الداخلي لدى المورد</div>
+											<strong class="text-primary">كود الصنف / SKU</strong>
+											<div class="text-xs text-secondary">كود الصنف الداخلي لدى المورد</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_sku" class="form-control">
@@ -359,11 +359,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Price -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">سعر البيع للجمهور / Public Price</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">السعر الرسمي للجمهور (ج.م)</div>
+											<strong class="text-primary">سعر البيع للجمهور / Public Price</strong>
+											<div class="text-xs text-secondary">السعر الرسمي للجمهور (ج.م)</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_price" class="form-control">
@@ -380,11 +380,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Cost Price -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">سعر التكلفة / Cost Price</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">سعر الشراء أو التكلفة</div>
+											<strong class="text-primary">سعر التكلفة / Cost Price</strong>
+											<div class="text-xs text-secondary">سعر الشراء أو التكلفة</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_cost_price" class="form-control">
@@ -401,11 +401,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Discount -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">نسبة / قيمة الخصم / Discount</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">الخصم الممنوح للصيدلية</div>
+											<strong class="text-primary">نسبة / قيمة الخصم / Discount</strong>
+											<div class="text-xs text-secondary">الخصم الممنوح للصيدلية</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_discount" class="form-control">
@@ -422,11 +422,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Quantity -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">الكمية / الرصيد / Stock Qty</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">الرصيد المتاح بالمستودع</div>
+											<strong class="text-primary">الكمية / الرصيد / Stock Qty</strong>
+											<div class="text-xs text-secondary">الرصيد المتاح بالمستودع</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_quantity" class="form-control">
@@ -443,11 +443,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Batch Number -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">رقم التشغيلة / Batch Number</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">رقم الباتش أو التشغيلة</div>
+											<strong class="text-primary">رقم التشغيلة / Batch Number</strong>
+											<div class="text-xs text-secondary">رقم الباتش أو التشغيلة</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_batch_number" class="form-control">
@@ -464,11 +464,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Expiry Date -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">تاريخ الصلاحية / Expiry Date</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">تاريخ انتهاء صلاحية الصنف</div>
+											<strong class="text-primary">تاريخ الصلاحية / Expiry Date</strong>
+											<div class="text-xs text-secondary">تاريخ انتهاء صلاحية الصنف</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_expiry_date" class="form-control">
@@ -485,11 +485,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Dosage Form -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">الشكل الدوائي / Dosage Form</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">أقراص، شراب، كبسول، إلخ</div>
+											<strong class="text-primary">الشكل الدوائي / Dosage Form</strong>
+											<div class="text-xs text-secondary">أقراص، شراب، كبسول، إلخ</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_dosage_form" class="form-control">
@@ -506,11 +506,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Concentration -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">التركيز / Concentration</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">مثل: 500mg, 1000mg</div>
+											<strong class="text-primary">التركيز / Concentration</strong>
+											<div class="text-xs text-secondary">مثل: 500mg, 1000mg</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_concentration" class="form-control">
@@ -527,11 +527,11 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 									<!-- Manufacturer -->
 									<tr>
 										<td>
-											<strong style="color:var(--text);">الشركة المصنعة / Manufacturer</strong>
-											<div style="font-size:0.75rem; color:var(--text-secondary);">اسم المصنع أو الشركة المنتجة</div>
+											<strong class="text-primary">الشركة المصنعة / Manufacturer</strong>
+											<div class="text-xs text-secondary">اسم المصنع أو الشركة المنتجة</div>
 										</td>
 										<td>
-											<span class="badge badge-secondary" style="font-size:0.75rem;">اختياري</span>
+											<span class="badge badge-secondary text-xs">اختياري</span>
 										</td>
 										<td>
 											<select name="target_field_manufacturer" class="form-control">
@@ -617,7 +617,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 										</span>
 									}
 								</div>
-								<div style="font-size:0.85rem; color:var(--text-secondary);">
+								<div class="text-sm text-secondary">
 									المستودع: 
 									<strong>
 										if data.CurrentWarehouse != nil {
@@ -631,7 +631,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 							</div>
 
 							<div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?step=2", data.Session.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?step=2", data.Session.ID)) } class="btn btn-secondary btn-sm fw-700">
 									@components.IconArrowRight("icon-xs")
 									<span>تعديل مطابقة الأعمدة</span>
 								</a>
@@ -659,16 +659,16 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 
 						<!-- Filter Pills -->
 						<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap;">
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == ""), templ.KV("btn-secondary", data.ConfidenceFilter != "") } style="font-weight:700;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == ""), templ.KV("btn-secondary", data.ConfidenceFilter != "") } class="fw-700">
 								الكل ({ fmt.Sprintf("%d", data.Session.TotalRows) })
 							</a>
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=high", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "high"), templ.KV("btn-secondary", data.ConfidenceFilter != "high") } style="font-weight:700;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=high", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "high"), templ.KV("btn-secondary", data.ConfidenceFilter != "high") } class="fw-700">
 								المطابقة المؤكدة ({ fmt.Sprintf("%d", data.Session.MatchedRows) })
 							</a>
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=review", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "review"), templ.KV("btn-secondary", data.ConfidenceFilter != "review") } style="font-weight:700;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=review", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "review"), templ.KV("btn-secondary", data.ConfidenceFilter != "review") } class="fw-700">
 								بحاجة لمراجعة ({ fmt.Sprintf("%d", data.Session.ReviewRows) })
 							</a>
-							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=unmatched", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "unmatched"), templ.KV("btn-secondary", data.ConfidenceFilter != "unmatched") } style="font-weight:700;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d?filter=unmatched", data.Session.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", data.ConfidenceFilter == "unmatched"), templ.KV("btn-secondary", data.ConfidenceFilter != "unmatched") } class="fw-700">
 								غير المطابقة ({ fmt.Sprintf("%d", data.Session.UnmatchedRows) })
 							</a>
 						</div>
@@ -710,10 +710,10 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الكود: <code>{ s }</code></span>
 														}
 														if p := getRawField(row.RawData, ingest.FieldPrice, data.Session.ColumnMapping); p != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">السعر: <strong style="color:var(--text);">{ p } ج.م</strong></span>
+															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">السعر: <strong class="text-primary">{ p } ج.م</strong></span>
 														}
 														if q := getRawField(row.RawData, ingest.FieldQuantity, data.Session.ColumnMapping); q != "" {
-															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الكمية: <strong style="color:var(--text);">{ q }</strong></span>
+															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الكمية: <strong class="text-primary">{ q }</strong></span>
 														}
 														if d := getRawField(row.RawData, ingest.FieldDosageForm, data.Session.ColumnMapping); d != "" {
 															<span style="background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">الشكل: <strong>{ d }</strong></span>
@@ -790,7 +790,7 @@ templ VendorIngestPage(data IngestWizardData, lang, dir string) {
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%d/rows/%d/toggle", data.Session.ID, row.ID)) }>
 															if row.IsApproved {
 																<input type="hidden" name="approved" value="false" />
-																<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger);" title="استبعاد هذا الصنف من الاستيراد">
+																<button type="submit" class="btn btn-secondary btn-xs text-danger" title="استبعاد هذا الصنف من الاستيراد">
 																	استبعاد
 																</button>
 															} else {

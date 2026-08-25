@@ -236,7 +236,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div style=\"display:flex; flex-direction:column; gap:1.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"stack-lg\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -267,7 +267,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></div><div style=\"font-size:0.875rem; color:var(--text-secondary);\">العميل / الصيدلية: <strong>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></div><div class=\"text-sm text-secondary\">العميل / الصيدلية: <strong>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -559,7 +559,7 @@ func VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purchas
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</tbody></table></div></div><div class=\"card\" style=\"padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); margin-bottom:1.5rem;\"><div style=\"margin-bottom:1rem;\"><label class=\"form-label\" style=\"font-weight:600;\">القرار والحالة</label> <select name=\"status\" class=\"form-control\" style=\"max-width:300px;\"><option value=\"approved\">قبول وتأكيد الطلب</option> <option value=\"processing\">قبول وقيد التجهيز</option> <option value=\"cancelled\">اعتذار / رفض الطلب</option></select></div><div><label class=\"form-label\" style=\"font-weight:600;\">ملاحظات التوريد الموجهة للصيدلية</label> <textarea name=\"vendor_notes\" rows=\"3\" class=\"form-control\" placeholder=\"اكتب أية شروط أو ملاحظات للمشتري...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</tbody></table></div></div><div class=\"card\" style=\"padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); margin-bottom:1.5rem;\"><div class=\"mb-md\"><label class=\"form-label fw-600\">القرار والحالة</label> <select name=\"status\" class=\"form-control\" style=\"max-width:300px;\"><option value=\"approved\">قبول وتأكيد الطلب</option> <option value=\"processing\">قبول وقيد التجهيز</option> <option value=\"cancelled\">اعتذار / رفض الطلب</option></select></div><div><label class=\"form-label fw-600\">ملاحظات التوريد الموجهة للصيدلية</label> <textarea name=\"vendor_notes\" rows=\"3\" class=\"form-control\" placeholder=\"اكتب أية شروط أو ملاحظات للمشتري...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

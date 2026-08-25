@@ -78,16 +78,16 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 									<tr>
 										<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
 										<td>
-											<div style="font-weight:700; color:var(--text);">{ c.UserName }</div>
+											<div class="fw-700 text-primary">{ c.UserName }</div>
 											if c.UserPhone != "" {
-												<div style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">{ c.UserPhone }</div>
+												<div class="text-xs text-muted" dir="ltr">{ c.UserPhone }</div>
 											} else if c.UserEmail != "" {
-												<div style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">{ c.UserEmail }</div>
+												<div class="text-xs text-muted" dir="ltr">{ c.UserEmail }</div>
 											}
 										</td>
 										<td>
 											<div style="font-weight:600; color:var(--text-secondary);">{ c.OrganizationName }</div>
-											<div style="font-size:0.75rem; color:var(--text-muted);">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</div>
+											<div class="text-xs text-muted">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</div>
 										</td>
 										<td>
 											if c.Title != "" {
@@ -99,15 +99,15 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 										<td class="tabular-nums">
 											<span class="badge badge-emerald">{ fmt.Sprintf("%d رسائل", c.MessageCount) }</span>
 										</td>
-										<td class="tabular-nums" style="font-size:0.8rem;">
-											<div><span style="color:var(--text-muted);">إدخال:</span> { fmt.Sprintf("%d", c.TotalInputTokens) }</div>
-											<div><span style="color:var(--text-muted);">توليد:</span> { fmt.Sprintf("%d", c.TotalOutputTokens) }</div>
+										<td class="tabular-nums text-sm">
+											<div><span class="text-muted">إدخال:</span> { fmt.Sprintf("%d", c.TotalInputTokens) }</div>
+											<div><span class="text-muted">توليد:</span> { fmt.Sprintf("%d", c.TotalOutputTokens) }</div>
 										</td>
-										<td style="font-size:0.8rem; color:var(--text-secondary);">
+										<td class="text-sm text-secondary">
 											{ c.UpdatedAt.Format("2006-01-02 15:04") }
 										</td>
 										<td class="text-end">
-											<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm fw-700">
 												@components.IconEye("icon-xs")
 												<span>عرض المحادثة</span>
 											</a>
@@ -215,7 +215,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 			</div>
 
 			<!-- Transcript -->
-			<div class="card mb-0" style="padding:1.5rem;">
+			<div class="card mb-0 p-card">
 				<h3 style="font-size:1.05rem; font-weight:800; margin:0 0 1.25rem 0; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
 					سجل المحادثة الكامل (Transcript)
 				</h3>
@@ -223,7 +223,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 				if len(msgs) == 0 {
 					@components.EmptyState(components.EmptyStateProps{Title: "لا توجد رسائل مسجلة", Message: "هذه الجلسة لا تحتوي على رسائل."})
 				} else {
-					<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					<div class="stack-lg">
 						for _, m := range msgs {
 							if m.Role == "user" {
 								<!-- User Bubble -->
@@ -291,10 +291,10 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 // AdminChatHistoryDetailPage renders conversation transcript for peer chat.
 templ AdminChatHistoryDetailPage(convID int64, msgs []*chat.Message, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("محادثة #%d", convID), "chat_history", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">محادثة #{ fmt.Sprintf("%d", convID) }</h2>
+					<h2 class="card-title m-0">محادثة #{ fmt.Sprintf("%d", convID) }</h2>
 					<p class="subtitle">عرض الرسائل المتبادلة للأغراض الإدارية والرقابية.</p>
 				</div>
 				<a href="/admin/chat/history?tab=users" class="btn btn-secondary btn-sm">العودة للسجلات</a>

@@ -17,7 +17,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Header & Action Bar -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
 				<div>
-					<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">مستودعات ومخازن المنشأة</h1>
+					<h1 class="text-2xl fw-800 text-primary m-0">مستودعات ومخازن المنشأة</h1>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
 						إدارة مراكز التخزين، ربطها بالفروع التوزيعية، ومتابعة الأرصدة والتحويلات.
 					</p>
@@ -85,13 +85,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 								for _, w := range warehouses {
 									<tr>
 										<td>
-											<div style="display:flex; align-items:center; gap:0.5rem;">
+											<div class="row-center-sm">
 												<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 													@components.IconBuilding("icon-xs")
 												</div>
 												<div>
 													<strong style="color:var(--text); font-size:0.95rem;">{ w.Name }</strong>
-													<div style="font-size:0.75rem; color:var(--text-muted);">ID #{ fmt.Sprintf("%d", w.ID) }</div>
+													<div class="text-xs text-muted">ID #{ fmt.Sprintf("%d", w.ID) }</div>
 												</div>
 											</div>
 										</td>
@@ -100,11 +100,11 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										</td>
 										<td>
 											if w.BranchID != nil && *w.BranchID > 0 {
-												<span class="badge badge-sky" style="font-size:0.8rem;">
+												<span class="badge badge-sky text-sm">
 													فرع #{ fmt.Sprintf("%d", *w.BranchID) }
 												</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">مستودع عام</span>
+												<span class="text-muted text-sm">مستودع عام</span>
 											}
 										</td>
 										<td>
@@ -113,7 +113,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 													<div>{ w.Address }</div>
 												}
 												if w.Phone != "" {
-													<div style="font-size:0.75rem; color:var(--text-muted);" class="tabular-nums">📞 { w.Phone }</div>
+													<div class="text-xs text-muted tabular-nums">📞 { w.Phone }</div>
 												}
 											</div>
 										</td>
@@ -138,7 +138,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 													تعديل
 												</button>
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d/toggle", w.ID)) } class="m-0">
-													<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">
+													<button type="submit" class="btn btn-secondary btn-sm text-muted">
 														if w.IsActive {
 															تعطيل
 														} else {
@@ -169,13 +169,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					style="max-width:560px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">إضافة مستودع / مركز تخزين جديد</h3>
+						<h3 class="text-lg fw-800 text-primary m-0">إضافة مستودع / مركز تخزين جديد</h3>
 						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
 					</div>
 
-					<form method="POST" action="/vendor/warehouses" style="display:flex; flex-direction:column; gap:1.25rem;">
+					<form method="POST" action="/vendor/warehouses" class="stack-lg">
 						<div class="form-group mb-0">
-							<label class="form-label">اسم المستودع <span style="color:var(--danger-text);">*</span></label>
+							<label class="form-label">اسم المستودع <span class="text-danger">*</span></label>
 							<input type="text" name="name" required class="form-input" placeholder="مثلاً: مستودع القاهرة الرئيسي / مخزن مدينة نصر" />
 						</div>
 
@@ -232,13 +232,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					style="max-width:560px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">تعديل بيانات المستودع</h3>
+						<h3 class="text-lg fw-800 text-primary m-0">تعديل بيانات المستودع</h3>
 						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
 					</div>
 
-					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="stack-lg">
 						<div class="form-group mb-0">
-							<label class="form-label">اسم المستودع <span style="color:var(--danger-text);">*</span></label>
+							<label class="form-label">اسم المستودع <span class="text-danger">*</span></label>
 							<input type="text" name="name" x-model="editWh.name" required class="form-input" />
 						</div>
 
@@ -301,7 +301,7 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconBuilding("icon-sm")
 							</div>
 							<h1 style="font-size:1.4rem; font-weight:800; color:var(--text); margin:0;">
@@ -341,8 +341,8 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
 					<div>
-						<h2 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">الأصناف المخزنة في هذا المستودع</h2>
-						<span style="font-size:0.8rem; color:var(--text-muted);">إجمالي { fmt.Sprintf("%d", len(stocks)) } تشغيلة مخزنة</span>
+						<h2 class="text-lg fw-800 text-primary m-0">الأصناف المخزنة في هذا المستودع</h2>
+						<span class="text-sm text-muted">إجمالي { fmt.Sprintf("%d", len(stocks)) } تشغيلة مخزنة</span>
 					</div>
 				</div>
 
@@ -369,20 +369,20 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 									<tr>
 										<td class="tabular-nums">#{ fmt.Sprintf("%d", s.ID) }</td>
 										<td>
-											<div style="font-weight:700; color:var(--text);">
+											<div class="fw-700 text-primary">
 												Product Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }
 											</div>
-											<div style="font-size:0.75rem; color:var(--text-muted);">
+											<div class="text-xs text-muted">
 												Product Master #{ fmt.Sprintf("%d", s.ProductID) }
 											</div>
 										</td>
 										<td>
-											<span class="badge badge-emerald tabular-nums" style="font-size:0.875rem; font-weight:800;">
+											<span class="badge badge-emerald tabular-nums text-sm fw-800">
 												{ fmt.Sprintf("%d", s.Quantity) } عبوة
 											</span>
 										</td>
 										<td class="tabular-nums">
-											<span class="badge badge-amber" style="font-size:0.8rem;">
+											<span class="badge badge-amber text-sm">
 												{ fmt.Sprintf("%d", s.MinThreshold) }
 											</span>
 										</td>

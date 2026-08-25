@@ -194,7 +194,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الحد الأدنى\"> <span style=\"color:var(--text-muted);\">-</span> <input type=\"number\" step=\"0.1\" name=\"max_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الحد الأدنى\"> <span class=\"text-muted\">-</span> <input type=\"number\" step=\"0.1\" name=\"max_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -220,7 +220,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأدنى %\"> <span style=\"color:var(--text-muted);\">-</span> <input type=\"number\" step=\"0.5\" name=\"max_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأدنى %\"> <span class=\"text-muted\">-</span> <input type=\"number\" step=\"0.5\" name=\"max_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -233,7 +233,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأقصى %\"></div></div></div></form><!-- 3. Control & Stats Bar --><div class=\"market-control-bar\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div class=\"badge badge-neutral\" style=\"font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:var(--surface-raised); border:1px solid var(--border);\"><span>عرض النتائج:</span> <strong style=\"color:var(--primary-600); margin-right:0.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"form-input\" style=\"border-radius:var(--radius-lg); height:40px; font-size:0.85rem;\" placeholder=\"الخصم الأقصى %\"></div></div></div></form><!-- 3. Control & Stats Bar --><div class=\"market-control-bar\"><div class=\"row-center\"><div class=\"badge badge-neutral\" style=\"font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:var(--surface-raised); border:1px solid var(--border);\"><span>عرض النتائج:</span> <strong style=\"color:var(--primary-600); margin-right:0.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -251,14 +251,14 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 				return templ_7745c5c3_Err
 			}
 			if filter.Query != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span style=\"font-size:0.825rem; color:var(--text-muted);\">نتائج البحث عن: <strong style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span style=\"font-size:0.825rem; color:var(--text-muted);\">نتائج البحث عن: <strong class=\"text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(filter.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 300, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 300, Col: 78}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -512,7 +512,7 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.6rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;\"><span style=\"color:var(--text-muted);\">السعر الأصلي:</span> <span class=\"mono\" style=\"font-weight:700; color:var(--text); text-decoration:line-through;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.6rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;\"><span class=\"text-muted\">السعر الأصلي:</span> <span class=\"mono\" style=\"font-weight:700; color:var(--text); text-decoration:line-through;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -556,27 +556,27 @@ func MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResult
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><!-- 5. Pagination Footer --> <div class=\"card\" style=\"padding:1.25rem 1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><!-- Left: Pagination Info --><div style=\"font-size:0.875rem; color:var(--text-muted); font-family:var(--font-mono, monospace);\"><span>عرض </span> <strong style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><!-- 5. Pagination Footer --> <div class=\"card\" style=\"padding:1.25rem 1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><!-- Left: Pagination Info --><div style=\"font-size:0.875rem; color:var(--text-muted); font-family:var(--font-mono, monospace);\"><span>عرض </span> <strong class=\"text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", calculateStartItem(result.Page, result.Limit, result.TotalCount)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 479, Col: 126}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 479, Col: 120}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</strong> <span>إلى </span> <strong style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</strong> <span>إلى </span> <strong class=\"text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", calculateEndItem(result.Page, result.Limit, result.TotalCount)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 481, Col: 124}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 481, Col: 118}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {

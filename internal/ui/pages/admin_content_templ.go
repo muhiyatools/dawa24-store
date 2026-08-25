@@ -82,7 +82,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.25rem;\" x-data=\"{ activeTab: 'all', searchQuery: '' }\"><!-- Header Card --><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\" x-data=\"{ activeTab: 'all', searchQuery: '' }\"><!-- Header Card --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -182,7 +182,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td><div style=\"display:flex; align-items:center; gap:0.4rem;\"><code style=\"font-size:0.825rem; font-weight:700; color:var(--accent); background:var(--accent-subtle); padding:0.15rem 0.45rem; border-radius:var(--radius-sm); border:1px solid var(--border);\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td><div class=\"row-center-sm\"><code style=\"font-size:0.825rem; font-weight:700; color:var(--accent); background:var(--accent-subtle); padding:0.15rem 0.45rem; border-radius:var(--radius-sm); border:1px solid var(--border);\" dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -195,7 +195,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</code></div></td><td><div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</code></div></td><td><div class=\"fw-800 text-primary text-base\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -243,7 +243,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 						return templ_7745c5c3_Err
 					}
 					if b.Position == "page" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"badge badge-sky\" style=\"font-weight:700;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"badge badge-sky fw-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -261,7 +261,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 							return templ_7745c5c3_Err
 						}
 					} else if b.Position == "section" || b.Position == "banner" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-indigo\" style=\"font-weight:700;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-indigo fw-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -279,7 +279,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-slate\" style=\"font-weight:700;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-slate fw-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -428,17 +428,17 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" style=\"margin:0; display:inline;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"m-0 inline\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if b.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--warning-text);\" title=\"تعطيل الكتلة\">تعطيل</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<button type=\"submit\" class=\"btn btn-secondary btn-sm text-warning\" title=\"تعطيل الكتلة\">تعطيل</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--success-text);\" title=\"تفعيل الكتلة\">تفعيل</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<button type=\"submit\" class=\"btn btn-secondary btn-sm text-success\" title=\"تفعيل الكتلة\">تفعيل</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -456,7 +456,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger-text);\" onclick=\"return confirm('هل أنت متأكد من حذف كتلة المحتوى هذه؟')\" title=\"حذف الكتلة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" class=\"m-0 inline\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger\" onclick=\"return confirm('هل أنت متأكد من حذف كتلة المحتوى هذه؟')\" title=\"حذف الكتلة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -487,26 +487,26 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 						var templ_7745c5c3_Var22 string
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 281, Col: 76}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 280, Col: 76}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">المفتاح التعريفي (Key) *</label> <input type=\"text\" name=\"key\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">المفتاح التعريفي (Key) *</label> <input type=\"text\" name=\"key\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Key)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 286, Col: 59}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 285, Col: 59}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" required class=\"form-input\" dir=\"ltr\" style=\"font-family:var(--font-mono, monospace);\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الموضع والتصنيف (Position) *</label> <select name=\"position\" class=\"form-select\"><option value=\"page\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" required class=\"form-input\" dir=\"ltr\" style=\"font-family:var(--font-mono, monospace);\"></div><div class=\"form-group m-0\"><label class=\"form-label\">الموضع والتصنيف (Position) *</label> <select name=\"position\" class=\"form-select\"><option value=\"page\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -556,72 +556,72 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, ">ترويسة الموقع (Header)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">العنوان (عربي)</label> <input type=\"text\" name=\"title_ar\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, ">ترويسة الموقع (Header)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (عربي)</label> <input type=\"text\" name=\"title_ar\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var24 string
 						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Title.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 303, Col: 76}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 302, Col: 76}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" class=\"form-input\" placeholder=\"عنوان القسم أو الصفحة...\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" class=\"form-input\" placeholder=\"عنوان القسم أو الصفحة...\"></div><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var25 string
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Title.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 307, Col: 76}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 306, Col: 76}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"Title in English...\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">نص المحتوى (عربي)</label> <textarea name=\"body_ar\" rows=\"6\" class=\"form-input\" placeholder=\"نص المحتوى أو الفقرة بالعربية...\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"Title in English...\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (عربي)</label> <textarea name=\"body_ar\" rows=\"6\" class=\"form-input\" placeholder=\"نص المحتوى أو الفقرة بالعربية...\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(b.Body.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 314, Col: 159}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 313, Col: 159}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</textarea></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">نص المحتوى (إنجليزي)</label> <textarea name=\"body_en\" rows=\"6\" class=\"form-input\" dir=\"ltr\" placeholder=\"Content text in English...\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (إنجليزي)</label> <textarea name=\"body_en\" rows=\"6\" class=\"form-input\" dir=\"ltr\" placeholder=\"Content text in English...\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(b.Body.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 318, Col: 138}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 317, Col: 138}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</textarea></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</textarea></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var28 string
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.SortOrder))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 325, Col: 93}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 324, Col: 93}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\" class=\"form-input\" min=\"0\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الحالة *</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\" class=\"form-input\" min=\"0\"></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة *</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -641,20 +641,20 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, ">معطل (Inactive)</option></select></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, ">معطل (Inactive)</option></select></div></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var29 string
 						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-content-modal-%d", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 340, Col: 77}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_content.templ`, Line: 339, Col: 77}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -702,7 +702,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<form method=\"POST\" action=\"/admin/content\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\" x-data=\"{ selectedPreset: '', customKey: '' }\"><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">اختيار مفتاح شائع أو كتابة مخصص *</label> <select class=\"form-select\" x-model=\"selectedPreset\" @change=\"if (selectedPreset !== 'custom' && selectedPreset !== '') { customKey = selectedPreset }\"><option value=\"\">-- اختر من الكتل والصفحات الجاهزة --</option> <optgroup label=\"صفحات المنصة العامة\"><option value=\"about\">about — من نحن (العنوان والنبذة)</option> <option value=\"about-vision\">about-vision — رؤيتنا</option> <option value=\"about-mission\">about-mission — رسالتنا</option> <option value=\"faq\">faq — الأسئلة الشائعة</option> <option value=\"how-it-works\">how-it-works — كيف يعمل</option></optgroup> <optgroup label=\"الأقسام المميزة والبانرات\"><option value=\"home-hero\">home-hero — واجهة الصفحة الرئيسية</option> <option value=\"home-features\">home-features — مميزات وخدمات المنصة</option> <option value=\"home-banner\">home-banner — بانر ترويجي</option> <option value=\"highlight-coldchain\">highlight-coldchain — سلسلة التبريد</option> <option value=\"highlight-fastdelivery\">highlight-fastdelivery — التوصيل السريع</option> <option value=\"highlight-einvoice\">highlight-einvoice — الفاتورة الإلكترونية</option></optgroup> <option value=\"custom\">مفتاح مخصص آخر...</option></select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">المفتاح التعريفي (Key) *</label> <input type=\"text\" name=\"key\" x-model=\"customKey\" required class=\"form-input\" placeholder=\"about, home-hero...\" dir=\"ltr\" style=\"font-family:var(--font-mono, monospace);\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الموضع والتصنيف (Position) *</label> <select name=\"position\" class=\"form-select\"><option value=\"page\" selected>صفحة عامة (Page)</option> <option value=\"section\">قسم مميز (Section)</option> <option value=\"banner\">بانر إعلاني / ترويجي (Banner)</option> <option value=\"footer\">تذييل الموقع (Footer)</option> <option value=\"header\">ترويسة الموقع (Header)</option></select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الحالة *</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\" selected>نشط ومفعل (Active)</option> <option value=\"false\">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">العنوان (عربي)</label> <input type=\"text\" name=\"title_ar\" class=\"form-input\" placeholder=\"عنوان القسم أو الصفحة...\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Title in English...\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">نص المحتوى (عربي)</label> <textarea name=\"body_ar\" rows=\"6\" class=\"form-input\" placeholder=\"نص المحتوى أو الفقرة بالعربية...\"></textarea></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">نص المحتوى (إنجليزي)</label> <textarea name=\"body_en\" rows=\"6\" class=\"form-input\" dir=\"ltr\" placeholder=\"Content text in English...\"></textarea></div></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"0\" class=\"form-input\" min=\"0\"></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"create-content-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<form method=\"POST\" action=\"/admin/content\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\" x-data=\"{ selectedPreset: '', customKey: '' }\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">اختيار مفتاح شائع أو كتابة مخصص *</label> <select class=\"form-select\" x-model=\"selectedPreset\" @change=\"if (selectedPreset !== 'custom' && selectedPreset !== '') { customKey = selectedPreset }\"><option value=\"\">-- اختر من الكتل والصفحات الجاهزة --</option> <optgroup label=\"صفحات المنصة العامة\"><option value=\"about\">about — من نحن (العنوان والنبذة)</option> <option value=\"about-vision\">about-vision — رؤيتنا</option> <option value=\"about-mission\">about-mission — رسالتنا</option> <option value=\"faq\">faq — الأسئلة الشائعة</option> <option value=\"how-it-works\">how-it-works — كيف يعمل</option></optgroup> <optgroup label=\"الأقسام المميزة والبانرات\"><option value=\"home-hero\">home-hero — واجهة الصفحة الرئيسية</option> <option value=\"home-features\">home-features — مميزات وخدمات المنصة</option> <option value=\"home-banner\">home-banner — بانر ترويجي</option> <option value=\"highlight-coldchain\">highlight-coldchain — سلسلة التبريد</option> <option value=\"highlight-fastdelivery\">highlight-fastdelivery — التوصيل السريع</option> <option value=\"highlight-einvoice\">highlight-einvoice — الفاتورة الإلكترونية</option></optgroup> <option value=\"custom\">مفتاح مخصص آخر...</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\">المفتاح التعريفي (Key) *</label> <input type=\"text\" name=\"key\" x-model=\"customKey\" required class=\"form-input\" placeholder=\"about, home-hero...\" dir=\"ltr\" style=\"font-family:var(--font-mono, monospace);\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">الموضع والتصنيف (Position) *</label> <select name=\"position\" class=\"form-select\"><option value=\"page\" selected>صفحة عامة (Page)</option> <option value=\"section\">قسم مميز (Section)</option> <option value=\"banner\">بانر إعلاني / ترويجي (Banner)</option> <option value=\"footer\">تذييل الموقع (Footer)</option> <option value=\"header\">ترويسة الموقع (Header)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة *</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\" selected>نشط ومفعل (Active)</option> <option value=\"false\">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (عربي)</label> <input type=\"text\" name=\"title_ar\" class=\"form-input\" placeholder=\"عنوان القسم أو الصفحة...\"></div><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Title in English...\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (عربي)</label> <textarea name=\"body_ar\" rows=\"6\" class=\"form-input\" placeholder=\"نص المحتوى أو الفقرة بالعربية...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (إنجليزي)</label> <textarea name=\"body_en\" rows=\"6\" class=\"form-input\" dir=\"ltr\" placeholder=\"Content text in English...\"></textarea></div></div><div class=\"form-group m-0\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"0\" class=\"form-input\" min=\"0\"></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"create-content-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

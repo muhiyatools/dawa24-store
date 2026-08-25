@@ -168,14 +168,14 @@ func MessagesContent(lang, dir string, data MessagesData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);\"><h2 class=\"card-title\" style=\"margin:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);\"><h2 class=\"card-title m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveOther.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/messages.templ`, Line: 41, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/messages.templ`, Line: 41, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -268,7 +268,7 @@ func MessagesContent(lang, dir string, data MessagesData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" style=\"display:flex; gap:0.75rem; padding:0.75rem 1rem; border-top:1px solid var(--neutral-100); margin:0;\"><input type=\"text\" name=\"body\" required class=\"form-input\" placeholder=\"اكتب رسالتك…\" style=\"flex:1;\"> <button type=\"submit\" class=\"btn btn-primary\">إرسال</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" style=\"display:flex; gap:0.75rem; padding:0.75rem 1rem; border-top:1px solid var(--neutral-100); margin:0;\"><input type=\"text\" name=\"body\" required class=\"form-input flex-1\" placeholder=\"اكتب رسالتك…\"> <button type=\"submit\" class=\"btn btn-primary\">إرسال</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -50,7 +50,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Top Header Banner & Actions --><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\"><!-- Top Header Banner & Actions --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -88,7 +88,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -131,7 +131,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" class=\"fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -174,7 +174,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -231,7 +231,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<form method=\"POST\" action=\"/admin/document-requests\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem; font-size:0.825rem; line-height:1.5; color:var(--text-secondary);\"><strong style=\"color:var(--text); display:block; margin-bottom:0.25rem;\">ℹ️ آلية عمل طلب المستند:</strong> سيتم إرسال تنبيه إداري عاجل للمنشأة يظهر في لوحة تحكمها مع مهلة محددة (شهر). لا يتم إيقاف النشاط التجاري اليومي للمنشأة فوراً، ولكن يتم تذكيرهم برفع المستند لتجنب إيقاف الحساب بعد انتهاء المهلة.</div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"req-org-select\">المنشأة المستهدفة (صيدلية / مورد) *</label> <select id=\"req-org-select\" name=\"organization_id\" required class=\"form-select\" style=\"font-weight:700;\"><option value=\"\" disabled selected>-- اختر المنشأة من القائمة --</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<form method=\"POST\" action=\"/admin/document-requests\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem; font-size:0.825rem; line-height:1.5; color:var(--text-secondary);\"><strong style=\"color:var(--text); display:block; margin-bottom:0.25rem;\">ℹ️ آلية عمل طلب المستند:</strong> سيتم إرسال تنبيه إداري عاجل للمنشأة يظهر في لوحة تحكمها مع مهلة محددة (شهر). لا يتم إيقاف النشاط التجاري اليومي للمنشأة فوراً، ولكن يتم تذكيرهم برفع المستند لتجنب إيقاف الحساب بعد انتهاء المهلة.</div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"req-org-select\">المنشأة المستهدفة (صيدلية / مورد) *</label> <select id=\"req-org-select\" name=\"organization_id\" required class=\"form-select fw-700\"><option value=\"\" disabled selected>-- اختر المنشأة من القائمة --</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -293,7 +293,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"req-doc-type\">نوع المستند المطلوب *</label> <select id=\"req-doc-type\" name=\"document_type\" required class=\"form-select\"><option value=\"commercial_register\">السجل التجاري المجدد (Commercial Register)</option> <option value=\"tax_card\">البطاقة الضريبية الحديثة (Tax Card)</option> <option value=\"pharmacy_license\">ترخيص المنشأة / الصيدلية (Pharmacy License)</option> <option value=\"pharmacist_license\">ترخيص مزاولة المهنة للصيدلي المدير (Pharmacist License)</option> <option value=\"syndicate_card\">كارنيه نقابة الصيادلة (Syndicate Card)</option> <option value=\"national_id\">بطاقة الرقم القومي للمفوض (National ID)</option> <option value=\"authorization_letter\">خطاب تفويض رسمي معتمد (Authorization Letter)</option> <option value=\"other\">مستند رسمي إضافي (Other)</option></select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"req-title\">عنوان ومسمى الطلب *</label> <input type=\"text\" id=\"req-title\" name=\"title\" required class=\"form-input\" placeholder=\"مثال: تحديث صورة السجل التجاري لعام 2026\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"req-desc\">توجيهات وملاحظات الإدارة للمنشأة</label> <textarea id=\"req-desc\" name=\"description\" rows=\"3\" class=\"form-input\" placeholder=\"يرجى رفع نسخة ضوئية واضحة ومختومة بالسجل التجاري الساري...\"></textarea></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"req-deadline\">مهلة الرفع الممنوحة للمنشأة *</label> <select id=\"req-deadline\" name=\"deadline_days\" required class=\"form-select\"><option value=\"15\">15 يوماً (أسبوعان)</option> <option value=\"30\" selected>30 يوماً (شهر كامل - الافتراضي)</option> <option value=\"45\">45 يوماً</option> <option value=\"60\">60 يوماً (شهران)</option></select></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"request-doc-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"req-doc-type\">نوع المستند المطلوب *</label> <select id=\"req-doc-type\" name=\"document_type\" required class=\"form-select\"><option value=\"commercial_register\">السجل التجاري المجدد (Commercial Register)</option> <option value=\"tax_card\">البطاقة الضريبية الحديثة (Tax Card)</option> <option value=\"pharmacy_license\">ترخيص المنشأة / الصيدلية (Pharmacy License)</option> <option value=\"pharmacist_license\">ترخيص مزاولة المهنة للصيدلي المدير (Pharmacist License)</option> <option value=\"syndicate_card\">كارنيه نقابة الصيادلة (Syndicate Card)</option> <option value=\"national_id\">بطاقة الرقم القومي للمفوض (National ID)</option> <option value=\"authorization_letter\">خطاب تفويض رسمي معتمد (Authorization Letter)</option> <option value=\"other\">مستند رسمي إضافي (Other)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"req-title\">عنوان ومسمى الطلب *</label> <input type=\"text\" id=\"req-title\" name=\"title\" required class=\"form-input\" placeholder=\"مثال: تحديث صورة السجل التجاري لعام 2026\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"req-desc\">توجيهات وملاحظات الإدارة للمنشأة</label> <textarea id=\"req-desc\" name=\"description\" rows=\"3\" class=\"form-input\" placeholder=\"يرجى رفع نسخة ضوئية واضحة ومختومة بالسجل التجاري الساري...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"req-deadline\">مهلة الرفع الممنوحة للمنشأة *</label> <select id=\"req-deadline\" name=\"deadline_days\" required class=\"form-select\"><option value=\"15\">15 يوماً (أسبوعان)</option> <option value=\"30\" selected>30 يوماً (شهر كامل - الافتراضي)</option> <option value=\"45\">45 يوماً</option> <option value=\"60\">60 يوماً (شهران)</option></select></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"request-doc-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -770,66 +770,66 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">الاسم التجاري (عربي)</span> <strong style=\"color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">الاسم التجاري (عربي)</span> <strong class=\"text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var39 string
 					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(o.TradeName["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 311, Col: 67}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 311, Col: 61}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</strong></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">الاسم التجاري (إنجليزي)</span> <span style=\"color:var(--text);\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</strong></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">الاسم التجاري (إنجليزي)</span> <span class=\"text-primary\" dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var40 string
 					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(o.TradeName["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 315, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 315, Col: 69}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">رقم السجل التجاري</span> <strong class=\"tabular-nums\" style=\"color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">رقم السجل التجاري</span> <strong class=\"tabular-nums text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var41 string
 					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(o.CommercialRegister)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 319, Col: 91}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 319, Col: 77}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</strong></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">الرقم الضريبي</span> <span class=\"tabular-nums\" style=\"color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</strong></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">الرقم الضريبي</span> <span class=\"tabular-nums text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var42 string
 					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(o.TaxNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 323, Col: 80}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 323, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">رقم ترخيص المؤسسة الصيدلية</span> <strong class=\"tabular-nums\" style=\"color:var(--accent);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></div><div><span style=\"color:var(--text-muted); display:block; font-size:0.75rem;\">رقم ترخيص المؤسسة الصيدلية</span> <strong class=\"tabular-nums text-accent\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var43 string
 					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(o.PharmacistLicense)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 327, Col: 92}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 327, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -1013,12 +1013,12 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 							}
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span style=\"font-size:0.8rem; color:var(--text-muted);\">لم يتم رفع ملف مستند إلكتروني أثناء التسجيل</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span class=\"text-sm text-muted\">لم يتم رفع ملف مستند إلكتروني أثناء التسجيل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</div></div><!-- Document Category Assignment --><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</div></div><!-- Document Category Assignment --><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1059,7 +1059,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</select> <span style=\"font-size:0.75rem; color:var(--text-muted); margin-top:3px; display:block;\">عند الاعتماد، سيتم حفظ المستند كـ \"معتمد وموثق\" تحت هذه الفئة وسيظهر فوراً في لوحة تحكم المنشأة.</span></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</select> <span style=\"font-size:0.75rem; color:var(--text-muted); margin-top:3px; display:block;\">عند الاعتماد، سيتم حفظ المستند كـ \"معتمد وموثق\" تحت هذه الفئة وسيظهر فوراً في لوحة تحكم المنشأة.</span></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1115,7 +1115,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, ">تعليق مؤقت للحساب (Suspend)</option> <option value=\"pending\">إبقاء قيد التدقيق (Pending)</option></select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, ">تعليق مؤقت للحساب (Suspend)</option> <option value=\"pending\">إبقاء قيد التدقيق (Pending)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1154,7 +1154,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\" placeholder=\"مثال: تم التأكد من صحة الترخيص وتصنيفه عبر هيئة الدواء\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\" placeholder=\"مثال: تم التأكد من صحة الترخيص وتصنيفه عبر هيئة الدواء\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1206,7 +1206,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1297,7 +1297,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "\"><td><span class=\"badge badge-sky\" style=\"font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "\"><td><span class=\"badge badge-sky fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1315,14 +1315,14 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if doc.OrganizationID != nil && data.OrgNames[*doc.OrganizationID] != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<strong style=\"color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<strong class=\"text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var67 string
 					templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(data.OrgNames[*doc.OrganizationID])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 505, Col: 80}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 505, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 					if templ_7745c5c3_Err != nil {
@@ -1573,7 +1573,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<span>فتح الملف في نافذة جديدة للمعاينة والتدقيق ↗</span></a></div></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<span>فتح الملف في نافذة جديدة للمعاينة والتدقيق ↗</span></a></div></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1599,7 +1599,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 150, "\" name=\"document_type\" required class=\"form-select\" style=\"font-weight:700;\"><option value=\"pharmacy_license\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 150, "\" name=\"document_type\" required class=\"form-select fw-700\"><option value=\"pharmacy_license\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1679,7 +1679,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 166, ">مستند رسمي آخر (Other)</option></select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 166, ">مستند رسمي آخر (Other)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1725,7 +1725,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 172, ">رفض المستند (Rejected)</option></select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\" for=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 172, ">رفض المستند (Rejected)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1777,7 +1777,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 176, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 176, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1881,14 +1881,14 @@ func AdminApprovalsRequestsTab(data *AdminApprovalsData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 184, "</td><td><strong style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 184, "</td><td><strong class=\"text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var92 string
 				templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(req.OrgName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 681, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 681, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 				if templ_7745c5c3_Err != nil {
@@ -2093,7 +2093,7 @@ func AdminApprovalsRequestsTab(data *AdminApprovalsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 209, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger-text);\" onclick=\"return confirm('هل أنت متأكد من إلغاء طلب هذا المستند؟')\">إلغاء الطلب</button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 209, "\" class=\"m-0 inline\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger\" onclick=\"return confirm('هل أنت متأكد من إلغاء طلب هذا المستند؟')\">إلغاء الطلب</button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

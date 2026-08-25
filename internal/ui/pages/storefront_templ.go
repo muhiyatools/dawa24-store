@@ -102,7 +102,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:1.75rem;\"><!-- Header Card --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">🌟</div><h1 style=\"font-size:1.5rem; font-weight:900; color:var(--text); margin:0;\">الأقسام المميزة ونبذة المنشأة</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">تخصيص الأقسام التعريفية (رؤيتنا، أهدافنا، حولنا، الشهادات، والمميزات) التي تظهر على بروفايلك العام للمنشأة أمام الصيدليات.</p></div><a href=\"#new-section-card\" class=\"btn btn-primary\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:1.75rem;\"><!-- Header Card --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">🌟</div><h1 style=\"font-size:1.5rem; font-weight:900; color:var(--text); margin:0;\">الأقسام المميزة ونبذة المنشأة</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">تخصيص الأقسام التعريفية (رؤيتنا، أهدافنا، حولنا، الشهادات، والمميزات) التي تظهر على بروفايلك العام للمنشأة أمام الصيدليات.</p></div><a href=\"#new-section-card\" class=\"btn btn-primary fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -118,7 +118,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<h2 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">إضافة قسم مميز جديد للبروفايل</h2></div><form method=\"POST\" action=\"/vendor/storefront/section\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Row 1: Titles --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"title_ar\" required placeholder=\"مثال: رؤيتنا للتميز الدوائي\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" placeholder=\"e.g. Our Vision\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><!-- Row 2: Order & Color --><input type=\"hidden\" name=\"section_type\" value=\"about\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"0\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\" selected>أزرق سماوي (Sky Blue)</option> <option value=\"#10b981\">أخضر زمردي (Emerald Green)</option> <option value=\"#6366f1\">نيلي موحد (Indigo)</option> <option value=\"#8b5cf6\">بنفسجي ملكي (Purple)</option> <option value=\"#f59e0b\">كهرماني (Amber)</option> <option value=\"#ec4899\">وردي عصري (Pink)</option></select></div></div><!-- Row 3: Rich Content / Descriptions --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\" class=\"form-grid-2\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى والوصف التفصيلي (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required placeholder=\"اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة، أو أي معلومات تود إبرازها للصيدليات...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى والوصف التفصيلي (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" placeholder=\"Detailed content and description in English...\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div></div><!-- Row 4: Toggles --><div style=\"display:flex; align-items:center; gap:2rem; padding:0.5rem 0;\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>القسم نشط ومفعل</span></label> <label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>إظهار في رأس بروفايل المورد العام</span></label></div><button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start; padding:0.75rem 2rem; font-weight:800; font-size:0.95rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<h2 class=\"text-lg fw-800 text-primary m-0\">إضافة قسم مميز جديد للبروفايل</h2></div><form method=\"POST\" action=\"/vendor/storefront/section\" class=\"stack-lg\"><!-- Row 1: Titles --><div class=\"grid-2 form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">العنوان (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required placeholder=\"مثال: رؤيتنا للتميز الدوائي\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" placeholder=\"e.g. Our Vision\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><!-- Row 2: Order & Color --><input type=\"hidden\" name=\"section_type\" value=\"about\"><div class=\"grid-2 form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"0\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\" selected>أزرق سماوي (Sky Blue)</option> <option value=\"#10b981\">أخضر زمردي (Emerald Green)</option> <option value=\"#6366f1\">نيلي موحد (Indigo)</option> <option value=\"#8b5cf6\">بنفسجي ملكي (Purple)</option> <option value=\"#f59e0b\">كهرماني (Amber)</option> <option value=\"#ec4899\">وردي عصري (Pink)</option></select></div></div><!-- Row 3: Rich Content / Descriptions --><div class=\"grid-2 form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">المحتوى والوصف التفصيلي (بالعربية) <span class=\"text-danger\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required placeholder=\"اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة، أو أي معلومات تود إبرازها للصيدليات...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">المحتوى والوصف التفصيلي (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" placeholder=\"Detailed content and description in English...\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div></div><!-- Row 4: Toggles --><div style=\"display:flex; align-items:center; gap:2rem; padding:0.5rem 0;\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>القسم نشط ومفعل</span></label> <label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\" checked style=\"width:18px; height:18px; accent-color:var(--accent);\"> <span>إظهار في رأس بروفايل المورد العام</span></label></div><button type=\"submit\" class=\"btn btn-primary\" style=\"align-self:flex-start; padding:0.75rem 2rem; font-weight:800; font-size:0.95rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -126,14 +126,14 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>حفظ ونشر القسم المميز</span></button></form></div><!-- List of Current Sections --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;\"><h2 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">الأقسام المميزة الحالية بالمنشأة</h2><span class=\"badge badge-secondary\" style=\"font-size:0.8rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>حفظ ونشر القسم المميز</span></button></form></div><!-- List of Current Sections --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;\"><h2 class=\"text-lg fw-800 text-primary m-0\">الأقسام المميزة الحالية بالمنشأة</h2><span class=\"badge badge-secondary text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d أقسام مسجلة", len(sections)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 173, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 173, Col: 105}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -149,19 +149,19 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div style=\"display:flex; flex-direction:column; gap:1rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"stack-md\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, s := range sections {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:0.85rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span style=\"font-size:1.5rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:0.85rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div class=\"row-center\"><span class=\"text-2xl\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeIcon(s.SectionType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 190, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 190, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -185,12 +185,12 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 						return templ_7745c5c3_Err
 					}
 					if s.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">نشط ومعروض</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald text-xs\">نشط ومعروض</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">معطل</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-secondary text-xs\">معطل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -218,7 +218,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Action Buttons --><div style=\"display:flex; align-items:center; gap:0.5rem;\"><!-- Edit Modal Trigger Button --><button type=\"button\" class=\"btn btn-secondary btn-sm\" data-modal-open=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Action Buttons --><div class=\"row-center-sm\"><!-- Edit Modal Trigger Button --><button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" data-modal-open=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -231,7 +231,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" style=\"font-weight:700;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -252,7 +252,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"m-0 inline\"><button type=\"submit\" class=\"btn btn-secondary btn-sm fw-700\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -280,7 +280,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" style=\"margin:0; display:inline;\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon\" style=\"color:var(--danger-text); border-color:var(--danger-border);\" title=\"حذف القسم\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"m-0 inline\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon\" style=\"color:var(--danger-text); border-color:var(--danger-border);\" title=\"حذف القسم\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -324,20 +324,20 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"modal-overlay\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem; box-shadow:0 20px 40px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.5rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"modal-overlay\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem; box-shadow:0 20px 40px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span class=\"text-2xl\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeIcon(s.SectionType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 261, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 261, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span><h3 style=\"font-size:1.25rem; font-weight:800; color:var(--text); margin:0;\">تعديل القسم: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span><h3 class=\"text-xl fw-800 text-primary m-0\">تعديل القسم: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -376,7 +376,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><input type=\"hidden\" name=\"section_type\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"stack-lg\"><input type=\"hidden\" name=\"section_type\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -389,7 +389,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"text\" name=\"title_ar\" required value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><div class=\"grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">العنوان (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -402,7 +402,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -415,7 +415,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><div class=\"grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -428,7 +428,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" min=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">اللون المميز</label> <select name=\"color\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"><option value=\"#0284c7\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -488,7 +488,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, ">وردي عصري</option></select></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى (بالعربية) <span style=\"color:var(--danger-text);\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, ">وردي عصري</option></select></div></div><div class=\"grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">المحتوى (بالعربية) <span class=\"text-danger\">*</span></label> <textarea name=\"description_ar\" rows=\"4\" required class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -501,7 +501,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</textarea></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" style=\"font-weight:700; color:var(--text);\">المحتوى (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</textarea></div><div class=\"form-group mb-0\"><label class=\"form-label fw-700 text-primary\">المحتوى (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"4\" class=\"form-input\" dir=\"ltr\" style=\"width:100%; border-radius:var(--radius-lg); resize:vertical;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -547,7 +547,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"btn btn-secondary\" style=\"font-weight:700;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"btn btn-secondary fw-700\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

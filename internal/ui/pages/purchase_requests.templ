@@ -96,7 +96,7 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 					<p class="m-0">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم.</p>
 				</div>
 			} else {
-				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div class="stack-lg">
 					for _, req := range requests {
 						<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md);">
 							<div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -105,7 +105,7 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 										<h3 style="margin:0; font-size:1.15rem; color:var(--text); font-weight:700;">طلب #{ req.RequestNumber }</h3>
 										<span class="badge badge-primary">{ string(req.Status) }</span>
 									</div>
-									<div style="font-size:0.875rem; color:var(--text-secondary);">
+									<div class="text-sm text-secondary">
 										العميل / الصيدلية: <strong>{ req.CustomerName }</strong> | تاريخ الطلب: { req.CreatedAt.Format("2006-01-02 15:04") }
 									</div>
 								</div>
@@ -173,8 +173,8 @@ templ VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purcha
 				</div>
 
 				<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); margin-bottom:1.5rem;">
-					<div style="margin-bottom:1rem;">
-						<label class="form-label" style="font-weight:600;">القرار والحالة</label>
+					<div class="mb-md">
+						<label class="form-label fw-600">القرار والحالة</label>
 						<select name="status" class="form-control" style="max-width:300px;">
 							<option value="approved">قبول وتأكيد الطلب</option>
 							<option value="processing">قبول وقيد التجهيز</option>
@@ -182,7 +182,7 @@ templ VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purcha
 						</select>
 					</div>
 					<div>
-						<label class="form-label" style="font-weight:600;">ملاحظات التوريد الموجهة للصيدلية</label>
+						<label class="form-label fw-600">ملاحظات التوريد الموجهة للصيدلية</label>
 						<textarea name="vendor_notes" rows="3" class="form-control" placeholder="اكتب أية شروط أو ملاحظات للمشتري...">{ request.VendorNotes }</textarea>
 					</div>
 				</div>

@@ -50,14 +50,14 @@ func AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSta
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">سجلات تشخيص واستثناءات النظام (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h2 class=\"card-title m-0\">سجلات تشخيص واستثناءات النظام (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(logs)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 17, Col: 133}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 17, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -255,14 +255,14 @@ func AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) te
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"card\" style=\"max-width:900px; margin:0 auto;\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">خطأ #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"card max-w-3xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">خطأ #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", l.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 72, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 72, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) te
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(l.ErrorMessage)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 72, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 72, Col: 85}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -307,7 +307,7 @@ func AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</p></div><a href=\"/admin/full-error-logs\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div><div style=\"margin-bottom:1.5rem;\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">Stack Trace:</h3><pre style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-md); overflow-x:auto; font-size:0.8rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</p></div><a href=\"/admin/full-error-logs\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div><div class=\"mb-lg\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">Stack Trace:</h3><pre style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-md); overflow-x:auto; font-size:0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -333,7 +333,7 @@ func AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" style=\"display:flex; justify-content:flex-end; gap:0.75rem;\"><button type=\"submit\" name=\"status\" value=\"INVESTIGATING\" class=\"btn btn-secondary\">قيد التحقيق</button> <button type=\"submit\" name=\"status\" value=\"RESOLVED\" class=\"btn btn-primary\">تم الحل والتسوية</button> <button type=\"submit\" name=\"status\" value=\"IGNORED\" class=\"btn btn-secondary\" style=\"color:var(--text-muted);\">تجاهل</button></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" style=\"display:flex; justify-content:flex-end; gap:0.75rem;\"><button type=\"submit\" name=\"status\" value=\"INVESTIGATING\" class=\"btn btn-secondary\">قيد التحقيق</button> <button type=\"submit\" name=\"status\" value=\"RESOLVED\" class=\"btn btn-primary\">تم الحل والتسوية</button> <button type=\"submit\" name=\"status\" value=\"IGNORED\" class=\"btn btn-secondary text-muted\">تجاهل</button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -381,7 +381,7 @@ func AdminNotificationsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"card mb-0\"><h2 class=\"card-title\" style=\"margin-bottom:1.5rem;\">الإشعارات العامة والتنبيهات الموجهة</h2>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"card mb-0\"><h2 class=\"card-title mb-lg\">الإشعارات العامة والتنبيهات الموجهة</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -437,20 +437,20 @@ func AdminSystemResourcesPage(systemName string, lang, dir string) templ.Compone
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"card mb-0\"><h2 class=\"card-title\" style=\"margin-bottom:1.5rem;\">موارد النظام وقدرات المنصة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"card mb-0\"><h2 class=\"card-title mb-lg\">موارد النظام وقدرات المنصة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(systemName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 106, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 106, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ")</h2><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div style=\"font-size:0.85rem; color:var(--text-secondary);\">قاعدة البيانات PostgreSQL</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-success\">متصل ونشط</span></div></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div style=\"font-size:0.85rem; color:var(--text-secondary);\">بوابة الذكاء الاصطناعي AI Gateway</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-success\">جاهز للخدمة</span></div></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div style=\"font-size:0.85rem; color:var(--text-secondary);\">نظام التخزين Storage S3/Local</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-success\">يعمل بكفاءة</span></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ")</h2><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div class=\"text-sm text-secondary\">قاعدة البيانات PostgreSQL</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-success\">متصل ونشط</span></div></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div class=\"text-sm text-secondary\">بوابة الذكاء الاصطناعي AI Gateway</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-success\">جاهز للخدمة</span></div></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div class=\"text-sm text-secondary\">نظام التخزين Storage S3/Local</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-success\">يعمل بكفاءة</span></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -498,7 +498,7 @@ func AdminFirstLookPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"card\" style=\"max-width:800px; margin:0 auto;\"><h2 class=\"card-title\" style=\"margin-bottom:0.75rem;\">مرحباً بك في لوحة تحكم منصة دواء 24</h2><p style=\"font-size:0.95rem; line-height:1.6; color:var(--text-secondary); margin-bottom:1.5rem;\">تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"card max-w-2xl mx-auto\"><h2 class=\"card-title\" style=\"margin-bottom:0.75rem;\">مرحباً بك في لوحة تحكم منصة دواء 24</h2><p style=\"font-size:0.95rem; line-height:1.6; color:var(--text-secondary); margin-bottom:1.5rem;\">تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

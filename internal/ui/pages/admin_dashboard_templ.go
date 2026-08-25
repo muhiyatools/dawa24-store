@@ -55,7 +55,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:2rem;\"><!-- 1. KPI Stats Cards --><div class=\"b2b-metric-grid\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\"><!-- 1. KPI Stats Cards --><div class=\"b2b-metric-grid\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -126,7 +126,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 				for _, po := range pendingOrgs {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);\"><div class=\"row-center\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);\"><div class=\"row-center\"><div class=\"b2b-icon-box-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -134,7 +134,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-weight:800; font-size:0.925rem; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><div class=\"row-center-sm\"><span style=\"font-weight:800; font-size:0.925rem; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -152,12 +152,12 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 						return templ_7745c5c3_Err
 					}
 					if string(po.Type) == "vendor" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"badge badge-sky\" style=\"font-size:0.7rem;\">مورد أدوية</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"badge badge-sky text-xs\">مورد أدوية</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">صيدلية</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald text-xs\">صيدلية</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -204,7 +204,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><div style=\"display:flex; gap:0.5rem;\"><a href=\"/admin/approvals\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700;\">فحص واعتماد</a></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><div style=\"display:flex; gap:0.5rem;\"><a href=\"/admin/approvals\" class=\"btn btn-primary btn-sm fw-700\">فحص واعتماد</a></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -214,7 +214,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><!-- System Health Card --><div class=\"card\" style=\"margin-bottom:0; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;\">جاهزية البنية التحتية</h3><div style=\"display:flex; flex-direction:column; gap:1rem; margin-bottom:1.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;\"><span style=\"color:var(--text-secondary);\">قاعدة البيانات PostgreSQL:</span> <span class=\"badge badge-emerald\">متصلة وتعمل بكفاءة</span></div><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;\"><span style=\"color:var(--text-secondary);\">خادم التخزين المؤقت Redis:</span> <span class=\"badge badge-emerald\">يعمل بكفاءة</span></div><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;\"><span style=\"color:var(--text-secondary);\">طوابير المهام River Queue:</span> <span class=\"badge badge-emerald\">معالجة نشطة</span></div></div><a href=\"/ready\" target=\"_blank\" class=\"btn btn-secondary\" style=\"width:100%; justify-content:center; font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><!-- System Health Card --><div class=\"card\" style=\"margin-bottom:0; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;\">جاهزية البنية التحتية</h3><div style=\"display:flex; flex-direction:column; gap:1rem; margin-bottom:1.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;\"><span class=\"text-secondary\">قاعدة البيانات PostgreSQL:</span> <span class=\"badge badge-emerald\">متصلة وتعمل بكفاءة</span></div><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;\"><span class=\"text-secondary\">خادم التخزين المؤقت Redis:</span> <span class=\"badge badge-emerald\">يعمل بكفاءة</span></div><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;\"><span class=\"text-secondary\">طوابير المهام River Queue:</span> <span class=\"badge badge-emerald\">معالجة نشطة</span></div></div><a href=\"/ready\" target=\"_blank\" class=\"btn btn-secondary\" style=\"width:100%; justify-content:center; font-weight:700;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

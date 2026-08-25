@@ -49,10 +49,10 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 							</p>
 						</div>
 					</div>
-					<div style="display:flex; align-items:center; gap:0.5rem;">
-						<span class="badge badge-emerald" style="font-weight:700; font-size:0.85rem;">{ data.Subscription.Status }</span>
+					<div class="row-center-sm">
+						<span class="badge badge-emerald text-sm fw-700">{ data.Subscription.Status }</span>
 						if data.Subscription.IsDefaultPlan {
-							<span class="badge badge-primary" style="font-size:0.75rem;">باقة افتراضية</span>
+							<span class="badge badge-primary text-xs">باقة افتراضية</span>
 						}
 					</div>
 				</div>
@@ -85,18 +85,18 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 
 					<!-- AI Gateway Budget & Window -->
 					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.25); border-radius:var(--radius-lg); padding:1rem 1.15rem;">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+						<div class="flex-between">
 							<span style="font-size:0.775rem; color:var(--primary); font-weight:800;">بوابة الذكاء الاصطناعي</span>
-							<span class="badge badge-info" dir="ltr" style="font-size:0.75rem; font-weight:800;">{ data.Subscription.AIPlanID }</span>
+							<span class="badge badge-info text-xs fw-800" dir="ltr">{ data.Subscription.AIPlanID }</span>
 						</div>
 						<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
-							<span>المعرّف: </span><code dir="ltr" style="font-size:0.75rem;">{ data.Subscription.AIUserID }</code>
+							<span>المعرّف: </span><code dir="ltr" class="text-xs">{ data.Subscription.AIUserID }</code>
 						</div>
 						if data.Subscription.HasAIUsage && data.Subscription.AIBudgetLimitUSD > 0 {
 							<div style="margin-top:0.45rem;">
 								<div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:0.25rem;">
 									<span style="color:var(--text-secondary); font-weight:600;">استهلاك الميزانية:</span>
-									<strong class="tabular-nums" dir="ltr" style="color:var(--text);">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
+									<strong class="tabular-nums text-primary" dir="ltr">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
 								</div>
 								<div style="width:100%; height:6px; background:var(--border); border-radius:3px; overflow:hidden;">
 									<div style={ fmt.Sprintf("height:100%%; background:var(--primary); width:%.1f%%; transition:width 300ms;", (data.Subscription.AIBudgetSpentUSD / data.Subscription.AIBudgetLimitUSD) * 100.0) }></div>
@@ -119,8 +119,8 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 
 		<!-- All Available System Plans -->
 		<div>
-			<div style="margin-bottom:1rem;">
-				<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+			<div class="mb-md">
+				<h3 class="text-lg fw-800 text-primary m-0">
 					باقات وعضويات المنظومة المتاحة
 				</h3>
 				<p style="font-size:0.825rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
@@ -136,7 +136,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 							<!-- Plan Header -->
 							<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
 								<div>
-									<h4 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+									<h4 class="text-lg fw-800 text-primary m-0">
 										{ p.Name.Get("ar") }
 									</h4>
 									<span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; display:block; margin-top:0.15rem;">
@@ -144,9 +144,9 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 									</span>
 								</div>
 								if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {
-									<span class="badge badge-emerald" style="font-weight:700;">✓ باقتك الحالية</span>
+									<span class="badge badge-emerald fw-700">✓ باقتك الحالية</span>
 								} else if p.IsDefault {
-									<span class="badge badge-slate" style="font-size:0.75rem;">الافتراضية</span>
+									<span class="badge badge-slate text-xs">الافتراضية</span>
 								}
 							</div>
 
@@ -164,7 +164,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 										</span>
 										<span style="font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.25rem;">/ شهرياً</span>
 									</div>
-									<div style="font-size:0.8rem; color:var(--text-secondary);">
+									<div class="text-sm text-secondary">
 										<span class="tabular-nums font-bold">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })</span>
 										<span style="font-size:0.7rem; color:var(--text-muted);">/ سنوياً</span>
 									</div>
@@ -186,7 +186,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 								<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text);">
 									<span style="color:var(--accent); font-weight:700;">🤖</span>
 									<span>باقة بوابة الذكاء الاصطناعي:</span>
-									<code dir="ltr" style="font-size:0.75rem; font-weight:700;">{ p.AIPlanID }</code>
+									<code dir="ltr" class="text-xs fw-700">{ p.AIPlanID }</code>
 								</div>
 							</div>
 						</div>

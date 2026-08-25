@@ -10,10 +10,10 @@ import (
 // VendorTeamImportPage renders bulk employee spreadsheet upload interface.
 templ VendorTeamImportPage(lang, dir string) {
 	@layouts.VendorShell("رفع الموظفين دفعة واحدة", "team_import", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">رفع بيانات الموظفين دفعة واحدة (Excel / CSV)</h2>
+					<h2 class="card-title m-0">رفع بيانات الموظفين دفعة واحدة (Excel / CSV)</h2>
 					<p class="subtitle">إنشاء حسابات موظفي الفروع والمستودعات بشكل آمن مع توليد دعوات انضمام تلقائية.</p>
 				</div>
 				<a href="/settings/employees" class="btn btn-secondary btn-sm">العودة لفريق العمل</a>
@@ -27,8 +27,8 @@ templ VendorTeamImportPage(lang, dir string) {
 // VendorTeamFastAddPage renders fast add form.
 templ VendorTeamFastAddPage(lang, dir string) {
 	@layouts.VendorShell("إضافة موظف سريع", "team", lang, dir) {
-		<div class="card" style="max-width:600px; margin:0 auto;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">إضافة موظف جديد للمنشأة</h2>
+		<div class="card max-w-lg mx-auto">
+			<h2 class="card-title mb-lg">إضافة موظف جديد للمنشأة</h2>
 			<form method="POST" action="/settings/employees" class="stack">
 				<div>
 					<label class="form-label">الاسم الكامل</label>
@@ -54,10 +54,10 @@ templ VendorTeamFastAddPage(lang, dir string) {
 // VendorTeamUserDetailPage renders single employee profile.
 templ VendorTeamUserDetailPage(empID int64, lang, dir string) {
 	@layouts.VendorShell(fmt.Sprintf("ملف الموظف #%d", empID), "team", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">ملف الموظف #{ fmt.Sprintf("%d", empID) }</h2>
+					<h2 class="card-title m-0">ملف الموظف #{ fmt.Sprintf("%d", empID) }</h2>
 				</div>
 				<a href="/settings/employees" class="btn btn-secondary btn-sm">العودة</a>
 			</div>

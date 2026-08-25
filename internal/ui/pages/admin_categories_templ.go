@@ -84,7 +84,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Header Card --><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\"><!-- Header Card --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -209,7 +209,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 				return templ_7745c5c3_Err
 			}
 			if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"/admin/categories\" class=\"btn btn-secondary\" style=\"font-weight:700;\">إعادة تعيين</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"/admin/categories\" class=\"btn btn-secondary fw-700\">إعادة تعيين</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -260,7 +260,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td><div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td><div class=\"fw-800 text-primary text-base\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -301,7 +301,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						return templ_7745c5c3_Err
 					}
 					if parentName != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge badge-secondary\" style=\"font-weight:700;\">📁 ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge badge-secondary fw-700\">📁 ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -365,7 +365,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span style=\"font-size:0.8rem; color:var(--text-muted);\">لا يوجد وصف</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span class=\"text-sm text-muted\">لا يوجد وصف</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -383,7 +383,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</span></td><td class=\"tabular-nums\" style=\"font-weight:600;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</span></td><td class=\"tabular-nums fw-600\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -401,17 +401,17 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						return templ_7745c5c3_Err
 					}
 					if c.Status == "active" || c.Status == "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span class=\"badge badge-success\" style=\"font-weight:700;\">نشط</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span class=\"badge badge-success fw-700\">نشط</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span class=\"badge badge-neutral\" style=\"font-weight:700;\">معطل</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span class=\"badge badge-neutral fw-700\">معطل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><td class=\"text-end\"><div style=\"display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" data-modal-open=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><td class=\"text-end\"><div style=\"display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;\"><button type=\"button\" class=\"btn btn-secondary btn-icon size-8\" data-modal-open=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -424,7 +424,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" style=\"width:32px; height:32px;\" title=\"تعديل بيانات الفئة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" title=\"تعديل بيانات الفئة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -526,7 +526,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\"><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">اسم الفئة (عربي) *</label> <input type=\"text\" name=\"name_ar\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم الفئة (عربي) *</label> <input type=\"text\" name=\"name_ar\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -539,7 +539,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" required class=\"form-input\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">اسم الفئة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" required class=\"form-input\"></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الفئة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -552,7 +552,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" class=\"form-input\" dir=\"ltr\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الفئة الأب (Parent Category)</label> <select name=\"parent_id\" class=\"form-select\"><option value=\"\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" class=\"form-input\" dir=\"ltr\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">الفئة الأب (Parent Category)</label> <select name=\"parent_id\" class=\"form-select\"><option value=\"\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -633,7 +633,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 								}
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الحالة *</label> <select name=\"status\" class=\"form-select\"><option value=\"active\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</select></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة *</label> <select name=\"status\" class=\"form-select\"><option value=\"active\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -653,7 +653,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, ">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الوصف (عربي)</label> <textarea name=\"description_ar\" rows=\"2\" class=\"form-input\" placeholder=\"وصف الفئة ونطاق الأصناف التابعة لها...\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, ">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (عربي)</label> <textarea name=\"description_ar\" rows=\"2\" class=\"form-input\" placeholder=\"وصف الفئة ونطاق الأصناف التابعة لها...\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -666,7 +666,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</textarea></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\" placeholder=\"Category description...\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\" placeholder=\"Category description...\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -679,7 +679,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</textarea></div></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</textarea></div></div><div class=\"form-group m-0\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -692,7 +692,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" class=\"form-input\" min=\"0\"></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" class=\"form-input\" min=\"0\"></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -705,7 +705,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -892,7 +892,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<form method=\"POST\" action=\"/admin/categories/new\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\"><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">اسم الفئة (عربي) *</label> <input type=\"text\" name=\"name_ar\" required class=\"form-input\" placeholder=\"مثال: أدوية القلب والأوعية الدموية\"></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">اسم الفئة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Cardiovascular Drugs\"></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الفئة الأب (Parent Category)</label> <select name=\"parent_id\" class=\"form-select\"><option value=\"\" selected>-- فئة رئيسية (مستوى أول / بدون فئة أب) --</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<form method=\"POST\" action=\"/admin/categories/new\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start;\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم الفئة (عربي) *</label> <input type=\"text\" name=\"name_ar\" required class=\"form-input\" placeholder=\"مثال: أدوية القلب والأوعية الدموية\"></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الفئة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Cardiovascular Drugs\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">الفئة الأب (Parent Category)</label> <select name=\"parent_id\" class=\"form-select\"><option value=\"\" selected>-- فئة رئيسية (مستوى أول / بدون فئة أب) --</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -953,7 +953,7 @@ func AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</select></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الحالة *</label> <select name=\"status\" class=\"form-select\"><option value=\"active\" selected>نشط (Active)</option> <option value=\"inactive\">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الوصف (عربي)</label> <textarea name=\"description_ar\" rows=\"2\" class=\"form-input\" placeholder=\"وصف وتفاصيل فئة الأصناف...\"></textarea></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\" placeholder=\"Description in English...\"></textarea></div></div><div class=\"form-group\" style=\"margin:0;\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"0\" class=\"form-input\" min=\"0\"></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"create-category-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</select></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة *</label> <select name=\"status\" class=\"form-select\"><option value=\"active\" selected>نشط (Active)</option> <option value=\"inactive\">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (عربي)</label> <textarea name=\"description_ar\" rows=\"2\" class=\"form-input\" placeholder=\"وصف وتفاصيل فئة الأصناف...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\" placeholder=\"Description in English...\"></textarea></div></div><div class=\"form-group m-0\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"0\" class=\"form-input\" min=\"0\"></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"create-category-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

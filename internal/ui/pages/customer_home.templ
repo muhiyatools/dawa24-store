@@ -163,7 +163,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 
 		<!-- 2. Trust Metrics Strip -->
 		<section class="card mb-0" style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:1.25rem 2rem; margin-bottom:2.5rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised);">
-			<div style="display:flex; align-items:center; gap:0.75rem;">
+			<div class="row-center">
 				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 					@components.IconBuilding("icon-sm")
 				</div>
@@ -181,7 +181,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			
 			<div style="border-inline-start:1px solid var(--border); height:2rem;" class="hide-mobile"></div>
 			
-			<div style="display:flex; align-items:center; gap:0.75rem;">
+			<div class="row-center">
 				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 					@components.IconPill("icon-sm")
 				</div>
@@ -199,7 +199,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			
 			<div style="border-inline-start:1px solid var(--border); height:2rem;" class="hide-mobile"></div>
 			
-			<div style="display:flex; align-items:center; gap:0.75rem;">
+			<div class="row-center">
 				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 					@components.IconTruck("icon-sm")
 				</div>
@@ -217,7 +217,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 
 			<div style="border-inline-start:1px solid var(--border); height:2rem;" class="hide-mobile"></div>
 
-			<div style="display:flex; align-items:center; gap:0.75rem;">
+			<div class="row-center">
 				<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 					@components.IconCheckCircle("icon-sm")
 				</div>
@@ -239,7 +239,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 						أدوية ومستلزمات صيدلانية معتمدة متوفرة بأرصدة حية لدى كبار الموردين
 					</p>
 				</div>
-				<a href="/catalog" class="btn btn-secondary btn-sm" style="font-weight:700;">
+				<a href="/catalog" class="btn btn-secondary btn-sm fw-700">
 					<span>عرض الكتالوج الشامل</span>
 					@components.IconArrowLeft("icon-xs")
 				</a>
@@ -287,7 +287,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 
 								if prod.ManufacturingCompanies != "" {
 									<div style="font-size:0.775rem; color:var(--text-secondary); margin-bottom:0.75rem;">
-										<span style="color:var(--text-muted);">الشركة:</span> { prod.ManufacturingCompanies }
+										<span class="text-muted">الشركة:</span> { prod.ManufacturingCompanies }
 									</div>
 								}
 							</div>
@@ -399,7 +399,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</p>
 
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem; text-align:center;">
-				<div style="padding:1rem;">
+				<div class="p-md">
 					<div style="width:44px; height:44px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto; font-weight:900; font-size:1.1rem;">
 						1
 					</div>
@@ -409,7 +409,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					</p>
 				</div>
 
-				<div style="padding:1rem;">
+				<div class="p-md">
 					<div style="width:44px; height:44px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto; font-weight:900; font-size:1.1rem;">
 						2
 					</div>
@@ -419,7 +419,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					</p>
 				</div>
 
-				<div style="padding:1rem;">
+				<div class="p-md">
 					<div style="width:44px; height:44px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto; font-weight:900; font-size:1.1rem;">
 						3
 					</div>

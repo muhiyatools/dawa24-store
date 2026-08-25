@@ -13,7 +13,7 @@ templ AdminOffersPackagesHubPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">منظومة باقات العروض والرعايات والإعلانات</h2>
+					<h2 class="card-title m-0">منظومة باقات العروض والرعايات والإعلانات</h2>
 					<p class="subtitle">إدارة خطط الاشتراكات المميزة للموردين، باقات الظهور، والرعايات الرسمية.</p>
 				</div>
 			</div>
@@ -45,7 +45,7 @@ templ AdminOfferPackagesListPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">باقات العروض للموردين</h2>
+					<h2 class="card-title m-0">باقات العروض للموردين</h2>
 				</div>
 				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm">العودة للمركز</a>
 			</div>
@@ -57,10 +57,10 @@ templ AdminOfferPackagesListPage(lang, dir string) {
 // AdminOfferPackageDetailPage renders package detail.
 templ AdminOfferPackageDetailPage(pkgID int64, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل الباقة #%d", pkgID), "offers_packages", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">باقة العروض #{ fmt.Sprintf("%d", pkgID) }</h2>
+					<h2 class="card-title m-0">باقة العروض #{ fmt.Sprintf("%d", pkgID) }</h2>
 				</div>
 				<a href="/admin/offers-packages/packages" class="btn btn-secondary btn-sm">العودة</a>
 			</div>
@@ -74,7 +74,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">الرعايات الرسمية للعروض</h2>
+					<h2 class="card-title m-0">الرعايات الرسمية للعروض</h2>
 				</div>
 				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm">العودة</a>
 			</div>
@@ -89,7 +89,7 @@ templ AdminOfferPromotionsPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">الحملات الترويجية المخصصة</h2>
+					<h2 class="card-title m-0">الحملات الترويجية المخصصة</h2>
 				</div>
 				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm">العودة</a>
 			</div>
@@ -104,7 +104,7 @@ templ AdminAdsListPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">الإعلانات والبنرات الترويجية في المنصة</h2>
+					<h2 class="card-title m-0">الإعلانات والبنرات الترويجية في المنصة</h2>
 					<p class="subtitle">مراجعة واعتماد بنرات الموردين والشركات على الصفحة الرئيسية وصفحات الأقسام.</p>
 				</div>
 				<a href="/admin/ad-plan" class="btn btn-secondary btn-sm">خطط الإعلانات</a>
@@ -120,7 +120,7 @@ templ AdminAdPlansPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">خطط ومواضع الإعلانات</h2>
+					<h2 class="card-title m-0">خطط ومواضع الإعلانات</h2>
 				</div>
 				<a href="/admin/ads" class="btn btn-secondary btn-sm">العودة للإعلانات</a>
 			</div>
@@ -133,7 +133,7 @@ templ AdminAdPlansPage(lang, dir string) {
 templ AdminOfferAnalyticsViewsPage(lang, dir string) {
 	@layouts.AdminShell("إحصائيات مشاهدات العروض (Views Analytics)", "analytics", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير مشاهدات وزيارات العروض الترويجية</h2>
+			<h2 class="card-title mb-lg">تقرير مشاهدات وزيارات العروض الترويجية</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "إحصائيات المشاهدات", Message: "تتبع معدل المشاهدات اليومية والأسبوعية لكل عرض ترويجي."})
 		</div>
 	}
@@ -143,7 +143,7 @@ templ AdminOfferAnalyticsViewsPage(lang, dir string) {
 templ AdminOfferAnalyticsClicksPage(lang, dir string) {
 	@layouts.AdminShell("إحصائيات النقرات والتحويل (Clicks & CTR)", "analytics", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h2>
+			<h2 class="card-title mb-lg">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "إحصائيات النقرات", Message: "تحليل كفاءة العروض والبنرات ونسبة النقر للشراء."})
 		</div>
 	}
@@ -153,7 +153,7 @@ templ AdminOfferAnalyticsClicksPage(lang, dir string) {
 templ AdminOfferLocationsPage(lang, dir string) {
 	@layouts.AdminShell("التوزيع الجغرافي للعروض (Offer Locations)", "offer_locations", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">نطاق التغطية الجغرافية للعروض والصفقات</h2>
+			<h2 class="card-title mb-lg">نطاق التغطية الجغرافية للعروض والصفقات</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "التغطية الجغرافية", Message: "استعراض المحافظات والمناطق المشمولة في العروض الحالية."})
 		</div>
 	}
@@ -165,7 +165,7 @@ templ VendorOffersPackagesPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">باقات العروض الترويجية المتاحة لمنشأتك</h2>
+					<h2 class="card-title m-0">باقات العروض الترويجية المتاحة لمنشأتك</h2>
 					<p class="subtitle">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث.</p>
 				</div>
 			</div>
@@ -180,7 +180,7 @@ templ VendorOffersPackagesSponsorshipsPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">رعايات العروض الترويجية لمنشأتك</h2>
+					<h2 class="card-title m-0">رعايات العروض الترويجية لمنشأتك</h2>
 				</div>
 				<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm">العودة للباقات</a>
 			</div>
@@ -195,7 +195,7 @@ templ VendorOffersPackagesPromotionsPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">الحملات الترويجية الموجهة</h2>
+					<h2 class="card-title m-0">الحملات الترويجية الموجهة</h2>
 				</div>
 				<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm">العودة للباقات</a>
 			</div>
@@ -210,7 +210,7 @@ templ VendorAdsPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">إعلانات وبنرات المنشأة</h2>
+					<h2 class="card-title m-0">إعلانات وبنرات المنشأة</h2>
 					<p class="subtitle">إدارة البنرات الإعلانية المنشورة في واجهة المنصة وتتبع عدد النقرات والمشاهدات.</p>
 				</div>
 			</div>
@@ -225,7 +225,7 @@ templ VendorOffersLocationsPage(lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">التغطية الجغرافية لعروض المنشأة</h2>
+					<h2 class="card-title m-0">التغطية الجغرافية لعروض المنشأة</h2>
 				</div>
 				<a href="/vendor/offers" class="btn btn-secondary btn-sm">العودة للعروض</a>
 			</div>

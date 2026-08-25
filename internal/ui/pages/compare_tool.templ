@@ -72,13 +72,13 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 				<!-- Column 1: Supplier File Center -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="row-center-sm">
 							<span style="font-size:1.2rem;">📁</span>
 							<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
 								مركز ملفات الموردين
 							</h2>
 						</div>
-						<span class="badge badge-sky" style="font-size:0.75rem;">{ fmt.Sprintf("%d ملف", len(files)) }</span>
+						<span class="badge badge-sky text-xs">{ fmt.Sprintf("%d ملف", len(files)) }</span>
 					</div>
 
 					<form method="POST" action="/compare/run" id="compare-run-form" style="display:flex; flex-direction:column; gap:1rem; margin:0;" onsubmit="return validateCompareSelection(event)">
@@ -104,7 +104,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 								<div style="font-size:2rem; margin-bottom:0.5rem;">📂</div>
 								<strong style="color:var(--text); font-size:0.95rem; display:block; margin-bottom:0.25rem;">لا توجد ملفات مرفوعة بعد</strong>
 								<p style="color:var(--text-muted); font-size:0.8rem; margin:0 0 1rem 0;">استخدم نموذج الرفع المجاور أو حمل النموذج التجريبي لاختبار المقارنة فوراً.</p>
-								<a href="/compare/sample" class="btn btn-secondary btn-sm" style="font-weight:700;">
+								<a href="/compare/sample" class="btn btn-secondary btn-sm fw-700">
 									تحميل النموذج التجريبي
 								</a>
 							</div>
@@ -146,9 +146,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 										<div style="display:flex; align-items:center; gap:0.35rem; flex-shrink:0;">
 											<button
 												type="button"
-												class="btn btn-secondary btn-sm btn-icon"
+												class="btn btn-secondary btn-sm btn-icon text-accent"
 												title="تعديل تعيين الأعمدة"
-												style="color:var(--accent);"
+											
 												onclick={ templ.ComponentScript{Call: fmt.Sprintf("openMappingModal(%d)", f.ID)} }
 											>
 												@components.IconSettings("icon-xs")
@@ -165,8 +165,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 
 											<button
 												type="button"
-												class="btn btn-secondary btn-sm btn-icon"
-												style="color:var(--danger-text);"
+												class="btn btn-secondary btn-sm btn-icon text-danger"
 												title="حذف الملف"
 												onclick={ templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", f.ID)} }
 											>
@@ -183,7 +182,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 				<!-- Column 2: Upload Zone -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
 					<div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="row-center-sm">
 							<span style="font-size:1.2rem;">📤</span>
 							<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
 								رفع ملفات الموردين (استيراد مجمّع)
@@ -196,7 +195,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 						action="/compare/upload"
 						id="compare-upload-form"
 						enctype="multipart/form-data"
-						style="display:flex; flex-direction:column; gap:1rem;"
+						class="stack-md"
 						onsubmit="return handleUploadSubmit(event)"
 					>
 						<!-- Drag and drop box with Multi-File support -->
@@ -228,7 +227,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 
 						<!-- Template Download helper card -->
 						<div style="padding:0.85rem 1rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
-							<div style="font-size:0.8rem; color:var(--text-muted);">
+							<div class="text-sm text-muted">
 								هل تحتاج كشف أسعار للتجربة؟
 							</div>
 							<a
@@ -325,7 +324,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 					if (input.files.length === 1) {
 						const file = input.files[0];
 						const size = (file.size / 1024 / 1024).toFixed(2);
-						previewEl.innerHTML = `<span style="color:var(--accent); font-weight:800;">✓ تم اختيار ملف:</span> <strong style="color:var(--text);">${file.name}</strong> (${size} MB)`;
+						previewEl.innerHTML = `<span style="color:var(--accent); font-weight:800;">✓ تم اختيار ملف:</span> <strong class="text-primary">${file.name}</strong> (${size} MB)`;
 					} else {
 						let fileNames = [];
 						let totalSize = 0;
@@ -493,7 +492,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 							let bestPriceHtml = '';
 							if (item.best_net_price && parseFloat(item.best_net_price) > 0) {
 								bestPriceHtml = `
-									<div style="text-align:end;">
+									<div class="text-end">
 										<div style="font-weight:900; color:var(--accent); font-size:0.95rem;" class="tabular-nums">
 											${item.best_net_price} ج.م
 										</div>

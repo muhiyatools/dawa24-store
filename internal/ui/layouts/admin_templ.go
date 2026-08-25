@@ -1273,7 +1273,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container\" style=\"padding:2rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container p-modal\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

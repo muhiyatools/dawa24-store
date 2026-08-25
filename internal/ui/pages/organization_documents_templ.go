@@ -222,7 +222,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"> <input type=\"file\" name=\"file\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input\" style=\"padding:0.35rem; font-size:var(--text-xs); max-width:200px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700;\"><span>رفع المستند المطلوب</span></button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"> <input type=\"file\" name=\"file\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input\" style=\"padding:0.35rem; font-size:var(--text-xs); max-width:200px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\"><span>رفع المستند المطلوب</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -457,7 +457,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						}
 					}
 					if doc != nil && doc.Status != attachments.StatusVerified {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<form action=\"/documents/delete\" method=\"POST\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"id\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<form action=\"/documents/delete\" method=\"POST\" class=\"m-0 inline\"><input type=\"hidden\" name=\"id\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

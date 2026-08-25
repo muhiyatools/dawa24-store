@@ -38,15 +38,15 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 					</div>
 
 					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-						<a href="/compare/tool" class="btn btn-secondary" style="font-weight:700;">
+						<a href="/compare/tool" class="btn btn-secondary fw-700">
 							@components.IconArrowLeft("icon-xs")
 							<span>مركز الملفات</span>
 						</a>
 						<button
 							type="button"
-							class="btn btn-primary"
+							class="btn btn-primary fw-800"
 							onclick="exportComparisonTableToCSV()"
-							style="font-weight:800;"
+						
 						>
 							@components.IconDownload("icon-xs")
 							<span>تصدير تقرير Excel / CSV</span>
@@ -75,7 +75,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
 						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">إجمالي الأصناف المقارنة</span>
-						<span style="font-size:1.25rem;">📦</span>
+						<span class="text-xl">📦</span>
 					</div>
 					<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">
 						if result != nil {
@@ -84,7 +84,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							0
 						}
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">
+					<span class="text-xs text-secondary">
 						if result != nil {
 							{ fmt.Sprintf("عبر %d موردين", result.Summary.TotalSuppliers) }
 						}
@@ -95,7 +95,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
 						<span style="font-size:0.85rem; font-weight:700; color:var(--success-text);">متوسط الخصم في السوق</span>
-						<span style="font-size:1.25rem;">🔥</span>
+						<span class="text-xl">🔥</span>
 					</div>
 					<div style="font-size:1.75rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
 						if result != nil {
@@ -104,14 +104,14 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							0%
 						}
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">أفضل فرصة شراء وتوفير</span>
+					<span class="text-xs text-secondary">أفضل فرصة شراء وتوفير</span>
 				</div>
 
 				<!-- Suppliers Analyzed -->
 				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
 						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">الموردون المشمولون</span>
-						<span style="font-size:1.25rem;">🏢</span>
+						<span class="text-xl">🏢</span>
 					</div>
 					<div style="font-size:1.75rem; font-weight:900; color:var(--accent);" class="tabular-nums">
 						if result != nil {
@@ -120,7 +120,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							0
 						}
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">كشوف أسعار نشطة ومطابقة</span>
+					<span class="text-xs text-secondary">كشوف أسعار نشطة ومطابقة</span>
 				</div>
 
 			</div>
@@ -201,7 +201,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 						<div style="font-size:2.5rem; margin-bottom:0.5rem;">📊</div>
 						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem;">لا توجد أصناف مستخرجة في الكشوف المختارة</h3>
 						<p style="color:var(--text-muted); font-size:0.85rem; margin:0 0 1rem 0;">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس ⚙️ في مركز الملفات.</p>
-						<a href="/compare/tool" class="btn btn-primary" style="font-weight:700;">
+						<a href="/compare/tool" class="btn btn-primary fw-700">
 							العودة لمركز ملفات الموردين
 						</a>
 					</div>
@@ -239,7 +239,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 												}
 											</div>
 											if row.SKU != "" {
-												<span style="font-size:0.75rem; color:var(--text-muted);" class="tabular-nums">كود: { row.SKU }</span>
+												<span class="text-xs text-muted tabular-nums">كود: { row.SKU }</span>
 											}
 										</td>
 
@@ -248,7 +248,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 											if row.BestPrice.IsPositive() {
 												<span>{ row.BestPrice.String() } ج.م</span>
 											} else {
-												<span style="color:var(--text-muted);">--</span>
+												<span class="text-muted">--</span>
 											}
 										</td>
 
@@ -259,7 +259,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 													{ fmt.Sprintf("%.1f%%", row.BestDiscount) }
 												</span>
 											} else {
-												<span class="badge badge-secondary" style="font-size:0.75rem;">بدون خصم</span>
+												<span class="badge badge-secondary text-xs">بدون خصم</span>
 											}
 										</td>
 
@@ -268,7 +268,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 											if row.BestNetPrice.IsPositive() {
 												<span>{ row.BestNetPrice.String() } ج.م</span>
 											} else {
-												<span style="color:var(--text-muted);">--</span>
+												<span class="text-muted">--</span>
 											}
 										</td>
 

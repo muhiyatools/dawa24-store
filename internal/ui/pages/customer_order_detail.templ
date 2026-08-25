@@ -70,19 +70,19 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 8px 32px rgba(0,0,0,0.12);">
 				<div>
 					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; flex-wrap:wrap;">
-						<span class="badge badge-sky" style="font-size:0.8rem; font-weight:700;">أمر توريد دوائي معتمد</span>
+						<span class="badge badge-sky text-sm fw-700">أمر توريد دوائي معتمد</span>
 						if order.PaymentStatus == commerce.PaymentPaid {
-							<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:700;">مدفوع بالكامل</span>
+							<span class="badge badge-emerald text-sm fw-700">مدفوع بالكامل</span>
 						} else {
-							<span class="badge badge-amber" style="font-size:0.8rem; font-weight:700;">دفع عند الاستلام (COD)</span>
+							<span class="badge badge-amber text-sm fw-700">دفع عند الاستلام (COD)</span>
 						}
-						<span class="badge badge-indigo" style="font-size:0.8rem; font-weight:700;">الحالة: { string(order.Status) }</span>
+						<span class="badge badge-indigo text-sm fw-700">الحالة: { string(order.Status) }</span>
 					</div>
 					<h1 style="font-size:2rem; font-weight:900; color:var(--text); margin:0.25rem 0;" class="tabular-nums">
 						طلب #{ order.OrderNumber }
 					</h1>
-					<div style="font-size:0.875rem; color:var(--text-secondary);">
-						تاريخ التسجيل: <strong class="tabular-nums" style="color:var(--text);">{ order.CreatedAt.Format("2006-01-02 15:04") }</strong>
+					<div class="text-sm text-secondary">
+						تاريخ التسجيل: <strong class="tabular-nums text-primary">{ order.CreatedAt.Format("2006-01-02 15:04") }</strong>
 					</div>
 				</div>
 
@@ -192,7 +192,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					<div style="width:34px; height:34px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 						@components.IconBuilding("icon-xs")
 					</div>
-					<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+					<h3 class="text-lg fw-800 text-primary m-0">
 						بيانات الاستلام والتسليم للصيدلية
 					</h3>
 				</div>
@@ -243,7 +243,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<div class="card" style="margin-bottom:0; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 8px 32px rgba(0,0,0,0.12);">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
 					<div class="row-center-sm" style="gap:0.75rem;">
-						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						<div class="b2b-icon-box-sm">
 							@components.IconPackage("icon-sm")
 						</div>
 						<div>
@@ -280,9 +280,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 											{ line.ProductName.Get(i18n.Lang(lang)) }
 										</div>
 										<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.2rem;">
-											الكمية: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", line.Quantity) } عبوة</strong>
+											الكمية: <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", line.Quantity) } عبوة</strong>
 											<span style="margin:0 0.5rem; color:var(--border);">•</span>
-											سعر الوحدة: <span class="tabular-nums" style="color:var(--text);">{ line.UnitPrice.String() } ج.م</span>
+											سعر الوحدة: <span class="tabular-nums text-primary">{ line.UnitPrice.String() } ج.م</span>
 										</div>
 									</div>
 								</div>
@@ -294,7 +294,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						}
 					</div>
 				} else {
-					<div style="display:flex; flex-direction:column; gap:1.5rem;">
+					<div class="stack-lg">
 						for idx, sh := range order.Shipments {
 							<div style="border:1.5px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; background:var(--surface-sunken);">
 								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
@@ -307,9 +307,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												{ sh.VendorName.Get(i18n.Lang(lang)) } (طرد رقم { fmt.Sprintf("%d", idx + 1) })
 											</div>
 											<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
-												رقم الشحنة: <strong class="tabular-nums" style="color:var(--accent);">{ sh.ShipmentNumber }</strong>
+												رقم الشحنة: <strong class="tabular-nums text-accent">{ sh.ShipmentNumber }</strong>
 												<span style="margin:0 0.4rem; color:var(--border);">•</span>
-												الحالة: <strong style="color:var(--accent);">{ string(sh.Status) }</strong>
+												الحالة: <strong class="text-accent">{ string(sh.Status) }</strong>
 											</div>
 										</div>
 									</div>
@@ -317,8 +317,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									<div class="row-center" style="gap:0.5rem;">
 										if sh.TrackingNumber != "" {
 											<div style="font-size:0.85rem; background:var(--surface-raised); border:1px solid var(--border); padding:0.35rem 0.75rem; border-radius:var(--radius-md);">
-												<span style="color:var(--text-muted);">رقم البوليصة:</span>
-												<strong class="tabular-nums" style="color:var(--text);">{ sh.TrackingNumber }</strong>
+												<span class="text-muted">رقم البوليصة:</span>
+												<strong class="tabular-nums text-primary">{ sh.TrackingNumber }</strong>
 											</div>
 										}
 										<span class="badge badge-emerald">معتمد للتسليم</span>
@@ -334,11 +334,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 													@components.IconPill("icon-xs")
 												</div>
 												<div>
-													<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+													<div class="fw-800 text-primary text-base">
 														{ line.ProductName.Get(i18n.Lang(lang)) }
 													</div>
 													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
-														الكمية: <strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", line.Quantity) } عبوة</strong>
+														الكمية: <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", line.Quantity) } عبوة</strong>
 														<span style="margin:0 0.35rem; color:var(--border);">•</span>
 														سعر الوحدة: <span class="tabular-nums">{ line.UnitPrice.String() } ج.م</span>
 													</div>
@@ -361,13 +361,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<div id="shipment-updates-modal" class="modal-overlay hidden">
 				<div class="modal-card" style="max-width:620px; width:100%; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl);">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="row-center-sm">
 							@components.IconRefresh("icon-sm")
 							<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
 								سجل تحديثات الشحنة والمحطات
 							</h3>
 						</div>
-						<button type="button" class="btn btn-secondary btn-icon" style="width:32px; height:32px;" data-modal-close>
+						<button type="button" class="btn btn-secondary btn-icon size-8" data-modal-close>
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
@@ -381,7 +381,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							for _, h := range history {
 								<div style="display:flex; align-items:flex-start; gap:1rem; padding:0.85rem 1.1rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border);">
 									<div style="width:10px; height:10px; border-radius:var(--radius-full); background:var(--accent); margin-top:0.45rem; flex-shrink:0;"></div>
-									<div style="flex:1;">
+									<div class="flex-1">
 										<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
 											<span class="badge badge-sky" style="font-weight:800; font-size:0.75rem;">{ h.ToStatus }</span>
 											<span class="tabular-nums" style="font-size:0.775rem; color:var(--text-muted);">{ h.CreatedAt.Format("2006-01-02 15:04:05") }</span>
@@ -391,7 +391,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												{ h.Notes }
 											</div>
 										} else {
-											<div style="font-size:0.85rem; color:var(--text-muted);">
+											<div class="text-sm text-muted">
 												تم تحديث حالة الشحنة بنجاح في المنظومة
 											</div>
 										}

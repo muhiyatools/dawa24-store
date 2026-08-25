@@ -38,7 +38,7 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 				</div>
 
 				<div style="display:flex; gap:0.75rem; align-items:center;">
-					<a href="/vendor/team" class="btn btn-secondary" style="font-weight:700;">
+					<a href="/vendor/team" class="btn btn-secondary fw-700">
 						@components.IconUsers("icon-xs")
 						<span>فريق العمل والموظفين</span>
 					</a>
@@ -53,7 +53,7 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 					<div>
 						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
 							<div>
-								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">مالك المنشأة (Owner)</h3>
+								<h3 class="text-lg fw-800 text-primary m-0">مالك المنشأة (Owner)</h3>
 								<span style="font-size:0.775rem; color:var(--text-muted);">أعلى مستوى صلاحيات للنظام</span>
 							</div>
 							<span class="badge badge-emerald">كامل الصلاحيات</span>
@@ -62,22 +62,22 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 							إدارة شاملة لبيانات الشركة، الحساب البنكي، ترخيص المؤسسة، الاعتماد المالي، وتعيين كبار المدراء.
 						</p>
 						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>تعديل إعدادات المنشأة والمستندات الرسمية</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>إدارة الحسابات البنكية والمحفظة والتحويلات</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>إضافة وحذف الفروع وتعيين المدراء</span>
 							</div>
 						</div>
 					</div>
 					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
-						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["org_owner"]) }</strong></span>
+						<span>الموظفين المسندين: <strong class="text-primary">{ fmt.Sprintf("%d", memberCountMap["org_owner"]) }</strong></span>
 						<span style="color:var(--accent); font-weight:700;">دور نظامي أساسي</span>
 					</div>
 				</div>
@@ -87,7 +87,7 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 					<div>
 						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
 							<div>
-								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">مدير العمليات والتوريد (Manager)</h3>
+								<h3 class="text-lg fw-800 text-primary m-0">مدير العمليات والتوريد (Manager)</h3>
 								<span style="font-size:0.775rem; color:var(--text-muted);">إدارة الفروع والشحنات</span>
 							</div>
 							<span class="badge badge-sky">إداري</span>
@@ -96,22 +96,22 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 							إدارة أوامر الشراء، التسعير، قبول طلبات الصيدليات، وجدولة تسليم الأدوية والشحنات المبردة.
 						</p>
 						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>قبول ورفض وتحديث حالات أوامر التوريد</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>تحديث عروض الأسعار ونطاقات التغطية الجغرافية</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>متابعة أداء الموظفين وإسناد الشحنات</span>
 							</div>
 						</div>
 					</div>
 					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
-						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["manager"]) }</strong></span>
+						<span>الموظفين المسندين: <strong class="text-primary">{ fmt.Sprintf("%d", memberCountMap["manager"]) }</strong></span>
 						<span style="color:var(--accent); font-weight:700;">مفعل</span>
 					</div>
 				</div>
@@ -121,7 +121,7 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 					<div>
 						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
 							<div>
-								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">أمين المخزن (Warehouse Keeper)</h3>
+								<h3 class="text-lg fw-800 text-primary m-0">أمين المخزن (Warehouse Keeper)</h3>
 								<span style="font-size:0.775rem; color:var(--text-muted);">إدارة المخزون والتشغيلات</span>
 							</div>
 							<span class="badge badge-amber">مخزني</span>
@@ -130,22 +130,22 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 							جرد المخازن، تسجيل الدفعات وتواريخ الصلاحية، واستيراد وتحديث ملفات الأرصدة.
 						</p>
 						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>تعديل وجرد الأرصدة والكميات المتاحة</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>تسجيل أرقام التشغيلات وتواريخ انتهاء الصلاحية</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>إجراء التحويلات المخزنية بين مستودعات الفروع</span>
 							</div>
 						</div>
 					</div>
 					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
-						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["warehouse"]) }</strong></span>
+						<span>الموظفين المسندين: <strong class="text-primary">{ fmt.Sprintf("%d", memberCountMap["warehouse"]) }</strong></span>
 						<span style="color:var(--accent); font-weight:700;">مفعل</span>
 					</div>
 				</div>
@@ -155,7 +155,7 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 					<div>
 						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
 							<div>
-								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">المحاسب المالي (Accountant)</h3>
+								<h3 class="text-lg fw-800 text-primary m-0">المحاسب المالي (Accountant)</h3>
 								<span style="font-size:0.775rem; color:var(--text-muted);">الفواتير والمحفظة</span>
 							</div>
 							<span class="badge badge-purple">مالي</span>
@@ -164,22 +164,22 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 							إصدار وتدقيق الفواتير الإلكترونية، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.
 						</p>
 						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>تصدير الفواتير الإلكترونية المعتمدة للضرائب</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>عرض كشوف العمليات المالية للمحفظة</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>متابعة مديونيات ودفعات الصيدليات</span>
 							</div>
 						</div>
 					</div>
 					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
-						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["accountant"]) }</strong></span>
+						<span>الموظفين المسندين: <strong class="text-primary">{ fmt.Sprintf("%d", memberCountMap["accountant"]) }</strong></span>
 						<span style="color:var(--accent); font-weight:700;">مفعل</span>
 					</div>
 				</div>
@@ -189,7 +189,7 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 					<div>
 						<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
 							<div>
-								<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">مندوب مبيعات وتوريد (Sales Rep)</h3>
+								<h3 class="text-lg fw-800 text-primary m-0">مندوب مبيعات وتوريد (Sales Rep)</h3>
 								<span style="font-size:0.775rem; color:var(--text-muted);">المبيعات والتواصل مع الصيدليات</span>
 							</div>
 							<span class="badge badge-slate">مبيعات</span>
@@ -198,22 +198,22 @@ templ VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir st
 							الرد على طلبات تسعير الصيدليات، التنسيق مع المناديب، ومتابعة تسليم وتوقيع إيصالات الشحنات.
 						</p>
 						<div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>استقبال والرد على طلبات الصيدليات المباشرة</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>تحديث خط سير ومواعيد تسليم الشحنة للصيدلية</span>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								@components.IconCheck("icon-xs")
 								<span>تسجيل إشعارات الاستلام الموقعة</span>
 							</div>
 						</div>
 					</div>
 					<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
-						<span>الموظفين المسندين: <strong style="color:var(--text);">{ fmt.Sprintf("%d", memberCountMap["employee"]) }</strong></span>
+						<span>الموظفين المسندين: <strong class="text-primary">{ fmt.Sprintf("%d", memberCountMap["employee"]) }</strong></span>
 						<span style="color:var(--accent); font-weight:700;">مفعل</span>
 					</div>
 				</div>

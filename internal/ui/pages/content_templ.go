@@ -121,7 +121,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>سياسة الخصوصية وسرية البيانات</span></a></div><!-- Main Policy Card --><div class=\"card\" style=\"padding:2.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-sm);\"><!-- Document Header --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1.5rem; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>سياسة الخصوصية وسرية البيانات</span></a></div><!-- Main Policy Card --><div class=\"card\" style=\"padding:2.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-sm);\"><!-- Document Header --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1.5rem; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;\"><div class=\"b2b-icon-box\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

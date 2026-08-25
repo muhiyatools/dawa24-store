@@ -70,7 +70,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			<!-- Header Action Bar -->
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
 				<div class="row-center-sm">
-					<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="b2b-icon-box">
 						@components.IconTag("icon-sm")
 					</div>
 					<div>
@@ -84,7 +84,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 				</div>
 
 				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary" style="font-weight:800;">
+					<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary fw-800">
 						@components.IconPlus("icon-xs")
 						<span>إضافة شركة مصنعة جديدة +</span>
 					</button>
@@ -133,7 +133,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						تصفية
 					</button>
 					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
-						<a href="/admin/brands" class="btn btn-secondary" style="font-weight:700;">
+						<a href="/admin/brands" class="btn btn-secondary fw-700">
 							إعادة تعيين
 						</a>
 					}
@@ -172,7 +172,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 										</div>
 									</td>
 									<td>
-										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+										<div class="fw-800 text-primary text-base">
 											{ item.Brand.Name.Get("ar") }
 										</div>
 										if item.Brand.Name.Get("en") != "" {
@@ -191,7 +191,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												{ item.Brand.Description.Get("en") }
 											</div>
 										} else {
-											<span style="font-size:0.8rem; color:var(--text-muted);">لا يوجد وصف</span>
+											<span class="text-sm text-muted">لا يوجد وصف</span>
 										}
 									</td>
 									<td>
@@ -201,19 +201,18 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 									</td>
 									<td>
 										if item.Brand.Status == "active" {
-											<span class="badge badge-success" style="font-weight:700;">نشط</span>
+											<span class="badge badge-success fw-700">نشط</span>
 										} else {
-											<span class="badge badge-neutral" style="font-weight:700;">معطل</span>
+											<span class="badge badge-neutral fw-700">معطل</span>
 										}
 									</td>
-									<td style="text-align:end;">
+									<td class="text-end">
 										<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;">
 											<!-- Edit Trigger -->
 											<button
 												type="button"
 												@click={ fmt.Sprintf("openEdit(%d, '%s', '%s', '%s', '%s', '%s', '%s')", item.Brand.ID, templateEscape(item.Brand.Name.Get("ar")), templateEscape(item.Brand.Name.Get("en")), templateEscape(item.Brand.Description.Get("ar")), templateEscape(item.Brand.Description.Get("en")), templateEscape(item.Brand.Image), item.Brand.Status) }
-												class="btn btn-secondary btn-icon"
-												style="width:32px; height:32px;"
+												class="btn btn-secondary btn-icon size-8"
 												title="تعديل بيانات الشركة"
 											>
 												@components.IconEdit("icon-xs")
@@ -323,57 +322,56 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			>
 				<div
 					@click.outside="isCreateModalOpen = false"
-					class="modal-card modal-md"
-					style="padding:2rem;"
+					class="modal-card modal-md p-modal"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconPlus("icon-xs")
 							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+							<h3 class="text-xl fw-800 text-primary m-0">
 								إضافة شركة مصنعة / ماركة جديدة
 							</h3>
 						</div>
-						<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+						<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary btn-icon size-8">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
 
 					<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">اسم الشركة المصنعة (عربي) *</label>
 								<input type="text" name="name_ar" required class="form-input" placeholder="إيفا فارما" />
 							</div>
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">اسم الشركة (إنجليزي) *</label>
 								<input type="text" name="name_en" required class="form-input" dir="ltr" placeholder="Eva Pharma" />
 							</div>
 						</div>
 
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">شعار أو صورة الشركة (ملف)</label>
 								<input type="file" name="brand_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
 							</div>
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">أو رابط الصورة (URL)</label>
 								<input type="text" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
 							</div>
 						</div>
 
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<label class="form-label">الوصف والنبذة التعريفية (عربي)</label>
 							<textarea name="description_ar" rows="2" class="form-input" placeholder="نبذة عن الشركة، التراخيص والمقر الرئيسي..."></textarea>
 						</div>
 
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<label class="form-label">الوصف (إنجليزي)</label>
 							<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="About the company, headquarters and certifications..."></textarea>
 						</div>
 
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<label class="form-label">الحالة الأولية</label>
 							<select name="status" class="form-select">
 								<option value="active">نشط ومفعل (Active)</option>
@@ -381,9 +379,9 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 							</select>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800;">
+							<button type="submit" class="btn btn-primary fw-800">
 								@components.IconCheck("icon-xs")
 								<span>حفظ وإضافة الشركة المصنعة</span>
 							</button>
@@ -401,57 +399,56 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			>
 				<div
 					@click.outside="isEditModalOpen = false"
-					class="modal-card modal-md"
-					style="padding:2rem;"
+					class="modal-card modal-md p-modal"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconEdit("icon-xs")
 							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+							<h3 class="text-xl fw-800 text-primary m-0">
 								تعديل بيانات الشركة المصنعة
 							</h3>
 						</div>
-						<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+						<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary btn-icon size-8">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
 
 					<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">اسم الشركة المصنعة (عربي) *</label>
 								<input type="text" name="name_ar" x-model="editData.name_ar" required class="form-input" />
 							</div>
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">اسم الشركة (إنجليزي) *</label>
 								<input type="text" name="name_en" x-model="editData.name_en" required class="form-input" dir="ltr" />
 							</div>
 						</div>
 
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">تغيير الشعار أو الصورة</label>
 								<input type="file" name="brand_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
 							</div>
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">أو رابط الصورة (URL)</label>
 								<input type="text" name="image_url" x-model="editData.image" class="form-input" dir="ltr" />
 							</div>
 						</div>
 
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<label class="form-label">الوصف والنبذة التعريفية (عربي)</label>
 							<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
 						</div>
 
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<label class="form-label">الوصف (إنجليزي)</label>
 							<textarea name="description_en" x-model="editData.description_en" rows="2" class="form-input" dir="ltr"></textarea>
 						</div>
 
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<label class="form-label">الحالة</label>
 							<select name="status" x-model="editData.status" class="form-select">
 								<option value="active">نشط ومفعل (Active)</option>
@@ -459,9 +456,9 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 							</select>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800;">
+							<button type="submit" class="btn btn-primary fw-800">
 								@components.IconCheck("icon-xs")
 								<span>حفظ التعديلات</span>
 							</button>

@@ -201,7 +201,7 @@ func CustomerOrdersList(orders []*commerce.Order) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></div></div><div style=\"display:flex; align-items:center; gap:1.5rem;\"><div style=\"text-align:end;\"><div style=\"font-size:0.75rem; color:var(--text-muted); font-weight:600;\">إجمالي الطلبية</div><div style=\"font-weight:800; font-size:1.2rem; color:var(--text);\" class=\"tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></div></div><div style=\"display:flex; align-items:center; gap:1.5rem;\"><div class=\"text-end\"><div style=\"font-size:0.75rem; color:var(--text-muted); font-weight:600;\">إجمالي الطلبية</div><div style=\"font-weight:800; font-size:1.2rem; color:var(--text);\" class=\"tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

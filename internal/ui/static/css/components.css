@@ -573,34 +573,97 @@ dialog.modal::backdrop {
    app.css — never literals.
    --------------------------------------------------------------------------- */
 
-/* Spacing resets that appeared ~390 times between them. */
-.m-0        { margin: 0; }
-.mb-0       { margin-bottom: 0; }
+/* Spacing resets and layout helpers */
+.m-0        { margin: 0 !important; }
+.mb-0       { margin-bottom: 0 !important; }
+.mt-0       { margin-top: 0 !important; }
+.p-0        { padding: 0 !important; }
 .mb-section { margin-bottom: var(--space-6); }
+.mb-sm      { margin-bottom: 0.5rem; }
+.mb-md      { margin-bottom: 1rem; }
+.mb-lg      { margin-bottom: 1.5rem; }
 
-/* Page and card headers: title block on one side, actions on the other. */
-.header-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: var(--space-4);
-	flex-wrap: wrap;
-	margin-bottom: var(--space-6);
-}
-.header-row--ruled {
-	border-bottom: 1px solid var(--border);
-	padding-bottom: var(--space-3);
+.p-sm       { padding: 0.5rem; }
+.p-md       { padding: 1rem; }
+.p-lg       { padding: 1.5rem; }
+.p-card     { padding: 1.5rem; }
+.p-card-sm  { padding: 1.25rem; }
+.p-modal    { padding: 2rem; }
+
+.inline       { display: inline; }
+.inline-block { display: inline-block; }
+.block        { display: block; }
+
+/* Flexbox Primitives */
+.flex           { display: flex; }
+.inline-flex    { display: inline-flex; }
+.flex-col       { display: flex; flex-direction: column; }
+.flex-row       { display: flex; flex-direction: row; }
+.flex-wrap      { flex-wrap: wrap; }
+.flex-nowrap    { flex-wrap: nowrap; }
+.flex-1         { flex: 1 1 0%; }
+.flex-auto      { flex: 1 1 auto; }
+.flex-none      { flex: none; }
+
+.items-center   { align-items: center; }
+.items-start    { align-items: flex-start; }
+.items-end      { align-items: flex-end; }
+.items-stretch  { align-items: stretch; }
+
+.justify-center { justify-content: center; }
+.justify-between{ justify-content: space-between; }
+.justify-start  { justify-content: flex-start; }
+.justify-end    { justify-content: flex-end; }
+
+.flex-center    { display: flex; align-items: center; justify-content: center; }
+.flex-between   { display: flex; align-items: center; justify-content: space-between; }
+
+/* Gap Scale */
+.gap-xs { gap: 0.25rem; }
+.gap-sm { gap: 0.5rem; }
+.gap-md { gap: 0.75rem; }
+.gap-lg { gap: 1rem; }
+.gap-xl { gap: 1.5rem; }
+.gap-2xl{ gap: 2rem; }
+
+/* Stacks & Rows */
+.row-center    { display: flex; align-items: center; gap: var(--space-3); }
+.row-center-sm { display: flex; align-items: center; gap: 0.5rem; }
+.row-center-xs { display: flex; align-items: center; gap: 0.25rem; }
+.stack         { display: flex; flex-direction: column; gap: var(--space-4); }
+.stack-sm      { display: flex; flex-direction: column; gap: 0.5rem; }
+.stack-md      { display: flex; flex-direction: column; gap: 1rem; }
+.stack-lg      { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Width & Height & Sizes */
+.w-full { width: 100% !important; }
+.h-full { height: 100% !important; }
+.w-auto { width: auto !important; }
+
+.size-6  { width: 24px !important; height: 24px !important; }
+.size-8  { width: 32px !important; height: 32px !important; }
+.size-9  { width: 36px !important; height: 36px !important; }
+.size-10 { width: 40px !important; height: 40px !important; }
+.size-12 { width: 48px !important; height: 48px !important; }
+.size-14 { width: 56px !important; height: 56px !important; }
+.size-16 { width: 64px !important; height: 64px !important; }
+
+.max-w-sm  { max-width: 480px; }
+.max-w-md  { max-width: 640px; }
+.max-w-lg  { max-width: 768px; }
+.max-w-xl  { max-width: 896px; }
+.max-w-2xl { max-width: 1024px; }
+.max-w-3xl { max-width: 1152px; }
+.max-w-4xl { max-width: 1280px; }
+.mx-auto   { margin-inline: auto !important; }
+
+.border-t-ruled {
+	border-top: 1px solid var(--border);
+	padding-top: 1rem;
+	margin-top: 1rem;
 }
 
-/* The subtitle under a card or page title. */
-.subtitle {
-	font-size: 0.85rem;
-	color: var(--text-secondary);
-	margin-top: 0.2rem;
-}
-
-/* Two-column form rows, which collapse on narrow screens. Previously written
-   inline as a fixed 1fr 1fr grid that did not collapse at all. */
+/* Grid Layouts */
 .form-grid-2 {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -611,32 +674,130 @@ dialog.modal::backdrop {
 	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	gap: var(--space-4);
 }
-
-/* Field labels. */
-.field-label {
-	display: block;
-	font-size: 0.8rem;
-	font-weight: 700;
-	color: var(--text-secondary);
-	margin-bottom: 0.35rem;
+.grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+.grid-3 {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1rem;
+}
+@media (max-width: 640px) {
+	.grid-2, .grid-3 { grid-template-columns: 1fr; }
 }
 
-/* Inline groups. */
-.row-center   { display: flex; align-items: center; gap: var(--space-3); }
-.row-center-sm{ display: flex; align-items: center; gap: 0.6rem; }
-.stack        { display: flex; flex-direction: column; gap: var(--space-4); }
-.stack-sm     { display: flex; flex-direction: column; gap: var(--space-3); }
+/* Typography Hierarchy & Tokens */
+.text-xs   { font-size: 0.75rem; }
+.text-sm   { font-size: 0.875rem; }
+.text-base { font-size: 1rem; }
+.text-lg   { font-size: 1.125rem; }
+.text-xl   { font-size: 1.25rem; }
+.text-2xl  { font-size: 1.5rem; }
 
-/* Text intent. */
-.text-end       { text-align: end; }
-.text-start     { text-align: start; }
-.text-muted     { color: var(--text-muted); }
+.fw-500 { font-weight: 500; }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
+.fw-800 { font-weight: 800; }
+.fw-900 { font-weight: 900; }
+
+.text-primary   { color: var(--text); }
 .text-secondary { color: var(--text-secondary); }
-.text-danger    { color: var(--danger); }
-.w-full         { width: 100%; }
-.fw-600         { font-weight: 600; }
-.fw-700         { font-weight: 700; }
-.fw-800         { font-weight: 800; }
+.text-muted     { color: var(--text-muted); }
+.text-accent    { color: var(--accent); }
+.text-success   { color: var(--success-text, #10b981); }
+.text-warning   { color: var(--warning-text, #f59e0b); }
+.text-danger    { color: var(--danger-text, #ef4444); }
+
+.text-end   { text-align: end; }
+.text-start { text-align: start; }
+.text-center{ text-align: center; }
+
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.font-mono    { font-family: var(--font-mono, ui-monospace, monospace); }
+
+/* B2B Container Primitives */
+.b2b-icon-box {
+	width: 40px;
+	height: 40px;
+	border-radius: var(--radius-lg);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+.b2b-icon-box-sm {
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-md);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+.b2b-icon-box-lg {
+	width: 48px;
+	height: 48px;
+	border-radius: var(--radius-xl);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.card-header-flex {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 1.25rem;
+}
+.card-header-ruled {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 1.25rem;
+	border-bottom: 1px solid var(--border);
+	padding-bottom: 0.875rem;
+}
+
+/* Modal Inner Standard Layouts */
+.modal-header-standard {
+	padding: 1.25rem 1.75rem;
+	border-bottom: 1px solid var(--border);
+	background: var(--surface-sunken);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+}
+.modal-body-standard {
+	padding: 1.75rem;
+	overflow-y: auto;
+	max-height: calc(85vh - 120px);
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+.modal-footer-standard {
+	padding: 1rem 1.75rem;
+	border-top: 1px solid var(--border);
+	background: var(--surface-sunken);
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 0.75rem;
+}
 
 /* ---------------------------------------------------------------------------
    Assistant thinking indicator

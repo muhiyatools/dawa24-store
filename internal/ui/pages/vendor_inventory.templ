@@ -18,7 +18,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 				<!-- Header -->
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
 					<div>
-						<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">أرصدة المخازن والتشغيلات</h1>
+						<h1 class="text-2xl fw-800 text-primary m-0">أرصدة المخازن والتشغيلات</h1>
 						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
 							مراقبة الكميات المتاحة في المستودعات، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.
 						</p>
@@ -100,20 +100,20 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 						style="max-width:480px; width:100%; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);"
 					>
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">تسوية وتعديل رصيد المخزن</h3>
+							<h3 class="text-lg fw-800 text-primary m-0">تسوية وتعديل رصيد المخزن</h3>
 							<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
 						</div>
 
 						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; margin-bottom:1.25rem; font-size:0.85rem;">
-							<div style="font-weight:700; color:var(--text);" x-text="selectedStock.variantName"></div>
+							<div class="fw-700 text-primary" x-text="selectedStock.variantName"></div>
 							<div style="color:var(--text-muted); margin-top:0.25rem;">
-								الرصيد الحالي بالمستودع: <strong class="tabular-nums" style="color:var(--accent);" x-text="selectedStock.currentQty + ' عبوة'"></strong>
+								الرصيد الحالي بالمستودع: <strong class="tabular-nums text-accent" x-text="selectedStock.currentQty + ' عبوة'"></strong>
 							</div>
 						</div>
 
-						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" class="stack-lg">
 							<div class="form-group mb-0">
-								<label class="form-label">الكمية المراد إضافتها أو خصمها (+/-) <span style="color:var(--danger-text);">*</span></label>
+								<label class="form-label">الكمية المراد إضافتها أو خصمها (+/-) <span class="text-danger">*</span></label>
 								<input type="number" name="delta" required class="form-input tabular-nums" placeholder="+50 (إضافة) أو -10 (خصم)" />
 								<small style="color:var(--text-muted); font-size:0.75rem;">اكتب رقم موجب للإيداع أو رقم سالب للخصم والتسوية.</small>
 							</div>
@@ -165,7 +165,7 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 					for _, s := range stocks {
 						<tr>
 							<td>
-								<div style="display:flex; align-items:center; gap:0.5rem;">
+								<div class="row-center-sm">
 									<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 										@components.IconPackage("icon-xs")
 									</div>
@@ -173,7 +173,7 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 										<strong style="color:var(--text); font-size:0.925rem;">
 											{ resolveVariantName(s.ProductVariantID, variants) }
 										</strong>
-										<div style="font-size:0.75rem; color:var(--text-muted);">
+										<div class="text-xs text-muted">
 											<span>Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }</span>
 											{ resolveVariantMeta(s.ProductVariantID, variants) }
 										</div>
@@ -184,25 +184,25 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 								<div style="font-weight:600; color:var(--text); font-size:0.875rem;">
 									{ resolveWarehouseName(s.WarehouseID, warehouses) }
 								</div>
-								<div style="font-size:0.75rem; color:var(--text-muted);">WH #{ fmt.Sprintf("%d", s.WarehouseID) }</div>
+								<div class="text-xs text-muted">WH #{ fmt.Sprintf("%d", s.WarehouseID) }</div>
 							</td>
 							<td>
 								if s.Quantity > s.MinThreshold {
-									<span class="badge badge-emerald tabular-nums" style="font-size:0.875rem; font-weight:800;">
+									<span class="badge badge-emerald tabular-nums text-sm fw-800">
 										{ fmt.Sprintf("%d", s.Quantity) } عبوة
 									</span>
 								} else if s.Quantity > 0 {
-									<span class="badge badge-amber tabular-nums" style="font-size:0.875rem; font-weight:800;">
+									<span class="badge badge-amber tabular-nums text-sm fw-800">
 										{ fmt.Sprintf("%d", s.Quantity) } عبوة (منخفض)
 									</span>
 								} else {
-									<span class="badge badge-rose tabular-nums" style="font-size:0.875rem; font-weight:800;">
+									<span class="badge badge-rose tabular-nums text-sm fw-800">
 										نفد الرصيد
 									</span>
 								}
 							</td>
 							<td class="tabular-nums">
-								<span style="font-size:0.85rem; color:var(--text-secondary);">
+								<span class="text-sm text-secondary">
 									{ fmt.Sprintf("%d", s.MinThreshold) } عبوة
 								</span>
 							</td>

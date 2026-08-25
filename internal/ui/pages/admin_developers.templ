@@ -97,7 +97,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 1: SQL Console & Query Log             -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'sql'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminSQLManager()">
+			<div x-show="activeTab === 'sql'" class="stack-lg" x-data="adminSQLManager()">
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
@@ -120,7 +120,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					</div>
 
 					<form @submit.prevent="runQuery()" class="stack">
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<textarea
 								x-model="sqlQuery"
 								rows="5"
@@ -151,15 +151,15 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						
 						<!-- Execution Summary Pill -->
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
-							<div style="display:flex; align-items:center; gap:0.5rem;">
+							<div class="row-center-sm">
 								<template x-if="!queryResult.error">
 									<span class="badge badge-emerald">نجاح التنفيذ</span>
 								</template>
 								<template x-if="queryResult.error">
 									<span class="badge badge-danger">خطأ في الاستعلام</span>
 								</template>
-								<span style="font-size:0.8rem; color:var(--text-muted);" class="tabular-nums" x-text="'المدة: ' + queryResult.duration_ms + ' ms'"></span>
-								<span style="font-size:0.8rem; color:var(--text-muted);" class="tabular-nums" x-text="'الصفوف: ' + queryResult.rows_affected"></span>
+								<span class="text-sm text-muted tabular-nums" x-text="'المدة: ' + queryResult.duration_ms + ' ms'"></span>
+								<span class="text-sm text-muted tabular-nums" x-text="'الصفوف: ' + queryResult.rows_affected"></span>
 							</div>
 						</div>
 
@@ -224,19 +224,19 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									for _, log := range values.SQLLogs {
 										<tr>
 											<td class="text-start">
-												<div class="tabular-nums" style="font-weight:700; color:var(--text);">{ log.CreatedAt.Format("2006-01-02 15:04:05") }</div>
+												<div class="tabular-nums fw-700 text-primary">{ log.CreatedAt.Format("2006-01-02 15:04:05") }</div>
 												<div style="font-size:0.725rem; color:var(--text-muted);">{ log.ActorName }</div>
 											</td>
 											<td class="text-start">
 												<code style="background:var(--surface-sunken); padding:0.2rem 0.5rem; border-radius:var(--radius-sm); font-family:monospace; display:block; max-width:500px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" dir="ltr">{ log.Query }</code>
 											</td>
-											<td style="text-align:center;" class="tabular-nums">
+											<td class="text-center tabular-nums">
 												<span>{ fmt.Sprintf("%d", log.DurationMS) } ms</span>
 											</td>
-											<td style="text-align:center;" class="tabular-nums">
+											<td class="text-center tabular-nums">
 												<span>{ fmt.Sprintf("%d", log.RowsAffected) }</span>
 											</td>
-											<td style="text-align:center;">
+											<td class="text-center">
 												if log.ErrorMessage == "" {
 													<span class="badge badge-emerald">نجاح</span>
 												} else {
@@ -258,14 +258,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<div
 				x-show="activeTab === 'ai'"
-				style="display:flex; flex-direction:column; gap:1.5rem;"
+				class="stack-lg"
 				x-data={ fmt.Sprintf("adminAIManager(%q, %q)", values.GatewaySettings.EndpointURL, values.GatewaySettings.APIKey) }
 			>
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 						<div class="row-center">
-							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box">
 								@components.IconSparkles("icon-sm")
 							</div>
 							<div>
@@ -287,16 +287,16 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					<!-- Informational Architecture Alert -->
 					<div style="background:rgba(56, 189, 248, 0.06); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; font-size:0.825rem; line-height:1.5;">
 						<strong style="color:var(--primary); display:block; margin-bottom:0.25rem;">ℹ️ مبدأ عمل وعزل الذكاء الاصطناعي للمنشآت:</strong>
-						<span style="color:var(--text-secondary);">
+						<span class="text-secondary">
 							مفتاح الربط والمصادقة هنا يُستخدم فقط من قِبل إدارة منصة دواء 24 لمزامنة الباقات وتوليد مفاتيح المنشآت. جميع طلبات الذكاء الاصطناعي للمنشآت والمستخدمين تعمل تلقائياً باستخدام <strong>المفتاح الافتراضي المخصص لكل منشأة (Organization Virtual Key)</strong> وبناءً على خطة اشتراكها وحصتها المحددة في باقات الاشتراك الموحدة.
 						</span>
 					</div>
 
-					<form action="/admin/developers/ai" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+					<form action="/admin/developers/ai" method="POST" class="stack-lg">
 						
 						<!-- Gateway Endpoint -->
 						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">رابط بوابة الذكاء الاصطناعي (Gateway Endpoint URL) *</label>
 								<input
 									type="url"
@@ -309,7 +309,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								/>
 							</div>
 
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">حالة البوابة</label>
 								<select name="is_active" class="form-select">
 									<option value="true" selected?={ values.GatewaySettings.IsActive }>مفعلة (Active)</option>
@@ -320,7 +320,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 						<!-- Admin Credentials (Username & Password) -->
 						<div style="display:grid; grid-template-columns:1fr 1.5fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">اسم مستخدم مدير البوابة (Admin Username) *</label>
 								<input
 									type="text"
@@ -333,7 +333,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								/>
 							</div>
 
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">كلمة مرور مدير البوابة (ADMIN_PASSWORD) *</label>
 								<div style="position:relative; display:flex; align-items:center;">
 									<input
@@ -359,8 +359,8 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						</p>
 
 						<!-- Models and the provisioned admin-panel identity -->
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-							<div class="form-group" style="margin:0;">
+						<div class="grid-2">
+							<div class="form-group m-0">
 								<label class="form-label">نموذج المهام السريعة (Fast)</label>
 								<input
 									type="text"
@@ -374,7 +374,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									يُستخدم في مطابقة الأصناف وتوسيع البحث.
 								</span>
 							</div>
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">نموذج المهام الدقيقة (Quality)</label>
 								<input
 									type="text"
@@ -427,7 +427,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									<span x-show="isTesting">جاري فحص الاتصال...</span>
 								</button>
 								<div x-show="testResult" style="margin-top:0.5rem;" x-cloak>
-									<div :class="testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : 'badge badge-rose'" style="width:100%; padding:0.5rem; justify-content:center; font-weight:700;" x-text="testResult ? testResult.message : ''"></div>
+									<div :class="testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : badge-rose'" style="width:100%; padding:0.5rem; justify-content:center; font-weight:700;" x-text="testResult ? testResult.message : ''"></div>
 								</div>
 							</div>
 
@@ -441,7 +441,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</div>
 						</div>
 
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<label class="form-label">التعليمات التوجيهية للذكاء الاصطناعي (System Prompt)</label>
 							if values.AISettings != nil && values.AISettings.SystemPrompt != "" {
 								<textarea name="system_prompt" rows="3" class="form-input">{ values.AISettings.SystemPrompt }</textarea>
@@ -464,7 +464,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 3: Advanced Error Diagnostics          -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'errors'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminErrorsManager()">
+			<div x-show="activeTab === 'errors'" class="stack-lg" x-data="adminErrorsManager()">
 				
 				<!-- Diagnostics Header Strip & Metrics -->
 				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
@@ -536,7 +536,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</select>
 						</div>
 
-						<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+						<button type="submit" class="btn btn-primary btn-sm fw-700">
 							@components.IconSearch("icon-xs")
 							<span>تصفية</span>
 						</button>
@@ -566,25 +566,25 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							<tbody>
 								for _, err := range values.ErrorLogs {
 									<tr style="border-bottom:1px solid var(--border);">
-										<td style="text-align:center;" class="tabular-nums">
+										<td class="text-center tabular-nums">
 											<strong class="text-muted">#{ fmt.Sprintf("%d", err.ID) }</strong>
 										</td>
 										<td class="text-start">
-											<div class="tabular-nums" style="font-weight:700; color:var(--text);">{ err.CreatedAt.Format("2006-01-02") }</div>
-											<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">{ err.CreatedAt.Format("15:04:05") }</div>
+											<div class="tabular-nums fw-700 text-primary">{ err.CreatedAt.Format("2006-01-02") }</div>
+											<div class="tabular-nums text-xs text-muted">{ err.CreatedAt.Format("15:04:05") }</div>
 										</td>
-										<td style="text-align:center;">
+										<td class="text-center">
 											if err.ErrorLevel == "CRITICAL" || err.ErrorLevel == "FATAL" {
-												<span class="badge badge-danger" style="font-weight:800;">{ err.ErrorLevel }</span>
+												<span class="badge badge-danger fw-800">{ err.ErrorLevel }</span>
 											} else if err.ErrorLevel == "WARNING" {
-												<span class="badge badge-amber" style="font-weight:700;">{ err.ErrorLevel }</span>
+												<span class="badge badge-amber fw-700">{ err.ErrorLevel }</span>
 											} else {
-												<span class="badge badge-sky" style="font-weight:700;">{ err.ErrorLevel }</span>
+												<span class="badge badge-sky fw-700">{ err.ErrorLevel }</span>
 											}
 										</td>
 										<td class="text-start">
 											if err.UserName != "" {
-												<div style="font-weight:700; color:var(--text);">{ err.UserName }</div>
+												<div class="fw-700 text-primary">{ err.UserName }</div>
 											} else {
 												<div class="text-muted">مستخدم غير مسجل (Guest)</div>
 											}
@@ -604,13 +604,13 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 										</td>
 										<td class="text-start">
 											<div style="font-family:monospace; font-size:0.775rem; direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:130px; white-space:nowrap;">
-												<strong style="color:var(--accent);">{ err.HTTPMethod }</strong> { err.URLPath }
+												<strong class="text-accent">{ err.HTTPMethod }</strong> { err.URLPath }
 											</div>
 											<div style="font-size:0.7rem; color:var(--text-muted); font-family:monospace; direction:ltr; text-align:start;">
 												{ err.IPAddress }
 											</div>
 										</td>
-										<td style="text-align:center;">
+										<td class="text-center">
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm"
@@ -646,36 +646,36 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									@components.IconBug("icon-sm")
 								</div>
 								<div>
-									<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;" x-text="'سجل تشخيص الخطأ #' + (selectedError ? selectedError.id : '')"></h3>
-									<div style="font-size:0.8rem; color:var(--text-muted);" x-text="selectedError ? selectedError.exception_class : ''"></div>
+									<h3 class="text-lg fw-800 text-primary m-0" x-text="'سجل تشخيص الخطأ #' + (selectedError ? selectedError.id : '')"></h3>
+									<div class="text-sm text-muted" x-text="selectedError ? selectedError.exception_class : ''"></div>
 								</div>
 							</div>
-							<button type="button" @click="isErrorModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							<button type="button" @click="isErrorModalOpen = false" class="btn btn-secondary btn-icon size-8">
 								@components.IconClose("icon-xs")
 							</button>
 						</div>
 
 						<template x-if="selectedError">
-							<div style="display:flex; flex-direction:column; gap:1.25rem;">
+							<div class="stack-lg">
 								
 								<!-- Diagnostic Info Grid -->
 								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
 									<div>
-										<div style="font-size:0.75rem; color:var(--text-muted);">المستخدم المتأثر:</div>
+										<div class="text-xs text-muted">المستخدم المتأثر:</div>
 										<div style="font-weight:700; color:var(--text); font-size:0.875rem;" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
-										<div style="font-size:0.75rem; color:var(--text-secondary);" x-text="selectedError.user_email"></div>
+										<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
 									</div>
 									<div>
-										<div style="font-size:0.75rem; color:var(--text-muted);">المنظمة:</div>
-										<div style="font-weight:700; color:var(--text);" x-text="selectedError.organization_name || 'عام'"></div>
+										<div class="text-xs text-muted">المنظمة:</div>
+										<div class="fw-700 text-primary" x-text="selectedError.organization_name || 'عام'"></div>
 									</div>
 									<div>
-										<div style="font-size:0.75rem; color:var(--text-muted);">المسار وعنوان IP:</div>
+										<div class="text-xs text-muted">المسار وعنوان IP:</div>
 										<div style="font-family:monospace; font-size:0.8rem; color:var(--text); direction:ltr; text-align:start;" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
 										<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; direction:ltr; text-align:start;" x-text="selectedError.ip_address"></div>
 									</div>
 									<div>
-										<div style="font-size:0.75rem; color:var(--text-muted);">التوقيت والمستوى:</div>
+										<div class="text-xs text-muted">التوقيت والمستوى:</div>
 										<div style="font-size:0.85rem; font-weight:700; color:var(--text);" x-text="selectedError.created_at"></div>
 										<span class="badge badge-danger" x-text="selectedError.error_level"></span>
 									</div>
@@ -705,7 +705,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							<div>
 								<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" style="display:flex; gap:0.5rem; margin:0;">
 									<input type="hidden" name="status" value="RESOLVED"/>
-									<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+									<button type="submit" class="btn btn-primary btn-sm fw-700">
 										@components.IconCheck("icon-xs")
 										<span>وضع علامة تم الحل (Mark Resolved)</span>
 									</button>
@@ -742,7 +742,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 4: Audit Logs & Diffs (Moved here)     -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'audit'" style="display:flex; flex-direction:column; gap:1.5rem;" x-data="adminAuditManager()">
+			<div x-show="activeTab === 'audit'" class="stack-lg" x-data="adminAuditManager()">
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
@@ -779,15 +779,15 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								<tbody>
 									for _, e := range values.AuditEntries {
 										<tr style="border-bottom:1px solid var(--border);">
-											<td style="text-align:center;" class="tabular-nums">
+											<td class="text-center tabular-nums">
 												<strong class="text-muted">#{ fmt.Sprintf("%d", e.ID) }</strong>
 											</td>
 											<td class="text-start">
-												<div class="tabular-nums" style="font-weight:700; color:var(--text);">{ e.CreatedAt.Format("2006-01-02") }</div>
-												<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">{ e.CreatedAt.Format("15:04:05") }</div>
+												<div class="tabular-nums fw-700 text-primary">{ e.CreatedAt.Format("2006-01-02") }</div>
+												<div class="tabular-nums text-xs text-muted">{ e.CreatedAt.Format("15:04:05") }</div>
 											</td>
 											<td class="text-start">
-												<div style="font-weight:700; color:var(--text);">{ e.ActorName }</div>
+												<div class="fw-700 text-primary">{ e.ActorName }</div>
 												if e.ActorEmail != "" {
 													<div style="font-size:0.725rem; color:var(--text-muted); direction:ltr; text-align:start;">{ e.ActorEmail }</div>
 												}
@@ -812,7 +812,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 												</div>
 											</td>
 											<td class="text-start">
-												<div style="font-weight:700; color:var(--text);">
+												<div class="fw-700 text-primary">
 													if e.Title != "" {
 														{ e.Title }
 													} else if e.ActionLabelAr != "" {
@@ -829,7 +829,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 													}
 												</div>
 											</td>
-											<td style="text-align:center;">
+											<td class="text-center">
 												if e.Severity != "" && e.Severity != "-" {
 													<span class={ "badge", severityBadgeClass(e.Severity) } style="font-size:0.725rem; font-weight:700;">
 														{ e.Severity }
@@ -840,7 +840,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 													</span>
 												}
 											</td>
-											<td style="text-align:center;">
+											<td class="text-center">
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm"
@@ -868,8 +868,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				>
 					<div
 						@click.outside="isDetailsOpen = false"
-						class="modal-card modal-lg"
-						style="padding:2rem;"
+						class="modal-card modal-lg p-modal"
 					>
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 							<div class="row-center-sm">
@@ -877,17 +876,17 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									@components.IconClock("icon-sm")
 								</div>
 								<div>
-									<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
-									<div style="font-size:0.8rem; color:var(--text-muted);" x-text="selected ? selected.title : ''"></div>
+									<h3 class="text-lg fw-800 text-primary m-0" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
+									<div class="text-sm text-muted" x-text="selected ? selected.title : ''"></div>
 								</div>
 							</div>
-							<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+							<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary btn-icon size-8">
 								@components.IconClose("icon-xs")
 							</button>
 						</div>
 
 						<template x-if="selected">
-							<div style="display:flex; flex-direction:column; gap:1.25rem;">
+							<div class="stack-lg">
 								<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
 									<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;">بيان العملية:</div>
 									<div style="font-size:0.9rem; color:var(--text); line-height:1.5;" x-text="selected.description"></div>

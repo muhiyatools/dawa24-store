@@ -42,7 +42,7 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 							<input type="checkbox" name="priority_highest_discount" value="true" checked class="form-checkbox" style="margin-top:0.25rem;" />
 							<div>
 								<strong style="display:block; font-size:0.95rem; color:var(--text);">أعلى نسبة خصم</strong>
-								<span style="font-size:0.8rem; color:var(--text-secondary);">ترجيح الموردين ذوي نسب الخصم الأكبر.</span>
+								<span class="text-sm text-secondary">ترجيح الموردين ذوي نسب الخصم الأكبر.</span>
 							</div>
 						</label>
 
@@ -50,7 +50,7 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 							<input type="checkbox" name="priority_lowest_price" value="true" checked class="form-checkbox" style="margin-top:0.25rem;" />
 							<div>
 								<strong style="display:block; font-size:0.95rem; color:var(--text);">أقل سعر نهائي</strong>
-								<span style="font-size:0.8rem; color:var(--text-secondary);">توفير أكبر قدر ممكن من إجمالي الفاتورة.</span>
+								<span class="text-sm text-secondary">توفير أكبر قدر ممكن من إجمالي الفاتورة.</span>
 							</div>
 						</label>
 
@@ -58,7 +58,7 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 							<input type="checkbox" name="priority_fastest_delivery" value="true" class="form-checkbox" style="margin-top:0.25rem;" />
 							<div>
 								<strong style="display:block; font-size:0.95rem; color:var(--text);">أسرع توصيل</strong>
-								<span style="font-size:0.8rem; color:var(--text-secondary);">ترجيح الموردين الأقرب جغرافياً للصيدلية.</span>
+								<span class="text-sm text-secondary">ترجيح الموردين الأقرب جغرافياً للصيدلية.</span>
 							</div>
 						</label>
 
@@ -66,7 +66,7 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 							<input type="checkbox" name="priority_preferred_suppliers_only" value="true" class="form-checkbox" style="margin-top:0.25rem;" />
 							<div>
 								<strong style="display:block; font-size:0.95rem; color:var(--text);">الموردون المفضلون فقط</strong>
-								<span style="font-size:0.8rem; color:var(--text-secondary);">حصر أوامر الشراء على الموردين المعتمدين.</span>
+								<span class="text-sm text-secondary">حصر أوامر الشراء على الموردين المعتمدين.</span>
 							</div>
 						</label>
 					</div>
@@ -83,14 +83,14 @@ templ CustomerAutomationPage(lang, dir string, history []*workflow.AutomationReq
 
 						<div>
 							<label class="form-label" style="font-weight:600; display:block; margin-bottom:0.5rem;">الحد الأقصى للميزانية (اختياري)</label>
-							<div style="display:flex; align-items:center; gap:0.5rem;">
+							<div class="row-center-sm">
 								<input type="text" name="budget_constraint" placeholder="مثال: 50000.00" class="form-control" />
 								<span style="font-weight:600; color:var(--text-secondary);">ج.م</span>
 							</div>
 						</div>
 					</div>
 
-					<button type="submit" class="btn btn-primary btn-lg" style="display:flex; align-items:center; gap:0.5rem;">
+					<button type="submit" class="btn btn-primary btn-lg row-center-sm">
 						@components.IconTrendingUp("icon-sm")
 						<span>رفع الملف وتحليل النواقص وتوزيع الطلبيات</span>
 					</button>
@@ -215,7 +215,7 @@ templ CustomerAutomationDetailPage(lang, dir string, req *workflow.AutomationReq
 					</div>
 					<form method="POST" action="/customer/purchase-request/submit">
 						<input type="hidden" name="strategy" value="lowest_cost" />
-						<button type="submit" class="btn btn-primary" style="width:100%;">
+						<button type="submit" class="btn btn-primary w-full">
 							@components.IconCheck("icon-xs")
 							<span>اعتماد سلة التوفير وإصدار الطلب</span>
 						</button>
@@ -238,7 +238,7 @@ templ CustomerAutomationDetailPage(lang, dir string, req *workflow.AutomationReq
 					</div>
 					<form method="POST" action="/customer/purchase-request/submit">
 						<input type="hidden" name="strategy" value="fastest_delivery" />
-						<button type="submit" class="btn btn-secondary" style="width:100%;">
+						<button type="submit" class="btn btn-secondary w-full">
 							<span>اعتماد خيار التوريد السريع</span>
 						</button>
 					</form>
@@ -260,7 +260,7 @@ templ CustomerAutomationDetailPage(lang, dir string, req *workflow.AutomationReq
 					</div>
 					<form method="POST" action="/customer/purchase-request/submit">
 						<input type="hidden" name="strategy" value="minimal_vendors" />
-						<button type="submit" class="btn btn-secondary" style="width:100%;">
+						<button type="submit" class="btn btn-secondary w-full">
 							<span>اعتماد خيار تجميع الموردين</span>
 						</button>
 					</form>

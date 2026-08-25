@@ -56,7 +56,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الأدوية والمستلزمات المفضلة</h2><p style=\"font-size:0.875rem; color:var(--neutral-500); margin:0;\">قائمة الأصناف المحفوظة للطلب السريع</p></div></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الأدوية والمستلزمات المفضلة</h2><p style=\"font-size:0.875rem; color:var(--neutral-500); margin:0;\">قائمة الأصناف المحفوظة للطلب السريع</p></div></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,7 +83,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					return templ_7745c5c3_Err
 				}
 				for _, p := range products {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card hover-lift\" style=\"display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;\"><div><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;\"><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card hover-lift\" style=\"display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;\"><div><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;\"><span class=\"badge badge-slate text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

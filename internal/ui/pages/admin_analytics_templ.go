@@ -144,7 +144,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><!-- 2. Geographic & Devices Distribution --> <div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;\"><!-- Countries Breakdown --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>توزيع الزوار حسب الدول</span></h3><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">تتبع مباشر</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><!-- 2. Geographic & Devices Distribution --> <div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;\"><!-- Countries Breakdown --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>توزيع الزوار حسب الدول</span></h3><span class=\"badge badge-slate text-xs\">تتبع مباشر</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -159,14 +159,14 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 				for country, count := range a.ByCountry {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"display:flex; flex-direction:column; gap:0.25rem;\"><div style=\"display:flex; justify-content:space-between; font-size:0.875rem;\"><span style=\"font-weight:700; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"display:flex; flex-direction:column; gap:0.25rem;\"><div style=\"display:flex; justify-content:space-between; font-size:0.875rem;\"><span class=\"fw-700 text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(country)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 87, Col: 68}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 87, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -208,7 +208,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- Cities Breakdown --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>أكثر المدن والمحافظات نشاطاً</span></h3><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">المناطق والمدن</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- Cities Breakdown --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"card-title\" style=\"margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;\"><span>أكثر المدن والمحافظات نشاطاً</span></h3><span class=\"badge badge-slate text-xs\">المناطق والمدن</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -264,7 +264,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				return templ_7745c5c3_Err
 			}
 			for d, count := range a.ByDevice {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-slate text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -300,7 +300,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				return templ_7745c5c3_Err
 			}
 			for os, count := range a.ByOS {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-purple\" style=\"font-size:0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-purple text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -336,7 +336,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				return templ_7745c5c3_Err
 			}
 			for b, count := range a.ByBrowser {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span class=\"badge badge-emerald text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -367,7 +367,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div></div></div></div></div><!-- 3. Recent Visits Table (Fixed RTL Column Alignment) --> <div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;\"><div><h3 class=\"card-title\" style=\"margin:0; font-size:1.15rem; font-weight:800;\">أحدث الزيارات المسجلة على المنصة</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;\">سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول</p></div><span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">محدّث لحظياً</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div></div></div></div></div><!-- 3. Recent Visits Table (Fixed RTL Column Alignment) --> <div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;\"><div><h3 class=\"card-title\" style=\"margin:0; font-size:1.15rem; font-weight:800;\">أحدث الزيارات المسجلة على المنصة</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;\">سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول</p></div><span class=\"badge badge-emerald text-xs\">محدّث لحظياً</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -385,7 +385,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 				for _, v := range a.Recent {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<tr><!-- 1. Timestamp (Start Aligned) --><td class=\"text-start\"><div class=\"tabular-nums\" style=\"font-weight:700; color:var(--text); font-size:0.85rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<tr><!-- 1. Timestamp (Start Aligned) --><td class=\"text-start\"><div class=\"tabular-nums fw-700 text-primary text-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -398,7 +398,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"tabular-nums\" style=\"font-size:0.75rem; color:var(--text-muted);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"tabular-nums text-xs text-muted\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -437,7 +437,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></td><!-- 3. IP (Center Aligned) --><td style=\"text-align:center;\"><span class=\"badge badge-slate tabular-nums\" style=\"font-family:monospace; font-size:0.775rem; direction:ltr;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></td><!-- 3. IP (Center Aligned) --><td class=\"text-center\"><span class=\"badge badge-slate tabular-nums\" style=\"font-family:monospace; font-size:0.775rem; direction:ltr;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -450,7 +450,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span></td><!-- 4. Device (Center Aligned) --><td style=\"text-align:center;\"><span class=\"badge badge-sky\" style=\"font-size:0.75rem; text-transform:capitalize;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span></td><!-- 4. Device (Center Aligned) --><td class=\"text-center\"><span class=\"badge badge-sky\" style=\"font-size:0.75rem; text-transform:capitalize;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -463,7 +463,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></td><!-- 5. Browser (Center Aligned) --><td style=\"text-align:center;\"><span class=\"badge badge-purple\" style=\"font-size:0.75rem; text-transform:capitalize;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></td><!-- 5. Browser (Center Aligned) --><td class=\"text-center\"><span class=\"badge badge-purple\" style=\"font-size:0.75rem; text-transform:capitalize;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -476,7 +476,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</span></td><!-- 6. OS (Center Aligned) --><td style=\"text-align:center;\"><span class=\"badge badge-slate\" style=\"font-size:0.75rem; text-transform:capitalize;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</span></td><!-- 6. OS (Center Aligned) --><td class=\"text-center\"><span class=\"badge badge-slate\" style=\"font-size:0.75rem; text-transform:capitalize;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

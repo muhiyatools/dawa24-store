@@ -11,10 +11,10 @@ import (
 
 templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 	@layouts.AdminShell("اعتماد المنشآت والوثائق الرسمية", "approvals", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.25rem;">
+		<div class="stack-lg">
 			
 			<!-- Top Header Banner & Actions -->
-			<div class="card" style="margin-bottom:0;">
+			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
 					<div class="row-center-sm">
 						@components.IconShield("icon-lg")
@@ -46,7 +46,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					<a
 						href="/admin/approvals?tab=organizations"
 						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "" || data.ActiveTab == "organizations"), templ.KV("btn-secondary", data.ActiveTab != "" && data.ActiveTab != "organizations") }
-						style="font-weight:700;"
+						class="fw-700"
 					>
 						@components.IconBuilding("icon-xs")
 						<span>اعتماد المنشآت والتراخيص ({ fmt.Sprintf("%d", len(data.Organizations)) })</span>
@@ -54,7 +54,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					<a
 						href="/admin/approvals?tab=documents"
 						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "documents"), templ.KV("btn-secondary", data.ActiveTab != "documents") }
-						style="font-weight:700;"
+						class="fw-700"
 					>
 						@components.IconFile("icon-xs")
 						<span>تدقيق وثائق المنشآت المرفوعة ({ fmt.Sprintf("%d", len(data.UploadedDocs)) })</span>
@@ -62,7 +62,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					<a
 						href="/admin/approvals?tab=requests"
 						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "requests"), templ.KV("btn-secondary", data.ActiveTab != "requests") }
-						style="font-weight:700;"
+						class="fw-700"
 					>
 						@components.IconClock("icon-xs")
 						<span>المستندات المطلوبة والمتابعة ({ fmt.Sprintf("%d", len(data.DocRequests)) })</span>
@@ -95,9 +95,9 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					سيتم إرسال تنبيه إداري عاجل للمنشأة يظهر في لوحة تحكمها مع مهلة محددة (شهر). لا يتم إيقاف النشاط التجاري اليومي للمنشأة فوراً، ولكن يتم تذكيرهم برفع المستند لتجنب إيقاف الحساب بعد انتهاء المهلة.
 				</div>
 
-				<div class="form-group" style="margin:0;">
+				<div class="form-group m-0">
 					<label class="form-label" for="req-org-select">المنشأة المستهدفة (صيدلية / مورد) *</label>
-					<select id="req-org-select" name="organization_id" required class="form-select" style="font-weight:700;">
+					<select id="req-org-select" name="organization_id" required class="form-select fw-700">
 						<option value="" disabled selected>-- اختر المنشأة من القائمة --</option>
 						for _, orgItem := range data.AllOrganizations {
 							<option value={ fmt.Sprintf("%d", orgItem.ID) }>
@@ -107,7 +107,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					</select>
 				</div>
 
-				<div class="form-group" style="margin:0;">
+				<div class="form-group m-0">
 					<label class="form-label" for="req-doc-type">نوع المستند المطلوب *</label>
 					<select id="req-doc-type" name="document_type" required class="form-select">
 						<option value="commercial_register">السجل التجاري المجدد (Commercial Register)</option>
@@ -121,17 +121,17 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					</select>
 				</div>
 
-				<div class="form-group" style="margin:0;">
+				<div class="form-group m-0">
 					<label class="form-label" for="req-title">عنوان ومسمى الطلب *</label>
 					<input type="text" id="req-title" name="title" required class="form-input" placeholder="مثال: تحديث صورة السجل التجاري لعام 2026" />
 				</div>
 
-				<div class="form-group" style="margin:0;">
+				<div class="form-group m-0">
 					<label class="form-label" for="req-desc">توجيهات وملاحظات الإدارة للمنشأة</label>
 					<textarea id="req-desc" name="description" rows="3" class="form-input" placeholder="يرجى رفع نسخة ضوئية واضحة ومختومة بالسجل التجاري الساري..."></textarea>
 				</div>
 
-				<div class="form-group" style="margin:0;">
+				<div class="form-group m-0">
 					<label class="form-label" for="req-deadline">مهلة الرفع الممنوحة للمنشأة *</label>
 					<select id="req-deadline" name="deadline_days" required class="form-select">
 						<option value="15">15 يوماً (أسبوعان)</option>
@@ -149,7 +149,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					>
 						إلغاء
 					</button>
-					<button type="submit" class="btn btn-primary" style="font-weight:800;">
+					<button type="submit" class="btn btn-primary fw-800">
 						@components.IconCheck("icon-xs")
 						<span>إرسال طلب المستند الرسمي</span>
 					</button>
@@ -308,23 +308,23 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												</div>
 												<div>
 													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم التجاري (عربي)</span>
-													<strong style="color:var(--text);">{ o.TradeName["ar"] }</strong>
+													<strong class="text-primary">{ o.TradeName["ar"] }</strong>
 												</div>
 												<div>
 													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم التجاري (إنجليزي)</span>
-													<span style="color:var(--text);" dir="ltr">{ o.TradeName["en"] }</span>
+													<span class="text-primary" dir="ltr">{ o.TradeName["en"] }</span>
 												</div>
 												<div>
 													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">رقم السجل التجاري</span>
-													<strong class="tabular-nums" style="color:var(--text);">{ o.CommercialRegister }</strong>
+													<strong class="tabular-nums text-primary">{ o.CommercialRegister }</strong>
 												</div>
 												<div>
 													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الرقم الضريبي</span>
-													<span class="tabular-nums" style="color:var(--text);">{ o.TaxNumber }</span>
+													<span class="tabular-nums text-primary">{ o.TaxNumber }</span>
 												</div>
 												<div>
 													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">رقم ترخيص المؤسسة الصيدلية</span>
-													<strong class="tabular-nums" style="color:var(--accent);">{ o.PharmacistLicense }</strong>
+													<strong class="tabular-nums text-accent">{ o.PharmacistLicense }</strong>
 												</div>
 												<div>
 													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الحالة الحالية</span>
@@ -376,13 +376,13 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 															</a>
 														}
 													} else {
-														<span style="font-size:0.8rem; color:var(--text-muted);">لم يتم رفع ملف مستند إلكتروني أثناء التسجيل</span>
+														<span class="text-sm text-muted">لم يتم رفع ملف مستند إلكتروني أثناء التسجيل</span>
 													}
 												</div>
 											</div>
 
 											<!-- Document Category Assignment -->
-											<div class="form-group" style="margin:0;">
+											<div class="form-group m-0">
 												<label class="form-label" for={ fmt.Sprintf("doc-type-select-%d", o.ID) }>
 													تصنيف فئة المستند المرفوع (لتوثيقه واعتماده تلقائياً في ملف المنشأة) *
 												</label>
@@ -411,7 +411,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												</span>
 											</div>
 
-											<div class="form-group" style="margin:0;">
+											<div class="form-group m-0">
 												<label class="form-label" for={ fmt.Sprintf("status-select-%d", o.ID) }>قرار المراجعة والاعتماد *</label>
 												<select id={ fmt.Sprintf("status-select-%d", o.ID) } name="status" required class="form-select">
 													<option value="approved" selected?={ string(o.Status) == "approved" || string(o.Status) == "pending" }>اعتماد وترخيص المنشأة (Approve)</option>
@@ -421,12 +421,12 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												</select>
 											</div>
 
-											<div class="form-group" style="margin:0;">
+											<div class="form-group m-0">
 												<label class="form-label" for={ fmt.Sprintf("notes-%d", o.ID) }>ملاحظات الإدارة الداخلية</label>
 												<input type="text" id={ fmt.Sprintf("notes-%d", o.ID) } name="verification_notes" class="form-input" value={ o.VerificationNotes } placeholder="مثال: تم التأكد من صحة الترخيص وتصنيفه عبر هيئة الدواء" />
 											</div>
 
-											<div class="form-group" style="margin:0;">
+											<div class="form-group m-0">
 												<label class="form-label" for={ fmt.Sprintf("rejection-%d", o.ID) }>سبب الرفض (يظهر للمنشأة في حال الرفض)</label>
 												<textarea id={ fmt.Sprintf("rejection-%d", o.ID) } name="rejection_reason" rows="2" class="form-input" placeholder="يرجى توضيح سبب الرفض أو النواقص المطلوبة...">{ o.RejectionReason }</textarea>
 											</div>
@@ -439,7 +439,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												>
 													إلغاء
 												</button>
-												<button type="submit" class="btn btn-primary" style="font-weight:800;">
+												<button type="submit" class="btn btn-primary fw-800">
 													@components.IconCheck("icon-xs")
 													<span>حفظ وتوثيق القرار</span>
 												</button>
@@ -496,13 +496,13 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 					for _, doc := range data.UploadedDocs {
 						<tr id={ fmt.Sprintf("doc-row-%d", doc.ID) }>
 							<td>
-								<span class="badge badge-sky" style="font-weight:700;">
+								<span class="badge badge-sky fw-700">
 									{ docTypeLabelAr(string(doc.DocumentType)) }
 								</span>
 							</td>
 							<td>
 								if doc.OrganizationID != nil && data.OrgNames[*doc.OrganizationID] != "" {
-									<strong style="color:var(--text);">{ data.OrgNames[*doc.OrganizationID] }</strong>
+									<strong class="text-primary">{ data.OrgNames[*doc.OrganizationID] }</strong>
 								} else {
 									<span style="color:var(--neutral-400);">منشأة عامة / مستخدم</span>
 								}
@@ -583,11 +583,11 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												</div>
 											</div>
 
-											<div class="form-group" style="margin:0;">
+											<div class="form-group m-0">
 												<label class="form-label" for={ fmt.Sprintf("doc-audit-type-%d", doc.ID) }>
 													تأكيد / تعديل تصنيف نوع المستند *
 												</label>
-												<select id={ fmt.Sprintf("doc-audit-type-%d", doc.ID) } name="document_type" required class="form-select" style="font-weight:700;">
+												<select id={ fmt.Sprintf("doc-audit-type-%d", doc.ID) } name="document_type" required class="form-select fw-700">
 													<option value="pharmacy_license" selected?={ doc.DocumentType == attachments.DocPharmacyLicense }>ترخيص الصيدلية / المنشأة (Pharmacy License)</option>
 													<option value="pharmacist_license" selected?={ doc.DocumentType == attachments.DocPharmacistLicense }>ترخيص مزاولة المهنة للصيدلي (Pharmacist License)</option>
 													<option value="commercial_register" selected?={ doc.DocumentType == attachments.DocCommercialRegister }>السجل التجاري (Commercial Register)</option>
@@ -599,7 +599,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												</select>
 											</div>
 
-											<div class="form-group" style="margin:0;">
+											<div class="form-group m-0">
 												<label class="form-label" for={ fmt.Sprintf("doc-audit-status-%d", doc.ID) }>قرار المراجعة *</label>
 												<select id={ fmt.Sprintf("doc-audit-status-%d", doc.ID) } name="status" required class="form-select">
 													<option value="verified" selected?={ doc.Status == attachments.StatusVerified || doc.Status == attachments.StatusPending }>اعتماد وتوثيق المستند (Verified)</option>
@@ -607,7 +607,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												</select>
 											</div>
 
-											<div class="form-group" style="margin:0;">
+											<div class="form-group m-0">
 												<label class="form-label" for={ fmt.Sprintf("doc-audit-notes-%d", doc.ID) }>ملاحظات التدقيق / سبب الرفض</label>
 												<textarea id={ fmt.Sprintf("doc-audit-notes-%d", doc.ID) } name="notes" rows="2" class="form-input" placeholder="ملاحظات توضيحية تظهر للمنشأة...">{ doc.ReviewNotes }</textarea>
 											</div>
@@ -620,7 +620,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												>
 													إلغاء
 												</button>
-												<button type="submit" class="btn btn-primary" style="font-weight:800;">
+												<button type="submit" class="btn btn-primary fw-800">
 													@components.IconCheck("icon-xs")
 													<span>حفظ القرار والتوثيق</span>
 												</button>
@@ -678,7 +678,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 						<tr id={ fmt.Sprintf("req-row-%d", req.ID) }>
 							<td class="tabular-nums">#{ fmt.Sprintf("%d", req.ID) }</td>
 							<td>
-								<strong style="color:var(--text);">{ req.OrgName }</strong>
+								<strong class="text-primary">{ req.OrgName }</strong>
 								<div style="font-size:0.75rem; color:var(--neutral-500);">معرف: #{ fmt.Sprintf("%d", req.OrganizationID) }</div>
 							</td>
 							<td>
@@ -740,8 +740,8 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 									}
 
 									if req.Status == attachments.DocReqPending {
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/document-requests/%d/cancel", req.ID)) } style="margin:0; display:inline;">
-											<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);" onclick="return confirm('هل أنت متأكد من إلغاء طلب هذا المستند؟')">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/document-requests/%d/cancel", req.ID)) } class="m-0 inline">
+											<button type="submit" class="btn btn-secondary btn-sm text-danger" onclick="return confirm('هل أنت متأكد من إلغاء طلب هذا المستند؟')">
 												إلغاء الطلب
 											</button>
 										</form>

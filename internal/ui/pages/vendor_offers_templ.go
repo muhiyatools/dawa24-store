@@ -120,7 +120,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 			if len(data.Offers) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:4rem 2rem; text-align:center;\"><div style=\"width:64px; height:64px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;\">🎁</div><h3 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;\">لا توجد عروض خاصة مضافة حتى الآن</h3><p style=\"color:var(--text-muted); font-size:0.9rem; max-width:440px; margin:0 auto 1.5rem auto;\">أنشئ عروضك الخاصة وخصص المنتجات المشمولة ونطاقات التغطية الجغرافية وأيام التوصيل للصيدليات.</p><a href=\"/vendor/offers/new\" class=\"btn btn-primary\" style=\"font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:4rem 2rem; text-align:center;\"><div style=\"width:64px; height:64px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;\">🎁</div><h3 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;\">لا توجد عروض خاصة مضافة حتى الآن</h3><p style=\"color:var(--text-muted); font-size:0.9rem; max-width:440px; margin:0 auto 1.5rem auto;\">أنشئ عروضك الخاصة وخصص المنتجات المشمولة ونطاقات التغطية الجغرافية وأيام التوصيل للصيدليات.</p><a href=\"/vendor/offers/new\" class=\"btn btn-primary fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -138,7 +138,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 					return templ_7745c5c3_Err
 				}
 				for _, o := range data.Offers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem; transition:border-color 150ms;\"><div><!-- Header Strip --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;\"><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem; transition:border-color 150ms;\"><div><!-- Header Strip --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;\"><div><h3 class=\"text-lg fw-800 text-primary m-0\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -257,7 +257,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " <span style=\"font-size:0.75rem;\">ج.م</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " <span class=\"text-xs\">ج.م</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -334,7 +334,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"btn btn-secondary btn-xs\" style=\"font-weight:700;\"><span>🗺️ نطاقات التغطية</span></a><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"btn btn-secondary btn-xs fw-700\"><span>🗺️ نطاقات التغطية</span></a><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

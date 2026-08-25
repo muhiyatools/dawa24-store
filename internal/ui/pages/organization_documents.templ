@@ -68,7 +68,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 										<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", req.ID) } />
 										<input type="hidden" name="document_type" value={ string(req.DocumentType) } />
 										<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required class="form-input" style="padding:0.35rem; font-size:var(--text-xs); max-width:200px;" />
-										<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+										<button type="submit" class="btn btn-primary btn-sm fw-700">
 											<span>رفع المستند المطلوب</span>
 										</button>
 									</form>
@@ -164,7 +164,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 								}
 
 								if doc != nil && doc.Status != attachments.StatusVerified {
-									<form action="/documents/delete" method="POST" style="margin:0; display:inline;">
+									<form action="/documents/delete" method="POST" class="m-0 inline">
 										<input type="hidden" name="id" value={ fmt.Sprintf("%d", doc.ID) } />
 										<button type="submit" class="btn btn-secondary btn-sm" style="color:#b91c1c;">
 											<span>حذف</span>

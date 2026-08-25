@@ -72,7 +72,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				return templ_7745c5c3_Err
 			}
 			if cart == nil || len(cart.Items) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:4rem 2rem; text-align:center;\"><div style=\"width:64px; height:64px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;\">🛒</div><h3 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;\">سلة المشتريات فارغة</h3><p style=\"color:var(--text-muted); font-size:0.9rem; max-width:420px; margin:0 auto 1.5rem auto;\">لم تقم بإضافة أي أصناف دوائية للسلة حتى الآن.</p><a href=\"/catalog\" class=\"btn btn-primary\" style=\"font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:4rem 2rem; text-align:center;\"><div style=\"width:64px; height:64px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;\">🛒</div><h3 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;\">سلة المشتريات فارغة</h3><p style=\"color:var(--text-muted); font-size:0.9rem; max-width:420px; margin:0 auto 1.5rem auto;\">لم تقم بإضافة أي أصناف دوائية للسلة حتى الآن.</p><a href=\"/catalog\" class=\"btn btn-primary fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -85,7 +85,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form action=\"/checkout\" method=\"POST\"><div style=\"display:grid; grid-template-columns:1.3fr 0.7fr; gap:2rem; align-items:start;\" class=\"checkout-grid\"><!-- Left Column: Address, Payment, Notes --><div style=\"display:flex; flex-direction:column; gap:1.5rem;\"><!-- 1. Pharmacy Delivery Branches Card --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;\"><div class=\"row-center-sm\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form action=\"/checkout\" method=\"POST\"><div style=\"display:grid; grid-template-columns:1.3fr 0.7fr; gap:2rem; align-items:start;\" class=\"checkout-grid\"><!-- Left Column: Address, Payment, Notes --><div class=\"stack-lg\"><!-- 1. Pharmacy Delivery Branches Card --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;\"><div class=\"row-center-sm\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -93,7 +93,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><h2 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">1. اختيار فرع الصيدلية المستلم للطلبية</h2><span style=\"font-size:0.8rem; color:var(--text-muted);\">تسليم مباشر إلى مقر الفرع المرخص</span></div></div><a href=\"/customer/branches\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><h2 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">1. اختيار فرع الصيدلية المستلم للطلبية</h2><span class=\"text-sm text-muted\">تسليم مباشر إلى مقر الفرع المرخص</span></div></div><a href=\"/customer/branches\" class=\"btn btn-secondary btn-sm fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -106,7 +106,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					return templ_7745c5c3_Err
 				}
 				if len(branches) == 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"padding:2rem 1.5rem; border:2px dashed var(--border); border-radius:var(--radius-xl); text-align:center; background:var(--surface-sunken);\"><div style=\"color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;\">لا توجد فروع مسجلة للصيدلية حتى الآن. يرجى إضافة الفرع وعنوان الاستلام لتأكيد الشحنة.</div><a href=\"/customer/branches\" class=\"btn btn-primary btn-sm\" style=\"font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"padding:2rem 1.5rem; border:2px dashed var(--border); border-radius:var(--radius-xl); text-align:center; background:var(--surface-sunken);\"><div style=\"color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;\">لا توجد فروع مسجلة للصيدلية حتى الآن. يرجى إضافة الفرع وعنوان الاستلام لتأكيد الشحنة.</div><a href=\"/customer/branches\" class=\"btn btn-primary btn-sm fw-800\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -148,7 +148,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div style=\"flex:1;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem; flex-wrap:wrap; gap:0.5rem;\"><strong style=\"font-size:1.05rem; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div class=\"flex-1\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem; flex-wrap:wrap; gap:0.5rem;\"><strong style=\"font-size:1.05rem; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -161,7 +161,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</strong><div style=\"display:flex; align-items:center; gap:0.5rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</strong><div class=\"row-center-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -195,7 +195,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 						return templ_7745c5c3_Err
 					}
 					if b.Phone != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span style=\"display:flex; align-items:center; gap:0.35rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"row-center-xs\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -253,7 +253,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><h2 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">2. طريقة وشروط الدفع والتسوية</h2></div><div style=\"display:flex; flex-direction:column; gap:0.875rem;\"><!-- Only Cash on Delivery --><label style=\"display:flex; align-items:flex-start; gap:1rem; padding:1.25rem; border:1.5px solid var(--accent); background:var(--accent-subtle); border-radius:var(--radius-xl); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"cod\" checked style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div style=\"flex:1;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem; flex-wrap:wrap; gap:0.5rem;\"><div style=\"font-weight:800; font-size:1rem; color:var(--text);\">الدفع عند الاستلام والتسليم (نقداً / شيك مقبول الدفع)</div><span class=\"badge badge-sky\" style=\"font-weight:700;\">تسوية مباشرة مع مندوب التوزيع</span></div><div style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5;\">التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة الفاتورة الضريبية الإلكترونية (ETA e-Invoice).</div></div></label></div></div><!-- 3. Cold-Chain & Delivery Notes --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><h2 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">2. طريقة وشروط الدفع والتسوية</h2></div><div style=\"display:flex; flex-direction:column; gap:0.875rem;\"><!-- Only Cash on Delivery --><label style=\"display:flex; align-items:flex-start; gap:1rem; padding:1.25rem; border:1.5px solid var(--accent); background:var(--accent-subtle); border-radius:var(--radius-xl); cursor:pointer;\"><input type=\"radio\" name=\"payment_method\" value=\"cod\" checked style=\"margin-top:0.35rem; width:18px; height:18px; accent-color:var(--accent);\"><div class=\"flex-1\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem; flex-wrap:wrap; gap:0.5rem;\"><div style=\"font-weight:800; font-size:1rem; color:var(--text);\">الدفع عند الاستلام والتسليم (نقداً / شيك مقبول الدفع)</div><span class=\"badge badge-sky fw-700\">تسوية مباشرة مع مندوب التوزيع</span></div><div style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5;\">التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة الفاتورة الضريبية الإلكترونية (ETA e-Invoice).</div></div></label></div></div><!-- 3. Cold-Chain & Delivery Notes --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -292,14 +292,14 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, ")</span></span> <strong class=\"tabular-nums\" style=\"color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, ")</span></span> <strong class=\"tabular-nums text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(CartItemTotal(it).String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 214, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 214, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -310,14 +310,14 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div style=\"border-top:1px solid var(--border); padding-top:1rem; display:flex; flex-direction:column; gap:0.6rem; font-size:0.85rem;\"><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>إجمالي الأصناف:</span> <span class=\"tabular-nums\" style=\"font-weight:700; color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div style=\"border-top:1px solid var(--border); padding-top:1rem; display:flex; flex-direction:column; gap:0.6rem; font-size:0.85rem;\"><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>إجمالي الأصناف:</span> <span class=\"tabular-nums fw-700 text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(cart.Items)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 222, Col: 117}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 222, Col: 93}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {

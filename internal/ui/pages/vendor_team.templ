@@ -124,9 +124,9 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
 				<!-- Total Staff -->
 				<div class="card" style="padding:1.35rem 1.6rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); border-inline-start:4px solid var(--primary-600); box-shadow:0 4px 16px rgba(0,0,0,0.03);">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-muted);">إجمالي فريق العمل</span>
-						<span style="font-size:1.25rem;">👥</span>
+						<span class="text-xl">👥</span>
 					</div>
 					<div style="font-size:2rem; font-weight:900; color:var(--text); margin-top:0.4rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Members)) }
@@ -136,9 +136,9 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 				<!-- Active Accounts -->
 				<div class="card" style="padding:1.35rem 1.6rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); border-inline-start:4px solid #10b981; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-muted);">الحسابات النشطة</span>
-						<span style="font-size:1.25rem;">⚡</span>
+						<span class="text-xl">⚡</span>
 					</div>
 					<div style="font-size:2rem; font-weight:900; color:#10b981; margin-top:0.4rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", countActiveMembers(data.Members)) }
@@ -148,9 +148,9 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 				<!-- Managers & Operations -->
 				<div class="card" style="padding:1.35rem 1.6rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); border-inline-start:4px solid #6366f1; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-muted);">الإدارة والعمليات</span>
-						<span style="font-size:1.25rem;">🛡️</span>
+						<span class="text-xl">🛡️</span>
 					</div>
 					<div style="font-size:2rem; font-weight:900; color:#6366f1; margin-top:0.4rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", countManagers(data.Members)) }
@@ -160,9 +160,9 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 				<!-- Branches Covered -->
 				<div class="card" style="padding:1.35rem 1.6rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); border-inline-start:4px solid #0ea5e9; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-muted);">الفروع والمستودعات</span>
-						<span style="font-size:1.25rem;">🏢</span>
+						<span class="text-xl">🏢</span>
 					</div>
 					<div style="font-size:2rem; font-weight:900; color:#0ea5e9; margin-top:0.4rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Branches)) }
@@ -176,7 +176,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 				
 				<!-- Table Control Bar: Search & Filter -->
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border);">
-					<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div class="row-center">
 						<h3 style="font-size:1.2rem; font-weight:900; color:var(--text); margin:0;">
 							قائمة موظفي المنشأة
 						</h3>
@@ -225,7 +225,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						<div style="width:76px; height:76px; border-radius:var(--radius-2xl); background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(14,165,233,0.12)); border:1px dashed rgba(16,185,129,0.35); display:flex; align-items:center; justify-content:center; font-size:2.25rem; margin-bottom:1.25rem;">
 							👥
 						</div>
-						<h4 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">لا يوجد موظفون مضافون حالياً</h4>
+						<h4 class="text-xl fw-800 text-primary m-0">لا يوجد موظفون مضافون حالياً</h4>
 						<p style="font-size:0.9rem; color:var(--text-secondary); max-width:420px; margin:0.5rem 0 1.5rem; line-height:1.6;">
 							ابدأ بإضافة موظفي المبيعات، أمناء المخازن، أو المحاسبين لمنشأتك وتعيين صلاحياتهم التشغيلية فوراً.
 						</p>
@@ -289,7 +289,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 											if m.JobTitle != "" {
 												<span>{ m.JobTitle }</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">—</span>
+												<span class="text-muted text-sm">—</span>
 											}
 										</td>
 
@@ -321,9 +321,9 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 										<!-- Branch / Location -->
 										<td style="padding:1rem 1.25rem; color:var(--text-secondary);">
 											if m.BranchName != "" {
-												<div style="display:flex; align-items:center; gap:0.4rem;">
+												<div class="row-center-sm">
 													<span style="font-size:0.85rem;">🏢</span>
-													<span style="font-weight:700;">{ m.BranchName }</span>
+													<span class="fw-700">{ m.BranchName }</span>
 												</div>
 											} else {
 												<span style="color:var(--text-muted); font-size:0.8rem; background:var(--surface-sunken); padding:0.2rem 0.6rem; border-radius:var(--radius-pill); border:1px solid var(--border);">
@@ -339,7 +339,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 													{ m.Email }
 												</a>
 											} else {
-												<span style="color:var(--text-muted);">—</span>
+												<span class="text-muted">—</span>
 											}
 										</td>
 
@@ -348,7 +348,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 											if m.Phone != "" {
 												<span>{ m.Phone }</span>
 											} else {
-												<span style="color:var(--text-muted);">—</span>
+												<span class="text-muted">—</span>
 											}
 										</td>
 
@@ -372,7 +372,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 											<div style="display:inline-flex; gap:0.5rem; align-items:center;">
 												if m.RoleKey != "org_owner" {
 													<!-- Toggle Active Status Form -->
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)) } style="margin:0;">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)) } class="m-0">
 														<button
 															type="submit"
 															class="btn btn-secondary btn-xs"
@@ -391,7 +391,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 													<form
 														method="POST"
 														action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/delete", m.ID)) }
-														style="margin:0;"
+														class="m-0"
 														onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الموظف من المنشأة نهائياً؟');"
 													>
 														<button
@@ -485,19 +485,19 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						</div>
 
 						<!-- Modal Form -->
-						<form method="POST" action="/vendor/team/new" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<form method="POST" action="/vendor/team/new" class="stack-lg">
 							<!-- Row 1: Name & Title -->
 							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.15rem;">
 								<div>
 									<label class="form-label" style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
-										اسم الموظف بالكامل <span style="color:var(--danger-text);">*</span>
+										اسم الموظف بالكامل <span class="text-danger">*</span>
 									</label>
 									<input type="text" name="name" class="form-input" placeholder="مثال: د. أحمد جمال" style="height:44px; border-radius:var(--radius-xl);" required />
 								</div>
 
 								<div>
 									<label class="form-label" style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
-										المسمى الوظيفي <span style="color:var(--danger-text);">*</span>
+										المسمى الوظيفي <span class="text-danger">*</span>
 									</label>
 									<input type="text" name="job_title" class="form-input" placeholder="مثال: مسؤول مبيعات وتوريد" style="height:44px; border-radius:var(--radius-xl);" required />
 								</div>
@@ -507,14 +507,14 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.15rem;">
 								<div>
 									<label class="form-label" style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
-										البريد الإلكتروني للدخول <span style="color:var(--danger-text);">*</span>
+										البريد الإلكتروني للدخول <span class="text-danger">*</span>
 									</label>
 									<input type="email" name="email" class="form-input tabular-nums" placeholder="ahmed@company.eg" style="height:44px; border-radius:var(--radius-xl);" required />
 								</div>
 
 								<div>
 									<label class="form-label" style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
-										رقم الهاتف / الواتساب <span style="color:var(--danger-text);">*</span>
+										رقم الهاتف / الواتساب <span class="text-danger">*</span>
 									</label>
 									<input type="tel" name="phone" class="form-input tabular-nums" placeholder="01099887766" style="height:44px; border-radius:var(--radius-xl);" required />
 								</div>
@@ -524,7 +524,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.15rem;">
 								<div>
 									<label class="form-label" style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
-										الدور الوظيفي والصلاحيات <span style="color:var(--danger-text);">*</span>
+										الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
 									</label>
 									<select name="role_key" class="form-input" style="height:44px; border-radius:var(--radius-xl);" required>
 										<option value="org_employee" selected>موظف مبيعات وتوريد (الأصناف والشحنات)</option>
@@ -558,7 +558,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 								<div>
 									<label class="form-label" style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
-										كلمة المرور المبدئية <span style="color:var(--danger-text);">*</span>
+										كلمة المرور المبدئية <span class="text-danger">*</span>
 									</label>
 									<input type="password" name="password" minlength="6" class="form-input" value="Password123!" style="height:44px; border-radius:var(--radius-xl);" required />
 								</div>

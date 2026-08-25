@@ -22,7 +22,7 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
-					<h2 class="card-title" style="margin:0;">{ title } ({ fmt.Sprintf("%d", len(items)) })</h2>
+					<h2 class="card-title m-0">{ title } ({ fmt.Sprintf("%d", len(items)) })</h2>
 					<p class="subtitle">إدارة وتحديث البيانات المرجعية الأساسية للمنصة.</p>
 				</div>
 				<button type="button" class="btn btn-primary btn-sm" onclick="alert('جاري فتح نموذج الإضافة')">

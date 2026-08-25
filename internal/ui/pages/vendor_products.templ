@@ -34,7 +34,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 		@VendorVariantsTable(data.Variants, lang)
 	} else {
 		@layouts.VendorShell("أصناف وعروض التوريد", "products", lang, dir) {
-			<div style="display:flex; flex-direction:column; gap:1.5rem;" x-data="{ searchQuery: '', statusFilter: 'all' }">
+			<div class="stack-lg" x-data="{ searchQuery: '', statusFilter: 'all' }">
 				
 				<!-- Notice / Toast Banner -->
 				if data.NoticeMsg != "" {
@@ -178,7 +178,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			<div id="add-from-catalog-modal" class="modal-overlay hidden">
 				<div class="card" style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="row-center-sm">
 							<span style="font-size:1.4rem;">🌐</span>
 							<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
 								إضافة صنف من الكتالوج المركزي العام
@@ -197,12 +197,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						<input type="hidden" id="cat-select-barcode" name="barcode" value="" />
 						<input type="hidden" id="cat-select-unit" name="unit" value="" />
 
-						<div style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div class="stack-lg">
 							
 							<!-- Search Input for General Catalog -->
 							<div style="position:relative;">
 								<label class="form-label" style="font-weight:800; color:var(--text); font-size:0.875rem; margin-bottom:0.4rem;">
-									1. ابحث في الكتالوج المركزي العام <span style="color:var(--danger-text);">*</span>
+									1. ابحث في الكتالوج المركزي العام <span class="text-danger">*</span>
 								</label>
 								<input
 									type="text"
@@ -246,10 +246,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									2. حدد شروط وسعر التوريد الخاص بك:
 								</div>
 
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="grid-2">
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
-											سعر التوريد للجملة (ج.م) <span style="color:var(--danger-text);">*</span>
+										<label class="form-label fw-700 text-primary text-sm">
+											سعر التوريد للجملة (ج.م) <span class="text-danger">*</span>
 										</label>
 										<input
 											type="number"
@@ -264,7 +264,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<label class="form-label fw-700 text-primary text-sm">
 											قيمة الخصم للصيدليات (ج.م)
 										</label>
 										<input
@@ -279,9 +279,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 								</div>
 
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="grid-2">
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<label class="form-label fw-700 text-primary text-sm">
 											الرصيد المتاح حالياً (الكمية الافتتاحية)
 										</label>
 										<input
@@ -295,7 +295,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<label class="form-label fw-700 text-primary text-sm">
 											الحد الأدنى للطلب (عبوة)
 										</label>
 										<input
@@ -310,9 +310,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 								</div>
 
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="grid-2">
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<label class="form-label fw-700 text-primary text-sm">
 											رقم التشغيلة (Batch Number)
 										</label>
 										<input
@@ -326,7 +326,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<label class="form-label fw-700 text-primary text-sm">
 											تاريخ انتهاء الصلاحية
 										</label>
 										<input
@@ -339,9 +339,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 								</div>
 
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+								<div class="grid-2">
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<label class="form-label fw-700 text-primary text-sm">
 											مستودع / فرع الشحن
 										</label>
 										<select name="branch_id" id="cat-field-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
@@ -353,7 +353,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 
 									<div>
-										<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<label class="form-label fw-700 text-primary text-sm">
 											قابل للتفاوض على السعر؟
 										</label>
 										<select name="is_negotiable" id="cat-field-negotiable" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
@@ -363,7 +363,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 								</div>
 
-								<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
+								<div class="modal-footer-standard">
 									<button type="button" class="btn btn-secondary" onclick="closeAddFromCatalogModal()">
 										إلغاء
 									</button>
@@ -391,10 +391,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 					</div>
 
 					<form method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
-						<div style="display:flex; flex-direction:column; gap:1rem;">
+						<div class="stack-md">
 							
 							<div>
-								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+								<label class="form-label fw-700 text-primary text-sm">
 									اسم العرض / التعبئة (عربي)
 								</label>
 								<input
@@ -407,10 +407,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								/>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="grid-2">
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
-										سعر التوريد (ج.م) <span style="color:var(--danger-text);">*</span>
+									<label class="form-label fw-700 text-primary text-sm">
+										سعر التوريد (ج.م) <span class="text-danger">*</span>
 									</label>
 									<input
 										type="number"
@@ -424,7 +424,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										قيمة الخصم (ج.م)
 									</label>
 									<input
@@ -438,9 +438,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="grid-2">
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										تحديث الرصيد بالمخزن (عبوة)
 									</label>
 									<input
@@ -454,7 +454,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										الحد الأدنى للطلب
 									</label>
 									<input
@@ -468,9 +468,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="grid-2">
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										رقم التشغيلة (Batch Number)
 									</label>
 									<input
@@ -483,7 +483,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										تاريخ الصلاحية
 									</label>
 									<input
@@ -496,9 +496,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="grid-2">
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										مستودع / فرع الشحن
 									</label>
 									<select name="branch_id" id="edit-form-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
@@ -510,7 +510,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										حالة العرض
 									</label>
 									<select name="status" id="edit-form-status" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
@@ -520,7 +520,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										قابل للتفاوض على السعر؟
 									</label>
 									<select name="is_negotiable" id="edit-form-negotiable" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
@@ -532,7 +532,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" class="btn btn-secondary" onclick="closeEditVariantModal()">
 								إلغاء
 							</button>
@@ -557,11 +557,11 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 					</div>
 
 					<form method="POST" action="/vendor/variants/new">
-						<div style="display:flex; flex-direction:column; gap:1rem;">
+						<div class="stack-md">
 							
 							<div>
-								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
-									اسم الصنف / العرض (عربي) <span style="color:var(--danger-text);">*</span>
+								<label class="form-label fw-700 text-primary text-sm">
+									اسم الصنف / العرض (عربي) <span class="text-danger">*</span>
 								</label>
 								<input
 									type="text"
@@ -573,9 +573,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								/>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="grid-2">
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										كود SKU (اختياري)
 									</label>
 									<input
@@ -588,8 +588,8 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
-										سعر التوريد (ج.م) <span style="color:var(--danger-text);">*</span>
+									<label class="form-label fw-700 text-primary text-sm">
+										سعر التوريد (ج.م) <span class="text-danger">*</span>
 									</label>
 									<input
 										type="number"
@@ -603,9 +603,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="grid-2">
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										قيمة الخصم (ج.م)
 									</label>
 									<input
@@ -619,7 +619,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										الرصيد المتاح (الكمية الافتتاحية)
 									</label>
 									<input
@@ -632,9 +632,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+							<div class="grid-2">
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										رقم التشغيلة (Batch Number)
 									</label>
 									<input
@@ -647,7 +647,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								</div>
 
 								<div>
-									<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+									<label class="form-label fw-700 text-primary text-sm">
 										تاريخ الصلاحية
 									</label>
 									<input
@@ -660,7 +660,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							</div>
 
 							<div>
-								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+								<label class="form-label fw-700 text-primary text-sm">
 									مستودع / فرع الشحن
 								</label>
 								<select name="branch_id" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
@@ -673,7 +673,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" class="btn btn-secondary" onclick="closeAddCustomVariantModal()">
 								إلغاء
 							</button>
@@ -799,8 +799,8 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 								let html = '';
 								items.forEach(it => {
-									const dosage = it.dosage_form ? ('<span class="badge badge-slate" style="font-size:0.7rem;">' + it.dosage_form + '</span>') : '';
-									const priceBadge = it.price ? ('<span class="badge badge-sky" style="font-size:0.7rem;">' + it.price + ' ج.م</span>') : '';
+									const dosage = it.dosage_form ? ('<span class="badge badge-slate text-xs">' + it.dosage_form + '</span>') : '';
+									const priceBadge = it.price ? ('<span class="badge badge-sky text-xs">' + it.price + ' ج.م</span>') : '';
 									const safeName = (it.name_ar || it.name_en || '').replace(/'/g, "\\'");
 									const safeSci = (it.scientific_name || '').replace(/'/g, "\\'");
 									const safeSku = (it.sku || '').replace(/'/g, "\\'");
@@ -813,9 +813,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											'<div style="font-weight:800; color:var(--text); font-size:0.875rem;">' + (it.name_ar || it.name_en) + '</div>' +
 											'<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">' + (it.scientific_name || '') + '</div>' +
 										'</div>' +
-										'<div style="display:flex; align-items:center; gap:0.5rem;">' +
+										'<div class="row-center-sm">' +
 											dosage + priceBadge +
-											'<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800;">اختيار</span>' +
+											'<span class="badge badge-emerald text-xs fw-800">اختيار</span>' +
 										'</div>' +
 									'</div>';
 								});
@@ -913,7 +913,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 										if v.MasterProduct != nil && v.MasterProduct.Image != "" {
 											<img src={ v.MasterProduct.Image } alt="Product" style="width:100%; height:100%; object-fit:contain; padding:2px;" />
 										} else {
-											<div style="color:var(--accent);">
+											<div class="text-accent">
 												@components.IconPill("icon-sm")
 											</div>
 										}
@@ -939,7 +939,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Variant Name & SKU -->
-							<td style="padding:1rem;">
+							<td class="p-md">
 								<div style="font-weight:700; color:var(--text); font-size:0.875rem;">
 									{ v.Variant.Name.Get(i18n.Lang(lang)) }
 								</div>
@@ -951,18 +951,18 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Batch Number -->
-							<td style="padding:1rem;">
+							<td class="p-md">
 								if v.Variant.BatchNumber != "" {
 									<span class="badge badge-slate tabular-nums" style="font-weight:700; font-size:0.8rem;">
 										{ v.Variant.BatchNumber }
 									</span>
 								} else {
-									<span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+									<span class="text-muted text-sm">-</span>
 								}
 							</td>
 
 							<!-- Wholesale Price & Discount -->
-							<td style="padding:1rem;">
+							<td class="p-md">
 								<div class="tabular-nums" style="font-weight:900; color:var(--accent); font-size:1.05rem; line-height:1.2;">
 									{ v.Variant.Price.String() } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
 								</div>
@@ -979,7 +979,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Stock Quantity -->
-							<td style="padding:1rem; text-align:center;">
+							<td class="p-md text-center">
 								if v.Variant.StockQty > 10 {
 									<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.825rem;">
 										{ fmt.Sprintf("%d عبوة", v.Variant.StockQty) }
@@ -996,18 +996,18 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							</td>
 
 							<!-- Expiry Date -->
-							<td style="padding:1rem;">
+							<td class="p-md">
 								if v.Variant.ExpiryDate != nil {
 									<div class="tabular-nums" style="font-weight:700; color:var(--text-secondary); font-size:0.85rem;">
 										{ v.Variant.ExpiryDate.Format("2006-01-02") }
 									</div>
 								} else {
-									<span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+									<span class="text-muted text-sm">-</span>
 								}
 							</td>
 
 							<!-- Shipping Branch / Warehouse -->
-							<td style="padding:1rem;">
+							<td class="p-md">
 								if v.BranchName != "" {
 									<span class="badge badge-sky" style="font-weight:700; font-size:0.775rem;">
 										{ v.BranchName }
@@ -1043,7 +1043,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 										</a>
 									}
 
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض من قائمة التوريد؟');">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض من قائمة التوريد؟');">
 										<button
 											type="submit"
 											class="btn btn-secondary btn-icon"

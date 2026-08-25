@@ -82,7 +82,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 						</p>
 					</div>
 
-					<a href="#new-section-card" class="btn btn-primary" style="font-weight:700;">
+					<a href="#new-section-card" class="btn btn-primary fw-700">
 						@components.IconPlus("icon-xs")
 						<span>إضافة قسم تعريفي جديد</span>
 					</a>
@@ -93,34 +93,34 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 			<div id="new-section-card" class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;">
 				<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
 					@components.IconPlus("icon-xs")
-					<h2 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+					<h2 class="text-lg fw-800 text-primary m-0">
 						إضافة قسم مميز جديد للبروفايل
 					</h2>
 				</div>
 
-				<form method="POST" action="/vendor/storefront/section" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<form method="POST" action="/vendor/storefront/section" class="stack-lg">
 					<!-- Row 1: Titles -->
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" class="form-grid-2">
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" style="font-weight:700; color:var(--text);">العنوان (بالعربية) <span style="color:var(--danger-text);">*</span></label>
+					<div class="grid-2 form-grid-2">
+						<div class="form-group mb-0">
+							<label class="form-label fw-700 text-primary">العنوان (بالعربية) <span class="text-danger">*</span></label>
 							<input type="text" name="title_ar" required placeholder="مثال: رؤيتنا للتميز الدوائي" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
 						</div>
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" style="font-weight:700; color:var(--text);">العنوان (بالإنجليزية)</label>
+						<div class="form-group mb-0">
+							<label class="form-label fw-700 text-primary">العنوان (بالإنجليزية)</label>
 							<input type="text" name="title_en" placeholder="e.g. Our Vision" class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg);" />
 						</div>
 					</div>
 
 					<!-- Row 2: Order & Color -->
 					<input type="hidden" name="section_type" value="about" />
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" class="form-grid-2">
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" style="font-weight:700; color:var(--text);">ترتيب العرض</label>
+					<div class="grid-2 form-grid-2">
+						<div class="form-group mb-0">
+							<label class="form-label fw-700 text-primary">ترتيب العرض</label>
 							<input type="number" name="display_order" value="0" min="0" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" style="font-weight:700; color:var(--text);">اللون المميز</label>
+						<div class="form-group mb-0">
+							<label class="form-label fw-700 text-primary">اللون المميز</label>
 							<select name="color" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
 								<option value="#0284c7" selected>أزرق سماوي (Sky Blue)</option>
 								<option value="#10b981">أخضر زمردي (Emerald Green)</option>
@@ -133,13 +133,13 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 					</div>
 
 					<!-- Row 3: Rich Content / Descriptions -->
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;" class="form-grid-2">
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" style="font-weight:700; color:var(--text);">المحتوى والوصف التفصيلي (بالعربية) <span style="color:var(--danger-text);">*</span></label>
+					<div class="grid-2 form-grid-2">
+						<div class="form-group mb-0">
+							<label class="form-label fw-700 text-primary">المحتوى والوصف التفصيلي (بالعربية) <span class="text-danger">*</span></label>
 							<textarea name="description_ar" rows="4" required placeholder="اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة، أو أي معلومات تود إبرازها للصيدليات..." class="form-input" style="width:100%; border-radius:var(--radius-lg); resize:vertical;"></textarea>
 						</div>
-						<div class="form-group" style="margin-bottom:0;">
-							<label class="form-label" style="font-weight:700; color:var(--text);">المحتوى والوصف التفصيلي (بالإنجليزية)</label>
+						<div class="form-group mb-0">
+							<label class="form-label fw-700 text-primary">المحتوى والوصف التفصيلي (بالإنجليزية)</label>
 							<textarea name="description_en" rows="4" placeholder="Detailed content and description in English..." class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg); resize:vertical;"></textarea>
 						</div>
 					</div>
@@ -167,10 +167,10 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 			<!-- List of Current Sections -->
 			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-					<h2 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+					<h2 class="text-lg fw-800 text-primary m-0">
 						الأقسام المميزة الحالية بالمنشأة
 					</h2>
-					<span class="badge badge-secondary" style="font-size:0.8rem;">{ fmt.Sprintf("%d أقسام مسجلة", len(sections)) }</span>
+					<span class="badge badge-secondary text-sm">{ fmt.Sprintf("%d أقسام مسجلة", len(sections)) }</span>
 				</div>
 
 				if len(sections) == 0 {
@@ -182,21 +182,21 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 						</p>
 					</div>
 				} else {
-					<div style="display:flex; flex-direction:column; gap:1rem;">
+					<div class="stack-md">
 						for _, s := range sections {
 							<div style="padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:0.85rem;">
 								<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-									<div style="display:flex; align-items:center; gap:0.75rem;">
-										<span style="font-size:1.5rem;">{ sectionTypeIcon(s.SectionType) }</span>
+									<div class="row-center">
+										<span class="text-2xl">{ sectionTypeIcon(s.SectionType) }</span>
 										<div>
 											<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
 												<strong style="font-size:1.1rem; color:var(--text);">
 													{ s.Title.Get(i18n.Lang(lang)) }
 												</strong>
 												if s.IsActive {
-													<span class="badge badge-emerald" style="font-size:0.75rem;">نشط ومعروض</span>
+													<span class="badge badge-emerald text-xs">نشط ومعروض</span>
 												} else {
-													<span class="badge badge-secondary" style="font-size:0.75rem;">معطل</span>
+													<span class="badge badge-secondary text-xs">معطل</span>
 												}
 											</div>
 											<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;" class="tabular-nums">
@@ -209,21 +209,21 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 									</div>
 
 									<!-- Action Buttons -->
-									<div style="display:flex; align-items:center; gap:0.5rem;">
+									<div class="row-center-sm">
 										<!-- Edit Modal Trigger Button -->
 										<button
 											type="button"
-											class="btn btn-secondary btn-sm"
+											class="btn btn-secondary btn-sm fw-700"
 											data-modal-open={ fmt.Sprintf("edit-section-modal-%d", s.ID) }
-											style="font-weight:700;"
+										
 										>
 											@components.IconEdit("icon-xs")
 											<span>تعديل</span>
 										</button>
 
 										<!-- Toggle Status Form -->
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/toggle", s.ID)) } style="margin:0; display:inline;">
-											<button type="submit" class="btn btn-secondary btn-sm" style="font-weight:700;">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/toggle", s.ID)) } class="m-0 inline">
+											<button type="submit" class="btn btn-secondary btn-sm fw-700">
 												if s.IsActive {
 													<span>تعطيل</span>
 												} else {
@@ -233,7 +233,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 										</form>
 
 										<!-- Delete Form -->
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)) } style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)) } class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');">
 											<button type="submit" class="btn btn-secondary btn-sm btn-icon" style="color:var(--danger-text); border-color:var(--danger-border);" title="حذف القسم">
 												@components.IconTrash("icon-xs")
 											</button>
@@ -258,8 +258,8 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
 									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 										<div style="display:flex; align-items:center; gap:0.6rem;">
-											<span style="font-size:1.5rem;">{ sectionTypeIcon(s.SectionType) }</span>
-											<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+											<span class="text-2xl">{ sectionTypeIcon(s.SectionType) }</span>
+											<h3 class="text-xl fw-800 text-primary m-0">
 												تعديل القسم: { s.Title.Get(i18n.Lang(lang)) }
 											</h3>
 										</div>
@@ -273,27 +273,27 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 										</button>
 									</div>
 
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/update", s.ID)) } style="display:flex; flex-direction:column; gap:1.25rem;">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/update", s.ID)) } class="stack-lg">
 										<input type="hidden" name="section_type" value={ s.SectionType } />
-										<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-											<div class="form-group" style="margin-bottom:0;">
-												<label class="form-label" style="font-weight:700; color:var(--text);">العنوان (بالعربية) <span style="color:var(--danger-text);">*</span></label>
+										<div class="grid-2">
+											<div class="form-group mb-0">
+												<label class="form-label fw-700 text-primary">العنوان (بالعربية) <span class="text-danger">*</span></label>
 												<input type="text" name="title_ar" required value={ s.Title.Get("ar") } class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
 											</div>
-											<div class="form-group" style="margin-bottom:0;">
-												<label class="form-label" style="font-weight:700; color:var(--text);">العنوان (بالإنجليزية)</label>
+											<div class="form-group mb-0">
+												<label class="form-label fw-700 text-primary">العنوان (بالإنجليزية)</label>
 												<input type="text" name="title_en" value={ s.Title.Get("en") } class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg);" />
 											</div>
 										</div>
 
-										<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-											<div class="form-group" style="margin-bottom:0;">
-												<label class="form-label" style="font-weight:700; color:var(--text);">ترتيب العرض</label>
+										<div class="grid-2">
+											<div class="form-group mb-0">
+												<label class="form-label fw-700 text-primary">ترتيب العرض</label>
 												<input type="number" name="display_order" value={ fmt.Sprintf("%d", s.DisplayOrder) } min="0" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
 											</div>
 
-											<div class="form-group" style="margin-bottom:0;">
-												<label class="form-label" style="font-weight:700; color:var(--text);">اللون المميز</label>
+											<div class="form-group mb-0">
+												<label class="form-label fw-700 text-primary">اللون المميز</label>
 												<select name="color" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
 													<option value="#0284c7" selected?={ s.Color == "#0284c7" || s.Color == "" }>أزرق سماوي</option>
 													<option value="#10b981" selected?={ s.Color == "#10b981" }>أخضر زمردي</option>
@@ -305,13 +305,13 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 											</div>
 										</div>
 
-										<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-											<div class="form-group" style="margin-bottom:0;">
-												<label class="form-label" style="font-weight:700; color:var(--text);">المحتوى (بالعربية) <span style="color:var(--danger-text);">*</span></label>
+										<div class="grid-2">
+											<div class="form-group mb-0">
+												<label class="form-label fw-700 text-primary">المحتوى (بالعربية) <span class="text-danger">*</span></label>
 												<textarea name="description_ar" rows="4" required class="form-input" style="width:100%; border-radius:var(--radius-lg); resize:vertical;">{ s.Description.Get("ar") }</textarea>
 											</div>
-											<div class="form-group" style="margin-bottom:0;">
-												<label class="form-label" style="font-weight:700; color:var(--text);">المحتوى (بالإنجليزية)</label>
+											<div class="form-group mb-0">
+												<label class="form-label fw-700 text-primary">المحتوى (بالإنجليزية)</label>
 												<textarea name="description_en" rows="4" class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg); resize:vertical;">{ s.Description.Get("en") }</textarea>
 											</div>
 										</div>
@@ -332,12 +332,11 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 											<button
 												type="button"
 												data-modal-close={ fmt.Sprintf("edit-section-modal-%d", s.ID) }
-												class="btn btn-secondary"
-												style="font-weight:700;"
+												class="btn btn-secondary fw-700"
 											>
 												إلغاء
 											</button>
-											<button type="submit" class="btn btn-primary" style="font-weight:800;">
+											<button type="submit" class="btn btn-primary fw-800">
 												@components.IconCheck("icon-xs")
 												<span>حفظ التعديلات</span>
 											</button>

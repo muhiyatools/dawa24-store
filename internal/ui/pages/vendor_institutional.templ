@@ -15,7 +15,7 @@ templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir stri
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">الأعمال والاتفاقيات المؤسسية للمنشأة ({ fmt.Sprintf("%d", len(works)) })</h2>
+					<h2 class="card-title m-0">الأعمال والاتفاقيات المؤسسية للمنشأة ({ fmt.Sprintf("%d", len(works)) })</h2>
 					<p class="subtitle">إدارة عضويات الجهات الطبية، المجموعات الصيدلانية، وسلاسل التوريد الخاصة.</p>
 				</div>
 			</div>
@@ -63,7 +63,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 			<!-- Header & Action Bar -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
 				<div>
-					<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">الصيدليات المشمولة في نطاق التغطية الأسبوعية</h1>
+					<h1 class="text-2xl fw-800 text-primary m-0">الصيدليات المشمولة في نطاق التغطية الأسبوعية</h1>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
 						استعراض شبكة الصيدليات الواقعة داخل نطاق تغطية فروعك ومستودعاتك حسب المحافظة والمدينة والمسافة الجغرافية.
 					</p>
@@ -103,12 +103,12 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; margin-bottom:1.5rem;">
 				<form method="GET" action="/vendor/pharmacy-coverage" style="display:grid; grid-template-columns:2fr 1.2fr 1.2fr 1.2fr auto; gap:0.75rem; align-items:end;">
 					<div class="form-group mb-0">
-						<label class="form-label" style="font-size:0.75rem;">البحث بالاسم أو العنوان أو الهاتف</label>
+						<label class="form-label text-xs">البحث بالاسم أو العنوان أو الهاتف</label>
 						<input type="text" name="q" value={ data.SearchQuery } class="form-input" placeholder="اسم الصيدلية / الفرع / العنوان..." />
 					</div>
 
 					<div class="form-group mb-0">
-						<label class="form-label" style="font-size:0.75rem;">يوم التوصيل</label>
+						<label class="form-label text-xs">يوم التوصيل</label>
 						<select name="day" class="form-select">
 							<option value="">كافة الأيام</option>
 							<option value="today" selected?={ data.FilterDay == "today" }>اليوم الحالي فقط</option>
@@ -123,7 +123,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 					</div>
 
 					<div class="form-group mb-0">
-						<label class="form-label" style="font-size:0.75rem;">فرع التوزيع</label>
+						<label class="form-label text-xs">فرع التوزيع</label>
 						<select name="branch" class="form-select">
 							<option value="">كافة الفروع</option>
 							for _, b := range data.CoveredBranches {
@@ -133,7 +133,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 					</div>
 
 					<div class="form-group mb-0">
-						<label class="form-label" style="font-size:0.75rem;">المدينة / المنطقة</label>
+						<label class="form-label text-xs">المدينة / المنطقة</label>
 						<select name="city" class="form-select">
 							<option value="">كافة المدن</option>
 							for _, c := range data.CoveredCities {
@@ -143,7 +143,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 					</div>
 
 					<div style="display:flex; gap:0.5rem;">
-						<button type="submit" class="btn btn-primary" style="font-weight:700;">تصفية</button>
+						<button type="submit" class="btn btn-primary fw-700">تصفية</button>
 						if data.SearchQuery != "" || data.FilterDay != "" || data.FilterBranch != "" || data.FilterCity != "" {
 							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary" title="إعادة تعيين">✕</a>
 						}
@@ -177,7 +177,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 									<tr>
 										<td>
 											<div style="display:flex; align-items:center; gap:0.6rem;">
-												<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+												<div class="b2b-icon-box-sm">
 													@components.IconBuilding("icon-xs")
 												</div>
 												<div>
@@ -188,7 +188,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 															{ p.PharmacyName }
 														}
 													</strong>
-													<div style="font-size:0.75rem; color:var(--text-muted);">
+													<div class="text-xs text-muted">
 														<span>{ p.BranchName }</span>
 														if p.Phone != "" {
 															<span class="tabular-nums" style="margin-inline-start:0.35rem;">• 📞 { p.Phone }</span>
@@ -243,11 +243,11 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 										</td>
 										<td>
 											if p.IsCoveredToday {
-												<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:700;">
+												<span class="badge badge-emerald text-sm fw-700">
 													✓ توصيل متاح اليوم
 												</span>
 											} else {
-												<span class="badge badge-secondary" style="font-size:0.75rem;">
+												<span class="badge badge-secondary text-xs">
 													مجدول في أيام أخرى
 												</span>
 											}
@@ -258,7 +258,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 													<a href={ templ.SafeURL("tel:" + p.Phone) } class="btn btn-secondary btn-sm btn-icon" title="اتصال">
 														@components.IconPhone("icon-xs")
 													</a>
-													<a href={ templ.SafeURL("https://wa.me/" + p.Phone) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon" style="color:var(--success-text);" title="مراسلة واتساب">
+													<a href={ templ.SafeURL("https://wa.me/" + p.Phone) } target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-success" title="مراسلة واتساب">
 														@components.IconWhatsApp("icon-xs")
 													</a>
 												}

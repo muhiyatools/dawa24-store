@@ -54,7 +54,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 	} else {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
 			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 						@components.IconMapPin("icon-sm")
 					</div>
@@ -72,7 +72,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 						</div>
 					</div>
 				</div>
-				<div style="display:flex; align-items:center; gap:0.5rem;">
+				<div class="row-center-sm">
 					<form method="POST" action="/customer/set-branch" class="m-0" style="display:inline-flex; align-items:center; gap:0.4rem;">
 						<input type="hidden" name="redirect_to" value="/cart" />
 						<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">تغيير الفرع:</span>
@@ -119,7 +119,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 							</div>
 
 							<div class="text-end">
-								<span style="font-size:0.8rem; color:var(--text-muted);">المجموع الفرعي للمورد:</span>
+								<span class="text-sm text-muted">المجموع الفرعي للمورد:</span>
 								<div class="tabular-nums" style="font-weight:900; font-size:1.2rem; color:var(--accent);">
 									@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.Subtotal })
 								</div>
@@ -148,7 +148,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 												{ item.ProductName.Get(i18n.Lang(lang)) }
 											</h4>
 											<div style="display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; flex-wrap:wrap;">
-												<span>سعر الوحدة: <strong class="tabular-nums" style="color:var(--text);">{ item.UnitPrice.String() } ج.م</strong></span>
+												<span>سعر الوحدة: <strong class="tabular-nums text-primary">{ item.UnitPrice.String() } ج.م</strong></span>
 												if item.AvailableStock > 0 && item.Quantity >= item.AvailableStock {
 													<span class="badge badge-amber" style="font-size:10px; font-weight:700;">أقصى كمية متاحة بالمخزون</span>
 												}
@@ -164,7 +164,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 									<div style="display:flex; align-items:center; gap:1.25rem;">
 										<!-- Horizontal Stepper -->
 										<div style="display:inline-flex; align-items:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:2px; gap:2px;">
-											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" style="margin:0; display:inline;">
+											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 inline">
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity - 1) } />
 												<button
@@ -181,7 +181,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 												{ fmt.Sprintf("%d", item.Quantity) }
 											</span>
 
-											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" style="margin:0; display:inline;">
+											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 inline">
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity + 1) } />
 												<button
@@ -204,7 +204,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 										</div>
 
 										<!-- Remove Button -->
-										<form action="/cart/remove" method="POST" hx-post="/cart/remove" hx-target="#cart-content" hx-swap="innerHTML" style="margin:0; display:inline;">
+										<form action="/cart/remove" method="POST" hx-post="/cart/remove" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 inline">
 											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 											<button
 												type="submit"
@@ -232,7 +232,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 				<div style="display:flex; flex-direction:column; gap:0.875rem; margin-bottom:1.5rem; font-size:0.9rem;">
 					<div style="display:flex; justify-content:space-between; color:var(--text-secondary);">
 						<span>المجموع الفرعي:</span>
-						<span class="tabular-nums" style="font-weight:700; color:var(--text);">
+						<span class="tabular-nums fw-700 text-primary">
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartTotal(cart) })
 						</span>
 					</div>
@@ -244,7 +244,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 
 					<div style="display:flex; justify-content:space-between; color:var(--text-secondary);">
 						<span>رسوم الشحن الدوائي المبرد:</span>
-						<span class="badge badge-emerald" style="font-size:0.75rem;">مجاني للطلبيات المعتمدة</span>
+						<span class="badge badge-emerald text-xs">مجاني للطلبيات المعتمدة</span>
 					</div>
 
 					<div style="border-top:1px dashed var(--border); padding-top:1rem; display:flex; justify-content:space-between; align-items:center;">
@@ -276,12 +276,12 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 				</div>
 
 				<div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem; font-size:0.775rem; color:var(--text-muted);">
-					<div style="display:flex; align-items:center; gap:0.4rem;">
+					<div class="row-center-sm">
 						<span style="color:var(--success);">@components.IconCheckCircle("icon-xs")</span>
 						<span>شحن دوائي آمن تحت درجات حرارة محكومة</span>
 					</div>
-					<div style="display:flex; align-items:center; gap:0.4rem;">
-						<span style="color:var(--accent);">@components.IconFileText("icon-xs")</span>
+					<div class="row-center-sm">
+						<span class="text-accent">@components.IconFileText("icon-xs")</span>
 						<span>فواتير ضريبية إلكترونية معتمدة (ETA e-Invoice)</span>
 					</div>
 				</div>

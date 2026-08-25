@@ -168,7 +168,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" :style=\"open ? 'border-color:var(--accent);' : ''\"><div style=\"display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:1rem;\" @click=\"open = !open\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.725rem; font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" :style=\"open ? 'border-color:var(--accent);' : ''\"><div style=\"display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:1rem;\" @click=\"open = !open\"><div class=\"row-center\"><span class=\"badge badge-sky\" style=\"font-size:0.725rem; font-weight:700;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

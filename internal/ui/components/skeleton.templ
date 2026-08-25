@@ -14,7 +14,7 @@ templ SkeletonText(lines int) {
 			if i == lines-1 {
 				<div class="skeleton skeleton-line" style="width:65%;"></div>
 			} else {
-				<div class="skeleton skeleton-line" style="width:100%;"></div>
+				<div class="skeleton skeleton-line w-full"></div>
 			}
 		}
 	</div>
@@ -25,7 +25,7 @@ templ SkeletonCard() {
 	<div class="skeleton-card" aria-hidden="true">
 		<div class="skeleton skeleton-block"></div>
 		<div class="skeleton skeleton-title"></div>
-		<div class="skeleton skeleton-line" style="width:100%;"></div>
+		<div class="skeleton skeleton-line w-full"></div>
 		<div class="skeleton skeleton-line" style="width:80%;"></div>
 	</div>
 }
@@ -60,7 +60,7 @@ templ SkeletonList(rows int) {
 		for i := 0; i < rows; i++ {
 			<div class="skeleton-row">
 				<div class="skeleton skeleton-avatar"></div>
-				<div style="flex:1;">
+				<div class="flex-1">
 					<div class="skeleton skeleton-line" style="width:40%;"></div>
 					<div class="skeleton skeleton-line" style="width:70%; margin-bottom:0;"></div>
 				</div>

@@ -111,7 +111,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:var(--space-6);\"><!-- Header Banner --><div class=\"card\" style=\"background:linear-gradient(135deg, var(--accent-subtle) 0%, var(--surface-raised) 100%); border:1px solid var(--accent); margin-bottom:0; padding:var(--space-6);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);\"><div><div style=\"display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);\"><span class=\"badge badge-emerald\" style=\"font-weight:700;\">عروض نشطة ومباشرة</span> <span class=\"badge badge-sky\">تغطية جغرافية معتمدة</span></div><h2 style=\"font-size:var(--text-2xl); font-weight:800; color:var(--text); margin:0 0 var(--space-2);\">العروض والتخفيضات المتاحة للتوريد الدوائي</h2><p style=\"font-size:var(--text-sm); color:var(--text-secondary); max-width:620px; margin:0; line-height:1.6;\">استفد من خصومات كبرى شركات الأدوية والموزعين المعتمدين في منطقتك، مع إمكانية الطلب المباشر وإصدار فواتير إلكترونية فورية.</p></div><a href=\"/catalog\" class=\"btn btn-primary\" style=\"font-weight:700;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:var(--space-6);\"><!-- Header Banner --><div class=\"card\" style=\"background:linear-gradient(135deg, var(--accent-subtle) 0%, var(--surface-raised) 100%); border:1px solid var(--accent); margin-bottom:0; padding:var(--space-6);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);\"><div><div style=\"display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);\"><span class=\"badge badge-emerald fw-700\">عروض نشطة ومباشرة</span> <span class=\"badge badge-sky\">تغطية جغرافية معتمدة</span></div><h2 style=\"font-size:var(--text-2xl); font-weight:800; color:var(--text); margin:0 0 var(--space-2);\">العروض والتخفيضات المتاحة للتوريد الدوائي</h2><p style=\"font-size:var(--text-sm); color:var(--text-secondary); max-width:620px; margin:0; line-height:1.6;\">استفد من خصومات كبرى شركات الأدوية والموزعين المعتمدين في منطقتك، مع إمكانية الطلب المباشر وإصدار فواتير إلكترونية فورية.</p></div><a href=\"/catalog\" class=\"btn btn-primary fw-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -213,14 +213,14 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</p></div><div style=\"border-top:1px solid var(--border); padding-top:var(--space-3); margin-top:var(--space-2); display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:var(--text-xs); color:var(--text-muted);\">ينتهي في: <strong class=\"tabular-nums\" style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</p></div><div style=\"border-top:1px solid var(--border); padding-top:var(--space-3); margin-top:var(--space-2); display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:var(--text-xs); color:var(--text-muted);\">ينتهي في: <strong class=\"tabular-nums text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(o.ExpiresAt.Format("2006-01-02"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 95, Col: 116}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 95, Col: 102}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -350,7 +350,7 @@ func OfferDetailContent(lang string, o *promo.Offer) templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"max-width:680px; margin:0 auto;\"><div class=\"card\" style=\"margin-bottom:0; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-6);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);\"><span class=\"badge badge-emerald\" style=\"font-weight:700;\">عرض معتمد ونشط</span> <a href=\"/offers\" style=\"font-size:var(--text-xs); color:var(--accent); text-decoration:none; font-weight:600;\">← العودة لكافة العروض</a></div><h2 style=\"font-size:var(--text-2xl); font-weight:800; color:var(--text); margin:0 0 var(--space-3); line-height:1.3;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"max-width:680px; margin:0 auto;\"><div class=\"card\" style=\"margin-bottom:0; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-6);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);\"><span class=\"badge badge-emerald fw-700\">عرض معتمد ونشط</span> <a href=\"/offers\" style=\"font-size:var(--text-xs); color:var(--accent); text-decoration:none; font-weight:600;\">← العودة لكافة العروض</a></div><h2 style=\"font-size:var(--text-2xl); font-weight:800; color:var(--text); margin:0 0 var(--space-3); line-height:1.3;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

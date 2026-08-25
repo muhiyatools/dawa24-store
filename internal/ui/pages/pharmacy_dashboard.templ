@@ -13,7 +13,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 	@layouts.CustomerShell("لوحة التحكم", "dashboard", lang, dir, perms) {
 		if len(data.PendingDocRequests) > 0 {
 			<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:var(--radius-xl); padding:1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					@components.IconAlert("icon-lg")
 					<div>
 						<div style="font-weight:800; color:#92400e; font-size:0.95rem;">
@@ -35,7 +35,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 			<div class="card" style="margin-bottom:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<div style="display:flex; align-items:center; gap:0.6rem;">
-						<span style="font-size:1.25rem;">🏢</span>
+						<span class="text-xl">🏢</span>
 						<div>
 							<h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">
 								باقة الاشتراك وخدمات الذكاء الاصطناعي للمنشأة
@@ -45,10 +45,10 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							</p>
 						</div>
 					</div>
-					<div style="display:flex; align-items:center; gap:0.5rem;">
-						<span class="badge badge-emerald" style="font-weight:700;">{ data.Subscription.Status }</span>
+					<div class="row-center-sm">
+						<span class="badge badge-emerald fw-700">{ data.Subscription.Status }</span>
 						if data.Subscription.IsDefaultPlan {
-							<span class="badge badge-primary" style="font-size:0.75rem;">باقة افتراضية</span>
+							<span class="badge badge-primary text-xs">باقة افتراضية</span>
 						}
 					</div>
 				</div>
@@ -81,7 +81,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 
 					<!-- AI Gateway & Live Consumption -->
 					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+						<div class="flex-between">
 							<span style="font-size:0.75rem; color:var(--primary); font-weight:700;">بوابة الذكاء الاصطناعي</span>
 							<span class="badge badge-info" dir="ltr" style="font-size:0.7rem; font-weight:700;">{ data.Subscription.AIPlanID }</span>
 						</div>
@@ -98,7 +98,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							</div>
 						} else {
 							<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
-								<span>المعرّف: </span><code dir="ltr" style="font-size:0.75rem;">{ data.Subscription.AIUserID }</code>
+								<span>المعرّف: </span><code dir="ltr" class="text-xs">{ data.Subscription.AIUserID }</code>
 							</div>
 							<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--emerald); font-weight:600;">
 								✓ المفتاح الافتراضي مفعل وجاهز
@@ -146,10 +146,10 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 		</div>
 
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
-			<div class="b2b-table-card" style="padding:1.25rem;">
+			<div class="b2b-table-card p-card-sm">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
 					<h2 class="card-title" style="margin:0; font-size:1.1rem; font-weight:700;">متابعة الطلبات</h2>
-					<a href="/orders" class="btn btn-secondary btn-sm" style="font-weight:600;">كل الطلبات</a>
+					<a href="/orders" class="btn btn-secondary btn-sm fw-600">كل الطلبات</a>
 				</div>
 				if len(data.Orders) == 0 {
 					@components.EmptyState(components.EmptyStateProps{
@@ -180,10 +180,10 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				}
 			</div>
 
-			<div class="b2b-table-card" style="padding:1.25rem;">
+			<div class="b2b-table-card p-card-sm">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
 					<h2 class="card-title" style="margin:0; font-size:1.1rem; font-weight:700;">عروض توريد مقترحة لك</h2>
-					<a href="/offers" class="btn btn-secondary btn-sm" style="font-weight:600;">كل العروض</a>
+					<a href="/offers" class="btn btn-secondary btn-sm fw-600">كل العروض</a>
 				</div>
 				if len(data.Offers) == 0 {
 					@components.EmptyState(components.EmptyStateProps{
@@ -191,14 +191,14 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						Message: "لا توجد عروض توريد نشطة في منطقتك حالياً.",
 					})
 				} else {
-					<div style="display:flex; flex-direction:column; gap:0.5rem;">
+					<div class="stack-sm">
 						for _, o := range data.Offers {
 							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
 								<div>
 									<div style="font-weight:700; color:var(--text); font-size:0.9375rem;">{ o.Title.Get(i18n.Lang(lang)) }</div>
 									<div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:0.15rem;">قيمة الخصم: <strong class="tabular-nums">{ o.DiscountValue.String() }</strong> ج.م</div>
 								</div>
-								<a href="/offers" class="btn btn-secondary btn-sm" style="font-weight:600;">عرض التفاصيل</a>
+								<a href="/offers" class="btn btn-secondary btn-sm fw-600">عرض التفاصيل</a>
 							</div>
 						}
 					</div>

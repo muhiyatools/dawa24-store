@@ -57,7 +57,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.5rem;\" x-data=\"adminAuditManager()\"><!-- Header Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div class=\"row-center-sm\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\" x-data=\"adminAuditManager()\"><!-- Header Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div class=\"row-center-sm\"><div class=\"b2b-icon-box\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,7 +78,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات</p></div></div></div><div style=\"display:flex; gap:0.5rem; align-items:center;\"><a href=\"/admin/audit\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:600;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات</p></div></div></div><div style=\"display:flex; gap:0.5rem; align-items:center;\"><a href=\"/admin/audit\" class=\"btn btn-secondary btn-sm fw-600\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -169,7 +169,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ">أوامر التوريد</option></select></div><button type=\"submit\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ">أوامر التوريد</option></select></div><button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -182,7 +182,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if values.SelectedActor != "" || values.Severity != "" || values.ActionFilter != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"/admin/audit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--text-muted);\">إلغاء التصفية</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"/admin/audit\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء التصفية</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -205,7 +205,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, e := range values.Entries {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<tr style=\"border-bottom:1px solid var(--border); transition:background 150ms;\" onmouseover=\"this.style.background='var(--surface-sunken)'\" onmouseout=\"this.style.background='transparent'\"><!-- 1. المعرف --><td style=\"text-align:center;\"><span class=\"tabular-nums\" style=\"font-family:monospace; font-weight:800; color:var(--text-muted); font-size:0.8rem;\">#")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<tr style=\"border-bottom:1px solid var(--border); transition:background 150ms;\" onmouseover=\"this.style.background='var(--surface-sunken)'\" onmouseout=\"this.style.background='transparent'\"><!-- 1. المعرف --><td class=\"text-center\"><span class=\"tabular-nums\" style=\"font-family:monospace; font-weight:800; color:var(--text-muted); font-size:0.8rem;\">#")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -328,20 +328,20 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <span style=\"font-size:0.725rem; color:var(--text-muted);\">القسم: <strong style=\"color:var(--text-secondary);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <span style=\"font-size:0.725rem; color:var(--text-muted);\">القسم: <strong class=\"text-secondary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(e.Module)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 164, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 164, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</strong></span></div></td><!-- 6. العنوان والوصف --><td class=\"text-start\"><div style=\"font-weight:700; color:var(--text); font-size:0.85rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</strong></span></div></td><!-- 6. العنوان والوصف --><td class=\"text-start\"><div class=\"fw-700 text-primary text-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -367,7 +367,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></td><!-- 7. الأهمية --><td style=\"text-align:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></td><!-- 7. الأهمية --><td class=\"text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -438,7 +438,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><!-- 9. الإجراءات --><td style=\"text-align:center;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.35rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><!-- 9. الإجراءات --><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.35rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -477,7 +477,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\" x-text=\"'تفاصيل العملية #' + (selected ? selected.id : '')\"></h3><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:2px;\" x-text=\"selected ? selected.title : ''\"></div></div></div><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><div><h3 class=\"text-lg fw-800 text-primary m-0\" x-text=\"'تفاصيل العملية #' + (selected ? selected.id : '')\"></h3><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:2px;\" x-text=\"selected ? selected.title : ''\"></div></div></div><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-icon size-8\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -485,7 +485,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</button></div><template x-if=\"selected\"><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Meta Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">المستخدم المنفذ:</div><div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\" x-text=\"selected.actor_name\"></div><div style=\"font-size:0.75rem; color:var(--text-secondary); direction:ltr; text-align:start;\" x-text=\"selected.actor_email\"></div></div><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">المنظمة / الجهة:</div><div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\" x-text=\"selected.organization_name\"></div></div><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">عنوان IP / المسار:</div><div style=\"font-family:monospace; font-size:0.8rem; color:var(--text); direction:ltr; text-align:start;\" x-text=\"selected.ip_address\"></div><div style=\"font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;\" x-text=\"selected.route\"></div></div><div><div style=\"font-size:0.75rem; color:var(--text-muted);\">التوقيت والأهمية:</div><div style=\"font-size:0.85rem; font-weight:700; color:var(--text);\" x-text=\"selected.created_at\"></div><div style=\"margin-top:2px;\"><span class=\"badge\" :class=\"selected.severity === 'حرج (Critical)' ? 'badge-rose' : (selected.severity === 'متوسط (Warning)' ? 'badge-amber' : 'badge-slate')\" x-text=\"selected.severity\"></span></div></div></div><!-- Action Description --><div style=\"background:var(--surface-raised); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;\">شرح وبيان العملية:</div><div style=\"font-size:0.9rem; color:var(--text); line-height:1.5;\" x-text=\"selected.description\"></div></div><!-- Side-by-Side Diff --><div class=\"form-grid-2\"><!-- Before State --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;\"><span style=\"font-weight:700; font-size:0.825rem; color:var(--text);\">الحالة السابقة (Before)</span> <span class=\"badge badge-slate\" style=\"font-size:0.7rem;\">Original</span></div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;\" x-text=\"selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة مسجلة'\"></pre></div><!-- After State --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;\"><span style=\"font-weight:700; font-size:0.825rem; color:var(--text);\">الحالة الجديدة (After)</span> <span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">Updated</span></div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;\" x-text=\"selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'\"></pre></div></div></div></template><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary\" style=\"font-weight:700; padding:0.5rem 1.5rem;\">إغلاق</button></div></div></div><!-- Embedded JSON Data Store for Modal -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</button></div><template x-if=\"selected\"><div class=\"stack-lg\"><!-- Meta Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div><div class=\"text-xs text-muted\">المستخدم المنفذ:</div><div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\" x-text=\"selected.actor_name\"></div><div style=\"font-size:0.75rem; color:var(--text-secondary); direction:ltr; text-align:start;\" x-text=\"selected.actor_email\"></div></div><div><div class=\"text-xs text-muted\">المنظمة / الجهة:</div><div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\" x-text=\"selected.organization_name\"></div></div><div><div class=\"text-xs text-muted\">عنوان IP / المسار:</div><div style=\"font-family:monospace; font-size:0.8rem; color:var(--text); direction:ltr; text-align:start;\" x-text=\"selected.ip_address\"></div><div style=\"font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;\" x-text=\"selected.route\"></div></div><div><div class=\"text-xs text-muted\">التوقيت والأهمية:</div><div style=\"font-size:0.85rem; font-weight:700; color:var(--text);\" x-text=\"selected.created_at\"></div><div style=\"margin-top:2px;\"><span class=\"badge\" :class=\"selected.severity === 'حرج (Critical)' ? 'badge-rose' : (selected.severity 'متوسط (Warning)' 'badge-amber' 'badge-slate')\" x-text=\"selected.severity\"></span></div></div></div><!-- Action Description --><div style=\"background:var(--surface-raised); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;\">شرح وبيان العملية:</div><div style=\"font-size:0.9rem; color:var(--text); line-height:1.5;\" x-text=\"selected.description\"></div></div><!-- Side-by-Side Diff --><div class=\"form-grid-2\"><!-- Before State --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;\"><span style=\"font-weight:700; font-size:0.825rem; color:var(--text);\">الحالة السابقة (Before)</span> <span class=\"badge badge-slate text-xs\">Original</span></div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;\" x-text=\"selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة مسجلة'\"></pre></div><!-- After State --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;\"><span style=\"font-weight:700; font-size:0.825rem; color:var(--text);\">الحالة الجديدة (After)</span> <span class=\"badge badge-emerald text-xs\">Updated</span></div><pre style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;\" x-text=\"selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'\"></pre></div></div></div></template><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;\"><button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary\" style=\"font-weight:700; padding:0.5rem 1.5rem;\">إغلاق</button></div></div></div><!-- Embedded JSON Data Store for Modal -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

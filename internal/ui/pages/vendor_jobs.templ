@@ -32,12 +32,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--danger-text); font-weight:700;">
-						<span style="font-size:1.25rem;">⚠️</span>
+						<span class="text-xl">⚠️</span>
 						<span>{ data.NoticeMsg }</span>
 					</div>
 				} else {
 					<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--primary-700); font-weight:700;">
-						<span style="font-size:1.25rem;">✅</span>
+						<span class="text-xl">✅</span>
 						<span>{ data.NoticeMsg }</span>
 					</div>
 				}
@@ -123,7 +123,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
 					<h2 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
 						<span>قائمة الشواغر الوظيفية</span>
-						<span class="badge badge-slate" style="font-size:0.75rem;">{ fmt.Sprintf("%d وظيفة", len(data.Jobs)) }</span>
+						<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d وظيفة", len(data.Jobs)) }</span>
 					</h2>
 				</div>
 
@@ -157,12 +157,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 									<th style="padding:1rem 1.25rem; font-weight:800; text-align:end;">الإجراءات</th>
 								</tr>
 							</thead>
-							<tbody style="font-size:0.875rem;">
+							<tbody class="text-sm">
 								for _, item := range data.Jobs {
 									<tr style="border-bottom:1px solid var(--border); transition:background 0.15s ease;" class="hover-row">
 										<!-- Title & Short Desc -->
 										<td style="padding:1.1rem 1.25rem;">
-											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											<div class="fw-800 text-primary text-base">
 												{ item.Job.Title.Get(i18n.Lang(lang)) }
 											</div>
 											if item.Job.Description != "" {
@@ -175,19 +175,19 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 										<!-- Location -->
 										<td style="padding:1rem; color:var(--text-secondary); font-weight:600;">
 											if item.Job.Location != "" {
-												<div style="display:flex; align-items:center; gap:0.35rem;">
+												<div class="row-center-xs">
 													<span>📍</span>
 													<span>{ item.Job.Location }</span>
 												</div>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">غير محدد</span>
+												<span class="text-muted text-sm">غير محدد</span>
 											}
 										</td>
 
 										<!-- Salary Range -->
 										<td style="padding:1rem; font-family:var(--font-mono, monospace); font-size:0.85rem;">
 											if item.Job.SalaryMin.IsPositive() || item.Job.SalaryMax.IsPositive() {
-												<span style="font-weight:700; color:var(--text);">
+												<span class="fw-700 text-primary">
 													if item.Job.SalaryMin.IsPositive() {
 														{ item.Job.SalaryMin.String() }
 													}
@@ -197,15 +197,15 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 													if item.Job.SalaryMax.IsPositive() {
 														{ item.Job.SalaryMax.String() }
 													}
-													<span style="font-size:0.75rem; color:var(--text-muted);"> ج.م</span>
+													<span class="text-xs text-muted"> ج.م</span>
 												</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">يحدد بالمقابلة</span>
+												<span class="text-muted text-sm">يحدد بالمقابلة</span>
 											}
 										</td>
 
 										<!-- Applicants Count -->
-										<td style="padding:1rem; text-align:center;">
+										<td class="p-md text-center">
 											<button
 												type="button"
 												onclick={ templ.ComponentScript{Call: fmt.Sprintf("viewApplicants(%d, '%s')", item.Job.ID, item.Job.Title.Get(i18n.Lang(lang)))} }
@@ -218,7 +218,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 										</td>
 
 										<!-- Status -->
-										<td style="padding:1rem; text-align:center;">
+										<td class="p-md text-center">
 											if item.Job.Status == "published" {
 												<span class="badge badge-emerald" style="font-size:0.75rem; padding:0.3rem 0.65rem; font-weight:700;">
 													منشورة ومتاحة
@@ -240,9 +240,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem;">
 												
 												<!-- Toggle Status Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)) } style="margin:0;">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)) } class="m-0">
 													if item.Job.Status == "published" {
-														<button type="submit" class="btn btn-secondary btn-sm" title="إغلاق استقبال الطلبات" style="font-size:0.75rem; font-weight:700;">
+														<button type="submit" class="btn btn-secondary btn-sm text-xs fw-700" title="إغلاق استقبال الطلبات">
 															إغلاق
 														</button>
 													} else {
@@ -253,8 +253,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 												</form>
 
 												<!-- Delete Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذه الوظيفة نهائياً؟');" style="margin:0;">
-													<button type="submit" class="btn btn-secondary btn-sm btn-icon" title="حذف الوظيفة" style="color:var(--danger-text);">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذه الوظيفة نهائياً؟');" class="m-0">
+													<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف الوظيفة">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -276,7 +276,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			<div class="card" style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;">
-					<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div class="row-center">
 						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
 							💼
 						</div>
@@ -294,13 +294,13 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</button>
 				</div>
 
-				<form method="POST" action="/vendor/jobs" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<form method="POST" action="/vendor/jobs" class="stack-lg">
 					
 					<!-- Titles -->
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div class="grid-2">
 						<div>
 							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
-								المسمى الوظيفي (بالعربية) <span style="color:var(--danger-text);">*</span>
+								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 							</label>
 							<input
 								type="text"
@@ -330,7 +330,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<!-- Location -->
 					<div>
 						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
-							مقر العمل / المحافظة أو المدينة <span style="color:var(--danger-text);">*</span>
+							مقر العمل / المحافظة أو المدينة <span class="text-danger">*</span>
 						</label>
 						<input
 							type="text"
@@ -343,7 +343,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</div>
 
 					<!-- Salary Range -->
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div class="grid-2">
 						<div>
 							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
 								الحد الأدنى للراتب (ج.م)
@@ -376,7 +376,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<!-- Description -->
 					<div>
 						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
-							الوصف الوظيفي والمهام والمسؤوليات <span style="color:var(--danger-text);">*</span>
+							الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 						</label>
 						<textarea
 							name="description"
@@ -527,7 +527,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 									<span>📄</span>
 									<span>تحميل السيرة الذاتية (CV)</span>
 							   </a>`
-							: `<span style="font-size:0.75rem; color:var(--text-muted);">لم يرفق CV</span>`;
+							: `<span class="text-xs text-muted">لم يرفق CV</span>`;
 
 						html += `
 							<div style="padding:1.1rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
@@ -550,7 +550,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					document.getElementById('applicants-modal-content').innerHTML = html;
 				} catch (err) {
 					document.getElementById('applicants-modal-content').innerHTML = `
-						<div class="alert alert-danger" style="padding:1rem;">
+						<div class="alert alert-danger p-md">
 							حدث خطأ أثناء تحميل المتقدمين: ${err.message}
 						</div>
 					`;

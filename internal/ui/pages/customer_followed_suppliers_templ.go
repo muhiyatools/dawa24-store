@@ -57,7 +57,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.4rem; font-weight:800; color:var(--text); margin:0;\">الموردون المتابعون</h2></div><p style=\"color:var(--text-secondary); font-size:0.875rem; margin:0;\">الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.</p></div><a href=\"/suppliers\" class=\"btn btn-secondary\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.4rem; font-weight:800; color:var(--text); margin:0;\">الموردون المتابعون</h2></div><p style=\"color:var(--text-secondary); font-size:0.875rem; margin:0;\">الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.</p></div><a href=\"/suppliers\" class=\"btn btn-secondary fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -84,7 +84,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					return templ_7745c5c3_Err
 				}
 				for _, s := range suppliers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"margin-bottom:0; padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-raised);\"><div><!-- Header with Emblem and Verified Badge --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); flex-shrink:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"margin-bottom:0; padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-raised);\"><div><!-- Header with Emblem and Verified Badge --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;\"><div class=\"row-center\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); flex-shrink:0;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -131,14 +131,14 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 						return templ_7745c5c3_Err
 					}
 					if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"display:flex; justify-content:space-between; margin-bottom:0.25rem;\"><span style=\"color:var(--text-muted);\">الاسم القانوني:</span> <strong style=\"color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"display:flex; justify-content:space-between; margin-bottom:0.25rem;\"><span class=\"text-muted\">الاسم القانوني:</span> <strong class=\"text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(s.LegalName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_followed_suppliers.templ`, Line: 76, Col: 59}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_followed_suppliers.templ`, Line: 76, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -150,14 +150,14 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 						}
 					}
 					if s.CommercialRegister != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"display:flex; justify-content:space-between;\"><span style=\"color:var(--text-muted);\">السجل التجاري:</span> <strong class=\"tabular-nums\" style=\"color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"display:flex; justify-content:space-between;\"><span class=\"text-muted\">السجل التجاري:</span> <strong class=\"tabular-nums text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(s.CommercialRegister)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_followed_suppliers.templ`, Line: 82, Col: 89}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_followed_suppliers.templ`, Line: 82, Col: 75}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -189,7 +189,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>عرض الكتالوج والطلب</span></a> <a href=\"https://wa.me/201012345678\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm btn-icon\" style=\"color:var(--success-text);\" title=\"تواصل عبر واتساب\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>عرض الكتالوج والطلب</span></a> <a href=\"https://wa.me/201012345678\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm btn-icon text-success\" title=\"تواصل عبر واتساب\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

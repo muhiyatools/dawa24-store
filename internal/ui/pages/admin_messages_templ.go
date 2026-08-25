@@ -50,7 +50,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Header Banner --><div class=\"card\" style=\"margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\"><!-- Header Banner --><div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;\"><div class=\"row-center-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -71,7 +71,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p style=\"font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;\">صندوق الرسائل والطلبات الواردة عبر نموذج \"تواصل معنا\" من الصيدليات والشركات والعملاء.</p></div></div><div style=\"display:flex; gap:0.75rem; align-items:center;\"><a href=\"/admin/messages\" class=\"btn btn-secondary btn-sm\" style=\"display:flex; align-items:center; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h2><p style=\"font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;\">صندوق الرسائل والطلبات الواردة عبر نموذج \"تواصل معنا\" من الصيدليات والشركات والعملاء.</p></div></div><div style=\"display:flex; gap:0.75rem; align-items:center;\"><a href=\"/admin/messages\" class=\"btn btn-secondary btn-sm row-center-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -123,7 +123,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><td><div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</td><td><div class=\"fw-800 text-primary text-base\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -215,7 +215,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td><span class=\"badge badge-sky\" style=\"font-weight:700;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td><span class=\"badge badge-sky fw-700\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -246,17 +246,17 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 						return templ_7745c5c3_Err
 					}
 					if m.Status == "unread" || m.Status == "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-rose\" style=\"font-weight:800;\">غير مقروءة ✉</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-rose fw-800\">غير مقروءة ✉</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if m.Status == "in_progress" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-warning\" style=\"font-weight:800;\">قيد المتابعة ⏳</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-warning fw-800\">قيد المتابعة ⏳</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"badge badge-emerald\" style=\"font-weight:800;\">تم الرد / مكتملة ✓</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"badge badge-emerald fw-800\">تم الرد / مكتملة ✓</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -331,17 +331,17 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" style=\"margin:0; display:inline;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"m-0 inline\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if m.Status == "unread" || m.Status == "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--success-text);\" title=\"تحديد كمقروءة / تم التعامل\">تمت المتابعة</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<button type=\"submit\" class=\"btn btn-secondary btn-sm text-success\" title=\"تحديد كمقروءة / تم التعامل\">تمت المتابعة</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--warning-text);\" title=\"تحديد كغير مقروءة\">غير مقروءة</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<button type=\"submit\" class=\"btn btn-secondary btn-sm text-warning\" title=\"تحديد كغير مقروءة\">غير مقروءة</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -359,7 +359,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger-text);\" onclick=\"return confirm('هل أنت متأكد من حذف هذه الرسالة؟')\" title=\"حذف الرسالة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"m-0 inline\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger\" onclick=\"return confirm('هل أنت متأكد من حذف هذه الرسالة؟')\" title=\"حذف الرسالة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -54,7 +54,7 @@ func PasswordReset() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900);\">استعادة كلمة المرور</h1><p style=\"color:var(--neutral-500); font-size:0.875rem; margin-top:0.35rem;\">أدخل بريدك الإلكتروني المسجل وسنرسل لك رابط إعادة التعيين</p></div><form action=\"/auth/forgot\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"email\">البريد الإلكتروني المسجل</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"pharmacist@dawa24.eg\" required class=\"form-input\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem; justify-content:center; font-size:0.95rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900);\">استعادة كلمة المرور</h1><p style=\"color:var(--neutral-500); font-size:0.875rem; margin-top:0.35rem;\">أدخل بريدك الإلكتروني المسجل وسنرسل لك رابط إعادة التعيين</p></div><form action=\"/auth/forgot\" method=\"POST\" class=\"stack-lg\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"email\">البريد الإلكتروني المسجل</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"pharmacist@dawa24.eg\" required class=\"form-input\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem; justify-content:center; font-size:0.95rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -109,7 +109,7 @@ func PasswordResetConfirm(token string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-50) 0%, var(--bg-app) 100%);\"><div class=\"card hover-lift\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.25rem;\"><div style=\"text-align:center; margin-bottom:2rem;\"><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900);\">تعيين كلمة المرور الجديدة</h1></div><form action=\"/auth/reset\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><input type=\"hidden\" name=\"token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-50) 0%, var(--bg-app) 100%);\"><div class=\"card hover-lift\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.25rem;\"><div style=\"text-align:center; margin-bottom:2rem;\"><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900);\">تعيين كلمة المرور الجديدة</h1></div><form action=\"/auth/reset\" method=\"POST\" class=\"stack-lg\"><input type=\"hidden\" name=\"token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -122,7 +122,7 @@ func PasswordResetConfirm(token string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"password\" name=\"password\" placeholder=\"••••••••\" required class=\"form-input\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"password\" name=\"password\" placeholder=\"••••••••\" required class=\"form-input\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"padding:0.75rem; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

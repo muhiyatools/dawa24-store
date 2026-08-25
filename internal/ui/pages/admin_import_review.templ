@@ -286,7 +286,7 @@ templ importRowsCard(view ImportReviewView) {
 			@rowFilterChip(view, "issues", "⚠ الملاحظات")
 			@rowFilterChip(view, "ai", "🤖 استكمال ذكي")
 			<span class="wiz-toolbar-spacer"></span>
-			<form method="GET" class="wiz-toolbar" style="margin:0;">
+			<form method="GET" class="wiz-toolbar m-0">
 				<input
 					class="wiz-map-input"
 					type="search"
@@ -388,7 +388,7 @@ templ importConfirmCard(view ImportReviewView) {
 				FormatCount(view.Counts.Insert), FormatCount(view.Counts.Update)) }
 		</p>
 		if view.ModeIsDestructive() {
-			<div class="import-banner import-banner--error" style="margin-bottom:1rem;">
+			<div class="import-banner import-banner--error mb-md">
 				<p class="import-banner-text">
 					سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع،
 					لكنها ستختفي من الكتالوج والبحث فوراً.

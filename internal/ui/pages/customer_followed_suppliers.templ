@@ -28,7 +28,7 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 					</p>
 				</div>
 
-				<a href="/suppliers" class="btn btn-secondary" style="font-weight:700;">
+				<a href="/suppliers" class="btn btn-secondary fw-700">
 					@components.IconSearch("icon-xs")
 					<span>دليل الموردين المعتمدين</span>
 				</a>
@@ -47,7 +47,7 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 							<div>
 								<!-- Header with Emblem and Verified Badge -->
 								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-									<div style="display:flex; align-items:center; gap:0.75rem;">
+									<div class="row-center">
 										<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); flex-shrink:0;">
 											@components.IconBuilding("icon-md")
 										</div>
@@ -72,14 +72,14 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 								<div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem; background:var(--surface-sunken); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border);">
 									if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
 										<div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
-											<span style="color:var(--text-muted);">الاسم القانوني:</span>
-											<strong style="color:var(--text);">{ s.LegalName }</strong>
+											<span class="text-muted">الاسم القانوني:</span>
+											<strong class="text-primary">{ s.LegalName }</strong>
 										</div>
 									}
 									if s.CommercialRegister != "" {
 										<div style="display:flex; justify-content:space-between;">
-											<span style="color:var(--text-muted);">السجل التجاري:</span>
-											<strong class="tabular-nums" style="color:var(--text);">{ s.CommercialRegister }</strong>
+											<span class="text-muted">السجل التجاري:</span>
+											<strong class="tabular-nums text-primary">{ s.CommercialRegister }</strong>
 										</div>
 									}
 								</div>
@@ -91,7 +91,7 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 									@components.IconPackage("icon-xs")
 									<span>عرض الكتالوج والطلب</span>
 								</a>
-								<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon" style="color:var(--success-text);" title="تواصل عبر واتساب">
+								<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-success" title="تواصل عبر واتساب">
 									@components.IconWhatsApp("icon-xs")
 								</a>
 							</div>

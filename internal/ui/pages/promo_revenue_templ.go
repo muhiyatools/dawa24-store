@@ -49,7 +49,7 @@ func AdminOffersPackagesHubPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">منظومة باقات العروض والرعايات والإعلانات</h2><p class=\"subtitle\">إدارة خطط الاشتراكات المميزة للموردين، باقات الظهور، والرعايات الرسمية.</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;\">باقات العروض (Packages)</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;\">تحديد الباقات المتاحة للموردين لنشر عدد أكبر من العروض المميزة.</p><a href=\"/admin/offers-packages/packages\" class=\"btn btn-secondary btn-sm\">إدارة الباقات</a></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;\">الرعايات الرسمية (Sponsorships)</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;\">عروض الرعاية المدفوعة لتثبيت ظهور عروض المورد في الصدارة.</p><a href=\"/admin/offers-packages/sponsorships\" class=\"btn btn-secondary btn-sm\">إدارة الرعايات</a></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;\">الحملات الترويجية (Promotions)</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;\">حملات الخصومات المؤقتة والموجهة جغرافياً للصيدليات.</p><a href=\"/admin/offers-packages/promotions\" class=\"btn btn-secondary btn-sm\">إدارة الحملات</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">منظومة باقات العروض والرعايات والإعلانات</h2><p class=\"subtitle\">إدارة خطط الاشتراكات المميزة للموردين، باقات الظهور، والرعايات الرسمية.</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;\">باقات العروض (Packages)</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;\">تحديد الباقات المتاحة للموردين لنشر عدد أكبر من العروض المميزة.</p><a href=\"/admin/offers-packages/packages\" class=\"btn btn-secondary btn-sm\">إدارة الباقات</a></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;\">الرعايات الرسمية (Sponsorships)</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;\">عروض الرعاية المدفوعة لتثبيت ظهور عروض المورد في الصدارة.</p><a href=\"/admin/offers-packages/sponsorships\" class=\"btn btn-secondary btn-sm\">إدارة الرعايات</a></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:1.05rem; font-weight:700; margin-bottom:0.5rem;\">الحملات الترويجية (Promotions)</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;\">حملات الخصومات المؤقتة والموجهة جغرافياً للصيدليات.</p><a href=\"/admin/offers-packages/promotions\" class=\"btn btn-secondary btn-sm\">إدارة الحملات</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -97,7 +97,7 @@ func AdminOfferPackagesListPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">باقات العروض للموردين</h2></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة للمركز</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">باقات العروض للموردين</h2></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة للمركز</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -153,14 +153,14 @@ func AdminOfferPackageDetailPage(pkgID int64, lang, dir string) templ.Component 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"card\" style=\"max-width:800px; margin:0 auto;\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">باقة العروض #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">باقة العروض #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", pkgID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue.templ`, Line: 63, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue.templ`, Line: 63, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -214,7 +214,7 @@ func AdminOfferSponsorshipsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">الرعايات الرسمية للعروض</h2></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">الرعايات الرسمية للعروض</h2></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -270,7 +270,7 @@ func AdminOfferPromotionsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">الحملات الترويجية المخصصة</h2></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">الحملات الترويجية المخصصة</h2></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -326,7 +326,7 @@ func AdminAdsListPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">الإعلانات والبنرات الترويجية في المنصة</h2><p class=\"subtitle\">مراجعة واعتماد بنرات الموردين والشركات على الصفحة الرئيسية وصفحات الأقسام.</p></div><a href=\"/admin/ad-plan\" class=\"btn btn-secondary btn-sm\">خطط الإعلانات</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">الإعلانات والبنرات الترويجية في المنصة</h2><p class=\"subtitle\">مراجعة واعتماد بنرات الموردين والشركات على الصفحة الرئيسية وصفحات الأقسام.</p></div><a href=\"/admin/ad-plan\" class=\"btn btn-secondary btn-sm\">خطط الإعلانات</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -382,7 +382,7 @@ func AdminAdPlansPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">خطط ومواضع الإعلانات</h2></div><a href=\"/admin/ads\" class=\"btn btn-secondary btn-sm\">العودة للإعلانات</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">خطط ومواضع الإعلانات</h2></div><a href=\"/admin/ads\" class=\"btn btn-secondary btn-sm\">العودة للإعلانات</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -438,7 +438,7 @@ func AdminOfferAnalyticsViewsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"card mb-0\"><h2 class=\"card-title\" style=\"margin-bottom:1.5rem;\">تقرير مشاهدات وزيارات العروض الترويجية</h2>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"card mb-0\"><h2 class=\"card-title mb-lg\">تقرير مشاهدات وزيارات العروض الترويجية</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -494,7 +494,7 @@ func AdminOfferAnalyticsClicksPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"card mb-0\"><h2 class=\"card-title\" style=\"margin-bottom:1.5rem;\">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h2>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"card mb-0\"><h2 class=\"card-title mb-lg\">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -550,7 +550,7 @@ func AdminOfferLocationsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"card mb-0\"><h2 class=\"card-title\" style=\"margin-bottom:1.5rem;\">نطاق التغطية الجغرافية للعروض والصفقات</h2>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"card mb-0\"><h2 class=\"card-title mb-lg\">نطاق التغطية الجغرافية للعروض والصفقات</h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -606,7 +606,7 @@ func VendorOffersPackagesPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">باقات العروض الترويجية المتاحة لمنشأتك</h2><p class=\"subtitle\">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">باقات العروض الترويجية المتاحة لمنشأتك</h2><p class=\"subtitle\">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -662,7 +662,7 @@ func VendorOffersPackagesSponsorshipsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">رعايات العروض الترويجية لمنشأتك</h2></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة للباقات</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">رعايات العروض الترويجية لمنشأتك</h2></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة للباقات</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -718,7 +718,7 @@ func VendorOffersPackagesPromotionsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">الحملات الترويجية الموجهة</h2></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة للباقات</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">الحملات الترويجية الموجهة</h2></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm\">العودة للباقات</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -774,7 +774,7 @@ func VendorAdsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">إعلانات وبنرات المنشأة</h2><p class=\"subtitle\">إدارة البنرات الإعلانية المنشورة في واجهة المنصة وتتبع عدد النقرات والمشاهدات.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">إعلانات وبنرات المنشأة</h2><p class=\"subtitle\">إدارة البنرات الإعلانية المنشورة في واجهة المنصة وتتبع عدد النقرات والمشاهدات.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -830,7 +830,7 @@ func VendorOffersLocationsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">التغطية الجغرافية لعروض المنشأة</h2></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm\">العودة للعروض</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">التغطية الجغرافية لعروض المنشأة</h2></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm\">العودة للعروض</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

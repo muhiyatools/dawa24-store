@@ -109,7 +109,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"suppliers-page-container\" style=\"max-width:1160px; margin:1.5rem auto 5rem auto;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4); margin-bottom:var(--space-8);\"><div><div style=\"display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-1);\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"suppliers-page-container\" style=\"max-width:1160px; margin:1.5rem auto 5rem auto;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4); margin-bottom:var(--space-8);\"><div><div style=\"display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-1);\"><div class=\"b2b-icon-box-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -117,7 +117,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:var(--text-2xl); font-weight:700; color:var(--text); margin:0;\">دليل شركات وموردي الأدوية المعتمدين</h1></div><p style=\"color:var(--text-muted); font-size:var(--text-sm); margin:0;\">شبكة مستودعات التوزيع الدوائي والمستلزمات الطبية في مصر مع ضمانات التبريد والشحن المعتمد</p></div><a href=\"/suppliers/followed\" class=\"btn btn-secondary\" style=\"font-weight:600;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:var(--text-2xl); font-weight:700; color:var(--text); margin:0;\">دليل شركات وموردي الأدوية المعتمدين</h1></div><p style=\"color:var(--text-muted); font-size:var(--text-sm); margin:0;\">شبكة مستودعات التوزيع الدوائي والمستلزمات الطبية في مصر مع ضمانات التبريد والشحن المعتمد</p></div><a href=\"/suppliers/followed\" class=\"btn btn-secondary fw-600\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -433,7 +433,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 				return templ_7745c5c3_Err
 			}
 			if data.ReviewCount > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div style=\"display:flex; align-items:center; gap:0.35rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"row-center-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -446,20 +446,20 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span style=\"font-size:0.8rem; color:var(--text-muted);\">(لا توجد تقييمات مسجلة بعد)</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"text-sm text-muted\">(لا توجد تقييمات مسجلة بعد)</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if data.Org.CommercialRegister != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span style=\"color:var(--border);\">•</span> <span class=\"tabular-nums\">السجل التجاري: <strong style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span style=\"color:var(--border);\">•</span> <span class=\"tabular-nums\">السجل التجاري: <strong class=\"text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(data.Org.CommercialRegister)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 189, Col: 127}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 189, Col: 121}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -471,14 +471,14 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 				}
 			}
 			if data.Org.TaxNumber != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span style=\"color:var(--border);\">•</span> <span class=\"tabular-nums\">البطاقة الضريبية: <strong style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span style=\"color:var(--border);\">•</span> <span class=\"tabular-nums\">البطاقة الضريبية: <strong class=\"text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(data.Org.TaxNumber)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 193, Col: 124}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 193, Col: 118}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -531,7 +531,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"m-0\" style=\"flex:1;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"m-0 flex-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -567,7 +567,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 				return templ_7745c5c3_Err
 			}
 			if len(data.Sections) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"card mb-0\" style=\"padding:1.5rem 1.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);\"><div style=\"display:flex; flex-direction:column; gap:1rem;\"><div style=\"display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;\"><div style=\"display:flex; align-items:center; gap:0.65rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.15rem;\">✨</div><div><h2 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">نبذة وأقسام المنشأة</h2><span style=\"font-size:0.775rem; color:var(--text-muted);\">انقر على أي قسم لعرض التفاصيل والمعلومات الرسمية</span></div></div><span class=\"badge badge-secondary\" style=\"font-size:0.75rem; padding:0.3rem 0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"card mb-0\" style=\"padding:1.5rem 1.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);\"><div class=\"stack-md\"><div style=\"display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;\"><div style=\"display:flex; align-items:center; gap:0.65rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.15rem;\">✨</div><div><h2 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">نبذة وأقسام المنشأة</h2><span style=\"font-size:0.775rem; color:var(--text-muted);\">انقر على أي قسم لعرض التفاصيل والمعلومات الرسمية</span></div></div><span class=\"badge badge-secondary\" style=\"font-size:0.75rem; padding:0.3rem 0.75rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -684,7 +684,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<!-- 2. Main Content: Product Catalog (Left) & Policies/Reviews Sidebar (Right) --><div style=\"display:grid; grid-template-columns:1fr 340px; gap:1.5rem; align-items:start;\"><!-- Left: Supplier Product Variants Catalog --><div><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;\"><div><h2 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">كتالوج أصناف وتشغيلات المورد</h2><span style=\"font-size:0.8rem; color:var(--text-secondary);\">الأرصدة الحية، الأسعار، وتواريخ الصلاحية المعتمدة</span></div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.8rem; font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<!-- 2. Main Content: Product Catalog (Left) & Policies/Reviews Sidebar (Right) --><div style=\"display:grid; grid-template-columns:1fr 340px; gap:1.5rem; align-items:start;\"><!-- Left: Supplier Product Variants Catalog --><div><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;\"><div><h2 class=\"text-lg fw-800 text-primary m-0\">كتالوج أصناف وتشغيلات المورد</h2><span class=\"text-sm text-secondary\">الأرصدة الحية، الأسعار، وتواريخ الصلاحية المعتمدة</span></div><div class=\"row-center-sm\"><span class=\"badge badge-sky text-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -718,7 +718,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div><button type=\"submit\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700;\">بحث</button> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div><button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\">بحث</button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -871,14 +871,14 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 						return templ_7745c5c3_Err
 					}
 					if v.BatchNumber != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<div><span style=\"color:var(--text-muted);\">التشغيلة:</span> <strong style=\"color:var(--text);\" class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<div><span class=\"text-muted\">التشغيلة:</span> <strong class=\"text-primary tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var39 string
 						templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(v.BatchNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 369, Col: 152}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 369, Col: 124}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 						if templ_7745c5c3_Err != nil {
@@ -890,14 +890,14 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 						}
 					}
 					if v.ExpiryDate != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<div><span style=\"color:var(--text-muted);\">الصلاحية:</span> <strong style=\"color:var(--text);\" class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<div><span class=\"text-muted\">الصلاحية:</span> <strong class=\"text-primary tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var40 string
 						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(v.ExpiryDate.Format("2006-01"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 372, Col: 169}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 372, Col: 141}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 						if templ_7745c5c3_Err != nil {
@@ -909,14 +909,14 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 						}
 					}
 					if v.MinOrderQty > 1 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div><span style=\"color:var(--text-muted);\">الحد الأدنى:</span> <strong class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div><span class=\"text-muted\">الحد الأدنى:</span> <strong class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var41 string
 						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", v.MinOrderQty))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 375, Col: 149}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 375, Col: 135}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 						if templ_7745c5c3_Err != nil {
@@ -946,7 +946,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<span style=\"font-size:0.8rem; color:var(--text-muted);\">حسب الكمية</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<span class=\"text-sm text-muted\">حسب الكمية</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1154,7 +1154,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div><!-- Right: Real Policies & Reviews Sidebar --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Commercial Terms & Policies Card --><div class=\"card mb-0\" style=\"padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.85rem;\"><div style=\"width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div><!-- Right: Real Policies & Reviews Sidebar --><div class=\"stack-lg\"><!-- Commercial Terms & Policies Card --><div class=\"card mb-0\" style=\"padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.85rem;\"><div style=\"width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1213,7 +1213,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "</div><!-- Real Reviews Card --><div class=\"card mb-0\" style=\"padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem;\"><div style=\"width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "</div><!-- Real Reviews Card --><div class=\"card mb-0\" style=\"padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;\"><div class=\"row-center-sm\"><div style=\"width:28px; height:28px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1314,7 +1314,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "\" style=\"display:flex; flex-direction:column; gap:1rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"q-product\" style=\"font-size:0.85rem; font-weight:700;\">اختر الصنف الدوائي (اختياري)</label> <select id=\"q-product\" name=\"product_id\" class=\"form-select\"><option value=\"\">طلب عرض سعر عام لكافة الاحتياجات</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "\" class=\"stack-md\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"q-product\" style=\"font-size:0.85rem; font-weight:700;\">اختر الصنف الدوائي (اختياري)</label> <select id=\"q-product\" name=\"product_id\" class=\"form-select\"><option value=\"\">طلب عرض سعر عام لكافة الاحتياجات</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1362,7 +1362,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "</select></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"q-qty\" style=\"font-size:0.85rem; font-weight:700;\">الكمية التقديرية المطلوبة (عبوة) *</label> <input type=\"number\" id=\"q-qty\" name=\"quantity\" required min=\"1\" value=\"50\" class=\"form-input tabular-nums\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"q-notes\" style=\"font-size:0.85rem; font-weight:700;\">ملاحظات وشروط التوريد المطلوبة</label> <textarea id=\"q-notes\" name=\"notes\" rows=\"3\" placeholder=\"حدد شروط السداد المطلوبة أو مواعيد التسليم المفضلة...\" class=\"form-textarea\"></textarea></div><div style=\"display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"q-qty\" style=\"font-size:0.85rem; font-weight:700;\">الكمية التقديرية المطلوبة (عبوة) *</label> <input type=\"number\" id=\"q-qty\" name=\"quantity\" required min=\"1\" value=\"50\" class=\"form-input tabular-nums\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"q-notes\" style=\"font-size:0.85rem; font-weight:700;\">ملاحظات وشروط التوريد المطلوبة</label> <textarea id=\"q-notes\" name=\"notes\" rows=\"3\" placeholder=\"حدد شروط السداد المطلوبة أو مواعيد التسليم المفضلة...\" class=\"form-textarea\"></textarea></div><div style=\"display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1375,7 +1375,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 137, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 137, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

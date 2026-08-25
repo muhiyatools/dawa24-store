@@ -45,7 +45,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
 				<div>
 					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						<div class="b2b-icon-box-sm">
 							@components.IconSettings("icon-sm")
 						</div>
 						<h2 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">
@@ -162,29 +162,29 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								@components.IconUser("icon-lg")
 							}
 						</div>
-						<div style="flex:1;">
+						<div class="flex-1">
 							<label class="form-label" for="user-avatar" style="margin-bottom:0.25rem;">رابط الصورة الشخصية / الصورة الرمزية</label>
 							<input type="text" id="user-avatar" name="avatar_url" class="form-input" value={ ternaryStr(data.User != nil, data.User.AvatarURL, "") } placeholder="https://example.com/avatar.jpg" />
 							<span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.25rem;">يمكنك إدخال رابط مباشر لصورتك أو شعار الصيدلية</span>
 						</div>
 					</div>
 
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label" for="user-name">الاسم بالكامل</label>
 						<input type="text" id="user-name" name="name" class="form-input" value={ userNameVal(data.User) } placeholder="د. أحمد محمود" required />
 					</div>
 
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label" for="user-email">البريد الإلكتروني</label>
 						<input type="email" id="user-email" name="email" class="form-input tabular-nums" value={ userEmailVal(data.User) } placeholder="pharmacy@dawa24.eg" required />
 					</div>
 
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label" for="user-phone">رقم الهاتف / الواتساب</label>
 						<input type="tel" id="user-phone" name="phone" class="form-input tabular-nums" value={ userPhoneVal(data.User) } placeholder="01012345678" />
 					</div>
 
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label" for="user-role">نوع الحساب والصلاحية</label>
 						<input type="text" id="user-role" class="form-input" value={ userRoleVal(data.User) } disabled style="background:var(--surface-sunken); color:var(--text-muted);" />
 					</div>
@@ -208,7 +208,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			>
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; flex-wrap:wrap; gap:1rem;">
 					<div>
-						<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+						<h3 class="text-xl fw-800 text-primary m-0">
 							المحفظة الإلكترونية والمعاملات المالية
 						</h3>
 						<p style="color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem;">
@@ -219,9 +219,9 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm"
+							class="btn btn-secondary btn-sm fw-800"
 							@click="isWithdrawModalOpen = true"
-							style="font-weight:800;"
+						
 						>
 							@components.IconArrowLeft("icon-xs")
 							<span>طلب سحب رصيد</span>
@@ -229,9 +229,9 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 						<button
 							type="button"
-							class="btn btn-primary btn-sm"
+							class="btn btn-primary btn-sm fw-800"
 							@click="isDepositModalOpen = true"
-							style="font-weight:800;"
+						
 						>
 							@components.IconPlus("icon-xs")
 							<span>شحن رصيد المحفظة</span>
@@ -243,7 +243,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2.25rem;">
 					<!-- Card 1: Available Balance -->
 					<div style="padding:1.5rem; background:var(--accent-subtle); border:1.5px solid var(--accent); border-radius:var(--radius-xl);">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+						<div class="flex-between">
 							<span style="font-size:0.85rem; color:var(--accent); font-weight:800;">الرصيد الفعلي المتاح</span>
 							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--surface-raised); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 								@components.IconWallet("icon-xs")
@@ -259,7 +259,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 					<!-- Card 2: Total Inflows -->
 					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+						<div class="flex-between">
 							<span style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">إجمالي الإيداعات</span>
 							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--success-surface); color:var(--success-text); display:flex; align-items:center; justify-content:center;">
 								@components.IconPlus("icon-xs")
@@ -275,7 +275,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 					<!-- Card 3: Total Outflows -->
 					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+						<div class="flex-between">
 							<span style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">إجمالي المدفوعات والمسحوبات</span>
 							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--danger-surface); color:var(--danger-text); display:flex; align-items:center; justify-content:center;">
 								@components.IconTruck("icon-xs")
@@ -291,7 +291,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 					<!-- Card 4: Operations Count -->
 					<div style="padding:1.5rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+						<div class="flex-between">
 							<span style="font-size:0.85rem; color:var(--text-secondary); font-weight:700;">إجمالي العمليات المسجلة</span>
 							<div style="width:30px; height:30px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 								@components.IconFile("icon-xs")
@@ -318,7 +318,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</p>
 						</div>
 
-						<a href="/invoices" class="btn btn-secondary btn-sm" style="font-weight:700;">
+						<a href="/invoices" class="btn btn-secondary btn-sm fw-700">
 							@components.IconFile("icon-xs")
 							<span>عرض الفواتير الإلكترونية</span>
 						</a>
@@ -337,9 +337,9 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</p>
 							<button
 								type="button"
-								class="btn btn-primary btn-sm"
+								class="btn btn-primary btn-sm fw-800"
 								@click="isDepositModalOpen = true"
-								style="font-weight:800;"
+							
 							>
 								@components.IconPlus("icon-xs")
 								<span>شحن رصيد المحفظة الآن</span>
@@ -347,7 +347,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</div>
 					} else {
 						<div class="table-container" style="margin:0; border:none;">
-							<table class="b2b-table" style="margin:0;">
+							<table class="b2b-table m-0">
 								<thead>
 									<tr>
 										<th>رقم المعاملة</th>
@@ -366,7 +366,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 												#{ fmt.Sprintf("TX-%d", tx.ID) }
 											</td>
 											<td>
-												<span class={ "badge", txTypeBadgeClass(tx.Type) } style="font-size:0.75rem;">
+												<span class={ "badge", txTypeBadgeClass(tx.Type) } class="text-xs">
 													{ txTypeLabel(tx.Type) }
 												</span>
 											</td>
@@ -377,17 +377,17 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 													<span class="text-muted">-</span>
 												}
 											</td>
-											<td class="tabular-nums" style="font-weight:800;">
+											<td class="tabular-nums fw-800">
 												if tx.Amount.IsPositive() {
-													<span style="color:var(--success-text);">+ { tx.Amount.String() } ج.م</span>
+													<span class="text-success">+ { tx.Amount.String() } ج.م</span>
 												} else {
-													<span style="color:var(--text);">{ tx.Amount.String() } ج.م</span>
+													<span class="text-primary">{ tx.Amount.String() } ج.م</span>
 												}
 											</td>
 											<td class="tabular-nums" style="font-weight:700; color:var(--text-secondary);">
 												{ tx.BalanceAfter.String() } ج.م
 											</td>
-											<td class="tabular-nums" style="color:var(--text-muted); font-size:0.8rem;">
+											<td class="tabular-nums text-muted text-sm">
 												{ tx.CreatedAt.Format("2006-01-02 15:04") }
 											</td>
 											<td>
@@ -415,7 +415,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			>
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 					<div>
-						<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+						<h3 class="text-xl fw-800 text-primary m-0">
 							طرق الدفع والحسابات البنكية المحفوظة
 						</h3>
 						<p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">
@@ -425,9 +425,9 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 					<button
 						type="button"
-						class="btn btn-primary btn-sm"
+						class="btn btn-primary btn-sm fw-800"
 						@click="isAddPaymentModalOpen = true"
-						style="font-weight:800;"
+					
 					>
 						@components.IconPlus("icon-xs")
 						<span>إضافة وسيلة دفع جديدة</span>
@@ -447,9 +447,9 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</p>
 						<button
 							type="button"
-							class="btn btn-primary"
+							class="btn btn-primary fw-800"
 							@click="isAddPaymentModalOpen = true"
-							style="font-weight:800;"
+						
 						>
 							@components.IconPlus("icon-xs")
 							<span>إضافة أول وسيلة دفع</span>
@@ -473,7 +473,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 										<div style="font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
 											<span>{ paymentProviderTitle(pm.Provider) }</span>
 											if pm.IsDefault {
-												<span class="badge badge-emerald" style="font-size:0.75rem;">الافتراضي</span>
+												<span class="badge badge-emerald text-xs">الافتراضي</span>
 											}
 										</div>
 										<div style="font-size:0.875rem; color:var(--text-secondary); margin-top:0.25rem;" class="tabular-nums" dir="ltr">
@@ -483,7 +483,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								</div>
 
 								<div class="row-center">
-									<span class="badge badge-sky" style="font-weight:700;">معتمد</span>
+									<span class="badge badge-sky fw-700">معتمد</span>
 
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/payment-methods/%d/delete", pm.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف وسيلة الدفع هذه؟');">
 										<button
@@ -512,7 +512,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			>
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 					<div>
-						<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+						<h3 class="text-xl fw-800 text-primary m-0">
 							بيانات المنشأة والتراخيص الرسمية
 						</h3>
 						<p style="color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem;">
@@ -520,7 +520,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</p>
 					</div>
 
-					<a href="/customer/branches" class="btn btn-secondary btn-sm" style="font-weight:700;">
+					<a href="/customer/branches" class="btn btn-secondary btn-sm fw-700">
 						@components.IconBuilding("icon-xs")
 						<span>إدارة فروع ومواقع استلام الصيدلية</span>
 					</a>
@@ -549,7 +549,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</div>
 
 				<div style="padding:1rem 1.25rem; background:var(--success-surface); border:1px solid var(--success-border); border-radius:var(--radius-lg); display:flex; align-items:center; gap:0.75rem;">
-					<div style="color:var(--success-text);">@components.IconCheckCircle("icon-sm")</div>
+					<div class="text-success">@components.IconCheckCircle("icon-sm")</div>
 					<div style="color:var(--success-text); font-weight:700; font-size:0.9rem;">
 						حساب المؤسسة موثق ومعتمد رسمياً للتوريد والشراء المباشر عبر منظومة دواء 24.
 					</div>
@@ -571,24 +571,24 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<div style="max-width:680px; margin-bottom:2.5rem; text-align:start;">
 					<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin-bottom:1rem;">تحديث كلمة المرور</h4>
 					<form action="/settings/password" method="POST" class="stack">
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label">كلمة المرور الحالية</label>
 							<input type="password" name="current_password" required class="form-input" placeholder="••••••••" />
 						</div>
 
 						<div class="form-grid-2">
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">كلمة المرور الجديدة</label>
 								<input type="password" name="new_password" required minlength="8" class="form-input" placeholder="••••••••" />
 							</div>
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">تأكيد كلمة المرور الجديدة</label>
 								<input type="password" name="confirm_password" required minlength="8" class="form-input" placeholder="••••••••" />
 							</div>
 						</div>
 
 						<div style="margin-top:0.5rem;">
-							<button type="submit" class="btn btn-primary" style="font-weight:800;">
+							<button type="submit" class="btn btn-primary fw-800">
 								@components.IconCheck("icon-xs")
 								<span>تحديث كلمة المرور</span>
 							</button>
@@ -604,12 +604,12 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						for _, sess := range data.Sessions {
 							<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
 								<div class="row-center">
-									<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+									<div class="b2b-icon-box-sm">
 										@components.IconSettings("icon-xs")
 									</div>
 									<div>
 										<div style="font-weight:700; font-size:0.9rem; color:var(--text);">{ sess.UserAgent }</div>
-										<div style="font-size:0.8rem; color:var(--text-muted);" class="tabular-nums">
+										<div class="text-sm text-muted tabular-nums">
 											IP: { sess.IP } • متصل منذ { sess.CreatedAt.Format("2006-01-02 15:04") }
 										</div>
 									</div>
@@ -643,7 +643,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
 									<div>
 										<div style="font-weight:700; font-size:0.9rem; color:var(--text);">{ plan.Name.Get(i18n.Lang(lang)) }</div>
-										<div style="font-size:0.8rem; color:var(--text-muted);" class="tabular-nums">
+										<div class="text-sm text-muted tabular-nums">
 											{ fmt.Sprintf("%d", plan.MaxLoginSessions) } جلسة متزامنة
 										</div>
 									</div>
@@ -703,24 +703,24 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<form action="/settings/preferences" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
 					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
 						<div>
-							<div style="font-weight:800; color:var(--text);">إشعارات الواتساب (WhatsApp Alerts)</div>
-							<div style="font-size:0.85rem; color:var(--text-muted);">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div>
+							<div class="fw-800 text-primary">إشعارات الواتساب (WhatsApp Alerts)</div>
+							<div class="text-sm text-muted">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div>
 						</div>
 						<input type="checkbox" name="notif_whatsapp" checked style="width:20px; height:20px; accent-color:var(--accent);" />
 					</div>
 
 					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
 						<div>
-							<div style="font-weight:800; color:var(--text);">رسائل البريد الإلكتروني للفواتير الضريبية</div>
-							<div style="font-size:0.85rem; color:var(--text-muted);">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div>
+							<div class="fw-800 text-primary">رسائل البريد الإلكتروني للفواتير الضريبية</div>
+							<div class="text-sm text-muted">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div>
 						</div>
 						<input type="checkbox" name="notif_invoices" checked style="width:20px; height:20px; accent-color:var(--accent);" />
 					</div>
 
 					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
 						<div>
-							<div style="font-weight:800; color:var(--text);">تنبيهات انخفاض المخزون والخصومات الحصرية</div>
-							<div style="font-size:0.85rem; color:var(--text-muted);">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div>
+							<div class="fw-800 text-primary">تنبيهات انخفاض المخزون والخصومات الحصرية</div>
+							<div class="text-sm text-muted">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div>
 						</div>
 						<input type="checkbox" name="notif_promos" checked style="width:20px; height:20px; accent-color:var(--accent);" />
 					</div>
@@ -748,20 +748,20 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconShield("icon-xs")
 							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+							<h3 class="text-xl fw-800 text-primary m-0">
 								إضافة وسيلة دفع جديدة
 							</h3>
 						</div>
-						<button type="button" @click="isAddPaymentModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+						<button type="button" @click="isAddPaymentModalOpen = false" class="btn btn-secondary btn-icon size-8">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
 
 					<form action="/settings/payment-methods" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label">نوع وسيلة الدفع *</label>
 							<select name="type" x-model="paymentType" class="form-select">
 								<option value="bank">حساب بنكي رسمي (Bank Account / IBAN)</option>
@@ -773,16 +773,16 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						<!-- Bank Account Fields -->
 						<div x-show="paymentType === 'bank'" class="stack">
 							<div class="form-grid-2">
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">اسم البنك *</label>
 									<input type="text" name="bank_name" class="form-input" placeholder="البنك الأهلي المصري NBE / CIB" />
 								</div>
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">اسم صاحب الحساب *</label>
 									<input type="text" name="account_holder" class="form-input" placeholder="مطابق للسجل التجاري أو المنشأة" />
 								</div>
 							</div>
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">رقم الآيبان الدولي (IBAN) *</label>
 								<input type="text" name="iban" class="form-input tabular-nums" dir="ltr" placeholder="EG380003000012345678901234567" />
 							</div>
@@ -790,7 +790,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 						<!-- InstaPay Fields -->
 						<div x-show="paymentType === 'instapay'" x-cloak class="stack">
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">عنوان الدفع اللحظي IPA أو رقم الهاتف *</label>
 								<input type="text" name="instapay_handle" class="form-input tabular-nums" dir="ltr" placeholder="pharmacy.name@instapay" />
 							</div>
@@ -798,11 +798,11 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 						<!-- Card Fields -->
 						<div x-show="paymentType === 'card'" x-cloak class="stack">
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">اسم حامل البطاقة *</label>
 								<input type="text" name="card_name" class="form-input" placeholder="الاسم كما هو مدون على البطاقة" />
 							</div>
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">رقم البطاقة (16 رقم) *</label>
 								<input type="text" name="card_number" class="form-input tabular-nums" dir="ltr" placeholder="•••• •••• •••• ••••" />
 							</div>
@@ -815,7 +815,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</label>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" @click="isAddPaymentModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
 								@components.IconCheck("icon-xs")
@@ -840,25 +840,25 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconWallet("icon-xs")
 							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+							<h3 class="text-xl fw-800 text-primary m-0">
 								شحن رصيد المحفظة المالية
 							</h3>
 						</div>
-						<button type="button" @click="isDepositModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+						<button type="button" @click="isDepositModalOpen = false" class="btn btn-secondary btn-icon size-8">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
 
 					<form action="/wallet/deposit" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-amount-unified">المبلغ المراد إيداعه (ج.م) *</label>
 							<input id="dep-amount-unified" name="amount" type="number" step="0.01" min="50" class="form-input tabular-nums" placeholder="مثال: 5000" required />
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-method-unified">طريقة الإيداع والتحويل *</label>
 							<select id="dep-method-unified" name="payment_method" x-model="depositMethod" class="form-select">
 								if len(data.PlatformPaymentMethods) > 0 {
@@ -887,7 +887,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 													<div>عنوان الدفع اللحظي (IPA): <code class="tabular-nums" style="font-weight:800; background:var(--surface-raised); padding:0.15rem 0.4rem; border-radius:4px; border:1px solid var(--border);" dir="ltr">{ ppm.InstaPayHandle }</code></div>
 												}
 												if ppm.PhoneNumber != "" {
-													<div>رقم الهاتف المعتمد: <code class="tabular-nums" style="font-weight:800;" dir="ltr">{ ppm.PhoneNumber }</code></div>
+													<div>رقم الهاتف المعتمد: <code class="tabular-nums fw-800" dir="ltr">{ ppm.PhoneNumber }</code></div>
 												}
 												if ppm.AccountName != "" {
 													<div>اسم المستفيد / المحفظة: <strong>{ ppm.AccountName }</strong></div>
@@ -900,13 +900,13 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 													<div>اسم الحساب: <strong>{ ppm.AccountName }</strong></div>
 												}
 												if ppm.AccountNumber != "" {
-													<div>رقم الحساب: <code class="tabular-nums" style="font-weight:800;" dir="ltr">{ ppm.AccountNumber }</code></div>
+													<div>رقم الحساب: <code class="tabular-nums fw-800" dir="ltr">{ ppm.AccountNumber }</code></div>
 												}
 												if ppm.IBAN != "" {
-													<div>IBAN: <code class="tabular-nums" style="font-weight:800;" dir="ltr">{ ppm.IBAN }</code></div>
+													<div>IBAN: <code class="tabular-nums fw-800" dir="ltr">{ ppm.IBAN }</code></div>
 												}
 												if ppm.SwiftCode != "" {
-													<div>SWIFT: <code class="tabular-nums" style="font-weight:800;" dir="ltr">{ ppm.SwiftCode }</code></div>
+													<div>SWIFT: <code class="tabular-nums fw-800" dir="ltr">{ ppm.SwiftCode }</code></div>
 												}
 											}
 											if ppm.Description.Get(i18n.Lang(lang)) != "" {
@@ -923,7 +923,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								<strong style="color:var(--accent); font-weight:800;">بيانات التحويل عبر إنستاباي:</strong>
 								<div style="margin-top:0.4rem; line-height:1.6;">
 									عنوان الدفع اللحظي (IPA): <code class="tabular-nums" style="font-weight:800; background:var(--surface-raised); padding:0.15rem 0.4rem; border-radius:4px; border:1px solid var(--border);" dir="ltr">dawa24@instapay</code><br/>
-									رقم الهاتف المعتمد: <code class="tabular-nums" style="font-weight:800;" dir="ltr">01065397000</code>
+									رقم الهاتف المعتمد: <code class="tabular-nums fw-800" dir="ltr">01065397000</code>
 								</div>
 							</div>
 
@@ -931,23 +931,23 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								<strong class="fw-800">بيانات الحساب البنكي الرسمي:</strong>
 								<div style="margin-top:0.4rem; line-height:1.6;">
 									اسم الحساب: شركة دواء 24 للتجارة والتوزيع<br/>
-									البنك التجاري الدولي (CIB): <code class="tabular-nums" style="font-weight:800;" dir="ltr">100048291048</code><br/>
-									IBAN: <code class="tabular-nums" style="font-weight:800;" dir="ltr">EG3800100004829104800000000000</code>
+									البنك التجاري الدولي (CIB): <code class="tabular-nums fw-800" dir="ltr">100048291048</code><br/>
+									IBAN: <code class="tabular-nums fw-800" dir="ltr">EG3800100004829104800000000000</code>
 								</div>
 							</div>
 						}
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-ref-unified">رقم الإشعار أو مرجع التحويل البنكي *</label>
 							<input id="dep-ref-unified" name="reference_number" type="text" class="form-input" placeholder="مثال: Ref #928374628" required />
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-notes-unified">ملاحظات إضافية (اختياري)</label>
 							<textarea id="dep-notes-unified" name="notes" rows="2" class="form-input" placeholder="أي ملاحظات تخص عملية الإيداع..."></textarea>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" @click="isDepositModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
 								@components.IconCheck("icon-xs")
@@ -971,20 +971,20 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconArrowLeft("icon-xs")
 							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;">
+							<h3 class="text-xl fw-800 text-primary m-0">
 								طلب سحب رصيد من المحفظة
 							</h3>
 						</div>
-						<button type="button" @click="isWithdrawModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+						<button type="button" @click="isWithdrawModalOpen = false" class="btn btn-secondary btn-icon size-8">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
 
 					<form action="/wallet/withdraw" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="with-amount-unified">المبلغ المراد سحبه (ج.م) *</label>
 							<input
 								id="with-amount-unified"
@@ -998,7 +998,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							/>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="with-dest-unified">الحساب المحول إليه *</label>
 							<select id="with-dest-unified" name="destination_id" class="form-select">
 								if len(data.PaymentMethods) > 0 {
@@ -1012,7 +1012,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							</select>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="with-reason-unified">سبب السحب (اختياري)</label>
 							<textarea id="with-reason-unified" name="reason" rows="2" class="form-input" placeholder="استرداد رصيد فائض / تسوية أرباح..."></textarea>
 						</div>
@@ -1021,7 +1021,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							<strong>تنبيه مالي:</strong> تتم مراجعة وتحويل مبالغ السحب المعتمدة خلال 24 ساعة عمل إلى حسابكم البنكي أو معرف إنستاباي المسجل.
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" @click="isWithdrawModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
 								@components.IconCheck("icon-xs")
@@ -1050,7 +1050,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								طلب حذف الحساب
 							</h3>
 						</div>
-						<button type="button" @click="isDeleteAccountModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+						<button type="button" @click="isDeleteAccountModalOpen = false" class="btn btn-secondary btn-icon size-8">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
@@ -1060,12 +1060,12 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات معلقة. يمكنك كتابة سبب الحذف اختيارياً:
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label">سبب طلب حذف الحساب (اختياري)</label>
 							<textarea name="reason" rows="3" class="form-input" placeholder="مثال: تغيير النشاط، إغلاق الفرع، أو أي ملاحظات أخرى..."></textarea>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" @click="isDeleteAccountModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-danger" style="padding-inline:1.75rem; font-weight:800;">
 								@components.IconTrash("icon-xs")

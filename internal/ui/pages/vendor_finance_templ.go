@@ -52,14 +52,14 @@ func VendorPaymentsPage(payments []*billing.Payment, lang, dir string) templ.Com
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">سجل المدفوعات والتحويلات المالية (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">سجل المدفوعات والتحويلات المالية (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(payments)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_finance.templ`, Line: 19, Col: 143}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_finance.templ`, Line: 19, Col: 129}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func VendorEarningsOrderPage(revenue money.Amount, lang, dir string) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"card mb-0\"><h2 class=\"card-title\" style=\"margin-bottom:1.5rem;\">أرباح ومبيعات الطلبات للشهر الحالي</h2><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;\"><div style=\"font-size:0.85rem; color:var(--text-secondary);\">إجمالي مبيعات الشهر</div><div class=\"tabular-nums\" style=\"font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"card mb-0\"><h2 class=\"card-title mb-lg\">أرباح ومبيعات الطلبات للشهر الحالي</h2><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;\"><div class=\"text-sm text-secondary\">إجمالي مبيعات الشهر</div><div class=\"tabular-nums\" style=\"font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -310,7 +310,7 @@ func VendorEarningsOffersPage(revenue money.Amount, lang, dir string) templ.Comp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"card mb-0\"><h2 class=\"card-title\" style=\"margin-bottom:1.5rem;\">أرباح ومبيعات عروض التوفير والصفقات</h2><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;\"><div style=\"font-size:0.85rem; color:var(--text-secondary);\">إجمالي مبيعات العروض</div><div class=\"tabular-nums\" style=\"font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"card mb-0\"><h2 class=\"card-title mb-lg\">أرباح ومبيعات عروض التوفير والصفقات</h2><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;\"><div class=\"text-sm text-secondary\">إجمالي مبيعات العروض</div><div class=\"tabular-nums\" style=\"font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -371,14 +371,14 @@ func VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir string
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلبات عروض الأسعار الواردة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلبات عروض الأسعار الواردة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(shipments)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_finance.templ`, Line: 96, Col: 132}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_finance.templ`, Line: 96, Col: 118}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -522,14 +522,14 @@ func VendorOfferOrderDetailPage(id int64, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"card\" style=\"max-width:800px; margin:0 auto;\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلب عروض #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلب عروض #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", id))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_finance.templ`, Line: 141, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_finance.templ`, Line: 141, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {

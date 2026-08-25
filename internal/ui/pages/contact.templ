@@ -28,7 +28,7 @@ templ ContactPage(lang, dir string, submitted bool) {
 					@components.IconCheckCircle("icon-md")
 					<div>
 						<strong style="display:block; font-size:1rem; color:var(--accent-text);">تم إرسال رسالتك بنجاح!</strong>
-						<span style="font-size:0.875rem; color:var(--text-secondary);">سيتواصل معك ممثل خدمة العملاء المختص خلال أقرب وقت ممكن.</span>
+						<span class="text-sm text-secondary">سيتواصل معك ممثل خدمة العملاء المختص خلال أقرب وقت ممكن.</span>
 					</div>
 				</div>
 			}
@@ -36,7 +36,7 @@ templ ContactPage(lang, dir string, submitted bool) {
 			<div style="display:grid; grid-template-columns:1fr 1.3fr; gap:2rem; align-items:start;">
 				
 				<!-- Left: Direct Contact Channels & Headquarters Info -->
-				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div class="stack-lg">
 					
 					<!-- Direct Hotline Card -->
 					<div class="card mb-0" style="padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
@@ -56,7 +56,7 @@ templ ContactPage(lang, dir string, submitted bool) {
 							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--success-surface, var(--surface-sunken)); color:var(--success-text, #10b981); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
 								@components.IconWhatsApp("icon-sm")
 							</div>
-							<div style="flex:1;">
+							<div class="flex-1">
 								<div style="font-size:0.775rem; color:var(--text-muted); font-weight:600;">محادثة واتساب للطلبيات العاجلة</div>
 								<a href="https://wa.me/201065397000" target="_blank" rel="noopener" style="font-size:0.875rem; font-weight:700; color:var(--accent); text-decoration:none;">
 									تحدث مباشرة مع مسؤول التوزيع ←
@@ -111,24 +111,24 @@ templ ContactPage(lang, dir string, submitted bool) {
 						أرسل استفسارك أو طلبك
 					</h3>
 
-					<form method="POST" action="/contact" style="display:flex; flex-direction:column; gap:1rem;">
+					<form method="POST" action="/contact" class="stack-md">
 						<div class="form-grid-2">
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label" for="c-name" style="font-size:0.825rem; font-weight:700;">الاسم بالكامل *</label>
 								<input type="text" id="c-name" name="name" required class="form-input" placeholder="د. أحمد محمود" style="padding:0.5rem 0.75rem; font-size:0.85rem;" />
 							</div>
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label" for="c-email" style="font-size:0.825rem; font-weight:700;">البريد الإلكتروني *</label>
 								<input type="email" id="c-email" name="email" required class="form-input tabular-nums" placeholder="name@pharmacy.com" style="padding:0.5rem 0.75rem; font-size:0.85rem;" />
 							</div>
 						</div>
 
 						<div class="form-grid-2">
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label" for="c-phone" style="font-size:0.825rem; font-weight:700;">رقم الهاتف / الواتساب *</label>
 								<input type="tel" id="c-phone" name="phone" required class="form-input tabular-nums" placeholder="01012345678" style="padding:0.5rem 0.75rem; font-size:0.85rem;" />
 							</div>
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label" for="c-subject" style="font-size:0.825rem; font-weight:700;">نوع الاستفسار *</label>
 								<select id="c-subject" name="subject" required class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
 									<option value="استفسار عن طلبية أو توريد">استفسار عن طلبية أو توريد</option>
@@ -140,7 +140,7 @@ templ ContactPage(lang, dir string, submitted bool) {
 							</div>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="c-message" style="font-size:0.825rem; font-weight:700;">نص الرسالة أو الاستفسار *</label>
 							<textarea id="c-message" name="message" required rows="4" placeholder="اكتب تفاصيل طلبك أو استفسارك هنا..." class="form-textarea" style="padding:0.6rem 0.75rem; font-size:0.85rem; line-height:1.6;"></textarea>
 						</div>

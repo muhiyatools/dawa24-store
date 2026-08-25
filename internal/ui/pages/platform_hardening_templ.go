@@ -47,7 +47,7 @@ func AdminSessionPlansPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">خطط الجلسات المتعددة وتحديد الأجهزة</h2><p class=\"subtitle\">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p></div><a href=\"/admin/session-plan/requests\" class=\"btn btn-secondary btn-sm\">طلبات زيادة المقاعد</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">خطط الجلسات المتعددة وتحديد الأجهزة</h2><p class=\"subtitle\">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p></div><a href=\"/admin/session-plan/requests\" class=\"btn btn-secondary btn-sm\">طلبات زيادة المقاعد</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -103,7 +103,7 @@ func AdminSessionPlanRequestsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلبات زيادة عدد الأجهزة والجلسات</h2></div><a href=\"/admin/session-plan\" class=\"btn btn-secondary btn-sm\">العودة للخطط</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلبات زيادة عدد الأجهزة والجلسات</h2></div><a href=\"/admin/session-plan\" class=\"btn btn-secondary btn-sm\">العودة للخطط</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -159,7 +159,7 @@ func CustomerReportIssuePage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"max-width:700px; margin:0 auto;\"><h2 class=\"card-title\" style=\"margin-bottom:0.5rem;\">الإبلاغ عن مشكلة أو إرسال اقتراح</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">فريق الدعم الفني يتابع بلاغاتك ويعمل على حلها فوراً.</p><form method=\"POST\" action=\"/report-issue\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div><label class=\"form-label\">نوع البلاغ</label> <select name=\"issue_type\" class=\"form-input\" required><option value=\"technical\">مشكلة تقنية أو خطأ في النظام</option> <option value=\"order\">مشكلة في طلب أو شحنة</option> <option value=\"billing\">مشكلة في الدفع أو الفاتورة</option> <option value=\"suggestion\">اقتراح تحسين للمنصة</option></select></div><div><label class=\"form-label\">تفاصيل البلاغ</label> <textarea name=\"description\" class=\"form-input\" rows=\"5\" placeholder=\"اشرح المشكلة بالتفصيل مع ذكر أي أرقام مرجعية ذات صلة...\" required></textarea></div><div style=\"display:flex; justify-content:flex-end;\"><button type=\"submit\" class=\"btn btn-primary\">إرسال البلاغ للدعم الفني</button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card max-w-xl mx-auto\"><h2 class=\"card-title mb-sm\">الإبلاغ عن مشكلة أو إرسال اقتراح</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;\">فريق الدعم الفني يتابع بلاغاتك ويعمل على حلها فوراً.</p><form method=\"POST\" action=\"/report-issue\" class=\"stack-lg\"><div><label class=\"form-label\">نوع البلاغ</label> <select name=\"issue_type\" class=\"form-input\" required><option value=\"technical\">مشكلة تقنية أو خطأ في النظام</option> <option value=\"order\">مشكلة في طلب أو شحنة</option> <option value=\"billing\">مشكلة في الدفع أو الفاتورة</option> <option value=\"suggestion\">اقتراح تحسين للمنصة</option></select></div><div><label class=\"form-label\">تفاصيل البلاغ</label> <textarea name=\"description\" class=\"form-input\" rows=\"5\" placeholder=\"اشرح المشكلة بالتفصيل مع ذكر أي أرقام مرجعية ذات صلة...\" required></textarea></div><div style=\"display:flex; justify-content:flex-end;\"><button type=\"submit\" class=\"btn btn-primary\">إرسال البلاغ للدعم الفني</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,7 +207,7 @@ func AdminReportIssuesPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">قائمة بلاغات وشكاوى المستخدمين</h2><p class=\"subtitle\">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">قائمة بلاغات وشكاوى المستخدمين</h2><p class=\"subtitle\">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

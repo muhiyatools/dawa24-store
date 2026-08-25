@@ -57,7 +57,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;\"><!-- Header Banner --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">📈</div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">تقرير تحليل ومقارنة عروض الموردين</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين واستخراج أفضل فرص الشراء وفجوات التغطية والنواقص.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/compare/tool\" class=\"btn btn-secondary\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1380px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;\"><!-- Header Banner --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">📈</div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">تقرير تحليل ومقارنة عروض الموردين</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين واستخراج أفضل فرص الشراء وفجوات التغطية والنواقص.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/compare/tool\" class=\"btn btn-secondary fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -65,7 +65,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز الملفات</span></a> <button type=\"button\" class=\"btn btn-primary\" onclick=\"exportComparisonTableToCSV()\" style=\"font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز الملفات</span></a> <button type=\"button\" class=\"btn btn-primary fw-800\" onclick=\"exportComparisonTableToCSV()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -73,7 +73,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>تصدير تقرير Excel / CSV</span></button></div></div><!-- Navigation Subtabs --><div style=\"display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;\"><a href=\"/compare/results\" class=\"btn btn-primary btn-sm\" style=\"font-weight:800; border-radius:var(--radius-lg);\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-lg);\">⚖️ مقارنة رأس برأس (مورد ضد مورد)</a> <a href=\"/market-discounts\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-lg);\">مقارنة المورد مع متوسط السوق</a></div></div><!-- KPI Summary Metric Cards --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><!-- Total Compared --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">إجمالي الأصناف المقارنة</span> <span style=\"font-size:1.25rem;\">📦</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--text);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>تصدير تقرير Excel / CSV</span></button></div></div><!-- Navigation Subtabs --><div style=\"display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;\"><a href=\"/compare/results\" class=\"btn btn-primary btn-sm\" style=\"font-weight:800; border-radius:var(--radius-lg);\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-lg);\">⚖️ مقارنة رأس برأس (مورد ضد مورد)</a> <a href=\"/market-discounts\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-lg);\">مقارنة المورد مع متوسط السوق</a></div></div><!-- KPI Summary Metric Cards --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><!-- Total Compared --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">إجمالي الأصناف المقارنة</span> <span class=\"text-xl\">📦</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--text);\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -93,7 +93,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><span style=\"font-size:0.75rem; color:var(--text-secondary);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><span class=\"text-xs text-secondary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -108,7 +108,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></div><!-- Average Discount --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--success-text);\">متوسط الخصم في السوق</span> <span style=\"font-size:1.25rem;\">🔥</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--success-text);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></div><!-- Average Discount --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--success-text);\">متوسط الخصم في السوق</span> <span class=\"text-xl\">🔥</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--success-text);\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -128,7 +128,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><span style=\"font-size:0.75rem; color:var(--text-secondary);\">أفضل فرصة شراء وتوفير</span></div><!-- Suppliers Analyzed --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">الموردون المشمولون</span> <span style=\"font-size:1.25rem;\">🏢</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--accent);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><span class=\"text-xs text-secondary\">أفضل فرصة شراء وتوفير</span></div><!-- Suppliers Analyzed --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">الموردون المشمولون</span> <span class=\"text-xl\">🏢</span></div><div style=\"font-size:1.75rem; font-weight:900; color:var(--accent);\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -148,7 +148,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><span style=\"font-size:0.75rem; color:var(--text-secondary);\">كشوف أسعار نشطة ومطابقة</span></div></div><!-- Filter Bar & Search --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><!-- Quick Filter Tabs --><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-primary btn-sm filter-tab active\" data-filter=\"all\" onclick=\"applyTableFilter('all', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>الكل (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><span class=\"text-xs text-secondary\">كشوف أسعار نشطة ومطابقة</span></div></div><!-- Filter Bar & Search --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><!-- Quick Filter Tabs --><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-primary btn-sm filter-tab active\" data-filter=\"all\" onclick=\"applyTableFilter('all', this)\" style=\"font-weight:700; border-radius:var(--radius-full);\"><span>الكل (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -166,7 +166,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 				return templ_7745c5c3_Err
 			}
 			if result == nil || len(result.Rows) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"padding:3.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl);\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📊</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem;\">لا توجد أصناف مستخرجة في الكشوف المختارة</h3><p style=\"color:var(--text-muted); font-size:0.85rem; margin:0 0 1rem 0;\">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس ⚙️ في مركز الملفات.</p><a href=\"/compare/tool\" class=\"btn btn-primary\" style=\"font-weight:700;\">العودة لمركز ملفات الموردين</a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"padding:3.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl);\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📊</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem;\">لا توجد أصناف مستخرجة في الكشوف المختارة</h3><p style=\"color:var(--text-muted); font-size:0.85rem; margin:0 0 1rem 0;\">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس ⚙️ في مركز الملفات.</p><a href=\"/compare/tool\" class=\"btn btn-primary fw-700\">العودة لمركز ملفات الموردين</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -261,14 +261,14 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 						return templ_7745c5c3_Err
 					}
 					if row.SKU != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span style=\"font-size:0.75rem; color:var(--text-muted);\" class=\"tabular-nums\">كود: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"text-xs text-muted tabular-nums\">كود: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(row.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 242, Col: 108}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 242, Col: 75}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span style=\"color:var(--text-muted);\">--</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"text-muted\">--</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -330,7 +330,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">بدون خصم</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge badge-secondary text-xs\">بدون خصم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -358,7 +358,7 @@ func CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, a
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span style=\"color:var(--text-muted);\">--</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"text-muted\">--</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

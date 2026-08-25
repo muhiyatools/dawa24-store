@@ -180,7 +180,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 					/>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.5rem;">
+				<div class="row-center-sm">
 					<button
 						type="button"
 						class="btn btn-sm"
@@ -276,11 +276,11 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										<!-- 2. Parent -->
 										<td style="padding:1rem 1.25rem;">
 											if item.ParentTitle != "" {
-												<span class="badge badge-indigo" style="font-size:0.75rem; font-weight:700;">
+												<span class="badge badge-indigo text-xs fw-700">
 													{ item.ParentTitle }
 												</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">رئيسي (جذر)</span>
+												<span class="text-muted text-sm">رئيسي (جذر)</span>
 											}
 										</td>
 
@@ -378,7 +378,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 					<!-- Modal Header -->
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
-							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box">
 								@components.IconBuilding("icon-sm")
 							</div>
 							<div>
@@ -397,7 +397,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 					<form
 						:action="isEdit ? ('/admin/institutional/' + form.id) : '/admin/institutional/new'"
 						method="POST"
-						style="display:flex; flex-direction:column; gap:1.25rem;"
+						class="stack-lg"
 					>
 						<!-- Active Status Toggle Switch (Header placement matching reference image) -->
 						<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
@@ -412,8 +412,8 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 						</div>
 
 						<!-- Hierarchy Parent Selector -->
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" style="font-weight:700;">التصنيف الأب (Parent Entity) *</label>
+						<div class="form-group m-0">
+							<label class="form-label fw-700">التصنيف الأب (Parent Entity) *</label>
 							<select name="parent_id" x-model="form.parent_id" class="form-input">
 								<option value="0">بند رئيسي (بدون أب - Root Level)</option>
 								for _, parent := range allWorks {
@@ -432,39 +432,39 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 
 						<!-- Bilingual Titles -->
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label" style="font-weight:700;">اسم الكيان المؤسسي (باللغة العربية) *</label>
+							<div class="form-group m-0">
+								<label class="form-label fw-700">اسم الكيان المؤسسي (باللغة العربية) *</label>
 								<input type="text" name="title_ar" x-model="form.title_ar" required placeholder="مثال: جملة جملة، مصنع، صيدلية" class="form-input"/>
 							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label" style="font-weight:700;">الاسم باللغة الإنجليزية (English Title)</label>
+							<div class="form-group m-0">
+								<label class="form-label fw-700">الاسم باللغة الإنجليزية (English Title)</label>
 								<input type="text" name="title_en" x-model="form.title_en" placeholder="e.g. Wholesale, Factory, Pharmacy" class="form-input" dir="ltr"/>
 							</div>
 						</div>
 
 						<!-- Bilingual Descriptions -->
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label" style="font-weight:700;">الوصف التعريفي (بالعربية)</label>
+							<div class="form-group m-0">
+								<label class="form-label fw-700">الوصف التعريفي (بالعربية)</label>
 								<textarea name="description_ar" x-model="form.description_ar" rows="3" placeholder="وصف الكيان ودوره في السوق..." class="form-input" style="line-height:1.5;"></textarea>
 							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label" style="font-weight:700;">الوصف بالإنجليزية (English Description)</label>
+							<div class="form-group m-0">
+								<label class="form-label fw-700">الوصف بالإنجليزية (English Description)</label>
 								<textarea name="description_en" x-model="form.description_en" rows="3" placeholder="Entity description and role..." class="form-input" dir="ltr" style="line-height:1.5;"></textarea>
 							</div>
 						</div>
 
 						<!-- Classification & Pricing -->
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
-								<label class="form-label" style="font-weight:700;">نوع عرض التغطية (View Type) *</label>
+							<div class="form-group m-0">
+								<label class="form-label fw-700">نوع عرض التغطية (View Type) *</label>
 								<select name="view_type" x-model="form.view_type" class="form-input">
 									<option value="1">تغطية عادية (Normal Hub / Supplier) - 1</option>
 									<option value="2">تغطية صيدلية (Pharmacy Dispensing) - 2</option>
 								</select>
 							</div>
-							<div class="form-group" style="margin:0;">
-								<label class="form-label" style="font-weight:700;">نوع التسعير والاشتراك (Pricing Type) *</label>
+							<div class="form-group m-0">
+								<label class="form-label fw-700">نوع التسعير والاشتراك (Pricing Type) *</label>
 								<select name="pricing_type" x-model="form.pricing_type" class="form-input">
 									<option value="free">مجاني (Free)</option>
 									<option value="paid">مدفوع (Paid)</option>
@@ -477,8 +477,8 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 						</div>
 
 						<!-- Visual Icon Picker Grid -->
-						<div class="form-group" style="margin:0;">
-							<label class="form-label" style="font-weight:700;">اختيار أيقونة الكيان المؤسسي (Visual Icon Picker)</label>
+						<div class="form-group m-0">
+							<label class="form-label fw-700">اختيار أيقونة الكيان المؤسسي (Visual Icon Picker)</label>
 							<input type="hidden" name="icon" :value="form.icon"/>
 							<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:0.5rem; max-height:160px; overflow-y:auto; padding:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl);">
 								<template x-for="ic in availableIcons" :key="ic.id">
@@ -489,7 +489,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0.6rem 0.25rem; gap:0.35rem; height:68px;"
 										@click="form.icon = ic.id"
 									>
-										<span style="font-size:1.25rem;" x-text="getIconEmoji(ic.id)"></span>
+										<span class="text-xl" x-text="getIconEmoji(ic.id)"></span>
 										<span style="font-size:0.675rem; color:var(--text); text-align:center;" x-text="ic.label"></span>
 									</button>
 								</template>
@@ -514,12 +514,12 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 											style="display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); cursor:pointer; gap:0.5rem;"
 											x-show={ fmt.Sprintf("!isEdit || form.id !== %d", target.ID) }
 										>
-											<div style="display:flex; align-items:center; gap:0.5rem;">
+											<div class="row-center-sm">
 												<span style="font-size:0.875rem; font-weight:700; color:var(--text);">
 													{ target.Title.Get("ar") }
 												</span>
 												if target.Title.Get("en") != "" {
-													<span style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">
+													<span class="text-xs text-muted" dir="ltr">
 														({ target.Title.Get("en") })
 													</span>
 												}

@@ -190,7 +190,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				<!-- Top Bar: Result Count & Search Input -->
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 					<div style="font-weight:800; font-size:1.05rem; color:var(--text);">
-						إجمالي النتائج: <strong style="color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong>
+						إجمالي النتائج: <strong class="text-accent tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong>
 					</div>
 
 					<div style="position:relative; width:360px; max-width:100%;">
@@ -259,7 +259,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 											if item.SKU != "" {
 												<code>{ item.SKU }</code>
 											} else {
-												<span style="color:var(--text-muted);">-</span>
+												<span class="text-muted">-</span>
 											}
 										</td>
 
@@ -304,19 +304,19 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 														<span>{ fmt.Sprintf("%d المنظمات", item.ProvidingOrgsCount) }</span>
 													</button>
 												} else {
-													<span style="color:var(--text-muted); font-size:0.8rem;">0</span>
+													<span class="text-muted text-sm">0</span>
 												}
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+												<span class="text-muted text-sm">-</span>
 											}
 										</td>
 
 										<!-- Qty -->
 										<td style="padding:0.85rem 1rem; text-align:center;" class="tabular-nums">
 											if item.Quantity > 0 {
-												<strong style="color:var(--text);">{ fmt.Sprintf("%.0f", item.Quantity) }</strong>
+												<strong class="text-primary">{ fmt.Sprintf("%.0f", item.Quantity) }</strong>
 											} else {
-												<span style="color:var(--text-muted);">-</span>
+												<span class="text-muted">-</span>
 											}
 										</td>
 
@@ -325,7 +325,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 											if item.Price.IsPositive() {
 												<span style="color:var(--text); font-weight:700;">{ item.Price.String() } EGP</span>
 											} else {
-												<span style="color:var(--text-muted);">-</span>
+												<span class="text-muted">-</span>
 											}
 										</td>
 
@@ -334,7 +334,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 											if item.TotalValue.IsPositive() {
 												<strong style="color:var(--accent); font-size:0.95rem;">{ item.TotalValue.String() } EGP</strong>
 											} else {
-												<span style="color:var(--text-muted);">-</span>
+												<span class="text-muted">-</span>
 											}
 										</td>
 
@@ -344,8 +344,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 												if item.ProductID != nil && *item.ProductID > 0 {
 													<button
 														type="button"
-														class="btn btn-secondary btn-sm btn-icon"
-														style="color:var(--accent);"
+														class="btn btn-secondary btn-sm btn-icon text-accent"
 														title="عرض عروض الموردين والأسعار"
 														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openProvidersModal(%d, '%s')", *item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang)))} }
 													>
@@ -364,8 +363,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 												<button
 													type="button"
-													class="btn btn-secondary btn-sm btn-icon"
-													style="color:var(--danger-text);"
+													class="btn btn-secondary btn-sm btn-icon text-danger"
 													title="حذف من قائمة المساعدة"
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmDeleteSavingProduct(%d)", item.ID)} }
 												>
@@ -398,12 +396,12 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				<form method="POST" id="saving-product-form" action="/vendor/saving-products">
 					<input type="hidden" id="form-saving-id" name="id" value="" />
 					
-					<div style="display:flex; flex-direction:column; gap:1rem;">
+					<div class="stack-md">
 						
 						<!-- Product Name -->
 						<div>
 							<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
-								اسم الصنف الدوائي للمنظمة <span style="color:var(--danger-text);">*</span>
+								اسم الصنف الدوائي للمنظمة <span class="text-danger">*</span>
 							</label>
 							<input
 								type="text"
@@ -417,7 +415,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						</div>
 
 						<!-- SKU & Qty Row -->
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="grid-2">
 							<div>
 								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
 									رمز SKU (اختياري)
@@ -495,7 +493,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					</div>
 
 					<!-- Form Footer -->
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+					<div class="modal-footer-standard">
 						<button type="button" class="btn btn-secondary" onclick="closeCreateModal()">
 							إلغاء
 						</button>
@@ -511,7 +509,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		<div id="saving-import-modal" class="modal-overlay hidden">
 			<div class="card" style="max-width:600px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-					<div style="display:flex; align-items:center; gap:0.5rem;">
+					<div class="row-center-sm">
 						<span style="font-size:1.4rem;">📥</span>
 						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
 							استيراد ملف منتجات المساعدة (Excel / CSV)
@@ -523,7 +521,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				</div>
 
 				<form method="POST" action="/vendor/saving-products/import" enctype="multipart/form-data" onsubmit="return handleImportSubmit(event)">
-					<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					<div class="stack-lg">
 						
 						<!-- Dropzone -->
 						<div
@@ -576,7 +574,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					</div>
 
 					<!-- Form Footer -->
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+					<div class="modal-footer-standard">
 						<button type="button" class="btn btn-secondary" onclick="closeImportModal()">
 							إلغاء
 						</button>
@@ -719,7 +717,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 									'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
 									'onclick="selectCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
 									'<div><strong style="color:var(--text); font-size:0.85rem;">' + it.name + '</strong>' + skuText + '</div>' +
-									'<span class="badge badge-emerald" style="font-size:0.7rem;">اختيار</span></div>';
+									'<span class="badge badge-emerald text-xs">اختيار</span></div>';
 							});
 							dropdown.innerHTML = html;
 							dropdown.style.display = 'block';
@@ -809,18 +807,18 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							return;
 						}
 
-						let html = '<table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th style="padding:0.75rem;">المورد / المنظمة</th><th style="padding:0.75rem;">العبوة / التنويعة</th><th style="padding:0.75rem; text-align:center;">المخزون</th><th style="padding:0.75rem; text-align:center;">السعر الأساسي</th><th style="padding:0.75rem; text-align:center;">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th></tr></thead><tbody>';
+						let html = '<table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المنظمة</th><th class="p-sm">العبوة / التنويعة</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">السعر الأساسي</th><th class="p-sm text-center">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
-							const branchText = p.branch_name ? ('<div style="font-size:0.75rem; color:var(--text-muted);">' + p.branch_name + '</div>') : '';
-							const skuText = p.sku ? ('<code style="font-size:0.75rem;">' + p.sku + '</code>') : '';
+							const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + p.branch_name + '</div>') : '';
+							const skuText = p.sku ? ('<code class="text-xs">' + p.sku + '</code>') : '';
 							const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
 							html += '<tr style="border-bottom:1px solid var(--border);">' +
-								'<td style="padding:0.75rem;"><strong style="color:var(--text);">' + (p.org_name || 'مورد معتمد') + '</strong>' + branchText + '</td>' +
-								'<td style="padding:0.75rem;"><div>' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
-								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
-								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums">' + p.price + ' ج.م</td>' +
-								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
+								'<td class="p-sm"><strong class="text-primary">' + (p.org_name || 'مورد معتمد') + '</strong>' + branchText + '</td>' +
+								'<td class="p-sm"><div>' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
+								'<td class="p-sm text-center tabular-nums">' + p.price + ' ج.م</td>' +
+								'<td class="p-sm text-center tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
 								'<td style="padding:0.75rem; text-align:end;" class="tabular-nums"><strong style="color:var(--accent); font-size:0.95rem;">' + p.price_after_discount + ' ج.م</strong></td>' +
 								'</tr>';
 						});

@@ -132,7 +132,7 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 					</div>
 
 					<div style="display:flex; gap:var(--space-2);">
-						<button type="button" class="btn btn-secondary btn-sm" style="font-weight:600;">
+						<button type="button" class="btn btn-secondary btn-sm fw-600">
 							@components.IconRefresh("icon-xs")
 							<span>تحديث السجل</span>
 						</button>
@@ -176,7 +176,7 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 									<span class="badge badge-slate">سداد طلب #ORD-1082</span>
 								</td>
 								<td>رصيد المحفظة المباشر</td>
-								<td class="tabular-nums" style="font-weight:700; color:var(--text);">- 3,420.00 ج.م</td>
+								<td class="tabular-nums fw-700 text-primary">- 3,420.00 ج.م</td>
 								<td class="tabular-nums" style="color:var(--text-muted); font-size:var(--text-xs);">2026-08-14 11:20</td>
 								<td>
 									<span class="badge badge-emerald">
@@ -259,12 +259,12 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 					</div>
 
 					<form method="POST" action="/wallet/deposit" style="display:flex; flex-direction:column; gap:var(--space-4); margin:0;">
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-amount">المبلغ المراد إيداعه (ج.م) *</label>
 							<input id="dep-amount" name="amount" type="number" step="0.01" min="100" class="form-input tabular-nums" placeholder="مثال: 5000" required />
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-method">طريقة الإيداع والتحويل *</label>
 							<select id="dep-method" name="payment_method" class="form-select" onchange="document.getElementById('instapay-info').style.display = (this.value === 'instapay') ? 'block' : 'none'; document.getElementById('bank-info').style.display = (this.value === 'bank_transfer') ? 'block' : 'none';">
 								<option value="instapay">انستاباي InstaPay (التحويل اللحظي الفوري)</option>
@@ -276,29 +276,29 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 						<div id="instapay-info" style="background:var(--accent-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-3); font-size:var(--text-xs); color:var(--text); display:block;">
 							<strong>بيانات التحويل عبر انستاباي:</strong><br/>
 							عنوان الدفع اللحظي (IPA): <code class="tabular-nums" style="font-weight:700; background:var(--surface-raised); padding:0.15rem 0.4rem; border-radius:3px; border:1px solid var(--border);">dawa24@instapay</code><br/>
-							رقم الهاتف المرتبط: <code class="tabular-nums" style="font-weight:700;">01065397000</code>
+							رقم الهاتف المرتبط: <code class="tabular-nums fw-700">01065397000</code>
 						</div>
 
 						<div id="bank-info" style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-3); font-size:var(--text-xs); color:var(--text); display:none;">
 							<strong>بيانات الحساب البنكي الرسمي:</strong><br/>
 							اسم الحساب: شركة دواء 24 للتجارة والتوزيع<br/>
-							البنك التجاري الدولي (CIB): <code class="tabular-nums" style="font-weight:700;">100048291048</code><br/>
-							IBAN: <code class="tabular-nums" style="font-weight:700;">EG3800100004829104800000000000</code>
+							البنك التجاري الدولي (CIB): <code class="tabular-nums fw-700">100048291048</code><br/>
+							IBAN: <code class="tabular-nums fw-700">EG3800100004829104800000000000</code>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-ref">رقم الإشعار أو مرجع التحويل البنكي *</label>
 							<input id="dep-ref" name="reference_number" type="text" class="form-input" placeholder="مثال: Ref #928374628" required />
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-notes">ملاحظات إضافية (اختياري)</label>
 							<textarea id="dep-notes" name="notes" rows="2" class="form-textarea" placeholder="أي ملاحظات تخص الإيداع..."></textarea>
 						</div>
 
 						<div style="display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:var(--space-2);">
 							<button type="button" class="btn btn-secondary" data-modal-close="deposit-modal">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:600;">
+							<button type="submit" class="btn btn-primary fw-600">
 								@components.IconCheck("icon-xs")
 								<span>تأكيد إرسال الإشعار</span>
 							</button>
@@ -325,12 +325,12 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 					</div>
 
 					<form method="POST" action="/wallet/withdraw" style="display:flex; flex-direction:column; gap:var(--space-4); margin:0;">
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="with-amount">المبلغ المراد سحبه (ج.م) *</label>
 							<input id="with-amount" name="amount" type="number" step="0.01" min="500" max="5420" class="form-input tabular-nums" placeholder="الحد الأقصى: 5,420.00 ج.م" required />
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="with-destination">الحساب المحول إليه *</label>
 							<select id="with-destination" name="destination_id" class="form-select">
 								<option value="bank">حساب البنك التجاري الدولي (ينتهي بـ 4920)</option>
@@ -339,7 +339,7 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 							</select>
 						</div>
 
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" for="with-reason">سبب السحب (اختياري)</label>
 							<textarea id="with-reason" name="reason" rows="2" class="form-textarea" placeholder="استرداد رصيد فائض / تحويل للأرباح..."></textarea>
 						</div>
@@ -350,7 +350,7 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 
 						<div style="display:flex; justify-content:flex-end; gap:var(--space-3); margin-top:var(--space-2);">
 							<button type="button" class="btn btn-secondary" data-modal-close="withdraw-modal">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:600;">
+							<button type="submit" class="btn btn-primary fw-600">
 								@components.IconCheck("icon-xs")
 								<span>تأكيد طلب السحب</span>
 							</button>

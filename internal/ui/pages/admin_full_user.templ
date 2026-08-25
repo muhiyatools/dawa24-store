@@ -15,7 +15,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
-					<h2 class="card-title" style="margin:0;">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h2>
+					<h2 class="card-title m-0">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h2>
 					<p class="subtitle">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة.</p>
 				</div>
 			</div>
@@ -26,7 +26,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 				<a href="/admin/customer-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "customers"), templ.KV("btn-secondary", activeFilter != "customers") }>الصيدليات والعملاء</a>
 				<a href="/admin/vendor-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "vendors"), templ.KV("btn-secondary", activeFilter != "vendors") }>الموردون والشركات</a>
 				<a href="/admin/admin-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "staff"), templ.KV("btn-secondary", activeFilter != "staff") }>المشرفون والإداريون</a>
-				<a href="/admin/want-delete" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">طلبات الحذف</a>
+				<a href="/admin/want-delete" class="btn btn-secondary btn-sm text-danger">طلبات الحذف</a>
 			</div>
 
 			if len(users) == 0 {
@@ -74,10 +74,10 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 // AdminUserDetailPage renders a detailed view of a user.
 templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("ملف المستخدم: %s", u.Name.Get("ar")), "users", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">{ u.Name.Get("ar") }</h2>
+					<h2 class="card-title m-0">{ u.Name.Get("ar") }</h2>
 					<p class="subtitle">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
 				</div>
 				<a href="/admin/users" class="btn btn-secondary btn-sm">العودة لدليل المستخدمين</a>
@@ -85,15 +85,15 @@ templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">البريد الإلكتروني</div>
+					<div class="text-sm text-secondary">البريد الإلكتروني</div>
 					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ u.Email }</div>
 				</div>
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">رقم الهاتف</div>
+					<div class="text-sm text-secondary">رقم الهاتف</div>
 					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ u.Phone }</div>
 				</div>
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">الحالة</div>
+					<div class="text-sm text-secondary">الحالة</div>
 					<div style="margin-top:0.25rem;">
 						if u.Status == identity.StatusActive {
 							<span class="badge badge-success">نشط</span>
@@ -111,7 +111,7 @@ templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lang, dir string) {
 	@layouts.AdminShell("طلبات حذف الحسابات", "users", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h2>
+			<h2 class="card-title mb-lg">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h2>
 			if len(requests) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات حذف معلقة", Message: "لا توجد أي طلبات لحذف الحسابات حالياً."})
 			} else {
@@ -138,7 +138,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 									<td class="text-end">
 										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
-												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text);">موافقة وحذف</button>
+												<button type="submit" class="btn btn-secondary btn-sm text-danger">موافقة وحذف</button>
 											</form>
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", r.ID)) }>
 												<button type="submit" class="btn btn-secondary btn-sm">رفض الطلب</button>
@@ -159,7 +159,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
 	@layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "employee_activities", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">سجل نشاطات الموظفين بالمنشآت</h2>
+			<h2 class="card-title mb-lg">سجل نشاطات الموظفين بالمنشآت</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "سجل العمليات فارغ", Message: "يتم تسجيل عمليات الموظفين والموردين تلقائياً عند إجراء التعديلات على المنتجات والأسعار."})
 		</div>
 	}
@@ -171,7 +171,7 @@ templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">الأدوار والصلاحيات ({ fmt.Sprintf("%d", len(roles)) })</h2>
+					<h2 class="card-title m-0">الأدوار والصلاحيات ({ fmt.Sprintf("%d", len(roles)) })</h2>
 					<p class="subtitle">تحديد صلاحيات الوصول والتعديل لمجموعات المستخدمين والموظفين.</p>
 				</div>
 			</div>
@@ -213,10 +213,10 @@ templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 // AdminRoleEditPage renders role permissions editor.
 templ AdminRoleEditPage(r *org.Role, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تعديل صلاحيات الدور: %s", r.Name.Get("ar")), "roles", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">تعديل صلاحيات الدور ({ r.Key })</h2>
+					<h2 class="card-title m-0">تعديل صلاحيات الدور ({ r.Key })</h2>
 					<p class="subtitle">حدد الصلاحيات الممنوحة للمستخدمين المسند إليهم هذا الدور.</p>
 				</div>
 				<a href="/admin/roles" class="btn btn-secondary btn-sm">العودة للأدوار</a>
@@ -228,7 +228,7 @@ templ AdminRoleEditPage(r *org.Role, lang, dir string) {
 					<input type="text" name="name_ar" class="form-control" value={ r.Name.Get("ar") } required />
 				</div>
 
-				<div class="form-group" style="margin-bottom:1.5rem;">
+				<div class="form-group mb-lg">
 					<label class="form-label">الوصف</label>
 					<textarea name="description" class="form-control" rows="2">{ r.Description }</textarea>
 				</div>

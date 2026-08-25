@@ -18,7 +18,7 @@ templ JobsPage(lang, dir string, jobs []*hr.JobOffer) {
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconUser("icon-sm")
 							</div>
 							<h1 style="font-size:1.65rem; font-weight:900; color:var(--text); margin:0;">
@@ -31,7 +31,7 @@ templ JobsPage(lang, dir string, jobs []*hr.JobOffer) {
 					</div>
 
 					<div style="display:flex; gap:0.75rem;">
-						<a href="/auth/register" class="btn btn-primary" style="font-weight:700;">
+						<a href="/auth/register" class="btn btn-primary fw-700">
 							@components.IconPlus("icon-xs")
 							<span>نشر وظيفة جديدة</span>
 						</a>
@@ -57,7 +57,7 @@ templ JobsPage(lang, dir string, jobs []*hr.JobOffer) {
 										@components.IconCheckCircle("icon-xs")
 										<span>فرصة معتمدة</span>
 									</span>
-									<span class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">{ j.CreatedAt.Format("2006-01-02") }</span>
+									<span class="tabular-nums text-xs text-muted">{ j.CreatedAt.Format("2006-01-02") }</span>
 								</div>
 
 								<!-- Job Title -->
@@ -123,18 +123,18 @@ templ JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn boo
 			<div style="display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start;">
 				
 				<!-- Left (Main Column): Job Details, Requirements & Scope -->
-				<div style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div class="stack-lg">
 					
 					<!-- Primary Job Header Card -->
 					<div class="card mb-0" style="padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
 						<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
 							<div>
 								<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
-									<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:700;">
+									<span class="badge badge-emerald text-xs fw-700">
 										@components.IconCheckCircle("icon-xs")
 										<span>فرصة عمل معتمدة</span>
 									</span>
-									<span class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">نشرت بتاريخ: { j.CreatedAt.Format("2006-01-02") }</span>
+									<span class="tabular-nums text-sm text-muted">نشرت بتاريخ: { j.CreatedAt.Format("2006-01-02") }</span>
 								</div>
 								<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">{ j.Title.Get(i18n.Lang(lang)) }</h1>
 							</div>
@@ -142,7 +142,7 @@ templ JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn boo
 
 						<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-secondary); font-size:0.9rem; padding-top:0.75rem; border-top:1px solid var(--border);">
 							@components.IconBuilding("icon-xs")
-							<span>مقر العمل: <strong style="color:var(--text);">{ j.Location }</strong></span>
+							<span>مقر العمل: <strong class="text-primary">{ j.Location }</strong></span>
 						</div>
 					</div>
 
@@ -203,7 +203,7 @@ templ JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn boo
 								<p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.5;">
 									يرجى تسجيل الدخول بحسابك المهني لإرفاق سيرتك الذاتية ومتابعة طلبك.
 								</p>
-								<div style="display:flex; flex-direction:column; gap:0.5rem;">
+								<div class="stack-sm">
 									<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/jobs/%d", j.ID)) } class="btn btn-primary btn-sm" style="font-weight:700; justify-content:center; padding:0.5rem;">
 										<span>تسجيل الدخول للتقديم</span>
 									</a>
@@ -214,23 +214,23 @@ templ JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn boo
 							</div>
 						} else {
 							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/jobs/%d/apply", j.ID)) } enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:0.85rem;">
-								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label" for="a-name" style="font-size:0.8rem; font-weight:700;">الاسم الثلاثي / المهني *</label>
+								<div class="form-group mb-0">
+									<label class="form-label text-sm fw-700" for="a-name">الاسم الثلاثي / المهني *</label>
 									<input type="text" id="a-name" name="applicant_name" required class="form-input" value={ userName } placeholder="د. أحمد محمود" style="font-size:0.85rem; padding:0.45rem 0.65rem;" />
 								</div>
 								
-								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label" for="a-email" style="font-size:0.8rem; font-weight:700;">البريد الإلكتروني *</label>
+								<div class="form-group mb-0">
+									<label class="form-label text-sm fw-700" for="a-email">البريد الإلكتروني *</label>
 									<input type="email" id="a-email" name="applicant_email" required class="form-input tabular-nums" value={ userEmail } placeholder="pharmacist@example.com" style="font-size:0.85rem; padding:0.45rem 0.65rem;" />
 								</div>
 
-								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label" for="a-phone" style="font-size:0.8rem; font-weight:700;">رقم الهاتف / الواتساب *</label>
+								<div class="form-group mb-0">
+									<label class="form-label text-sm fw-700" for="a-phone">رقم الهاتف / الواتساب *</label>
 									<input type="tel" id="a-phone" name="applicant_phone" required class="form-input tabular-nums" value={ userPhone } placeholder="01012345678" style="font-size:0.85rem; padding:0.45rem 0.65rem;" />
 								</div>
 
-								<div class="form-group" style="margin-bottom:0;">
-									<label class="form-label" for="a-cv" style="font-size:0.8rem; font-weight:700;">إرفاق السيرة الذاتية (CV / PDF) *</label>
+								<div class="form-group mb-0">
+									<label class="form-label text-sm fw-700" for="a-cv">إرفاق السيرة الذاتية (CV / PDF) *</label>
 									<input type="file" id="a-cv" name="resume_file" accept=".pdf,.doc,.docx" required class="form-input" style="padding:0.35rem; font-size:0.8rem;" />
 								</div>
 

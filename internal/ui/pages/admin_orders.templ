@@ -34,7 +34,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 				</div>
 				<form method="GET" action="/admin/orders" style="display:flex; gap:0.5rem; margin:0; min-width:320px;">
 					<input type="hidden" name="tab" value={ data.ActiveTab } />
-					<input type="text" name="q" value={ data.Query } class="form-input" style="flex:1;" placeholder="رقم الطلب أو اسم العميل…" />
+					<input type="text" name="q" value={ data.Query } class="form-input flex-1" placeholder="رقم الطلب أو اسم العميل…" />
 					<button type="submit" class="btn btn-primary btn-sm">بحث</button>
 				</form>
 			</div>
@@ -46,25 +46,25 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 				<a href="/admin/orders?tab=all" class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
 					@components.IconTruck("icon-sm")
 					<span>جميع طلبات الشراء</span>
-					<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.Orders)) }</span>
+					<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", len(data.Orders)) }</span>
 				</a>
 				<a href="/admin/orders?tab=direct" class={ "tab-btn", templ.KV("active", data.ActiveTab == "direct") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
 					@components.IconLayers("icon-sm")
 					<span>أوامر التوريد المباشر</span>
 					if len(data.DirectOrders) > 0 {
-						<span class="badge badge-secondary" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.DirectOrders)) }</span>
+						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", len(data.DirectOrders)) }</span>
 					}
 				</a>
 				<a href="/admin/orders?tab=negotiations" class={ "tab-btn", templ.KV("active", data.ActiveTab == "negotiations") } style="padding:0.9rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;">
 					<span>🤝</span>
 					<span>طلبات التفاوض على الأسعار</span>
 					if len(data.NegotiationOrders) > 0 {
-						<span class="badge badge-amber" style="font-size:0.75rem;">{ fmt.Sprintf("%d", len(data.NegotiationOrders)) }</span>
+						<span class="badge badge-amber text-xs">{ fmt.Sprintf("%d", len(data.NegotiationOrders)) }</span>
 					}
 				</a>
 			</div>
 
-			<div style="padding:1.25rem;">
+			<div class="p-card-sm">
 				if data.ActiveTab == "negotiations" {
 					if len(data.NegotiationOrders) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات تفاوض على الأسعار", Message: "لم يتم تقديم أي طلبات تفاوض على أسعار الأصناف حتى الآن."})
@@ -185,9 +185,9 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 											<td class="tabular-nums"><strong>{ o.OrderNumber }</strong></td>
 											<td>
 												if o.IsNegotiation {
-													<span class="badge badge-amber" style="font-size:0.7rem;">🤝 تفاوض</span>
+													<span class="badge badge-amber text-xs">🤝 تفاوض</span>
 												} else {
-													<span class="badge badge-slate" style="font-size:0.7rem;">توريد مباشر</span>
+													<span class="badge badge-slate text-xs">توريد مباشر</span>
 												}
 											</td>
 											<td>

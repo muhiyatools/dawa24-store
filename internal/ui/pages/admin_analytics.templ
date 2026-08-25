@@ -72,7 +72,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						
 						<span>توزيع الزوار حسب الدول</span>
 					</h3>
-					<span class="badge badge-slate" style="font-size:0.75rem;">تتبع مباشر</span>
+					<span class="badge badge-slate text-xs">تتبع مباشر</span>
 				</div>
 
 				if len(a.ByCountry) == 0 {
@@ -84,7 +84,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						for country, count := range a.ByCountry {
 							<div style="display:flex; flex-direction:column; gap:0.25rem;">
 								<div style="display:flex; justify-content:space-between; font-size:0.875rem;">
-									<span style="font-weight:700; color:var(--text);">{ country }</span>
+									<span class="fw-700 text-primary">{ country }</span>
 									<span style="font-weight:800; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d زيارة", count) }</span>
 								</div>
 								<div style="width:100%; height:6px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border);">
@@ -103,7 +103,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						
 						<span>أكثر المدن والمحافظات نشاطاً</span>
 					</h3>
-					<span class="badge badge-slate" style="font-size:0.75rem;">المناطق والمدن</span>
+					<span class="badge badge-slate text-xs">المناطق والمدن</span>
 				</div>
 
 				if len(a.ByCity) == 0 {
@@ -137,7 +137,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">نوع الجهاز:</div>
 						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
 							for d, count := range a.ByDevice {
-								<span class="badge badge-slate" style="font-size:0.75rem;">
+								<span class="badge badge-slate text-xs">
 									{ d }: <strong>{ fmt.Sprintf("%d", count) }</strong>
 								</span>
 							}
@@ -149,7 +149,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">نظام التشغيل:</div>
 						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
 							for os, count := range a.ByOS {
-								<span class="badge badge-purple" style="font-size:0.75rem;">
+								<span class="badge badge-purple text-xs">
 									{ os }: <strong>{ fmt.Sprintf("%d", count) }</strong>
 								</span>
 							}
@@ -161,7 +161,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">المتصفح:</div>
 						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
 							for b, count := range a.ByBrowser {
-								<span class="badge badge-emerald" style="font-size:0.75rem;">
+								<span class="badge badge-emerald text-xs">
 									{ b }: <strong>{ fmt.Sprintf("%d", count) }</strong>
 								</span>
 							}
@@ -183,7 +183,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول
 					</p>
 				</div>
-				<span class="badge badge-emerald" style="font-size:0.75rem;">محدّث لحظياً</span>
+				<span class="badge badge-emerald text-xs">محدّث لحظياً</span>
 			</div>
 
 			if len(a.Recent) == 0 {
@@ -209,10 +209,10 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 								<tr>
 									<!-- 1. Timestamp (Start Aligned) -->
 									<td class="text-start">
-										<div class="tabular-nums" style="font-weight:700; color:var(--text); font-size:0.85rem;">
+										<div class="tabular-nums fw-700 text-primary text-sm">
 											{ v.VisitedAt.Format("2006-01-02") }
 										</div>
-										<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">
+										<div class="tabular-nums text-xs text-muted">
 											{ v.CreatedAt.Format("15:04:05") }
 										</div>
 									</td>
@@ -228,28 +228,28 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 									</td>
 
 									<!-- 3. IP (Center Aligned) -->
-									<td style="text-align:center;">
+									<td class="text-center">
 										<span class="badge badge-slate tabular-nums" style="font-family:monospace; font-size:0.775rem; direction:ltr;">
 											{ v.IP }
 										</span>
 									</td>
 
 									<!-- 4. Device (Center Aligned) -->
-									<td style="text-align:center;">
+									<td class="text-center">
 										<span class="badge badge-sky" style="font-size:0.75rem; text-transform:capitalize;">
 											{ v.Device }
 										</span>
 									</td>
 
 									<!-- 5. Browser (Center Aligned) -->
-									<td style="text-align:center;">
+									<td class="text-center">
 										<span class="badge badge-purple" style="font-size:0.75rem; text-transform:capitalize;">
 											{ v.Browser }
 										</span>
 									</td>
 
 									<!-- 6. OS (Center Aligned) -->
-									<td style="text-align:center;">
+									<td class="text-center">
 										<span class="badge badge-slate" style="font-size:0.75rem; text-transform:capitalize;">
 											{ v.OS }
 										</span>

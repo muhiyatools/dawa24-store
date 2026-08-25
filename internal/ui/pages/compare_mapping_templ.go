@@ -37,14 +37,14 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"compare-mapping-modal-backdrop\" class=\"modal-overlay\" onclick=\"if(event.target === this) closeMappingModal();\"><div class=\"card\" style=\"position:relative; max-width:880px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\" onclick=\"event.stopPropagation();\"><!-- Modal Header --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;\">📋</div><div><h2 style=\"font-size:1.25rem; font-weight:900; color:var(--text); margin:0;\">تعيين وتأكيد أعمدة كشف المورد</h2><p style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;\">المورد: <strong style=\"color:var(--text);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"compare-mapping-modal-backdrop\" class=\"modal-overlay\" onclick=\"if(event.target === this) closeMappingModal();\"><div class=\"card\" style=\"position:relative; max-width:880px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\" onclick=\"event.stopPropagation();\"><!-- Modal Header --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div class=\"row-center\"><div style=\"width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;\">📋</div><div><h2 style=\"font-size:1.25rem; font-weight:900; color:var(--text); margin:0;\">تعيين وتأكيد أعمدة كشف المورد</h2><p style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;\">المورد: <strong class=\"text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(file.SupplierName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 33, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 33, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -57,7 +57,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(file.OriginalFilename)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 33, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 33, Col: 108}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -76,7 +76,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" style=\"display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><!-- Helpful Hint --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem 1.15rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;\"><div style=\"font-size:0.85rem; color:var(--text-muted);\">💡 تم فحص أعمدة الملف تلقائياً. تأكد من صحة اختيار الحقول أدناه ثم اضغط حفظ.</div><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.75rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" style=\"display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><!-- Helpful Hint --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem 1.15rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem;\"><div class=\"text-sm text-muted\">💡 تم فحص أعمدة الملف تلقائياً. تأكد من صحة اختيار الحقول أدناه ثم اضغط حفظ.</div><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.75rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -89,13 +89,13 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><!-- Column Selector Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1rem;\"><!-- 1. Product Name (Required) --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">اسم الصنف الدوائي <span style=\"color:var(--danger-text);\">* (مطلوب)</span></label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><!-- Column Selector Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1rem;\"><!-- 1. Product Name (Required) --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div class=\"flex-between\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">اسم الصنف الدوائي <span class=\"text-danger\">* (مطلوب)</span></label> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
 			if score, ok := detection.FieldScores[compare.FieldProductName]; ok {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"badge badge-emerald text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -183,13 +183,13 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- 2. Price --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">السعر الرسمي (Official Price)</label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- 2. Price --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div class=\"flex-between\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">السعر الرسمي (Official Price)</label> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
 			if score, ok := detection.FieldScores[compare.FieldPrice]; ok {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"badge badge-emerald text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -277,13 +277,13 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</select></div><!-- 3. Discount --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">نسبة الخصم % (Discount)</label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</select></div><!-- 3. Discount --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div class=\"flex-between\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">نسبة الخصم % (Discount)</label> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
 			if score, ok := detection.FieldScores[compare.FieldDiscount]; ok {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-emerald text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -371,13 +371,13 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</select></div><!-- 4. Code / SKU --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">كود الصنف / SKU</label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</select></div><!-- 4. Code / SKU --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><div class=\"flex-between\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">كود الصنف / SKU</label> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
 			if score, ok := detection.FieldScores[compare.FieldSKU]; ok {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-emerald text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -56,7 +56,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الفواتير الضريبية والإلكترونية</h2></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">الفواتير الرسمية المعتمدة من منظومة الضرائب المصرية (ETA e-Invoicing)</p></div></div><div class=\"card\" style=\"padding:2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الفواتير الضريبية والإلكترونية</h2></div><p style=\"color:var(--neutral-500); font-size:0.925rem; margin:0;\">الفواتير الرسمية المعتمدة من منظومة الضرائب المصرية (ETA e-Invoicing)</p></div></div><div class=\"card p-modal\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -69,7 +69,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-800); margin-bottom:0.35rem;\">لا توجد فواتير صادرة حالياً</h3><p style=\"font-size:0.875rem;\">تظهر الفواتير الضريبية فور اكتمال تسليم أوامر الشراء واعتمادها من المورد.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-800); margin-bottom:0.35rem;\">لا توجد فواتير صادرة حالياً</h3><p class=\"text-sm\">تظهر الفواتير الضريبية فور اكتمال تسليم أوامر الشراء واعتمادها من المورد.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -116,14 +116,14 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"tabular-nums\" style=\"font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"tabular-nums fw-800\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(inv.TotalAmount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_invoices.templ`, Line: 63, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_invoices.templ`, Line: 63, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {

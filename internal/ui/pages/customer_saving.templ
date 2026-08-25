@@ -184,7 +184,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.5rem;">
+				<div class="row-center-sm">
 					<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">
 						عرض: { fmt.Sprintf("%d", len(data.Items)) } صنف
 					</span>
@@ -203,11 +203,11 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							أضف أدويتك الأكثر استهلاكاً أو ارفع ملف Excel لمتابعة خصومات الموردين واقتناص أفضل الأسعار.
 						</p>
 						<div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
-							<button type="button" class="btn btn-primary" onclick="openPharmacyCreateModal()" style="font-weight:800;">
+							<button type="button" class="btn btn-primary fw-800" onclick="openPharmacyCreateModal()">
 								@components.IconPlus("icon-xs")
 								<span>إضافة صنف جديد</span>
 							</button>
-							<button type="button" class="btn btn-secondary" onclick="openPharmacyImportModal()" style="font-weight:800;">
+							<button type="button" class="btn btn-secondary fw-800" onclick="openPharmacyImportModal()">
 								@components.IconUpload("icon-xs")
 								<span>استيراد ملف Excel</span>
 							</button>
@@ -219,10 +219,10 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							<thead>
 								<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
 									<th style="padding:1rem 1.25rem;">اسم الصنف للصيدلية</th>
-									<th style="padding:1rem;">الربط بالكتالوج العام</th>
-									<th style="padding:1rem; text-align:center;">الكمية</th>
-									<th style="padding:1rem; text-align:center;">سعر الشراء</th>
-									<th style="padding:1rem; text-align:center;">عروض الموردين</th>
+									<th class="p-md">الربط بالكتالوج العام</th>
+									<th class="p-md text-center">الكمية</th>
+									<th class="p-md text-center">سعر الشراء</th>
+									<th class="p-md text-center">عروض الموردين</th>
 									<th style="padding:1rem 1.25rem; text-align:center;">الإجراءات</th>
 								</tr>
 							</thead>
@@ -241,7 +241,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									>
 										<!-- Name & SKU -->
 										<td style="padding:1rem 1.25rem;">
-											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											<div class="fw-800 text-primary text-base">
 												{ it.NameProduct }
 											</div>
 											if it.SKU != "" {
@@ -252,10 +252,10 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Linked Product -->
-										<td style="padding:1rem;">
+										<td class="p-md">
 											if it.ProductID != nil && *it.ProductID > 0 {
-												<div style="display:flex; align-items:center; gap:0.5rem;">
-													<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800;">
+												<div class="row-center-sm">
+													<span class="badge badge-emerald text-xs fw-800">
 														🔗 { it.LinkedProductName.Get(i18n.AR) }
 													</span>
 													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID)) } target="_blank" class="btn btn-secondary btn-icon" style="width:26px; height:26px;" title="عرض بالكتالوج">
@@ -263,24 +263,24 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 													</a>
 												</div>
 											} else {
-												<span class="badge badge-amber" style="font-size:0.75rem; font-weight:700;">
+												<span class="badge badge-amber text-xs fw-700">
 													غير مرتبط
 												</span>
 											}
 										</td>
 
 										<!-- Quantity -->
-										<td style="padding:1rem; text-align:center;" class="tabular-nums">
+										<td class="p-md text-center tabular-nums">
 											<strong>{ fmt.Sprintf("%v", it.Quantity) }</strong>
 										</td>
 
 										<!-- Price -->
-										<td style="padding:1rem; text-align:center;" class="tabular-nums">
-											<strong style="color:var(--text);">{ it.Price.String() } ج.م</strong>
+										<td class="p-md text-center tabular-nums">
+											<strong class="text-primary">{ it.Price.String() } ج.م</strong>
 										</td>
 
 										<!-- Providers & Market Offers -->
-										<td style="padding:1rem; text-align:center;">
+										<td class="p-md text-center">
 											if it.ProductID != nil && *it.ProductID > 0 {
 												<button
 													type="button"
@@ -293,7 +293,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 													<span>{ fmt.Sprintf("%d موردين", it.ProvidingOrgsCount) }</span>
 												</button>
 											} else {
-												<span style="font-size:0.75rem; color:var(--text-muted);">-</span>
+												<span class="text-xs text-muted">-</span>
 											}
 										</td>
 
@@ -302,8 +302,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 											<div style="display:flex; align-items:center; justify-content:center; gap:0.4rem;">
 												<button
 													type="button"
-													class="btn btn-secondary btn-icon"
-													style="width:32px; height:32px;"
+													class="btn btn-secondary btn-icon size-8"
 													title="تعديل الصنف والربط"
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)} }
 												>
@@ -345,10 +344,10 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				<form method="POST" id="pharmacy-saving-product-form" action="/customer/saving-products">
 					<input type="hidden" id="pharmacy-form-saving-id" name="id" value="" />
 					
-					<div style="display:flex; flex-direction:column; gap:1rem;">
+					<div class="stack-md">
 						<div>
 							<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
-								اسم الصنف الدوائي بالصيدلية <span style="color:var(--danger-text);">*</span>
+								اسم الصنف الدوائي بالصيدلية <span class="text-danger">*</span>
 							</label>
 							<input
 								type="text"
@@ -361,7 +360,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							/>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="grid-2">
 							<div>
 								<label class="form-label" style="font-weight:700; color:var(--text); font-size:0.875rem;">
 									رمز SKU (اختياري)
@@ -435,7 +434,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</div>
 					</div>
 
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+					<div class="modal-footer-standard">
 						<button type="button" class="btn btn-secondary" onclick="closePharmacyCreateModal()">
 							إلغاء
 						</button>
@@ -451,7 +450,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 		<div id="pharmacy-saving-import-modal" class="modal-overlay hidden">
 			<div class="card" style="max-width:600px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-					<div style="display:flex; align-items:center; gap:0.5rem;">
+					<div class="row-center-sm">
 						<span style="font-size:1.4rem;">📥</span>
 						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
 							استيراد ملف أدوية التوفير (Excel / CSV)
@@ -463,7 +462,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				</div>
 
 				<form method="POST" action="/customer/saving-products/import" enctype="multipart/form-data" onsubmit="return handlePharmacyImportSubmit(event)">
-					<div style="display:flex; flex-direction:column; gap:1.25rem;">
+					<div class="stack-lg">
 						<div
 							id="pharmacy-import-dropzone"
 							style="border:2px dashed var(--accent); background:var(--surface-sunken); border-radius:var(--radius-xl); padding:2rem 1rem; text-align:center; cursor:pointer;"
@@ -494,7 +493,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</div>
 					</div>
 
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+					<div class="modal-footer-standard">
 						<button type="button" class="btn btn-secondary" onclick="closePharmacyImportModal()">
 							إلغاء
 						</button>
@@ -636,7 +635,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
 									'onclick="selectPharmacyCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
 									'<div><strong style="color:var(--text); font-size:0.85rem;">' + it.name + '</strong>' + skuText + '</div>' +
-									'<span class="badge badge-emerald" style="font-size:0.7rem;">اختيار</span></div>';
+									'<span class="badge badge-emerald text-xs">اختيار</span></div>';
 							});
 							dropdown.innerHTML = html;
 							dropdown.style.display = 'block';
@@ -727,7 +726,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							return;
 						}
 
-						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th style="padding:0.75rem;">المورد / المستودع</th><th style="padding:0.75rem;">العبوة / المواصفات</th><th style="padding:0.75rem; text-align:center;">المخزون</th><th style="padding:0.75rem; text-align:center;">السعر الأساسي</th><th style="padding:0.75rem; text-align:center;">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th><th style="padding:0.75rem; text-align:center;">طلب توريد</th></tr></thead><tbody>';
+						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المستودع</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">السعر الأساسي</th><th class="p-sm text-center">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
 							const branchText = p.branch_name ? ('<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">' + p.branch_name + '</div>') : '';
@@ -746,16 +745,16 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									'<input type="hidden" name="qty" value="1" />' +
 									'<button type="submit" class="btn btn-primary btn-sm" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;">+ أضف للسلة</button>' +
 								'</form>') :
-								'<span style="font-size:0.75rem; color:var(--text-muted);">غير متوفر</span>';
+								'<span class="text-xs text-muted">غير متوفر</span>';
 
 							html += '<tr style="border-bottom:1px solid var(--border);">' +
-								'<td style="padding:0.75rem;"><strong style="color:var(--text); font-size:0.875rem;">' + orgDisplayName + '</strong>' + branchText + '</td>' +
-								'<td style="padding:0.75rem;"><div>' + varDisplayName + '</div>' + skuText + '</td>' +
-								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
-								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums">' + p.price + ' ج.م</td>' +
-								'<td style="padding:0.75rem; text-align:center;" class="tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
+								'<td class="p-sm"><strong style="color:var(--text); font-size:0.875rem;">' + orgDisplayName + '</strong>' + branchText + '</td>' +
+								'<td class="p-sm"><div>' + varDisplayName + '</div>' + skuText + '</td>' +
+								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
+								'<td class="p-sm text-center tabular-nums">' + p.price + ' ج.م</td>' +
+								'<td class="p-sm text-center tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
 								'<td style="padding:0.75rem; text-align:end;" class="tabular-nums"><strong style="color:var(--accent); font-size:0.95rem;">' + p.price_after_discount + ' ج.م</strong></td>' +
-								'<td style="padding:0.75rem; text-align:center;">' + addCartAction + '</td>' +
+								'<td class="p-sm text-center">' + addCartAction + '</td>' +
 								'</tr>';
 						});
 
@@ -813,7 +812,7 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", len(orders)) })</h2>
+					<h2 class="card-title m-0">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", len(orders)) })</h2>
 					<p class="subtitle">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p>
 				</div>
 			</div>
@@ -855,10 +854,10 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 // CustomerOfferCheckoutPage renders checkout for an offer.
 templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, nil) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">إتمام شراء العرض: { offer.Title.Get("ar") }</h2>
+					<h2 class="card-title m-0">إتمام شراء العرض: { offer.Title.Get("ar") }</h2>
 					<p class="subtitle">قيمة الخصم: { offer.DiscountValue.String() }</p>
 				</div>
 				<a href="/offers" class="btn btn-secondary btn-sm">إلغاء والعودة</a>
@@ -893,8 +892,8 @@ templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 // CustomerAddOrderPage renders manual order form.
 templ CustomerAddOrderPage(lang, dir string) {
 	@layouts.CustomerShell("طلب شراء سريع", "orders", lang, dir, nil) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">إضافة أمر شراء يدوي سريع</h2>
+		<div class="card max-w-2xl mx-auto">
+			<h2 class="card-title mb-lg">إضافة أمر شراء يدوي سريع</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "الطلب اليدوي", Message: "يمكنك إضافة الأصناف والكميات مباشرة لإرسالها لأقرب مورد معتمد."})
 		</div>
 	}
@@ -909,7 +908,7 @@ templ GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, di
 				<p style="text-align:center; color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p>
 
 				<form method="GET" action="/tracking" style="display:flex; gap:0.5rem; margin-bottom:2rem;">
-					<input type="text" name="order_number" value={ orderNumber } placeholder="مثال: ORD-20260819-XXXXXX" class="form-input" style="flex:1;" required />
+					<input type="text" name="order_number" value={ orderNumber } placeholder="مثال: ORD-20260819-XXXXXX" class="form-input flex-1" required />
 					<button type="submit" class="btn btn-primary">تتبع الآن</button>
 				</form>
 
@@ -918,12 +917,12 @@ templ GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, di
 						<div style="background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-md);">
 							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
 								<div>
-									<div style="font-size:0.85rem; color:var(--text-secondary);">رقم الطلب</div>
+									<div class="text-sm text-secondary">رقم الطلب</div>
 									<div style="font-size:1.15rem; font-weight:700; color:var(--text);"><code>{ order.OrderNumber }</code></div>
 								</div>
 								<span class="badge badge-sky" style="font-size:0.9rem; padding:0.4rem 0.8rem;">{ string(order.Status) }</span>
 							</div>
-							<div style="font-size:0.85rem; color:var(--text-secondary);">
+							<div class="text-sm text-secondary">
 								تاريخ الإنشاء: <span class="tabular-nums">{ order.CreatedAt.Format("2006-01-02 15:04") }</span>
 							</div>
 						</div>

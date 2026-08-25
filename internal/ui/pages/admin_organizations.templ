@@ -88,7 +88,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.75rem;">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
 					<div class="row-center">
-						<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						<div class="b2b-icon-box-lg">
 							@components.IconBuilding("icon-lg")
 						</div>
 						<div>
@@ -165,7 +165,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 1: Organizations -->
-			<div x-show="activeTab === 'organizations'" style="display:flex; flex-direction:column; gap:1.25rem;">
+			<div x-show="activeTab === 'organizations'" class="stack-lg">
 				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
 						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -236,7 +236,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											x-show={ fmt.Sprintf("(orgFilter === '' || orgFilter === '%s') && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.includes(searchQuery))", string(o.Type), o.LegalName, o.TradeName["ar"], o.CommercialRegister) }
 										>
 											<td>
-												<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ o.LegalName }</div>
+												<div class="fw-800 text-primary text-base">{ o.LegalName }</div>
 												<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;">
 													if o.TradeName["ar"] != "" {
 														{ o.TradeName["ar"] }
@@ -247,15 +247,15 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											</td>
 											<td>
 												if string(o.Type) == "vendor" {
-													<span class="badge badge-sky" style="font-weight:700;">مورد / شركة أدوية</span>
+													<span class="badge badge-sky fw-700">مورد / شركة أدوية</span>
 												} else {
-													<span class="badge badge-emerald" style="font-weight:700;">صيدلية مرخصة</span>
+													<span class="badge badge-emerald fw-700">صيدلية مرخصة</span>
 												}
 											</td>
 											<td>
-												<div style="font-size:0.85rem;"><span style="color:var(--text-secondary);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
+												<div style="font-size:0.85rem;"><span class="text-secondary">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
 												if o.TaxNumber != "" {
-													<div style="font-size:0.8rem; color:var(--text-secondary);"><span style="color:var(--text-secondary);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
+													<div class="text-sm text-secondary"><span class="text-secondary">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
 												}
 											</td>
 											<td>
@@ -289,7 +289,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											</td>
 											<td class="text-end">
 												<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
-													<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-sm fw-700">
 														<span>عرض الملف الشامل ↗</span>
 													</a>
 												</div>
@@ -304,11 +304,11 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 2: Branches -->
-			<div x-show="activeTab === 'branches'" style="display:flex; flex-direction:column; gap:1.25rem;">
+			<div x-show="activeTab === 'branches'" class="stack-lg">
 				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
 						<div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">تصفية بالمنشأة:</label>
 								<select x-model="branchOrgFilter" class="form-select" style="font-size:0.825rem; padding:0.35rem 0.75rem; max-width:240px;">
 									<option value="all">كافة المنشآت والشركات</option>
@@ -318,7 +318,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 								</select>
 							</div>
 
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="row-center-sm">
 								<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">النوع:</label>
 								<select x-model="branchTypeFilter" class="form-select" style="font-size:0.825rem; padding:0.35rem 0.75rem;">
 									<option value="all">كافة الأنواع</option>
@@ -331,10 +331,10 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 							<button
 								type="button"
-								class="btn btn-secondary btn-sm"
+								class="btn btn-secondary btn-sm text-sm"
 								x-show="branchOrgFilter !== 'all' || branchTypeFilter !== 'all'"
 								@click="branchOrgFilter = 'all'; branchTypeFilter = 'all';"
-								style="font-size:0.8rem;"
+							
 							>
 								إلغاء التصفية
 							</button>
@@ -377,10 +377,10 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											x-show={ fmt.Sprintf("(branchOrgFilter === 'all' || branchOrgFilter === '%d') && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", b.OrganizationID, b.Name.Get("ar"), b.Code, b.Address) }
 										>
 											<td>
-												<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ b.Name.Get("ar") }</div>
+												<div class="fw-800 text-primary text-base">{ b.Name.Get("ar") }</div>
 												if b.Code != "" {
 													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;" dir="ltr">
-														<code style="font-weight:700;">{ b.Code }</code>
+														<code class="fw-700">{ b.Code }</code>
 													</div>
 												}
 											</td>
@@ -389,13 +389,13 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 													{ getOrgLegalName(b.OrganizationID, data.OrgNames) }
 												</div>
 												<div style="margin-top:0.15rem;">
-													<span class="badge badge-slate" style="font-size:0.75rem;">
+													<span class="badge badge-slate text-xs">
 														{ getOrgTypeBadge(b.OrganizationID, data.OrgTypes) }
 													</span>
 												</div>
 											</td>
 											<td>
-												<span class="badge badge-sky" style="font-weight:700;">
+												<span class="badge badge-sky fw-700">
 													if b.WarehouseType != "" {
 														{ b.WarehouseType }
 													} else {
@@ -419,7 +419,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 												}
 											</td>
 											<td class="text-end">
-												<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-sm fw-700">
 													<span>عرض التفاصيل</span>
 												</a>
 											</td>
@@ -433,7 +433,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 3: Users -->
-			<div x-show="activeTab === 'users'" style="display:flex; flex-direction:column; gap:1.25rem;">
+			<div x-show="activeTab === 'users'" class="stack-lg">
 				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
 					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
 						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -522,7 +522,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 														}
 													</div>
 													<div>
-														<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ userDisplayName(u) }</div>
+														<div class="fw-800 text-primary text-base">{ userDisplayName(u) }</div>
 														if u.Phone != "" {
 															<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.05rem;" class="tabular-nums">📞 { u.Phone }</div>
 														}
@@ -530,10 +530,10 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 												</div>
 											</td>
 											<td>
-												<div style="font-size:0.85rem; color:var(--text-secondary);" class="tabular-nums" dir="ltr">{ u.Email }</div>
+												<div class="text-sm text-secondary tabular-nums" dir="ltr">{ u.Email }</div>
 											</td>
 											<td>
-												<span class={ "badge", roleBadgeClass(u.Role) } style="font-weight:700;">
+												<span class={ "badge", roleBadgeClass(u.Role) } class="fw-700">
 													{ roleDisplayAr(u.Role) }
 												</span>
 											</td>
@@ -549,14 +549,14 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											<td class="text-end">
 												<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
 													if u.Status == identity.StatusActive {
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } style="margin:0; display:inline;" onsubmit="return confirm('تأكيد تعليق هذا الحساب؟');">
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0 inline" onsubmit="return confirm('تأكيد تعليق هذا الحساب؟');">
 															<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); font-weight:700;">
 																تعليق الحساب
 															</button>
 														</form>
 													} else {
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } style="margin:0; display:inline;">
-															<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0 inline">
+															<button type="submit" class="btn btn-primary btn-sm fw-700">
 																إعادة التفعيل
 															</button>
 														</form>
@@ -574,9 +574,9 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 			<!-- TAB 4: Deletions -->
 			if len(data.DeletionRequests) > 0 {
-				<div x-show="activeTab === 'deletion_requests'" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<div x-show="activeTab === 'deletion_requests'" class="stack-lg">
 					<div class="card mb-0">
-						<div class="header-row" style="margin-bottom:1rem;">
+						<div class="header-row mb-md">
 							<div>
 								<h2 class="card-title" style="margin:0; font-size:1.2rem; font-weight:800; color:var(--danger);">
 									طلبات حذف الحسابات المعلقة ({ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) })
@@ -618,13 +618,13 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											<td class="text-end">
 												if req.Status == "pending" {
 													<div style="display:flex; justify-content:flex-end; gap:0.4rem;">
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", req.ID)) } style="margin:0;" onsubmit="return confirm('تأكيد الموافقة على حذف الحساب وتعليقه فورياً؟');">
-															<button type="submit" class="btn btn-sm btn-danger" style="font-weight:700;">
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", req.ID)) } class="m-0" onsubmit="return confirm('تأكيد الموافقة على حذف الحساب وتعليقه فورياً؟');">
+															<button type="submit" class="btn btn-sm btn-danger fw-700">
 																موافقة وحذف
 															</button>
 														</form>
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", req.ID)) } style="margin:0;">
-															<button type="submit" class="btn btn-sm btn-secondary" style="font-weight:700;">
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", req.ID)) } class="m-0">
+															<button type="submit" class="btn btn-sm btn-secondary fw-700">
 																رفض الطلب
 															</button>
 														</form>
@@ -648,11 +648,11 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 // AdminOrganizationDetail renders tabbed organization detail views.
 templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employees []*org.EmployeeView, activeTab string, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("ملف المنشأة: %s", o.LegalName), "organizations", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.5rem;">
+		<div class="stack-lg">
 			<div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
 				<div>
 					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-						<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">{ o.LegalName }</h1>
+						<h1 class="text-2xl fw-800 text-primary m-0">{ o.LegalName }</h1>
 						if string(o.Type) == "vendor" {
 							<span class="badge badge-sky">مورد</span>
 						} else {
@@ -755,19 +755,19 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">تفاصيل المنشأة وبيانات التسجيل</h3>
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
 						<div>
-							<div style="font-size:0.8rem; color:var(--text-secondary);">الاسم القانوني</div>
+							<div class="text-sm text-secondary">الاسم القانوني</div>
 							<div style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.LegalName }</div>
 						</div>
 						<div>
-							<div style="font-size:0.8rem; color:var(--text-secondary);">رقم السجل التجاري</div>
+							<div class="text-sm text-secondary">رقم السجل التجاري</div>
 							<div class="tabular-nums" style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.CommercialRegister }</div>
 						</div>
 						<div>
-							<div style="font-size:0.8rem; color:var(--text-secondary);">الرقم الضريبي</div>
+							<div class="text-sm text-secondary">الرقم الضريبي</div>
 							<div class="tabular-nums" style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.TaxNumber }</div>
 						</div>
 						<div>
-							<div style="font-size:0.8rem; color:var(--text-secondary);">رقم ترخيص الصيدلي / المنشأة</div>
+							<div class="text-sm text-secondary">رقم ترخيص الصيدلي / المنشأة</div>
 							<div class="tabular-nums" style="font-weight:700; font-size:1rem; margin-top:0.25rem;">{ o.PharmacistLicense }</div>
 						</div>
 					</div>
@@ -783,7 +783,7 @@ templ AdminBranchesPage(branches []*org.Branch, lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">كافة الفروع والمستودعات ({ fmt.Sprintf("%d", len(branches)) })</h2>
+					<h2 class="card-title m-0">كافة الفروع والمستودعات ({ fmt.Sprintf("%d", len(branches)) })</h2>
 					<p class="subtitle">إدارة ومراقبة كافة الفروع ومستودعات التوريد لكافة المنشآت على المنصة.</p>
 				</div>
 			</div>
@@ -836,7 +836,7 @@ templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">{ b.Name.Get("ar") }</h2>
+					<h2 class="card-title m-0">{ b.Name.Get("ar") }</h2>
 					<p class="subtitle">كود الفرع: { b.Code } | منشأة #{ fmt.Sprintf("%d", b.OrganizationID) }</p>
 				</div>
 				<a href="/admin/organizations?tab=branches" class="btn btn-secondary btn-sm">العودة لدليل الفروع</a>
@@ -844,15 +844,15 @@ templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
 
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">العنوان</div>
+					<div class="text-sm text-secondary">العنوان</div>
 					<div style="font-weight:700; margin-top:0.25rem;">{ b.Address }</div>
 				</div>
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">هاتف التواصل</div>
+					<div class="text-sm text-secondary">هاتف التواصل</div>
 					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ b.Phone }</div>
 				</div>
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">ساعات العمل</div>
+					<div class="text-sm text-secondary">ساعات العمل</div>
 					<div style="font-weight:700; margin-top:0.25rem;">{ b.OperatingHours }</div>
 				</div>
 			</div>
@@ -983,44 +983,44 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 											if c.OrgName != "" {
 												<strong>{ c.OrgName }</strong>
 											} else {
-												<span style="color:var(--text-muted);">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</span>
+												<span class="text-muted">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</span>
 											}
 										</td>
 										<td>
 											if c.CityName != "" {
-												<strong style="color:var(--text);">{ c.CityName }</strong>
+												<strong class="text-primary">{ c.CityName }</strong>
 											} else {
-												<span style="color:var(--text-muted);">كافة المناطق</span>
+												<span class="text-muted">كافة المناطق</span>
 											}
 										</td>
 										<td>
 											if c.BranchName != "" {
 												<span>{ c.BranchName }</span>
 											} else {
-												<span style="color:var(--text-muted);">المقر الرئيسي</span>
+												<span class="text-muted">المقر الرئيسي</span>
 											}
 										</td>
 										<td class="tabular-nums">
-											<strong style="color:var(--accent);">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong>
+											<strong class="text-accent">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong>
 										</td>
 										<td class="tabular-nums">
 											if c.CoverageFrom != nil && c.CoverageTo != nil {
-												<span style="font-weight:700;">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
+												<span class="fw-700">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
 											} else {
-												<span class="badge badge-slate" style="font-size:0.75rem;">طوال اليوم</span>
+												<span class="badge badge-slate text-xs">طوال اليوم</span>
 											}
 										</td>
 										<td>
 											if c.IsActive {
-												<span class="badge badge-success" style="font-weight:800;">✓ نشط ومتاح</span>
+												<span class="badge badge-success fw-800">✓ نشط ومتاح</span>
 											} else {
-												<span class="badge badge-danger" style="font-weight:800;">✕ معطل</span>
+												<span class="badge badge-danger fw-800">✕ معطل</span>
 											}
 										</td>
 										<td class="text-end">
 											<div style="display:inline-flex; align-items:center; gap:0.4rem;">
 												<!-- Toggle Button Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/toggle", c.ID)) } style="margin:0;">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/toggle", c.ID)) } class="m-0">
 													<input type="hidden" name="is_active" value={ fmt.Sprintf("%t", !c.IsActive) } />
 													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
 													if c.IsActive {
@@ -1035,7 +1035,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 												</form>
 
 												<!-- Delete Button Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف جدول التغطية هذا؟');" style="margin:0;">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف جدول التغطية هذا؟');" class="m-0">
 													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
 													<button type="submit" class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.25rem 0.5rem;" title="حذف">
 														
@@ -1055,7 +1055,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 			<div x-show="addModalOpen" x-cloak class="modal-overlay">
 				<div @click.away="addModalOpen = false" class="modal-card modal-md">
 					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="row-center-sm">
 							<span style="font-size:1.2rem;"></span>
 							<h3 style="font-size:1.1rem; font-weight:800; margin:0; color:var(--text);">إضافة جدول تغطية أسبوعية جديد</h3>
 						</div>
@@ -1076,7 +1076,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</select>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="grid-2">
 							<div>
 								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">الفرع أو المستودع المنفذ *</label>
 								<select name="branch_id" class="form-select" required style="width:100%; font-size:0.85rem;">
@@ -1105,7 +1105,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="grid-2">
 							<div>
 								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">يوم التوصيل *</label>
 								<select name="day_of_week" class="form-select" required style="width:100%; font-size:0.85rem; font-weight:700;">
@@ -1125,7 +1125,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="grid-2">
 							<div>
 								<label class="form-label" style="font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;">من الساعة (اختياري)</label>
 								<input type="text" name="coverage_from" placeholder="مثال: 08:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="form-input tabular-nums" style="width:100%; font-size:0.85rem;" />
@@ -1142,8 +1142,8 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							<input type="text" name="address" placeholder="مثال: خط سير الصيدليات المركزية والمستشفيات" class="form-input" style="width:100%; font-size:0.85rem;" />
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="button" @click="addModalOpen = false" class="btn btn-secondary" style="font-weight:700;">إلغاء</button>
+						<div class="modal-footer-standard">
+							<button type="button" @click="addModalOpen = false" class="btn btn-secondary fw-700">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.5rem 1.5rem;">حفظ الجدول</button>
 						</div>
 					</form>

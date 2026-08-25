@@ -129,7 +129,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconCheckCircle("icon-xs")
 							<span>صيدلية معتمدة</span>
 						</span>
-						<form action="/auth/logout" method="POST" style="margin:0; display:inline;">
+						<form action="/auth/logout" method="POST" class="m-0 inline">
 							<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger-text); border-color:var(--danger-border); font-weight:600;">
 								@components.IconLogout("icon-xs")
 								<span>تسجيل الخروج</span>
@@ -138,7 +138,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 					</div>
 				</header>
 
-				<div class="page-container" style="padding:2rem;">
+				<div class="page-container p-modal">
 					{ children... }
 				</div>
 			</main>

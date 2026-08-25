@@ -84,35 +84,35 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 				<a
 					href="/vendor/orders"
 					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == ""), templ.KV("btn-secondary", data.FilterStatus != "") }
-					style="font-weight:700;"
+					class="fw-700"
 				>
 					الكل ({ fmt.Sprintf("%d", data.TotalCount) })
 				</a>
 				<a
 					href="/vendor/orders?status=pending"
 					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "pending"), templ.KV("btn-secondary", data.FilterStatus != "pending") }
-					style="font-weight:700;"
+					class="fw-700"
 				>
 					بانتظار التأكيد ({ fmt.Sprintf("%d", data.PendingCount) })
 				</a>
 				<a
 					href="/vendor/orders?status=confirmed"
 					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "confirmed"), templ.KV("btn-secondary", data.FilterStatus != "confirmed") }
-					style="font-weight:700;"
+					class="fw-700"
 				>
 					قيد التجهيز ({ fmt.Sprintf("%d", data.ConfirmedCount) })
 				</a>
 				<a
 					href="/vendor/orders?status=shipped"
 					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "shipped"), templ.KV("btn-secondary", data.FilterStatus != "shipped") }
-					style="font-weight:700;"
+					class="fw-700"
 				>
 					قيد التوصيل ({ fmt.Sprintf("%d", data.ShippedCount) })
 				</a>
 				<a
 					href="/vendor/orders?status=delivered"
 					class={ "btn btn-sm", templ.KV("btn-primary", data.FilterStatus == "delivered"), templ.KV("btn-secondary", data.FilterStatus != "delivered") }
-					style="font-weight:700;"
+					class="fw-700"
 				>
 					تم التسليم ({ fmt.Sprintf("%d", data.DeliveredCount) })
 				</a>
@@ -132,7 +132,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 			Message: "ستظهر هنا أي طلبيات جديدة يتم إجراؤها من الصيدليات والعملاء التابعين لتغطيتك الجغرافية.",
 		})
 	} else {
-		<div style="display:flex; flex-direction:column; gap:1.5rem;">
+		<div class="stack-lg">
 			for _, sh := range data.Shipments {
 				<div class="card" style="padding:1.75rem; margin:0; background:var(--surface-raised); border:1.5px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 8px 24px rgba(0,0,0,0.08);">
 					
@@ -144,24 +144,24 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 									شحنة #{ sh.ShipmentNumber }
 								</span>
 								if sh.OrderNumber != "" {
-									<span class="badge badge-subtle" style="font-size:0.8rem; font-weight:700;">
+									<span class="badge badge-subtle text-sm fw-700">
 										أمر الشراء #{ sh.OrderNumber }
 									</span>
 								}
 								if sh.Status == commerce.StatusPending {
-									<span class="badge badge-amber" style="font-size:0.8rem; font-weight:800;">بانتظار التأكيد والموافقة</span>
+									<span class="badge badge-amber text-sm fw-800">بانتظار التأكيد والموافقة</span>
 								} else if sh.Status == commerce.StatusConfirmed {
-									<span class="badge badge-sky" style="font-size:0.8rem; font-weight:800;">قيد التجهيز بالمستودع</span>
+									<span class="badge badge-sky text-sm fw-800">قيد التجهيز بالمستودع</span>
 								} else if sh.Status == commerce.StatusShipped {
-									<span class="badge badge-indigo" style="font-size:0.8rem; font-weight:800;">قيد الشحن والتوصيل</span>
+									<span class="badge badge-indigo text-sm fw-800">قيد الشحن والتوصيل</span>
 								} else if sh.Status == commerce.StatusDelivered {
-									<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:800;">تم التسليم بنجاح</span>
+									<span class="badge badge-emerald text-sm fw-800">تم التسليم بنجاح</span>
 								} else {
-									<span class="badge badge-slate" style="font-size:0.8rem; font-weight:800;">{ string(sh.Status) }</span>
+									<span class="badge badge-slate text-sm fw-800">{ string(sh.Status) }</span>
 								}
 							</div>
 							<div style="font-size:0.825rem; color:var(--text-secondary);" class="tabular-nums">
-								تاريخ وتوقيت الطلب: <strong style="color:var(--text);">{ sh.CreatedAt.Format("2006-01-02 15:04:05") }</strong>
+								تاريخ وتوقيت الطلب: <strong class="text-primary">{ sh.CreatedAt.Format("2006-01-02 15:04:05") }</strong>
 							</div>
 						</div>
 
@@ -170,7 +170,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 							<div style="font-size:1.85rem; font-weight:900; color:var(--accent); line-height:1;" class="tabular-nums">
 								{ sh.TotalAmount.String() } <span style="font-size:1rem; font-weight:700; color:var(--text-muted);">ج.م</span>
 							</div>
-							<div style="font-size:0.75rem; color:var(--text-muted);">
+							<div class="text-xs text-muted">
 								{ sh.PaymentMethod } • { string(sh.PaymentStatus) }
 							</div>
 						</div>
@@ -202,7 +202,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 								if sh.CustomerBranchAddress != "" {
 									{ sh.CustomerBranchAddress }
 								} else {
-									<span style="color:var(--text-muted);">العنوان المسجل لفرع الصيدلية</span>
+									<span class="text-muted">العنوان المسجل لفرع الصيدلية</span>
 								}
 							</div>
 						</div>
@@ -212,14 +212,14 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 								@components.IconPhone("icon-xs")
 								<span>مسؤول الاستلام والتواصل:</span>
 							</div>
-							<div style="color:var(--text);">
+							<div class="text-primary">
 								if sh.CustomerManagerName != "" {
 									<div>{ sh.CustomerManagerName }</div>
 								}
 								if sh.CustomerBranchPhone != "" {
 									<div class="tabular-nums" style="color:var(--text-secondary); direction:ltr; text-align:right;">{ sh.CustomerBranchPhone }</div>
 								} else if sh.CustomerManagerName == "" {
-									<span style="color:var(--text-muted);">الصيدلي المسؤول بالفرع</span>
+									<span class="text-muted">الصيدلي المسؤول بالفرع</span>
 								}
 							</div>
 						</div>
@@ -233,20 +233,20 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 					</div>
 
 					<!-- Detailed Line Items Table -->
-					<div style="margin-bottom:1.5rem;">
+					<div class="mb-lg">
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
 							<h4 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
 								@components.IconPackage("icon-xs")
 								<span>الأصناف والكميات المطلوبة ({ fmt.Sprintf("%d", len(sh.Lines)) } صنف)</span>
 							</h4>
-							<span class="badge badge-sky" style="font-size:0.75rem;">شحن مبرد معتمد Cold-Chain</span>
+							<span class="badge badge-sky text-xs">شحن مبرد معتمد Cold-Chain</span>
 						</div>
 
 						<div style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
 							<table class="b2b-table" style="margin:0; width:100%;">
 								<thead>
 									<tr style="background:var(--surface-sunken);">
-										<th style="font-size:0.8rem; font-weight:700;">اسم الدواء / الصنف</th>
+										<th class="text-sm fw-700">اسم الدواء / الصنف</th>
 										<th style="font-size:0.8rem; font-weight:700; text-align:center;">الكمية المطلوبة</th>
 										<th style="font-size:0.8rem; font-weight:700; text-align:center;">سعر الوحدة</th>
 										<th style="font-size:0.8rem; font-weight:700; text-align:end;">الإجمالي</th>
@@ -268,15 +268,15 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 													</div>
 												}
 											</td>
-											<td style="text-align:center;">
-												<span class="badge badge-subtle" style="font-size:0.875rem; font-weight:800;">
+											<td class="text-center">
+												<span class="badge badge-subtle text-sm fw-800">
 													{ fmt.Sprintf("%d", line.Quantity) } عبوة
 												</span>
 											</td>
-											<td style="text-align:center;" class="tabular-nums">
+											<td class="text-center tabular-nums">
 												<span style="color:var(--text); font-weight:700;">{ line.UnitPrice.String() } ج.م</span>
 											</td>
-											<td style="text-align:end;" class="tabular-nums">
+											<td class="text-end tabular-nums">
 												<strong style="color:var(--accent); font-size:1.05rem;">{ line.TotalPrice.String() } ج.م</strong>
 											</td>
 										</tr>
@@ -288,7 +288,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 
 					<!-- Action Controls Toolbar -->
 					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="row-center-sm">
 							if sh.TrackingNumber != "" {
 								<div style="font-size:0.825rem; color:var(--text-secondary); background:var(--surface-sunken); padding:0.4rem 0.75rem; border-radius:var(--radius-md); border:1px solid var(--border);">
 									<span>رقم البوليصة / الشحنة:</span>
@@ -299,7 +299,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 
 						<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
 							if sh.Status == commerce.StatusPending {
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 inline">
 									<input type="hidden" name="status" value="confirmed" />
 									<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد والتجهيز بالمستودع" />
 									<button
@@ -311,7 +311,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 										<span>قبول وتأكيد الطلب</span>
 									</button>
 								</form>
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من رفض هذا الطلب؟');">
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من رفض هذا الطلب؟');">
 									<input type="hidden" name="status" value="cancelled" />
 									<input type="hidden" name="notes" value="تم رفض الطلب أو السعر المقترح من قبل المورد" />
 									<button
@@ -322,7 +322,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 										<span>✕ رفض الطلب</span>
 									</button>
 								</form>
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 inline">
 									<input type="hidden" name="status" value="delivered" />
 									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
 									<button
@@ -353,7 +353,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 										<span>إرسال للشحن</span>
 									</button>
 								</form>
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 inline">
 									<input type="hidden" name="status" value="delivered" />
 									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
 									<button
@@ -366,7 +366,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 									</button>
 								</form>
 							} else if sh.Status == commerce.StatusShipped {
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" style="margin:0; display:inline;">
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 inline">
 									<input type="hidden" name="status" value="delivered" />
 									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
 									<button

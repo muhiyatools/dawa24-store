@@ -52,7 +52,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1200px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:1.75rem;\"><!-- AI Processing Loading Modal --><div id=\"ai-loading-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:1.75rem; text-align:center; padding:2rem;\"><div style=\"width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); display:flex; align-items:center; justify-content:center; box-shadow:0 0 40px rgba(124, 58, 237, 0.6); animation:ai-pulse 1.8s infinite ease-in-out;\"><span style=\"font-size:3rem; line-height:1;\">🤖</span></div><div><h2 style=\"color:#ffffff; font-size:1.6rem; font-weight:900; margin:0 0 0.5rem 0;\">جاري تحليل ومطابقة الأصناف عبر محرك الذكاء الاصطناعي...</h2><p style=\"color:#94a3b8; font-size:0.95rem; margin:0; max-width:480px; line-height:1.6;\">يتم فحص الباركود، الكود الداخلي، المعايرة اللغوية للأدوية، واستدعاء الذكاء الاصطناعي لربط الأصناف بالكتالوج العام المعتمد.</p></div><div style=\"width:280px; height:8px; background:#1e293b; border-radius:999px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.1);\"><div style=\"width:50%; height:100%; background:linear-gradient(90deg, #2563eb, #a855f7); border-radius:999px; animation:indeterminate-progress 1.5s infinite ease-in-out;\"></div></div></div><style>\n\t\t\t@keyframes ai-pulse {\n\t\t\t\t0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }\n\t\t\t\t50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(124, 58, 237, 0.8); }\n\t\t\t\t100% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }\n\t\t\t}\n\t\t\t@keyframes indeterminate-progress {\n\t\t\t\t0% { transform: translateX(-100%); width: 30%; }\n\t\t\t\t50% { width: 70%; }\n\t\t\t\t100% { transform: translateX(250%); width: 30%; }\n\t\t\t}\n\t\t\t</style><!-- Header & Title Bar --><div class=\"card\" style=\"margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1200px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:1.75rem;\"><!-- AI Processing Loading Modal --><div id=\"ai-loading-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:1.75rem; text-align:center; padding:2rem;\"><div style=\"width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #7c3aed); display:flex; align-items:center; justify-content:center; box-shadow:0 0 40px rgba(124, 58, 237, 0.6); animation:ai-pulse 1.8s infinite ease-in-out;\"><span style=\"font-size:3rem; line-height:1;\">🤖</span></div><div><h2 style=\"color:#ffffff; font-size:1.6rem; font-weight:900; margin:0 0 0.5rem 0;\">جاري تحليل ومطابقة الأصناف عبر محرك الذكاء الاصطناعي...</h2><p style=\"color:#94a3b8; font-size:0.95rem; margin:0; max-width:480px; line-height:1.6;\">يتم فحص الباركود، الكود الداخلي، المعايرة اللغوية للأدوية، واستدعاء الذكاء الاصطناعي لربط الأصناف بالكتالوج العام المعتمد.</p></div><div style=\"width:280px; height:8px; background:#1e293b; border-radius:999px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.1);\"><div style=\"width:50%; height:100%; background:linear-gradient(90deg, #2563eb, #a855f7); border-radius:999px; animation:indeterminate-progress 1.5s infinite ease-in-out;\"></div></div></div><style>\n\t\t\t@keyframes ai-pulse {\n\t\t\t\t0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }\n\t\t\t\t50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(124, 58, 237, 0.8); }\n\t\t\t\t100% { transform: scale(0.95); box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); }\n\t\t\t}\n\t\t\t@keyframes indeterminate-progress {\n\t\t\t\t0% { transform: translateX(-100%); width: 30%; }\n\t\t\t\t50% { width: 70%; }\n\t\t\t\t100% { transform: translateX(250%); width: 30%; }\n\t\t\t}\n\t\t\t</style><!-- Header & Title Bar --><div class=\"card\" style=\"margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div class=\"b2b-icon-box\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -153,7 +153,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if data.Step == 1 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"card\" style=\"padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><form method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" onsubmit=\"document.getElementById('ai-loading-modal').style.display='flex'\"><!-- Target Warehouse Selection --><div style=\"margin-bottom:2rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">1. اختر المستودع المستهدف <span style=\"color:var(--danger);\">*</span></label><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.75rem 0;\">سيتم تسجيل وتحديث أرصدة المخزون داخل المستودع الذي تختاره.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"card\" style=\"padding:2.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><form method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" onsubmit=\"document.getElementById('ai-loading-modal').style.display='flex'\"><!-- Target Warehouse Selection --><div style=\"margin-bottom:2rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">1. اختر المستودع المستهدف <span class=\"text-danger\">*</span></label><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.75rem 0;\">سيتم تسجيل وتحديث أرصدة المخزون داخل المستودع الذي تختاره.</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -217,7 +217,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><!-- Import Mode Selection (4 Modes) --><div style=\"margin-bottom:2.25rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">2. اختر نمط الاستيراد <span style=\"color:var(--danger);\">*</span></label><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0;\">حدد كيفية معالجة وتحديث الأصناف والمخزون الموجود مقارنة بالملف المرفوع:</p><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><!-- Mode 4: Update & Add (Recommended) --><label style=\"border:2px solid var(--accent); background:rgba(37,99,235,0.03); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; position:relative;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"update_and_add\" checked style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث وإضافة المنتجات (موصى به)</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث الأصناف والمخزونات الموجودة، وإذا لم تكن موجودة سيتم إضافتها كأصناف جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--accent); font-weight:700;\">✓ النمط الشامل الأكثر مرونة</div></label><!-- Mode 1: Add New Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"add_new_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">إضافة المنتجات الجديدة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم إضافة المنتجات الجديدة فقط في الأصناف والمخزون، ولن يتم تعديل أي منتج موجود مسبقاً.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن يتم تحديث أي منتج موجود بالفعل</div></label><!-- Mode 2: Update Existing Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"update_existing_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث المنتجات الموجودة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث المنتجات الموجودة فقط في الأصناف والمخزون، ولن تتم إضافة أي منتجات جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن تتم إضافة أي أصناف غير مسجلة</div></label><!-- Mode 3: Clear and Add --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"clear_and_add\" style=\"accent-color:var(--danger); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--danger);\">تفريغ مخزون المستودع بالكامل وإضافة كمنتجات جديدة</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم حذف وتفريغ جميع مخزونات هذا المستودع بالكامل أولاً ثم إضافة الأصناف المرفوعة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--danger); font-weight:800;\">سيتم مسح أرصدة هذا المستودع بالكامل!</div></label></div></div><!-- Smart Matching Engine Switches --><div style=\"margin-bottom:2.25rem; background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.85rem; color:var(--text);\">3. إعدادات محرك المطابقة الذكي</label><div style=\"display:flex; flex-direction:column; gap:1rem;\"><!-- Savings Products Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_savings_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">اعتماد منتجات التوفير للمطابقة الفائقة 🛒</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استخدام قائمة منتجات التوفير لربط الأصناف بمنتجاتك المعتمدة فوراً، بدقة وسرعة عالية.</div></div></label><!-- AI-Powered Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_ai_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">تفعيل المطابقة الذكية بالذكاء الاصطناعي (AI Matching) 🤖</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استدعاء محرك الذكاء الاصطناعي بشكل انتقائي للأصناف الغامضة والمعقدة لتحقيق أعلى دقة ممكنة.</div></div></label></div></div><!-- File Upload Dropzone --><div style=\"margin-bottom:2rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">4. رفع ملف الكتالوج والأرصدة <span style=\"color:var(--danger);\">*</span></label><div style=\"border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--surface-sunken);\"><div style=\"width:54px; height:54px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><!-- Import Mode Selection (4 Modes) --><div style=\"margin-bottom:2.25rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">2. اختر نمط الاستيراد <span class=\"text-danger\">*</span></label><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0;\">حدد كيفية معالجة وتحديث الأصناف والمخزون الموجود مقارنة بالملف المرفوع:</p><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><!-- Mode 4: Update & Add (Recommended) --><label style=\"border:2px solid var(--accent); background:rgba(37,99,235,0.03); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; position:relative;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"update_and_add\" checked style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث وإضافة المنتجات (موصى به)</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث الأصناف والمخزونات الموجودة، وإذا لم تكن موجودة سيتم إضافتها كأصناف جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--accent); font-weight:700;\">✓ النمط الشامل الأكثر مرونة</div></label><!-- Mode 1: Add New Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"add_new_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">إضافة المنتجات الجديدة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم إضافة المنتجات الجديدة فقط في الأصناف والمخزون، ولن يتم تعديل أي منتج موجود مسبقاً.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن يتم تحديث أي منتج موجود بالفعل</div></label><!-- Mode 2: Update Existing Only --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"update_existing_only\" style=\"accent-color:var(--accent); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--text);\">تحديث المنتجات الموجودة فقط</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم تحديث المنتجات الموجودة فقط في الأصناف والمخزون، ولن تتم إضافة أي منتجات جديدة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:#d97706; font-weight:700;\">لن تتم إضافة أي أصناف غير مسجلة</div></label><!-- Mode 3: Clear and Add --><label style=\"border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.25rem; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;\"><input type=\"radio\" name=\"import_mode\" value=\"clear_and_add\" style=\"accent-color:var(--danger); width:18px; height:18px;\"> <span style=\"font-weight:800; font-size:1rem; color:var(--danger);\">تفريغ مخزون المستودع بالكامل وإضافة كمنتجات جديدة</span></div><p style=\"font-size:0.825rem; color:var(--text-secondary); line-height:1.45; margin:0;\">سيتم حذف وتفريغ جميع مخزونات هذا المستودع بالكامل أولاً ثم إضافة الأصناف المرفوعة.</p></div><div style=\"margin-top:0.75rem; font-size:0.75rem; color:var(--danger); font-weight:800;\">سيتم مسح أرصدة هذا المستودع بالكامل!</div></label></div></div><!-- Smart Matching Engine Switches --><div style=\"margin-bottom:2.25rem; background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.85rem; color:var(--text);\">3. إعدادات محرك المطابقة الذكي</label><div class=\"stack-md\"><!-- Savings Products Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_savings_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div class=\"fw-800 text-primary text-base\">اعتماد منتجات التوفير للمطابقة الفائقة 🛒</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استخدام قائمة منتجات التوفير لربط الأصناف بمنتجاتك المعتمدة فوراً، بدقة وسرعة عالية.</div></div></label><!-- AI-Powered Matching (Default On) --><label style=\"display:flex; align-items:flex-start; gap:0.85rem; cursor:pointer;\"><input type=\"checkbox\" name=\"enable_ai_matching\" value=\"1\" checked style=\"accent-color:var(--accent); width:20px; height:20px; margin-top:0.15rem;\"><div><div class=\"fw-800 text-primary text-base\">تفعيل المطابقة الذكية بالذكاء الاصطناعي (AI Matching) 🤖</div><div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;\">استدعاء محرك الذكاء الاصطناعي بشكل انتقائي للأصناف الغامضة والمعقدة لتحقيق أعلى دقة ممكنة.</div></div></label></div></div><!-- File Upload Dropzone --><div style=\"margin-bottom:2rem;\"><label style=\"display:block; font-weight:800; font-size:1.05rem; margin-bottom:0.6rem; color:var(--text);\">4. رفع ملف الكتالوج والأرصدة <span class=\"text-danger\">*</span></label><div style=\"border:2px dashed var(--accent); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center; background:var(--surface-sunken);\"><div style=\"width:54px; height:54px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -256,7 +256,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" onsubmit=\"document.getElementById('ai-loading-modal').style.display='flex'\"><div class=\"table-container\" style=\"margin-bottom:2rem;\"><table class=\"b2b-table\"><thead><tr><th style=\"width:30%;\">حقل النظام المعياري</th><th style=\"width:15%;\">الحالة</th><th style=\"width:55%;\">العمود المطابق في ملفك</th></tr></thead> <tbody><!-- Product Name (Required) --><tr style=\"background:rgba(37,99,235,0.03);\"><td><strong style=\"color:var(--text); font-size:0.95rem;\">اسم الصنف / Product Name</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">الاسم التجاري أو العلمي للدواء</div></td><td><span class=\"badge badge-danger\" style=\"font-size:0.75rem;\">إلزامي</span></td><td><select name=\"target_field_product_name\" required class=\"form-control\" style=\"font-weight:700;\"><option value=\"\">-- اختر العمود من الملف --</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" onsubmit=\"document.getElementById('ai-loading-modal').style.display='flex'\"><div class=\"table-container\" style=\"margin-bottom:2rem;\"><table class=\"b2b-table\"><thead><tr><th style=\"width:30%;\">حقل النظام المعياري</th><th style=\"width:15%;\">الحالة</th><th style=\"width:55%;\">العمود المطابق في ملفك</th></tr></thead> <tbody><!-- Product Name (Required) --><tr style=\"background:rgba(37,99,235,0.03);\"><td><strong style=\"color:var(--text); font-size:0.95rem;\">اسم الصنف / Product Name</strong><div class=\"text-xs text-secondary\">الاسم التجاري أو العلمي للدواء</div></td><td><span class=\"badge badge-danger text-xs\">إلزامي</span></td><td><select name=\"target_field_product_name\" required class=\"form-control fw-700\"><option value=\"\">-- اختر العمود من الملف --</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -302,7 +302,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</select></td></tr><!-- Barcode --><tr><td><strong style=\"color:var(--text);\">الباركود الدولي / Barcode</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">كود الترقيم الدولي (EAN/UPC/GTIN)</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_barcode\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</select></td></tr><!-- Barcode --><tr><td><strong class=\"text-primary\">الباركود الدولي / Barcode</strong><div class=\"text-xs text-secondary\">كود الترقيم الدولي (EAN/UPC/GTIN)</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_barcode\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -348,7 +348,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</select></td></tr><!-- SKU --><tr><td><strong style=\"color:var(--text);\">كود الصنف / SKU</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">كود الصنف الداخلي لدى المورد</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_sku\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</select></td></tr><!-- SKU --><tr><td><strong class=\"text-primary\">كود الصنف / SKU</strong><div class=\"text-xs text-secondary\">كود الصنف الداخلي لدى المورد</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_sku\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -394,7 +394,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</select></td></tr><!-- Price --><tr><td><strong style=\"color:var(--text);\">سعر البيع للجمهور / Public Price</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">السعر الرسمي للجمهور (ج.م)</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_price\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</select></td></tr><!-- Price --><tr><td><strong class=\"text-primary\">سعر البيع للجمهور / Public Price</strong><div class=\"text-xs text-secondary\">السعر الرسمي للجمهور (ج.م)</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_price\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -440,7 +440,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select></td></tr><!-- Cost Price --><tr><td><strong style=\"color:var(--text);\">سعر التكلفة / Cost Price</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">سعر الشراء أو التكلفة</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_cost_price\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select></td></tr><!-- Cost Price --><tr><td><strong class=\"text-primary\">سعر التكلفة / Cost Price</strong><div class=\"text-xs text-secondary\">سعر الشراء أو التكلفة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_cost_price\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -486,7 +486,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></td></tr><!-- Discount --><tr><td><strong style=\"color:var(--text);\">نسبة / قيمة الخصم / Discount</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">الخصم الممنوح للصيدلية</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_discount\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></td></tr><!-- Discount --><tr><td><strong class=\"text-primary\">نسبة / قيمة الخصم / Discount</strong><div class=\"text-xs text-secondary\">الخصم الممنوح للصيدلية</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_discount\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -532,7 +532,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></td></tr><!-- Quantity --><tr><td><strong style=\"color:var(--text);\">الكمية / الرصيد / Stock Qty</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">الرصيد المتاح بالمستودع</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_quantity\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></td></tr><!-- Quantity --><tr><td><strong class=\"text-primary\">الكمية / الرصيد / Stock Qty</strong><div class=\"text-xs text-secondary\">الرصيد المتاح بالمستودع</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_quantity\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -578,7 +578,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select></td></tr><!-- Batch Number --><tr><td><strong style=\"color:var(--text);\">رقم التشغيلة / Batch Number</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">رقم الباتش أو التشغيلة</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_batch_number\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select></td></tr><!-- Batch Number --><tr><td><strong class=\"text-primary\">رقم التشغيلة / Batch Number</strong><div class=\"text-xs text-secondary\">رقم الباتش أو التشغيلة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_batch_number\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -624,7 +624,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></td></tr><!-- Expiry Date --><tr><td><strong style=\"color:var(--text);\">تاريخ الصلاحية / Expiry Date</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">تاريخ انتهاء صلاحية الصنف</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_expiry_date\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></td></tr><!-- Expiry Date --><tr><td><strong class=\"text-primary\">تاريخ الصلاحية / Expiry Date</strong><div class=\"text-xs text-secondary\">تاريخ انتهاء صلاحية الصنف</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_expiry_date\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -670,7 +670,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></td></tr><!-- Dosage Form --><tr><td><strong style=\"color:var(--text);\">الشكل الدوائي / Dosage Form</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">أقراص، شراب، كبسول، إلخ</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_dosage_form\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></td></tr><!-- Dosage Form --><tr><td><strong class=\"text-primary\">الشكل الدوائي / Dosage Form</strong><div class=\"text-xs text-secondary\">أقراص، شراب، كبسول، إلخ</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_dosage_form\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -716,7 +716,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</select></td></tr><!-- Concentration --><tr><td><strong style=\"color:var(--text);\">التركيز / Concentration</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">مثل: 500mg, 1000mg</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_concentration\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</select></td></tr><!-- Concentration --><tr><td><strong class=\"text-primary\">التركيز / Concentration</strong><div class=\"text-xs text-secondary\">مثل: 500mg, 1000mg</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_concentration\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -762,7 +762,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</select></td></tr><!-- Manufacturer --><tr><td><strong style=\"color:var(--text);\">الشركة المصنعة / Manufacturer</strong><div style=\"font-size:0.75rem; color:var(--text-secondary);\">اسم المصنع أو الشركة المنتجة</div></td><td><span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">اختياري</span></td><td><select name=\"target_field_manufacturer\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</select></td></tr><!-- Manufacturer --><tr><td><strong class=\"text-primary\">الشركة المصنعة / Manufacturer</strong><div class=\"text-xs text-secondary\">اسم المصنع أو الشركة المنتجة</div></td><td><span class=\"badge badge-secondary text-xs\">اختياري</span></td><td><select name=\"target_field_manufacturer\" class=\"form-control\"><option value=\"unmapped\">غير محدد (Unmapped)</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -896,7 +896,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "</div><div style=\"font-size:0.85rem; color:var(--text-secondary);\">المستودع:  <strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "</div><div class=\"text-sm text-secondary\">المستودع:  <strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -942,7 +942,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "\" class=\"btn btn-secondary btn-sm fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1034,7 +1034,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "\" style=\"font-weight:700;\">الكل (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "\" class=\"fw-700\">الكل (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1082,7 +1082,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "\" style=\"font-weight:700;\">المطابقة المؤكدة (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "\" class=\"fw-700\">المطابقة المؤكدة (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1130,7 +1130,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "\" style=\"font-weight:700;\">بحاجة لمراجعة (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "\" class=\"fw-700\">بحاجة لمراجعة (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1178,7 +1178,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "\" style=\"font-weight:700;\">غير المطابقة (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "\" class=\"fw-700\">غير المطابقة (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1296,14 +1296,14 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							}
 						}
 						if p := getRawField(row.RawData, ingest.FieldPrice, data.Session.ColumnMapping); p != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "<span style=\"background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">السعر: <strong style=\"color:var(--text);\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "<span style=\"background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">السعر: <strong class=\"text-primary\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var68 string
 							templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(p)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 713, Col: 201}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 713, Col: 195}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 							if templ_7745c5c3_Err != nil {
@@ -1315,14 +1315,14 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 							}
 						}
 						if q := getRawField(row.RawData, ingest.FieldQuantity, data.Session.ColumnMapping); q != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "<span style=\"background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">الكمية: <strong style=\"color:var(--text);\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "<span style=\"background:var(--surface-sunken); padding:0.12rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">الكمية: <strong class=\"text-primary\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var69 string
 							templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(q)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 716, Col: 203}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 716, Col: 197}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 							if templ_7745c5c3_Err != nil {
@@ -1548,7 +1548,7 @@ func VendorIngestPage(data IngestWizardData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 							if row.IsApproved {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 175, "<input type=\"hidden\" name=\"approved\" value=\"false\"> <button type=\"submit\" class=\"btn btn-secondary btn-xs\" style=\"color:var(--danger);\" title=\"استبعاد هذا الصنف من الاستيراد\">استبعاد</button>")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 175, "<input type=\"hidden\" name=\"approved\" value=\"false\"> <button type=\"submit\" class=\"btn btn-secondary btn-xs text-danger\" title=\"استبعاد هذا الصنف من الاستيراد\">استبعاد</button>")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}

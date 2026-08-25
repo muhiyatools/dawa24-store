@@ -14,7 +14,7 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
-					<h2 class="card-title" style="margin:0;">طلبات المستندات والإجراءات المطلوبة ({ fmt.Sprintf("%d", len(requests)) })</h2>
+					<h2 class="card-title m-0">طلبات المستندات والإجراءات المطلوبة ({ fmt.Sprintf("%d", len(requests)) })</h2>
 					<p class="subtitle">متابعة طلبات المستندات الرسمية والتحديثات المطلوبة من الصيدليات والموردين.</p>
 				</div>
 			</div>
@@ -68,10 +68,10 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 // AdminAskForDetailPage renders single request detail.
 templ AdminAskForDetailPage(r *workflow.Request, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("طلب مستند: %s", r.Title.Get("ar")), "tools", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">{ r.Title.Get("ar") }</h2>
+					<h2 class="card-title m-0">{ r.Title.Get("ar") }</h2>
 					<p class="subtitle">طلب #{ fmt.Sprintf("%d", r.ID) } | نوع: { string(r.Type) }</p>
 				</div>
 				<a href="/admin/ask-for" class="btn btn-secondary btn-sm">العودة للطلبات</a>
@@ -83,7 +83,7 @@ templ AdminAskForDetailPage(r *workflow.Request, lang, dir string) {
 			</div>
 
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ask-for/%d/respond", r.ID)) } style="display:flex; justify-content:flex-end; gap:0.75rem;">
-				<button type="submit" name="status" value="declined" class="btn btn-secondary" style="color:var(--danger-text);">رفض الطلب</button>
+				<button type="submit" name="status" value="declined" class="btn btn-secondary text-danger">رفض الطلب</button>
 				<button type="submit" name="status" value="accepted" class="btn btn-primary">قبول واعتماد</button>
 			</form>
 		</div>

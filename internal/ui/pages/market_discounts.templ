@@ -244,7 +244,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
 								placeholder="الحد الأدنى"
 							/>
-							<span style="color:var(--text-muted);">-</span>
+							<span class="text-muted">-</span>
 							<input
 								type="number"
 								step="0.1"
@@ -272,7 +272,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 								style="border-radius:var(--radius-lg); height:40px; font-size:0.85rem;"
 								placeholder="الخصم الأدنى %"
 							/>
-							<span style="color:var(--text-muted);">-</span>
+							<span class="text-muted">-</span>
 							<input
 								type="number"
 								step="0.5"
@@ -290,14 +290,14 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 
 			<!-- 3. Control & Stats Bar -->
 			<div class="market-control-bar">
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					<div class="badge badge-neutral" style="font-size:0.875rem; font-weight:800; padding:0.4rem 0.9rem; border-radius:var(--radius-full); background:var(--surface-raised); border:1px solid var(--border);">
 						<span>عرض النتائج:</span>
 						<strong style="color:var(--primary-600); margin-right:0.25rem;">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
 					</div>
 					if filter.Query != "" {
 						<span style="font-size:0.825rem; color:var(--text-muted);">
-							نتائج البحث عن: <strong style="color:var(--text);">{ filter.Query }</strong>
+							نتائج البحث عن: <strong class="text-primary">{ filter.Query }</strong>
 						</span>
 					}
 				</div>
@@ -444,7 +444,7 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 
 							<div style="border-top:1px solid var(--border); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.6rem;">
 								<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
-									<span style="color:var(--text-muted);">السعر الأصلي:</span>
+									<span class="text-muted">السعر الأصلي:</span>
 									<span class="mono" style="font-weight:700; color:var(--text); text-decoration:line-through;">
 										{ item.OriginalPrice.String() } ج.م
 									</span>
@@ -476,9 +476,9 @@ templ MarketDiscountsPage(lang, dir string, result *compare.MarketDiscountsResul
 					<!-- Left: Pagination Info -->
 					<div style="font-size:0.875rem; color:var(--text-muted); font-family:var(--font-mono, monospace);">
 						<span>عرض </span>
-						<strong style="color:var(--text);">{ fmt.Sprintf("%d", calculateStartItem(result.Page, result.Limit, result.TotalCount)) }</strong>
+						<strong class="text-primary">{ fmt.Sprintf("%d", calculateStartItem(result.Page, result.Limit, result.TotalCount)) }</strong>
 						<span> إلى </span>
-						<strong style="color:var(--text);">{ fmt.Sprintf("%d", calculateEndItem(result.Page, result.Limit, result.TotalCount)) }</strong>
+						<strong class="text-primary">{ fmt.Sprintf("%d", calculateEndItem(result.Page, result.Limit, result.TotalCount)) }</strong>
 						<span> من إجمالي </span>
 						<strong style="color:var(--primary-600);">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
 						<span> سجل</span>

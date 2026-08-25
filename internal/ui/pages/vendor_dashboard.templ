@@ -13,7 +13,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 	@layouts.VendorShell("لوحة التحكم", "dashboard", lang, dir) {
 		if len(data.PendingDocRequests) > 0 {
 			<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:var(--radius-xl); padding:1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					@components.IconAlert("icon-lg")
 					<div>
 						<div style="font-weight:800; color:#92400e; font-size:0.95rem;">
@@ -35,7 +35,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 			<div class="card" style="margin-bottom:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 					<div style="display:flex; align-items:center; gap:0.6rem;">
-						<span style="font-size:1.25rem;">🏢</span>
+						<span class="text-xl">🏢</span>
 						<div>
 							<h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">
 								باقة الاشتراك وخدمات الذكاء الاصطناعي للمورد
@@ -45,10 +45,10 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 							</p>
 						</div>
 					</div>
-					<div style="display:flex; align-items:center; gap:0.5rem;">
-						<span class="badge badge-emerald" style="font-weight:700;">{ data.Subscription.Status }</span>
+					<div class="row-center-sm">
+						<span class="badge badge-emerald fw-700">{ data.Subscription.Status }</span>
 						if data.Subscription.IsDefaultPlan {
-							<span class="badge badge-primary" style="font-size:0.75rem;">باقة افتراضية</span>
+							<span class="badge badge-primary text-xs">باقة افتراضية</span>
 						}
 					</div>
 				</div>
@@ -81,7 +81,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 					<!-- AI Gateway & Live Consumption -->
 					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+						<div class="flex-between">
 							<span style="font-size:0.75rem; color:var(--primary); font-weight:700;">بوابة الذكاء الاصطناعي</span>
 							<span class="badge badge-info" dir="ltr" style="font-size:0.7rem; font-weight:700;">{ data.Subscription.AIPlanID }</span>
 						</div>
@@ -98,7 +98,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 							</div>
 						} else {
 							<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
-								<span>المعرّف: </span><code dir="ltr" style="font-size:0.75rem;">{ data.Subscription.AIUserID }</code>
+								<span>المعرّف: </span><code dir="ltr" class="text-xs">{ data.Subscription.AIUserID }</code>
 							</div>
 							<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--emerald); font-weight:600;">
 								✓ المفتاح الافتراضي مفعل وجاهز
@@ -128,7 +128,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
 			<div class="card">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title" style="margin:0;">شحنات بانتظار التنفيذ</h2>
+					<h2 class="card-title m-0">شحنات بانتظار التنفيذ</h2>
 					<a href="/vendor/orders" class="btn btn-secondary btn-sm">عرض الكل</a>
 				</div>
 				if len(data.Shipments) == 0 {
@@ -157,7 +157,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 			<div class="card">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title" style="margin:0;">أصناف تحت الحد الأدنى</h2>
+					<h2 class="card-title m-0">أصناف تحت الحد الأدنى</h2>
 					<a href="/vendor/inventory" class="btn btn-secondary btn-sm">الأرصدة</a>
 				</div>
 				if len(data.LowStock) == 0 {
@@ -182,7 +182,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 			<div class="card">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title" style="margin:0;">العروض النشطة</h2>
+					<h2 class="card-title m-0">العروض النشطة</h2>
 					<a href="/vendor/offers" class="btn btn-secondary btn-sm">إدارة العروض</a>
 				</div>
 				if len(data.Offers) == 0 {
@@ -215,11 +215,11 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 			@components.Modal(components.ModalProps{ ID: fmt.Sprintf("dispatch-%d", s.ID), Title: "تنفيذ الشحنة", Size: "sm" }) {
 				<form method="POST" action={ fmt.Sprintf("/vendor/orders/%d/status", s.ID) } class="stack">
 					<input type="hidden" name="status" value="shipped" />
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label" for={ fmt.Sprintf("c-%d", s.ID) }>شركة الشحن</label>
 						<input type="text" id={ fmt.Sprintf("c-%d", s.ID) } name="carrier" class="form-input" placeholder="ARAMEX" />
 					</div>
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label" for={ fmt.Sprintf("t-%d", s.ID) }>رقم التتبع</label>
 						<input type="text" id={ fmt.Sprintf("t-%d", s.ID) } name="tracking" class="form-input tabular-nums" dir="ltr" />
 					</div>

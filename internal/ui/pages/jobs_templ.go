@@ -50,7 +50,7 @@ func JobsPage(lang, dir string, jobs []*hr.JobOffer) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-page-container\" style=\"max-width:1200px; margin:1.5rem auto 4rem auto; padding:0 1rem;\"><!-- Hero Header --><div style=\"margin-bottom:2rem; background:var(--surface-raised); padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-page-container\" style=\"max-width:1200px; margin:1.5rem auto 4rem auto; padding:0 1rem;\"><!-- Hero Header --><div style=\"margin-bottom:2rem; background:var(--surface-raised); padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><div class=\"b2b-icon-box-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -58,7 +58,7 @@ func JobsPage(lang, dir string, jobs []*hr.JobOffer) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--text); margin:0;\">فرص التوظيف والعمل في القطاع الدوائي</h1></div><p style=\"font-size:0.925rem; color:var(--text-secondary); margin:0; max-width:620px;\">بوابة الوظائف المعتمدة للصيادلة، مساعدي الصيدلة، ومسؤولي التوزيع وسلاسل الإمداد الطبي في مصر.</p></div><div style=\"display:flex; gap:0.75rem;\"><a href=\"/auth/register\" class=\"btn btn-primary\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--text); margin:0;\">فرص التوظيف والعمل في القطاع الدوائي</h1></div><p style=\"font-size:0.925rem; color:var(--text-secondary); margin:0; max-width:620px;\">بوابة الوظائف المعتمدة للصيادلة، مساعدي الصيدلة، ومسؤولي التوزيع وسلاسل الإمداد الطبي في مصر.</p></div><div style=\"display:flex; gap:0.75rem;\"><a href=\"/auth/register\" class=\"btn btn-primary fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -93,14 +93,14 @@ func JobsPage(lang, dir string, jobs []*hr.JobOffer) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>فرصة معتمدة</span></span> <span class=\"tabular-nums\" style=\"font-size:0.75rem; color:var(--text-muted);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>فرصة معتمدة</span></span> <span class=\"tabular-nums text-xs text-muted\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(j.CreatedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/jobs.templ`, Line: 60, Col: 122}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/jobs.templ`, Line: 60, Col: 89}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -285,7 +285,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>العودة لكافة الشواغر الوظيفية</span></a></div><div style=\"display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start;\"><!-- Left (Main Column): Job Details, Requirements & Scope --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Primary Job Header Card --><div class=\"card mb-0\" style=\"padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><span class=\"badge badge-emerald\" style=\"font-size:0.75rem; font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>العودة لكافة الشواغر الوظيفية</span></a></div><div style=\"display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start;\"><!-- Left (Main Column): Job Details, Requirements & Scope --><div class=\"stack-lg\"><!-- Primary Job Header Card --><div class=\"card mb-0\" style=\"padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><span class=\"badge badge-emerald text-xs fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -293,14 +293,14 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>فرصة عمل معتمدة</span></span> <span class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--text-muted);\">نشرت بتاريخ: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>فرصة عمل معتمدة</span></span> <span class=\"tabular-nums text-sm text-muted\">نشرت بتاريخ: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(j.CreatedAt.Format("2006-01-02"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/jobs.templ`, Line: 137, Col: 144}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/jobs.templ`, Line: 137, Col: 112}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -327,14 +327,14 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>مقر العمل: <strong style=\"color:var(--text);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>مقر العمل: <strong class=\"text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(j.Location)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/jobs.templ`, Line: 145, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/jobs.templ`, Line: 145, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -435,7 +435,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><h4 style=\"font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;\">يتطلب التقديم تسجيل الدخول</h4><p style=\"font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.5;\">يرجى تسجيل الدخول بحسابك المهني لإرفاق سيرتك الذاتية ومتابعة طلبك.</p><div style=\"display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><h4 style=\"font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:0.25rem;\">يتطلب التقديم تسجيل الدخول</h4><p style=\"font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.5;\">يرجى تسجيل الدخول بحسابك المهني لإرفاق سيرتك الذاتية ومتابعة طلبك.</p><div class=\"stack-sm\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -466,7 +466,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:0.85rem;\"><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-name\" style=\"font-size:0.8rem; font-weight:700;\">الاسم الثلاثي / المهني *</label> <input type=\"text\" id=\"a-name\" name=\"applicant_name\" required class=\"form-input\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:0.85rem;\"><div class=\"form-group mb-0\"><label class=\"form-label text-sm fw-700\" for=\"a-name\">الاسم الثلاثي / المهني *</label> <input type=\"text\" id=\"a-name\" name=\"applicant_name\" required class=\"form-input\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -479,7 +479,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" placeholder=\"د. أحمد محمود\" style=\"font-size:0.85rem; padding:0.45rem 0.65rem;\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-email\" style=\"font-size:0.8rem; font-weight:700;\">البريد الإلكتروني *</label> <input type=\"email\" id=\"a-email\" name=\"applicant_email\" required class=\"form-input tabular-nums\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" placeholder=\"د. أحمد محمود\" style=\"font-size:0.85rem; padding:0.45rem 0.65rem;\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-sm fw-700\" for=\"a-email\">البريد الإلكتروني *</label> <input type=\"email\" id=\"a-email\" name=\"applicant_email\" required class=\"form-input tabular-nums\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -492,7 +492,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" placeholder=\"pharmacist@example.com\" style=\"font-size:0.85rem; padding:0.45rem 0.65rem;\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-phone\" style=\"font-size:0.8rem; font-weight:700;\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"a-phone\" name=\"applicant_phone\" required class=\"form-input tabular-nums\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" placeholder=\"pharmacist@example.com\" style=\"font-size:0.85rem; padding:0.45rem 0.65rem;\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-sm fw-700\" for=\"a-phone\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"a-phone\" name=\"applicant_phone\" required class=\"form-input tabular-nums\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -505,7 +505,7 @@ func JobDetail(lang, dir string, j *hr.JobOffer, submitted bool, isLoggedIn bool
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" placeholder=\"01012345678\" style=\"font-size:0.85rem; padding:0.45rem 0.65rem;\"></div><div class=\"form-group\" style=\"margin-bottom:0;\"><label class=\"form-label\" for=\"a-cv\" style=\"font-size:0.8rem; font-weight:700;\">إرفاق السيرة الذاتية (CV / PDF) *</label> <input type=\"file\" id=\"a-cv\" name=\"resume_file\" accept=\".pdf,.doc,.docx\" required class=\"form-input\" style=\"padding:0.35rem; font-size:0.8rem;\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"justify-content:center; padding:0.65rem; font-size:0.9rem; font-weight:800; margin-top:0.35rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" placeholder=\"01012345678\" style=\"font-size:0.85rem; padding:0.45rem 0.65rem;\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-sm fw-700\" for=\"a-cv\">إرفاق السيرة الذاتية (CV / PDF) *</label> <input type=\"file\" id=\"a-cv\" name=\"resume_file\" accept=\".pdf,.doc,.docx\" required class=\"form-input\" style=\"padding:0.35rem; font-size:0.8rem;\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"justify-content:center; padding:0.65rem; font-size:0.9rem; font-weight:800; margin-top:0.35rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

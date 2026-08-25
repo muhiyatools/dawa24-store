@@ -54,7 +54,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem;\"><!-- Header Banner --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;\"><div><h2 style=\"font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;\">فروع الصيدلية ومواقع الاستلام 📍</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;\">إدارة فروع الصيدلية ومواقع استلام شحنات الأدوية. يتم استخدام إحداثيات كل فرع لتحديد العروض والموردين الذين يغطون موقعك الجغرافي.</p></div><a href=\"#new-branch-form\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem;\"><!-- Header Banner --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;\"><div><h2 style=\"font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;\">فروع الصيدلية ومواقع الاستلام 📍</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;\">إدارة فروع الصيدلية ومواقع استلام شحنات الأدوية. يتم استخدام إحداثيات كل فرع لتحديد العروض والموردين الذين يغطون موقعك الجغرافي.</p></div><a href=\"#new-branch-form\" class=\"btn btn-primary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -126,7 +126,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 					return templ_7745c5c3_Err
 				}
 				for _, b := range data.Branches {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; gap:0.85rem;\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><strong style=\"font-size:1.05rem; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; gap:0.85rem;\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;\"><div><div class=\"row-center-sm\"><strong style=\"font-size:1.05rem; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -156,7 +156,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						return templ_7745c5c3_Err
 					}
 					if b.IsMain {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">الفرع الرئيسي</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"badge badge-emerald text-xs\">الفرع الرئيسي</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -184,7 +184,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div style=\"display:flex; align-items:center; gap:0.4rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"row-center-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -212,14 +212,14 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						return templ_7745c5c3_Err
 					}
 					if b.Address != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div><span>العنوان: </span><strong style=\"color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div><span>العنوان: </span><strong class=\"text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 111, Col: 91}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 111, Col: 85}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -231,14 +231,14 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						}
 					}
 					if b.Phone != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div><span>الهاتف: </span><strong class=\"tabular-nums\" style=\"color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div><span>الهاتف: </span><strong class=\"tabular-nums text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 114, Col: 108}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 114, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -254,14 +254,14 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						return templ_7745c5c3_Err
 					}
 					if b.Latitude != nil && b.Longitude != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"tabular-nums\" style=\"font-weight:700;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"tabular-nums fw-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 123, Col: 118}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 123, Col: 100}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -336,7 +336,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">إضافة فرع صيدلية جديد</h3><p style=\"font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;\">أدخل بيانات الفرع وموقعه الجغرافي على الخريطة</p></div></div><form method=\"POST\" action=\"/customer/branches/new\" style=\"display:flex; flex-direction:column; gap:1.1rem;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label class=\"field-label\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"صيدلية الأمل - فرع المعادي\" class=\"form-input\" style=\"width:100%;\"></div><div><label class=\"field-label\">اسم الفرع بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"Al Amal Pharmacy - Maadi\" class=\"form-input\" style=\"width:100%;\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label class=\"field-label\">كود الفرع الداخلي</label> <input type=\"text\" name=\"code\" placeholder=\"PH-01\" class=\"form-input tabular-nums\" style=\"width:100%;\"></div><div><label class=\"field-label\">المحافظة / المدينة <span class=\"text-danger\">*</span></label> <select name=\"city_id\" required class=\"form-input\" style=\"width:100%;\"><option value=\"\">-- اختر المدينة / المحافظة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div><h3 class=\"text-lg fw-800 text-primary m-0\">إضافة فرع صيدلية جديد</h3><p style=\"font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;\">أدخل بيانات الفرع وموقعه الجغرافي على الخريطة</p></div></div><form method=\"POST\" action=\"/customer/branches/new\" style=\"display:flex; flex-direction:column; gap:1.1rem;\"><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label class=\"field-label\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"صيدلية الأمل - فرع المعادي\" class=\"form-input w-full\"></div><div><label class=\"field-label\">اسم الفرع بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"Al Amal Pharmacy - Maadi\" class=\"form-input w-full\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label class=\"field-label\">كود الفرع الداخلي</label> <input type=\"text\" name=\"code\" placeholder=\"PH-01\" class=\"form-input tabular-nums w-full\"></div><div><label class=\"field-label\">المحافظة / المدينة <span class=\"text-danger\">*</span></label> <select name=\"city_id\" required class=\"form-input w-full\"><option value=\"\">-- اختر المدينة / المحافظة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -384,7 +384,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</select></div></div><div><label class=\"field-label\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" required placeholder=\"شارع النصر، أمام مستشفى المعادي\" class=\"form-input\" style=\"width:100%;\"></div><div><label class=\"field-label\">رقم الهاتف للتواصل</label> <input type=\"tel\" name=\"phone\" placeholder=\"01012345678\" class=\"form-input tabular-nums\" style=\"width:100%;\"></div><!-- Leaflet Map Picker --><div style=\"display:flex; flex-direction:column; gap:0.5rem;\"><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);\">🗺️ موقع الفرع على الخريطة (OpenStreetMap / GPS)</label><div data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" style=\"border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;\"><div class=\"map-container map-canvas\" style=\"height:210px; width:100%; z-index:1;\"></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.8rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;\"><span data-map-coords-badge class=\"tabular-nums\" style=\"font-weight:700; color:var(--accent);\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs\" style=\"font-weight:700;\">📍 موقعي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" value=\"30.0444\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" value=\"31.2357\"></div></div><!-- Google Maps URL Input --><div><label class=\"field-label\">🔗 رابط خرائط Google (Google Maps URL)</label> <input type=\"url\" name=\"google_maps_url\" data-map-google-url placeholder=\"https://maps.google.com/?q=30.0444,31.2357\" class=\"form-input\" style=\"width:100%; font-size:0.8rem;\"></div><div style=\"background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.825rem; font-weight:700; color:var(--text);\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" style=\"width:16px; height:16px; accent-color:var(--accent);\"> <span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span></label></div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.65rem; width:100%; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</select></div></div><div><label class=\"field-label\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" required placeholder=\"شارع النصر، أمام مستشفى المعادي\" class=\"form-input w-full\"></div><div><label class=\"field-label\">رقم الهاتف للتواصل</label> <input type=\"tel\" name=\"phone\" placeholder=\"01012345678\" class=\"form-input tabular-nums w-full\"></div><!-- Leaflet Map Picker --><div class=\"stack-sm\"><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);\">🗺️ موقع الفرع على الخريطة (OpenStreetMap / GPS)</label><div data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" style=\"border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;\"><div class=\"map-container map-canvas\" style=\"height:210px; width:100%; z-index:1;\"></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.8rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;\"><span data-map-coords-badge class=\"tabular-nums\" style=\"font-weight:700; color:var(--accent);\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs fw-700\">📍 موقعي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" value=\"30.0444\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" value=\"31.2357\"></div></div><!-- Google Maps URL Input --><div><label class=\"field-label\">🔗 رابط خرائط Google (Google Maps URL)</label> <input type=\"url\" name=\"google_maps_url\" data-map-google-url placeholder=\"https://maps.google.com/?q=30.0444,31.2357\" class=\"form-input\" style=\"width:100%; font-size:0.8rem;\"></div><div style=\"background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><label style=\"display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.825rem; font-weight:700; color:var(--text);\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" style=\"width:16px; height:16px; accent-color:var(--accent);\"> <span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span></label></div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.65rem; width:100%; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

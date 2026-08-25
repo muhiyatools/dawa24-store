@@ -35,7 +35,7 @@ templ AdminOffers(lang, dir string, offers []*promo.Offer) {
 										if o.IsActive {
 											<form method="POST" action={ fmt.Sprintf("/admin/offers/%d/status", o.ID) } class="m-0">
 												<input type="hidden" name="active" value="false" />
-												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger);">تعطيل</button>
+												<button type="submit" class="btn btn-secondary btn-sm text-danger">تعطيل</button>
 											</form>
 										} else {
 											<form method="POST" action={ fmt.Sprintf("/admin/offers/%d/status", o.ID) } class="m-0">

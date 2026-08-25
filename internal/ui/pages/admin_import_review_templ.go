@@ -1150,7 +1150,7 @@ func importRowsCard(view ImportReviewView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<span class=\"wiz-toolbar-spacer\"></span><form method=\"GET\" class=\"wiz-toolbar\" style=\"margin:0;\"><input class=\"wiz-map-input\" type=\"search\" name=\"q\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<span class=\"wiz-toolbar-spacer\"></span><form method=\"GET\" class=\"wiz-toolbar m-0\"><input class=\"wiz-map-input\" type=\"search\" name=\"q\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1601,7 +1601,7 @@ func importConfirmCard(view ImportReviewView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if view.ModeIsDestructive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div class=\"import-banner import-banner--error\" style=\"margin-bottom:1rem;\"><p class=\"import-banner-text\">سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع، لكنها ستختفي من الكتالوج والبحث فوراً.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div class=\"import-banner import-banner--error mb-md\"><p class=\"import-banner-text\">سيتم نقل جميع الأصناف الحالية إلى الأرشيف قبل الاستيراد. الأصناف المؤرشفة قابلة للاسترجاع، لكنها ستختفي من الكتالوج والبحث فوراً.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

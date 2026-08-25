@@ -24,7 +24,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 						</p>
 					</div>
 				</div>
-				<a href="/catalog" class="btn btn-secondary btn-sm" style="font-weight:700;">
+				<a href="/catalog" class="btn btn-secondary btn-sm fw-700">
 					@components.IconSearch("icon-xs")
 					<span>تصفح الكتالوج الدوائي</span>
 				</a>
@@ -42,7 +42,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 						<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;">
 							<div>
 								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-									<span class="badge badge-slate" style="font-size:0.75rem;">
+									<span class="badge badge-slate text-xs">
 										@components.IconPill("icon-xs")
 										<span>{ p.DosageForm }</span>
 									</span>

@@ -48,7 +48,7 @@ func SkeletonText(lines int) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"skeleton skeleton-line\" style=\"width:100%;\"></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"skeleton skeleton-line w-full\"></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -84,7 +84,7 @@ func SkeletonCard() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"skeleton-card\" aria-hidden=\"true\"><div class=\"skeleton skeleton-block\"></div><div class=\"skeleton skeleton-title\"></div><div class=\"skeleton skeleton-line\" style=\"width:100%;\"></div><div class=\"skeleton skeleton-line\" style=\"width:80%;\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"skeleton-card\" aria-hidden=\"true\"><div class=\"skeleton skeleton-block\"></div><div class=\"skeleton skeleton-title\"></div><div class=\"skeleton skeleton-line w-full\"></div><div class=\"skeleton skeleton-line\" style=\"width:80%;\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -199,7 +199,7 @@ func SkeletonList(rows int) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for i := 0; i < rows; i++ {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"skeleton-row\"><div class=\"skeleton skeleton-avatar\"></div><div style=\"flex:1;\"><div class=\"skeleton skeleton-line\" style=\"width:40%;\"></div><div class=\"skeleton skeleton-line\" style=\"width:70%; margin-bottom:0;\"></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"skeleton-row\"><div class=\"skeleton skeleton-avatar\"></div><div class=\"flex-1\"><div class=\"skeleton skeleton-line\" style=\"width:40%;\"></div><div class=\"skeleton skeleton-line\" style=\"width:70%; margin-bottom:0;\"></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

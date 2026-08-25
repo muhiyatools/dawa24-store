@@ -27,14 +27,14 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 				</div>
 			</div>
 
-			<div class="card" style="padding:2rem;">
+			<div class="card p-modal">
 				if len(data.Invoices) == 0 {
 					<div style="padding:3rem 1rem; text-align:center; color:var(--neutral-500);">
 						<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
 							@components.IconFileText("icon-md")
 						</div>
 						<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-800); margin-bottom:0.35rem;">لا توجد فواتير صادرة حالياً</h3>
-						<p style="font-size:0.875rem;">تظهر الفواتير الضريبية فور اكتمال تسليم أوامر الشراء واعتمادها من المورد.</p>
+						<p class="text-sm">تظهر الفواتير الضريبية فور اكتمال تسليم أوامر الشراء واعتمادها من المورد.</p>
 					</div>
 				} else {
 					<div class="table-container">
@@ -60,7 +60,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 												—
 											}
 										</td>
-										<td class="tabular-nums" style="font-weight:800;">{ inv.TotalAmount.String() } ج.م</td>
+										<td class="tabular-nums fw-800">{ inv.TotalAmount.String() } ج.م</td>
 										<td class="tabular-nums" style="color:var(--neutral-600);">{ inv.TaxAmount.String() } ج.م</td>
 										<td class="tabular-nums" style="color:var(--neutral-500); font-size:0.85rem;">{ inv.IssueDate.Format("2006-01-02") }</td>
 										<td>

@@ -54,7 +54,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem;\"><!-- Header --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;\"><div><h2 style=\"font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;\">المحافظات والمدن الجغرافية 🌍</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;\">إدارة التقسيم الجغرافي والإحداثيات المكانية لمحافظات ومراكز جمهورية مصر العربية الـ 125 المستخدمة في حساب دوائر التغطية وشحن الأدوية.</p></div><div class=\"row-center\"><a href=\"#new-city-card\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem;\"><!-- Header --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;\"><div><h2 style=\"font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;\">المحافظات والمدن الجغرافية 🌍</h2><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;\">إدارة التقسيم الجغرافي والإحداثيات المكانية لمحافظات ومراكز جمهورية مصر العربية الـ 125 المستخدمة في حساب دوائر التغطية وشحن الأدوية.</p></div><div class=\"row-center\"><a href=\"#new-city-card\" class=\"btn btn-primary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -75,14 +75,14 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;\">المحافظات الرئيسية</div><div style=\"font-size:1.75rem; font-weight:800; color:var(--accent);\" class=\"tabular-nums\">27</div></div><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;\">حالة النطاق الجغرافي</div><div style=\"margin-top:0.35rem;\"><span class=\"badge badge-emerald\" style=\"font-size:0.775rem;\">تغطية جغرافية مكتملة (100%)</span></div></div></div><!-- Main Layout: Table + Add Form --><div style=\"display:grid; grid-template-columns:1.4fr 1fr; gap:1.75rem; align-items:start;\"><!-- Left: Cities Table --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">سجل المدن والمراكز المعتمدة</h3><span class=\"badge badge-sky tabular-nums\" style=\"font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;\">المحافظات الرئيسية</div><div style=\"font-size:1.75rem; font-weight:800; color:var(--accent);\" class=\"tabular-nums\">27</div></div><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;\">حالة النطاق الجغرافي</div><div style=\"margin-top:0.35rem;\"><span class=\"badge badge-emerald\" style=\"font-size:0.775rem;\">تغطية جغرافية مكتملة (100%)</span></div></div></div><!-- Main Layout: Table + Add Form --><div style=\"display:grid; grid-template-columns:1.4fr 1fr; gap:1.75rem; align-items:start;\"><!-- Left: Cities Table --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">سجل المدن والمراكز المعتمدة</h3><span class=\"badge badge-sky tabular-nums fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Cities)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 65, Col: 111}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 65, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -93,7 +93,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				return templ_7745c5c3_Err
 			}
 			for _, c := range data.Cities {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<tr style=\"border-bottom:1px solid var(--border);\"><td style=\"padding:0.75rem;\"><div style=\"font-weight:800; color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<tr style=\"border-bottom:1px solid var(--border);\"><td class=\"p-sm\"><div class=\"fw-800 text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -141,30 +141,30 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td style=\"padding:0.75rem; font-family:monospace; font-size:0.775rem;\" class=\"tabular-nums\"><span style=\"color:var(--accent);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td style=\"padding:0.75rem; font-family:monospace; font-size:0.775rem;\" class=\"tabular-nums\"><span class=\"text-accent\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 94, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 94, Col: 89}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></td><td style=\"padding:0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></td><td class=\"p-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if c.IsActive {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald\" style=\"font-size:0.7rem;\">مفعلة</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-emerald text-xs\">مفعلة</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-gray\" style=\"font-size:0.7rem;\">معطلة</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-gray text-xs\">معطلة</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -182,7 +182,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-xs\" style=\"font-size:0.725rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"m-0 inline\"><button type=\"submit\" class=\"btn btn-secondary btn-xs\" style=\"font-size:0.725rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -210,7 +210,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">إضافة مدينة / محافظة جديدة</h3></div><form method=\"POST\" action=\"/admin/cities/new\" class=\"stack\"><div><label class=\"field-label\">اسم المدينة / المحافظة بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"مثال: المنصورة الجديدة\" class=\"form-input\" style=\"width:100%;\"></div><div><label class=\"field-label\">اسم المدينة / المحافظة بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"New Mansoura\" class=\"form-input\" style=\"width:100%;\"></div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">إضافة مدينة / محافظة جديدة</h3></div><form method=\"POST\" action=\"/admin/cities/new\" class=\"stack\"><div><label class=\"field-label\">اسم المدينة / المحافظة بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"مثال: المنصورة الجديدة\" class=\"form-input w-full\"></div><div><label class=\"field-label\">اسم المدينة / المحافظة بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"New Mansoura\" class=\"form-input w-full\"></div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

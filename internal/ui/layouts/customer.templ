@@ -17,7 +17,7 @@ templ PublicShell(title string, lang string, dir string) {
 					<a href="/" style="display:flex; align-items:center; gap:0.85rem; text-decoration:none;">
 						<img src={ site.LogoURL } alt={ site.SiteName } style="height:46px; max-height:48px; object-fit:contain; border-radius:var(--radius-sm);" />
 						<span style="font-size:1.45rem; font-weight:700; color:var(--text); letter-spacing:-0.5px;">
-							دواء <span style="color:var(--accent);">24</span>
+							دواء <span class="text-accent">24</span>
 						</span>
 					</a>
 
@@ -70,7 +70,7 @@ templ PublicShell(title string, lang string, dir string) {
 							>
 								<div style="min-width:320px; max-width:380px;">
 									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);">
-										<div style="display:flex; align-items:center; gap:0.4rem;">
+										<div class="row-center-sm">
 											@components.IconBell("icon-xs")
 											<span style="font-weight:600; color:var(--text); font-size:0.9rem;">الإشعارات</span>
 										</div>
@@ -144,17 +144,17 @@ templ PublicShell(title string, lang string, dir string) {
 
 								<!-- 2. Dashboard -->
 								if actor.IsStaff {
-									<a href="/admin/dashboard" class="dropdown-item" style="font-weight:600;">
+									<a href="/admin/dashboard" class="dropdown-item fw-600">
 										@components.IconChart("icon-xs")
 										<span>لوحة التحكم الرئيسية</span>
 									</a>
 								} else if actor.IsVendor() {
-									<a href="/vendor/dashboard" class="dropdown-item" style="font-weight:600;">
+									<a href="/vendor/dashboard" class="dropdown-item fw-600">
 										@components.IconChart("icon-xs")
 										<span>لوحة تحكم المورد</span>
 									</a>
 								} else {
-									<a href="/customer/dashboard" class="dropdown-item" style="font-weight:600;">
+									<a href="/customer/dashboard" class="dropdown-item fw-600">
 										@components.IconChart("icon-xs")
 										<span>لوحة تحكم الصيدلية</span>
 									</a>
@@ -218,10 +218,10 @@ templ PublicShell(title string, lang string, dir string) {
 						</div>
 					} else {
 						<div class="row-center">
-							<a href="/auth/login" class="btn btn-secondary" style="font-weight:600;">
+							<a href="/auth/login" class="btn btn-secondary fw-600">
 								<span>تسجيل الدخول</span>
 							</a>
-							<a href="/auth/register" class="btn btn-primary" style="font-weight:600;">
+							<a href="/auth/register" class="btn btn-primary fw-600">
 								@components.IconPlus("icon-xs")
 								<span>تسجيل صيدلية / مورد</span>
 							</a>

@@ -44,8 +44,7 @@ templ DataTable(props DataTableProps) {
 							for _, col := range props.Columns {
 								<th
 									if col.Numeric {
-										class="tabular-nums"
-										style="text-align:end;"
+										class="tabular-nums text-end"
 									}
 								>
 									if col.Sortable && props.SortURL != "" {
@@ -59,7 +58,7 @@ templ DataTable(props DataTableProps) {
 								</th>
 							}
 							if props.ShowActions {
-								<th style="text-align:end;">إجراءات</th>
+								<th class="text-end">إجراءات</th>
 							}
 						</tr>
 					</thead>

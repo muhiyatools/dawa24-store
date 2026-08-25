@@ -50,20 +50,20 @@ func VendorCatalogSelectPage(products []*catalog.Product, search string, lang, d
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h2 class=\"card-title\" style=\"margin:0;\">تحديد المستحضرات المتاحة بالمستودع (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h2 class=\"card-title m-0\">تحديد المستحضرات المتاحة بالمستودع (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(products)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_catalog_select.templ`, Line: 17, Col: 147}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_catalog_select.templ`, Line: 17, Col: 133}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</h2><p class=\"subtitle\">اختر من الكتالوج المركزي الأدوية والمستحضرات المتوفرة لديك لإضافتها إلى قائمة عروضك.</p></div></div><form method=\"GET\" action=\"/vendor/catalog/select\" style=\"margin-bottom:1.5rem;\"><div style=\"display:flex; gap:0.5rem; max-width:500px;\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</h2><p class=\"subtitle\">اختر من الكتالوج المركزي الأدوية والمستحضرات المتوفرة لديك لإضافتها إلى قائمة عروضك.</p></div></div><form method=\"GET\" action=\"/vendor/catalog/select\" class=\"mb-lg\"><div style=\"display:flex; gap:0.5rem; max-width:500px;\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -76,7 +76,7 @@ func VendorCatalogSelectPage(products []*catalog.Product, search string, lang, d
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" placeholder=\"ابحث بالاسم التجاري أو العلمي أو الكود...\" class=\"form-input\" style=\"flex:1;\"> <button type=\"submit\" class=\"btn btn-secondary\">بحث</button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" placeholder=\"ابحث بالاسم التجاري أو العلمي أو الكود...\" class=\"form-input flex-1\"> <button type=\"submit\" class=\"btn btn-secondary\">بحث</button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -86,7 +86,7 @@ func VendorCatalogSelectPage(products []*catalog.Product, search string, lang, d
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/vendor/catalog/select\"><div class=\"table-container\" style=\"margin-bottom:1.5rem;\"><table class=\"b2b-table\"><thead><tr><th style=\"width:40px;\">اختيار</th><th>المنتج</th><th>الاسم العلمي</th><th>سعر الجمهور</th><th>الحالة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/vendor/catalog/select\"><div class=\"table-container mb-lg\"><table class=\"b2b-table\"><thead><tr><th style=\"width:40px;\">اختيار</th><th>المنتج</th><th>الاسم العلمي</th><th>سعر الجمهور</th><th>الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

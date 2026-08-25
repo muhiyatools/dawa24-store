@@ -51,14 +51,14 @@ func VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir strin
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">الأعمال والاتفاقيات المؤسسية للمنشأة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">الأعمال والاتفاقيات المؤسسية للمنشأة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(works)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_institutional.templ`, Line: 18, Col: 148}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_institutional.templ`, Line: 18, Col: 134}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -191,7 +191,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"space-y-6\"><!-- Header & Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text); margin:0;\">الصيدليات المشمولة في نطاق التغطية الأسبوعية</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">استعراض شبكة الصيدليات الواقعة داخل نطاق تغطية فروعك ومستودعاتك حسب المحافظة والمدينة والمسافة الجغرافية.</p></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/vendor/coverage\" class=\"btn btn-primary btn-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"space-y-6\"><!-- Header & Action Bar --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 class=\"text-2xl fw-800 text-primary m-0\">الصيدليات المشمولة في نطاق التغطية الأسبوعية</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">استعراض شبكة الصيدليات الواقعة داخل نطاق تغطية فروعك ومستودعاتك حسب المحافظة والمدينة والمسافة الجغرافية.</p></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/vendor/coverage\" class=\"btn btn-primary btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -251,7 +251,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div></div><!-- Filter Bar --><div class=\"card mb-0\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; margin-bottom:1.5rem;\"><form method=\"GET\" action=\"/vendor/pharmacy-coverage\" style=\"display:grid; grid-template-columns:2fr 1.2fr 1.2fr 1.2fr auto; gap:0.75rem; align-items:end;\"><div class=\"form-group mb-0\"><label class=\"form-label\" style=\"font-size:0.75rem;\">البحث بالاسم أو العنوان أو الهاتف</label> <input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div></div><!-- Filter Bar --><div class=\"card mb-0\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; margin-bottom:1.5rem;\"><form method=\"GET\" action=\"/vendor/pharmacy-coverage\" style=\"display:grid; grid-template-columns:2fr 1.2fr 1.2fr 1.2fr auto; gap:0.75rem; align-items:end;\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs\">البحث بالاسم أو العنوان أو الهاتف</label> <input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -264,7 +264,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"form-input\" placeholder=\"اسم الصيدلية / الفرع / العنوان...\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" style=\"font-size:0.75rem;\">يوم التوصيل</label> <select name=\"day\" class=\"form-select\"><option value=\"\">كافة الأيام</option> <option value=\"today\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"form-input\" placeholder=\"اسم الصيدلية / الفرع / العنوان...\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs\">يوم التوصيل</label> <select name=\"day\" class=\"form-select\"><option value=\"\">كافة الأيام</option> <option value=\"today\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -344,7 +344,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ">السبت</option></select></div><div class=\"form-group mb-0\"><label class=\"form-label\" style=\"font-size:0.75rem;\">فرع التوزيع</label> <select name=\"branch\" class=\"form-select\"><option value=\"\">كافة الفروع</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ">السبت</option></select></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs\">فرع التوزيع</label> <select name=\"branch\" class=\"form-select\"><option value=\"\">كافة الفروع</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -390,7 +390,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label\" style=\"font-size:0.75rem;\">المدينة / المنطقة</label> <select name=\"city\" class=\"form-select\"><option value=\"\">كافة المدن</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs\">المدينة / المنطقة</label> <select name=\"city\" class=\"form-select\"><option value=\"\">كافة المدن</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -436,7 +436,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</select></div><div style=\"display:flex; gap:0.5rem;\"><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:700;\">تصفية</button> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</select></div><div style=\"display:flex; gap:0.5rem;\"><button type=\"submit\" class=\"btn btn-primary fw-700\">تصفية</button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -465,7 +465,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 					return templ_7745c5c3_Err
 				}
 				for _, p := range data.Pharmacies {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<tr><td><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<tr><td><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div class=\"b2b-icon-box-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -498,7 +498,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</strong><div style=\"font-size:0.75rem; color:var(--text-muted);\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</strong><div class=\"text-xs text-muted\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -701,12 +701,12 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 						return templ_7745c5c3_Err
 					}
 					if p.IsCoveredToday {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span class=\"badge badge-emerald\" style=\"font-size:0.8rem; font-weight:700;\">✓ توصيل متاح اليوم</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span class=\"badge badge-emerald text-sm fw-700\">✓ توصيل متاح اليوم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span class=\"badge badge-secondary\" style=\"font-size:0.75rem;\">مجدول في أيام أخرى</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span class=\"badge badge-secondary text-xs\">مجدول في أيام أخرى</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -750,7 +750,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm btn-icon\" style=\"color:var(--success-text);\" title=\"مراسلة واتساب\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm btn-icon text-success\" title=\"مراسلة واتساب\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

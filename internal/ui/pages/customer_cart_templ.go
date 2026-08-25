@@ -161,7 +161,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 			}
 		} else {
 			if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div class=\"row-center\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -186,7 +186,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> <span class=\"badge badge-emerald\" style=\"font-size:10px;\">الفرع النشط</span></div></div></div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><form method=\"POST\" action=\"/customer/set-branch\" class=\"m-0\" style=\"display:inline-flex; align-items:center; gap:0.4rem;\"><input type=\"hidden\" name=\"redirect_to\" value=\"/cart\"> <span style=\"font-size:0.8rem; color:var(--text-secondary); font-weight:600;\">تغيير الفرع:</span> <select name=\"branch_id\" class=\"form-select\" style=\"font-size:0.825rem; font-weight:700; padding:0.35rem 0.6rem; border-radius:var(--radius-md);\" onchange=\"this.form.submit()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> <span class=\"badge badge-emerald\" style=\"font-size:10px;\">الفرع النشط</span></div></div></div><div class=\"row-center-sm\"><form method=\"POST\" action=\"/customer/set-branch\" class=\"m-0\" style=\"display:inline-flex; align-items:center; gap:0.4rem;\"><input type=\"hidden\" name=\"redirect_to\" value=\"/cart\"> <span style=\"font-size:0.8rem; color:var(--text-secondary); font-weight:600;\">تغيير الفرع:</span> <select name=\"branch_id\" class=\"form-select\" style=\"font-size:0.825rem; font-weight:700; padding:0.35rem 0.6rem; border-radius:var(--radius-md);\" onchange=\"this.form.submit()\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -263,7 +263,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.7rem; padding:0.1rem 0.4rem;\">مورد معتمد</span> <span>•</span> <span>شحن مبرد 2° - 8°C</span></div></div></div><div class=\"text-end\"><span style=\"font-size:0.8rem; color:var(--text-muted);\">المجموع الفرعي للمورد:</span><div class=\"tabular-nums\" style=\"font-weight:900; font-size:1.2rem; color:var(--accent);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;\"><span class=\"badge badge-sky\" style=\"font-size:0.7rem; padding:0.1rem 0.4rem;\">مورد معتمد</span> <span>•</span> <span>شحن مبرد 2° - 8°C</span></div></div></div><div class=\"text-end\"><span class=\"text-sm text-muted\">المجموع الفرعي للمورد:</span><div class=\"tabular-nums\" style=\"font-weight:900; font-size:1.2rem; color:var(--accent);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -341,14 +341,14 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</h4><div style=\"display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; flex-wrap:wrap;\"><span>سعر الوحدة: <strong class=\"tabular-nums\" style=\"color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</h4><div style=\"display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; flex-wrap:wrap;\"><span>سعر الوحدة: <strong class=\"tabular-nums text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(item.UnitPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_cart.templ`, Line: 151, Col: 120}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_cart.templ`, Line: 151, Col: 106}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div></div><div style=\"display:flex; align-items:center; gap:1.25rem;\"><!-- Horizontal Stepper --><div style=\"display:inline-flex; align-items:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:2px; gap:2px;\"><form action=\"/cart/update-quantity\" method=\"POST\" hx-post=\"/cart/update-quantity\" hx-target=\"#cart-content\" hx-swap=\"innerHTML\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"variant_id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div></div><div style=\"display:flex; align-items:center; gap:1.25rem;\"><!-- Horizontal Stepper --><div style=\"display:inline-flex; align-items:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:2px; gap:2px;\"><form action=\"/cart/update-quantity\" method=\"POST\" hx-post=\"/cart/update-quantity\" hx-target=\"#cart-content\" hx-swap=\"innerHTML\" class=\"m-0 inline\"><input type=\"hidden\" name=\"variant_id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -430,7 +430,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span><form action=\"/cart/update-quantity\" method=\"POST\" hx-post=\"/cart/update-quantity\" hx-target=\"#cart-content\" hx-swap=\"innerHTML\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"variant_id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span><form action=\"/cart/update-quantity\" method=\"POST\" hx-post=\"/cart/update-quantity\" hx-target=\"#cart-content\" hx-swap=\"innerHTML\" class=\"m-0 inline\"><input type=\"hidden\" name=\"variant_id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -500,7 +500,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " ج.م</div></div><!-- Remove Button --><form action=\"/cart/remove\" method=\"POST\" hx-post=\"/cart/remove\" hx-target=\"#cart-content\" hx-swap=\"innerHTML\" style=\"margin:0; display:inline;\"><input type=\"hidden\" name=\"variant_id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " ج.م</div></div><!-- Remove Button --><form action=\"/cart/remove\" method=\"POST\" hx-post=\"/cart/remove\" hx-target=\"#cart-content\" hx-swap=\"innerHTML\" class=\"m-0 inline\"><input type=\"hidden\" name=\"variant_id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -531,7 +531,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><!-- Right: Order Summary Sidebar --><div class=\"card\" style=\"margin-bottom:0; padding:1.75rem; position:sticky; top:6rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-md);\"><h3 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:1.25rem;\">ملخص أمر الشراء</h3><div style=\"display:flex; flex-direction:column; gap:0.875rem; margin-bottom:1.5rem; font-size:0.9rem;\"><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>المجموع الفرعي:</span> <span class=\"tabular-nums\" style=\"font-weight:700; color:var(--text);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><!-- Right: Order Summary Sidebar --><div class=\"card\" style=\"margin-bottom:0; padding:1.75rem; position:sticky; top:6rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-md);\"><h3 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:1.25rem;\">ملخص أمر الشراء</h3><div style=\"display:flex; flex-direction:column; gap:0.875rem; margin-bottom:1.5rem; font-size:0.9rem;\"><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>المجموع الفرعي:</span> <span class=\"tabular-nums fw-700 text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -539,7 +539,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</span></div><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>ضريبة القيمة المضافة (14% VAT):</span> <span class=\"tabular-nums\" style=\"font-weight:700; color:var(--text-secondary);\">مشمولة بالفاتورة</span></div><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>رسوم الشحن الدوائي المبرد:</span> <span class=\"badge badge-emerald\" style=\"font-size:0.75rem;\">مجاني للطلبيات المعتمدة</span></div><div style=\"border-top:1px dashed var(--border); padding-top:1rem; display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-weight:900; font-size:1.05rem; color:var(--text);\">الإجمالي النهائي:</span><div style=\"font-weight:900; font-size:1.45rem; color:var(--accent);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</span></div><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>ضريبة القيمة المضافة (14% VAT):</span> <span class=\"tabular-nums\" style=\"font-weight:700; color:var(--text-secondary);\">مشمولة بالفاتورة</span></div><div style=\"display:flex; justify-content:space-between; color:var(--text-secondary);\"><span>رسوم الشحن الدوائي المبرد:</span> <span class=\"badge badge-emerald text-xs\">مجاني للطلبيات المعتمدة</span></div><div style=\"border-top:1px dashed var(--border); padding-top:1rem; display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-weight:900; font-size:1.05rem; color:var(--text);\">الإجمالي النهائي:</span><div style=\"font-weight:900; font-size:1.45rem; color:var(--accent);\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -570,7 +570,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<a href=\"/catalog\" class=\"btn btn-secondary\" style=\"width:100%; padding:0.65rem; justify-content:center; font-weight:700;\"><span>إضافة المزيد من الأدوية</span></a></div><div style=\"margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem; font-size:0.775rem; color:var(--text-muted);\"><div style=\"display:flex; align-items:center; gap:0.4rem;\"><span style=\"color:var(--success);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<a href=\"/catalog\" class=\"btn btn-secondary\" style=\"width:100%; padding:0.65rem; justify-content:center; font-weight:700;\"><span>إضافة المزيد من الأدوية</span></a></div><div style=\"margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem; font-size:0.775rem; color:var(--text-muted);\"><div class=\"row-center-sm\"><span style=\"color:var(--success);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -578,7 +578,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span> <span>شحن دوائي آمن تحت درجات حرارة محكومة</span></div><div style=\"display:flex; align-items:center; gap:0.4rem;\"><span style=\"color:var(--accent);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span> <span>شحن دوائي آمن تحت درجات حرارة محكومة</span></div><div class=\"row-center-sm\"><span class=\"text-accent\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

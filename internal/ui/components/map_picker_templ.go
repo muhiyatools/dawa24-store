@@ -419,7 +419,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-control tabular-nums text-xs\" style=\"width:100%;\" placeholder=\"https://maps.google.com/?q=...\" data-map-google-url></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-control tabular-nums text-xs w-full\" placeholder=\"https://maps.google.com/?q=...\" data-map-google-url></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

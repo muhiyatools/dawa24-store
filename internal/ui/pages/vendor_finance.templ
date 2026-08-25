@@ -16,7 +16,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", len(payments)) })</h2>
+					<h2 class="card-title m-0">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", len(payments)) })</h2>
 					<p class="subtitle">تتم تسوية المستحقات المالية وتحويلها إلى حساب المنشأة البنكي دورياً.</p>
 				</div>
 			</div>
@@ -65,9 +65,9 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 templ VendorEarningsOrderPage(revenue money.Amount, lang, dir string) {
 	@layouts.VendorShell("أرباح ومبيعات الطلبات المباشرة", "earnings_order", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">أرباح ومبيعات الطلبات للشهر الحالي</h2>
+			<h2 class="card-title mb-lg">أرباح ومبيعات الطلبات للشهر الحالي</h2>
 			<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;">
-				<div style="font-size:0.85rem; color:var(--text-secondary);">إجمالي مبيعات الشهر</div>
+				<div class="text-sm text-secondary">إجمالي مبيعات الشهر</div>
 				<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
 			</div>
 		</div>
@@ -78,9 +78,9 @@ templ VendorEarningsOrderPage(revenue money.Amount, lang, dir string) {
 templ VendorEarningsOffersPage(revenue money.Amount, lang, dir string) {
 	@layouts.VendorShell("أرباح ومبيعات عروض التوفير", "earnings_offers", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">أرباح ومبيعات عروض التوفير والصفقات</h2>
+			<h2 class="card-title mb-lg">أرباح ومبيعات عروض التوفير والصفقات</h2>
 			<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;">
-				<div style="font-size:0.85rem; color:var(--text-secondary);">إجمالي مبيعات العروض</div>
+				<div class="text-sm text-secondary">إجمالي مبيعات العروض</div>
 				<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
 			</div>
 		</div>
@@ -93,7 +93,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", len(shipments)) })</h2>
+					<h2 class="card-title m-0">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", len(shipments)) })</h2>
 					<p class="subtitle">متابعة الشحنات والطلبيات المرتبطة بعروض أسعار خاصة أو خصومات إضافية.</p>
 				</div>
 			</div>
@@ -135,10 +135,10 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 // VendorOfferOrderDetailPage renders single offer order details.
 templ VendorOfferOrderDetailPage(id int64, lang, dir string) {
 	@layouts.VendorShell(fmt.Sprintf("طلب عروض #%d", id), "offer_orders", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">طلب عروض #{ fmt.Sprintf("%d", id) }</h2>
+					<h2 class="card-title m-0">طلب عروض #{ fmt.Sprintf("%d", id) }</h2>
 				</div>
 				<a href="/vendor/orders/offers" class="btn btn-secondary btn-sm">العودة</a>
 			</div>

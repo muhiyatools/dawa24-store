@@ -110,7 +110,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"vendor-activities-page\" style=\"display:flex; flex-direction:column; gap:1.5rem;\" x-data=\"{ search: '' }\"><!-- Header & Action Summary --><div class=\"card mb-0\" style=\"padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"vendor-activities-page stack-lg\" x-data=\"{ search: '' }\"><!-- Header & Action Summary --><div class=\"card mb-0\" style=\"padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -118,7 +118,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 class=\"card-title\" style=\"margin:0; font-size:1.35rem; font-weight:800; color:var(--text);\">سجل نشاطات وعمليات موظفي المنشأة</h2></div><p class=\"subtitle\" style=\"color:var(--text-secondary); font-size:0.875rem; margin:0;\">تدقيق وتتبع كافة العمليات والإجراءات المنفذة بواسطة موظفي الفروع، المستودعات، والمبيعات.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.825rem; padding:0.4rem 0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 class=\"card-title\" style=\"margin:0; font-size:1.35rem; font-weight:800; color:var(--text);\">سجل نشاطات وعمليات موظفي المنشأة</h2></div><p class=\"subtitle\" style=\"color:var(--text-secondary); font-size:0.875rem; margin:0;\">تدقيق وتتبع كافة العمليات والإجراءات المنفذة بواسطة موظفي الفروع، المستودعات، والمبيعات.</p></div><div class=\"row-center\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.825rem; padding:0.4rem 0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -269,7 +269,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><!-- Entity Type --><td style=\"padding:0.85rem 1rem;\"><span class=\"badge badge-slate\" style=\"font-size:0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><!-- Entity Type --><td style=\"padding:0.85rem 1rem;\"><span class=\"badge badge-slate text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

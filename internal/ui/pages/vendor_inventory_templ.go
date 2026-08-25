@@ -56,7 +56,7 @@ func VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehous
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\" x-data=\"{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 } }\"><!-- Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text); margin:0;\">أرصدة المخازن والتشغيلات</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">مراقبة الكميات المتاحة في المستودعات، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.</p></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/vendor/warehouses\" class=\"btn btn-secondary btn-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\" x-data=\"{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 } }\"><!-- Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 class=\"text-2xl fw-800 text-primary m-0\">أرصدة المخازن والتشغيلات</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">مراقبة الكميات المتاحة في المستودعات، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.</p></div><div style=\"display:flex; gap:0.75rem; flex-wrap:wrap;\"><a href=\"/vendor/warehouses\" class=\"btn btn-secondary btn-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -154,7 +154,7 @@ func VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehous
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- Stock Adjustment Modal --><div x-show=\"adjustModal\" style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:1rem;\" x-cloak @keydown.escape.window=\"adjustModal = false\"><div @click.away=\"adjustModal = false\" class=\"card mb-0\" style=\"max-width:480px; width:100%; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">تسوية وتعديل رصيد المخزن</h3><button type=\"button\" @click=\"adjustModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">&times;</button></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; margin-bottom:1.25rem; font-size:0.85rem;\"><div style=\"font-weight:700; color:var(--text);\" x-text=\"selectedStock.variantName\"></div><div style=\"color:var(--text-muted); margin-top:0.25rem;\">الرصيد الحالي بالمستودع: <strong class=\"tabular-nums\" style=\"color:var(--accent);\" x-text=\"selectedStock.currentQty + ' عبوة'\"></strong></div></div><form :action=\"'/vendor/inventory/' + selectedStock.id + '/adjust'\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div class=\"form-group mb-0\"><label class=\"form-label\">الكمية المراد إضافتها أو خصمها (+/-) <span style=\"color:var(--danger-text);\">*</span></label> <input type=\"number\" name=\"delta\" required class=\"form-input tabular-nums\" placeholder=\"+50 (إضافة) أو -10 (خصم)\"> <small style=\"color:var(--text-muted); font-size:0.75rem;\">اكتب رقم موجب للإيداع أو رقم سالب للخصم والتسوية.</small></div><div class=\"form-group mb-0\"><label class=\"form-label\">سبب التعديل</label> <select name=\"reason\" class=\"form-select\"><option value=\"تسوية جرد دوري\">تسوية جرد دوري</option> <option value=\"استلام شحنة جديدة من المصنع\">استلام شحنة جديدة من المصنع</option> <option value=\"تالف / كسر / انتهاء صلاحية\">تالف / كسر / انتهاء صلاحية</option> <option value=\"تسوية مبيعات يدوية\">تسوية مبيعات يدوية</option> <option value=\"أخرى\">أسباب أخرى</option></select></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" @click=\"adjustModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\">تأكيد تعديل الرصيد</button></div></form></div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- Stock Adjustment Modal --><div x-show=\"adjustModal\" style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:1rem;\" x-cloak @keydown.escape.window=\"adjustModal = false\"><div @click.away=\"adjustModal = false\" class=\"card mb-0\" style=\"max-width:480px; width:100%; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;\"><h3 class=\"text-lg fw-800 text-primary m-0\">تسوية وتعديل رصيد المخزن</h3><button type=\"button\" @click=\"adjustModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">&times;</button></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; margin-bottom:1.25rem; font-size:0.85rem;\"><div class=\"fw-700 text-primary\" x-text=\"selectedStock.variantName\"></div><div style=\"color:var(--text-muted); margin-top:0.25rem;\">الرصيد الحالي بالمستودع: <strong class=\"tabular-nums text-accent\" x-text=\"selectedStock.currentQty + ' عبوة'\"></strong></div></div><form :action=\"'/vendor/inventory/' + selectedStock.id + '/adjust'\" method=\"POST\" class=\"stack-lg\"><div class=\"form-group mb-0\"><label class=\"form-label\">الكمية المراد إضافتها أو خصمها (+/-) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"delta\" required class=\"form-input tabular-nums\" placeholder=\"+50 (إضافة) أو -10 (خصم)\"> <small style=\"color:var(--text-muted); font-size:0.75rem;\">اكتب رقم موجب للإيداع أو رقم سالب للخصم والتسوية.</small></div><div class=\"form-group mb-0\"><label class=\"form-label\">سبب التعديل</label> <select name=\"reason\" class=\"form-select\"><option value=\"تسوية جرد دوري\">تسوية جرد دوري</option> <option value=\"استلام شحنة جديدة من المصنع\">استلام شحنة جديدة من المصنع</option> <option value=\"تالف / كسر / انتهاء صلاحية\">تالف / كسر / انتهاء صلاحية</option> <option value=\"تسوية مبيعات يدوية\">تسوية مبيعات يدوية</option> <option value=\"أخرى\">أسباب أخرى</option></select></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" @click=\"adjustModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\">تأكيد تعديل الرصيد</button></div></form></div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -205,7 +205,7 @@ func VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.War
 				return templ_7745c5c3_Err
 			}
 			for _, s := range stocks {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr><td><div style=\"display:flex; align-items:center; gap:0.5rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr><td><div class=\"row-center-sm\"><div style=\"width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -226,7 +226,7 @@ func VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.War
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</strong><div style=\"font-size:0.75rem; color:var(--text-muted);\"><span>Variant #")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</strong><div class=\"text-xs text-muted\"><span>Variant #")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -265,14 +265,14 @@ func VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.War
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div style=\"font-size:0.75rem; color:var(--text-muted);\">WH #")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"text-xs text-muted\">WH #")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.WarehouseID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_inventory.templ`, Line: 187, Col: 103}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_inventory.templ`, Line: 187, Col: 78}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -283,7 +283,7 @@ func VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.War
 					return templ_7745c5c3_Err
 				}
 				if s.Quantity > s.MinThreshold {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-emerald tabular-nums\" style=\"font-size:0.875rem; font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-emerald tabular-nums text-sm fw-800\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -301,7 +301,7 @@ func VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.War
 						return templ_7745c5c3_Err
 					}
 				} else if s.Quantity > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-amber tabular-nums\" style=\"font-size:0.875rem; font-weight:800;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-amber tabular-nums text-sm fw-800\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -319,12 +319,12 @@ func VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.War
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-rose tabular-nums\" style=\"font-size:0.875rem; font-weight:800;\">نفد الرصيد</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-rose tabular-nums text-sm fw-800\">نفد الرصيد</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td class=\"tabular-nums\"><span style=\"font-size:0.85rem; color:var(--text-secondary);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td class=\"tabular-nums\"><span class=\"text-sm text-secondary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

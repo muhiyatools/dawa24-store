@@ -14,14 +14,14 @@ templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, 
 		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
-					<h2 class="card-title" style="margin:0;">تحديد المستحضرات المتاحة بالمستودع ({ fmt.Sprintf("%d", len(products)) })</h2>
+					<h2 class="card-title m-0">تحديد المستحضرات المتاحة بالمستودع ({ fmt.Sprintf("%d", len(products)) })</h2>
 					<p class="subtitle">اختر من الكتالوج المركزي الأدوية والمستحضرات المتوفرة لديك لإضافتها إلى قائمة عروضك.</p>
 				</div>
 			</div>
 
-			<form method="GET" action="/vendor/catalog/select" style="margin-bottom:1.5rem;">
+			<form method="GET" action="/vendor/catalog/select" class="mb-lg">
 				<div style="display:flex; gap:0.5rem; max-width:500px;">
-					<input type="text" name="q" value={ search } placeholder="ابحث بالاسم التجاري أو العلمي أو الكود..." class="form-input" style="flex:1;" />
+					<input type="text" name="q" value={ search } placeholder="ابحث بالاسم التجاري أو العلمي أو الكود..." class="form-input flex-1" />
 					<button type="submit" class="btn btn-secondary">بحث</button>
 				</div>
 			</form>
@@ -30,7 +30,7 @@ templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, 
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد نتائج", Message: "لم يتم العثور على منتجات مطابقة للبحث."})
 			} else {
 				<form method="POST" action="/vendor/catalog/select">
-					<div class="table-container" style="margin-bottom:1.5rem;">
+					<div class="table-container mb-lg">
 						<table class="b2b-table">
 							<thead>
 								<tr>

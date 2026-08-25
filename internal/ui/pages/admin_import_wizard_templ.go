@@ -73,7 +73,7 @@ func AdminProductsImportPage(lang, dir string, view ImportConfigureView) templ.C
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"row-center\"><a href=\"/admin/products\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"row-center\"><a href=\"/admin/products\" class=\"btn btn-secondary btn-sm fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

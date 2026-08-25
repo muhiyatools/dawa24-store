@@ -12,10 +12,10 @@ import (
 // AdminProductDetailPage renders master product view.
 templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل المنتج: %s", p.Name.Get("ar")), "products", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">{ p.Name.Get("ar") }</h2>
+					<h2 class="card-title m-0">{ p.Name.Get("ar") }</h2>
 					<p class="subtitle">SKU: { p.SKU } | باركود: { p.Barcode }</p>
 				</div>
 				<a href="/admin/products" class="btn btn-secondary btn-sm">العودة للمنتجات</a>
@@ -23,25 +23,25 @@ templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">الاسم العلمي</div>
+					<div class="text-sm text-secondary">الاسم العلمي</div>
 					<div style="font-weight:700; margin-top:0.25rem;">{ p.ScientificName }</div>
 				</div>
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">الشركة المصنعة / الماركة</div>
+					<div class="text-sm text-secondary">الشركة المصنعة / الماركة</div>
 					<div style="font-weight:700; margin-top:0.25rem; color:var(--accent);">
 						if p.ManufacturingCompanies != "" {
 							{ p.ManufacturingCompanies }
 						} else {
-							<span style="color:var(--text-muted);">غير محدد</span>
+							<span class="text-muted">غير محدد</span>
 						}
 					</div>
 				</div>
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">سعر الجمهور القياسي</div>
+					<div class="text-sm text-secondary">سعر الجمهور القياسي</div>
 					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ fmt.Sprintf("%s ج.م", p.Price.String()) }</div>
 				</div>
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary);">الحالة</div>
+					<div class="text-sm text-secondary">الحالة</div>
 					<div style="margin-top:0.25rem;">
 						if p.Status == catalog.StatusActive {
 							<span class="badge badge-success">نشط ومتاح</span>
@@ -58,10 +58,10 @@ templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 // AdminProductChildrenPage renders vendor variant listings with real database structure.
 templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) {
 	@layouts.AdminShell("أصناف الموردين وعروض التوريد", "product_child", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.25rem;">
+		<div class="stack-lg">
 			
 			<!-- Header Card -->
-			<div class="card" style="margin-bottom:0;">
+			<div class="card mb-0">
 				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
 					<div class="row-center-sm">
 						@components.IconLayers("icon-lg")
@@ -91,7 +91,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 				<!-- Search Toolbar -->
 				<form method="GET" action="/admin/product-child" style="margin-top:1rem; display:flex; gap:0.75rem;">
 					<input type="hidden" name="status" value={ data.StatusFilter } />
-					<div class="search-input-group" style="flex:1;">
+					<div class="search-input-group flex-1">
 						<span class="search-icon">
 							@components.IconSearch("icon-sm")
 						</span>
@@ -103,7 +103,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 							placeholder="البحث باسم الصنف، SKU، الباركود، أو رقم التشغيلة..."
 						/>
 					</div>
-					<button type="submit" class="btn btn-primary" style="font-weight:700;">بحث</button>
+					<button type="submit" class="btn btn-primary fw-700">بحث</button>
 				</form>
 			</div>
 
@@ -146,7 +146,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 
 										<!-- 2. المنتج / SKU -->
 										<td>
-											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											<div class="fw-800 text-primary text-base">
 												{ v.Name.Get("ar") }
 											</div>
 											if v.Name.Get("en") != "" {
@@ -161,7 +161,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											}
 											<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:2px; display:flex; gap:0.5rem; flex-wrap:wrap;">
 												if v.SKU != "" {
-													<span class="tabular-nums">SKU: <strong style="color:var(--text);">{ v.SKU }</strong></span>
+													<span class="tabular-nums">SKU: <strong class="text-primary">{ v.SKU }</strong></span>
 												}
 												if v.Barcode != "" {
 													<span class="tabular-nums">باركود: { v.Barcode }</span>
@@ -188,7 +188,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 
 										<!-- 4. السعر / الخصم -->
 										<td>
-											<div class="tabular-nums" style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											<div class="tabular-nums fw-800 text-primary text-base">
 												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Price })
 											</div>
 											if v.Discount.IsPositive() {
@@ -246,13 +246,13 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 										<!-- 8. الإجراءات -->
 										<td class="text-end">
 											<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/product-child/%d/status", v.ID)) } style="margin:0; display:inline;">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/product-child/%d/status", v.ID)) } class="m-0 inline">
 													if string(v.Status) == "active" {
-														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--warning-text);" title="تعطيل العرض">
+														<button type="submit" class="btn btn-secondary btn-sm text-warning" title="تعطيل العرض">
 															تعطيل
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--success-text);" title="تفعيل العرض">
+														<button type="submit" class="btn btn-secondary btn-sm text-success" title="تفعيل العرض">
 															تفعيل
 														</button>
 													}
@@ -284,8 +284,8 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 // AdminApisProductsPage renders external API connector.
 templ AdminApisProductsPage(lang, dir string) {
 	@layouts.AdminShell("ربط وتزامن واجهات API للمنتجات", "catalog", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
-			<h2 class="card-title" style="margin-bottom:0.5rem;">مزامنة المنتجات عبر واجهات API الخارجية</h2>
+		<div class="card max-w-2xl mx-auto">
+			<h2 class="card-title mb-sm">مزامنة المنتجات عبر واجهات API الخارجية</h2>
 			<p style="font-size:0.875rem; color:var(--text-secondary); margin-bottom:1.5rem;">إعداد وتوصيل روابط Webhook وEndpoints لمزامنة الأسعار والمخزون الحي للموردين.</p>
 			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد روابط API متصلة", Message: "قم بإضافة موفر API لمزامنة المخزون تلقائياً."})
 		</div>
@@ -296,7 +296,7 @@ templ AdminApisProductsPage(lang, dir string) {
 templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 	@layouts.AdminShell("إدارة الأرصدة والمخزون الحي", "stocks", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title" style="margin-bottom:1.5rem;">أرصدة المخزون بالمنشآت والمستودعات ({ fmt.Sprintf("%d", len(stocks)) })</h2>
+			<h2 class="card-title mb-lg">أرصدة المخزون بالمنشآت والمستودعات ({ fmt.Sprintf("%d", len(stocks)) })</h2>
 			if len(stocks) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "المخزون فارغ", Message: "لم يتم تسجيل أرصدة مخزون في المستودعات بعد."})
 			} else {
@@ -395,7 +395,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض المستودعات التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر النافذة التفاعلية المباشرة.</p>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div class="row-center">
 						<div class="badge badge-sky" style="font-size:0.85rem; font-weight:800; padding:0.4rem 0.85rem;">
 							{ fmt.Sprintf("إجمالي %d مستودع معتمد", len(warehouses)) }
 						</div>
@@ -426,7 +426,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 								for _, row := range warehouses {
 									<tr>
 										<td>
-											<div style="display:flex; align-items:center; gap:0.5rem;">
+											<div class="row-center-sm">
 												<span style="font-size:1.1rem;">🏬</span>
 												<div>
 													<strong style="color:var(--text); font-size:0.925rem;">{ row.Warehouse.Name }</strong>
@@ -442,28 +442,28 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 													{ row.OrgName }
 												</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">منشأة #{ fmt.Sprintf("%d", row.Warehouse.OrganizationID) }</span>
+												<span class="text-muted text-sm">منشأة #{ fmt.Sprintf("%d", row.Warehouse.OrganizationID) }</span>
 											}
 										</td>
 										<td>
 											if row.Warehouse.Address != "" {
 												<span style="font-size:0.85rem; color:var(--text);">{ row.Warehouse.Address }</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">غير محدد</span>
+												<span class="text-muted text-sm">غير محدد</span>
 											}
 										</td>
 										<td class="tabular-nums">
 											if row.Warehouse.Phone != "" {
 												<span style="font-weight:600; font-size:0.85rem;">{ row.Warehouse.Phone }</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+												<span class="text-muted text-sm">-</span>
 											}
 										</td>
 										<td>
 											if row.Warehouse.IsActive {
-												<span class="badge badge-success" style="font-weight:800;">✓ نشط</span>
+												<span class="badge badge-success fw-800">✓ نشط</span>
 											} else {
-												<span class="badge badge-danger" style="font-weight:800;">✕ معطل</span>
+												<span class="badge badge-danger fw-800">✕ معطل</span>
 											}
 										</td>
 										<td class="text-end">
@@ -491,20 +491,20 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 					
 					<!-- Modal Header -->
 					<div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-						<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="row-center">
 							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
 								
 							</div>
 							<div>
-								<div style="display:flex; align-items:center; gap:0.5rem;">
+								<div class="row-center-sm">
 									<h3 style="font-size:1.15rem; font-weight:900; margin:0; color:var(--text);" x-text="'مخزون مستودع: ' + activeWh.name"></h3>
-									<span class="badge badge-sky" x-show="activeWh.org_name" x-text="activeWh.org_name" style="font-size:0.75rem; font-weight:700;"></span>
+									<span class="badge badge-sky text-xs fw-700" x-show="activeWh.org_name" x-text="activeWh.org_name"></span>
 								</div>
 								<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;" x-text="activeWh.address ? ('العنوان: ' + activeWh.address) : 'تفاصيل المخزون المسجل بالمنظومة'"></div>
 							</div>
 						</div>
 
-						<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="row-center">
 							<button type="button" @click="modalOpen = false" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center;">✕</button>
 						</div>
 					</div>
@@ -549,7 +549,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 
 						<!-- Live Table -->
 						<div x-show="!loading && !error && filteredStocks.length > 0" class="table-container" style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
-							<table class="b2b-table" style="margin:0;">
+							<table class="b2b-table m-0">
 								<thead>
 									<tr>
 										<th>اسم الدواء والصنف</th>
@@ -568,14 +568,14 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 											<td>
 												<div>
 													<strong style="color:var(--text); font-size:0.9rem;" x-text="st.product_name || 'صنف دوائي'"></strong>
-													<div style="font-size:0.75rem; color:var(--text-muted);" x-show="st.variant_name" x-text="st.variant_name"></div>
+													<div class="text-xs text-muted" x-show="st.variant_name" x-text="st.variant_name"></div>
 												</div>
 											</td>
 											<td class="tabular-nums" style="font-family:var(--font-mono, monospace); font-size:0.8rem;">
 												<span x-text="st.sku || st.barcode || '-'"></span>
 											</td>
 											<td class="tabular-nums">
-												<div style="font-size:0.8rem; font-weight:700;" x-text="st.batch_number ? ('تشغيلة: ' + st.batch_number) : '-'"></div>
+												<div class="text-sm fw-700" x-text="st.batch_number ? ('تشغيلة: ' + st.batch_number) : '-'"></div>
 												<div style="font-size:0.725rem; color:var(--text-muted);" x-show="st.expiry_date" x-text="'صلاحية: ' + (st.expiry_date ? st.expiry_date.substring(0,10) : '')"></div>
 											</td>
 											<td class="tabular-nums" style="font-weight:700; color:var(--primary-600);">
@@ -586,7 +586,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 												<span class="badge badge-slate" x-show="!st.is_negotiable" style="font-size:0.725rem;">لا (ثابت)</span>
 											</td>
 											<td class="tabular-nums">
-												<strong style="font-size:1rem;" :style="st.quantity > st.min_threshold ? 'color:var(--primary-600);' : 'color:var(--danger-text);'" x-text="st.quantity"></strong>
+												<strong class="text-base" :style="st.quantity > st.min_threshold ? 'color:var(--primary-600);' : 'color:var(--danger-text);'" x-text="st.quantity"></strong>
 											</td>
 											<td class="tabular-nums" style="color:var(--text-muted); font-size:0.85rem;" x-text="st.min_threshold"></td>
 											<td>
@@ -618,9 +618,9 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("مستودع: %s", wh.Name), "warehouses", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto 1.5rem auto;">
-			<div style="display:flex; justify-content:space-between; align-items:center;">
+			<div class="flex-between">
 				<div>
-					<h2 class="card-title" style="margin:0;">{ wh.Name }</h2>
+					<h2 class="card-title m-0">{ wh.Name }</h2>
 					<p class="subtitle">منشأة #{ fmt.Sprintf("%d", wh.OrganizationID) } | { wh.Address }</p>
 				</div>
 				<a href="/admin/warehouses" class="btn btn-secondary btn-sm">العودة للمستودعات</a>
@@ -635,7 +635,7 @@ templ AdminTempWarehousesPage(items []any, lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">المستودعات المؤقتة وملفات الأسعار المرفوعة</h2>
+					<h2 class="card-title m-0">المستودعات المؤقتة وملفات الأسعار المرفوعة</h2>
 					<p class="subtitle">مستودعات مؤقتة يتم رفعها لمطابقة الأسعار والخصومات دون دمجها الدائم في الكتالوج.</p>
 				</div>
 				<a href="/admin/import" class="btn btn-primary btn-sm">رفع مستودع مؤقت جديد</a>
@@ -674,7 +674,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box">
 								@components.IconTag("icon-md")
 							</div>
 							<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">منتجات التوفير لجميع مستخدمي المنصة</h1>
@@ -684,7 +684,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						</p>
 					</div>
 					<div style="display:flex; gap:0.75rem;">
-						<a href="/admin/saving-products" class="btn btn-secondary btn-sm" style="display:flex; align-items:center; gap:0.4rem;">
+						<a href="/admin/saving-products" class="btn btn-secondary btn-sm row-center-sm">
 							@components.IconRefresh("icon-xs")
 							<span>تحديث البيانات</span>
 						</a>
@@ -726,11 +726,11 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 			<!-- Filter & Search Toolbar -->
 			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; background:var(--surface);">
-				<form method="GET" action="/admin/saving-products" style="display:flex; flex-direction:column; gap:1rem;">
+				<form method="GET" action="/admin/saving-products" class="stack-md">
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:flex-end;">
 						
 						<!-- Org Selector -->
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المنشأة / الصيدلية</label>
 							<select name="org_id" class="form-input" style="font-size:0.875rem; height:42px;">
 								<option value="">-- كل المنشآت ({ fmt.Sprintf("%d", len(data.Organizations)) }) --</option>
@@ -743,7 +743,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						</div>
 
 						<!-- User Selector -->
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المستخدم / الصيدلي</label>
 							<select name="user_id" class="form-input" style="font-size:0.875rem; height:42px;">
 								<option value="">-- كل المستخدمين ({ fmt.Sprintf("%d", len(data.Users)) }) --</option>
@@ -756,7 +756,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						</div>
 
 						<!-- Linking Filter -->
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">حالة الربط بالكتالوج</label>
 							<select name="filter" class="form-input" style="font-size:0.875rem; height:42px;">
 								<option value="all" selected?={ data.ActiveFilter == "all" || data.ActiveFilter == "" }>جميع الحالات</option>
@@ -766,7 +766,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						</div>
 
 						<!-- Search Query -->
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">بحث بالاسم أو الكود</label>
 							<div style="position:relative;">
 								<input 
@@ -787,7 +787,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 					<!-- Filter Actions -->
 					<div style="display:flex; justify-content:flex-end; gap:0.75rem; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.75rem;">
 						if data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SearchQuery != "" || (data.ActiveFilter != "all" && data.ActiveFilter != "") {
-							<a href="/admin/saving-products" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
+							<a href="/admin/saving-products" class="btn btn-ghost btn-sm text-muted">
 								إلغاء التصفية
 							</a>
 						}
@@ -820,7 +820,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container">
-						<table class="b2b-table" style="margin:0;">
+						<table class="b2b-table m-0">
 							<thead>
 								<tr>
 									<th style="width:60px;">#</th>
@@ -837,11 +837,11 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 							<tbody>
 								for _, item := range data.Items {
 									<tr>
-										<td class="tabular-nums" style="color:var(--text-muted); font-size:0.8rem;">
+										<td class="tabular-nums text-muted text-sm">
 											#{ fmt.Sprintf("%d", item.ID) }
 										</td>
 										<td>
-											<div style="font-weight:700; color:var(--text);">{ item.NameProduct }</div>
+											<div class="fw-700 text-primary">{ item.NameProduct }</div>
 											if item.SKU != "" {
 												<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; margin-top:2px;">
 													SKU: { item.SKU }
@@ -880,7 +880,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 												</span>
 											}
 										</td>
-										<td class="tabular-nums" style="font-weight:700; color:var(--text);">
+										<td class="tabular-nums fw-700 text-primary">
 											{ fmt.Sprintf("%.0f", item.Quantity) }
 										</td>
 										<td class="tabular-nums" style="font-weight:700; color:var(--accent);">

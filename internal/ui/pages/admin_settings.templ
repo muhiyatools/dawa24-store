@@ -188,7 +188,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 1: Platform & Features                 -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'features'" style="display:flex; flex-direction:column; gap:1.5rem;">
+			<div x-show="activeTab === 'features'" class="stack-lg">
 				
 				<!-- Feature Flags -->
 				<div class="card mb-0">
@@ -207,7 +207,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						for _, flag := range values.FeatureFlags {
 							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
 								<div>
-									<div style="display:flex; align-items:center; gap:0.5rem;">
+									<div class="row-center-sm">
 										<strong style="font-size:0.9rem; color:var(--text);">
 											if flag.Name["ar"] != "" {
 												{ flag.Name["ar"] }
@@ -216,9 +216,9 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 											}
 										</strong>
 										if flag.IsEnabled {
-											<span class="badge badge-emerald" style="font-size:0.7rem;">نشط ومفعل</span>
+											<span class="badge badge-emerald text-xs">نشط ومفعل</span>
 										} else {
-											<span class="badge badge-slate" style="font-size:0.7rem;">معطل حالياً</span>
+											<span class="badge badge-slate text-xs">معطل حالياً</span>
 										}
 										<span class="badge badge-sky" style="font-family:monospace; font-size:10px;">{ flag.Key }</span>
 									</div>
@@ -269,24 +269,24 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						</h3>
 					</div>
 
-					<form action="/admin/settings" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+					<form action="/admin/settings" method="POST" class="stack-lg">
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">العملة الافتراضية للمعاملات</label>
 								<input type="text" value="EGP (الجنيه المصري)" disabled class="form-input" style="background:var(--surface-sunken); color:var(--text-muted);"/>
 							</div>
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">اللغات المعتمدة في النظام</label>
 								<input type="text" value="العربية (الرئيسية)، English" disabled class="form-input" style="background:var(--surface-sunken); color:var(--text-muted);"/>
 							</div>
 						</div>
 
 						<div class="form-grid-2">
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">بريد إشعارات الدعم الفني *</label>
 								<input type="email" name="support_email" value={ values.SupportEmail } required class="form-input" dir="ltr"/>
 							</div>
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">نسبة عمولة المنصة الافتراضية (%) *</label>
 								<input type="number" name="commission_rate" value={ values.CommissionRate } step="0.1" min="0" max="100" required class="form-input tabular-nums"/>
 							</div>
@@ -306,37 +306,37 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 2: Site Info & Visual Identity         -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'site'" style="display:flex; flex-direction:column; gap:1.5rem;">
+			<div x-show="activeTab === 'site'" class="stack-lg">
 				
 				<div class="card mb-0" x-data="{ siteSubTab: 'contact' }">
 					
 					<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.5rem; padding-bottom:0.75rem;">
 						<button
 							type="button"
-							class="btn btn-sm"
+							class="btn btn-sm fw-700"
 							:class="siteSubTab === 'contact' ? 'btn-primary' : 'btn-secondary'"
 							@click="siteSubTab = 'contact'"
-							style="font-weight:700;"
+						
 						>
 							@components.IconBuilding("icon-xs")
 							<span>بيانات التواصل والفوتر</span>
 						</button>
 						<button
 							type="button"
-							class="btn btn-sm"
+							class="btn btn-sm fw-700"
 							:class="siteSubTab === 'socials' ? 'btn-primary' : 'btn-secondary'"
 							@click="siteSubTab = 'socials'"
-							style="font-weight:700;"
+						
 						>
 							@components.IconLayers("icon-xs")
 							<span>روابط التواصل الاجتماعي (10)</span>
 						</button>
 						<button
 							type="button"
-							class="btn btn-sm"
+							class="btn btn-sm fw-700"
 							:class="siteSubTab === 'branding' ? 'btn-primary' : 'btn-secondary'"
 							@click="siteSubTab = 'branding'"
-							style="font-weight:700;"
+						
 						>
 							@components.IconPackage("icon-xs")
 							<span>الهوية البصرية والشعار</span>
@@ -349,39 +349,39 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							<input type="hidden" name="section" value="contact"/>
 							
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">اسم المنصة / الموقع (Site Name) *</label>
 									<input type="text" name="site_name" value={ values.SiteSettings.SiteName } required class="form-input"/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">وصف المنصة المختصر (Tagline)</label>
 									<input type="text" name="site_description" value={ values.SiteSettings.SiteDescription } class="form-input"/>
 								</div>
 							</div>
 
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">بريد التواصل العام (Contact Email) *</label>
 									<input type="email" name="contact_email" value={ values.SiteSettings.ContactEmail } required class="form-input" dir="ltr"/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">بريد الدعم الفني (Support Email) *</label>
 									<input type="email" name="support_email" value={ values.SiteSettings.SupportEmail } required class="form-input" dir="ltr"/>
 								</div>
 							</div>
 
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">رقم الهاتف الرسمي (Phone) *</label>
 									<input type="text" name="phone" value={ values.SiteSettings.Phone } required class="form-input tabular-nums" dir="ltr"/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">رقم واتساب المباشر (WhatsApp) *</label>
 									<input type="text" name="whatsapp" value={ values.SiteSettings.WhatsApp } required class="form-input tabular-nums" dir="ltr" placeholder="201065397000"/>
 								</div>
 							</div>
 
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">العنوان الرئيسي للمقر (Head Office Address)</label>
 								<input type="text" name="address" value={ values.SiteSettings.Address } class="form-input" placeholder="القاهرة، جمهورية مصر العربية"/>
 							</div>
@@ -405,44 +405,44 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							</p>
 
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">Facebook</label>
 									<input type="url" name="social_facebook" value={ values.SiteSettings.SocialLinks["facebook"] } class="form-input" dir="ltr" placeholder="https://facebook.com/dawa24"/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">Twitter / X</label>
 									<input type="url" name="social_twitter" value={ values.SiteSettings.SocialLinks["twitter"] } class="form-input" dir="ltr" placeholder="https://twitter.com/dawa24"/>
 								</div>
 							</div>
 
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">Instagram</label>
 									<input type="url" name="social_instagram" value={ values.SiteSettings.SocialLinks["instagram"] } class="form-input" dir="ltr" placeholder="https://instagram.com/dawa24"/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">LinkedIn</label>
 									<input type="url" name="social_linkedin" value={ values.SiteSettings.SocialLinks["linkedin"] } class="form-input" dir="ltr" placeholder="https://linkedin.com/company/dawa24"/>
 								</div>
 							</div>
 
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">YouTube</label>
 									<input type="url" name="social_youtube" value={ values.SiteSettings.SocialLinks["youtube"] } class="form-input" dir="ltr" placeholder="https://youtube.com/@dawa24"/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">TikTok</label>
 									<input type="url" name="social_tiktok" value={ values.SiteSettings.SocialLinks["tiktok"] } class="form-input" dir="ltr" placeholder="https://tiktok.com/@dawa24"/>
 								</div>
 							</div>
 
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">Snapchat</label>
 									<input type="url" name="social_snapchat" value={ values.SiteSettings.SocialLinks["snapchat"] } class="form-input" dir="ltr" placeholder="https://snapchat.com/add/dawa24"/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">Telegram</label>
 									<input type="url" name="social_telegram" value={ values.SiteSettings.SocialLinks["telegram"] } class="form-input" dir="ltr" placeholder="https://t.me/dawa24"/>
 								</div>
@@ -459,7 +459,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 					<!-- 3. Branding & Logo Form -->
 					<div x-show="siteSubTab === 'branding'" x-data="{ logoPreview: '' }">
-						<form action="/admin/settings/branding" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<form action="/admin/settings/branding" method="POST" enctype="multipart/form-data" class="stack-lg">
 							
 							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
 								<div style="width:120px; height:80px; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; padding:0.5rem; overflow:hidden;">
@@ -480,7 +480,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							</div>
 
 							<div class="form-grid-2">
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">رفع ملف الشعار الجديد (PNG / SVG / WEBP)</label>
 									<input
 										type="file"
@@ -490,7 +490,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 										@change="const file = $event.target.files[0]; if (file) logoPreview = URL.createObjectURL(file)"
 									/>
 								</div>
-								<div class="form-group" style="margin:0;">
+								<div class="form-group m-0">
 									<label class="form-label">أو مسار/رابط الشعار المباشر (Logo URL)</label>
 									<input
 										type="text"
@@ -503,7 +503,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								</div>
 							</div>
 
-							<div class="form-group" style="margin:0;">
+							<div class="form-group m-0">
 								<label class="form-label">أيقونة المتصفح المفضلة (Favicon URL / Path)</label>
 								<input type="text" name="favicon_url" value={ values.SiteSettings.FaviconURL } class="form-input" dir="ltr" placeholder="/static/img/logo.png"/>
 							</div>
@@ -524,7 +524,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 3: Policies & Legal Documents          -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'policies'" style="display:flex; flex-direction:column; gap:1.5rem;">
+			<div x-show="activeTab === 'policies'" class="stack-lg">
 				<!-- The full editor, not a link to one. There used to be a
 				     separate /admin/policies page plus an inline editor here,
 				     both writing platform_admin.policies through different
@@ -535,7 +535,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 4: Platform Payment Methods & Banking  -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'payment_methods'" style="display:flex; flex-direction:column; gap:1.5rem;">
+			<div x-show="activeTab === 'payment_methods'" class="stack-lg">
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-wrap:wrap; gap:1rem;">
@@ -550,9 +550,9 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 						<button
 							type="button"
-							class="btn btn-primary"
+							class="btn btn-primary fw-800"
 							@click="openNewMethodModal()"
-							style="font-weight:800;"
+						
 						>
 							@components.IconPlus("icon-xs")
 							<span>إضافة قناة دفع جديدة</span>
@@ -568,13 +568,13 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							<p style="font-size:0.85rem; color:var(--text-muted); max-width:420px; margin:0 auto 1.5rem auto;">
 								أضف الحسابات البنكية ومعرفات إنستاباي المعتمدة لمنصة دواء 24 لتظهر للصيدليات والموردين عند شحن المحفظة وسداد الطلبيات.
 							</p>
-							<button type="button" class="btn btn-primary" @click="openNewMethodModal()" style="font-weight:800;">
+							<button type="button" class="btn btn-primary fw-800" @click="openNewMethodModal()">
 								@components.IconPlus("icon-xs")
 								<span>إضافة أول وسيلة دفع</span>
 							</button>
 						</div>
 					} else {
-						<div style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div class="stack-lg">
 							for _, pm := range values.PlatformPaymentMethods {
 								<div style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; background:var(--surface-sunken); display:flex; flex-direction:column; gap:1rem;">
 									<!-- Card Header -->
@@ -602,9 +602,9 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 										<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
 											if pm.IsActive {
-												<span class="badge badge-emerald" style="font-weight:700;">مفعل ونشط</span>
+												<span class="badge badge-emerald fw-700">مفعل ونشط</span>
 											} else {
-												<span class="badge badge-slate" style="font-weight:700;">معطل</span>
+												<span class="badge badge-slate fw-700">معطل</span>
 											}
 
 											if pm.IsDepositEnabled {
@@ -621,37 +621,37 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 										if pm.ProviderType == "bank" {
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">اسم البنك</span>
-												<strong style="color:var(--text);">{ pm.BankName }</strong>
+												<strong class="text-primary">{ pm.BankName }</strong>
 											</div>
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">اسم صاحب الحساب</span>
-												<strong style="color:var(--text);">{ pm.AccountName }</strong>
+												<strong class="text-primary">{ pm.AccountName }</strong>
 											</div>
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">رقم الحساب</span>
-												<strong style="color:var(--accent);" class="tabular-nums" dir="ltr">{ pm.AccountNumber }</strong>
+												<strong class="text-accent tabular-nums" dir="ltr">{ pm.AccountNumber }</strong>
 											</div>
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">الآيبان الدولي (IBAN)</span>
-												<strong style="color:var(--text);" class="tabular-nums" dir="ltr">{ pm.IBAN }</strong>
+												<strong class="text-primary tabular-nums" dir="ltr">{ pm.IBAN }</strong>
 											</div>
 										} else if pm.ProviderType == "instapay" || pm.ProviderType == "wallet" {
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">عنوان الدفع اللحظي (IPA)</span>
-												<strong style="color:var(--accent);" class="tabular-nums" dir="ltr">{ pm.InstaPayHandle }</strong>
+												<strong class="text-accent tabular-nums" dir="ltr">{ pm.InstaPayHandle }</strong>
 											</div>
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">رقم الهاتف المرتبط</span>
-												<strong style="color:var(--text);" class="tabular-nums" dir="ltr">{ pm.PhoneNumber }</strong>
+												<strong class="text-primary tabular-nums" dir="ltr">{ pm.PhoneNumber }</strong>
 											</div>
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">اسم الحساب / المحفظة</span>
-												<strong style="color:var(--text);">{ pm.AccountName }</strong>
+												<strong class="text-primary">{ pm.AccountName }</strong>
 											</div>
 										} else {
 											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
 												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">بوابة الدفع</span>
-												<strong style="color:var(--text);">{ pm.BankName }</strong>
+												<strong class="text-primary">{ pm.BankName }</strong>
 											</div>
 										}
 									</div>
@@ -680,8 +680,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 										<button
 											type="button"
-											class="btn btn-secondary btn-sm"
-											style="font-weight:700;"
+											class="btn btn-secondary btn-sm fw-700"
 											@click={ fmt.Sprintf("openEditMethodModal(%s)", pmToJSON(pm)) }
 										>
 											@components.IconSettings("icon-xs")
@@ -716,20 +715,20 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="b2b-icon-box-sm">
 								@components.IconWallet("icon-xs")
 							</div>
-							<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0;" x-text="isEditingMethod ? 'تعديل بيانات وسيلة وقناة الدفع' : 'إضافة وسيلة دفع جديدة للمنصة'">
+							<h3 class="text-xl fw-800 text-primary m-0" x-text="isEditingMethod ? 'تعديل بيانات وسيلة وقناة الدفع' : 'إضافة وسيلة دفع جديدة للمنصة'">
 							</h3>
 						</div>
-						<button type="button" @click="isMethodModalOpen = false" class="btn btn-secondary btn-icon" style="width:32px; height:32px;">
+						<button type="button" @click="isMethodModalOpen = false" class="btn btn-secondary btn-icon size-8">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
 
 					<form action="/admin/settings/payment-methods" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
 						<div class="form-grid-2">
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">المعرف البرمجي الفريد (ID) *</label>
 								<input
 									type="text"
@@ -743,7 +742,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								/>
 							</div>
 
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">نوع وسيلة الدفع (Provider Type) *</label>
 								<select name="provider_type" x-model="methodForm.provider_type" class="form-select">
 									<option value="bank">تحويل وحساب بنكي رسمي (Bank Account / IBAN)</option>
@@ -756,12 +755,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						</div>
 
 						<div class="form-grid-2">
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">الاسم بالعربية *</label>
 								<input type="text" name="name_ar" x-model="methodForm.name_ar" class="form-input" placeholder="مثال: البنك التجاري الدولي CIB" required />
 							</div>
 
-							<div class="form-group" style="margin-bottom:0;">
+							<div class="form-group mb-0">
 								<label class="form-label">الاسم بالإنجليزية *</label>
 								<input type="text" name="name_en" x-model="methodForm.name_en" class="form-input" placeholder="e.g. Commercial International Bank (CIB)" required />
 							</div>
@@ -771,31 +770,31 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						<div x-show="methodForm.provider_type === 'bank'" style="display:flex; flex-direction:column; gap:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; background:var(--surface-sunken);">
 							<strong style="font-size:0.875rem; color:var(--accent);">بيانات الحساب البنكي الرسمي:</strong>
 							<div class="form-grid-2">
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">اسم البنك</label>
 									<input type="text" name="bank_name" x-model="methodForm.bank_name" class="form-input" placeholder="مثال: البنك التجاري الدولي CIB" />
 								</div>
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">اسم صاحب الحساب</label>
 									<input type="text" name="account_name" x-model="methodForm.account_name" class="form-input" placeholder="شركة دواء 24 للتجارة والتوزيع ذ.م.م" />
 								</div>
 							</div>
 							<div class="form-grid-2">
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">رقم الحساب البنكي</label>
 									<input type="text" name="account_number" x-model="methodForm.account_number" class="form-input tabular-nums" dir="ltr" placeholder="100048291048" />
 								</div>
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">الفرع</label>
 									<input type="text" name="branch_name" x-model="methodForm.branch_name" class="form-input" placeholder="الفرع الرئيسي" />
 								</div>
 							</div>
 							<div class="form-grid-2">
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">الآيبان الدولي (IBAN)</label>
 									<input type="text" name="iban" x-model="methodForm.iban" class="form-input tabular-nums" dir="ltr" placeholder="EG3800100004829104800000000000" />
 								</div>
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">رمز السويفت (SWIFT / BIC)</label>
 									<input type="text" name="swift_code" x-model="methodForm.swift_code" class="form-input tabular-nums" dir="ltr" placeholder="CIBEEGCX" />
 								</div>
@@ -806,11 +805,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						<div x-show="methodForm.provider_type === 'instapay' || methodForm.provider_type === 'wallet'" x-cloak style="display:flex; flex-direction:column; gap:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; background:var(--surface-sunken);">
 							<strong style="font-size:0.875rem; color:var(--accent);">بيانات الدفع اللحظي والمحافظ:</strong>
 							<div class="form-grid-2">
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">معرف إنستاباي اللحظي (IPA)</label>
 									<input type="text" name="instapay_handle" x-model="methodForm.instapay_handle" class="form-input tabular-nums" dir="ltr" placeholder="dawa24@instapay" />
 								</div>
-								<div class="form-group" style="margin-bottom:0;">
+								<div class="form-group mb-0">
 									<label class="form-label">رقم الهاتف المرتبط بالمحفظة</label>
 									<input type="tel" name="phone_number" x-model="methodForm.phone_number" class="form-input tabular-nums" dir="ltr" placeholder="01065397000" />
 								</div>
@@ -818,7 +817,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						</div>
 
 						<!-- Descriptions & Instructions -->
-						<div class="form-group" style="margin-bottom:0;">
+						<div class="form-group mb-0">
 							<label class="form-label">تعليمات وتفاصيل الدفع (عربي)</label>
 							<textarea name="description_ar" x-model="methodForm.description_ar" rows="2" class="form-input" placeholder="تعليمات تظهر للمستخدم عند اختيار وسيلة الدفع هذه..."></textarea>
 						</div>
@@ -840,13 +839,13 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								<span style="font-weight:700; font-size:0.85rem; color:var(--text);">متاحة لسداد الطلبات</span>
 							</label>
 
-							<div class="form-group" style="margin-bottom:0;">
-								<label class="form-label" style="font-size:0.75rem;">ترتيب العرض</label>
+							<div class="form-group mb-0">
+								<label class="form-label text-xs">ترتيب العرض</label>
 								<input type="number" name="display_order" x-model="methodForm.display_order" class="form-input tabular-nums" min="0" />
 							</div>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<div class="modal-footer-standard">
 							<button type="button" @click="isMethodModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="padding-inline:2rem; font-weight:800;">
 								@components.IconCheck("icon-xs")

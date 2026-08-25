@@ -16,29 +16,29 @@ templ Onboarding() {
 				<p style="color:var(--neutral-500); font-size:0.925rem; margin-top:0.35rem;">سجل بيانات مؤسستك للانضمام إلى شبكة التوزيع الدوائي الموحدة</p>
 			</div>
 
-			<form action="/onboarding" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
-				<div class="form-group" style="margin-bottom:0;">
+			<form action="/onboarding" method="POST" class="stack-lg">
+				<div class="form-group mb-0">
 					<label class="form-label">الاسم التجاري للمؤسسة / الصيدلية *</label>
 					<input type="text" name="tradeName" placeholder="مثال: صيدلية الأمل الحديثة" required class="form-input" />
 				</div>
 
-				<div class="form-group" style="margin-bottom:0;">
+				<div class="form-group mb-0">
 					<label class="form-label">الاسم القانوني المسجل بالسجل التجاري *</label>
 					<input type="text" name="legalName" placeholder="مثال: شركة الأمل لتجارة وتوزيع الأدوية ذ.م.م" required class="form-input" />
 				</div>
 
 				<div class="form-grid-2">
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label">رقم البطاقة الضريبية *</label>
 						<input type="text" name="taxId" placeholder="123-456-789" required class="form-input tabular-nums" />
 					</div>
-					<div class="form-group" style="margin-bottom:0;">
+					<div class="form-group mb-0">
 						<label class="form-label">رقم السجل التجاري *</label>
 						<input type="text" name="crNumber" placeholder="987654" required class="form-input tabular-nums" />
 					</div>
 				</div>
 
-				<div class="form-group" style="margin-bottom:0;">
+				<div class="form-group mb-0">
 					<label class="form-label">نوع الحساب</label>
 					<select name="type" class="form-select">
 						<option value="customer">صيدلية مرخصة</option>

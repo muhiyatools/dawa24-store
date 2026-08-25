@@ -149,16 +149,16 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 			if data.NoticeMessage != "" {
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger" style="margin-bottom:0.5rem; display:flex; align-items:center; justify-content:space-between; border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-						<div style="display:flex; align-items:center; gap:0.75rem;">
-							<span style="font-size:1.25rem;">⚠️</span>
-							<span style="font-weight:600;">{ data.NoticeMessage }</span>
+						<div class="row-center">
+							<span class="text-xl">⚠️</span>
+							<span class="fw-600">{ data.NoticeMessage }</span>
 						</div>
 					</div>
 				} else {
 					<div class="alert alert-success" style="margin-bottom:0.5rem; display:flex; align-items:center; justify-content:space-between; border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-						<div style="display:flex; align-items:center; gap:0.75rem;">
-							<span style="font-size:1.25rem;">✅</span>
-							<span style="font-weight:600;">{ data.NoticeMessage }</span>
+						<div class="row-center">
+							<span class="text-xl">✅</span>
+							<span class="fw-600">{ data.NoticeMessage }</span>
 						</div>
 					</div>
 				}
@@ -180,7 +180,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="row-center">
 					<a href="#add-coverage-panel" class="btn btn-primary" style="font-weight:700; padding:0.65rem 1.25rem; display:flex; align-items:center; gap:0.5rem;">
 						@components.IconPlus("icon-xs")
 						<span>إضافة نطاق تغطية جديد</span>
@@ -300,7 +300,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				<div style="display:grid; grid-template-columns:1.25fr 0.75fr; gap:1.75rem; align-items:start;" class="coverage-split-layout">
 
 					<!-- Left Column: Coverage List & Filters -->
-					<div style="display:flex; flex-direction:column; gap:1.5rem;">
+					<div class="stack-lg">
 						<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem;">
 							
 							<!-- List Header & Filter Bar -->
@@ -309,16 +309,16 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 									<h2 style="font-size:1.15rem; font-weight:700; color:var(--text); margin:0;">
 										مسارات ونطاقات التغطية المسجلة ({ fmt.Sprintf("%d", len(data.Coverages)) })
 									</h2>
-									<span style="font-size:0.8rem; color:var(--text-muted);">إدارة وتعديل وتفعيل المسارات</span>
+									<span class="text-sm text-muted">إدارة وتعديل وتفعيل المسارات</span>
 								</div>
 
 								<!-- Day Filter Buttons -->
 								<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
-									<button type="button" @click="filterDay = 'all'" :class="filterDay === 'all' ? 'btn btn-primary btn-xs' : 'btn btn-secondary btn-xs'" style="font-weight:600;">
+									<button type="button" @click="filterDay = 'all'" :class="filterDay === 'all' ? 'btn btn-primary btn-xs' : btn-secondary fw-600">
 										الكل
 									</button>
 									for dayIdx := 0; dayIdx <= 6; dayIdx++ {
-										<button type="button" @click={ fmt.Sprintf("filterDay = '%d'", dayIdx) } :class={ fmt.Sprintf("filterDay === '%d' ? 'btn btn-primary btn-xs' : 'btn btn-secondary btn-xs'", dayIdx) } style="font-weight:600;">
+										<button type="button" @click={ fmt.Sprintf("filterDay = '%d'", dayIdx) } :class={ fmt.Sprintf("filterDay === '%d' ? 'btn btn-primary btn-xs' : 'btn btn-secondary btn-xs'", dayIdx) } class="fw-600">
 											{ dayNameArabic(dayIdx) }
 										</button>
 									}
@@ -340,7 +340,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 												
 												<!-- Badges & Title -->
 												<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-													<span class={ "badge", dayBadgeClass(cov.DayOfWeek) } style="font-weight:700; font-size:0.85rem;">
+													<span class={ "badge", dayBadgeClass(cov.DayOfWeek) } class="text-sm fw-700">
 														{ dayNameArabic(cov.DayOfWeek) }
 													</span>
 													<span style="font-weight:800; color:var(--text); font-size:1.05rem;">
@@ -352,20 +352,20 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 														</span>
 													}
 													if cov.IsActive {
-														<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:700;">مفعل</span>
+														<span class="badge badge-emerald text-xs fw-700">مفعل</span>
 													} else {
-														<span class="badge badge-muted" style="font-size:0.75rem; font-weight:700;">معطل</span>
+														<span class="badge badge-muted text-xs fw-700">معطل</span>
 													}
 												</div>
 
 												<!-- Details: Distance, Hours, Coordinates -->
 												<div style="font-size:0.85rem; color:var(--text-secondary); display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; margin-top:0.2rem;">
-													<span style="display:flex; align-items:center; gap:0.35rem;">
+													<span class="row-center-xs">
 														<span>📏</span>
 														<span>نصف القطر: <strong style="color:var(--text); font-weight:700;">{ formatDistanceKM(cov.DistanceMeters) }</strong></span>
 													</span>
 													if cov.CoverageFrom != nil && cov.CoverageTo != nil {
-														<span style="display:flex; align-items:center; gap:0.35rem;">
+														<span class="row-center-xs">
 															<span>⏰</span>
 															<span>ساعات التوصيل: <strong style="color:var(--text); font-weight:700;">{ *cov.CoverageFrom } - { *cov.CoverageTo }</strong></span>
 														</span>
@@ -424,7 +424,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 
 												<!-- Delete Form -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/delete", cov.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');">
-													<button type="submit" class="btn btn-sm btn-ghost" style="color:var(--danger);" title="حذف نطاق التغطية">
+													<button type="submit" class="btn btn-sm btn-ghost text-danger" title="حذف نطاق التغطية">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -619,7 +619,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 							</div>
 
 							<!-- Active Toggle -->
-							<div style="display:flex; align-items:center; gap:0.5rem;">
+							<div class="row-center-sm">
 								<input type="checkbox" id="add_is_active_input" name="is_active" value="true" checked style="width:18px; height:18px; accent-color:var(--accent);"/>
 								<label for="add_is_active_input" style="font-size:0.85rem; font-weight:600; color:var(--text); cursor:pointer;">
 									تفعيل نطاق التغطية فور الحفظ
@@ -642,8 +642,8 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 					<div @click.away="closeEdit()" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; max-height:90vh; overflow-y:auto; padding:1.75rem; box-shadow:var(--shadow-2xl);">
 						
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-							<div style="display:flex; align-items:center; gap:0.5rem;">
-								<span style="font-size:1.25rem;">✏️</span>
+							<div class="row-center-sm">
+								<span class="text-xl">✏️</span>
 								<h3 style="margin:0; font-size:1.2rem; font-weight:800; color:var(--text);">
 									تعديل نطاق التغطية الأسبوعية
 								</h3>
@@ -742,7 +742,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 							</div>
 
 							<!-- Active Checkbox -->
-							<div style="display:flex; align-items:center; gap:0.5rem;">
+							<div class="row-center-sm">
 								<input type="checkbox" id="edit_is_active_input" name="is_active" value="true" x-model="editCov.is_active" style="width:18px; height:18px; accent-color:var(--accent);"/>
 								<label for="edit_is_active_input" style="font-size:0.85rem; font-weight:600; color:var(--text); cursor:pointer;">
 									نطاق التغطية مفعل
@@ -751,7 +751,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 
 							<!-- Action Buttons -->
 							<div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; gap:0.75rem;">
-								<button type="button" @click="closeEdit()" class="btn btn-secondary" style="flex:1;">
+								<button type="button" @click="closeEdit()" class="btn btn-secondary flex-1">
 									إلغاء
 								</button>
 								<button type="submit" class="btn btn-primary" style="flex:1; font-weight:700;">

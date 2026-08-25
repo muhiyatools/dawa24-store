@@ -121,7 +121,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- Live Financial KPIs Bar --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;\"><a href=\"/admin/finance?tab=payments\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #10b981; border-radius:14px; transition:transform 0.2s;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">إجمالي التحصيلات والمدفوعات</span> <span style=\"color:#10b981;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- Live Financial KPIs Bar --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;\"><a href=\"/admin/finance?tab=payments\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #10b981; border-radius:14px; transition:transform 0.2s;\"><div class=\"flex-between\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">إجمالي التحصيلات والمدفوعات</span> <span style=\"color:#10b981;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -155,7 +155,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></a> <a href=\"/admin/finance?tab=invoices\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--primary); border-radius:14px; transition:transform 0.2s;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">إجمالي الفواتير الصادرة</span> <span style=\"color:var(--primary);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></a> <a href=\"/admin/finance?tab=invoices\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--primary); border-radius:14px; transition:transform 0.2s;\"><div class=\"flex-between\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">إجمالي الفواتير الصادرة</span> <span style=\"color:var(--primary);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -189,7 +189,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></a> <a href=\"/admin/finance?tab=wallets\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #6366f1; border-radius:14px; transition:transform 0.2s;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">أرصدة المحافظ المحتجزة</span> <span style=\"color:#6366f1;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></a> <a href=\"/admin/finance?tab=wallets\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #6366f1; border-radius:14px; transition:transform 0.2s;\"><div class=\"flex-between\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">أرصدة المحافظ المحتجزة</span> <span style=\"color:#6366f1;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -223,7 +223,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></a> <a href=\"/admin/finance?tab=earnings\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #f59e0b; border-radius:14px; transition:transform 0.2s;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">عمولة المنصة المقدرة</span> <span style=\"color:#f59e0b;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></a> <a href=\"/admin/finance?tab=earnings\" style=\"text-decoration:none;\" class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #f59e0b; border-radius:14px; transition:transform 0.2s;\"><div class=\"flex-between\"><span style=\"font-size:0.82rem; font-weight:600; color:var(--text-secondary);\">عمولة المنصة المقدرة</span> <span style=\"color:#f59e0b;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -446,7 +446,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>تقرير الأرباح والعمولات</span></a></div><div style=\"padding:1.5rem;\"><!-- ══════════════════════════════════════════\n\t\t\t\t\t     TAB 1: INVOICES\n\t\t\t\t\t══════════════════════════════════════════ -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>تقرير الأرباح والعمولات</span></a></div><div class=\"p-card\"><!-- ══════════════════════════════════════════\n\t\t\t\t\t     TAB 1: INVOICES\n\t\t\t\t\t══════════════════════════════════════════ -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -519,7 +519,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if data.Query != "" || data.StatusFilter != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<a href=\"/admin/finance?tab=invoices\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--text-muted);\">إلغاء</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<a href=\"/admin/finance?tab=invoices\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -539,40 +539,40 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					for _, inv := range data.Invoices {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<tr><td class=\"tabular-nums\"><span style=\"font-weight:800; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<tr><td class=\"tabular-nums\"><span class=\"fw-800 text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(inv.InvoiceNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 191, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 191, Col: 67}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</span></td><td><div style=\"font-weight:700; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</span></td><td><div class=\"fw-700 text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(inv.VendorName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 194, Col: 79}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 194, Col: 63}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div style=\"font-size:0.75rem; color:var(--text-muted);\">مورّد #")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div class=\"text-xs text-muted\">مورّد #")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var28 string
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", inv.OrganizationID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 195, Col: 122}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 195, Col: 97}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -596,14 +596,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if inv.CustomerOrgID != nil {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div style=\"font-size:0.75rem; color:var(--text-muted);\">صيدلية #")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"text-xs text-muted\">صيدلية #")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var30 string
 							templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *inv.CustomerOrgID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 200, Col: 125}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 200, Col: 100}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 							if templ_7745c5c3_Err != nil {
@@ -637,12 +637,12 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span style=\"color:var(--text-muted);\">-</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"text-muted\">-</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</td><td class=\"tabular-nums\" style=\"font-weight:800; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</td><td class=\"tabular-nums fw-800 text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -792,7 +792,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if data.Query != "" || data.StatusFilter != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<a href=\"/admin/finance?tab=payments\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--text-muted);\">إلغاء</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<a href=\"/admin/finance?tab=payments\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -817,14 +817,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if p.TransactionID != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div style=\"font-weight:700; color:var(--text);\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div class=\"fw-700 text-primary\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var37 string
 							templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(p.TransactionID)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 285, Col: 81}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 285, Col: 65}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 							if templ_7745c5c3_Err != nil {
@@ -835,14 +835,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<div style=\"font-weight:700; color:var(--text);\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<div class=\"fw-700 text-primary\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var38 string
 							templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("PAY-%d", p.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 287, Col: 93}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 287, Col: 77}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 							if templ_7745c5c3_Err != nil {
@@ -854,14 +854,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							}
 						}
 						if p.ReferenceNumber != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<div style=\"font-size:0.75rem; color:var(--text-muted);\">مرجع: ")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<div class=\"text-xs text-muted\">مرجع: ")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var39 string
 							templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(p.ReferenceNumber)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 290, Col: 101}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 290, Col: 76}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 							if templ_7745c5c3_Err != nil {
@@ -895,19 +895,19 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<span style=\"color:var(--text-muted);\">-</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<span class=\"text-muted\">-</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</td><td><div style=\"font-weight:700; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</td><td><div class=\"fw-700 text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var41 string
 						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(p.UserName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 301, Col: 75}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 301, Col: 59}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 						if templ_7745c5c3_Err != nil {
@@ -918,14 +918,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if p.OrganizationName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<div style=\"font-size:0.75rem; color:var(--text-secondary);\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<div class=\"text-xs text-secondary\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var42 string
 							templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(p.OrganizationName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 303, Col: 96}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 303, Col: 71}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 							if templ_7745c5c3_Err != nil {
@@ -1066,7 +1066,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if data.Query != "" || data.TypeFilter != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<a href=\"/admin/finance?tab=wallets\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--text-muted);\">إلغاء</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<a href=\"/admin/finance?tab=wallets\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1081,7 +1081,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<div class=\"table-container\" style=\"border:1px solid var(--border); border-radius:12px; overflow:hidden;\"><table class=\"b2b-table\"><thead><tr><th>رقم المحفظة</th><th>المنشأة والمالك</th><th>نوع النشاط</th><th>الرصيد المتاح</th><th>العملة</th><th>إجمالي الحركات</th><th>تاريخ الإنشاء</th><th style=\"text-align:center;\">إجراءات إدارية</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<div class=\"table-container\" style=\"border:1px solid var(--border); border-radius:12px; overflow:hidden;\"><table class=\"b2b-table\"><thead><tr><th>رقم المحفظة</th><th>المنشأة والمالك</th><th>نوع النشاط</th><th>الرصيد المتاح</th><th>العملة</th><th>إجمالي الحركات</th><th>تاريخ الإنشاء</th><th class=\"text-center\">إجراءات إدارية</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1129,14 +1129,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if w.OrganizationName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div class=\"fw-800 text-primary text-base\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var51 string
 							templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(w.OrganizationName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 389, Col: 105}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 389, Col: 80}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 							if templ_7745c5c3_Err != nil {
@@ -1173,14 +1173,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "<div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "<div class=\"fw-800 text-primary text-base\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var54 string
 							templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 392, Col: 97}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 392, Col: 72}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 							if templ_7745c5c3_Err != nil {
@@ -1308,20 +1308,20 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, " ↗</a></td><td class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--text-muted);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, " ↗</a></td><td class=\"tabular-nums text-sm text-muted\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var62 string
 						templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(w.CreatedAt.Format("2006-01-02"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 420, Col: 123}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 420, Col: 91}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</td><td style=\"text-align:center;\"><div style=\"display:inline-flex; gap:0.4rem; align-items:center;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</td><td class=\"text-center\"><div style=\"display:inline-flex; gap:0.4rem; align-items:center;\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1482,7 +1482,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if data.SelectedWalletID > 0 || data.Query != "" || data.TypeFilter != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 171, "<a href=\"/admin/finance?tab=transactions\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--text-muted);\">إلغاء الفلاتر</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 171, "<a href=\"/admin/finance?tab=transactions\" class=\"btn btn-secondary btn-sm text-muted\">إلغاء الفلاتر</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1505,7 +1505,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "</span></div><a href=\"/admin/finance?tab=transactions\" class=\"btn btn-secondary btn-sm\" style=\"font-size:0.75rem;\">عرض كل معاملات النظام</a></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "</span></div><a href=\"/admin/finance?tab=transactions\" class=\"btn btn-secondary btn-sm text-xs\">عرض كل معاملات النظام</a></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1534,7 +1534,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 177, "</span></td><td><div style=\"font-weight:700; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 177, "</span></td><td><div class=\"fw-700 text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1666,7 +1666,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 193, "</td><td class=\"tabular-nums\" style=\"font-weight:800; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 193, "</td><td class=\"tabular-nums fw-800 text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1694,7 +1694,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "<span style=\"color:var(--text-muted);\">-</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "<span class=\"text-muted\">-</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1735,14 +1735,14 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 200, "</td><td class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--text-muted);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 200, "</td><td class=\"tabular-nums text-sm text-muted\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var79 string
 						templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(tx.CreatedAt.Format("2006-01-02 15:04:05"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 556, Col: 133}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 556, Col: 101}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 						if templ_7745c5c3_Err != nil {
@@ -1768,7 +1768,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if data.ActiveTab == "earnings" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 205, "<div class=\"tab-content-pane space-y-6\"><div><h2 style=\"font-size:1.15rem; font-weight:800; margin:0; color:var(--text);\">تقرير أرباح وعمولات المنظومة</h2><p style=\"font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;\">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد المكتملة.</p></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-secondary);\">إجمالي مبيعات أوامر التوريد</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 205, "<div class=\"tab-content-pane space-y-6\"><div><h2 style=\"font-size:1.15rem; font-weight:800; margin:0; color:var(--text);\">تقرير أرباح وعمولات المنظومة</h2><p style=\"font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;\">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد المكتملة.</p></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;\"><div class=\"flex-between\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-secondary);\">إجمالي مبيعات أوامر التوريد</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1789,7 +1789,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 207, "</div><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;\">إجمالي قيمة أوامر التوريد المسجلة في النظام</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-secondary);\">عمولة المنصة الإجمالية (5%)</span> <span style=\"color:#10b981;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 207, "</div><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;\">إجمالي قيمة أوامر التوريد المسجلة في النظام</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;\"><div class=\"flex-between\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-secondary);\">عمولة المنصة الإجمالية (5%)</span> <span style=\"color:#10b981;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1810,7 +1810,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 209, "</div><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;\">نسبة المنصة من إجمالي المعاملات المالية المكتملة</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-secondary);\">أرصدة المحافظ المحتجزة للمستخدمين</span> <span style=\"color:#6366f1;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 209, "</div><div style=\"font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;\">نسبة المنصة من إجمالي المعاملات المالية المكتملة</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;\"><div class=\"flex-between\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-secondary);\">أرصدة المحافظ المحتجزة للمستخدمين</span> <span style=\"color:#6366f1;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1836,7 +1836,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 212, "</div></div><!-- ══════════════════════════════════════════\n\t\t\t     WALLET ADJUSTMENT MODAL\n\t\t\t══════════════════════════════════════════ --><div id=\"walletAdjustModal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" style=\"width:100%; max-width:480px; background:var(--surface); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; animation:scaleIn 0.2s ease;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface-sunken);\"><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.3rem;\">💳</span><h3 style=\"margin:0; font-size:1.1rem; font-weight:800; color:var(--text);\">تعديل وشحن رصيد المحفظة</h3></div><button type=\"button\" onclick=\"closeWalletAdjustModal()\" class=\"btn btn-secondary btn-sm\" style=\"border:none; padding:0.25rem 0.5rem;\">✕</button></div><form id=\"walletAdjustForm\" method=\"POST\" action=\"/admin/finance/wallets/0/adjust\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"_csrf\" value=\"\"><!-- Target Entity Info Banner --><div style=\"padding:0.75rem 1rem; border-radius:10px; background:var(--surface-sunken); border:1px solid var(--border);\"><div style=\"font-size:0.75rem; color:var(--text-muted);\">المنشأة المستهدفة:</div><div id=\"modalTargetName\" style=\"font-weight:800; color:var(--text); font-size:1rem; margin-top:2px;\">-</div><div style=\"font-size:0.78rem; color:var(--text-secondary); margin-top:2px;\">الرصيد الحالي: <span id=\"modalCurrentBalance\" style=\"font-weight:800; color:#10b981;\">0.00</span></div></div><!-- Action Type --><div><label class=\"form-label\" style=\"font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;\">نوع العملية المحاسبية *</label> <select name=\"action_type\" id=\"modalActionType\" class=\"form-input\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem;\" required><option value=\"deposit\">إيداع رصيد (شحن مباشر / تحويل)</option> <option value=\"withdrawal\">➖ خصم من الرصيد (سحب / تسوية مدينة)</option> <option value=\"adjustment\">⚖️ تسوية محاسبية يدوية (Adjustment)</option></select></div><!-- Amount --><div><label class=\"form-label\" style=\"font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;\">المبلغ بالجنيه المصري (EGP) *</label> <input type=\"number\" step=\"0.01\" min=\"0.01\" name=\"amount\" class=\"form-input\" placeholder=\"0.00\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:1.1rem; font-weight:800;\" required></div><!-- Reason / Notes --><div><label class=\"form-label\" style=\"font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;\">سبب العملية والملاحظات المحاسبية *</label> <textarea name=\"reason\" rows=\"2\" class=\"form-input\" placeholder=\"اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)...\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:0.85rem;\" required></textarea></div><div style=\"display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;\"><button type=\"button\" onclick=\"closeWalletAdjustModal()\" class=\"btn btn-secondary\" style=\"flex:1;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"flex:1; font-weight:800;\">تأكيد وقيد المعاملة</button></div></form></div></div><script>\n\t\t\t\tfunction openWalletAdjustModal(walletId, orgName, userName, balance, currency) {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tvar form = document.getElementById('walletAdjustForm');\n\t\t\t\t\tvar targetName = document.getElementById('modalTargetName');\n\t\t\t\t\tvar currentBal = document.getElementById('modalCurrentBalance');\n\n\t\t\t\t\tform.action = '/admin/finance/wallets/' + walletId + '/adjust';\n\t\t\t\t\ttargetName.textContent = (orgName && orgName !== '') ? orgName + ' (' + userName + ')' : userName;\n\t\t\t\t\tcurrentBal.textContent = balance + ' ' + currency;\n\n\t\t\t\t\tmodal.style.display = 'flex';\n\t\t\t\t}\n\n\t\t\t\tfunction closeWalletAdjustModal() {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tmodal.style.display = 'none';\n\t\t\t\t}\n\t\t\t</script></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 212, "</div></div><!-- ══════════════════════════════════════════\n\t\t\t     WALLET ADJUSTMENT MODAL\n\t\t\t══════════════════════════════════════════ --><div id=\"walletAdjustModal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" style=\"width:100%; max-width:480px; background:var(--surface); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; animation:scaleIn 0.2s ease;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface-sunken);\"><div class=\"row-center-sm\"><span style=\"font-size:1.3rem;\">💳</span><h3 style=\"margin:0; font-size:1.1rem; font-weight:800; color:var(--text);\">تعديل وشحن رصيد المحفظة</h3></div><button type=\"button\" onclick=\"closeWalletAdjustModal()\" class=\"btn btn-secondary btn-sm\" style=\"border:none; padding:0.25rem 0.5rem;\">✕</button></div><form id=\"walletAdjustForm\" method=\"POST\" action=\"/admin/finance/wallets/0/adjust\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"_csrf\" value=\"\"><!-- Target Entity Info Banner --><div style=\"padding:0.75rem 1rem; border-radius:10px; background:var(--surface-sunken); border:1px solid var(--border);\"><div class=\"text-xs text-muted\">المنشأة المستهدفة:</div><div id=\"modalTargetName\" style=\"font-weight:800; color:var(--text); font-size:1rem; margin-top:2px;\">-</div><div style=\"font-size:0.78rem; color:var(--text-secondary); margin-top:2px;\">الرصيد الحالي: <span id=\"modalCurrentBalance\" style=\"font-weight:800; color:#10b981;\">0.00</span></div></div><!-- Action Type --><div><label class=\"form-label\" style=\"font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;\">نوع العملية المحاسبية *</label> <select name=\"action_type\" id=\"modalActionType\" class=\"form-input\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem;\" required><option value=\"deposit\">إيداع رصيد (شحن مباشر / تحويل)</option> <option value=\"withdrawal\">➖ خصم من الرصيد (سحب / تسوية مدينة)</option> <option value=\"adjustment\">⚖️ تسوية محاسبية يدوية (Adjustment)</option></select></div><!-- Amount --><div><label class=\"form-label\" style=\"font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;\">المبلغ بالجنيه المصري (EGP) *</label> <input type=\"number\" step=\"0.01\" min=\"0.01\" name=\"amount\" class=\"form-input\" placeholder=\"0.00\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:1.1rem; font-weight:800;\" required></div><!-- Reason / Notes --><div><label class=\"form-label\" style=\"font-weight:700; font-size:0.85rem; margin-bottom:0.35rem; display:block;\">سبب العملية والملاحظات المحاسبية *</label> <textarea name=\"reason\" rows=\"2\" class=\"form-input\" placeholder=\"اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)...\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:0.85rem;\" required></textarea></div><div style=\"display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;\"><button type=\"button\" onclick=\"closeWalletAdjustModal()\" class=\"btn btn-secondary flex-1\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"flex:1; font-weight:800;\">تأكيد وقيد المعاملة</button></div></form></div></div><script>\n\t\t\t\tfunction openWalletAdjustModal(walletId, orgName, userName, balance, currency) {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tvar form = document.getElementById('walletAdjustForm');\n\t\t\t\t\tvar targetName = document.getElementById('modalTargetName');\n\t\t\t\t\tvar currentBal = document.getElementById('modalCurrentBalance');\n\n\t\t\t\t\tform.action = '/admin/finance/wallets/' + walletId + '/adjust';\n\t\t\t\t\ttargetName.textContent = (orgName && orgName !== '') ? orgName + ' (' + userName + ')' : userName;\n\t\t\t\t\tcurrentBal.textContent = balance + ' ' + currency;\n\n\t\t\t\t\tmodal.style.display = 'flex';\n\t\t\t\t}\n\n\t\t\t\tfunction closeWalletAdjustModal() {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tmodal.style.display = 'none';\n\t\t\t\t}\n\t\t\t</script></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1884,14 +1884,14 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 213, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلبات العروض والمشتريات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 213, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلبات العروض والمشتريات (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var85 string
 			templ_7745c5c3_Var85, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(orders)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 703, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 703, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var85))
 			if templ_7745c5c3_Err != nil {
@@ -2067,14 +2067,14 @@ func AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) templ.Compon
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 227, "<div class=\"card\" style=\"max-width:800px; margin:0 auto;\"><div class=\"header-row\"><div><h2 class=\"card-title\" style=\"margin:0;\">طلب ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 227, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلب ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var95 string
 			templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 755, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 755, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var95))
 			if templ_7745c5c3_Err != nil {

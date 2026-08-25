@@ -56,7 +56,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 			<!-- Live Financial KPIs Bar -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 				<a href="/admin/finance?tab=payments" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #10b981; border-radius:14px; transition:transform 0.2s;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">إجمالي التحصيلات والمدفوعات</span>
 						<span style="color:#10b981;">@components.IconWallet("icon-sm")</span>
 					</div>
@@ -69,7 +69,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				</a>
 
 				<a href="/admin/finance?tab=invoices" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--primary); border-radius:14px; transition:transform 0.2s;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">إجمالي الفواتير الصادرة</span>
 						<span style="color:var(--primary);">@components.IconFile("icon-sm")</span>
 					</div>
@@ -82,7 +82,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				</a>
 
 				<a href="/admin/finance?tab=wallets" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #6366f1; border-radius:14px; transition:transform 0.2s;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">أرصدة المحافظ المحتجزة</span>
 						<span style="color:#6366f1;">@components.IconLayers("icon-sm")</span>
 					</div>
@@ -95,7 +95,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				</a>
 
 				<a href="/admin/finance?tab=earnings" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #f59e0b; border-radius:14px; transition:transform 0.2s;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div class="flex-between">
 						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">عمولة المنصة المقدرة</span>
 						<span style="color:#f59e0b;">@components.IconChart("icon-sm")</span>
 					</div>
@@ -137,7 +137,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					</a>
 				</div>
 
-				<div style="padding:1.5rem;">
+				<div class="p-card">
 					<!-- ══════════════════════════════════════════
 					     TAB 1: INVOICES
 					══════════════════════════════════════════ -->
@@ -162,7 +162,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 									</select>
 									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
 									if data.Query != "" || data.StatusFilter != "" {
-										<a href="/admin/finance?tab=invoices" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء</a>
+										<a href="/admin/finance?tab=invoices" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
 								</form>
 							</div>
@@ -188,26 +188,26 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 											for _, inv := range data.Invoices {
 												<tr>
 													<td class="tabular-nums">
-														<span style="font-weight:800; color:var(--text);">{ inv.InvoiceNumber }</span>
+														<span class="fw-800 text-primary">{ inv.InvoiceNumber }</span>
 													</td>
 													<td>
-														<div style="font-weight:700; color:var(--text);">{ inv.VendorName }</div>
-														<div style="font-size:0.75rem; color:var(--text-muted);">مورّد #{ fmt.Sprintf("%d", inv.OrganizationID) }</div>
+														<div class="fw-700 text-primary">{ inv.VendorName }</div>
+														<div class="text-xs text-muted">مورّد #{ fmt.Sprintf("%d", inv.OrganizationID) }</div>
 													</td>
 													<td>
 														<div style="font-weight:600; color:var(--text);">{ inv.CustomerName }</div>
 														if inv.CustomerOrgID != nil {
-															<div style="font-size:0.75rem; color:var(--text-muted);">صيدلية #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }</div>
+															<div class="text-xs text-muted">صيدلية #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }</div>
 														}
 													</td>
 													<td class="tabular-nums">
 														if inv.OrderNumber != "" {
 															<span class="badge badge-secondary">{ inv.OrderNumber }</span>
 														} else {
-															<span style="color:var(--text-muted);">-</span>
+															<span class="text-muted">-</span>
 														}
 													</td>
-													<td class="tabular-nums" style="font-weight:800; color:var(--text);">
+													<td class="tabular-nums fw-800 text-primary">
 														{ fmt.Sprintf("%s ج.م", inv.TotalAmount.String()) }
 													</td>
 													<td><span class="badge badge-secondary">{ inv.PaymentMethod }</span></td>
@@ -256,7 +256,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 									</select>
 									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
 									if data.Query != "" || data.StatusFilter != "" {
-										<a href="/admin/finance?tab=payments" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء</a>
+										<a href="/admin/finance?tab=payments" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
 								</form>
 							</div>
@@ -282,25 +282,25 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 												<tr>
 													<td class="tabular-nums">
 														if p.TransactionID != "" {
-															<div style="font-weight:700; color:var(--text);">{ p.TransactionID }</div>
+															<div class="fw-700 text-primary">{ p.TransactionID }</div>
 														} else {
-															<div style="font-weight:700; color:var(--text);">{ fmt.Sprintf("PAY-%d", p.ID) }</div>
+															<div class="fw-700 text-primary">{ fmt.Sprintf("PAY-%d", p.ID) }</div>
 														}
 														if p.ReferenceNumber != "" {
-															<div style="font-size:0.75rem; color:var(--text-muted);">مرجع: { p.ReferenceNumber }</div>
+															<div class="text-xs text-muted">مرجع: { p.ReferenceNumber }</div>
 														}
 													</td>
 													<td class="tabular-nums">
 														if p.OrderNumber != "" {
 															<span class="badge badge-secondary">{ p.OrderNumber }</span>
 														} else {
-															<span style="color:var(--text-muted);">-</span>
+															<span class="text-muted">-</span>
 														}
 													</td>
 													<td>
-														<div style="font-weight:700; color:var(--text);">{ p.UserName }</div>
+														<div class="fw-700 text-primary">{ p.UserName }</div>
 														if p.OrganizationName != "" {
-															<div style="font-size:0.75rem; color:var(--text-secondary);">{ p.OrganizationName }</div>
+															<div class="text-xs text-secondary">{ p.OrganizationName }</div>
 														}
 													</td>
 													<td class="tabular-nums" style="font-weight:800; color:#10b981; font-size:1rem;">
@@ -347,7 +347,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 									</select>
 									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
 									if data.Query != "" || data.TypeFilter != "" {
-										<a href="/admin/finance?tab=wallets" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء</a>
+										<a href="/admin/finance?tab=wallets" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
 								</form>
 							</div>
@@ -366,7 +366,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 												<th>العملة</th>
 												<th>إجمالي الحركات</th>
 												<th>تاريخ الإنشاء</th>
-												<th style="text-align:center;">إجراءات إدارية</th>
+												<th class="text-center">إجراءات إدارية</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -386,10 +386,10 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															</div>
 															<div>
 																if w.OrganizationName != "" {
-																	<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ w.OrganizationName }</div>
+																	<div class="fw-800 text-primary text-base">{ w.OrganizationName }</div>
 																	<div style="font-size:0.76rem; color:var(--text-secondary);">المالك: { w.UserName } • { w.UserEmail }</div>
 																} else {
-																	<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ w.UserName }</div>
+																	<div class="fw-800 text-primary text-base">{ w.UserName }</div>
 																	<div style="font-size:0.76rem; color:var(--text-secondary);">{ w.UserEmail }</div>
 																}
 																if w.UserPhone != "" {
@@ -417,8 +417,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															{ fmt.Sprintf("%d حركة", w.TransactionsCount) } ↗
 														</a>
 													</td>
-													<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">{ w.CreatedAt.Format("2006-01-02") }</td>
-													<td style="text-align:center;">
+													<td class="tabular-nums text-sm text-muted">{ w.CreatedAt.Format("2006-01-02") }</td>
+													<td class="text-center">
 														<div style="display:inline-flex; gap:0.4rem; align-items:center;">
 															<button type="button" onclick={ templ.JSFuncCall("openWalletAdjustModal", w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency) } class="btn btn-primary btn-sm" style="padding:0.35rem 0.65rem; font-size:0.78rem; font-weight:700;">
 																<span>تعديل الرصيد</span>
@@ -466,7 +466,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 									</select>
 									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
 									if data.SelectedWalletID > 0 || data.Query != "" || data.TypeFilter != "" {
-										<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm" style="color:var(--text-muted);">إلغاء الفلاتر</a>
+										<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm text-muted">إلغاء الفلاتر</a>
 									}
 								</form>
 							</div>
@@ -476,7 +476,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 									<div style="font-size:0.88rem; font-weight:700;">
 										عرض كشف حساب المحفظة: <span class="badge badge-sky">WLT-{ fmt.Sprintf("%d", data.SelectedWalletID) }</span>
 									</div>
-									<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm" style="font-size:0.75rem;">عرض كل معاملات النظام</a>
+									<a href="/admin/finance?tab=transactions" class="btn btn-secondary btn-sm text-xs">عرض كل معاملات النظام</a>
 								</div>
 							}
 
@@ -503,7 +503,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														<span style="font-weight:800; font-family:monospace; color:var(--text);">{ fmt.Sprintf("#TX-%d", tx.ID) }</span>
 													</td>
 													<td>
-														<div style="font-weight:700; color:var(--text);">
+														<div class="fw-700 text-primary">
 															if tx.OrganizationName != "" {
 																{ tx.OrganizationName }
 															} else {
@@ -538,7 +538,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															<span style="color:#f43f5e;">{ tx.Amount.String() } ج.م</span>
 														}
 													</td>
-													<td class="tabular-nums" style="font-weight:800; color:var(--text);">
+													<td class="tabular-nums fw-800 text-primary">
 														{ fmt.Sprintf("%s ج.م", tx.BalanceAfter.String()) }
 													</td>
 													<td>
@@ -546,14 +546,14 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															if tx.Description != "" {
 																{ tx.Description }
 															} else {
-																<span style="color:var(--text-muted);">-</span>
+																<span class="text-muted">-</span>
 															}
 														</div>
 														if tx.ReferenceType != "" {
 															<div style="font-size:0.72rem; color:var(--text-muted);">مرجع: { tx.ReferenceType } { fmt.Sprintf("#%v", tx.ReferenceID) }</div>
 														}
 													</td>
-													<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">{ tx.CreatedAt.Format("2006-01-02 15:04:05") }</td>
+													<td class="tabular-nums text-sm text-muted">{ tx.CreatedAt.Format("2006-01-02 15:04:05") }</td>
 												</tr>
 											}
 										</tbody>
@@ -575,7 +575,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
 								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;">
-									<div style="display:flex; justify-content:space-between; align-items:center;">
+									<div class="flex-between">
 										<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">إجمالي مبيعات أوامر التوريد</span>
 										@components.IconFile("icon-sm")
 									</div>
@@ -588,7 +588,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 								</div>
 
 								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;">
-									<div style="display:flex; justify-content:space-between; align-items:center;">
+									<div class="flex-between">
 										<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">عمولة المنصة الإجمالية (5%)</span>
 										<span style="color:#10b981;">@components.IconChart("icon-sm")</span>
 									</div>
@@ -601,7 +601,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 								</div>
 
 								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:14px; padding:1.5rem;">
-									<div style="display:flex; justify-content:space-between; align-items:center;">
+									<div class="flex-between">
 										<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">أرصدة المحافظ المحتجزة للمستخدمين</span>
 										<span style="color:#6366f1;">@components.IconLayers("icon-sm")</span>
 									</div>
@@ -624,7 +624,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 			<div id="walletAdjustModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
 				<div class="card" style="width:100%; max-width:480px; background:var(--surface); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; animation:scaleIn 0.2s ease;">
 					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface-sunken);">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="row-center-sm">
 							<span style="font-size:1.3rem;">💳</span>
 							<h3 style="margin:0; font-size:1.1rem; font-weight:800; color:var(--text);">تعديل وشحن رصيد المحفظة</h3>
 						</div>
@@ -634,7 +634,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						<input type="hidden" name="_csrf" value=""/>
 						<!-- Target Entity Info Banner -->
 						<div style="padding:0.75rem 1rem; border-radius:10px; background:var(--surface-sunken); border:1px solid var(--border);">
-							<div style="font-size:0.75rem; color:var(--text-muted);">المنشأة المستهدفة:</div>
+							<div class="text-xs text-muted">المنشأة المستهدفة:</div>
 							<div id="modalTargetName" style="font-weight:800; color:var(--text); font-size:1rem; margin-top:2px;">-</div>
 							<div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">
 								الرصيد الحالي: <span id="modalCurrentBalance" style="font-weight:800; color:#10b981;">0.00</span>
@@ -664,7 +664,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						</div>
 
 						<div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;">
-							<button type="button" onclick="closeWalletAdjustModal()" class="btn btn-secondary" style="flex:1;">إلغاء</button>
+							<button type="button" onclick="closeWalletAdjustModal()" class="btn btn-secondary flex-1">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="flex:1; font-weight:800;">تأكيد وقيد المعاملة</button>
 						</div>
 					</form>
@@ -700,7 +700,7 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">طلبات العروض والمشتريات ({ fmt.Sprintf("%d", len(orders)) })</h2>
+					<h2 class="card-title m-0">طلبات العروض والمشتريات ({ fmt.Sprintf("%d", len(orders)) })</h2>
 					<p class="subtitle">متابعة اعتمادات عروض الأسعار والتوريد بين الصيدليات والموردين.</p>
 				</div>
 			</div>
@@ -749,10 +749,10 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 
 templ AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("طلب عروض: %s", o.OrderNumber), "orders", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto;">
+		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title" style="margin:0;">طلب { o.OrderNumber }</h2>
+					<h2 class="card-title m-0">طلب { o.OrderNumber }</h2>
 					<p class="subtitle">حالة: { string(o.Status) } | الإجمالي: { fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</p>
 				</div>
 				<a href="/admin/orders?tab=offers" class="btn btn-secondary btn-sm">العودة للطلبات</a>

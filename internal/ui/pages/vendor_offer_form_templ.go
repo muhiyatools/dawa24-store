@@ -58,7 +58,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem; max-width:1100px; margin:0 auto;\"><!-- Header --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:50px; height:50px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;\">🎁</div><div><div style=\"font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-bottom:0.2rem;\">إدارة عروض المورد</div><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text); margin:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem; max-width:1100px; margin:0 auto;\"><!-- Header --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:50px; height:50px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;\">🎁</div><div><div style=\"font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-bottom:0.2rem;\">إدارة عروض المورد</div><h1 class=\"text-2xl fw-800 text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -73,7 +73,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1></div></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700;\"><span>← العودة لجميع العروض</span></a></div><form action=\"/vendor/offers/new\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.75rem;\"><!-- Grid 1: Basic Info & Pricing Details --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;\" class=\"offer-form-grid\"><!-- Card 1: Basic Details --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.2rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\">البيانات الأساسية للعرض</h3><div><label class=\"field-label\">عنوان العرض (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required placeholder=\"مثال: خصم 20% على أدوية ومستلزمات الموسم\" class=\"form-input\" style=\"width:100%;\"></div><div><label class=\"field-label\">عنوان العرض (بالإنجليزية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_en\" placeholder=\"e.g. 20% Off Seasonal Medicines\" class=\"form-input\" style=\"width:100%;\"></div><div><label class=\"field-label\">وصف تفاصيل العرض</label> <textarea name=\"description_ar\" rows=\"3\" placeholder=\"اكتب تفاصيل وشروط الاستفادة من العرض...\" class=\"form-input\" style=\"width:100%; resize:vertical;\"></textarea></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"field-label\">الفرع المستهدف</label> <select name=\"branch_id\" class=\"form-input\" style=\"width:100%;\"><option value=\"\">كافة الفروع</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1></div></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm fw-700\"><span>← العودة لجميع العروض</span></a></div><form action=\"/vendor/offers/new\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.75rem;\"><!-- Grid 1: Basic Info & Pricing Details --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;\" class=\"offer-form-grid\"><!-- Card 1: Basic Details --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.2rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\">البيانات الأساسية للعرض</h3><div><label class=\"field-label\">عنوان العرض (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required placeholder=\"مثال: خصم 20% على أدوية ومستلزمات الموسم\" class=\"form-input w-full\"></div><div><label class=\"field-label\">عنوان العرض (بالإنجليزية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_en\" placeholder=\"e.g. 20% Off Seasonal Medicines\" class=\"form-input w-full\"></div><div><label class=\"field-label\">وصف تفاصيل العرض</label> <textarea name=\"description_ar\" rows=\"3\" placeholder=\"اكتب تفاصيل وشروط الاستفادة من العرض...\" class=\"form-input\" style=\"width:100%; resize:vertical;\"></textarea></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"field-label\">الفرع المستهدف</label> <select name=\"branch_id\" class=\"form-input w-full\"><option value=\"\">كافة الفروع</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -109,7 +109,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</select></div><div><label class=\"field-label\">حالة العرض <span class=\"text-danger\">*</span></label> <select name=\"status\" class=\"form-input\" style=\"width:100%;\"><option value=\"active\">نشط (Active)</option> <option value=\"draft\">مسودة (Draft)</option> <option value=\"inactive\">غير نشط (Inactive)</option></select></div></div></div><!-- Card 2: Pricing, Dates & Image --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.2rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\">التسعير، التواريخ والصورة</h3><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"field-label\">نسبة الخصم العامة %</label> <input type=\"number\" step=\"0.01\" name=\"discount_percentage\" placeholder=\"15.00\" class=\"form-input tabular-nums\" style=\"width:100%;\"></div><div><label class=\"field-label\">السعر الإجمالي الكلي (ج.م)</label> <input type=\"number\" step=\"0.01\" name=\"total_price\" placeholder=\"250.00\" class=\"form-input tabular-nums\" style=\"width:100%;\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"field-label\">تاريخ بدء العرض</label> <input type=\"date\" name=\"start_date\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div><div><label class=\"field-label\">تاريخ انتهاء العرض</label> <input type=\"date\" name=\"end_date\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div></div><div><label class=\"field-label\">الحد الأدنى للطلب (ج.م)</label> <input type=\"number\" step=\"0.01\" name=\"min_order_amount\" placeholder=\"500.00\" class=\"form-input tabular-nums\" style=\"width:100%;\"></div><div><label class=\"field-label\">صورة البانر الترويجي للعرض</label> <input type=\"text\" name=\"image\" placeholder=\"رابط الصورة أو مسار البانر...\" class=\"form-input\" style=\"width:100%;\"></div></div></div><!-- Section 2: Products Selection & Custom Offer Pricing --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">تخصيص منتجات العرض (Offer Products)</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;\">حدد أصناف الأدوية المشمولة في العرض مع تحديد الكميات والأسعار الخاصة بكل صنف</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</select></div><div><label class=\"field-label\">حالة العرض <span class=\"text-danger\">*</span></label> <select name=\"status\" class=\"form-input w-full\"><option value=\"active\">نشط (Active)</option> <option value=\"draft\">مسودة (Draft)</option> <option value=\"inactive\">غير نشط (Inactive)</option></select></div></div></div><!-- Card 2: Pricing, Dates & Image --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.2rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\">التسعير، التواريخ والصورة</h3><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"field-label\">نسبة الخصم العامة %</label> <input type=\"number\" step=\"0.01\" name=\"discount_percentage\" placeholder=\"15.00\" class=\"form-input tabular-nums w-full\"></div><div><label class=\"field-label\">السعر الإجمالي الكلي (ج.م)</label> <input type=\"number\" step=\"0.01\" name=\"total_price\" placeholder=\"250.00\" class=\"form-input tabular-nums w-full\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"field-label\">تاريخ بدء العرض</label> <input type=\"date\" name=\"start_date\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div><div><label class=\"field-label\">تاريخ انتهاء العرض</label> <input type=\"date\" name=\"end_date\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div></div><div><label class=\"field-label\">الحد الأدنى للطلب (ج.م)</label> <input type=\"number\" step=\"0.01\" name=\"min_order_amount\" placeholder=\"500.00\" class=\"form-input tabular-nums w-full\"></div><div><label class=\"field-label\">صورة البانر الترويجي للعرض</label> <input type=\"text\" name=\"image\" placeholder=\"رابط الصورة أو مسار البانر...\" class=\"form-input w-full\"></div></div></div><!-- Section 2: Products Selection & Custom Offer Pricing --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div><h3 style=\"font-size:1.2rem; font-weight:800; color:var(--text); margin:0;\">تخصيص منتجات العرض (Offer Products)</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;\">حدد أصناف الأدوية المشمولة في العرض مع تحديد الكميات والأسعار الخاصة بكل صنف</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,12 +119,12 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"overflow-x:auto;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;\"><th style=\"padding:0.75rem; width:50px;\">شمول</th><th style=\"padding:0.75rem;\">الصنف الدوائي</th><th style=\"padding:0.75rem;\">السعر الأصلي</th><th style=\"padding:0.75rem;\">الكمية (Qty)</th><th style=\"padding:0.75rem;\">خصم % مخصص</th><th style=\"padding:0.75rem;\">سعر العرض المخصص</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"overflow-x:auto;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;\"><th style=\"padding:0.75rem; width:50px;\">شمول</th><th class=\"p-sm\">الصنف الدوائي</th><th class=\"p-sm\">السعر الأصلي</th><th class=\"p-sm\">الكمية (Qty)</th><th class=\"p-sm\">خصم % مخصص</th><th class=\"p-sm\">سعر العرض المخصص</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, v := range data.Variants {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr style=\"border-bottom:1px solid var(--border);\"><td style=\"padding:0.75rem; text-align:center;\"><input type=\"checkbox\" name=\"selected_variants\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr style=\"border-bottom:1px solid var(--border);\"><td class=\"p-sm text-center\"><input type=\"checkbox\" name=\"selected_variants\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -137,27 +137,27 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" style=\"width:17px; height:17px; accent-color:var(--accent);\"></td><td style=\"padding:0.75rem;\"><div style=\"font-weight:700; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" style=\"width:17px; height:17px; accent-color:var(--accent);\"></td><td class=\"p-sm\"><div class=\"fw-700 text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(v.SKU)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_form.templ`, Line: 200, Col: 68}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_form.templ`, Line: 200, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div style=\"font-size:0.75rem; color:var(--text-muted);\">رقم التشغيلة: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"text-xs text-muted\">رقم التشغيلة: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(v.BatchNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_form.templ`, Line: 201, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_form.templ`, Line: 201, Col: 84}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " ج.م</td><td style=\"padding:0.75rem;\"><input type=\"number\" name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " ج.م</td><td class=\"p-sm\"><input type=\"number\" name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -189,7 +189,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" value=\"1\" min=\"1\" class=\"form-input tabular-nums\" style=\"width:80px; padding:0.4rem 0.6rem; font-size:0.825rem; text-align:center;\"></td><td style=\"padding:0.75rem;\"><input type=\"number\" step=\"0.01\" name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" value=\"1\" min=\"1\" class=\"form-input tabular-nums\" style=\"width:80px; padding:0.4rem 0.6rem; font-size:0.825rem; text-align:center;\"></td><td class=\"p-sm\"><input type=\"number\" step=\"0.01\" name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -202,7 +202,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" placeholder=\"0%\" class=\"form-input tabular-nums\" style=\"width:90px; padding:0.4rem 0.6rem; font-size:0.825rem; text-align:center;\"></td><td style=\"padding:0.75rem;\"><input type=\"number\" step=\"0.01\" name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" placeholder=\"0%\" class=\"form-input tabular-nums\" style=\"width:90px; padding:0.4rem 0.6rem; font-size:0.825rem; text-align:center;\"></td><td class=\"p-sm\"><input type=\"number\" step=\"0.01\" name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -225,7 +225,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div style=\"display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1.25rem;\"><a href=\"/vendor/offers\" class=\"btn btn-secondary\" style=\"font-weight:700;\">إلغاء</a> <button type=\"submit\" class=\"btn btn-primary btn-lg\" style=\"font-weight:800; padding:0.8rem 2.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div style=\"display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1.25rem;\"><a href=\"/vendor/offers\" class=\"btn btn-secondary fw-700\">إلغاء</a> <button type=\"submit\" class=\"btn btn-primary btn-lg\" style=\"font-weight:800; padding:0.8rem 2.5rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

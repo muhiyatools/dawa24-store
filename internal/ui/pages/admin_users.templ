@@ -131,7 +131,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 							{ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) }
 						</span>
 					} else {
-						<span class="badge badge-slate" style="font-size:0.7rem;">
+						<span class="badge badge-slate text-xs">
 							{ fmt.Sprintf("%d", len(data.DeletionRequests)) }
 						</span>
 					}
@@ -141,23 +141,22 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TABS 1-4: Users Tables with Live Filter   -->
 			<!-- ========================================== -->
-			<div x-show="activeTab !== 'deletion_requests'" style="display:flex; flex-direction:column; gap:1.25rem;">
+			<div x-show="activeTab !== 'deletion_requests'" class="stack-lg">
 				
 				<!-- Search and Filter Toolstrip -->
 				<div class="card" style="padding:1rem 1.25rem; margin-bottom:0; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
 					<div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:0.75rem; align-items:center;">
-						<div class="form-group" style="margin:0;">
+						<div class="form-group m-0">
 							<input
 								type="text"
 								x-model="searchQuery"
 								placeholder="البحث بالاسم، البريد الإلكتروني، أو الدور..."
-								class="form-input"
-								style="font-size:0.875rem;"
+								class="form-input text-sm"
 							/>
 						</div>
 
-						<div class="form-group" style="margin:0;">
-							<select x-model="statusFilter" class="form-select" style="font-size:0.875rem;">
+						<div class="form-group m-0">
+							<select x-model="statusFilter" class="form-select text-sm">
 								<option value="all">جميع الحالات (All Status)</option>
 								<option value="active">نشط (Active)</option>
 								<option value="suspended">موقوف / معلق (Suspended)</option>
@@ -165,8 +164,8 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 							</select>
 						</div>
 
-						<div class="form-group" style="margin:0;">
-							<select x-model="roleFilter" class="form-select" style="font-size:0.875rem;">
+						<div class="form-group m-0">
+							<select x-model="roleFilter" class="form-select text-sm">
 								<option value="all">جميع الصلاحيات (All Roles)</option>
 								<option value="super_admin">مدير نظام عام (Super Admin)</option>
 								<option value="admin">مدير (Admin)</option>
@@ -182,7 +181,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				<!-- Users Data Card -->
 				<div class="card" style="padding:0; overflow:visible; margin-bottom:0;">
 					if len(data.Users) == 0 {
-						<div style="padding:2rem;">
+						<div class="p-modal">
 							@components.EmptyState(components.EmptyStateProps{
 								Title:   "لا يوجد مستخدمين مسجلين",
 								Message: "لم يتم العثور على أي حسابات مستخدمين مطابقة.",
@@ -214,7 +213,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 											) }
 										>
 											<td class="text-start">
-												<div style="font-weight:700; color:var(--text);">
+												<div class="fw-700 text-primary">
 													{ userDisplayName(u) }
 												</div>
 												if u.Phone != "" {
@@ -233,7 +232,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 													{ roleDisplayAr(u.Role) }
 												</span>
 											</td>
-											<td style="text-align:center;">
+											<td class="text-center">
 												if u.Status == identity.StatusActive {
 													<span class="badge badge-emerald">نشط ومفعل</span>
 												} else if u.Status == identity.StatusSuspended {
@@ -253,7 +252,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 														</form>
 													} else {
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0">
-															<button type="submit" class="btn btn-primary btn-sm" style="font-size:0.75rem; font-weight:700;">
+															<button type="submit" class="btn btn-primary btn-sm text-xs fw-700">
 																@components.IconCheck("icon-xs")
 																<span>إعادة التفعيل</span>
 															</button>
@@ -280,7 +279,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 5: Account Deletion Requests           -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'deletion_requests'" style="display:flex; flex-direction:column; gap:1.25rem;">
+			<div x-show="activeTab === 'deletion_requests'" class="stack-lg">
 				
 				<div class="card" style="padding:0; overflow:visible; margin-bottom:0;">
 					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
@@ -318,7 +317,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 									for _, req := range data.DeletionRequests {
 										<tr>
 											<td class="text-start">
-												<div style="font-weight:700; color:var(--text);">{ req.UserName }</div>
+												<div class="fw-700 text-primary">{ req.UserName }</div>
 												<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;" class="tabular-nums">{ req.UserEmail }</div>
 											</td>
 											<td class="text-start">
@@ -339,13 +338,13 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 											<td class="text-start tabular-nums">
 												<span style="color:var(--text-secondary); font-size:0.8rem;">{ req.CreatedAt.Format("2006-01-02 15:04") }</span>
 											</td>
-											<td style="text-align:center;">
+											<td class="text-center">
 												if req.Status == "pending" {
-													<span class="badge badge-amber" style="font-weight:800;">قيد المراجعة</span>
+													<span class="badge badge-amber fw-800">قيد المراجعة</span>
 												} else if req.Status == "approved" {
-													<span class="badge badge-emerald" style="font-weight:800;">تم الحذف</span>
+													<span class="badge badge-emerald fw-800">تم الحذف</span>
 												} else {
-													<span class="badge badge-danger" style="font-weight:800;">مرفوض</span>
+													<span class="badge badge-danger fw-800">مرفوض</span>
 												}
 											</td>
 											<td class="text-end">
@@ -365,7 +364,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 														</form>
 													</div>
 												} else {
-													<span style="font-size:0.75rem; color:var(--text-muted);">تمت المعالجة</span>
+													<span class="text-xs text-muted">تمت المعالجة</span>
 												}
 											</td>
 										</tr>
