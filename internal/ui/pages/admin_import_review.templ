@@ -290,12 +290,12 @@ templ wizMapColumn(column ImportColumnChoice) {
 }
 
 templ importRowsCard(view ImportReviewView) {
-	<div class="card mb-0">
+	<div class="card mb-0" id="import-rows-container">
 		<h2 class="wiz-head">
 			{ fmt.Sprintf("📋 الأصناف المستخرجة (%s)", FormatCount(view.Total)) }
 		</h2>
 		<p class="wiz-sub">
-			أرقام الصفوف مطابقة لأرقام الصفوف في ملف Excel. يمكنك استبعاد أي صنف من الاستيراد.
+			أرقام الصفوف مطابقة لأرقام الصفوف في ملف Excel. يمكنك استبعاد أي صنف من الاستيراد بضغطة زر فورية دون إعادة تحميل الصفحة.
 		</p>
 		<div class="wiz-toolbar">
 			@rowFilterChip(view, "", "الكل")
@@ -304,13 +304,22 @@ templ importRowsCard(view ImportReviewView) {
 			@rowFilterChip(view, "issues", "⚠ الملاحظات")
 			@rowFilterChip(view, "ai", "🤖 استكمال ذكي")
 			<span class="wiz-toolbar-spacer"></span>
-			<form method="GET" class="wiz-toolbar m-0">
+			<form
+				method="GET"
+				action={ importAction(view, "") }
+				class="wiz-toolbar m-0"
+				hx-get={ string(importAction(view, "")) }
+				hx-target="#import-rows-container"
+				hx-select="#import-rows-container"
+				hx-swap="outerHTML"
+				hx-push-url="true"
+			>
 				<input
 					class="wiz-map-input"
 					type="search"
 					name="q"
 					value={ view.Filter.Search }
-					placeholder="بحث بالاسم أو الكود"
+					placeholder="بحث بالاسم أو الكود..."
 					style="width:14rem;"
 				/>
 				<button type="submit" class="wiz-chip">بحث</button>
@@ -320,17 +329,17 @@ templ importRowsCard(view ImportReviewView) {
 			<table class="b2b-table">
 				<thead>
 					<tr>
-						<th>الصف</th>
-						<th>الإجراء</th>
+						<th style="width:70px; text-align:center;">الصف</th>
+						<th style="width:120px;">الإجراء</th>
 						<th>الصنف</th>
-						<th>التفاصيل</th>
-						<th>الحالة</th>
-						<th>تضمين</th>
+						<th>التفاصيل والمطابقة</th>
+						<th>الملاحظات</th>
+						<th style="width:110px; text-align:center;">تضمين</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody id="import-rows-tbody">
 					for _, row := range view.Rows {
-						@importRowLine(view, row)
+						@ImportRowLine(view, row)
 					}
 				</tbody>
 			</table>
@@ -341,9 +350,9 @@ templ importRowsCard(view ImportReviewView) {
 	</div>
 }
 
-templ importRowLine(view ImportReviewView, row *catalog.StagingRow) {
-	<tr class={ templ.KV("wiz-row--excluded", !row.Included) }>
-		<td class="tabular-nums">{ fmt.Sprintf("%d", row.SourceRow) }</td>
+templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
+	<tr id={ fmt.Sprintf("staged-row-%d", row.ID) } class={ templ.KV("wiz-row--excluded", !row.Included) }>
+		<td class="tabular-nums" style="text-align:center;">{ fmt.Sprintf("%d", row.SourceRow) }</td>
 		<td>
 			<span class={ "badge", RowActionBadge(row.Action) }>{ row.Action.Label() }</span>
 		</td>
@@ -368,10 +377,17 @@ templ importRowLine(view ImportReviewView, row *catalog.StagingRow) {
 				}
 			}
 		</td>
-		<td>
-			<form method="POST" action={ importRowAction(view, row) } hx-boost="false">
+		<td style="text-align:center;">
+			<form
+				method="POST"
+				action={ importRowAction(view, row) }
+				hx-post={ string(importRowAction(view, row)) }
+				hx-target={ fmt.Sprintf("#staged-row-%d", row.ID) }
+				hx-swap="outerHTML"
+				class="m-0"
+			>
 				<input type="hidden" name="included" value={ includedToggleValue(row) }/>
-				<button type="submit" class={ "wiz-chip", templ.KV("is-on", row.Included) }>
+				<button type="submit" class={ "wiz-chip", templ.KV("is-on", row.Included) } title="تضمين أو استبعاد من الاستيراد">
 					if row.Included {
 						✓ مضمّن
 					} else {
@@ -383,6 +399,18 @@ templ importRowLine(view ImportReviewView, row *catalog.StagingRow) {
 	</tr>
 }
 
+templ rowFilterChip(view ImportReviewView, key, label string) {
+	<a
+		class={ "wiz-chip", templ.KV("is-on", view.FilterIsActive(key)) }
+		href={ importFilterURL(view, key) }
+		hx-get={ string(importFilterURL(view, key)) }
+		hx-target="#import-rows-container"
+		hx-select="#import-rows-container"
+		hx-swap="outerHTML"
+		hx-push-url="true"
+	>{ label }</a>
+}
+
 templ importRowsPager(view ImportReviewView) {
 	<div class="wiz-toolbar" style="margin-top:0.9rem;">
 		<span class="wiz-row-meta">
@@ -390,17 +418,33 @@ templ importRowsPager(view ImportReviewView) {
 		</span>
 		<span class="wiz-toolbar-spacer"></span>
 		if view.Page > 1 {
-			<a class="wiz-chip" href={ importPageURL(view, view.Page-1) }>السابق</a>
+			<a
+				class="wiz-chip"
+				href={ importPageURL(view, view.Page-1) }
+				hx-get={ string(importPageURL(view, view.Page-1)) }
+				hx-target="#import-rows-container"
+				hx-select="#import-rows-container"
+				hx-swap="outerHTML"
+				hx-push-url="true"
+			>السابق</a>
 		}
 		if view.Page < view.Pages {
-			<a class="wiz-chip" href={ importPageURL(view, view.Page+1) }>التالي</a>
+			<a
+				class="wiz-chip"
+				href={ importPageURL(view, view.Page+1) }
+				hx-get={ string(importPageURL(view, view.Page+1)) }
+				hx-target="#import-rows-container"
+				hx-select="#import-rows-container"
+				hx-swap="outerHTML"
+				hx-push-url="true"
+			>التالي</a>
 		}
 	</div>
 }
 
 templ importConfirmCard(view ImportReviewView) {
 	<div class="card mb-0">
-		<h2 class="wiz-head">تأكيد الحفظ في الكتالوج</h2>
+		<h2 class="wiz-head">تأكيد الحفظ في الكتالوج المعتمد</h2>
 		<p class="wiz-sub">
 			{ fmt.Sprintf("سيتم إضافة %s صنف وتحديث %s صنف. العملية تتم بالكامل أو لا تتم إطلاقاً.",
 				FormatCount(view.Counts.Insert), FormatCount(view.Counts.Update)) }
@@ -441,13 +485,6 @@ templ importConfirmCard(view ImportReviewView) {
 	</div>
 }
 
-templ rowFilterChip(view ImportReviewView, key, label string) {
-	<a
-		class={ "wiz-chip", templ.KV("is-on", view.FilterIsActive(key)) }
-		href={ importFilterURL(view, key) }
-	>{ label }</a>
-}
-
 // importProgressCard is what the admin watches while a file is being processed.
 //
 // It polls rather than streams: the answer changes a few times a second at
@@ -456,7 +493,7 @@ templ rowFilterChip(view ImportReviewView, key, label string) {
 // review, so nobody has to know to press refresh.
 templ importProgressCard(view ImportReviewView) {
 	<div class="card mb-0" id="import-progress" data-session={ view.Session.PublicID }>
-		<h2 class="wiz-head">⏳ جارٍ معالجة الملف</h2>
+		<h2 class="wiz-head">⏳ جارٍ معالجة وتحليل الملف</h2>
 		<p class="wiz-sub">{ view.SourceSummary() }</p>
 		<div class="wiz-progress">
 			<div class="wiz-progress-track">
@@ -486,8 +523,48 @@ templ importProgressCard(view ImportReviewView) {
 			}
 		</ol>
 		<p class="wiz-sub" style="margin-top:1rem;">
-			يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج تلقائياً عند اكتمال المعالجة.
+			يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج والمراجعة تلقائياً عند اكتمال المعالجة.
 			لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.
 		</p>
+
+		<script>
+			(function() {
+				const sessionEl = document.getElementById('import-progress');
+				const sessionID = sessionEl ? sessionEl.dataset.session : null;
+				if (!sessionID) return;
+
+				const fill = document.getElementById('import-progress-fill');
+				const msg = document.getElementById('import-progress-message');
+				const count = document.getElementById('import-progress-count');
+
+				const poll = setInterval(async () => {
+					try {
+						const res = await fetch('/admin/products/import/' + sessionID + '/progress');
+						if (!res.ok) return;
+						const data = await res.json();
+						if (msg && data.message) msg.textContent = data.message;
+						if (count && data.total > 0) {
+							count.textContent = Number(data.current).toLocaleString() + ' / ' + Number(data.total).toLocaleString();
+						}
+						if (fill) {
+							if (data.percent >= 0) {
+								fill.classList.remove('is-indeterminate');
+								fill.style.width = data.percent + '%';
+							} else {
+								fill.classList.add('is-indeterminate');
+							}
+						}
+						if (data.done) {
+							clearInterval(poll);
+							setTimeout(() => {
+								window.location.reload();
+							}, 400);
+						}
+					} catch (e) {
+						console.error('progress poll failed', e);
+					}
+				}, 750);
+			})();
+		</script>
 	</div>
 }

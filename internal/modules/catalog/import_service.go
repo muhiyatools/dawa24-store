@@ -41,6 +41,7 @@ type ImportSessionStore interface {
 	ReplaceStagingRows(ctx context.Context, sessionID int64, rows []*StagingRow) error
 	ClearStagingRows(ctx context.Context, sessionID int64) error
 	ListStagingRows(ctx context.Context, sessionID int64, filter StagingFilter) ([]*StagingRow, int, error)
+	GetStagingRow(ctx context.Context, sessionID, rowID int64) (*StagingRow, error)
 	LoadCommittableRows(ctx context.Context, sessionID int64) ([]*StagingRow, error)
 	SetRowIncluded(ctx context.Context, sessionID, rowID int64, included bool) error
 	SetRowsIncludedByAction(ctx context.Context, sessionID int64, action RowAction, included bool) (int64, error)
@@ -791,6 +792,18 @@ func (s *Service) ListStagingRows(
 		return nil, nil, 0, err
 	}
 	return session, rows, total, nil
+}
+
+// GetStagingRow returns one staged row for review.
+func (s *Service) GetStagingRow(ctx context.Context, publicID string, rowID int64) (*StagingRow, error) {
+	if s.imports == nil {
+		return nil, ErrImportUnavailable
+	}
+	session, err := s.imports.GetImportSession(ctx, publicID)
+	if err != nil {
+		return nil, err
+	}
+	return s.imports.GetStagingRow(ctx, session.ID, rowID)
 }
 
 // SetRowIncluded flips one row's inclusion switch in the review table.

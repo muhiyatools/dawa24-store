@@ -97,6 +97,15 @@ func (m *memoryImportStore) LoadCommittableRows(context.Context, int64) ([]*cata
 	return out, nil
 }
 
+func (m *memoryImportStore) GetStagingRow(_ context.Context, _, rowID int64) (*catalog.StagingRow, error) {
+	for _, row := range m.rows {
+		if row.ID == rowID {
+			return row, nil
+		}
+	}
+	return nil, fmt.Errorf("row not found: %d", rowID)
+}
+
 func (m *memoryImportStore) SetRowIncluded(_ context.Context, _, rowID int64, included bool) error {
 	for _, row := range m.rows {
 		if row.ID == rowID {

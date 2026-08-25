@@ -224,6 +224,17 @@ func (h *UIHandler) AdminProductsImportRowToggle(w http.ResponseWriter, r *http.
 			"session", publicID, "row", rowID, "error", err)
 	}
 
+	if r.Header.Get("HX-Request") == "true" {
+		row, err := h.catSvc.GetStagingRow(database.AsSystem(ctx), publicID, rowID)
+		if err == nil && row != nil {
+			view := pages.ImportReviewView{Session: &catalog.ImportSession{PublicID: publicID}}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			if err := pages.ImportRowLine(view, row).Render(ctx, w); err == nil {
+				return
+			}
+		}
+	}
+
 	// Back to the same page and filter the admin was looking at, so toggling a
 	// row on page 40 does not throw them back to page 1.
 	http.Redirect(w, r, "/admin/products/import/"+publicID+querySuffix(r), http.StatusSeeOther)

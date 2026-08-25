@@ -353,6 +353,33 @@ func (r *Repository) ListStagingRows(
 	return rows, total, nil
 }
 
+// GetStagingRow returns one staged row.
+func (r *Repository) GetStagingRow(ctx context.Context, sessionID, rowID int64) (*catalog.StagingRow, error) {
+	var row *catalog.StagingRow
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		cursor, err := tx.Query(txCtx, `
+			SELECT id, session_id, source_row, block_index, action, included,
+			       matched_product_id, match_reason, payload, issues, ai_changes
+			FROM catalog.import_staging_rows
+			WHERE id = $2 AND session_id = $1
+		`, sessionID, rowID)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: get staging row: %w", err)
+		}
+		defer cursor.Close()
+
+		if !cursor.Next() {
+			return apperr.NotFound("import_row")
+		}
+		row, err = scanStagingRow(cursor)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+
 // SetRowIncluded flips one row's inclusion switch.
 func (r *Repository) SetRowIncluded(ctx context.Context, sessionID, rowID int64, included bool) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
