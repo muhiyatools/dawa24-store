@@ -131,6 +131,30 @@ func (r *Repository) Rows(
 			return fmt.Errorf("ingest postgres: count import rows: %w", err)
 		}
 
+		orderDir := "ASC"
+		if strings.EqualFold(filter.SortOrder, "desc") {
+			orderDir = "DESC"
+		}
+
+		var orderByCol string
+		switch filter.SortBy {
+		case "row", "source_row":
+			orderByCol = "r.source_row"
+		case "name", "display_name":
+			orderByCol = "r.display_name"
+		case "catalog_name":
+			orderByCol = "COALESCE(p.name->>'ar', p.name->>'en', '')"
+		case "score", "match_score":
+			orderByCol = "r.match_score"
+		case "price":
+			orderByCol = "COALESCE((r.payload->'net_price'->>'minor')::bigint, (r.payload->'public_price'->>'minor')::bigint, 0)"
+		case "quantity":
+			orderByCol = "COALESCE((r.payload->>'quantity')::int, 0)"
+		default:
+			orderByCol = "r.source_row"
+		}
+		orderByClause := fmt.Sprintf("%s %s, r.source_row ASC", orderByCol, orderDir)
+
 		paged := append(append([]any{}, args...), filter.Limit, filter.Offset)
 		rows, err := tx.Query(txCtx, fmt.Sprintf(`
 			SELECT r.id, r.source_row, r.outcome, r.match_level, r.match_score, r.product_id,
@@ -140,8 +164,8 @@ func (r *Repository) Rows(
 			FROM ingest.catalog_import_rows r
 			LEFT JOIN catalog.products p ON p.id = r.product_id
 			WHERE %s
-			ORDER BY r.source_row
-			LIMIT $%d OFFSET $%d`, clause, len(args)+1, len(args)+2), paged...)
+			ORDER BY %s
+			LIMIT $%d OFFSET $%d`, clause, orderByClause, len(args)+1, len(args)+2), paged...)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: list import rows: %w", err)
 		}

@@ -23,6 +23,8 @@ func (h *UIHandler) loadImportReview(r *http.Request, view *pages.VendorImportVi
 		Outcome:    r.URL.Query().Get("outcome"),
 		MatchLevel: r.URL.Query().Get("match"),
 		Search:     r.URL.Query().Get("q"),
+		SortBy:     r.URL.Query().Get("sort"),
+		SortOrder:  r.URL.Query().Get("order"),
 		Limit:      limit,
 	}
 	page := 1
@@ -228,6 +230,8 @@ func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Requ
 func buildReviewRedirect(publicID string, r *http.Request) string {
 	q := r.URL.Query().Get("q")
 	match := r.URL.Query().Get("match")
+	sort := r.URL.Query().Get("sort")
+	order := r.URL.Query().Get("order")
 	page := r.URL.Query().Get("page")
 	limit := r.URL.Query().Get("limit")
 
@@ -235,6 +239,12 @@ func buildReviewRedirect(publicID string, r *http.Request) string {
 	params := []string{}
 	if match != "" {
 		params = append(params, "match="+match)
+	}
+	if sort != "" {
+		params = append(params, "sort="+sort)
+	}
+	if order != "" {
+		params = append(params, "order="+order)
 	}
 	if page != "" {
 		params = append(params, "page="+page)

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -334,4 +335,25 @@ func (h *UIHandler) VendorCatalogSelectPage(w http.ResponseWriter, r *http.Reque
 // VendorCatalogSelectSubmit redirects legacy form submission to /vendor/products.
 func (h *UIHandler) VendorCatalogSelectSubmit(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/vendor/products", http.StatusMovedPermanently)
+}
+
+// VendorProductsDeleteAllSubmit removes all products/variants of the current vendor.
+func (h *UIHandler) VendorProductsDeleteAllSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
+		return
+	}
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/products", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		return
+	}
+	count, err := h.catSvc.DeleteAllVariantsByOrg(ctx, actor.OrganizationID)
+	if err != nil {
+		h.log.ErrorContext(ctx, "delete all vendor variants error", "error", err)
+		h.redirectWithNotice(w, r, "/vendor/products", "error", "حدث خطأ أثناء حذف الأصناف: "+h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/vendor/products", "success", fmt.Sprintf("تم حذف %d من أصناف التوريد الخاصة بك بنجاح.", count))
 }

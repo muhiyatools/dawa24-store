@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -352,4 +353,20 @@ func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Reque
 	if err := pages.AdminSavingProductsPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render saving products", "error", err)
 	}
+}
+
+// AdminProductsDeleteAllSubmit removes all master products and variants (Super Admin).
+func (h *UIHandler) AdminProductsDeleteAllSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.catSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		return
+	}
+	count, err := h.catSvc.DeleteAllProducts(database.AsSystem(ctx))
+	if err != nil {
+		h.log.ErrorContext(ctx, "delete all master products error", "error", err)
+		h.redirectWithNotice(w, r, "/admin/products", "error", "حدث خطأ أثناء حذف منتجات الكتالوج: "+h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/products", "success", fmt.Sprintf("تم حذف %d صنفاً من الكتالوج المركزي الأساسي بنجاح.", count))
 }

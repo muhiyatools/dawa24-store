@@ -82,6 +82,7 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("catalog.product.delete", h.log))
+		g.Post("/admin/products/delete-all", h.AdminProductsDeleteAllSubmit)
 		g.Post("/admin/products/{id}/delete", h.AdminProductDeleteSubmit)
 		g.Post("/admin/brands/{id}/delete", h.AdminBrandDeleteSubmit)
 		g.Post("/admin/categories/{id}/delete", h.AdminCategoryDeleteSubmit)

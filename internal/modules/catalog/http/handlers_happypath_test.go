@@ -167,6 +167,12 @@ func (happyRepo) ListAllSavingProductsAdmin(ctx context.Context, _ *int64, _ *in
 func (happyRepo) ListAllMasterProductsForMatching(ctx context.Context) ([]*catalog.CatalogMatchSource, error) {
 	return nil, nil
 }
+func (happyRepo) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
+	return 0, nil
+}
+func (happyRepo) DeleteAllProducts(ctx context.Context) (int64, error) {
+	return 0, nil
+}
 
 func newAuthedRouter(repo catalog.Repository) http.Handler {
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))

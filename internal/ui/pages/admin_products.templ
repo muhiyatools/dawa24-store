@@ -211,6 +211,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					@components.IconPlus("icon-xs")
 					<span>إضافة صنف دوائي جديد +</span>
 				</button>
+				if totalCount > 0 {
+					<form method="POST" action="/admin/products/delete-all" style="display:inline;"
+						onsubmit="return confirm('تحذير نهائي فائق الأهمية: هل أنت متأكد من حذف جميع أصناف الكتالوج المركزي الأساسي بالكامل؟ لا يمكن التراجع عن هذا الإجراء.');">
+						<button type="submit" class="btn btn-ghost text-danger" style="font-weight:700; gap:0.4rem;">
+							<span>🗑️ حذف جميع أصناف الكتالوج</span>
+						</button>
+					</form>
+				}
 			}
 
 			<!-- Table & Search Card -->

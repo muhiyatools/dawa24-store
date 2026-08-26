@@ -61,9 +61,6 @@ func (p Phase) Label() string {
 	case PhaseFailed:
 		return "فشل"
 	default:
-		// An unknown phase is rendered as itself. Mapping every future value to
-		// "ملغي" told a vendor their active import was cancelled when the truth
-		// was only that this build had never heard of it.
 		return string(p)
 	}
 }
@@ -82,11 +79,9 @@ func (p Phase) Terminal() bool {
 type Mode string
 
 const (
-	// ModeUpsert updates the variants the file matches and adds the rest. It is
-	// the default because it is what uploading an updated price list means.
+	// ModeUpsert updates the variants the file matches and adds the rest.
 	ModeUpsert Mode = "update_and_add"
-	// ModeAddOnly adds what is new and leaves every existing variant untouched,
-	// for a vendor extending their range without republishing their prices.
+	// ModeAddOnly adds what is new and leaves existing variants untouched.
 	ModeAddOnly Mode = "add_new_only"
 	// ModeUpdateOnly refreshes what already exists and adds nothing, for a price
 	// revision that must not widen the catalogue.
@@ -395,6 +390,8 @@ type RowFilter struct {
 	Outcome    string
 	MatchLevel string
 	Search     string
+	SortBy     string
+	SortOrder  string
 	Limit      int
 	Offset     int
 }

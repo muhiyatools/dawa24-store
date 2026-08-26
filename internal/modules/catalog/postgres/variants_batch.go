@@ -54,3 +54,36 @@ func (r *Repository) ListVariantsByProducts(ctx context.Context, productIDs []in
 	}
 	return variants, nil
 }
+
+// DeleteAllVariantsByOrg soft-deletes all variants belonging to an organization.
+func (r *Repository) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
+	var count int64
+	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		res, err := tx.Exec(txCtx, `
+			UPDATE catalog.product_variants
+			SET deleted_at = now()
+			WHERE organization_id = $1 AND deleted_at IS NULL;
+		`, orgID)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: delete all variants by org: %w", err)
+		}
+		count = res.RowsAffected()
+		return nil
+	})
+	return count, err
+}
+
+// DeleteAllProducts soft-deletes all master catalog products and variants.
+func (r *Repository) DeleteAllProducts(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		_, _ = tx.Exec(txCtx, `UPDATE catalog.product_variants SET deleted_at = now() WHERE deleted_at IS NULL;`)
+		res, err := tx.Exec(txCtx, `UPDATE catalog.products SET deleted_at = now() WHERE deleted_at IS NULL;`)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: delete all master products: %w", err)
+		}
+		count = res.RowsAffected()
+		return nil
+	})
+	return count, err
+}

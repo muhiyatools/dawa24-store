@@ -587,3 +587,13 @@ func (s *Service) ListAllSavingProductsAdmin(ctx context.Context, userID *int64,
 func (s *Service) ListAllMasterProductsForMatching(ctx context.Context) ([]*CatalogMatchSource, error) {
 	return s.repo.ListAllMasterProductsForMatching(ctx)
 }
+
+// DeleteAllVariantsByOrg soft-deletes all variants of an organization.
+func (s *Service) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
+	return s.repo.DeleteAllVariantsByOrg(ctx, orgID)
+}
+
+// DeleteAllProducts soft-deletes all master products in the system (Super Admin).
+func (s *Service) DeleteAllProducts(ctx context.Context) (int64, error) {
+	return s.repo.DeleteAllProducts(ctx)
+}

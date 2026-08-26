@@ -13,7 +13,7 @@ templ importReviewStage(view VendorImportView) {
 				<div>
 					<h2 class="wiz-head mb-0">4. مراجعة الأصناف والمطابقة</h2>
 					<p class="wiz-sub mb-0">
-						راجع أصناف الملف، عدّل الأسماء، واربط الأصناف بالكتالوج المركزي مباشرة قبل الحفظ النهائي في قاعدة البيانات.
+						راجع أصناف الملف، عدّل الأسماء، وافحص نسبة التطابق أو اربط الأصناف بالكتالوج المركزي مباشرة قبل الحفظ النهائي في قاعدة البيانات.
 					</p>
 				</div>
 			</div>
@@ -61,9 +61,15 @@ templ importReviewStage(view VendorImportView) {
 				if view.Filter.MatchLevel != "" {
 					<input type="hidden" name="match" value={ view.Filter.MatchLevel }/>
 				}
+				if view.Filter.SortBy != "" {
+					<input type="hidden" name="sort" value={ view.Filter.SortBy }/>
+				}
+				if view.Filter.SortOrder != "" {
+					<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
+				}
 				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
-					class="form-control form-control-sm" style="min-width: 220px;"/>
-				<select name="limit" onchange="this.form.submit()" class="form-select form-select-sm" style="width: auto;">
+					class="form-input" style="min-width: 220px; padding: 0.4rem 0.75rem; font-size: 0.85rem;"/>
+				<select name="limit" onchange="this.form.submit()" class="form-select" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
 					<option value="10" selected?={ view.PerPage == 10 }>10 صفوف</option>
 					<option value="25" selected?={ view.PerPage == 25 || view.PerPage == 0 }>25 صنف</option>
 					<option value="50" selected?={ view.PerPage == 50 }>50 صنف</option>
@@ -71,7 +77,7 @@ templ importReviewStage(view VendorImportView) {
 				</select>
 				<button type="submit" class="btn btn-secondary btn-sm">بحث</button>
 				if view.Filter.Search != "" {
-					<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s?match=%s&limit=%d", view.Session.PublicID, view.Filter.MatchLevel, view.PerPage)) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
+					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, "")) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
 				}
 			</form>
 		</div>
@@ -83,17 +89,30 @@ templ importReviewStage(view VendorImportView) {
 					<thead>
 						<tr>
 							<th style="width: 48px; text-align: center;">استيراد</th>
-							<th style="width: 50px; text-align: center;">#</th>
-							<th style="min-width: 260px;">الصنف في الملف (قابل للتعديل)</th>
-							<th style="min-width: 320px;">الصنف المطابق بالكتالوج المركزي</th>
-							<th style="width: 100px; text-align: center;">السعر</th>
-							<th style="width: 80px; text-align: center;">الكمية</th>
+							<th style="width: 60px; text-align: center;">
+								@reviewSortHeader(view, "row", "#")
+							</th>
+							<th style="min-width: 240px;">
+								@reviewSortHeader(view, "name", "الصنف في الملف (قابل للتعديل)")
+							</th>
+							<th style="min-width: 280px;">
+								@reviewSortHeader(view, "catalog_name", "الصنف المطابق بالكتالوج المركزي")
+							</th>
+							<th style="width: 120px; text-align: center;">
+								@reviewSortHeader(view, "score", "نسبة التطابق")
+							</th>
+							<th style="width: 110px; text-align: center;">
+								@reviewSortHeader(view, "price", "السعر")
+							</th>
+							<th style="width: 90px; text-align: center;">
+								@reviewSortHeader(view, "quantity", "الكمية")
+							</th>
 						</tr>
 					</thead>
 					<tbody>
 						if len(view.Rows) == 0 {
 							<tr>
-								<td colspan="6" class="text-center p-lg text-muted">
+								<td colspan="7" class="text-center p-lg text-muted">
 									<div class="fw-700 text-base">لا توجد أصناف مطابقة للتصفية الحالية</div>
 									<div class="text-xs mt-1">جرّب تغيير التبويب أو إزالة كلمات البحث.</div>
 								</td>
@@ -202,6 +221,8 @@ templ importReviewStage(view VendorImportView) {
 
 			var sessionId = dropdown.getAttribute('data-session-id');
 			var matchLevel = dropdown.getAttribute('data-filter-match') || '';
+			var sortBy = dropdown.getAttribute('data-sort') || '';
+			var sortOrder = dropdown.getAttribute('data-order') || '';
 			var page = dropdown.getAttribute('data-page') || '1';
 			var limit = dropdown.getAttribute('data-limit') || '25';
 			var search = dropdown.getAttribute('data-search') || '';
@@ -223,13 +244,17 @@ templ importReviewStage(view VendorImportView) {
 					resultsBox.innerHTML = '';
 					data.forEach(function(p) {
 						var item = document.createElement('div');
-						item.className = 'combobox-item';
-						item.style.borderBottom = '1px solid var(--border)';
-						item.style.padding = '0.5rem 0.65rem';
+						item.className = 'catalog-search-card';
+						item.style.background = 'var(--surface-sunken)';
+						item.style.border = '1px solid var(--border)';
+						item.style.borderRadius = 'var(--radius-md)';
+						item.style.padding = '0.55rem 0.75rem';
+						item.style.marginBottom = '0.4rem';
+						item.style.transition = 'all 0.15s ease';
 
 						var form = document.createElement('form');
 						form.method = 'POST';
-						form.action = '/vendor/ingest/' + encodeURIComponent(sessionId) + '/rows/' + encodeURIComponent(rowId) + '/match?match=' + encodeURIComponent(matchLevel) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);
+						form.action = '/vendor/ingest/' + encodeURIComponent(sessionId) + '/rows/' + encodeURIComponent(rowId) + '/match?match=' + encodeURIComponent(matchLevel) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);
 
 						var inputHidden = document.createElement('input');
 						inputHidden.type = 'hidden';
@@ -244,16 +269,19 @@ templ importReviewStage(view VendorImportView) {
 						btn.style.justifyContent = 'space-between';
 						btn.style.alignItems = 'center';
 						btn.style.width = '100%';
-						btn.style.padding = '0.25rem 0';
+						btn.style.padding = '0';
+						btn.style.color = 'var(--text)';
 
 						var infoDiv = document.createElement('div');
 						var nameDiv = document.createElement('div');
 						nameDiv.className = 'fw-700 text-xs';
+						nameDiv.style.color = 'var(--text)';
 						nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
 						infoDiv.appendChild(nameDiv);
 
 						var metaDiv = document.createElement('div');
 						metaDiv.className = 'text-xs text-muted';
+						metaDiv.style.marginTop = '2px';
 						var metaText = '';
 						if (p.sku) metaText += 'SKU: ' + p.sku + ' ';
 						if (p.dosage_form) metaText += '· ' + p.dosage_form + ' ';
@@ -283,10 +311,7 @@ templ importReviewStage(view VendorImportView) {
 templ reviewFilterTab(view VendorImportView, matchKey, label string) {
 	{{
 		active := (matchKey == "" && view.Filter.MatchLevel == "") || view.Filter.MatchLevel == matchKey
-		href := fmt.Sprintf("/vendor/ingest/%s?match=%s&limit=%d", view.Session.PublicID, matchKey, view.PerPage)
-		if view.Filter.Search != "" {
-			href += "&q=" + view.Filter.Search
-		}
+		href := buildReviewURL(view.Session.PublicID, matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, view.Filter.Search)
 	}}
 	<a href={ templ.SafeURL(href) }
 		class={ "wiz-chip", templ.KV("is-on", active) }>
@@ -294,11 +319,38 @@ templ reviewFilterTab(view VendorImportView, matchKey, label string) {
 	</a>
 }
 
+templ reviewSortHeader(view VendorImportView, colKey, label string) {
+	{{
+		isCurrent := view.Filter.SortBy == colKey || (view.Filter.SortBy == "" && colKey == "row")
+		nextOrder := "asc"
+		icon := "⇅"
+		if isCurrent {
+			if view.Filter.SortOrder == "desc" {
+				nextOrder = "asc"
+				icon = "▼"
+			} else {
+				nextOrder = "desc"
+				icon = "▲"
+			}
+		} else if colKey == "score" || colKey == "price" || colKey == "quantity" {
+			nextOrder = "desc"
+		}
+		href := buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, colKey, nextOrder, 1, view.PerPage, view.Filter.Search)
+	}}
+	<a href={ templ.SafeURL(href) }
+		class="row-center-xs gap-xs text-secondary hover-text-primary"
+		style="color: inherit; text-decoration: none; font-weight: inherit; justify-content: center; display: inline-flex;"
+		title={ fmt.Sprintf("ترتيب حسب %s", label) }>
+		<span>{ label }</span>
+		<span class="text-xs" style="opacity: 0.75; font-size: 0.7rem;">{ icon }</span>
+	</a>
+}
+
 templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 	<tr id={ fmt.Sprintf("row-%d", row.ID) } class={ templ.KV("opacity-50", row.IsExcluded) }>
 		<!-- Checkbox Exclude/Include -->
 		<td class="text-center align-middle">
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/toggle?match=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Page, view.PerPage, view.Filter.Search)) }>
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/toggle?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
 				<input type="checkbox" checked?={ !row.IsExcluded } onchange="this.form.submit()"
 					title="استيراد هذا الصنف" style="cursor: pointer; width: 16px; height: 16px;"/>
 			</form>
@@ -309,12 +361,12 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			{ fmt.Sprint(row.SourceRow) }
 		</td>
 
-		<!-- File Product Name (Direct Editable in same cell) -->
+		<!-- File Product Name (Direct Editable in same cell with standard form-input) -->
 		<td class="align-middle">
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Page, view.PerPage, view.Filter.Search)) }
-				class="row-center-xs mb-1">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+				class="row-center-xs gap-xs mb-1">
 				<input type="text" name="display_name" value={ row.DisplayName }
-					class="form-control form-control-sm" style="font-size: 0.85rem;"
+					class="form-input" style="padding: 0.35rem 0.6rem; font-size: 0.85rem; max-width: 250px;"
 					placeholder="اسم الصنف بالملف..."/>
 				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ تعديل الاسم">✓</button>
 			</form>
@@ -331,72 +383,62 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			</div>
 		</td>
 
-		<!-- Matched Central Catalog Product (Unified with In-Cell Dropdown) -->
+		<!-- Matched Central Catalog Product (Unified with In-Cell Dropdown - No gap!) -->
 		<td class="align-middle catalog-cell-container" style="position: relative;">
-			<div class="flex-between gap-sm items-center">
-				<div>
-					if row.ProductID != nil && *row.ProductID > 0 {
-						<div class="fw-700 text-sm">{ row.MatchedCatalogName() }</div>
-						<div class="row-center-xs gap-xs mt-1">
-							if row.IsManuallyMatched {
-								<span class="badge badge-primary text-xs">مطابقة يدوية</span>
-							} else {
-								<span class={ "badge text-xs", matchLevelBadgeTone(row.MatchLevel) }>
-									{ matchLevelText(row.MatchLevel) } · { PercentText(row.MatchScore) }
-								</span>
-							}
-							if row.MatchedCatalogSKU() != "" {
-								<span class="text-xs text-muted font-mono">SKU: { row.MatchedCatalogSKU() }</span>
-							}
-						</div>
-					} else {
-						<div class="row-center-xs gap-xs">
-							<span class="badge badge-danger text-xs">غير مطابق بالكتالوج</span>
-							if len(row.Candidates) > 0 {
-								<span class="text-xs text-muted">أقرب: { row.Candidates[0].Name } ({ PercentText(row.Candidates[0].Score) })</span>
-							}
-						</div>
-					}
-				</div>
-
-				<!-- Trigger Dropdown Button -->
-				<button type="button"
-					data-row-id={ fmt.Sprint(row.ID) }
-					data-row-name={ row.DisplayName }
-					class={ "btn btn-xs", templ.KV("btn-secondary", row.ProductID == nil || *row.ProductID == 0), templ.KV("btn-ghost text-primary", row.ProductID != nil && *row.ProductID > 0) }
-					onclick="handleDropdownToggle(this)">
-					if row.ProductID != nil && *row.ProductID > 0 {
+			<div class="row-center-xs flex-wrap gap-xs items-center">
+				if row.ProductID != nil && *row.ProductID > 0 {
+					<div class="fw-700 text-sm">{ row.MatchedCatalogName() }</div>
+					<button type="button"
+						data-row-id={ fmt.Sprint(row.ID) }
+						data-row-name={ row.DisplayName }
+						class="btn btn-ghost btn-xs text-primary"
+						onclick="handleDropdownToggle(this)"
+						title="تغيير الصنف المربوط بالكتالوج">
 						🔄 تغيير
-					} else {
+					</button>
+				} else {
+					<span class="badge badge-rose text-xs">غير مطابق بالكتالوج</span>
+					<button type="button"
+						data-row-id={ fmt.Sprint(row.ID) }
+						data-row-name={ row.DisplayName }
+						class="btn btn-secondary btn-xs"
+						onclick="handleDropdownToggle(this)"
+						title="بحث وربط بالكتالوج المركزي">
 						🔍 ربط
+					</button>
+					if len(row.Candidates) > 0 {
+						<span class="text-xs text-muted">أقرب: { row.Candidates[0].Name }</span>
 					}
-				</button>
+				}
 			</div>
 
-			<!-- In-Cell Dropdown Menu -->
+			<!-- In-Cell Dropdown Menu (100% Theme-Aware) -->
 			<div id={ fmt.Sprintf("catalog-dropdown-%d", row.ID) }
 				class="combobox-menu"
 				data-session-id={ view.Session.PublicID }
 				data-filter-match={ view.Filter.MatchLevel }
+				data-sort={ view.Filter.SortBy }
+				data-order={ view.Filter.SortOrder }
 				data-page={ fmt.Sprint(view.Page) }
 				data-limit={ fmt.Sprint(view.PerPage) }
 				data-search={ view.Filter.Search }
-				style="display: none; position: absolute; top: 100%; inset-inline-start: 0; min-width: 320px; max-width: 420px; z-index: 100; padding: 0.5rem; background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+				style="display: none; position: absolute; top: calc(100% + 4px); inset-inline-start: 0; min-width: 320px; max-width: 440px; z-index: 100; padding: 0.65rem; background: var(--surface-raised); border: 1px solid var(--border-strong); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl);">
 				
-				<div class="p-xs mb-1">
-					<input type="text" placeholder="ابحث في الكتالوج المركزي..."
+				<div class="mb-2">
+					<input type="text" placeholder="ابحث بالاسم أو SKU في الكتالوج المركزي..."
 						data-row-id={ fmt.Sprint(row.ID) }
-						class="form-control form-control-sm"
+						class="form-input"
+						style="padding: 0.4rem 0.65rem; font-size: 0.85rem; width: 100%;"
 						oninput="handleDropdownSearchInput(this)"/>
 				</div>
 
-				<div id={ fmt.Sprintf("dropdown-results-%d", row.ID) } style="max-height: 180px; overflow-y: auto;">
+				<div id={ fmt.Sprintf("dropdown-results-%d", row.ID) } style="max-height: 200px; overflow-y: auto;">
 					<div class="text-center text-muted p-sm text-xs">جارٍ البحث...</div>
 				</div>
 
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div style="border-top: 1px solid var(--border); padding-top: 0.4rem; margin-top: 0.4rem; text-align: start;">
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?product_id=0&match=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Page, view.PerPage, view.Filter.Search)) }>
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
 							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
 								✕ إلغاء الربط (جعله غير مطابق)
 							</button>
@@ -404,6 +446,23 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					</div>
 				}
 			</div>
+		</td>
+
+		<!-- Match Score / Degree (Dedicated Column) -->
+		<td class="text-center align-middle">
+			if row.ProductID != nil && *row.ProductID > 0 && row.IsManuallyMatched {
+				<span class="badge badge-emerald text-xs fw-800" title="تمت المطابقة يدوياً بواسطة المستخدم">100% (يدوي)</span>
+			} else if row.ProductID != nil && *row.ProductID > 0 {
+				<span class={ "badge text-xs fw-800", matchScoreBadgeTone(row.MatchScore) } title={ matchLevelText(row.MatchLevel) }>
+					{ PercentText(row.MatchScore) }
+				</span>
+			} else if len(row.Candidates) > 0 {
+				<span class={ "badge text-xs fw-700", matchScoreBadgeTone(row.Candidates[0].Score) } title="أقرب مرشح غير محسوم">
+					{ PercentText(row.Candidates[0].Score) }
+				</span>
+			} else {
+				<span class="badge badge-rose text-xs">0%</span>
+			}
 		</td>
 
 		<!-- Price -->
@@ -449,14 +508,14 @@ templ reviewPagination(view VendorImportView) {
 		if totalPages > 1 {
 			<div class="b2b-pagination-controls">
 				if currPage > 1 {
-					<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s?match=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, currPage-1, limit, view.Filter.Search)) }
+					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, currPage-1, limit, view.Filter.Search)) }
 						class="b2b-pagination-btn">
 						السابق
 					</a>
 				}
 				<span class="text-xs px-2">صفحة { fmt.Sprint(currPage) } من { fmt.Sprint(totalPages) }</span>
 				if currPage < totalPages {
-					<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s?match=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, currPage+1, limit, view.Filter.Search)) }
+					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, currPage+1, limit, view.Filter.Search)) }
 						class="b2b-pagination-btn">
 						التالي
 					</a>
@@ -464,6 +523,23 @@ templ reviewPagination(view VendorImportView) {
 			</div>
 		}
 	</div>
+}
+
+func buildReviewURL(publicID, match, sortBy, sortOrder string, page, limit int, search string) string {
+	u := fmt.Sprintf("/vendor/ingest/%s?page=%d&limit=%d", publicID, page, limit)
+	if match != "" {
+		u += "&match=" + match
+	}
+	if sortBy != "" {
+		u += "&sort=" + sortBy
+	}
+	if sortOrder != "" {
+		u += "&order=" + sortOrder
+	}
+	if search != "" {
+		u += "&q=" + search
+	}
+	return u
 }
 
 func matchLevelText(level string) string {
@@ -485,13 +561,13 @@ func matchLevelText(level string) string {
 	}
 }
 
-func matchLevelBadgeTone(level string) string {
-	switch productmatch.MatchLevel(level) {
-	case productmatch.MatchBarcode, productmatch.MatchCode, productmatch.MatchExact, productmatch.MatchStrong:
-		return "badge-success"
-	case productmatch.MatchReview, productmatch.MatchAmbiguous:
-		return "badge-warning"
+func matchScoreBadgeTone(score float64) string {
+	switch {
+	case score >= 0.70:
+		return "badge-emerald"
+	case score >= 0.30:
+		return "badge-amber"
 	default:
-		return "badge-danger"
+		return "badge-rose"
 	}
 }

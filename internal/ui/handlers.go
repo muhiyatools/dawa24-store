@@ -377,6 +377,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)
 	r.Get("/vendor/products", h.VendorProductsPage)
 	r.Post("/vendor/products/add-from-catalog", h.VendorProductAddFromCatalogSubmit)
+	r.Post("/vendor/products/delete-all", h.VendorProductsDeleteAllSubmit)
 	r.Get("/vendor/products/new", h.VendorVariantNewPage)
 	r.Get("/vendor/variants/new", h.VendorVariantNewPage)
 	r.Post("/vendor/variants/new", h.VendorVariantNewSubmit)
