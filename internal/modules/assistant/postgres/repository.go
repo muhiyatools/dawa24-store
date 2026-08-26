@@ -84,7 +84,7 @@ func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*ass
 			SELECT 
 				c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || COALESCE(c.organization_id, 0)) AS org_name,
 				COALESCE(o.type, '') AS org_type,
-				c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
+				c.user_id, COALESCE(u.name->>'ar', u.name->>'en', u.email, 'مستخدم #' || c.user_id) AS user_name,
 				COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
 				COALESCE(u.role, '') AS user_role,
 				c.title, c.created_at, c.updated_at,
@@ -96,7 +96,7 @@ func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*ass
 			LEFT JOIN identity.users u ON u.id = c.user_id
 			LEFT JOIN assistant.messages m ON m.conversation_id = c.id
 			WHERE c.id = $1 AND c.deleted_at IS NULL
-			GROUP BY c.id, c.public_id, c.organization_id, o.name, o.type, c.user_id, u.full_name, u.email, u.phone, u.role, c.title, c.created_at, c.updated_at
+			GROUP BY c.id, c.public_id, c.organization_id, o.name, o.type, c.user_id, u.name, u.email, u.phone, u.role, c.title, c.created_at, c.updated_at
 		`
 		err := tx.QueryRow(txCtx, query, id).Scan(
 			&s.ID, &s.PublicID, &orgID, &s.OrganizationName, &s.OrganizationType,

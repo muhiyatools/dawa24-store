@@ -28,8 +28,15 @@ func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request)
 	var stats *assistant.AssistantStats
 
 	if h.assistantRepo != nil {
-		aiConvs, totalCount, _ = h.assistantRepo.ListAllConversations(database.AsSystem(ctx), q, perPage, offset)
-		stats, _ = h.assistantRepo.GetAssistantStats(database.AsSystem(ctx))
+		var err error
+		aiConvs, totalCount, err = h.assistantRepo.ListAllConversations(database.AsSystem(ctx), q, perPage, offset)
+		if err != nil {
+			h.log.ErrorContext(ctx, "admin chat history: list conversations failed", "error", err)
+		}
+		stats, err = h.assistantRepo.GetAssistantStats(database.AsSystem(ctx))
+		if err != nil {
+			h.log.ErrorContext(ctx, "admin chat history: get stats failed", "error", err)
+		}
 	}
 
 	data := pages.AdminChatHistoryData{
