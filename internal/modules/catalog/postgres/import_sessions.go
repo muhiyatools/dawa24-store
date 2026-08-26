@@ -63,6 +63,21 @@ func (r *Repository) CreateImportSession(ctx context.Context, s *catalog.ImportS
 			return fmt.Errorf("catalog postgres: reap finished staging rows: %w", err)
 		}
 
+		// A preparation run that never came back was interrupted the same way,
+		// and leaves a worse mess: 'processing' is not reviewable, so the admin
+		// gets a screen that polls for ever and can be neither cancelled nor
+		// corrected. The run itself is bounded at thirty minutes, so an hour
+		// without a heartbeat means no goroutine is coming back for it.
+		if _, err := tx.Exec(txCtx, `
+			UPDATE catalog.import_sessions
+			SET status = 'failed',
+			    progress_phase = 'failed',
+			    error_message = 'توقفت معالجة الملف قبل اكتمالها. يمكنك تصحيح ربط الأعمدة وإعادة المعالجة.'
+			WHERE status = 'processing' AND updated_at < now() - INTERVAL '1 hour'
+		`); err != nil {
+			return fmt.Errorf("catalog postgres: reap stale processing sessions: %w", err)
+		}
+
 		// A session claimed by a commit that never came back was interrupted —
 		// a crash, a deploy, a lost connection. Its claim must not stand
 		// forever: the admin would see a review screen that can neither be
