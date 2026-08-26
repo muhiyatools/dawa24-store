@@ -366,7 +366,13 @@ func (s *Service) SessionProgress(ctx context.Context, publicID string) (ImportP
 		return ImportProgress{}, nil, err
 	}
 
-	if live, running := s.progress.Progress(publicID); running && session.IsProcessing() {
+	// Only a live, non-terminal snapshot beats the row. ProgressTracker.Progress
+	// reports whether an entry exists, not whether it is still running, and a
+	// finished run keeps its entry for ten minutes — so trusting that flag alone
+	// published "failed" in the gap between the goroutine marking itself done
+	// and the transaction that records it, and a poller acting on that answer
+	// raced the very write it was waiting for.
+	if live, ok := s.progress.Progress(publicID); ok && session.IsProcessing() && !live.Phase.Terminal() {
 		return live, session, nil
 	}
 
