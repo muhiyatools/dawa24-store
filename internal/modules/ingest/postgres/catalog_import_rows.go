@@ -30,10 +30,6 @@ func clampScore(score float64) float64 {
 }
 
 // AppendRows records a batch of row outcomes.
-//
-// CopyFrom rather than an insert per row: the ledger is written once per
-// spreadsheet line and a nine-thousand-row file would otherwise spend longer
-// recording what it did than doing it.
 func (r *Repository) AppendRows(
 	ctx context.Context, importID, orgID int64, rows []ingest.RowOutcome,
 ) error {
@@ -58,6 +54,7 @@ func (r *Repository) AppendRows(
 			importID, orgID, row.SourceRow, row.Outcome, row.MatchLevel,
 			clampScore(row.MatchScore), row.ProductID, row.VariantID,
 			trimTo(row.DisplayName, 300), trimTo(row.SourceCode, 100),
+			trimTo(row.CustomVariantName, 300), row.IsExcluded, row.IsManuallyMatched,
 			payload, candidates, issues, trimTo(row.Message, 500),
 		})
 	}
@@ -68,13 +65,22 @@ func (r *Repository) AppendRows(
 			[]string{
 				"import_id", "organization_id", "source_row", "outcome", "match_level",
 				"match_score", "product_id", "variant_id", "display_name",
-				"source_code", "payload", "candidates", "issues", "message",
+				"source_code", "custom_variant_name", "is_excluded", "is_manually_matched",
+				"payload", "candidates", "issues", "message",
 			},
 			pgx.CopyFromRows(records))
 		if err != nil {
 			return fmt.Errorf("ingest postgres: append import rows: %w", err)
 		}
 		return nil
+	})
+}
+
+// ClearRows wipes previously staged rows for an import.
+func (r *Repository) ClearRows(ctx context.Context, importID int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `DELETE FROM ingest.catalog_import_rows WHERE import_id = $1`, importID)
+		return err
 	})
 }
 
@@ -97,7 +103,7 @@ func (r *Repository) Rows(
 	}
 	if q := strings.TrimSpace(filter.Search); q != "" {
 		args = append(args, "%"+q+"%")
-		where = append(where, fmt.Sprintf("(r.display_name ILIKE $%d OR r.source_code ILIKE $%d OR COALESCE(p.name->>'ar', p.name->>'en', '') ILIKE $%d OR p.sku ILIKE $%d)", len(args), len(args), len(args), len(args)))
+		where = append(where, fmt.Sprintf("(r.display_name ILIKE $%d OR r.source_code ILIKE $%d OR r.custom_variant_name ILIKE $%d OR COALESCE(p.name->>'ar', p.name->>'en', '') ILIKE $%d OR p.sku ILIKE $%d)", len(args), len(args), len(args), len(args), len(args)))
 	}
 	clause := strings.Join(where, " AND ")
 
@@ -117,7 +123,8 @@ func (r *Repository) Rows(
 		rows, err := tx.Query(txCtx, fmt.Sprintf(`
 			SELECT r.id, r.source_row, r.outcome, r.match_level, r.match_score, r.product_id,
 			       COALESCE(p.name->>'ar', p.name->>'en', ''), COALESCE(p.sku, ''),
-			       r.variant_id, r.display_name, r.source_code, r.payload, r.candidates, r.issues, r.message
+			       r.variant_id, r.display_name, r.source_code, r.custom_variant_name,
+			       r.is_excluded, r.is_manually_matched, r.payload, r.candidates, r.issues, r.message
 			FROM ingest.catalog_import_rows r
 			LEFT JOIN catalog.products p ON p.id = r.product_id
 			WHERE %s
@@ -133,7 +140,8 @@ func (r *Repository) Rows(
 			var payload, candidates, issues []byte
 			if err := rows.Scan(&o.ID, &o.SourceRow, &o.Outcome, &o.MatchLevel,
 				&o.MatchScore, &o.ProductID, &o.MatchedProductName, &o.MatchedProductSKU,
-				&o.VariantID, &o.DisplayName, &o.SourceCode, &payload, &candidates, &issues, &o.Message); err != nil {
+				&o.VariantID, &o.DisplayName, &o.SourceCode, &o.CustomVariantName,
+				&o.IsExcluded, &o.IsManuallyMatched, &payload, &candidates, &issues, &o.Message); err != nil {
 				return fmt.Errorf("ingest postgres: scan import row: %w", err)
 			}
 			_ = json.Unmarshal(payload, &o.Payload)
@@ -174,6 +182,141 @@ func (r *Repository) RowCounts(ctx context.Context, importID int64) (map[string]
 		return nil, err
 	}
 	return counts, nil
+}
+
+// UpdateRow updates fields on a staged row before commit.
+func (r *Repository) UpdateRow(
+	ctx context.Context, importID, rowID int64,
+	displayName, customVariantName string,
+	price *float64, quantity *int, isExcluded *bool,
+) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		var payload []byte
+		var currName, currVarName string
+		var currExcluded bool
+		err := tx.QueryRow(txCtx, `
+			SELECT display_name, custom_variant_name, is_excluded, payload
+			FROM ingest.catalog_import_rows
+			WHERE id = $1 AND import_id = $2`, rowID, importID).Scan(&currName, &currVarName, &currExcluded, &payload)
+		if err != nil {
+			return err
+		}
+
+		var rowData productmatch.Row
+		_ = json.Unmarshal(payload, &rowData)
+
+		if displayName != "" {
+			currName = displayName
+			rowData.Name = displayName
+		}
+		if customVariantName != "" {
+			currVarName = customVariantName
+		}
+		if isExcluded != nil {
+			currExcluded = *isExcluded
+		}
+		if price != nil {
+			rowData.Price = *price
+		}
+		if quantity != nil {
+			rowData.Quantity = *quantity
+		}
+
+		newPayload, _ := json.Marshal(rowData)
+
+		_, err = tx.Exec(txCtx, `
+			UPDATE ingest.catalog_import_rows
+			SET display_name = $3, custom_variant_name = $4, is_excluded = $5, payload = $6
+			WHERE id = $1 AND import_id = $2`,
+			rowID, importID, currName, currVarName, currExcluded, newPayload)
+		return err
+	})
+}
+
+// AssignRowMatch links a staged row to a master catalog product manually.
+func (r *Repository) AssignRowMatch(
+	ctx context.Context, importID, rowID, productID int64,
+	productName, productSKU string,
+) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `
+			UPDATE ingest.catalog_import_rows
+			SET product_id = $3,
+			    match_level = 'exact',
+			    match_score = 1.0000,
+			    outcome = 'staged',
+			    is_manually_matched = true,
+			    message = 'مطابقة يدوية معتمدة من المستخدم'
+			WHERE id = $1 AND import_id = $2`,
+			rowID, importID, productID)
+		return err
+	})
+}
+
+// ToggleRowExclude flips the is_excluded flag of a staged row.
+func (r *Repository) ToggleRowExclude(ctx context.Context, importID, rowID int64) (bool, error) {
+	var next bool
+	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, `
+			UPDATE ingest.catalog_import_rows
+			SET is_excluded = NOT is_excluded
+			WHERE id = $1 AND import_id = $2
+			RETURNING is_excluded`,
+			rowID, importID).Scan(&next)
+	})
+	return next, err
+}
+
+// StagedRowsForCommit returns all non-excluded rows ready to be written to catalog and inventory.
+func (r *Repository) StagedRowsForCommit(ctx context.Context, importID int64) ([]*ingest.RowOutcome, error) {
+	var out []*ingest.RowOutcome
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `
+			SELECT r.id, r.source_row, r.outcome, r.match_level, r.match_score, r.product_id,
+			       COALESCE(p.name->>'ar', p.name->>'en', ''), COALESCE(p.sku, ''),
+			       r.variant_id, r.display_name, r.source_code, r.custom_variant_name,
+			       r.is_excluded, r.is_manually_matched, r.payload, r.candidates, r.issues, r.message
+			FROM ingest.catalog_import_rows r
+			LEFT JOIN catalog.products p ON p.id = r.product_id
+			WHERE r.import_id = $1 AND r.is_excluded = false AND r.product_id IS NOT NULL AND r.product_id > 0
+			ORDER BY r.source_row`, importID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var o ingest.RowOutcome
+			var payload, candidates, issues []byte
+			if err := rows.Scan(&o.ID, &o.SourceRow, &o.Outcome, &o.MatchLevel,
+				&o.MatchScore, &o.ProductID, &o.MatchedProductName, &o.MatchedProductSKU,
+				&o.VariantID, &o.DisplayName, &o.SourceCode, &o.CustomVariantName,
+				&o.IsExcluded, &o.IsManuallyMatched, &payload, &candidates, &issues, &o.Message); err != nil {
+				return err
+			}
+			_ = json.Unmarshal(payload, &o.Payload)
+			_ = json.Unmarshal(candidates, &o.Candidates)
+			_ = json.Unmarshal(issues, &o.Issues)
+			out = append(out, &o)
+		}
+		return rows.Err()
+	})
+	return out, err
+}
+
+// UpdateCommittedRows updates rows after final execution.
+func (r *Repository) UpdateCommittedRows(ctx context.Context, importID int64, rows []ingest.RowOutcome) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		for _, row := range rows {
+			if _, err := tx.Exec(txCtx, `
+				UPDATE ingest.catalog_import_rows
+				SET outcome = $3, variant_id = $4, message = $5
+				WHERE id = $1 AND import_id = $2`,
+				row.ID, importID, row.Outcome, row.VariantID, row.Message); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // importDocs are the JSON columns of a session, encoded together so a failure

@@ -24,52 +24,9 @@ import (
 // stopped moving.
 const runTimeout = 30 * time.Minute
 
-// ConfirmImport starts the processing run and returns at once.
+// ConfirmImport executes the final commit of reviewed staged rows.
 func (s *Service) ConfirmImport(ctx context.Context, publicID string) (*Session, error) {
-	if s.imports == nil || s.catalog == nil {
-		return nil, ErrImportStoreUnavailable
-	}
-	session, err := s.LoadImport(ctx, publicID)
-	if err != nil {
-		return nil, err
-	}
-	if session.Phase == PhaseProcessing || s.runs.running(publicID) {
-		return nil, apperr.Conflict("import.running",
-			"هذه العملية قيد التنفيذ بالفعل. يرجى انتظار انتهائها.")
-	}
-	if session.Mapping == nil {
-		return nil, apperr.Validation("import.mapping_missing",
-			"يجب اعتماد ربط الأعمدة قبل بدء الاستيراد.", nil)
-	}
-	if session.Settings.WarehouseID <= 0 {
-		return nil, apperr.Validation("import.warehouse_required",
-			"يجب اختيار المخزن قبل بدء الاستيراد.", nil)
-	}
-	if !s.runs.claim(publicID) {
-		return nil, apperr.Conflict("import.running", "هذه العملية قيد التنفيذ بالفعل.")
-	}
-	if err := s.imports.Begin(ctx, session.ID); err != nil {
-		s.runs.release(publicID)
-		return nil, err
-	}
-	session.Phase = PhaseProcessing
-
-	// Detached from the request: values — the tenant, the actor — are carried,
-	// cancellation is not.
-	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), runTimeout)
-	go func() {
-		defer cancel()
-		defer s.runs.release(publicID)
-		if err := s.runImport(runCtx, session); err != nil {
-			s.log.ErrorContext(runCtx, "vendor catalogue import failed",
-				"import", publicID, "error", err)
-			if failErr := s.imports.Fail(runCtx, session.ID, importFailureMessage(err)); failErr != nil {
-				s.log.ErrorContext(runCtx, "could not record import failure",
-					"import", publicID, "error", failErr)
-			}
-		}
-	}()
-	return session, nil
+	return s.CommitImport(ctx, publicID)
 }
 
 // ImportRunning reports whether a run is executing in this process.

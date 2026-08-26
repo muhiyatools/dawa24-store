@@ -41,10 +41,22 @@ type ImportStore interface {
 
 	// AppendRows records the per-row outcome ledger in batches.
 	AppendRows(ctx context.Context, importID, orgID int64, rows []RowOutcome) error
+	// ClearRows wipes previously staged rows for an import.
+	ClearRows(ctx context.Context, importID int64) error
 	// Rows reads a page of the results table.
 	Rows(ctx context.Context, importID int64, filter RowFilter) ([]*RowOutcome, int, error)
 	// RowCounts tallies the ledger by outcome, for the results screen's tabs.
 	RowCounts(ctx context.Context, importID int64) (map[string]int, error)
+	// UpdateRow updates fields on a staged row before commit.
+	UpdateRow(ctx context.Context, importID, rowID int64, displayName, customVariantName string, price *float64, quantity *int, isExcluded *bool) error
+	// AssignRowMatch links a staged row to a master catalog product manually.
+	AssignRowMatch(ctx context.Context, importID, rowID, productID int64, productName, productSKU string) error
+	// ToggleRowExclude flips the is_excluded flag of a staged row.
+	ToggleRowExclude(ctx context.Context, importID, rowID int64) (bool, error)
+	// StagedRowsForCommit returns all non-excluded rows ready to be written to catalog and inventory.
+	StagedRowsForCommit(ctx context.Context, importID int64) ([]*RowOutcome, error)
+	// UpdateCommittedRows updates rows after final execution.
+	UpdateCommittedRows(ctx context.Context, importID int64, rows []RowOutcome) error
 
 	// Sweep collects abandoned imports and the files they hold. It runs when a
 	// new import is opened, so no scheduled job is needed.

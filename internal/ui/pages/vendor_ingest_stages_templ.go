@@ -774,13 +774,13 @@ func importSettingsStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div></div><div class=\"card\"><h3 class=\"wiz-head\">الأصناف غير المطابقة</h3><p class=\"wiz-sub\">الكتالوج المعتمد تديره إدارة دواء 24. يطابق الاستيراد أصنافك مع الكتالوج ويسعّر ما يجده؛ وأي سطر لا يُطابَق يُعرض لك في التقرير مع المرشحين الذين دُرسوا، ولا يُضاف صنف جديد إلى الكتالوج من الملف.</p><p class=\"wiz-sub\">لرفع نسبة المطابقة: أضف عمود الباركود إن وُجد، واكتب الاسم كما هو في الكتالوج المعتمد. إن كان الصنف غير موجود أصلاً، اطلب من الإدارة إضافته.</p></div><div class=\"card\"><h3 class=\"wiz-head\">المطابقة الذكية</h3><p class=\"wiz-sub\">تعمل المطابقة الحتمية أولاً دائماً؛ ولا يُعرض على الذكاء الاصطناعي إلا الأصناف التي تعذّر حسمها، وضمن دفعات مغلقة من المرشحين. لذلك لا يبطئ تفعيله الاستيراد ولا يغيّر شيئاً مما حُسم بالفعل.</p><div class=\"wiz-switches\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div></div><div class=\"card\"><h3 class=\"wiz-head\">مراجعة الأصناف قبل الإضافة</h3><p class=\"wiz-sub\">لن يُضاف أي صنف تلقائياً إلى قاعدة البيانات. بعد معالجة الملف، ستنتقل إلى شاشة مراجعة تفاعلية منظمة تتيح لك معاينة كل صنف ودرجة تطابقه، وتعديل اسم الصنف أو سعره أو كميته، أو ربطه يدوياً بالكتالوج المركزي، وتحديد ما تريد استيراده أو استبعاده.</p></div><div class=\"card\"><h3 class=\"wiz-head\">المطابقة الذكية</h3><p class=\"wiz-sub\">تعمل المطابقة الحتمية أولاً دائماً؛ ولا يُعرض على الذكاء الاصطناعي إلا الأصناف التي تعذّر حسمها، وضمن دفعات مغلقة من المرشحين.</p><div class=\"wiz-switches\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if view.AIAvailable {
 			templ_7745c5c3_Err = vendorImportSwitch("use_ai", "🤖", "تفعيل المطابقة الذكية للأصناف الصعبة",
-				"يُستخدم فقط للأسطر التي لم يحسمها المحرك الحتمي، ويختار من بين المرشحين المعروضين عليه فقط — لا يخترع صنفاً.",
+				"يُستخدم فقط للأسطر التي لم يحسمها المحرك الحتمي، ويختار من بين المرشحين المعروضين عليه فقط.",
 				view.Session.Settings.UseAI).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -797,7 +797,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = vendorImportSwitch("publish_immediately", "🟢", "نشر الأصناف فور استيرادها",
-			"يشمل أصنافك وأي صنف جديد يُضاف للكتالوج المركزي. إن أُوقف، ستُضاف موقوفة بانتظار المراجعة — ولن تظهر لمحرك المطابقة حتى تُعتمد.",
+			"إن أُوقف، ستُضاف الأصناف موقوفة بانتظار التفعيل اليدوي لاحقاً.",
 			view.Session.Settings.PublishImmediately).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -844,7 +844,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 		var templ_7745c5c3_Var36 string
 		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(view.Session.Settings.DefaultMinOrderQty))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 259, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 253, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 		if templ_7745c5c3_Err != nil {
@@ -857,46 +857,46 @@ func importSettingsStage(view VendorImportView) templ.Component {
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(view.Session.Settings.DefaultMinThreshold))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 264, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 258, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\"></div><div class=\"wiz-map-item\"><span class=\"wiz-map-label\">أقل درجة مطابقة تُعتمد تلقائياً (%)</span> <input class=\"wiz-map-input\" type=\"number\" name=\"min_match_score\" min=\"50\" max=\"100\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\"></div><div class=\"wiz-map-item\"><span class=\"wiz-map-label\">أقل نسبة مطابقة مقبولة (%)</span> <input class=\"wiz-map-input\" type=\"number\" name=\"min_match_score\" min=\"5\" max=\"100\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(int(view.Session.Settings.MinMatchScore * 100)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 269, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 263, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\"> <span class=\"wiz-map-hint\">ما دون ذلك يُعامَل كغير مطابق.</span></div></div><input type=\"hidden\" name=\"duplicates\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\"> <span class=\"wiz-map-hint\">الافتراضي 30% — يمكنك تحديد أي نسبة تفضلها (حتى أقل من 50%). ما دونها يُعرض للمراجعة اليدوية.</span></div></div><input type=\"hidden\" name=\"duplicates\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var39 string
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(view.Session.Settings.Duplicates))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 273, Col: 90}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 267, Col: 90}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\"></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">ستُعرض عليك خلاصة كاملة قبل التنفيذ.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-primary\">حفظ الإعدادات والمتابعة</button></div></div></div></form><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\"></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">ستنتقل إلى جدول المراجعة التفاعلي لفحص كل صنف وتعديله قبل الحفظ النهائي.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-primary\">متابعة إلى مراجعة الأصناف ←</button></div></div></div></form><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var40 templ.SafeURL
 		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 284, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 278, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 		if templ_7745c5c3_Err != nil {
@@ -944,7 +944,7 @@ func vendorImportSwitchDisabled(icon, title, reason string) templ.Component {
 		var templ_7745c5c3_Var42 string
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(icon)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 298, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 292, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {
@@ -957,7 +957,7 @@ func vendorImportSwitchDisabled(icon, title, reason string) templ.Component {
 		var templ_7745c5c3_Var43 string
 		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 300, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 294, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
@@ -975,7 +975,7 @@ func vendorImportSwitchDisabled(icon, title, reason string) templ.Component {
 			var templ_7745c5c3_Var44 string
 			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(reason)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 302, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 296, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 			if templ_7745c5c3_Err != nil {
@@ -1022,7 +1022,7 @@ func vendorImportSwitch(name, icon, title, text string, on bool) templ.Component
 		var templ_7745c5c3_Var46 string
 		templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 311, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 305, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 		if templ_7745c5c3_Err != nil {
@@ -1045,7 +1045,7 @@ func vendorImportSwitch(name, icon, title, text string, on bool) templ.Component
 		var templ_7745c5c3_Var47 string
 		templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(icon)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 312, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 306, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 		if templ_7745c5c3_Err != nil {
@@ -1058,7 +1058,7 @@ func vendorImportSwitch(name, icon, title, text string, on bool) templ.Component
 		var templ_7745c5c3_Var48 string
 		templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 314, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 308, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 		if templ_7745c5c3_Err != nil {
@@ -1076,7 +1076,7 @@ func vendorImportSwitch(name, icon, title, text string, on bool) templ.Component
 			var templ_7745c5c3_Var49 string
 			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 316, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 310, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {

@@ -93,10 +93,12 @@ func (r *Repository) SaveDraft(ctx context.Context, s *ingest.Session) error {
 		tag, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET phase = $2, source = $3, overrides = $4, settings = $5, mapping = $6,
-			    total_rows = $7
-			WHERE id = $1 AND phase IN ('mapping','settings','confirm')`,
+			    total_rows = $7, matched_rows = $8, review_rows = $9, unmatched_rows = $10,
+			    error_rows = $11, updated_rows = $12, inserted_rows = $13, skipped_rows = $14
+			WHERE id = $1 AND phase IN ('mapping','settings','review','confirm')`,
 			s.ID, string(s.Phase), docs.source, docs.overrides, docs.settings,
-			docs.mapping, s.TotalRows)
+			docs.mapping, s.TotalRows, s.MatchedRows, s.ReviewRows, s.UnmatchedRows,
+			s.ErrorRows, s.UpdatedRows, s.InsertedRows, s.SkippedRows)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: save import draft: %w", err)
 		}

@@ -78,6 +78,8 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 	switch {
 	case session.Phase.Terminal():
 		h.loadImportResults(r, &view)
+	case session.Phase == ingest.PhaseReview:
+		h.loadImportReview(r, &view)
 	case session.Phase == ingest.PhaseProcessing:
 		// Nothing to analyse: the run owns the file and the screen polls.
 	default:

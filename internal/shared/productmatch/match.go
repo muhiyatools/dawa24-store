@@ -114,8 +114,8 @@ type MatchOptions struct {
 // DefaultMatchOptions are the thresholds the wizard starts on.
 func DefaultMatchOptions() MatchOptions {
 	return MatchOptions{
-		MinStrong:     0.78,
-		MinReview:     0.42,
+		MinStrong:     0.30,
+		MinReview:     0.15,
 		PoolLimit:     400,
 		MaxCandidates: 5,
 	}

@@ -146,28 +146,19 @@ templ importResultsStage(view VendorImportView) {
 			<p class="wiz-sub text-danger">{ view.Session.ErrorMessage }</p>
 		}
 		<div class="wiz-stats">
-			@importStat("أضيف", fmt.Sprint(view.Session.InsertedRows))
-			@importStat("حُدّث", fmt.Sprint(view.Session.UpdatedRows))
-			@importStat("تم تخطيه", fmt.Sprint(view.Session.SkippedRows))
-			@importStat("أخطاء", fmt.Sprint(view.Session.ErrorRows))
-			@importStat("مطابق بالكتالوج", fmt.Sprint(view.Session.MatchedRows))
-			@importStat("يحتاج مراجعة", fmt.Sprint(view.Session.ReviewRows))
-			@importStat("غير مطابق", fmt.Sprint(view.Session.UnmatchedRows))
-			if view.Session.CreatedProducts > 0 {
-				@importStat("أصناف أُضيفت للكتالوج (سابقاً)", fmt.Sprint(view.Session.CreatedProducts))
+			@importStat("تمت الإضافة", fmt.Sprint(view.Session.InsertedRows))
+			@importStat("تم التحديث", fmt.Sprint(view.Session.UpdatedRows))
+			if view.Session.ErrorRows > 0 {
+				@importStat("أخطاء", fmt.Sprint(view.Session.ErrorRows))
 			}
+			@importStat("إجمالي الصفوف", fmt.Sprint(view.Session.TotalRows))
 		</div>
 		<p class="text-xs text-muted mt-2">
-			{ fmt.Sprintf("قرأ النظام %d صفاً: %d صف بيانات، %d صف فارغ، %d صف عناوين مكررة.",
-				view.Session.Stats.SheetRows, view.Session.Stats.DataRows,
-				view.Session.Stats.BlankRows, view.Session.Stats.RepeatedHeaders) }
+			{ fmt.Sprintf("اكتملت معالجة وحفظ البيانات بنجاح في قاعدة البيانات ومخزنك المختار (%d صنف تمت معالجته).", view.Session.InsertedRows + view.Session.UpdatedRows) }
 		</p>
 		<div class="row-center mt-3">
-			<a href="/vendor/products" class="btn btn-primary btn-sm">عرض أصنافي</a>
-			<a href="/vendor/ingest" class="btn btn-secondary btn-sm">استيراد ملف آخر</a>
-			<a class="btn btn-ghost btn-sm" href={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/export?outcome=skipped") }>
-				تنزيل الأصناف المتخطاة (CSV)
-			</a>
+			<a href="/vendor/products" class="btn btn-primary btn-sm">عرض أصناف المورد ←</a>
+			<a href="/vendor/ingest" class="btn btn-secondary btn-sm">استيراد ملف جديد</a>
 		</div>
 	</div>
 	if len(view.Session.Findings) > 0 {

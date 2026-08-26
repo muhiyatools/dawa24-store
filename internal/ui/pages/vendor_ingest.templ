@@ -43,6 +43,8 @@ templ VendorIngestPage(view VendorImportView, lang, dir string) {
 						@importMappingStage(view)
 					case ingest.PhaseSettings:
 						@importSettingsStage(view)
+					case ingest.PhaseReview:
+						@importReviewStage(view)
 					case ingest.PhaseConfirm:
 						@importConfirmStage(view)
 					case ingest.PhaseProcessing:

@@ -29,6 +29,8 @@ const (
 	PhaseMapping Phase = "mapping"
 	// PhaseSettings has a confirmed mapping and is awaiting the import rules.
 	PhaseSettings Phase = "settings"
+	// PhaseReview stages parsed rows for the vendor to review, edit, and manually match.
+	PhaseReview Phase = "review"
 	// PhaseConfirm has everything and is showing the vendor what will happen.
 	PhaseConfirm Phase = "confirm"
 	// PhaseProcessing is running.
@@ -48,6 +50,8 @@ func (p Phase) Label() string {
 		return "مراجعة ربط الأعمدة"
 	case PhaseSettings:
 		return "إعدادات الاستيراد"
+	case PhaseReview:
+		return "مراجعة الأصناف والمطابقة"
 	case PhaseConfirm:
 		return "بانتظار التأكيد"
 	case PhaseProcessing:
@@ -66,7 +70,7 @@ func (p Phase) Label() string {
 
 // Open reports whether the vendor can still act on the import.
 func (p Phase) Open() bool {
-	return p == PhaseMapping || p == PhaseSettings || p == PhaseConfirm
+	return p == PhaseMapping || p == PhaseSettings || p == PhaseReview || p == PhaseConfirm
 }
 
 // Terminal reports whether the import has finished, one way or another.
@@ -234,7 +238,7 @@ func DefaultSettings() Settings {
 		Mode:                ModeUpsert,
 		StockMode:           inventory.StockReplace,
 		Duplicates:          productmatch.DuplicateLastWins,
-		MinMatchScore:       0.78,
+		MinMatchScore:       0.30,
 		UseAI:               true,
 		BlankQuantityIsZero: false,
 		InferDosageForm:     true,
@@ -258,16 +262,10 @@ func (s Settings) Normalize() Settings {
 	if s.Duplicates == "" {
 		s.Duplicates = productmatch.DuplicateLastWins
 	}
-	// Below about half, similarity stops meaning anything: two pharmaceutical
-	// names share that much by sharing a manufacturer's house style. A value
-	// outside the range is clamped to the nearest edge rather than silently
-	// replaced by the default — a vendor who asked for 0.5 and got 0.78 with
-	// no word of it would keep wondering why their messy sheet stopped
-	// matching. Zero is the unset value and keeps the default.
 	if s.MinMatchScore <= 0 {
-		s.MinMatchScore = 0.78
+		s.MinMatchScore = 0.30
 	} else {
-		s.MinMatchScore = min(s.MinMatchScore, 1)
+		s.MinMatchScore = min(max(s.MinMatchScore, 0.05), 1)
 	}
 	if s.DefaultMinOrderQty <= 0 {
 		s.DefaultMinOrderQty = 1
@@ -398,10 +396,24 @@ type RowOutcome struct {
 	VariantID          *int64                        `json:"variant_id,omitempty"`
 	DisplayName        string                        `json:"display_name"`
 	SourceCode         string                        `json:"source_code"`
+	CustomVariantName  string                        `json:"custom_variant_name,omitempty"`
+	IsExcluded         bool                          `json:"is_excluded"`
+	IsManuallyMatched  bool                          `json:"is_manually_matched"`
 	Payload            *productmatch.Row             `json:"payload,omitempty"`
 	Candidates         []productmatch.MatchCandidate `json:"candidates,omitempty"`
 	Issues             []productmatch.Issue          `json:"issues,omitempty"`
 	Message            string                        `json:"message"`
+}
+
+// EffectiveVariantName returns the custom variant name if set, or original row name.
+func (r *RowOutcome) EffectiveVariantName() string {
+	if r.CustomVariantName != "" {
+		return r.CustomVariantName
+	}
+	if r.Payload != nil && r.Payload.Name != "" {
+		return r.Payload.Name
+	}
+	return r.DisplayName
 }
 
 // MatchedCatalogName returns the name of the matched master product, or top candidate.
@@ -425,6 +437,7 @@ func (r *RowOutcome) MatchedCatalogSKU() string {
 
 // Outcome values recorded against a row.
 const (
+	OutcomeStaged   = "staged"
 	OutcomeInserted = "inserted"
 	OutcomeUpdated  = "updated"
 	OutcomeSkipped  = "skipped"

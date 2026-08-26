@@ -202,28 +202,22 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 		</div>
 		<div class="card">
-			<h3 class="wiz-head">الأصناف غير المطابقة</h3>
+			<h3 class="wiz-head">مراجعة الأصناف قبل الإضافة</h3>
 			<p class="wiz-sub">
-				الكتالوج المعتمد تديره إدارة دواء 24. يطابق الاستيراد أصنافك مع الكتالوج
-				ويسعّر ما يجده؛ وأي سطر لا يُطابَق يُعرض لك في التقرير مع المرشحين الذين
-				دُرسوا، ولا يُضاف صنف جديد إلى الكتالوج من الملف.
-			</p>
-			<p class="wiz-sub">
-				لرفع نسبة المطابقة: أضف عمود الباركود إن وُجد، واكتب الاسم كما هو في
-				الكتالوج المعتمد. إن كان الصنف غير موجود أصلاً، اطلب من الإدارة إضافته.
+				لن يُضاف أي صنف تلقائياً إلى قاعدة البيانات. بعد معالجة الملف، ستنتقل إلى شاشة مراجعة تفاعلية منظمة
+				تتيح لك معاينة كل صنف ودرجة تطابقه، وتعديل اسم الصنف أو سعره أو كميته، أو ربطه يدوياً بالكتالوج المركزي، وتحديد ما تريد استيراده أو استبعاده.
 			</p>
 		</div>
 		<div class="card">
 			<h3 class="wiz-head">المطابقة الذكية</h3>
 			<p class="wiz-sub">
 				تعمل المطابقة الحتمية أولاً دائماً؛ ولا يُعرض على الذكاء الاصطناعي إلا
-				الأصناف التي تعذّر حسمها، وضمن دفعات مغلقة من المرشحين. لذلك لا يبطئ
-				تفعيله الاستيراد ولا يغيّر شيئاً مما حُسم بالفعل.
+				الأصناف التي تعذّر حسمها، وضمن دفعات مغلقة من المرشحين.
 			</p>
 			<div class="wiz-switches">
 				if view.AIAvailable {
 					@vendorImportSwitch("use_ai", "🤖", "تفعيل المطابقة الذكية للأصناف الصعبة",
-						"يُستخدم فقط للأسطر التي لم يحسمها المحرك الحتمي، ويختار من بين المرشحين المعروضين عليه فقط — لا يخترع صنفاً.",
+						"يُستخدم فقط للأسطر التي لم يحسمها المحرك الحتمي، ويختار من بين المرشحين المعروضين عليه فقط.",
 						view.Session.Settings.UseAI)
 				} else {
 					@vendorImportSwitchDisabled("🤖", "المطابقة الذكية غير متاحة حالياً",
@@ -235,7 +229,7 @@ templ importSettingsStage(view VendorImportView) {
 			<h3 class="wiz-head">خيارات دقيقة</h3>
 			<div class="wiz-switches">
 				@vendorImportSwitch("publish_immediately", "🟢", "نشر الأصناف فور استيرادها",
-					"يشمل أصنافك وأي صنف جديد يُضاف للكتالوج المركزي. إن أُوقف، ستُضاف موقوفة بانتظار المراجعة — ولن تظهر لمحرك المطابقة حتى تُعتمد.",
+					"إن أُوقف، ستُضاف الأصناف موقوفة بانتظار التفعيل اليدوي لاحقاً.",
 					view.Session.Settings.PublishImmediately)
 				@vendorImportSwitch("reject_expired", "⛔", "رفض الأصناف منتهية الصلاحية",
 					"لن يُستورد أي سطر تاريخ صلاحيته قد مضى.", view.Session.Settings.RejectExpired)
@@ -264,19 +258,19 @@ templ importSettingsStage(view VendorImportView) {
 						value={ fmt.Sprint(view.Session.Settings.DefaultMinThreshold) }/>
 				</div>
 				<div class="wiz-map-item">
-					<span class="wiz-map-label">أقل درجة مطابقة تُعتمد تلقائياً (%)</span>
-					<input class="wiz-map-input" type="number" name="min_match_score" min="50" max="100"
+					<span class="wiz-map-label">أقل نسبة مطابقة مقبولة (%)</span>
+					<input class="wiz-map-input" type="number" name="min_match_score" min="5" max="100"
 						value={ fmt.Sprint(int(view.Session.Settings.MinMatchScore*100)) }/>
-					<span class="wiz-map-hint">ما دون ذلك يُعامَل كغير مطابق.</span>
+					<span class="wiz-map-hint">الافتراضي 30% — يمكنك تحديد أي نسبة تفضلها (حتى أقل من 50%). ما دونها يُعرض للمراجعة اليدوية.</span>
 				</div>
 			</div>
 			<input type="hidden" name="duplicates" value={ string(view.Session.Settings.Duplicates) }/>
 		</div>
 		<div class="card mb-0">
 			<div class="wiz-actions">
-				<span class="wiz-actions-note">ستُعرض عليك خلاصة كاملة قبل التنفيذ.</span>
+				<span class="wiz-actions-note">ستنتقل إلى جدول المراجعة التفاعلي لفحص كل صنف وتعديله قبل الحفظ النهائي.</span>
 				<div class="row-center">
-					<button type="submit" class="btn btn-primary">حفظ الإعدادات والمتابعة</button>
+					<button type="submit" class="btn btn-primary">متابعة إلى مراجعة الأصناف ←</button>
 				</div>
 			</div>
 		</div>

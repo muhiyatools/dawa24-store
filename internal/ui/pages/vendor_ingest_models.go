@@ -27,6 +27,8 @@ type VendorImportView struct {
 	RowTotal  int
 	RowCounts map[string]int
 	Filter    ingest.RowFilter
+	Page      int
+	PerPage   int
 
 	// AIAvailable says whether the platform can actually run the AI tier. The
 	// switch is rendered disabled with a reason when it cannot, rather than
@@ -64,17 +66,12 @@ type VendorImportStep struct {
 }
 
 // VendorImportSteps renders the rail for the current phase.
-//
-// The seven stages the vendor was promised are shown as five nodes: validation
-// is part of the mapping screen rather than a page of its own, because a
-// finding a vendor has to click "next" to see is a finding they will not read,
-// and the confirmation lives with the settings for the same reason.
 func VendorImportSteps(phase ingest.Phase) []VendorImportStep {
 	steps := []VendorImportStep{
 		{Number: 1, Title: "رفع الملف", Icon: "📤"},
 		{Number: 2, Title: "ربط الأعمدة والتحقق", Icon: "🔗"},
 		{Number: 3, Title: "إعدادات الاستيراد", Icon: "⚙️"},
-		{Number: 4, Title: "التأكيد والتنفيذ", Icon: "✅"},
+		{Number: 4, Title: "مراجعة الأصناف والمطابقة", Icon: "📋"},
 		{Number: 5, Title: "النتائج", Icon: "📊"},
 	}
 	current := 1
@@ -83,7 +80,7 @@ func VendorImportSteps(phase ingest.Phase) []VendorImportStep {
 		current = 2
 	case ingest.PhaseSettings:
 		current = 3
-	case ingest.PhaseConfirm, ingest.PhaseProcessing:
+	case ingest.PhaseReview, ingest.PhaseConfirm, ingest.PhaseProcessing:
 		current = 4
 	case ingest.PhaseCompleted, ingest.PhaseFailed, ingest.PhaseCancelled:
 		current = 5
