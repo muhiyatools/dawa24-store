@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
@@ -203,29 +202,16 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 		</div>
 		<div class="card">
-			<h3 class="wiz-head">الأصناف غير المطابقة للكتالوج المركزي</h3>
-			<div class="wiz-choices">
-				<label class="wiz-choice">
-					<input type="radio" name="unmatched" value="create" checked?={ view.Session.Settings.Unmatched != ingest.UnmatchedSkip }/>
-					<span class="wiz-choice-body">
-						<span class="wiz-choice-icon">🆕</span>
-						<span>
-							<span class="wiz-choice-title">{ ingest.UnmatchedCreate.Label() }</span>
-							<span class="wiz-choice-text">سيظهر الصنف في كتالوجك فوراً، وسيراجعه فريق دواء 24 لاعتماده مركزياً.</span>
-						</span>
-					</span>
-				</label>
-				<label class="wiz-choice">
-					<input type="radio" name="unmatched" value="skip" checked?={ view.Session.Settings.Unmatched == ingest.UnmatchedSkip }/>
-					<span class="wiz-choice-body">
-						<span class="wiz-choice-icon">⏭️</span>
-						<span>
-							<span class="wiz-choice-title">{ ingest.UnmatchedSkip.Label() }</span>
-							<span class="wiz-choice-text">لن يُضاف شيء غير مؤكد، وستحصل على قائمة قابلة للتنزيل بالأصناف المتخطاة.</span>
-						</span>
-					</span>
-				</label>
-			</div>
+			<h3 class="wiz-head">الأصناف غير المطابقة</h3>
+			<p class="wiz-sub">
+				الكتالوج المعتمد تديره إدارة دواء 24. يطابق الاستيراد أصنافك مع الكتالوج
+				ويسعّر ما يجده؛ وأي سطر لا يُطابَق يُعرض لك في التقرير مع المرشحين الذين
+				دُرسوا، ولا يُضاف صنف جديد إلى الكتالوج من الملف.
+			</p>
+			<p class="wiz-sub">
+				لرفع نسبة المطابقة: أضف عمود الباركود إن وُجد، واكتب الاسم كما هو في
+				الكتالوج المعتمد. إن كان الصنف غير موجود أصلاً، اطلب من الإدارة إضافته.
+			</p>
 		</div>
 		<div class="card">
 			<h3 class="wiz-head">المطابقة الذكية</h3>

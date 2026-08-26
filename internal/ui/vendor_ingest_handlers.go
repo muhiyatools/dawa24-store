@@ -190,9 +190,6 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	settings.WarehouseID, _ = strconv.ParseInt(r.PostFormValue("warehouse_id"), 10, 64)
 	settings.Mode = ingest.ParseMode(r.PostFormValue("mode"))
 	settings.StockMode = inventory.StockMode(r.PostFormValue("stock_mode"))
-	if r.PostFormValue("unmatched") == string(ingest.UnmatchedSkip) {
-		settings.Unmatched = ingest.UnmatchedSkip
-	}
 	settings.Duplicates = productmatch.DuplicatePolicy(r.PostFormValue("duplicates"))
 	if score, err := strconv.ParseFloat(r.PostFormValue("min_match_score"), 64); err == nil {
 		settings.MinMatchScore = score / 100

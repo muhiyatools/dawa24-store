@@ -223,10 +223,6 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 										<td>
 											if string(v.Status) == "active" {
 												<span class="badge badge-emerald">نشط ومعروض</span>
-											} else if string(v.Status) == "pending" {
-												<span class="badge badge-sky">قيد التدقيق</span>
-											} else if string(v.Status) == "rejected" {
-												<span class="badge badge-rose">مرفوض</span>
 											} else {
 												<span class="badge badge-slate">موقوف / معطل</span>
 											}

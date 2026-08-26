@@ -130,7 +130,7 @@ func (s *Service) runImport(ctx context.Context, session *Session) error {
 	s.log.InfoContext(ctx, "vendor catalogue import completed",
 		"import", session.PublicID, "inserted", session.InsertedRows,
 		"updated", session.UpdatedRows, "skipped", session.SkippedRows,
-		"errors", session.ErrorRows, "created_products", session.CreatedProducts)
+		"errors", session.ErrorRows, "unmatched", session.UnmatchedRows)
 	return nil
 }
 
@@ -202,7 +202,6 @@ func applyRunResult(session *Session, result *productmatch.Result, w *importWrit
 	session.MatchedRows = w.counts.matched
 	session.ReviewRows = w.counts.review
 	session.UnmatchedRows = w.counts.unmatched
-	session.CreatedProducts = w.counts.created
 	session.Phase = PhaseCompleted
 }
 

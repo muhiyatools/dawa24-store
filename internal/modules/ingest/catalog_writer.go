@@ -26,23 +26,19 @@ type counters struct {
 	matched   int
 	review    int
 	unmatched int
-	created   int
 }
 
 // decision is what the run resolved for one row, before any write.
 type decision struct {
 	row   *productmatch.Row
 	match productmatch.MatchResult
-	// productID is the catalogue product the variant will point at, once any
-	// newly created product has an id.
+	// productID is the catalogue product the variant will point at.
 	productID int64
 	// variantID is non-zero when an existing variant of the vendor's is being
 	// updated rather than a new one inserted.
 	variantID int64
-	// newProduct is set when the row introduced a product the catalogue lacks.
-	newProduct *catalog.Product
-	outcome    string
-	message    string
+	outcome   string
+	message   string
 	// ref is this decision's index within the batch, used to tie a write
 	// failure back to it.
 	ref int
@@ -78,9 +74,6 @@ func (w *importWriter) write(ctx context.Context, batch []*productmatch.Row) err
 	// catalogue and forty spellings of Panadol.
 	w.adjudicate(ctx, decisions)
 	w.settle(decisions)
-	if err := w.createProducts(ctx, decisions); err != nil {
-		return err
-	}
 	if err := w.writeVariants(ctx, decisions); err != nil {
 		return err
 	}
@@ -120,26 +113,23 @@ func (w *importWriter) decide(batch []*productmatch.Row) []*decision {
 	return out
 }
 
-// settle applies the unmatched policy and resolves each row onto one of the
-// vendor's own variants. It runs after adjudication, so it sees the final
-// catalogue product for every row.
+// settle decides each row's fate and resolves it onto one of the vendor's own
+// variants. It runs after adjudication, so it sees the final catalogue product
+// for every row.
+//
+// A row with no catalogue product is skipped and reported. It is never turned
+// into a new master product: the shared catalogue is the administrator's, and a
+// supplier's spelling is not an amendment to it.
 func (w *importWriter) settle(decisions []*decision) {
 	for _, d := range decisions {
 		if d.outcome != "" {
 			continue
 		}
 		if d.productID == 0 {
-			if w.settings.Unmatched == UnmatchedSkip {
-				d.outcome = OutcomeSkipped
-				d.message = w.unmatchedMessage(d.match)
-				w.counts.skipped++
-				continue
-			}
-			// The catalogue does not carry this product yet, or carries it too
-			// ambiguously to pick. Either way the vendor stocks it, so it is
-			// registered rather than dropped — and live, so the next file and
-			// the next smart order can match against it.
-			d.newProduct = w.buildProduct(d.row)
+			d.outcome = OutcomeSkipped
+			d.message = w.unmatchedMessage(d.match)
+			w.counts.skipped++
+			continue
 		}
 
 		d.variantID, _ = w.variants.resolve(d.row, d.productID)
@@ -204,43 +194,18 @@ func (w *importWriter) modeMessage(variantID int64) string {
 	return "تم التخطي: الصنف موجود لديك بالفعل، والوضع الحالي يضيف الجديد فقط."
 }
 
+// unmatchedMessage tells the vendor why a row was left out and what to do.
+//
+// "Skipped" on its own is not an answer: the vendor stocks the product and
+// needs to know whether to fix their file or to ask for the catalogue to be
+// extended. The two cases have different remedies, so they say different things.
 func (w *importWriter) unmatchedMessage(m productmatch.MatchResult) string {
 	if m.Level == productmatch.MatchAmbiguous {
-		return "تم التخطي: أكثر من صنف في الكتالوج المركزي يطابق هذا السطر بنفس الدرجة."
+		return "تم التخطي: أكثر من صنف في الكتالوج المعتمد يطابق هذا السطر بنفس الدرجة — " +
+			"راجع المرشحين واختر الصنف الصحيح، أو أضف الباركود إلى ملفك ليُحسم تلقائياً."
 	}
-	return "تم التخطي: لا يوجد صنف مطابق في الكتالوج المركزي."
-}
-
-// createProducts registers the catalogue products this batch introduced.
-func (w *importWriter) createProducts(ctx context.Context, decisions []*decision) error {
-	var pending []*catalog.Product
-	var owners []*decision
-	for _, d := range decisions {
-		if d.outcome != "" || d.newProduct == nil {
-			continue
-		}
-		pending = append(pending, d.newProduct)
-		owners = append(owners, d)
-	}
-	if len(pending) == 0 {
-		return nil
-	}
-
-	ids, err := w.svc.catalog.CreateImportProducts(ctx, pending)
-	if err != nil {
-		return fmt.Errorf("create catalogue products: %w", err)
-	}
-	for i, d := range owners {
-		if i >= len(ids) || ids[i] <= 0 {
-			d.outcome = OutcomeError
-			d.message = "تعذر تسجيل الصنف في الكتالوج المركزي."
-			w.counts.errors++
-			continue
-		}
-		d.productID = ids[i]
-		w.counts.created++
-	}
-	return nil
+	return "تم التخطي: لا يوجد صنف مطابق في الكتالوج المعتمد. " +
+		"تأكد من الاسم أو أضف الباركود، وإن كان الصنف غير موجود فاطلب من الإدارة إضافته."
 }
 
 // writeVariants writes the vendor's own catalogue rows.

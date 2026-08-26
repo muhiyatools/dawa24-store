@@ -7,7 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	cataloggw "github.com/muhiya/dawa24-store/internal/modules/catalog/gateway"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -81,16 +82,24 @@ func (m *blackholeMockIngestRepo) BatchUpdateImportRowActions(_ context.Context,
 	return nil
 }
 
-// TestGatewayBlackHoleVerifiesDeterministicFallback ensures that when the AI Gateway
-// is pointed at an unreachable black-hole IP (RFC 5737 192.0.2.1), the system does not hang
-// and completes ingestion matching with deterministic Arabic similarity fallback.
+// A black-holed Gateway must never stop a pharmacy importing its catalogue.
+//
+// The client is pointed at RFC 5737 TEST-NET-1, which is unroutable: nothing
+// answers and nothing refuses, which is the failure mode that hangs a system
+// rather than erroring it. Two properties are asserted, and they are the two
+// halves of AGENTS.md R3.
+//
+// This test used to install a per-row AI matcher on the ingest service and
+// assert the deterministic path still matched. That matcher is gone — row
+// matching is deterministic, and what it cannot settle goes to batched
+// adjudication — so the test now exercises the tier that actually dials the
+// Gateway. The guarantee it protects is unchanged.
 func TestGatewayBlackHoleVerifiesDeterministicFallback(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-	// Point gateway client to RFC 5737 unroutable TEST-NET-1 IP
 	gwCfg := config.Gateway{
 		BaseURL:    "http://192.0.2.1:8181",
 		VirtualKey: "vk-test-blackhole-key",
@@ -100,8 +109,8 @@ func TestGatewayBlackHoleVerifiesDeterministicFallback(t *testing.T) {
 	}
 	gwClient := gateway.New(gwCfg, logger)
 
-	aiSvc := aicapabilities.NewService(gwClient, logger)
-
+	// One: deterministic matching does not consult the Gateway at all, so an
+	// unreachable one cannot affect it.
 	row := &ingest.ImportRow{
 		ID:             101,
 		SessionID:      1,
@@ -110,12 +119,8 @@ func TestGatewayBlackHoleVerifiesDeterministicFallback(t *testing.T) {
 		NormalizedName: "بنادول اكسترا 500 مجم",
 		Status:         "pending",
 	}
-
-	repo := &blackholeMockIngestRepo{
-		rows: map[int64]*ingest.ImportRow{101: row},
-	}
+	repo := &blackholeMockIngestRepo{rows: map[int64]*ingest.ImportRow{101: row}}
 	ingSvc := ingest.NewService(repo, logger)
-	ingSvc.SetAIMatcher(aiSvc)
 
 	candidates := []ingest.ProductCandidate{
 		{ID: 1001, Name: "بنادول اكسترا 500 مجم اقراص"},
@@ -125,18 +130,43 @@ func TestGatewayBlackHoleVerifiesDeterministicFallback(t *testing.T) {
 
 	matched, matchID, score, err := ingSvc.MatchRowDeterministic(ctx, row, candidates, 0.75)
 	if err != nil {
-		t.Fatalf("unexpected error during black-hole fallback match: %v", err)
+		t.Fatalf("unexpected error during deterministic match: %v", err)
 	}
-
-	if !matched {
-		t.Fatal("expected product to match via deterministic fallback")
+	if !matched || matchID == nil || *matchID != 1001 {
+		t.Fatalf("deterministic match failed: matched=%v id=%v", matched, matchID)
 	}
-
-	if matchID == nil || *matchID != 1001 {
-		t.Fatalf("expected matched candidate ID 1001, got %v", matchID)
-	}
-
 	if score < 0.75 {
 		t.Fatalf("expected similarity score >= 0.75, got %f", score)
 	}
+
+	// Two: the adjudication tier gives up quickly and returns an error the
+	// caller can fall back on. Hanging here would hold an import open for as
+	// long as the run's own timeout, which is the failure this guards.
+	started := time.Now()
+	_, aiErr := gateway_test_adjudicate(ctx, gwClient, logger)
+	elapsed := time.Since(started)
+
+	if aiErr == nil {
+		t.Fatal("a black-holed gateway reported success")
+	}
+	if elapsed > 4*time.Second {
+		t.Fatalf("adjudication took %v against an unreachable gateway; it must fail fast", elapsed)
+	}
+}
+
+// gateway_test_adjudicate runs one adjudication through the real adapter.
+func gateway_test_adjudicate(
+	ctx context.Context, client gateway.Client, logger *slog.Logger,
+) ([]catalog.MatchAdjudicationResult, error) {
+	mapper := cataloggw.NewMapper(client, logger)
+	return mapper.AdjudicateMatches(ctx, catalog.MatchAdjudicationRequest{
+		OrganizationID: 42,
+		Items: []catalog.MatchAdjudicationItem{{
+			Ref:  1,
+			Text: "بنادول اكسترا 500 مجم",
+			Candidates: []catalog.MatchAdjudicationCandidate{
+				{ProductID: 1001, Name: "بنادول اكسترا 500 مجم اقراص"},
+			},
+		}},
+	})
 }

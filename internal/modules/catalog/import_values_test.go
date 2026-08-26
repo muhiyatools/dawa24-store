@@ -96,17 +96,31 @@ func TestCoerceStatusMapsToAllowedValues(t *testing.T) {
 	// The products table has a CHECK on status. An unrecognised value must be
 	// reported, never written: a rejected CHECK aborts the whole transaction.
 	tests := map[string]catalog.ProductStatus{
-		"active":  catalog.StatusActive,
-		"نشط":     catalog.StatusActive,
-		"مفعل":    catalog.StatusActive,
-		"معطل":    catalog.StatusInactive,
-		"pending": catalog.StatusPending,
-		"مرفوض":   catalog.StatusRejected,
+		"active": catalog.StatusActive,
+		"نشط":    catalog.StatusActive,
+		"مفعل":   catalog.StatusActive,
+		"معطل":   catalog.StatusInactive,
+		"مرفوض":  catalog.StatusRejected,
+
+		// The catalogue has no review queue. A supplier's file describing its
+		// own workflow as "pending" is not an instruction to park the row where
+		// no matching engine can see it — an administrator importing a product
+		// is the act that approves it.
+		"pending":      catalog.StatusActive,
+		"قيد المراجعة": catalog.StatusActive,
+		"قيد التدقيق":  catalog.StatusActive,
 	}
 	for in, want := range tests {
 		got, ok := catalog.CoerceStatus(in)
 		if !ok || got != want {
 			t.Errorf("CoerceStatus(%q) = %q,%v; want %q,true", in, got, ok, want)
+		}
+	}
+
+	// Nothing an import can read may produce a pending product.
+	for _, in := range []string{"pending", "review", "معلق", "قيد المراجعة", "قيد التدقيق", "منتظر"} {
+		if got, _ := catalog.CoerceStatus(in); got == catalog.StatusPending {
+			t.Errorf("CoerceStatus(%q) still produces a pending product", in)
 		}
 	}
 

@@ -264,7 +264,6 @@ func mountModuleRoutes(
 		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
 		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
-		ingSvcUI.SetAIMatcher(aiCapabilitiesSvc)
 
 		// The catalogue import's three mapping calls: which column is which
 		// field, and which existing category and pharmaceutical form each of the
@@ -390,10 +389,8 @@ func mountAuthenticatedModules(
 	billingHttp.NewHandler(billSvc, log).RegisterRoutes(r)
 
 	// 6. Ingest & AI Matching
-	aiSvc := aicapabilities.NewService(ai, log)
 	ingRepo := ingestPostgres.NewRepository(db)
 	ingSvc := ingest.NewService(ingRepo, log)
-	ingSvc.SetAIMatcher(aiSvc)
 	if storageClient != nil {
 		ingSvc.SetStorage(storageClient)
 	}
@@ -459,8 +456,6 @@ func mountAuthenticatedModules(
 		}
 		return "", nil
 	}
-
-	aiSvc.SetKeyResolver(keyResolverAPI)
 
 	// 13. Assistant (كبسولة)
 	assistantRepo := assistantPostgres.NewRepository(db)

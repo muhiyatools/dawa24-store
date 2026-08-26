@@ -3,8 +3,6 @@ package ingest
 import (
 	"context"
 	"fmt"
-
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // What the run tells the vendor about itself.
@@ -49,11 +47,6 @@ func (w *importWriter) record(ctx context.Context, decisions []*decision) error 
 				if rec.MatchedProductSKU == "" {
 					rec.MatchedProductSKU = p.Barcode
 				}
-			} else if d.newProduct != nil {
-				// A product this very run created is not in the index that was
-				// built before it existed. Naming it from the row is exact: the
-				// row is what it was created from.
-				rec.MatchedProductName = d.newProduct.Name.Get(i18n.AR)
 			}
 		}
 		if d.variantID > 0 {

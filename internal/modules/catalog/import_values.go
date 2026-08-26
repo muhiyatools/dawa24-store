@@ -282,20 +282,29 @@ func CoerceInt(raw string) (int64, error) {
 	return n, nil
 }
 
-// CoerceStatus maps a status cell onto the four states catalog.products
-// accepts. An unrecognised value returns false so the caller can warn rather
-// than write a value the CHECK constraint would reject — which would abort the
-// whole import transaction for one careless cell.
+// CoerceStatus maps a status cell onto a state catalog.products accepts. An
+// unrecognised value returns false so the caller can warn rather than write a
+// value the CHECK constraint would reject — which would abort the whole import
+// transaction for one careless cell.
+//
+// "Pending" is deliberately not among the answers, in either language.
+//
+// The catalogue no longer has a review queue: a product an administrator
+// imports is approved by the act of importing it, because the administrator is
+// the approving authority. A file that carries "قيد المراجعة" in its status
+// column is describing the supplier's own workflow, not instructing ours, and
+// honouring it used to park the row where no matching engine could ever see it.
+// Those words now read as "active", which is what the importer meant by
+// importing them.
 func CoerceStatus(raw string) (ProductStatus, bool) {
 	switch NormalizeKey(raw) {
 	case "":
 		return "", false
-	case "active", "enabled", "published", "مفعل", "نشط", "فعال", "متاح", "1", "yes", "نعم":
+	case "active", "enabled", "published", "مفعل", "نشط", "فعال", "متاح", "1", "yes", "نعم",
+		"pending", "review", "معلق", "قيدالمراجعه", "قيدالتدقيق", "مراجعه", "تدقيق", "منتظر":
 		return StatusActive, true
 	case "inactive", "disabled", "hidden", "معطل", "غيرنشط", "موقوف", "غيرمتاح", "0", "no", "لا":
 		return StatusInactive, true
-	case "pending", "review", "معلق", "قيدالمراجعه", "مراجعه", "منتظر":
-		return StatusPending, true
 	case "rejected", "refused", "مرفوض", "ملغي", "ملغى":
 		return StatusRejected, true
 	}

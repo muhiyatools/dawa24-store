@@ -20,7 +20,7 @@ templ importConfirmStage(view VendorImportView) {
 			@importSummaryItem("المخزن", importWarehouseName(view))
 			@importSummaryItem("طريقة التعامل مع الأصناف", view.Session.Settings.Mode.Label())
 			@importSummaryItem("طريقة التعامل مع الأرصدة", view.Session.Settings.StockMode.Label())
-			@importSummaryItem("الأصناف غير المطابقة", view.Session.Settings.Unmatched.Label())
+			@importSummaryItem("الأصناف غير المطابقة", "تُعرض في التقرير ولا تُضاف للكتالوج المعتمد")
 			@importSummaryItem("عدد صفوف الملف", fmt.Sprint(view.Session.Source.TotalRows))
 		</div>
 	</div>
@@ -153,7 +153,9 @@ templ importResultsStage(view VendorImportView) {
 			@importStat("مطابق بالكتالوج", fmt.Sprint(view.Session.MatchedRows))
 			@importStat("يحتاج مراجعة", fmt.Sprint(view.Session.ReviewRows))
 			@importStat("غير مطابق", fmt.Sprint(view.Session.UnmatchedRows))
-			@importStat("أصناف جديدة بالكتالوج", fmt.Sprint(view.Session.CreatedProducts))
+			if view.Session.CreatedProducts > 0 {
+				@importStat("أصناف أُضيفت للكتالوج (سابقاً)", fmt.Sprint(view.Session.CreatedProducts))
+			}
 		</div>
 		<p class="text-xs text-muted mt-2">
 			{ fmt.Sprintf("قرأ النظام %d صفاً: %d صف بيانات، %d صف فارغ، %d صف عناوين مكررة.",

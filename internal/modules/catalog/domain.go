@@ -18,6 +18,10 @@ type ProductStatus string
 const (
 	StatusActive   ProductStatus = "active"
 	StatusInactive ProductStatus = "inactive"
+	// StatusPending exists only to read rows written before the catalogue had
+	// no review queue. Nothing produces it any more: an administrator importing
+	// a product is the act that approves it, and a vendor import cannot create
+	// products at all. Treat it as active wherever it is encountered.
 	StatusPending  ProductStatus = "pending"
 	StatusRejected ProductStatus = "rejected"
 )

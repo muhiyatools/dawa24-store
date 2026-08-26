@@ -18,11 +18,6 @@ type ProductCandidate struct {
 	Name string
 }
 
-// AIMatcher defines an optional AI-augmented capability to match product queries.
-type AIMatcher interface {
-	MatchCandidate(ctx context.Context, query string, candidateNames []string) (bestCandidate string, score float64)
-}
-
 // StorageClient provides object storage presigning operations.
 type StorageClient interface {
 	PresignPut(ctx context.Context, key string, contentType string, lifetime time.Duration) (string, error)
@@ -38,10 +33,9 @@ type PresignedUpload struct {
 
 // Service manages vendor bulk catalog file processing and Arabic product matching.
 type Service struct {
-	repo      Repository
-	aiMatcher AIMatcher
-	storage   StorageClient
-	log       *slog.Logger
+	repo    Repository
+	storage StorageClient
+	log     *slog.Logger
 
 	// The rebuilt vendor catalogue import. The three ports are optional: a
 	// deployment that has not wired them simply does not offer the screen,
@@ -67,11 +61,6 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 // SetStorage configures the object storage client.
 func (s *Service) SetStorage(storage StorageClient) {
 	s.storage = storage
-}
-
-// SetAIMatcher configures an optional AI candidate matcher.
-func (s *Service) SetAIMatcher(matcher AIMatcher) {
-	s.aiMatcher = matcher
 }
 
 // PresignUpload generates a presigned S3/MinIO upload URL and registers the file record.
@@ -241,123 +230,6 @@ func (s *Service) StageRows(
 	return s.repo.InsertImportRows(ctx, importRows)
 }
 
-// ExecuteMultiStageMatching runs the comprehensive multi-stage matching pipeline across all staged rows.
-func (s *Service) ExecuteMultiStageMatching(
-	ctx context.Context,
-	sessionID int64,
-	masterProducts []*MasterProductData,
-	savingProducts []*SavingProductData,
-) error {
-	session, err := s.repo.GetImportSessionByID(ctx, sessionID)
-	if err != nil {
-		return err
-	}
-
-	// Build in-memory multi-index
-	index := NewCatalogMatchIndex(masterProducts, savingProducts)
-
-	// Fetch all staged rows
-	rows, err := s.repo.ListImportRows(ctx, sessionID, "", 10000, 0)
-	if err != nil {
-		return err
-	}
-
-	// Resolve column mapping keys
-	nameCol := session.ColumnMapping[FieldProductName]
-	barcodeCol := session.ColumnMapping[FieldBarcode]
-	skuCol := session.ColumnMapping[FieldSKU]
-	dosageCol := session.ColumnMapping[FieldDosageForm]
-	concCol := session.ColumnMapping[FieldConcentration]
-	unitCol := session.ColumnMapping[FieldUnit]
-	manufCol := session.ColumnMapping[FieldManufacturer]
-
-	var matchedCount, reviewCount, unmatchedCount int
-	var updates []RowMatchUpdate
-
-	for _, row := range rows {
-		rawName := getRawStringWithFallback(row.RawData, nameCol, FieldProductName)
-		if rawName == "" && row.NormalizedName != "" {
-			rawName = row.NormalizedName
-		}
-		if rawName == "" {
-			for _, v := range row.RawData {
-				if v != nil {
-					s := strings.TrimSpace(fmt.Sprintf("%v", v))
-					if len(s) >= 2 {
-						rawName = s
-						break
-					}
-				}
-			}
-		}
-
-		input := MatchRowInput{
-			RawName:       rawName,
-			Barcode:       getRawStringWithFallback(row.RawData, barcodeCol, FieldBarcode),
-			SKU:           getRawStringWithFallback(row.RawData, skuCol, FieldSKU),
-			DosageForm:    getRawStringWithFallback(row.RawData, dosageCol, FieldDosageForm),
-			Concentration: getRawStringWithFallback(row.RawData, concCol, FieldConcentration),
-			Unit:          getRawStringWithFallback(row.RawData, unitCol, FieldUnit),
-			Manufacturer:  getRawStringWithFallback(row.RawData, manufCol, FieldManufacturer),
-			EnableAI:      session.EnableAIMatching,
-			EnableSavings: session.EnableSavingsMatching,
-			MinSimilarity: session.MinSimilarityScore,
-		}
-
-		result := index.Match(ctx, input, s.aiMatcher)
-
-		switch result.ConfidenceLevel {
-		case ConfidenceHigh:
-			matchedCount++
-		case ConfidenceReview, ConfidenceLow:
-			reviewCount++
-		default:
-			unmatchedCount++
-		}
-
-		isApproved := result.ConfidenceLevel == ConfidenceHigh || result.ConfidenceLevel == ConfidenceReview
-		updates = append(updates, RowMatchUpdate{
-			RowID:            row.ID,
-			MatchedProductID: result.MatchedProductID,
-			Score:            result.ConfidenceScore,
-			ConfidenceLevel:  result.ConfidenceLevel,
-			MatchReason:      result.MatchReason,
-			Candidates:       result.CandidateMatches,
-			IsApproved:       isApproved,
-			Status:           result.Status,
-		})
-	}
-
-	// Flush all matching updates in batches of 250 rows per statement
-	const batchChunk = 250
-	for i := 0; i < len(updates); i += batchChunk {
-		end := i + batchChunk
-		if end > len(updates) {
-			end = len(updates)
-		}
-		if err := s.repo.BatchUpdateImportRowMatches(ctx, updates[i:end]); err != nil {
-			s.log.ErrorContext(ctx, "failed batch update import row matches", "session_id", sessionID, "error", err)
-			return err
-		}
-	}
-
-	total := len(rows)
-	processed := total
-	newStatus := StatusPending
-
-	return s.repo.UpdateImportSessionStats(
-		ctx,
-		sessionID,
-		total,
-		processed,
-		matchedCount,
-		reviewCount,
-		unmatchedCount,
-		newStatus,
-		"",
-	)
-}
-
 // MatchRowDeterministic satisfies legacy deterministic matching for compatibility.
 func (s *Service) MatchRowDeterministic(
 	ctx context.Context,
@@ -382,25 +254,12 @@ func (s *Service) MatchRowDeterministic(
 		}
 	}
 
+	// Deterministic only. This used to fall through to a model, one request per
+	// row, matching on the *name it returned* rather than on an id — so a
+	// reworded answer silently matched nothing and a plausible one could match
+	// the wrong product. Batched adjudication against an explicit shortlist
+	// replaced it; see catalog_adjudicate.go.
 	matched := highestScore >= minScore
-	if !matched && s.aiMatcher != nil && len(candidates) > 0 {
-		candNames := make([]string, len(candidates))
-		for i, c := range candidates {
-			candNames[i] = c.Name
-		}
-		bestCand, aiScore := s.aiMatcher.MatchCandidate(ctx, row.NormalizedName, candNames)
-		if aiScore >= minScore && bestCand != "" {
-			for _, cand := range candidates {
-				if cand.Name == bestCand {
-					candID := cand.ID
-					bestMatchID = &candID
-					highestScore = aiScore
-					matched = true
-					break
-				}
-			}
-		}
-	}
 
 	status := "unmatched"
 	if matched {

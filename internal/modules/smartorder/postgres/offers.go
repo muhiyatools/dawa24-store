@@ -57,7 +57,12 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 					  AND m.organization_id = $2
 				)                                       AS is_followed,
 				(o.status = 'approved' AND o.deleted_at IS NULL) AS vendor_active,
-				(v.status = 'active' AND p.status = 'active'
+				-- 'pending' is legacy: the catalogue no longer has a review
+				-- queue and nothing produces that status any more. Rows written
+				-- before it went away are ordinary live products, and excluding
+				-- them here while the matcher happily resolves to them would
+				-- produce a matched line with no supplier and no explanation.
+				(v.status = 'active' AND p.status IN ('active', 'pending')
 				 AND v.deleted_at IS NULL AND p.deleted_at IS NULL) AS product_active,
 				COALESCE(p.institutional_work_ids, '{}'::bigint[]) AS institutional_work_ids
 			FROM catalog.product_variants v
@@ -95,16 +100,19 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 
 // matchableStatuses is which catalogue products the matcher may resolve to.
 //
-// `active` only, by default, and deliberately: a product awaiting approval is
-// not purchasable, and matching a pharmacy's order line to one would produce an
-// order that cannot be fulfilled.
+// Live products, plus the legacy 'pending' rows. The catalogue no longer has a
+// review queue — an administrator importing a product is the act that approves
+// it, and a vendor import cannot create one at all — so nothing produces
+// 'pending' any more and the rows that carry it are simply older.
 //
-// It is configurable because a catalogue can legitimately be mid-approval. On
-// the live database on 2026-08-26 every one of the 2,021 *pharmaceutical*
-// products was `pending` while the 28,786 `active` ones were cosmetics — so a
-// pharmacy's order list matched nothing, and the few things it did match were
-// toiletries. Widening this is a way to test against such a catalogue without
-// approving products as a side effect; it is not a fix for the underlying data.
+// Excluding them was measured to be ruinous: on 2026-08-26 every one of the
+// 3,592 *pharmaceutical* products was 'pending' while the 28,786 'active' ones
+// were cosmetics, so a pharmacy's order list matched two rows out of eight
+// hundred and the few it did match were toiletries. LoadOffers applies the same
+// pair, or a matched line would come back with no supplier and no reason.
+//
+// SMARTORDER_MATCH_STATUSES overrides it, for testing against a catalogue in an
+// unusual state without editing product statuses as a side effect.
 func matchableStatuses() []string {
 	if raw := strings.TrimSpace(os.Getenv("SMARTORDER_MATCH_STATUSES")); raw != "" {
 		var out []string
@@ -117,7 +125,7 @@ func matchableStatuses() []string {
 			return out
 		}
 	}
-	return []string{"active"}
+	return []string{"active", "pending"}
 }
 
 // ProductNames resolves catalogue product names for the results and review

@@ -265,7 +265,6 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					<select name="status" class="form-select" style="background:var(--surface-raised); height:100%;" onchange="this.form.submit()">
 						<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>كل الحالات</option>
 						<option value="active" selected?={ statusFilter == "active" }>نشط ومعتمد (Active)</option>
-						<option value="pending" selected?={ statusFilter == "pending" }>قيد التدقيق (Pending)</option>
 						<option value="inactive" selected?={ statusFilter == "inactive" }>موقوف (Inactive)</option>
 					</select>
 				</div>
@@ -372,8 +371,6 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 									<td>
 										if p.Status == "active" {
 											<span class="badge badge-emerald fw-800">نشط ومعتمد</span>
-										} else if p.Status == "pending" {
-											<span class="badge badge-sky fw-800">قيد التدقيق</span>
 										} else {
 											<span class="badge badge-danger fw-800">موقوف</span>
 										}
@@ -764,7 +761,6 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								<label class="form-label">حالة الصنف</label>
 								<select name="status" x-model="editData.status" class="form-select">
 									<option value="active">نشط ومعتمد (Active)</option>
-									<option value="pending">قيد التدقيق (Pending)</option>
 									<option value="inactive">موقوف (Inactive)</option>
 								</select>
 							</div>

@@ -157,28 +157,20 @@ func (m Mode) Label() string {
 // Destructive reports whether the mode can take products off sale.
 func (m Mode) Destructive() bool { return m == ModeReplace }
 
-// UnmatchedPolicy decides what happens to a row the shared catalogue does not
-// recognise.
-type UnmatchedPolicy string
-
-const (
-	// UnmatchedCreate registers the product in the shared catalogue as pending
-	// review and links the vendor's variant to it. This is the default: a
-	// supplier's file is not wrong because the catalogue has not caught up, and
-	// refusing those rows means refusing most of a new supplier's first upload.
-	UnmatchedCreate UnmatchedPolicy = "create"
-	// UnmatchedSkip leaves the row out entirely and lists it in the results for
-	// the vendor to resolve by hand.
-	UnmatchedSkip UnmatchedPolicy = "skip"
-)
-
-// Label renders the policy in Arabic.
-func (p UnmatchedPolicy) Label() string {
-	if p == UnmatchedSkip {
-		return "تخطي الأصناف غير المطابقة وعرضها في التقرير"
-	}
-	return "إضافة الأصناف غير المطابقة إلى الكتالوج المركزي بانتظار الاعتماد"
-}
+// A vendor's file can no longer introduce a product to the shared catalogue.
+//
+// It used to, as `UnmatchedCreate`: a row the catalogue did not recognise was
+// registered as a new master product and the vendor's variant was linked to it.
+// The intent was that a new supplier's first upload should not be mostly
+// refused. The result was that the shared catalogue became whatever any
+// supplier happened to type — thousands of near-duplicate entries, each one a
+// product no other vendor's row could ever match, which is the opposite of what
+// a shared catalogue is for.
+//
+// The catalogue is now the administrator's alone. A vendor's import matches
+// against it and prices what it finds; what it cannot match is reported back to
+// the vendor, with the candidates the engine considered, so they can correct
+// their file or ask for the product to be added. Nothing is invented.
 
 // Settings are the rules the vendor sets before processing starts.
 //
@@ -192,7 +184,6 @@ type Settings struct {
 
 	Mode      Mode                `json:"mode"`
 	StockMode inventory.StockMode `json:"stock_mode"`
-	Unmatched UnmatchedPolicy     `json:"unmatched"`
 
 	// Duplicates decides what a repeated identity inside one file means.
 	Duplicates productmatch.DuplicatePolicy `json:"duplicates"`
@@ -224,6 +215,10 @@ type Settings struct {
 	MarkNegotiable      bool `json:"mark_negotiable"`
 	// PublishImmediately puts imported variants on sale at once. Off means they
 	// are created inactive for the vendor to review in their own catalogue.
+	//
+	// It governs the vendor's own variants and nothing else. It used to decide
+	// the status of master products the import created too; imports no longer
+	// create any.
 	PublishImmediately bool `json:"publish_immediately"`
 	// RecordRows keeps a per-row outcome ledger. On by default; a vendor
 	// importing a hundred thousand rows may turn it off.
@@ -235,7 +230,6 @@ func DefaultSettings() Settings {
 	return Settings{
 		Mode:                ModeUpsert,
 		StockMode:           inventory.StockReplace,
-		Unmatched:           UnmatchedCreate,
 		Duplicates:          productmatch.DuplicateLastWins,
 		MinMatchScore:       0.78,
 		UseAI:               true,
@@ -257,9 +251,6 @@ func (s Settings) Normalize() Settings {
 	}
 	if s.StockMode == "" {
 		s.StockMode = inventory.StockReplace
-	}
-	if s.Unmatched == "" {
-		s.Unmatched = UnmatchedCreate
 	}
 	if s.Duplicates == "" {
 		s.Duplicates = productmatch.DuplicateLastWins
@@ -304,14 +295,17 @@ type Session struct {
 	Stats    productmatch.Stats   `json:"stats"`
 	Findings []productmatch.Issue `json:"findings,omitempty"`
 
-	TotalRows       int `json:"total_rows"`
-	InsertedRows    int `json:"inserted_rows"`
-	UpdatedRows     int `json:"updated_rows"`
-	SkippedRows     int `json:"skipped_rows"`
-	ErrorRows       int `json:"error_rows"`
-	MatchedRows     int `json:"matched_rows"`
-	ReviewRows      int `json:"review_rows"`
-	UnmatchedRows   int `json:"unmatched_rows"`
+	TotalRows     int `json:"total_rows"`
+	InsertedRows  int `json:"inserted_rows"`
+	UpdatedRows   int `json:"updated_rows"`
+	SkippedRows   int `json:"skipped_rows"`
+	ErrorRows     int `json:"error_rows"`
+	MatchedRows   int `json:"matched_rows"`
+	ReviewRows    int `json:"review_rows"`
+	UnmatchedRows int `json:"unmatched_rows"`
+	// CreatedProducts is history only. Imports no longer add anything to the
+	// shared catalogue, so it is zero for every run from now on; older runs keep
+	// the count they actually made.
 	CreatedProducts int `json:"created_products"`
 
 	ProgressPercent int    `json:"progress_percent"`

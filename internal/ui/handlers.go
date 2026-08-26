@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/go-chi/chi/v5"
 
@@ -67,9 +66,6 @@ type UIHandler struct {
 	smartOrderEnqueue   SmartOrderEnqueueFunc
 	smartOrderFinalizer *smartorder.Finalizer
 	smartOrderStale     *smartOrderStaleStore
-
-	cacheMu sync.Mutex
-	cache   map[string]uiCacheEntry
 }
 
 // SetAssistantRepository attaches the Assistant database repository for auditing and history.

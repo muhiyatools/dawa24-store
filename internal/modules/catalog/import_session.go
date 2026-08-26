@@ -120,8 +120,16 @@ type ImportOptions struct {
 	AssignDosageForm bool `json:"assign_dosage_form"`
 	// AssignScientificName fills the generic name.
 	AssignScientificName bool `json:"assign_scientific_name"`
-	// UseAI routes the fields above through the Gateway for rows the
-	// deterministic rules could not resolve.
+	// UseAI lets the Gateway settle what the deterministic rules could not:
+	// which column is which field, what a category or form word means, and —
+	// the one that decides the match rate — which catalogue product an
+	// unresolved row is.
+	//
+	// It is on by default, unlike the enrichment switches above. Those invent
+	// data, so their default is off; this one only ever chooses among answers
+	// the deterministic engine already retrieved, and cannot invent a product.
+	// Defaulting it off meant an administrator had to remember a checkbox for
+	// the tier that does the most work.
 	UseAI bool `json:"use_ai"`
 	// DefaultCategoryID is applied to every product that ends without one,
 	// including when AI is off. Zero leaves the column null.
@@ -129,9 +137,11 @@ type ImportOptions struct {
 }
 
 // DefaultImportOptions are what the upload screen starts on: infer the form
-// from the product name, which is deterministic and safe, and nothing else.
+// from the product name, which is deterministic and safe, plus AI matching,
+// which cannot invent anything. Every switch that would write invented data
+// starts off.
 func DefaultImportOptions() ImportOptions {
-	return ImportOptions{AssignDosageForm: true}
+	return ImportOptions{AssignDosageForm: true, UseAI: true}
 }
 
 // WantsEnrichment reports whether any field-filling switch is on.
