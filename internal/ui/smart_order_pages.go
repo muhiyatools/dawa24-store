@@ -108,7 +108,7 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	orderable, _, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{
-		Outcome: string(smartorder.OutcomeOrdered), Limit: 200,
+		Outcome: string(smartorder.OutcomeOrdered), All: true,
 	})
 	if err != nil {
 		http.Error(w, "تعذّر تحميل الطلب", http.StatusInternalServerError)

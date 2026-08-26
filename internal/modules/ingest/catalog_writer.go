@@ -46,6 +46,9 @@ type decision struct {
 	// ref is this decision's index within the batch, used to tie a write
 	// failure back to it.
 	ref int
+	// bucket is which match counter this row was first counted under, so the AI
+	// tier can move it without double-counting.
+	bucket matchBucket
 }
 
 // importWriter carries the state of one processing run.
@@ -60,11 +63,21 @@ type importWriter struct {
 	counts    counters
 	touched   []int64
 	processed int
+	// ai is the run's AI allowance, carried across batches so the budget is a
+	// property of the import rather than of each five hundred rows.
+	ai aiBudget
 }
 
 // write handles one batch of parsed rows.
 func (w *importWriter) write(ctx context.Context, batch []*productmatch.Row) error {
 	decisions := w.decide(batch)
+	// The AI tier runs between deciding and writing, on the rows the
+	// deterministic engine could not settle and only where the vendor asked for
+	// it. A row it resolves stops being a new catalogue entry and becomes an
+	// update to the existing one — which is the difference between a shared
+	// catalogue and forty spellings of Panadol.
+	w.adjudicate(ctx, decisions)
+	w.settle(decisions)
 	if err := w.createProducts(ctx, decisions); err != nil {
 		return err
 	}
@@ -83,7 +96,13 @@ func (w *importWriter) write(ctx context.Context, batch []*productmatch.Row) err
 	return nil
 }
 
-// decide resolves every row in the batch without writing anything.
+// decide resolves every row in the batch to a catalogue product, without
+// writing anything and without yet choosing a variant.
+//
+// Variant resolution is deliberately a separate pass. It depends on which
+// catalogue product the row resolved to, and the AI tier runs in between and
+// can change that answer — so resolving the variant here would tie half the
+// rows to the wrong one whenever adjudication succeeded.
 func (w *importWriter) decide(batch []*productmatch.Row) []*decision {
 	out := make([]*decision, 0, len(batch))
 	for i, row := range batch {
@@ -91,43 +110,78 @@ func (w *importWriter) decide(batch []*productmatch.Row) []*decision {
 		out = append(out, d)
 
 		d.match = w.index.Match(row, w.match)
-		w.countMatch(d.match)
+		d.bucket = bucketOf(d.match)
+		w.count(d.bucket, 1)
 
-		switch {
-		case d.match.Matched() && d.match.Level.Settled():
+		if d.match.Matched() && d.match.Level.Settled() {
 			d.productID = d.match.ProductID
-		case w.settings.Unmatched == UnmatchedSkip:
-			d.outcome = OutcomeSkipped
-			d.message = w.unmatchedMessage(d.match)
-			w.counts.skipped++
-			continue
-		default:
-			// The catalogue does not carry this product yet, or carries it too
-			// ambiguously to pick. Either way the vendor stocks it, so it is
-			// registered as pending rather than dropped.
-			d.newProduct = buildProduct(row)
-		}
-
-		d.variantID, _ = w.variants.resolve(row, d.productID)
-		if !w.allowed(d.variantID) {
-			d.outcome = OutcomeSkipped
-			d.message = w.modeMessage(d.variantID)
-			w.counts.skipped++
-			continue
 		}
 	}
 	return out
 }
 
-// countMatch tallies how the shared catalogue answered.
-func (w *importWriter) countMatch(m productmatch.MatchResult) {
+// settle applies the unmatched policy and resolves each row onto one of the
+// vendor's own variants. It runs after adjudication, so it sees the final
+// catalogue product for every row.
+func (w *importWriter) settle(decisions []*decision) {
+	for _, d := range decisions {
+		if d.outcome != "" {
+			continue
+		}
+		if d.productID == 0 {
+			if w.settings.Unmatched == UnmatchedSkip {
+				d.outcome = OutcomeSkipped
+				d.message = w.unmatchedMessage(d.match)
+				w.counts.skipped++
+				continue
+			}
+			// The catalogue does not carry this product yet, or carries it too
+			// ambiguously to pick. Either way the vendor stocks it, so it is
+			// registered rather than dropped — and live, so the next file and
+			// the next smart order can match against it.
+			d.newProduct = w.buildProduct(d.row)
+		}
+
+		d.variantID, _ = w.variants.resolve(d.row, d.productID)
+		if !w.allowed(d.variantID) {
+			d.outcome = OutcomeSkipped
+			d.message = w.modeMessage(d.variantID)
+			w.counts.skipped++
+		}
+	}
+}
+
+// matchBucket is which of the three match counters a row belongs to. It is kept
+// on the decision so the AI tier can move a row from one to another without
+// having to re-derive where it started.
+type matchBucket int
+
+const (
+	bucketMatched matchBucket = iota
+	bucketReview
+	bucketUnmatched
+)
+
+func bucketOf(m productmatch.MatchResult) matchBucket {
 	switch {
 	case m.Level.Settled():
-		w.counts.matched++
+		return bucketMatched
 	case m.Level == productmatch.MatchReview || m.Level == productmatch.MatchAmbiguous:
-		w.counts.review++
+		return bucketReview
 	default:
-		w.counts.unmatched++
+		return bucketUnmatched
+	}
+}
+
+// count adjusts one of the match counters by delta.
+func (w *importWriter) count(b matchBucket, delta int) {
+	switch b {
+	case bucketMatched:
+		w.counts.matched += delta
+	case bucketReview:
+		w.counts.review += delta
+	default:
+		w.counts.unmatched += delta
 	}
 }
 
@@ -292,71 +346,4 @@ func (w *importWriter) writeStocks(ctx context.Context, decisions []*decision) e
 		}
 	}
 	return nil
-}
-
-// record writes the per-row outcome ledger.
-func (w *importWriter) record(ctx context.Context, decisions []*decision) error {
-	if !w.settings.RecordRows {
-		return nil
-	}
-	out := make([]RowOutcome, 0, len(decisions))
-	for _, d := range decisions {
-		outcome := d.outcome
-		if outcome == "" {
-			outcome = OutcomeSkipped
-		}
-		rec := RowOutcome{
-			SourceRow:   d.row.Number,
-			Outcome:     outcome,
-			MatchLevel:  string(d.match.Level),
-			MatchScore:  d.match.Score,
-			DisplayName: d.row.DisplayName(),
-			SourceCode:  d.row.SKU,
-			Payload:     d.row,
-			Issues:      d.row.Issues,
-			Message:     appendMessage(d.message, d.match.Reason),
-		}
-		if d.productID > 0 {
-			id := d.productID
-			rec.ProductID = &id
-		}
-		if d.variantID > 0 {
-			id := d.variantID
-			rec.VariantID = &id
-		}
-		// The shortlist is only worth keeping where the vendor may act on it.
-		if !d.match.Level.Settled() {
-			rec.Candidates = d.match.Candidates
-		}
-		out = append(out, rec)
-	}
-	return w.svc.imports.AppendRows(ctx, w.session.ID, w.session.OrganizationID, out)
-}
-
-// reportProgress updates the session so the progress screen can move.
-//
-// Failing to write progress must never fail the run: the vendor's catalogue is
-// more important than the bar that describes it.
-func (w *importWriter) reportProgress(ctx context.Context) {
-	total := w.session.TotalRows
-	percent := 0
-	if total > 0 {
-		percent = w.processed * 100 / total
-	}
-	note := fmt.Sprintf("تمت معالجة %d صنف", w.processed)
-	if err := w.svc.imports.Progress(ctx, w.session.ID, percent, note); err != nil {
-		w.svc.log.WarnContext(ctx, "import progress not recorded",
-			"import", w.session.PublicID, "error", err)
-	}
-}
-
-func appendMessage(base, extra string) string {
-	switch {
-	case extra == "":
-		return base
-	case base == "":
-		return extra
-	default:
-		return base + " — " + extra
-	}
 }

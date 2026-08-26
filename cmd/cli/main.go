@@ -36,6 +36,7 @@ Usage:
   cli seed-users        Create development sign-in accounts (non-prod only)
   cli reset-db          Wipe all rows and reset DB to clean zero state (admin only)
   cli reindex           Rebuild catalog.product_index read model from master tables
+  cli activate-imported [--apply]   Publish catalogue products a bulk import left pending
   cli smartorder-smoke <orgID> <branchID> <userID> <file>   Drive a smart order end to end
   cli health            Verify database and cache connectivity
 `
@@ -137,6 +138,9 @@ func run() error {
 		log.Info("product index rebuilt successfully", "indexed_count", count)
 		fmt.Printf("product_index rebuilt successfully: %d items indexed\n", count)
 		return nil
+
+	case "activate-imported":
+		return activateImported(ctx, db, log, os.Args[2:])
 
 	case "smartorder-smoke":
 		return smartOrderSmoke(ctx, db, log, os.Args[2:])

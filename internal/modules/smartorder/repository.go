@@ -73,6 +73,14 @@ type Repository interface {
 	// against. Roughly 30k rows and a few megabytes; see productmatch.Index.
 	LoadMatchIndex(ctx context.Context) ([]IndexedProduct, error)
 
+	// ProductNames resolves catalogue product names for display, in one query.
+	//
+	// A results table that prints "#255741" has told the buyer nothing they can
+	// check. They need the catalogue's own name for the product the row was
+	// matched to, because reading it beside what they typed is the only way
+	// they can tell a right match from a wrong one.
+	ProductNames(ctx context.Context, ids []int64) (map[int64]string, error)
+
 	// SaveLearnedMapping records a buyer correction so the same text resolves
 	// automatically next time.
 	SaveLearnedMapping(ctx context.Context, orgID int64, rawName string, productID int64) error
@@ -92,11 +100,20 @@ type Repository interface {
 	LoadOffers(ctx context.Context, buyerOrgID int64, productIDs []int64) ([]Offer, error)
 
 	ReplaceCandidates(ctx context.Context, lineID int64, candidates []Candidate) error
+	// ReplaceRunCandidates rewrites the candidate sets of a whole run in one
+	// pass and returns them with their assigned ids, ordered eligible-first then
+	// cheapest — the order the selection expects. The per-line method above is
+	// for a single correction; the pipeline must never loop over it.
+	ReplaceRunCandidates(ctx context.Context, runID int64, byLine map[int64][]Candidate) (map[int64][]Candidate, error)
 	ListCandidates(ctx context.Context, orgID, lineID int64) ([]Candidate, error)
 	GetCandidate(ctx context.Context, orgID, candidateID int64) (*Candidate, error)
 
 	UpsertSelections(ctx context.Context, selections []*Selection) error
 	GetSelection(ctx context.Context, orgID, lineID int64) (*Selection, error)
+	// ListSelectionsByRun loads every selection of a run in one query, keyed by
+	// line id. Recalculation and finalisation walk every orderable line, and
+	// asking per line is one round trip per row of the buyer's file.
+	ListSelectionsByRun(ctx context.Context, orgID, runID int64) (map[int64]*Selection, error)
 	DeleteSelection(ctx context.Context, orgID, lineID int64) error
 
 	// --- decision cache -----------------------------------------------------
@@ -150,12 +167,21 @@ func (m *Mapping) Column(field string) (int, bool) {
 }
 
 // LineFilter narrows the results table.
+//
+// All is for the callers that must see every line of the run rather than a
+// page of it: the matching pipeline, the total recalculation, and the
+// finalisation that turns lines into an order. Paging those is not a display
+// choice, it is a correctness bug — a run of 900 rows whose pipeline reads 200
+// reports 200 totals, matches 200 products, and places an order missing 700
+// items, with nothing anywhere saying so.
 type LineFilter struct {
 	Outcome string
 	Method  string
 	Search  string
 	Limit   int
 	Offset  int
+	// All disables paging entirely; Limit and Offset are then ignored.
+	All bool
 }
 
 // IndexedProduct is the catalogue projection the matcher scores against. It

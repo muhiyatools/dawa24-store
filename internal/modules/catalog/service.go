@@ -31,6 +31,10 @@ type Service struct {
 	// enricher the AI switch is simply not offered.
 	imports ImportSessionStore
 	mapper  AIMapper
+	// adjudicator resolves the rows similarity could not settle. Optional in
+	// exactly the same way: unset means the tier is skipped and the import
+	// keeps its deterministic answer.
+	adjudicator MatchAdjudicator
 	// progress tracks background preparation runs so the review screen can show
 	// the admin what a long import is doing.
 	progress *ProgressTracker

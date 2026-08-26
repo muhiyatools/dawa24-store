@@ -200,9 +200,13 @@ func (idx *Index) newQuery(row *Row) *query {
 		}
 		w := idx.idf(t)
 		if w <= 0 {
-			// A word the catalogue has never seen carries no matching weight,
-			// but it is still information the candidate lacks.
-			w = 0.5
+			// A word the catalogue has never seen is the MOST distinctive word
+			// in the query, not the least: it is usually the brand, spelled the
+			// way this supplier spells it. Weighting it 0.5 — well under the
+			// ~2.4 an ordinary "مجم" earns — inverted the whole point of rarity
+			// weighting and let the boilerplate outvote the brand. It gets the
+			// ceiling instead, so a candidate that lacks it is scored down hard.
+			w = idx.maxIDF()
 		}
 		q.pos[t] = len(q.weights)
 		q.weights = append(q.weights, w)

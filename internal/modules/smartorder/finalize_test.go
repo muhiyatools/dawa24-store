@@ -24,6 +24,10 @@ func (s *stubRepo) ListLines(_ context.Context, _ int64, _ LineFilter) ([]*Line,
 	return s.lines, len(s.lines), nil
 }
 
+func (s *stubRepo) ListSelectionsByRun(_ context.Context, _, _ int64) (map[int64]*Selection, error) {
+	return s.selections, nil
+}
+
 func (s *stubRepo) GetSelection(_ context.Context, _, lineID int64) (*Selection, error) {
 	if sel, ok := s.selections[lineID]; ok {
 		return sel, nil

@@ -32,10 +32,25 @@ import (
 // actually contains.
 
 // strengthPattern captures a dose and its unit, in either script.
-var strengthPattern = regexp.MustCompile(`(?i)(\d+(?:[.,]\d+)?)\s*(مجم|ملجم|مغ|مج|جم|جرام|جم|مل|ملل|ميكروجرام|mg|mcg|g|gm|ml|iu|وحدة)\b`)
+//
+// The terminator is `(?:$|[^\p{L}])` and NOT `\b`. Go's `\b` is defined on
+// ASCII word characters only: after "مجم" there is no \w-to-\W transition,
+// because no Arabic letter is a \w — so the boundary never matched and this
+// pattern found nothing whatsoever in an Arabic line. Every Arabic row was
+// therefore reaching the scorer with its strength and its pack count still
+// glued into the name, which is the exact failure the decomposition described
+// above exists to prevent. The pattern looked correct and did nothing.
+//
+// The alternatives are ordered longest-first, because Go prefers the
+// leftmost-first branch: "مل" ahead of "مللي" would match two letters and leave
+// "لي" behind as a stray token.
+var strengthPattern = regexp.MustCompile(
+	`(?i)(\d+(?:[.,]\d+)?)\s*(ميكروجرام|مليجرام|ملجرام|مجم|ملجم|مكجم|محم|جرام|مللي|وحدة|وحده|ملل|ملي|مغ|مج|جم|مل|mcg|mg|gm|ml|iu|g)(?:$|[^\p{L}])`)
 
-// packPattern captures a pack count: "20 قرص", "24قرص", "20 tabs".
-var packPattern = regexp.MustCompile(`(?i)(\d+)\s*(قرص|أقراص|اقراص|كبسولة|كبسول|كبسولات|امبول|أمبول|tab|tabs|caps|capsule)\b`)
+// packPattern captures a pack count: "20 قرص", "24قرص", "20 tabs". Same
+// terminator, for the same reason.
+var packPattern = regexp.MustCompile(
+	`(?i)(\d+)\s*(كبسولات|كبسولة|أقراص|اقراص|كبسول|أمبول|امبول|قرص|capsule|tabs|caps|tab)(?:$|[^\p{L}])`)
 
 // formWords map a dosage form written in a line onto a canonical term.
 //

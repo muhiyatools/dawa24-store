@@ -49,6 +49,9 @@ type ImportSessionStore interface {
 
 	DefaultCatalogOrg(ctx context.Context) (int64, error)
 	MatchExistingProducts(ctx context.Context, prods []*Product) (map[int]ExistingMatch, error)
+	// ListMatchProducts loads the catalogue as a matching projection, for the
+	// similarity tier that runs on whatever the exact identifiers missed.
+	ListMatchProducts(ctx context.Context) ([]MatchProduct, error)
 	ImportVocabulary(ctx context.Context, orgID int64) (EnrichVocabulary, error)
 	ArchiveAllProducts(ctx context.Context, orgID int64) (int64, error)
 }
@@ -230,6 +233,16 @@ func (s *Service) prepare(
 	if err != nil {
 		return nil, err
 	}
+	// The exact identifiers have had their turn. Everything they missed is
+	// scored against the catalogue in memory, and — where the buyer left the AI
+	// switch on — what similarity still cannot settle is adjudicated in batches.
+	// Without this the importer matched under a tenth of a real supplier file
+	// and staged the rest as new products, quietly duplicating the catalogue.
+	matchStats := s.resolveSimilarMatches(ctx, session, parsed.Products, matches)
+	session.AIMatched = matchStats.Similar + matchStats.AI
+	if matchStats.CeilingHit {
+		session.AIFallback = true
+	}
 
 	progress.report(ImportPhaseStaging, 0, len(parsed.Products))
 	rows := buildStagingRows(parsed, matches, session.Mode)
@@ -248,6 +261,9 @@ func (s *Service) prepare(
 		"session", session.PublicID, "mode", session.Mode,
 		"insert", session.InsertRows, "update", session.UpdateRows,
 		"skip", session.SkipRows, "errors", session.ErrorRows,
+		"match_exact", matchStats.Exact, "match_similar", matchStats.Similar,
+		"match_ai", matchStats.AI, "match_unmatched", matchStats.Unmatched,
+		"match_rate_pct", matchStats.RatePercent(),
 		"ai_calls", session.AICalls, "ai_applied", session.AIApplied)
 	return session, nil
 }

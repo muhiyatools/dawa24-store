@@ -24,9 +24,13 @@ type memoryImportStore struct {
 	file     []byte
 	rows     []*catalog.StagingRow
 	existing map[string]int64 // folded name or SKU -> product id
-	vocab    catalog.EnrichVocabulary
-	archived int64
-	nextID   int64
+	// catalogue backs the similarity tier. It is empty unless a test populates
+	// it, so tests written before that tier existed still exercise exactly the
+	// exact-identifier path they were written for.
+	catalogue []catalog.MatchProduct
+	vocab     catalog.EnrichVocabulary
+	archived  int64
+	nextID    int64
 }
 
 func newMemoryStore() *memoryImportStore {
@@ -161,6 +165,17 @@ func (m *memoryImportStore) MatchExistingProducts(
 		if id, ok := m.existing[catalog.NormalizeName(p.Name.Get(i18n.AR))]; ok {
 			out[i] = catalog.ExistingMatch{ProductID: id, Reason: catalog.MatchName}
 		}
+	}
+	return out, nil
+}
+
+// ListMatchProducts backs the similarity tier. The double returns the same
+// products the exact matcher knows about, so a test that expects a row to match
+// exactly still does, and one that expects no similarity match gets none.
+func (m *memoryImportStore) ListMatchProducts(context.Context) ([]catalog.MatchProduct, error) {
+	out := make([]catalog.MatchProduct, 0, len(m.catalogue))
+	for _, p := range m.catalogue {
+		out = append(out, p)
 	}
 	return out, nil
 }

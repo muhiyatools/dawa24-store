@@ -138,7 +138,7 @@ func smartOrderSmoke(ctx context.Context, db *database.DB, log *slog.Logger, arg
 
 	fmt.Println("== which tier settled each row ==")
 	byMethod := map[smartorder.MatchMethod]int{}
-	stored, _, err := repo.ListLines(ctx, run.ID, smartorder.LineFilter{Limit: 200})
+	stored, _, err := repo.ListLines(ctx, run.ID, smartorder.LineFilter{All: true})
 	if err != nil {
 		return err
 	}

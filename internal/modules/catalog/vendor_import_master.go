@@ -66,11 +66,14 @@ func (s *Service) ListMatchProducts(ctx context.Context) ([]MatchProduct, error)
 // CreateImportProducts registers products a vendor's file carried that the
 // shared catalogue does not have.
 //
-// They are written as pending, never active. A supplier's spelling of a product
-// name is not an authority on what the catalogue should call it, and publishing
-// unreviewed entries is how a shared catalogue becomes forty spellings of
-// Panadol. The vendor's variant links to the pending product immediately, so
-// their own catalogue is complete while the approval is outstanding.
+// The caller decides the status; anything unset is created live. This used to
+// force `pending` on every row, on the reasoning that a supplier's spelling is
+// not an authority on what the catalogue should call a product. The reasoning
+// holds — but the consequence did not: matching, in the smart order and in the
+// next vendor's import alike, resolves only to live rows, so every product a
+// bulk import introduced was invisible to the very engine meant to find it. The
+// review still matters and still happens; it no longer gates whether the product
+// exists as far as the rest of the system is concerned.
 func (s *Service) CreateImportProducts(ctx context.Context, prods []*Product) ([]int64, error) {
 	backend, err := s.importBackend()
 	if err != nil {
@@ -86,7 +89,9 @@ func (s *Service) CreateImportProducts(ctx context.Context, prods []*Product) ([
 	}
 	for _, p := range prods {
 		p.OrganizationID = orgID
-		p.Status = StatusPending
+		if p.Status == "" {
+			p.Status = StatusActive
+		}
 		if p.InstitutionalWorkIDs == nil {
 			p.InstitutionalWorkIDs = []int64{}
 		}

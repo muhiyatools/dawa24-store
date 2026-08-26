@@ -123,6 +123,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 								<tr style="border-top:1px solid var(--border);">
 									<td style="padding:0.7rem;">
 										<div>{ l.Line.RawName }</div>
+										if l.Line.MatchedProductName != "" {
+											<div class="so-match-line">
+												المنتج المطابق: { l.Line.MatchedProductName }
+											</div>
+										}
 										<div style="font-size:0.75rem; color:var(--text-secondary);">
 											اختير بـ { decidedLabel(l.DecidedBy) }
 											if l.SkippedName != "" {
@@ -167,7 +172,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 								<tr style="border-top:1px solid var(--border);">
 									<td style="padding:0.5rem;">{ l.RawName }</td>
 									<td style="padding:0.5rem;">
-										<span style={ outcomeChip(l.Outcome) }>{ outcomeLabel(l.Outcome) }</span>
+										<span style={ outcomeChip(l.Outcome) }>{ SmartOrderOutcomeLabel(l.Outcome) }</span>
 									</td>
 								</tr>
 							}

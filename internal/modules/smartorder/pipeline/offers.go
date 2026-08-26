@@ -63,9 +63,25 @@ func NewSupplier(repo smartorder.Repository, cov CoverageGate, inst Institutiona
 
 // Resolve loads offers for every matched line, evaluates eligibility, selects a
 // supplier, and returns the running order total.
+//
+// Three passes, and the split is the performance design. Building candidates is
+// pure CPU once the offers are loaded, so it happens for the whole file first;
+// then one statement writes them all and hands back their ids; then selection
+// runs in memory over what came back. The previous shape interleaved a delete,
+// an insert and a read into the per-line loop, which was tolerable only while
+// the pipeline was reading the first two hundred rows of every file and
+// silently discarding the rest.
 func (s *Supplier) Resolve(ctx context.Context, lines []*smartorder.Line) (money.Amount, error) {
 	productIDs := matchedProductIDs(lines)
 	if len(productIDs) == 0 {
+		// Nothing matched, so nothing can be ordered. The lines still need their
+		// outcome set, or the results screen reports a blank status for every
+		// row rather than "not found in the catalogue".
+		for _, l := range lines {
+			if !l.Matched() {
+				l.Outcome = smartorder.OutcomeUnmatched
+			}
+		}
 		return money.Amount{}, nil
 	}
 
@@ -85,10 +101,14 @@ func (s *Supplier) Resolve(ctx context.Context, lines []*smartorder.Line) (money
 	covCache := make(map[int64]coverageVerdict)
 	instCache := make(map[int64]bool)
 
-	total := money.Amount{}
-	var selections []*smartorder.Selection
-
+	// Pass one — evaluate every line in memory.
+	byLine := make(map[int64][]smartorder.Candidate, len(lines))
+	orderable := make([]*smartorder.Line, 0, len(lines))
+	runID := int64(0)
 	for _, l := range lines {
+		if runID == 0 {
+			runID = l.RunID
+		}
 		if !l.Matched() {
 			l.Outcome = smartorder.OutcomeUnmatched
 			continue
@@ -102,29 +122,35 @@ func (s *Supplier) Resolve(ctx context.Context, lines []*smartorder.Line) (money
 		if err != nil {
 			return money.Amount{}, err
 		}
-		if err := s.repo.ReplaceCandidates(ctx, l.ID, candidates); err != nil {
-			return money.Amount{}, err
-		}
+		byLine[l.ID] = candidates
 
 		outcome, reason := smartorder.OutcomeFor(true, l.EffectiveQty, candidates)
 		l.Outcome = outcome
 		l.OutcomeReason = string(reason)
-		if outcome != smartorder.OutcomeOrdered {
-			continue
+		if outcome == smartorder.OutcomeOrdered {
+			orderable = append(orderable, l)
 		}
+	}
 
-		// Candidates were written without ids; read them back so the selection
-		// references rows that exist.
-		stored, err := s.repo.ListCandidates(ctx, s.cfg.OrganizationID, l.ID)
-		if err != nil {
-			return money.Amount{}, err
-		}
-		sel, ok := smartorder.Select(s.cfg, l.ID, stored)
+	// Pass two — one write for the file. The ids come back with it, because the
+	// selection has to reference rows that exist and reading them back per line
+	// was a third round trip per row.
+	stored, err := s.repo.ReplaceRunCandidates(ctx, runID, byLine)
+	if err != nil {
+		return money.Amount{}, err
+	}
+
+	// Pass three — choose a supplier per line, in memory.
+	total := money.Amount{}
+	selections := make([]*smartorder.Selection, 0, len(orderable))
+	for _, l := range orderable {
+		written := stored[l.ID]
+		sel, ok := smartorder.Select(s.cfg, l.ID, written)
 		if !ok {
 			l.Outcome = smartorder.OutcomeNoSupplier
 			continue
 		}
-		chosen := findCandidate(stored, sel.CandidateID)
+		chosen := findCandidate(written, sel.CandidateID)
 		if chosen != nil {
 			net, err := smartorder.LineNet(chosen.NetUnitPrice, l.EffectiveQty)
 			if err != nil {

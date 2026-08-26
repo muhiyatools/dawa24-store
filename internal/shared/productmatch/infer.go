@@ -56,9 +56,21 @@ var dosageKeywords = []struct {
 // DefaultDosageForm labels a product whose name gives no clue about its form.
 const DefaultDosageForm = "مستحضر صيدلاني"
 
-// strengthPattern matches a dose written the way it is printed on a box.
+// strengthPattern matches a dose written the way it is printed on a box — and
+// the several ways an Egyptian distributor abbreviates it in a spreadsheet.
+//
+// "مج" and "مغ" are milligrams and appear throughout real supplier files
+// ("بروفين 400 مج اقراص"); "محم" is the ج/ح keyboard slip for مجم and appears
+// often enough in live data to be worth reading rather than discarding. Missing
+// any of them does not merely lose the strength — it leaves the figure loose in
+// the name, where it competes with the brand as an ordinary token and the
+// strength veto that keeps 400 mg away from 600 mg never fires.
+//
+// The alternation is longest-first: Go's regexp prefers the leftmost-first
+// branch, so "مج" listed before "مجم" would match the first two letters of
+// "مجم" and leave a stray "م" behind.
 var strengthPattern = regexp.MustCompile(
-	`(?i)(\d+(?:[./]\d+)?\s*(?:ملجرام|مليجرام|مجم|مكجم|جرام|جم|مللي|ملي|مل|وحدة|وحده|mg|mcg|gm|g|ml|l|iu|%|spf[+\d]*))`)
+	`(?i)(\d+(?:[./]\d+)?\s*(?:ملجرام|مليجرام|مجم|مكجم|محم|جرام|مج|مغ|جم|مللي|ملي|مل|وحدة|وحده|mg|mcg|gm|g|ml|l|iu|%|spf[+\d]*))`)
 
 // InferDosageForm reads the pharmaceutical form out of a product name.
 func InferDosageForm(name string) string {

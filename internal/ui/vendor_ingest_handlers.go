@@ -73,6 +73,7 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 		NoticeType:    r.URL.Query().Get("notice"),
 		NoticeMessage: r.URL.Query().Get("msg"),
 	}
+	view.AIAvailable, view.AIUnavailableReason = h.vendorImportAIState(ctx)
 
 	switch {
 	case session.Phase.Terminal():
@@ -203,6 +204,10 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	settings.RejectExpired = checked(r, "reject_expired")
 	settings.MarkNegotiable = checked(r, "mark_negotiable")
 	settings.PublishImmediately = checked(r, "publish_immediately")
+	// A vendor cannot switch on a tier the platform cannot run: the checkbox is
+	// disabled in that case and submits nothing, and honouring an absent value
+	// as "on" would make the results screen claim AI work that never happened.
+	settings.UseAI = checked(r, "use_ai") && h.ingSvc.AIAvailable()
 	settings.RecordRows = checked(r, "record_rows")
 	if v, err := strconv.Atoi(r.PostFormValue("default_min_order_qty")); err == nil {
 		settings.DefaultMinOrderQty = v

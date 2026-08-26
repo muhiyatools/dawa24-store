@@ -2,11 +2,9 @@ package pipeline
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"sort"
-	"strconv"
-	"strings"
+	"errors"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
@@ -84,10 +82,14 @@ type AdjudicationResult struct {
 
 // Adjudication runs the AI tier under its ceilings.
 type Adjudication struct {
-	repo  smartorder.Repository
-	ai    Adjudicator
-	now   func() time.Time
-	Stats AdjudicationStats
+	repo smartorder.Repository
+	ai   Adjudicator
+	now  func() time.Time
+	// requests counts calls actually issued. It is separate from Stats because
+	// batches run concurrently and this one field is written from several
+	// goroutines; Run folds it back into Stats before returning.
+	requests int64
+	Stats    AdjudicationStats
 }
 
 // AdjudicationStats is what the run records about this tier.
@@ -117,6 +119,14 @@ func (a *Adjudication) Run(ctx context.Context, residual []Residual) {
 
 	deadline := a.now().Add(MaxWallClock)
 
+	// The wall clock is enforced on the calls themselves, not merely checked
+	// between them. Batches run concurrently now, so a check in the dispatch
+	// loop would pass for every batch and then let three slow requests run past
+	// the limit unbounded; a deadline on the context cuts them off, and a cut
+	// off batch degrades to its deterministic outcome like any other failure.
+	adjCtx, cancel := context.WithDeadline(ctx, deadline)
+	defer cancel()
+
 	// Cache first, so a cached line never enters a request.
 	items := a.applyCache(ctx, residual)
 	if len(items) == 0 {
@@ -126,45 +136,80 @@ func (a *Adjudication) Run(ctx context.Context, residual []Residual) {
 	var toSave []smartorder.CachedDecision
 	byLine := indexResiduals(residual)
 
-	for start := 0; start < len(items); start += MaxItemsPerRequest {
-		if a.Stats.Requests >= MaxRequestsPerRun || a.now().After(deadline) {
-			// Everything left keeps its deterministic outcome and is reported
-			// as unresolved. The buyer is not made to wait on a budget.
-			a.Stats.CeilingHit = true
-			break
-		}
-		end := start + MaxItemsPerRequest
-		if end > len(items) {
-			end = len(items)
-		}
-		batch := items[start:end]
+	// Batches run MaxConcurrent at a time.
+	//
+	// They were sequential, and on a file that reaches the AI tier with a few
+	// hundred rows that mattered: at a couple of seconds a request, the ninety
+	// second wall clock expired around the thirtieth batch and everything after
+	// it was reported as "limit reached" — a ceiling the run hit by waiting
+	// rather than by spending. Nothing here shares state across batches except
+	// the counters and the result slice, both of which are taken under the
+	// mutex, so the concurrency is bounded and the ordering of results does not
+	// matter.
+	batches := a.plan(items, deadline)
+	var (
+		mu sync.Mutex
+		wg sync.WaitGroup
+	)
+	slots := make(chan struct{}, MaxConcurrent)
 
-		results, err := a.adjudicateWithBisection(ctx, batch)
-		if err != nil {
-			// A whole batch failing is not a run failure.
-			continue
-		}
-		for _, res := range results {
-			r, ok := byLine[res.LineID]
-			if !ok {
-				a.Stats.Rejected++
-				continue
+	for _, batch := range batches {
+		wg.Add(1)
+		slots <- struct{}{}
+		go func(batch []AdjudicationItem) {
+			defer wg.Done()
+			defer func() { <-slots }()
+
+			// A panic inside one batch must not take the run — and with it the
+			// buyer's whole import — down with it.
+			defer func() {
+				if rec := recover(); rec != nil {
+					mu.Lock()
+					a.Stats.Rejected += len(batch)
+					mu.Unlock()
+				}
+			}()
+
+			results, err := a.adjudicateWithBisection(adjCtx, batch)
+			if err != nil {
+				// A whole batch failing is not a run failure: those lines keep
+				// the deterministic outcome they already have. A deadline
+				// expiry arrives here too, and is reported as a ceiling.
+				if errors.Is(err, context.DeadlineExceeded) {
+					mu.Lock()
+					a.Stats.CeilingHit = true
+					mu.Unlock()
+				}
+				return
 			}
-			if !a.accept(r, res) {
-				a.Stats.Rejected++
-				continue
+
+			mu.Lock()
+			defer mu.Unlock()
+			for _, res := range results {
+				r, ok := byLine[res.LineID]
+				if !ok {
+					a.Stats.Rejected++
+					continue
+				}
+				if !a.accept(r, res) {
+					a.Stats.Rejected++
+					continue
+				}
+				a.Stats.Adjudicated++
+				toSave = append(toSave, smartorder.CachedDecision{
+					Key:             decisionKey(r),
+					NormName:        r.Line.NormName,
+					ChosenProductID: res.ProductID,
+					Confidence:      res.Confidence,
+					Reason:          res.Reason,
+					PromptVersion:   PromptVersion,
+				})
 			}
-			a.Stats.Adjudicated++
-			toSave = append(toSave, smartorder.CachedDecision{
-				Key:             decisionKey(r),
-				NormName:        r.Line.NormName,
-				ChosenProductID: res.ProductID,
-				Confidence:      res.Confidence,
-				Reason:          res.Reason,
-				PromptVersion:   PromptVersion,
-			})
-		}
+		}(batch)
 	}
+	wg.Wait()
+
+	a.Stats.Requests = int(atomic.LoadInt64(&a.requests))
 
 	if len(toSave) > 0 {
 		// A cache write failing must not fail the run: the decisions were still
@@ -174,62 +219,28 @@ func (a *Adjudication) Run(ctx context.Context, residual []Residual) {
 	}
 }
 
-// applyCache resolves what the cache already knows and returns the remainder.
-func (a *Adjudication) applyCache(ctx context.Context, residual []Residual) []AdjudicationItem {
-	keys := make([]string, 0, len(residual))
-	for _, r := range residual {
-		keys = append(keys, decisionKey(r))
-	}
-	cached, err := a.repo.LookupDecisions(ctx, keys)
-	if err != nil {
-		cached = nil // a cache miss is never fatal
-	}
-
-	items := make([]AdjudicationItem, 0, len(residual))
-	for _, r := range residual {
-		if d, ok := cached[decisionKey(r)]; ok {
-			a.Stats.CacheHits++
-			if d.ChosenProductID != nil && inCandidates(r, *d.ChosenProductID) {
-				setMatch(r.Line, *d.ChosenProductID, smartorder.MethodAI, d.Confidence)
-			}
-			continue
-		}
-		if len(r.Candidates) == 0 {
-			// Nothing to choose between. Sending it would ask the model to
-			// invent a product, which is exactly what must not happen.
-			continue
-		}
-		items = append(items, buildItem(r))
-	}
-	return items
-}
-
-// adjudicateWithBisection retries a failed batch once at half size.
+// plan slices the items into batches, up to the run's request budget.
 //
-// A batch usually fails because one item confused the model or the response
-// exceeded a limit. Halving isolates the problem and salvages the other half.
-func (a *Adjudication) adjudicateWithBisection(ctx context.Context, batch []AdjudicationItem) ([]AdjudicationResult, error) {
-	a.Stats.Requests++
-	results, err := a.ai.Adjudicate(ctx, batch)
-	if err == nil {
-		return results, nil
-	}
-	if len(batch) < 2 || a.Stats.Requests+2 > MaxRequestsPerRun {
-		return nil, err
-	}
-
-	mid := len(batch) / 2
-	var combined []AdjudicationResult
-	for _, half := range [][]AdjudicationItem{batch[:mid], batch[mid:]} {
-		a.Stats.Requests++
-		if res, err := a.ai.Adjudicate(ctx, half); err == nil {
-			combined = append(combined, res...)
+// The budget is spent here rather than inside the loop that issues the calls,
+// so concurrent workers cannot race past it: whatever this returns is exactly
+// what will be asked, and everything it leaves out keeps its deterministic
+// outcome and is reported honestly as unresolved.
+func (a *Adjudication) plan(items []AdjudicationItem, deadline time.Time) [][]AdjudicationItem {
+	var batches [][]AdjudicationItem
+	for start := 0; start < len(items); start += MaxItemsPerRequest {
+		// Reserve two requests of headroom for bisection, so a batch that fails
+		// can still be retried at half size within the budget.
+		if len(batches)+2 > MaxRequestsPerRun || a.now().After(deadline) {
+			a.Stats.CeilingHit = true
+			break
 		}
+		end := start + MaxItemsPerRequest
+		if end > len(items) {
+			end = len(items)
+		}
+		batches = append(batches, items[start:end])
 	}
-	if len(combined) == 0 {
-		return nil, err
-	}
-	return combined, nil
+	return batches
 }
 
 // accept validates a result before it is allowed to change anything.
@@ -258,65 +269,6 @@ func inCandidates(r Residual, productID int64) bool {
 		}
 	}
 	return false
-}
-
-func buildItem(r Residual) AdjudicationItem {
-	candidates := r.Candidates
-	if len(candidates) > MaxCandidatesPerItem {
-		candidates = candidates[:MaxCandidatesPerItem]
-	}
-	summaries := make([]CandidateSummary, 0, len(candidates))
-	for _, c := range candidates {
-		summaries = append(summaries, CandidateSummary{
-			ProductID:     c.ProductID,
-			NameAR:        c.Name,
-			Scientific:    c.Scientific,
-			DosageForm:    c.DosageForm,
-			Concentration: c.Concentration,
-			Manufacturer:  c.Manufacturer,
-		})
-	}
-	return AdjudicationItem{
-		LineID:     r.Line.ID,
-		RawText:    r.Line.RawName,
-		NormText:   r.Line.NormName,
-		Candidates: summaries,
-	}
-}
-
-// decisionKey identifies the exact question being asked.
-//
-// The candidate ids are part of the key and are sorted first, so a cached answer
-// is only reused when the same shortlist is on the table. Reusing a decision
-// made against a different candidate set would be answering a question nobody
-// asked. PromptVersion is included so a prompt change invalidates cleanly.
-func decisionKey(r Residual) string {
-	ids := make([]int64, 0, len(r.Candidates))
-	for _, c := range r.Candidates {
-		ids = append(ids, c.ProductID)
-	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
-
-	var b strings.Builder
-	b.WriteString(r.Line.NormName)
-	b.WriteByte('\x1f')
-	for _, id := range ids {
-		b.WriteString(strconv.FormatInt(id, 10))
-		b.WriteByte(',')
-	}
-	b.WriteByte('\x1f')
-	b.WriteString(PromptVersion)
-
-	sum := sha256.Sum256([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
-}
-
-func indexResiduals(residual []Residual) map[int64]Residual {
-	out := make(map[int64]Residual, len(residual))
-	for _, r := range residual {
-		out[r.Line.ID] = r
-	}
-	return out
 }
 
 // recordAliases stores each AI decision as an *untrusted* alias.

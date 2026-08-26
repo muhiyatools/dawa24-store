@@ -228,10 +228,28 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 		</div>
 		<div class="card">
+			<h3 class="wiz-head">المطابقة الذكية</h3>
+			<p class="wiz-sub">
+				تعمل المطابقة الحتمية أولاً دائماً؛ ولا يُعرض على الذكاء الاصطناعي إلا
+				الأصناف التي تعذّر حسمها، وضمن دفعات مغلقة من المرشحين. لذلك لا يبطئ
+				تفعيله الاستيراد ولا يغيّر شيئاً مما حُسم بالفعل.
+			</p>
+			<div class="wiz-switches">
+				if view.AIAvailable {
+					@vendorImportSwitch("use_ai", "🤖", "تفعيل المطابقة الذكية للأصناف الصعبة",
+						"يُستخدم فقط للأسطر التي لم يحسمها المحرك الحتمي، ويختار من بين المرشحين المعروضين عليه فقط — لا يخترع صنفاً.",
+						view.Session.Settings.UseAI)
+				} else {
+					@vendorImportSwitchDisabled("🤖", "المطابقة الذكية غير متاحة حالياً",
+						view.AIUnavailableReason)
+				}
+			</div>
+		</div>
+		<div class="card">
 			<h3 class="wiz-head">خيارات دقيقة</h3>
 			<div class="wiz-switches">
 				@vendorImportSwitch("publish_immediately", "🟢", "نشر الأصناف فور استيرادها",
-					"إن أُوقف، ستُضاف الأصناف موقوفة لتراجعها في صفحة أصنافك قبل عرضها.",
+					"يشمل أصنافك وأي صنف جديد يُضاف للكتالوج المركزي. إن أُوقف، ستُضاف موقوفة بانتظار المراجعة — ولن تظهر لمحرك المطابقة حتى تُعتمد.",
 					view.Session.Settings.PublishImmediately)
 				@vendorImportSwitch("reject_expired", "⛔", "رفض الأصناف منتهية الصلاحية",
 					"لن يُستورد أي سطر تاريخ صلاحيته قد مضى.", view.Session.Settings.RejectExpired)
@@ -280,6 +298,26 @@ templ importSettingsStage(view VendorImportView) {
 	<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
 		<button type="submit" class="btn btn-ghost btn-sm">← العودة لربط الأعمدة</button>
 	</form>
+}
+
+// vendorImportSwitchDisabled renders the AI switch as unavailable, with the
+// reason.
+//
+// Showing it rather than hiding it is deliberate: a vendor who has been told
+// the platform matches intelligently needs to know why it is not doing so
+// today, and every reason here is one an operator can act on.
+templ vendorImportSwitchDisabled(icon, title, reason string) {
+	<label class="wiz-switch is-disabled">
+		<input type="checkbox" disabled/>
+		<span class="wiz-switch-icon">{ icon }</span>
+		<span class="wiz-switch-main">
+			<span class="wiz-switch-title">{ title }</span>
+			if reason != "" {
+				<span class="wiz-switch-text">{ reason }</span>
+			}
+		</span>
+		<span class="wiz-track" aria-hidden="true"></span>
+	</label>
 }
 
 templ vendorImportSwitch(name, icon, title, text string, on bool) {

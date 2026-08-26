@@ -34,7 +34,8 @@ var MatchLabels = map[MatchReason]string{
 	MatchSKU:     "مطابقة بكود الصنف",
 	MatchBarcode: "مطابقة بالباركود",
 	MatchName:    "مطابقة باسم الصنف",
-	MatchAI:      "مطابقة بالذكاء الاصطناعي",
+	MatchSimilar: "مطابقة بالتشابه — راجعها",
+	MatchAI:      "مطابقة بالذكاء الاصطناعي — راجعها",
 }
 
 // WriteFailure identifies one product the database refused, by its position in

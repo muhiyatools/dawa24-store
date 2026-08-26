@@ -3,6 +3,7 @@ package pipeline
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -47,19 +48,42 @@ func (f *fakeRepo) SaveAlias(_ context.Context, productID int64, alias, source s
 }
 
 // fakeAI records what it was asked and returns scripted answers.
+//
+// The recording is under a mutex because batches are adjudicated concurrently:
+// a double that races is a double that reports the wrong call count, which is
+// exactly what these tests assert on.
 type fakeAI struct {
+	mu        sync.Mutex
 	calls     int
 	batchSize []int
 	respond   func(items []AdjudicationItem) ([]AdjudicationResult, error)
 }
 
 func (f *fakeAI) Adjudicate(_ context.Context, items []AdjudicationItem) ([]AdjudicationResult, error) {
+	f.mu.Lock()
 	f.calls++
 	f.batchSize = append(f.batchSize, len(items))
-	if f.respond != nil {
-		return f.respond(items)
+	respond := f.respond
+	f.mu.Unlock()
+
+	if respond != nil {
+		return respond(items)
 	}
 	return nil, nil
+}
+
+// callCount reads the recorded number of requests safely.
+func (f *fakeAI) callCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.calls
+}
+
+// batchSizes returns a copy of the recorded batch sizes.
+func (f *fakeAI) batchSizes() []int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return append([]int(nil), f.batchSize...)
 }
 
 func residualOf(lineID int64, name string, candidateIDs ...int64) Residual {
@@ -175,10 +199,10 @@ func TestLinesAreBatchedNotSentIndividually(t *testing.T) {
 	}
 	a.Run(context.Background(), residual)
 
-	if ai.calls > 4 {
-		t.Fatalf("60 lines should be a handful of requests, got %d", ai.calls)
+	if ai.callCount() > 4 {
+		t.Fatalf("60 lines should be a handful of requests, got %d", ai.callCount())
 	}
-	for _, size := range ai.batchSize {
+	for _, size := range ai.batchSizes() {
 		if size > MaxItemsPerRequest {
 			t.Fatalf("batch of %d exceeds the cap of %d", size, MaxItemsPerRequest)
 		}
@@ -197,8 +221,8 @@ func TestCachedDecisionsSkipTheGatewayEntirely(t *testing.T) {
 
 	a.Run(context.Background(), residual)
 
-	if ai.calls != 0 {
-		t.Fatalf("a cached line must never reach the gateway, got %d calls", ai.calls)
+	if ai.callCount() != 0 {
+		t.Fatalf("a cached line must never reach the gateway, got %d calls", ai.callCount())
 	}
 	if a.Stats.CacheHits != 1 {
 		t.Fatalf("expected 1 cache hit, got %d", a.Stats.CacheHits)
@@ -232,7 +256,7 @@ func TestLinesWithNoCandidatesAreNeverSent(t *testing.T) {
 
 	a.Run(context.Background(), []Residual{residualOf(1, "شيء غامض")}) // no candidates
 
-	if ai.calls != 0 {
+	if ai.callCount() != 0 {
 		t.Fatal("asking a model to choose from an empty list invites invention")
 	}
 }
@@ -266,8 +290,8 @@ func TestWallClockCeilingStopsAdjudication(t *testing.T) {
 	if !a.Stats.CeilingHit {
 		t.Fatal("expected the ceiling to be recorded so the buyer can be told")
 	}
-	if ai.calls != 0 {
-		t.Fatalf("no request should be made past the deadline, got %d", ai.calls)
+	if ai.callCount() != 0 {
+		t.Fatalf("no request should be made past the deadline, got %d", ai.callCount())
 	}
 }
 
@@ -282,8 +306,8 @@ func TestRequestCeilingIsEnforced(t *testing.T) {
 	}
 	a.Run(context.Background(), residual)
 
-	if ai.calls > MaxRequestsPerRun {
-		t.Fatalf("expected at most %d requests, got %d", MaxRequestsPerRun, ai.calls)
+	if ai.callCount() > MaxRequestsPerRun {
+		t.Fatalf("expected at most %d requests, got %d", MaxRequestsPerRun, ai.callCount())
 	}
 	if !a.Stats.CeilingHit {
 		t.Fatal("hitting the request ceiling must be recorded")
@@ -314,8 +338,8 @@ func TestFailedBatchIsBisected(t *testing.T) {
 	}
 	a.Run(context.Background(), residual)
 
-	if ai.calls != 3 {
-		t.Fatalf("expected one failed call then two halves, got %d", ai.calls)
+	if ai.callCount() != 3 {
+		t.Fatalf("expected one failed call then two halves, got %d", ai.callCount())
 	}
 	if a.Stats.Adjudicated != 10 {
 		t.Fatalf("bisection should have salvaged all 10 lines, got %d", a.Stats.Adjudicated)

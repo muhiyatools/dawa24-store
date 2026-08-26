@@ -98,7 +98,26 @@ func (w *importWriter) variantStatus(row *productmatch.Row) catalog.ProductStatu
 // across, plus the two fields the engine read out of the name; the price is the
 // public one because that is the figure the catalogue is meant to hold, and the
 // vendor's own discount belongs to their variant, not to the shared record.
-func buildProduct(row *productmatch.Row) *catalog.Product {
+//
+// The status follows the vendor's own publish setting rather than being pinned
+// to `pending`. Pinning it was a defensible policy that turned out to be a trap:
+// every product a bulk import introduced sat unapproved, and because matching —
+// both the smart order's and the next import's — only ever resolves to live
+// catalogue rows, three and a half thousand pharmaceutical products were
+// invisible to the engine that was supposed to find them. A catalogue nothing
+// can match is not a cautious catalogue, it is an empty one.
+func (w *importWriter) buildProduct(row *productmatch.Row) *catalog.Product {
+	// `pending` rather than `inactive` when the vendor has not asked for
+	// immediate publication. The two are not interchangeable on a shared
+	// catalogue row: `pending` means nobody has looked at it yet and it belongs
+	// in the approval queue, `inactive` means somebody looked and withdrew it.
+	status := catalog.StatusActive
+	if !w.settings.PublishImmediately {
+		status = catalog.StatusPending
+	}
+	if row.Status == "inactive" {
+		status = catalog.StatusInactive
+	}
 	// The supplier's own item code is deliberately not carried across. A shared
 	// catalogue keyed on one vendor's internal numbering collides the moment a
 	// second vendor uploads; their code stays on their variant, where it means
@@ -113,7 +132,7 @@ func buildProduct(row *productmatch.Row) *catalog.Product {
 		Concentration:          row.Concentration,
 		Unit:                   row.Unit,
 		ManufacturingCompanies: row.Manufacturer,
-		Status:                 catalog.StatusPending,
+		Status:                 status,
 		InstitutionalWorkIDs:   []int64{},
 	}
 	return p

@@ -88,7 +88,7 @@ func (f *Finalizer) Finalize(ctx context.Context, run *Run) (orderID int64, stal
 
 	lines, _, err := f.repo.ListLines(ctx, run.ID, LineFilter{
 		Outcome: string(OutcomeOrdered),
-		Limit:   200,
+		All:     true,
 	})
 	if err != nil {
 		return 0, nil, err
@@ -98,12 +98,20 @@ func (f *Finalizer) Finalize(ctx context.Context, run *Run) (orderID int64, stal
 			"no line in this order has a supplier and a quantity above zero", nil)
 	}
 
+	// Every selection of the run in one query rather than one per line. The
+	// re-check below is already a per-line decision; adding a round trip in
+	// front of each made placing a large order take longer than building it.
+	selections, err := f.repo.ListSelectionsByRun(ctx, run.OrganizationID, run.ID)
+	if err != nil {
+		return 0, nil, err
+	}
+
 	orderLines := make([]PlaceOrderLine, 0, len(lines))
 	total := money.Amount{}
 
 	for _, l := range lines {
-		sel, err := f.repo.GetSelection(ctx, run.OrganizationID, l.ID)
-		if err != nil {
+		sel, ok := selections[l.ID]
+		if !ok {
 			stale = append(stale, StaleLine{
 				LineID: l.ID, RawName: l.RawName,
 				Detail: "no supplier is selected for this line any more",
@@ -119,11 +127,11 @@ func (f *Finalizer) Finalize(ctx context.Context, run *Run) (orderID int64, stal
 			continue
 		}
 
-		ok, reason, err := f.recheck.Recheck(ctx, run.OrganizationID, run.BranchID, *candidate, l.EffectiveQty)
+		fresh, reason, err := f.recheck.Recheck(ctx, run.OrganizationID, run.BranchID, *candidate, l.EffectiveQty)
 		if err != nil {
 			return 0, nil, err
 		}
-		if !ok {
+		if !fresh {
 			stale = append(stale, StaleLine{
 				LineID: l.ID, RawName: l.RawName, Reason: reason,
 				Detail: staleDetail(reason),

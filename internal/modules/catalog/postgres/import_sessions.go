@@ -324,13 +324,20 @@ func (r *Repository) ListStagingRows(
 			return fmt.Errorf("catalog postgres: count staging rows: %w", err)
 		}
 
+		// The matched product's own name comes from the join rather than from a
+		// copy taken at staging time. An import is reviewed minutes or hours
+		// after it was prepared; a cached name would disagree with the product
+		// the admin opens to check it against, which is worse than no name.
 		query := fmt.Sprintf(`
-			SELECT id, session_id, source_row, block_index, action, included,
-			       matched_product_id, match_reason, payload, issues, ai_changes
-			FROM catalog.import_staging_rows
+			SELECT r.id, r.session_id, r.source_row, r.block_index, r.action, r.included,
+			       r.matched_product_id, r.match_reason, r.payload, r.issues, r.ai_changes,
+			       COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), '') AS matched_name,
+			       COALESCE(p.sku, '') AS matched_sku
+			FROM catalog.import_staging_rows r
+			LEFT JOIN catalog.products p ON p.id = r.matched_product_id
 			WHERE %s
-			ORDER BY source_row
-			LIMIT $%d OFFSET $%d`, clause, len(args)-1, len(args))
+			ORDER BY r.source_row
+			LIMIT $%d OFFSET $%d`, qualify(clause), len(args)-1, len(args))
 
 		cursor, err := tx.Query(txCtx, query, args...)
 		if err != nil {
@@ -358,10 +365,13 @@ func (r *Repository) GetStagingRow(ctx context.Context, sessionID, rowID int64) 
 	var row *catalog.StagingRow
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		cursor, err := tx.Query(txCtx, `
-			SELECT id, session_id, source_row, block_index, action, included,
-			       matched_product_id, match_reason, payload, issues, ai_changes
-			FROM catalog.import_staging_rows
-			WHERE id = $2 AND session_id = $1
+			SELECT r.id, r.session_id, r.source_row, r.block_index, r.action, r.included,
+			       r.matched_product_id, r.match_reason, r.payload, r.issues, r.ai_changes,
+			       COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), '') AS matched_name,
+			       COALESCE(p.sku, '') AS matched_sku
+			FROM catalog.import_staging_rows r
+			LEFT JOIN catalog.products p ON p.id = r.matched_product_id
+			WHERE r.id = $2 AND r.session_id = $1
 		`, sessionID, rowID)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: get staging row: %w", err)
@@ -688,6 +698,7 @@ func scanStagingRow(cursor pgx.Rows) (*catalog.StagingRow, error) {
 	if err := cursor.Scan(
 		&row.ID, &row.SessionID, &row.SourceRow, &row.Block, &action, &row.Included,
 		&row.MatchedProductID, &matchReason, &payload, &issues, &changes,
+		&row.MatchedProductName, &row.MatchedProductSKU,
 	); err != nil {
 		return nil, fmt.Errorf("catalog postgres: scan staging row: %w", err)
 	}
@@ -713,6 +724,19 @@ func scanStagingRow(cursor pgx.Rows) (*catalog.StagingRow, error) {
 		return nil, fmt.Errorf("catalog postgres: decode staged ai changes (row %d): %w", row.SourceRow, err)
 	}
 	return &row, nil
+}
+
+// qualify prefixes the staging-row filter clause with the table alias the
+// listing query joins under. The clause is built from a fixed set of column
+// names in ListStagingRows, never from input.
+func qualify(clause string) string {
+	for _, col := range []string{
+		"session_id", "action", "has_error", "has_warning", "has_ai",
+		"search_name", "search_code",
+	} {
+		clause = strings.ReplaceAll(clause, col, "r."+col)
+	}
+	return clause
 }
 
 // The JSONB columns are NOT NULL, so a nil Go slice must encode as [] and not

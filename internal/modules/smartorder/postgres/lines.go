@@ -118,8 +118,12 @@ func insertLineBatch(ctx context.Context, tx pgx.Tx, batch []*smartorder.Line) e
 }
 
 // ListLines returns a filtered page of results plus the total matching count.
+//
+// f.All bypasses paging for the callers that must see the whole run. It is not
+// a convenience: the pipeline, the recalculation and the finalisation are all
+// wrong on any run longer than one page, and silently so.
 func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.LineFilter) ([]*smartorder.Line, int, error) {
-	if f.Limit <= 0 || f.Limit > 200 {
+	if !f.All && (f.Limit <= 0 || f.Limit > 200) {
 		f.Limit = 50
 	}
 	var out []*smartorder.Line
@@ -148,11 +152,14 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 			return err
 		}
 
-		args = append(args, f.Limit, f.Offset)
+		page := ""
+		if !f.All {
+			args = append(args, f.Limit, f.Offset)
+			page = ` LIMIT $` + strconv.Itoa(len(args)-1) + ` OFFSET $` + strconv.Itoa(len(args))
+		}
 		rows, err := tx.Query(txCtx,
 			`SELECT `+lineColumns+` FROM smartorder.run_lines WHERE `+clause+`
-			 ORDER BY row_number
-			 LIMIT $`+strconv.Itoa(len(args)-1)+` OFFSET $`+strconv.Itoa(len(args))+`;`, args...)
+			 ORDER BY row_number`+page+`;`, args...)
 		if err != nil {
 			return err
 		}

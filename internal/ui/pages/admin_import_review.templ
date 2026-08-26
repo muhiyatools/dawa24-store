@@ -107,6 +107,10 @@ templ importReviewStats(view ImportReviewView) {
 		if view.Counts.Errors > 0 {
 			@wizStat(FormatCount(view.Counts.Errors), "صف مرفوض", "error")
 		}
+		@wizStat(view.MatchRate(), "نسبة التطابق مع الكتالوج", "update")
+		if view.Session.AIMatched > 0 {
+			@wizStat(FormatCount(view.Session.AIMatched), "طوبق بالتشابه أو بالذكاء الاصطناعي", "ai")
+		}
 		if view.Session.AICalls > 0 {
 			@wizStat(FormatCount(view.Session.AICalls), "طلب ذكاء اصطناعي", "ai")
 		}
@@ -358,6 +362,15 @@ templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
 		</td>
 		<td>
 			<div class="wiz-row-name">{ row.DisplayName() }</div>
+			if row.MatchedProductID != nil {
+				<div class="wiz-row-match">
+					<span class="wiz-row-match-label">المنتج المطابق:</span>
+					<span class="wiz-row-match-name">{ row.MatchedLabel() }</span>
+					if row.MatchedProductSKU != "" {
+						<span class="wiz-row-meta">({ row.MatchedProductSKU })</span>
+					}
+				</div>
+			}
 			if row.MatchReason != "" {
 				<div class="wiz-row-meta">{ catalog.MatchLabels[row.MatchReason] }</div>
 			}

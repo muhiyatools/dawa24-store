@@ -201,6 +201,15 @@ type Settings struct {
 	// without asking. Below it the row is recorded for review and, depending on
 	// the unmatched policy, either skipped or given a new catalogue product.
 	MinMatchScore float64 `json:"min_match_score"`
+	// UseAI lets a model settle the rows the deterministic engine could not.
+	//
+	// It is a tier, not a mode: everything the exact and similarity tiers
+	// resolved is already decided before this runs, and the model only ever
+	// chooses among candidates the engine retrieved. That is what keeps it
+	// cheap — a nine-thousand-row file reaches it with tens of rows, not nine
+	// thousand — and what makes switching it off change how much is matched
+	// rather than whether the import works.
+	UseAI bool `json:"use_ai"`
 	// TrustSupplierCode lets the vendor's own item code match the shared
 	// catalogue's. Off by default: a vendor's "951" is their internal numbering.
 	TrustSupplierCode bool `json:"trust_supplier_code"`
@@ -229,6 +238,7 @@ func DefaultSettings() Settings {
 		Unmatched:           UnmatchedCreate,
 		Duplicates:          productmatch.DuplicateLastWins,
 		MinMatchScore:       0.78,
+		UseAI:               true,
 		BlankQuantityIsZero: false,
 		InferDosageForm:     true,
 		InferConcentration:  true,

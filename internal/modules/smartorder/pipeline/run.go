@@ -33,7 +33,7 @@ func NewRunner(repo smartorder.Repository, cov CoverageGate, inst InstitutionalG
 func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartorder.Config, branch BranchLocation) error {
 	started := time.Now()
 
-	lines, _, err := r.repo.ListLines(ctx, run.ID, smartorder.LineFilter{Limit: 200})
+	lines, _, err := r.repo.ListLines(ctx, run.ID, smartorder.LineFilter{All: true})
 	if err != nil {
 		return err
 	}

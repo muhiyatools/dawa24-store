@@ -174,6 +174,13 @@ type Line struct {
 	MatchConfidence  float64     `json:"match_confidence"`
 	CorrectedByUser  bool        `json:"match_corrected_by_user"`
 
+	// MatchedProductName is the catalogue's own name for the matched product.
+	// It is display-only and is NOT stored on the line: names are edited in the
+	// catalogue, and a copy taken at match time would go stale and quietly
+	// disagree with the product page the buyer opens next. Service.Results
+	// resolves it for whatever page is being rendered.
+	MatchedProductName string `json:"matched_product_name,omitempty"`
+
 	Outcome       Outcome `json:"outcome"`
 	OutcomeReason string  `json:"outcome_reason,omitempty"`
 

@@ -3,7 +3,6 @@ package productmatch
 import (
 	"math"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
@@ -125,6 +124,35 @@ func NewIndex(products []MasterProduct) *Index {
 // Size is how many products the index holds.
 func (idx *Index) Size() int { return idx.total }
 
+// Name returns the catalogue's own label for a product, Arabic first.
+//
+// It exists so a caller that has resolved a match can report *which* product it
+// resolved to without a second query: the index already holds every name it
+// scored against. A results table or an import ledger that prints only the id
+// has told the reader nothing they can check.
+func (idx *Index) Name(id int64) string {
+	if idx == nil {
+		return ""
+	}
+	p, ok := idx.byID[id]
+	if !ok {
+		return ""
+	}
+	if p.NameAR != "" {
+		return p.NameAR
+	}
+	return p.NameEN
+}
+
+// Lookup returns the indexed projection of one catalogue product.
+func (idx *Index) Lookup(id int64) (*MasterProduct, bool) {
+	if idx == nil {
+		return nil, false
+	}
+	p, ok := idx.byID[id]
+	return p, ok
+}
+
 // prepare derives a product's matching keys.
 func prepare(p *MasterProduct) {
 	p.coreAR = coreTokens(p.NameAR)
@@ -144,209 +172,10 @@ func prepare(p *MasterProduct) {
 	p.sciKey = sheet.NormalizeKey(p.Scientific)
 }
 
-// coreTokens reduces a product name to the words that identify it.
-//
-// The pharmaceutical furniture is dropped — the form, the unit, the pack count,
-// the marketing noise a distributor appends ("سعر جديد", "س ج", "**") — leaving
-// the brand and the molecule. Without this, "بانادول اكسترا 24 قرص" and
-// "بانادول اكسترا 24 قرص سعر جديد" score as different products, and every
-// product ending in "أقراص" scores as similar to every other.
-func coreTokens(name string) []string {
-	if name == "" {
-		return nil
-	}
-	words := strings.Fields(sheet.NormalizeName(name))
-	out := make([]string, 0, len(words))
-	for _, w := range words {
-		if noiseWords[w] {
-			continue
-		}
-		if _, ok := formWords[w]; ok {
-			continue
-		}
-		if _, ok := unitWords[w]; ok {
-			continue
-		}
-		// A bare number is a pack count or a dose already captured separately.
-		if _, err := strconv.ParseFloat(w, 64); err == nil {
-			continue
-		}
-		if len([]rune(w)) < 2 {
-			continue
-		}
-		out = append(out, w)
-	}
-	return out
-}
-
-// noiseWords are the words Egyptian distributors append to a product name that
-// say nothing about which product it is.
-var noiseWords = map[string]bool{
-	"سعر": true, "جديد": true, "س": true, "ج": true, "سج": true, "ض": true,
-	"عرض": true, "خصم": true, "مجانا": true, "توفير": true, "بديل": true,
-	"مستورد": true, "باكو": true, "جدبد": true, "الجديد": true,
-	"new": true, "price": true, "offer": true, "free": true, "imported": true,
-}
-
-// formKeyOf collapses the many ways a form is written onto one token, so
-// "أقراص", "قرص", "tab" and "tablets" compare equal.
-func formKeyOf(text string) string {
-	clean := sheet.NormalizeName(text)
-	for _, rule := range formGroups {
-		for _, w := range rule.words {
-			if strings.Contains(clean, w) {
-				return rule.key
-			}
-		}
-	}
-	return ""
-}
-
-var formGroups = []struct {
-	key   string
-	words []string
-}{
-	{"tablet", []string{"اقراص", "قرص", "شريط", "tab", "tablet"}},
-	{"capsule", []string{"كبسول", "كبسوله", "cap", "capsule"}},
-	{"liquid", []string{"شراب", "معلق", "محلول", "syr", "syrup", "susp", "solution"}},
-	{"injectable", []string{"حقن", "امبول", "فيال", "امبوله", "amp", "vial", "inj"}},
-	{"topical", []string{"كريم", "مرهم", "جل", "جيل", "لوسيون", "دهان", "cream", "oint", "gel", "lotion"}},
-	{"drops", []string{"نقط", "قطره", "قطرة", "drop"}},
-	{"suppository", []string{"لبوس", "تحاميل", "supp"}},
-	{"spray", []string{"بخاخ", "اسبراي", "سبراي", "spray"}},
-	{"sachet", []string{"فوار", "كيس", "اكياس", "ساشيه", "sachet", "eff"}},
-	{"wash", []string{"غسول", "شامبو", "صابون", "wash", "shampoo", "soap"}},
-}
-
-// doseUnits normalises the strength units onto a common base: milligrams for
-// mass, millilitres for volume, and their own scale for the rest.
-var doseUnits = map[string]struct {
-	base  string
-	scale float64
-}{
-	"mg": {"mg", 1}, "ملجم": {"mg", 1}, "مجم": {"mg", 1}, "مليجرام": {"mg", 1},
-	"mcg": {"mg", 0.001}, "مكجم": {"mg", 0.001},
-	"g": {"mg", 1000}, "gm": {"mg", 1000}, "جم": {"mg", 1000}, "جرام": {"mg", 1000},
-	"ml": {"ml", 1}, "مل": {"ml", 1}, "مللي": {"ml", 1}, "ملي": {"ml", 1},
-	"l": {"ml", 1000}, "لتر": {"ml", 1000},
-	"iu": {"iu", 1}, "وحده": {"iu", 1}, "وحدة": {"iu", 1},
-	"%": {"%", 1}, "spf": {"spf", 1},
-}
-
-// parseStrength reads the first dose written in a text.
-func parseStrength(text string) strength {
-	m := strengthPattern.FindString(sheet.NormalizeDigits(text))
-	if m == "" {
-		return strength{}
-	}
-	m = strings.ToLower(strings.TrimSpace(m))
-
-	// Split the number from the unit at the first non-numeric rune.
-	cut := 0
-	for i, r := range m {
-		if (r >= '0' && r <= '9') || r == '.' || r == '/' {
-			cut = i + 1
-			continue
-		}
-		if r == ' ' && cut == i {
-			cut = i + 1
-			continue
-		}
-		break
-	}
-	numPart := strings.TrimSpace(m[:cut])
-	unitPart := strings.TrimSpace(m[cut:])
-	// "5/10mg" is a combination product; the first figure identifies it well
-	// enough and the second would only add noise.
-	if head, _, ok := strings.Cut(numPart, "/"); ok {
-		numPart = head
-	}
-	value, err := strconv.ParseFloat(numPart, 64)
-	if err != nil || value <= 0 {
-		return strength{}
-	}
-	u, ok := doseUnits[unitPart]
-	if !ok {
-		return strength{}
-	}
-	return strength{value: value * u.scale, unit: u.base}
-}
-
-// sortedTrigrams is the deduplicated, ordered trigram set of a token list, so
-// two sets can be intersected by a two-pointer walk with no allocation.
-func sortedTrigrams(tokens []string) []string {
-	if len(tokens) == 0 {
-		return nil
-	}
-	tri := sheet.Trigrams(strings.Join(tokens, ""))
-	if len(tri) == 0 {
-		return nil
-	}
-	sort.Strings(tri)
-	out := tri[:1]
-	for _, t := range tri[1:] {
-		if t != out[len(out)-1] {
-			out = append(out, t)
-		}
-	}
-	return out
-}
-
-// jaccardSorted is the overlap of two sorted, deduplicated string sets.
-func jaccardSorted(a, b []string) float64 {
-	if len(a) == 0 || len(b) == 0 {
-		return 0
-	}
-	i, j, inter := 0, 0, 0
-	for i < len(a) && j < len(b) {
-		switch {
-		case a[i] == b[j]:
-			inter++
-			i++
-			j++
-		case a[i] < b[j]:
-			i++
-		default:
-			j++
-		}
-	}
-	union := len(a) + len(b) - inter
-	if union == 0 {
-		return 0
-	}
-	return float64(inter) / float64(union)
-}
-
-// numberSignature is the set of plain numbers a product name carries, sorted.
-//
-// It is what separates "ستار فيل مناديل ميسيلار 25 منديل" from the same product
-// in a fifty-wipe pack. The identifying words are identical, the dose is absent
-// from both, and without the count the two score the same and the engine can
-// only report that it cannot choose.
-func numberSignature(name string) []float64 {
-	fields := strings.FieldsFunc(sheet.NormalizeDigits(name), func(r rune) bool {
-		return !(r >= '0' && r <= '9') && r != '.'
-	})
-	var out []float64
-	for _, f := range fields {
-		v, err := strconv.ParseFloat(strings.Trim(f, "."), 64)
-		if err != nil || v <= 0 || v > 100000 {
-			continue
-		}
-		out = append(out, v)
-	}
-	sort.Float64s(out)
-	// Deduplicate: "1+1_60ملى" repeating a figure says nothing extra.
-	if len(out) > 1 {
-		kept := out[:1]
-		for _, v := range out[1:] {
-			if v != kept[len(kept)-1] {
-				kept = append(kept, v)
-			}
-		}
-		out = kept
-	}
-	return out
+// maxIDF is the weight of a token no catalogue product carries — the ceiling
+// the idf curve approaches as a word gets rarer.
+func (idx *Index) maxIDF() float64 {
+	return math.Log(float64(idx.total + 1))
 }
 
 // idf weights a token by how rare it is in the catalogue.

@@ -1298,6 +1298,28 @@ dialog.modal::backdrop {
 .wiz-scroll { max-height: 34rem; overflow: auto; }
 .wiz-row-name { font-weight: 700; }
 .wiz-row-meta { font-size: 0.75rem; color: var(--text-muted); }
+/* Naming the catalogue product a smart-order line resolved to.
+   The buyer reads it beside what they typed; that comparison is the only way
+   they can tell a right match from a wrong one, so the name carries the weight
+   and the id sits under it for support rather than in place of it. */
+.so-match-name { font-weight: 600; }
+.so-match-name--unnamed { color: var(--text-secondary); }
+.so-match-id { font-size: 0.72rem; color: var(--text-secondary); }
+.so-match-line { font-size: 0.78rem; color: var(--primary-700); }
+
+/* The catalogue product an imported row would update. It is the one thing an
+   admin has to read before approving an update, so it is given its own line
+   and its own weight rather than being folded into the metadata. */
+.wiz-row-match {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.35rem;
+	font-size: 0.78rem;
+	margin-block-start: 0.15rem;
+}
+.wiz-row-match-label { color: var(--text-muted); }
+.wiz-row-match-name { color: var(--primary-700); font-weight: 600; }
 .wiz-row-ai {
 	display: inline-flex;
 	align-items: center;

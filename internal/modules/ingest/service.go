@@ -50,6 +50,10 @@ type Service struct {
 	catalog   CatalogPort
 	inventory InventoryPort
 	runs      runRegistry
+	// adjudicator settles the rows the deterministic engine could not, in
+	// batches. Optional: unset means the tier is skipped and the import keeps
+	// its deterministic answer, which is the same path a disabled gateway takes.
+	adjudicator Adjudicator
 }
 
 // NewService creates a new ingest service.

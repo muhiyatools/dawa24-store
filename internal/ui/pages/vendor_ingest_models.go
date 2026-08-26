@@ -28,6 +28,13 @@ type VendorImportView struct {
 	RowCounts map[string]int
 	Filter    ingest.RowFilter
 
+	// AIAvailable says whether the platform can actually run the AI tier. The
+	// switch is rendered disabled with a reason when it cannot, rather than
+	// offering a toggle that ticks and then does nothing.
+	AIAvailable bool
+	// AIUnavailableReason is what to tell the vendor when it cannot.
+	AIUnavailableReason string
+
 	NoticeType    string
 	NoticeMessage string
 	// Fatal is a message that replaces the whole stage, for a file that could

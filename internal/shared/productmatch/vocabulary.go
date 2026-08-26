@@ -64,6 +64,12 @@ var unitWords = keySet([]string{
 	"علبة", "علبه", "شريط", "زجاجة", "زجاجه", "كيس", "أمبول", "امبول", "عبوة", "عبوه",
 	"قطعة", "قطعه", "برطمان", "أنبوبة", "انبوبه", "تيوب", "باكو", "دستة", "دسته",
 	"كرتونة", "كرتونه", "فيال", "لفة", "طبة", "وحدة", "وحده", "جرام", "مللي", "لتر",
+	// Dose units left loose in a name are not identifying words: "مجم" is
+	// carried by half the catalogue, so counting it as vocabulary dilutes the
+	// brand it sits next to. The strength itself is parsed separately and
+	// compared as a number, which is the only comparison that means anything.
+	"مجم", "مج", "مغ", "محم", "ملجم", "ملجرام", "مليجرام", "مكجم", "ملي", "مل",
+	"mg", "mcg", "gm", "ml", "iu",
 	"box", "strip", "bottle", "pack", "packet", "piece", "pcs", "vial", "tube",
 	"sachet", "carton", "unit", "ea", "each", "amp", "ampoule", "jar", "can", "tin",
 })

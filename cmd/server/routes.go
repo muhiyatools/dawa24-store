@@ -273,6 +273,16 @@ func mountModuleRoutes(
 		mapper := cataloggw.NewMapper(ai, log)
 		mapper.SetKeyResolver(cataloggw.KeyResolver(keyResolverUI))
 		catSvcUI.SetAIMapper(mapper)
+		// The fourth call, and the only one that is about rows: the products
+		// similarity could not tie to an existing catalogue entry, adjudicated
+		// in batches of twenty-five against a shortlist the importer retrieved.
+		// Without it the import matched barcodes and identical spellings only,
+		// and staged everything else as a new product.
+		catSvcUI.SetMatchAdjudicator(mapper)
+		// The vendor import gets the same tier, through the same prompt and the
+		// same shortlist contract. Two adjudicators would drift apart the first
+		// time either prompt was tuned.
+		ingSvcUI.SetAdjudicator(ingest.NewCatalogAdjudicator(mapper))
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)

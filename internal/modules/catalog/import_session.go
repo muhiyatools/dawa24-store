@@ -1,6 +1,7 @@
 package catalog
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -256,9 +257,27 @@ type StagingRow struct {
 	Included         bool        `json:"included"`
 	MatchedProductID *int64      `json:"matched_product_id,omitempty"`
 	MatchReason      MatchReason `json:"match_reason,omitempty"`
-	Product          *Product    `json:"product"`
-	Issues           []RowIssue  `json:"issues,omitempty"`
-	AIChanges        []AIChange  `json:"ai_changes,omitempty"`
+	// MatchedProductName and MatchedProductSKU are the catalogue's own labels
+	// for the matched product, read by join at list time rather than copied at
+	// staging time so they cannot go stale between preparing an import and
+	// reviewing it. An admin approving an update needs to see which product is
+	// about to be overwritten, and "#255741" does not tell them.
+	MatchedProductName string     `json:"matched_product_name,omitempty"`
+	MatchedProductSKU  string     `json:"matched_product_sku,omitempty"`
+	Product            *Product   `json:"product"`
+	Issues             []RowIssue `json:"issues,omitempty"`
+	AIChanges          []AIChange `json:"ai_changes,omitempty"`
+}
+
+// MatchedLabel is how the review table names the product a row would update.
+func (r *StagingRow) MatchedLabel() string {
+	if r.MatchedProductID == nil {
+		return ""
+	}
+	if r.MatchedProductName != "" {
+		return r.MatchedProductName
+	}
+	return fmt.Sprintf("صنف رقم %d", *r.MatchedProductID)
 }
 
 // DisplayName is the product name shown in the review table.

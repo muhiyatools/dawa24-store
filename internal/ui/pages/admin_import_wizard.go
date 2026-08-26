@@ -147,8 +147,10 @@ func importToggles(opts catalog.ImportOptions, aiAvailable bool) []ImportToggle 
 	ai := ImportToggle{
 		Name: "use_ai", Icon: "🤖",
 		Title: "مساعدة الذكاء الاصطناعي",
-		Description: "يُستخدم في ثلاثة طلبات فقط مهما كان حجم الملف: تحديد معنى الأعمدة، " +
-			"ومطابقة الفئات والأشكال الصيدلية المستوردة مع الموجودة في المنصة. لا يعالج الصفوف واحداً واحداً.",
+		Description: "ثلاثة طلبات ثابتة مهما كان حجم الملف — تحديد معنى الأعمدة، ومطابقة الفئات " +
+			"والأشكال الصيدلية — ثم طلبات مجمّعة للأصناف التي لم يحسمها التطابق الحتمي وحده " +
+			"(٢٥ صنفاً في الطلب الواحد، ومن بين مرشحين محدّدين فقط). لا يُعالَج أي صف على حدة، " +
+			"وإيقافه لا يعطّل الاستيراد بل يقلّل نسبة المطابقة فقط.",
 		Checked: opts.UseAI && aiAvailable,
 	}
 	if !aiAvailable {
@@ -356,7 +358,25 @@ func (v ImportReviewView) AISummary() string {
 	return fmt.Sprintf("%s (%d طلب ذكاء اصطناعي)", v.Session.AINote, v.Session.AICalls)
 }
 
-// RowActionBadge picks the badge colour for a staged action.
+// MatchRate is the share of the file that resolved to a product the catalogue
+// already holds, rendered as a percentage.
+//
+// It is the number an admin watches to know whether an import is about to
+// update the catalogue or to duplicate it: everything that did not match is
+// staged as a new product, so a low rate on a file of familiar medicines means
+// the matching is failing, not that the catalogue is missing them.
+func (v ImportReviewView) MatchRate() string {
+	if v.Session == nil {
+		return "—"
+	}
+	considered := v.Counts.Insert + v.Counts.Update
+	if considered == 0 {
+		return "—"
+	}
+	return fmt.Sprintf("%d%%", v.Counts.Update*100/considered)
+}
+
+// RowActionBadge picks the badge colour for a staged action.// RowActionBadge picks the badge colour for a staged action.
 func RowActionBadge(action catalog.RowAction) string {
 	switch action {
 	case catalog.ActionInsert:

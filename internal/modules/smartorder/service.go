@@ -122,9 +122,50 @@ func (s *Service) Queue(ctx context.Context, run *Run) error {
 	return s.repo.UpdateRunStatus(ctx, run.ID, run.Status, run.CurrentStep, "")
 }
 
-// Results returns a filtered page of lines.
+// Results returns a filtered page of lines, each carrying the catalogue name of
+// the product it matched.
+//
+// The name is resolved here rather than by every screen that renders lines,
+// because every one of them needs it: a results table, a review cart or an
+// export that shows only "#255741" has given the buyer no way to tell whether
+// the match is right. One extra query per page, keyed by the ids actually on
+// it.
 func (s *Service) Results(ctx context.Context, run *Run, f LineFilter) ([]*Line, int, error) {
-	return s.repo.ListLines(ctx, run.ID, f)
+	lines, total, err := s.repo.ListLines(ctx, run.ID, f)
+	if err != nil {
+		return nil, 0, err
+	}
+	s.attachProductNames(ctx, lines)
+	return lines, total, nil
+}
+
+// attachProductNames fills in the display name of each matched product.
+//
+// A failure here is never fatal: the page still renders, the ids are still
+// correct, and the buyer sees one fewer column rather than an error screen.
+func (s *Service) attachProductNames(ctx context.Context, lines []*Line) {
+	ids := make([]int64, 0, len(lines))
+	seen := make(map[int64]bool, len(lines))
+	for _, l := range lines {
+		if !l.Matched() || seen[*l.MatchedProductID] {
+			continue
+		}
+		seen[*l.MatchedProductID] = true
+		ids = append(ids, *l.MatchedProductID)
+	}
+	if len(ids) == 0 {
+		return
+	}
+	names, err := s.repo.ProductNames(ctx, ids)
+	if err != nil {
+		s.log.WarnContext(ctx, "could not resolve matched product names", "error", err)
+		return
+	}
+	for _, l := range lines {
+		if l.Matched() {
+			l.MatchedProductName = names[*l.MatchedProductID]
+		}
+	}
 }
 
 // Candidates returns every vendor considered for a line, rejected ones included.
@@ -248,16 +289,23 @@ func (s *Service) MarkStale(ctx context.Context, run *Run) error {
 func (s *Service) Recalculate(ctx context.Context, run *Run, cfg *Config) (money.Amount, error) {
 	lines, _, err := s.repo.ListLines(ctx, run.ID, LineFilter{
 		Outcome: string(OutcomeOrdered),
-		Limit:   200,
+		All:     true,
 	})
+	if err != nil {
+		return money.Amount{}, err
+	}
+	// Every selection of the run in one query. Asking per line made this scale
+	// with the buyer's file: a nine-hundred-line run recalculated after each
+	// quantity edit is nine hundred round trips per keystroke.
+	selections, err := s.repo.ListSelectionsByRun(ctx, run.OrganizationID, run.ID)
 	if err != nil {
 		return money.Amount{}, err
 	}
 
 	total := money.Amount{}
 	for _, l := range lines {
-		sel, err := s.repo.GetSelection(ctx, run.OrganizationID, l.ID)
-		if err != nil {
+		sel, ok := selections[l.ID]
+		if !ok {
 			continue // a line without a selection contributes nothing
 		}
 		if total, err = total.Add(sel.LineNet); err != nil {

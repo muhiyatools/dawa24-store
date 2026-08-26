@@ -165,6 +165,7 @@ func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 	r.Get("/customer/smart-order/{id}/progress", h.SmartOrderProgressPage)
 	r.Get("/customer/smart-order/{id}/results", h.SmartOrderResultsPage)
 	r.Get("/customer/smart-order/{id}/review", h.SmartOrderReviewPage)
+	r.Get("/customer/smart-order/{id}/export", h.SmartOrderExportCSV)
 
 	r.Post("/customer/smart-order/{id}/lines/{lineID}/quantity", h.SmartOrderQuantitySubmit)
 	r.Post("/customer/smart-order/{id}/lines/{lineID}/supplier", h.SmartOrderSupplierSubmit)

@@ -120,6 +120,43 @@ func matchableStatuses() []string {
 	return []string{"active"}
 }
 
+// ProductNames resolves catalogue product names for the results and review
+// screens, in one query for the whole page.
+//
+// Arabic first, English as a fallback: the catalogue is Arabic-primary and a
+// row with only an English name is rare but must still render as something a
+// person can read rather than as a bare id.
+func (r *Repository) ProductNames(ctx context.Context, ids []int64) (map[int64]string, error) {
+	out := make(map[int64]string, len(ids))
+	if len(ids) == 0 {
+		return out, nil
+	}
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `
+			SELECT p.id,
+			       COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), '') AS label
+			FROM catalog.products p
+			WHERE p.id = ANY($1::bigint[]);`, ids)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id int64
+			var label string
+			if err := rows.Scan(&id, &label); err != nil {
+				return err
+			}
+			out[id] = label
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LoadMatchIndex loads the catalogue projection the in-memory matcher scores
 // against.
 //
