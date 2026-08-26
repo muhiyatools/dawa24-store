@@ -129,7 +129,7 @@ func mountModuleRoutes(
 		// Attachments API
 		attachmentsHttp.NewHandler(attachSvc, log).RegisterRoutes(protected)
 
-		mountAuthenticatedModules(protected, cfg, log, deps, ai, storageClient, docsGate)
+		mountAuthenticatedModules(protected, cfg, log, deps, ai, adminKeys, storageClient, docsGate)
 	})
 
 	// 13. Templ SSR Frontend & Static Assets
@@ -226,11 +226,17 @@ func mountModuleRoutes(
 
 	keyResolverUI := func(ctx context.Context, orgID int64) (string, error) {
 		if orgID <= 0 {
+			if adminKeys != nil {
+				return adminKeys.Key(ctx), nil
+			}
 			return "", nil
 		}
 		sysCtx := database.AsSystem(ctx)
 		o, err := orgSvcUI.GetOrganization(sysCtx, orgID)
 		if err != nil || o == nil {
+			if adminKeys != nil {
+				return adminKeys.Key(ctx), nil
+			}
 			return "", err
 		}
 		if o.AIVirtualKey != "" {
@@ -250,6 +256,9 @@ func mountModuleRoutes(
 				_ = orgSvcUI.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
 				return vkey, nil
 			}
+		}
+		if adminKeys != nil {
+			return adminKeys.Key(ctx), nil
 		}
 		return "", nil
 	}
@@ -351,6 +360,7 @@ func mountAuthenticatedModules(
 	log *slog.Logger,
 	deps *dependencies,
 	ai gateway.Client,
+	adminKeys *adminKeyProvisioner,
 	storageClient *storage.Client,
 	docsGate func(ctx context.Context, orgID int64, orgType string) error,
 ) {
@@ -429,11 +439,17 @@ func mountAuthenticatedModules(
 
 	keyResolverAPI := func(ctx context.Context, orgID int64) (string, error) {
 		if orgID <= 0 {
+			if adminKeys != nil {
+				return adminKeys.Key(ctx), nil
+			}
 			return "", nil
 		}
 		sysCtx := database.AsSystem(ctx)
 		o, err := orgSvc.GetOrganization(sysCtx, orgID)
 		if err != nil || o == nil {
+			if adminKeys != nil {
+				return adminKeys.Key(ctx), nil
+			}
 			return "", err
 		}
 		if o.AIVirtualKey != "" {
@@ -453,6 +469,9 @@ func mountAuthenticatedModules(
 				_ = orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
 				return vkey, nil
 			}
+		}
+		if adminKeys != nil {
+			return adminKeys.Key(ctx), nil
 		}
 		return "", nil
 	}

@@ -138,7 +138,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var virtualKey string
-	if h.keyResolver != nil && (actor.OrgID > 0 || actor.OrganizationID > 0) {
+	if h.keyResolver != nil {
 		oid := actor.OrgID
 		if oid <= 0 {
 			oid = actor.OrganizationID

@@ -173,6 +173,9 @@ func (h *Handler) AssistantConversations(w http.ResponseWriter, r *http.Request)
 		http.Error(w, `{"error":"db_error"}`, http.StatusInternalServerError)
 		return
 	}
+	if convs == nil {
+		convs = []*assistant.Conversation{}
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]any{"conversations": convs})
@@ -200,7 +203,7 @@ func (h *Handler) AssistantHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conv, err := h.repo.GetConversation(ctx, convID)
-	if err != nil || conv == nil || conv.OrganizationID != actor.OrgID || conv.UserID != actor.UserID {
+	if err != nil || conv == nil || (conv.OrganizationID != actor.OrgID && !actor.IsStaff) || conv.UserID != actor.UserID {
 		http.Error(w, `{"error":"not_found"}`, http.StatusNotFound)
 		return
 	}
@@ -209,6 +212,9 @@ func (h *Handler) AssistantHistory(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, `{"error":"db_error"}`, http.StatusInternalServerError)
 		return
+	}
+	if msgs == nil {
+		msgs = []*assistant.Message{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

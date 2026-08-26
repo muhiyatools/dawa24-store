@@ -25,313 +25,270 @@ var _ assistant.Repository = (*Repository)(nil)
 
 // CreateConversation inserts a new conversation row.
 func (r *Repository) CreateConversation(ctx context.Context, c *assistant.Conversation) error {
-	pool := r.db.Pool()
-
-	query := `
-		INSERT INTO assistant.conversations (
-			organization_id, user_id, title
-		) VALUES ($1, $2, $3)
-		RETURNING id, public_id, created_at, updated_at
-	`
-	err := pool.QueryRow(ctx, query, c.OrganizationID, c.UserID, c.Title).
-		Scan(&c.ID, &c.PublicID, &c.CreatedAt, &c.UpdatedAt)
-	if err != nil {
-		return fmt.Errorf("assistant: create conversation: %w", err)
-	}
-	return nil
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		var orgID *int64
+		if c.OrganizationID > 0 {
+			orgID = &c.OrganizationID
+		}
+		query := `
+			INSERT INTO assistant.conversations (
+				organization_id, user_id, title
+			) VALUES ($1, $2, $3)
+			RETURNING id, public_id, created_at, updated_at
+		`
+		return tx.QueryRow(txCtx, query, orgID, c.UserID, c.Title).
+			Scan(&c.ID, &c.PublicID, &c.CreatedAt, &c.UpdatedAt)
+	})
 }
 
 // GetConversation fetches one conversation by primary key.
 func (r *Repository) GetConversation(ctx context.Context, id int64) (*assistant.Conversation, error) {
-	pool := r.db.Pool()
-
-	query := `
-		SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
-		FROM assistant.conversations
-		WHERE id = $1 AND deleted_at IS NULL
-	`
 	var c assistant.Conversation
-	err := pool.QueryRow(ctx, query, id).Scan(
-		&c.ID, &c.PublicID, &c.OrganizationID, &c.UserID, &c.Title,
-		&c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
-	)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
+	var orgID *int64
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
+			FROM assistant.conversations
+			WHERE id = $1 AND deleted_at IS NULL
+		`
+		err := tx.QueryRow(txCtx, query, id).Scan(
+			&c.ID, &c.PublicID, &orgID, &c.UserID, &c.Title,
+			&c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
+		)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return nil
+			}
+			return err
 		}
+		if orgID != nil {
+			c.OrganizationID = *orgID
+		}
+		return nil
+	})
+	if err != nil {
 		return nil, fmt.Errorf("assistant: get conversation: %w", err)
+	}
+	if c.ID == 0 {
+		return nil, nil
 	}
 	return &c, nil
 }
 
 // GetConversationSummary fetches enriched metadata for one conversation.
 func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*assistant.ConversationSummary, error) {
-	pool := r.db.Pool()
-
-	query := `
-		SELECT 
-			c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || c.organization_id) AS org_name,
-			COALESCE(o.type, '') AS org_type,
-			c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
-			COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
-			COALESCE(u.role, '') AS user_role,
-			c.title, c.created_at, c.updated_at,
-			COUNT(m.id) AS message_count,
-			COALESCE(SUM(m.input_tokens), 0) AS total_input_tokens,
-			COALESCE(SUM(m.output_tokens), 0) AS total_output_tokens
-		FROM assistant.conversations c
-		LEFT JOIN org.organizations o ON o.id = c.organization_id
-		LEFT JOIN identity.users u ON u.id = c.user_id
-		LEFT JOIN assistant.messages m ON m.conversation_id = c.id
-		WHERE c.id = $1 AND c.deleted_at IS NULL
-		GROUP BY c.id, c.public_id, c.organization_id, o.name, o.type, c.user_id, u.full_name, u.email, u.phone, u.role, c.title, c.created_at, c.updated_at
-	`
 	var s assistant.ConversationSummary
-	err := pool.QueryRow(ctx, query, id).Scan(
-		&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName, &s.OrganizationType,
-		&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone, &s.UserRole,
-		&s.Title, &s.CreatedAt, &s.UpdatedAt,
-		&s.MessageCount, &s.TotalInputTokens, &s.TotalOutputTokens,
-	)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
+	var orgID *int64
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT 
+				c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || COALESCE(c.organization_id, 0)) AS org_name,
+				COALESCE(o.type, '') AS org_type,
+				c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
+				COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
+				COALESCE(u.role, '') AS user_role,
+				c.title, c.created_at, c.updated_at,
+				COUNT(m.id) AS message_count,
+				COALESCE(SUM(m.input_tokens), 0) AS total_input_tokens,
+				COALESCE(SUM(m.output_tokens), 0) AS total_output_tokens
+			FROM assistant.conversations c
+			LEFT JOIN org.organizations o ON o.id = c.organization_id
+			LEFT JOIN identity.users u ON u.id = c.user_id
+			LEFT JOIN assistant.messages m ON m.conversation_id = c.id
+			WHERE c.id = $1 AND c.deleted_at IS NULL
+			GROUP BY c.id, c.public_id, c.organization_id, o.name, o.type, c.user_id, u.full_name, u.email, u.phone, u.role, c.title, c.created_at, c.updated_at
+		`
+		err := tx.QueryRow(txCtx, query, id).Scan(
+			&s.ID, &s.PublicID, &orgID, &s.OrganizationName, &s.OrganizationType,
+			&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone, &s.UserRole,
+			&s.Title, &s.CreatedAt, &s.UpdatedAt,
+			&s.MessageCount, &s.TotalInputTokens, &s.TotalOutputTokens,
+		)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return nil
+			}
+			return err
 		}
+		if orgID != nil {
+			s.OrganizationID = *orgID
+		}
+		return nil
+	})
+	if err != nil {
 		return nil, fmt.Errorf("assistant: get conversation summary: %w", err)
+	}
+	if s.ID == 0 {
+		return nil, nil
 	}
 	return &s, nil
 }
 
-// ListAllConversations returns all assistant sessions across organizations for administrative audit with search and pagination.
-func (r *Repository) ListAllConversations(ctx context.Context, search string, limit, offset int) ([]*assistant.ConversationSummary, int, error) {
-	pool := r.db.Pool()
-
-	if limit <= 0 || limit > 100 {
-		limit = 50
-	}
-
-	whereClause := "WHERE c.deleted_at IS NULL"
-	args := []any{}
-	argIdx := 1
-
-	if search != "" {
-		whereClause += fmt.Sprintf(` AND (
-			c.title ILIKE $%d OR
-			u.full_name ILIKE $%d OR
-			u.email ILIKE $%d OR
-			u.phone ILIKE $%d OR
-			COALESCE(o.name->>'ar', o.name->>'en', '') ILIKE $%d
-		)`, argIdx, argIdx, argIdx, argIdx, argIdx)
-		args = append(args, "%"+search+"%")
-		argIdx++
-	}
-
-	// Count total
-	countQuery := fmt.Sprintf(`
-		SELECT COUNT(DISTINCT c.id)
-		FROM assistant.conversations c
-		LEFT JOIN org.organizations o ON o.id = c.organization_id
-		LEFT JOIN identity.users u ON u.id = c.user_id
-		%s
-	`, whereClause)
-
-	var total int
-	if err := pool.QueryRow(ctx, countQuery, args...).Scan(&total); err != nil {
-		return nil, 0, fmt.Errorf("assistant: count conversations: %w", err)
-	}
-
-	// Fetch page
-	query := fmt.Sprintf(`
-		SELECT 
-			c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || c.organization_id) AS org_name,
-			COALESCE(o.type, '') AS org_type,
-			c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
-			COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
-			COALESCE(u.role, '') AS user_role,
-			c.title, c.created_at, c.updated_at,
-			COUNT(m.id) AS message_count,
-			COALESCE(SUM(m.input_tokens), 0) AS total_input_tokens,
-			COALESCE(SUM(m.output_tokens), 0) AS total_output_tokens
-		FROM assistant.conversations c
-		LEFT JOIN org.organizations o ON o.id = c.organization_id
-		LEFT JOIN identity.users u ON u.id = c.user_id
-		LEFT JOIN assistant.messages m ON m.conversation_id = c.id
-		%s
-		GROUP BY c.id, c.public_id, c.organization_id, o.name, o.type, c.user_id, u.full_name, u.email, u.phone, u.role, c.title, c.created_at, c.updated_at
-		ORDER BY c.updated_at DESC
-		LIMIT $%d OFFSET $%d
-	`, whereClause, argIdx, argIdx+1)
-
-	args = append(args, limit, offset)
-	rows, err := pool.Query(ctx, query, args...)
-	if err != nil {
-		return nil, 0, fmt.Errorf("assistant: list all conversations: %w", err)
-	}
-	defer rows.Close()
-
-	var convs []*assistant.ConversationSummary
-	for rows.Next() {
-		var s assistant.ConversationSummary
-		if err := rows.Scan(
-			&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName, &s.OrganizationType,
-			&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone, &s.UserRole,
-			&s.Title, &s.CreatedAt, &s.UpdatedAt,
-			&s.MessageCount, &s.TotalInputTokens, &s.TotalOutputTokens,
-		); err != nil {
-			return nil, 0, fmt.Errorf("assistant: scan conversation summary: %w", err)
-		}
-		convs = append(convs, &s)
-	}
-	return convs, total, rows.Err()
-}
-
-// GetAssistantStats aggregates platform-wide assistant usage metrics.
-func (r *Repository) GetAssistantStats(ctx context.Context) (*assistant.AssistantStats, error) {
-	pool := r.db.Pool()
-
-	query := `
-		SELECT 
-			(SELECT COUNT(*) FROM assistant.conversations WHERE deleted_at IS NULL),
-			(SELECT COUNT(*) FROM assistant.messages),
-			(SELECT COALESCE(SUM(input_tokens), 0) FROM assistant.messages),
-			(SELECT COALESCE(SUM(output_tokens), 0) FROM assistant.messages),
-			(SELECT COUNT(DISTINCT user_id) FROM assistant.conversations WHERE deleted_at IS NULL)
-	`
-	var stats assistant.AssistantStats
-	err := pool.QueryRow(ctx, query).Scan(
-		&stats.TotalConversations,
-		&stats.TotalMessages,
-		&stats.TotalInputTokens,
-		&stats.TotalOutputTokens,
-		&stats.ActiveUsers,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("assistant: get stats: %w", err)
-	}
-	return &stats, nil
-}
 
 // DeleteConversation marks a conversation as deleted for a user.
 func (r *Repository) DeleteConversation(ctx context.Context, id int64, orgID, userID int64) error {
-	pool := r.db.Pool()
-
-	query := `
-		UPDATE assistant.conversations
-		SET deleted_at = now()
-		WHERE id = $1 AND organization_id = $2 AND user_id = $3 AND deleted_at IS NULL
-	`
-	_, err := pool.Exec(ctx, query, id, orgID, userID)
-	if err != nil {
-		return fmt.Errorf("assistant: delete conversation: %w", err)
-	}
-	return nil
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		var query string
+		var args []any
+		if orgID > 0 {
+			query = `
+				UPDATE assistant.conversations
+				SET deleted_at = now()
+				WHERE id = $1 AND organization_id = $2 AND user_id = $3 AND deleted_at IS NULL
+			`
+			args = []any{id, orgID, userID}
+		} else {
+			query = `
+				UPDATE assistant.conversations
+				SET deleted_at = now()
+				WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
+			`
+			args = []any{id, userID}
+		}
+		_, err := tx.Exec(txCtx, query, args...)
+		return err
+	})
 }
 
 // ListConversations returns recent active conversations for a user.
 func (r *Repository) ListConversations(ctx context.Context, orgID, userID int64, limit, offset int) ([]*assistant.Conversation, error) {
-	pool := r.db.Pool()
-
 	if limit <= 0 || limit > 100 {
 		limit = 30
 	}
 
-	query := `
-		SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
-		FROM assistant.conversations
-		WHERE organization_id = $1 AND user_id = $2 AND deleted_at IS NULL
-		ORDER BY updated_at DESC
-		LIMIT $3 OFFSET $4
-	`
-	rows, err := pool.Query(ctx, query, orgID, userID, limit, offset)
-	if err != nil {
-		return nil, fmt.Errorf("assistant: list conversations: %w", err)
-	}
-	defer rows.Close()
-
 	var convs []*assistant.Conversation
-	for rows.Next() {
-		var c assistant.Conversation
-		if err := rows.Scan(
-			&c.ID, &c.PublicID, &c.OrganizationID, &c.UserID, &c.Title,
-			&c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
-		); err != nil {
-			return nil, fmt.Errorf("assistant: scan conversation: %w", err)
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		var query string
+		var args []any
+		if orgID > 0 {
+			query = `
+				SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
+				FROM assistant.conversations
+				WHERE organization_id = $1 AND user_id = $2 AND deleted_at IS NULL
+				ORDER BY updated_at DESC
+				LIMIT $3 OFFSET $4
+			`
+			args = []any{orgID, userID, limit, offset}
+		} else {
+			query = `
+				SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
+				FROM assistant.conversations
+				WHERE user_id = $1 AND deleted_at IS NULL
+				ORDER BY updated_at DESC
+				LIMIT $2 OFFSET $3
+			`
+			args = []any{userID, limit, offset}
 		}
-		convs = append(convs, &c)
+		rows, err := tx.Query(txCtx, query, args...)
+		if err != nil {
+			return fmt.Errorf("assistant: list conversations: %w", err)
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var c assistant.Conversation
+			var oID *int64
+			if err := rows.Scan(
+				&c.ID, &c.PublicID, &oID, &c.UserID, &c.Title,
+				&c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
+			); err != nil {
+				return fmt.Errorf("assistant: scan conversation: %w", err)
+			}
+			if oID != nil {
+				c.OrganizationID = *oID
+			}
+			convs = append(convs, &c)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
 	}
-	return convs, rows.Err()
+	return convs, nil
 }
 
 // SaveMessage records a turn in a conversation.
 func (r *Repository) SaveMessage(ctx context.Context, m *assistant.Message) error {
-	pool := r.db.Pool()
-
 	attsJSON, err := json.Marshal(m.Attachments)
 	if err != nil {
 		attsJSON = []byte("[]")
 	}
 
-	query := `
-		INSERT INTO assistant.messages (
-			conversation_id, organization_id, role, content,
-			attachments, prompt_version, model_role, input_tokens,
-			output_tokens, gateway_request_id
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-		RETURNING id, created_at
-	`
-	err = pool.QueryRow(
-		ctx, query,
-		m.ConversationID, m.OrganizationID, m.Role, m.Content,
-		attsJSON, m.PromptVersion, m.ModelRole, m.InputTokens,
-		m.OutputTokens, m.GatewayRequestID,
-	).Scan(&m.ID, &m.CreatedAt)
-	if err != nil {
-		return fmt.Errorf("assistant: save message: %w", err)
-	}
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		var orgID *int64
+		if m.OrganizationID > 0 {
+			orgID = &m.OrganizationID
+		}
+		query := `
+			INSERT INTO assistant.messages (
+				conversation_id, organization_id, role, content,
+				attachments, prompt_version, model_role, input_tokens,
+				output_tokens, gateway_request_id
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+			RETURNING id, created_at
+		`
+		err = tx.QueryRow(
+			txCtx, query,
+			m.ConversationID, orgID, m.Role, m.Content,
+			attsJSON, m.PromptVersion, m.ModelRole, m.InputTokens,
+			m.OutputTokens, m.GatewayRequestID,
+		).Scan(&m.ID, &m.CreatedAt)
+		if err != nil {
+			return fmt.Errorf("assistant: save message: %w", err)
+		}
 
-	// Update conversation updated_at
-	_, _ = pool.Exec(ctx, `UPDATE assistant.conversations SET updated_at = now() WHERE id = $1`, m.ConversationID)
-	return nil
+		// Update conversation updated_at
+		_, _ = tx.Exec(txCtx, `UPDATE assistant.conversations SET updated_at = now() WHERE id = $1`, m.ConversationID)
+		return nil
+	})
 }
 
 // ListMessages returns turn history for a conversation in chronological order.
 func (r *Repository) ListMessages(ctx context.Context, convID int64, limit int) ([]*assistant.Message, error) {
-	pool := r.db.Pool()
-
 	if limit <= 0 || limit > 100 {
 		limit = 50
 	}
 
-	query := `
-		SELECT id, conversation_id, organization_id, role, content,
-		       attachments, prompt_version, model_role, input_tokens,
-		       output_tokens, gateway_request_id, created_at
-		FROM assistant.messages
-		WHERE conversation_id = $1
-		ORDER BY id ASC
-		LIMIT $2
-	`
-	rows, err := pool.Query(ctx, query, convID, limit)
-	if err != nil {
-		return nil, fmt.Errorf("assistant: list messages: %w", err)
-	}
-	defer rows.Close()
-
 	var msgs []*assistant.Message
-	for rows.Next() {
-		var m assistant.Message
-		var attsRaw []byte
-		if err := rows.Scan(
-			&m.ID, &m.ConversationID, &m.OrganizationID, &m.Role, &m.Content,
-			&attsRaw, &m.PromptVersion, &m.ModelRole, &m.InputTokens,
-			&m.OutputTokens, &m.GatewayRequestID, &m.CreatedAt,
-		); err != nil {
-			return nil, fmt.Errorf("assistant: scan message: %w", err)
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, conversation_id, organization_id, role, content,
+			       attachments, prompt_version, model_role, input_tokens,
+			       output_tokens, gateway_request_id, created_at
+			FROM assistant.messages
+			WHERE conversation_id = $1
+			ORDER BY id ASC
+			LIMIT $2
+		`
+		rows, err := tx.Query(txCtx, query, convID, limit)
+		if err != nil {
+			return fmt.Errorf("assistant: list messages: %w", err)
 		}
-		if len(attsRaw) > 0 {
-			_ = json.Unmarshal(attsRaw, &m.Attachments)
+		defer rows.Close()
+
+		for rows.Next() {
+			var m assistant.Message
+			var orgID *int64
+			var attsRaw []byte
+			if err := rows.Scan(
+				&m.ID, &m.ConversationID, &orgID, &m.Role, &m.Content,
+				&attsRaw, &m.PromptVersion, &m.ModelRole, &m.InputTokens,
+				&m.OutputTokens, &m.GatewayRequestID, &m.CreatedAt,
+			); err != nil {
+				return fmt.Errorf("assistant: scan message: %w", err)
+			}
+			if orgID != nil {
+				m.OrganizationID = *orgID
+			}
+			if len(attsRaw) > 0 {
+				_ = json.Unmarshal(attsRaw, &m.Attachments)
+			}
+			msgs = append(msgs, &m)
 		}
-		msgs = append(msgs, &m)
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
 	}
-	return msgs, rows.Err()
+	return msgs, nil
 }
