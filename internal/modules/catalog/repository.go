@@ -103,6 +103,7 @@ type Repository interface {
 	ListSavingProductsEnriched(ctx context.Context, orgID int64, search string, filter string, limit, offset int) ([]*SavingProductEnriched, *SavingProductStats, error)
 	GetSavingProductByID(ctx context.Context, id int64) (*SavingProduct, error)
 	DeleteSavingProduct(ctx context.Context, id, orgID int64) error
+	DeleteAllSavingProducts(ctx context.Context, orgID int64) error
 	GetProductProviders(ctx context.Context, productID int64) ([]*ProductProviderInfo, error)
 	BatchUpsertSavingProducts(ctx context.Context, orgID int64, userID *int64, items []*SavingProduct) (added, updated int, err error)
 	ListAllSavingProductsAdmin(ctx context.Context, userID *int64, orgID *int64, search string, filter string, limit, offset int) ([]*SavingProductAdminView, *SavingProductAdminStats, error)

@@ -86,16 +86,14 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							<span>إضافة منتج توفير جديد</span>
 						</button>
 
-						<button
-							type="button"
+						<a
+							href="/vendor/saving-products/import"
 							class="btn btn-secondary"
-							data-modal-open="saving-import-modal"
-							style="font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
-							onclick="openImportModal()"
+							style="font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); text-decoration:none;"
 						>
 							@components.IconUpload("icon-xs")
 							<span>استيراد من ملف (Excel / CSV)</span>
-						</button>
+						</a>
 
 						<a
 							href="/vendor/saving-products/export"

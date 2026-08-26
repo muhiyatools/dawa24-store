@@ -210,6 +210,15 @@ func (r *Repository) DeleteSavingProduct(ctx context.Context, id, orgID int64) e
 	})
 }
 
+// DeleteAllSavingProducts soft-deletes all saving products for an organization.
+func (r *Repository) DeleteAllSavingProducts(ctx context.Context, orgID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `UPDATE catalog.saving_products SET deleted_at = now() WHERE organization_id = $1 AND deleted_at IS NULL;`
+		_, err := tx.Exec(txCtx, query, orgID)
+		return err
+	})
+}
+
 // GetProductProviders retrieves all suppliers/organizations offering the specified master catalog product.
 func (r *Repository) GetProductProviders(ctx context.Context, productID int64) ([]*catalog.ProductProviderInfo, error) {
 	var providers []*catalog.ProductProviderInfo

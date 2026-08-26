@@ -235,6 +235,9 @@ func (r stubRepo) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int6
 func (r stubRepo) DeleteAllProducts(ctx context.Context) (int64, error) {
 	return 0, nil
 }
+func (r stubRepo) DeleteAllSavingProducts(ctx context.Context, orgID int64) error {
+	return nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

@@ -74,16 +74,14 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							<span>إضافة صنف توفير جديد</span>
 						</button>
 
-						<button
-							type="button"
+						<a
+							href="/customer/saving-products/import"
 							class="btn btn-secondary"
-							data-modal-open="pharmacy-saving-import-modal"
-							style="font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
-							onclick="openPharmacyImportModal()"
+							style="font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); text-decoration:none;"
 						>
 							@components.IconUpload("icon-xs")
 							<span>استيراد قائمة الأدوية (Excel / CSV)</span>
-						</button>
+						</a>
 
 						<a
 							href="/customer/saving-products/export"

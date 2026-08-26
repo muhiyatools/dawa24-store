@@ -568,6 +568,11 @@ func (s *Service) DeleteSavingProduct(ctx context.Context, id, orgID int64) erro
 	return s.repo.DeleteSavingProduct(ctx, id, orgID)
 }
 
+// DeleteAllSavingProducts removes all saving product records for an organization.
+func (s *Service) DeleteAllSavingProducts(ctx context.Context, orgID int64) error {
+	return s.repo.DeleteAllSavingProducts(ctx, orgID)
+}
+
 // GetProductProviders returns all suppliers and variants selling a master catalog product.
 func (s *Service) GetProductProviders(ctx context.Context, productID int64) ([]*ProductProviderInfo, error) {
 	return s.repo.GetProductProviders(ctx, productID)

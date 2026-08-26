@@ -173,6 +173,9 @@ func (happyRepo) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64
 func (happyRepo) DeleteAllProducts(ctx context.Context) (int64, error) {
 	return 0, nil
 }
+func (happyRepo) DeleteAllSavingProducts(ctx context.Context, orgID int64) error {
+	return nil
+}
 
 func newAuthedRouter(repo catalog.Repository) http.Handler {
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))

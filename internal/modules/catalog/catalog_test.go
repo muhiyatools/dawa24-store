@@ -309,6 +309,10 @@ func (m *mockCatalogRepo) DeleteSavingProduct(_ context.Context, _, _ int64) err
 	return nil
 }
 
+func (m *mockCatalogRepo) DeleteAllSavingProducts(_ context.Context, _ int64) error {
+	return nil
+}
+
 func (m *mockCatalogRepo) GetProductProviders(_ context.Context, productID int64) ([]*ProductProviderInfo, error) {
 	return nil, nil
 }

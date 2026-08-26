@@ -1,0 +1,376 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ savingReviewStage(view SavingImportView) {
+	{{ sess := view.Session }}
+	<div class="stack-md">
+		<div class="row-between flex-wrap gap-md">
+			<div>
+				<h2 class="wiz-head">مراجعة أصناف التوفير والربط بالكتالوج</h2>
+				<p class="wiz-sub">راجع أسماء وأسعار وكميات الأدوية، واربط الأصناف غير المرتبطة بالكتالوج بالبحث المباشر داخل الجدول.</p>
+			</div>
+			<div class="row-center-sm gap-sm">
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/commit", view.ImportURL, sess.ID)) }
+					onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد وحفظ الأصناف المحددة في قائمة أدوية التوفير؟');">
+					<button type="submit" class="btn btn-primary fw-700">
+						@components.IconCheck("icon-xs")
+						<span>اعتماد وحفظ القائمة ({ fmt.Sprint(sess.TotalRows) } صنف)</span>
+					</button>
+				</form>
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
+					onsubmit="return confirm('هل تريد إلغاء هذه الجلسة والتراجع؟');">
+					<button type="submit" class="btn btn-ghost btn-sm text-danger">✕ إلغاء الجلسة</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="import-stats">
+			<div class="import-stat">
+				<span class="import-stat-value">{ fmt.Sprint(sess.TotalRows) }</span>
+				<span class="import-stat-label">إجمالي الأصناف</span>
+			</div>
+			<div class="import-stat import-stat--ok">
+				<span class="import-stat-value">{ fmt.Sprint(sess.MatchedRows) }</span>
+				<span class="import-stat-label">مطابق بالكتالوج</span>
+			</div>
+			<div class="import-stat import-stat--warn">
+				<span class="import-stat-value">{ fmt.Sprint(sess.UnlinkedRows) }</span>
+				<span class="import-stat-label">غير مرتبط</span>
+			</div>
+			<div class="import-stat">
+				<span class="import-stat-value">{ sess.TotalValue.String() } ج.م</span>
+				<span class="import-stat-label">إجمالي القيمة التقديرية</span>
+			</div>
+		</div>
+
+		<div class="b2b-filter-bar mb-md">
+			<div class="row-center-sm flex-wrap gap-xs">
+				@savingFilterTab(view, "", "الكل (" + fmt.Sprint(sess.TotalRows) + ")")
+				@savingFilterTab(view, "matched", "مطابق بالكتالوج (" + fmt.Sprint(sess.MatchedRows) + ")")
+				@savingFilterTab(view, "unmatched", "غير مرتبط (" + fmt.Sprint(sess.UnlinkedRows) + ")")
+			</div>
+
+			<form method="GET" action={ templ.SafeURL(fmt.Sprintf("%s/%s", view.ImportURL, sess.ID)) } class="row-center-sm ms-auto flex-wrap gap-xs">
+				if view.Filter.MatchFilter != "" {
+					<input type="hidden" name="match" value={ view.Filter.MatchFilter }/>
+				}
+				if view.Filter.SortBy != "" {
+					<input type="hidden" name="sort" value={ view.Filter.SortBy }/>
+				}
+				if view.Filter.SortOrder != "" {
+					<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
+				}
+				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
+					class="form-input" style="min-width: 220px; padding: 0.4rem 0.75rem; font-size: 0.85rem;"/>
+				<select name="limit" onchange="this.form.submit()" class="form-select" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
+					<option value="10" selected?={ view.Filter.Limit == 10 }>10 صفوف</option>
+					<option value="25" selected?={ view.Filter.Limit == 25 || view.Filter.Limit == 0 }>25 صنف</option>
+					<option value="50" selected?={ view.Filter.Limit == 50 }>50 صنف</option>
+					<option value="100" selected?={ view.Filter.Limit == 100 }>100 صنف</option>
+				</select>
+				<button type="submit" class="btn btn-secondary btn-sm">بحث</button>
+				if view.Filter.Search != "" {
+					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, sess.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, 1, view.Filter.Limit, "")) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
+				}
+			</form>
+		</div>
+
+		<div class="b2b-table-card">
+			<div class="table-responsive">
+				<table class="b2b-table">
+					<thead>
+						<tr>
+							<th style="width: 40px;" class="text-center">#</th>
+							@savingThSort(view, "name", "اسم الصنف بالملف المرفوع")
+							<th style="min-width: 280px;">الصنف المطابق بالكتالوج المركزي</th>
+							@savingThSort(view, "score", "نسبة التطابق")
+							@savingThSort(view, "qty", "الكمية المطلوبة")
+							@savingThSort(view, "price", "سعر الشراء")
+							@savingThSort(view, "total", "القيمة الإجمالية")
+						</tr>
+					</thead>
+					<tbody>
+						if len(view.Rows) == 0 {
+							<tr>
+								<td colspan="7" class="text-center p-xl text-muted">
+									لا توجد أصناف مطابقة لخيارات الفلترة أو البحث الحالية.
+								</td>
+							</tr>
+						} else {
+							for _, row := range view.Rows {
+								@savingProductRow(view, row)
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+
+			@savingPagination(view)
+		</div>
+	</div>
+
+	<script>
+	function openSavingCatalogSearch(btn, rowIndex, searchURL, actionURL) {
+		const row = document.getElementById('saving-row-' + rowIndex);
+		if (!row) return;
+		const dropdown = row.querySelector('.saving-catalog-dropdown');
+		if (!dropdown) return;
+
+		// Close any other open dropdowns
+		document.querySelectorAll('.saving-catalog-dropdown').forEach(d => {
+			if (d !== dropdown) d.style.display = 'none';
+		});
+
+		const isOpen = dropdown.style.display === 'block';
+		if (isOpen) {
+			dropdown.style.display = 'none';
+			return;
+		}
+
+		dropdown.style.display = 'block';
+		const input = dropdown.querySelector('.saving-search-input');
+		if (input) {
+			input.focus();
+			if (!input.dataset.initialized) {
+				input.dataset.initialized = 'true';
+				let debounceTimer = null;
+				input.addEventListener('input', function() {
+					clearTimeout(debounceTimer);
+					debounceTimer = setTimeout(() => {
+						fetchSavingCatalogResults(dropdown, input.value, searchURL, actionURL);
+					}, 250);
+				});
+				fetchSavingCatalogResults(dropdown, input.value, searchURL, actionURL);
+			}
+		}
+	}
+
+	function fetchSavingCatalogResults(dropdown, query, searchURL, actionURL) {
+		var resultsContainer = dropdown.querySelector('.saving-search-results');
+		if (!resultsContainer) return;
+		resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">جاري البحث في الكتالوج المركزي...</div>';
+
+		fetch(searchURL + '?q=' + encodeURIComponent(query))
+			.then(function(res) { return res.json(); })
+			.then(function(data) {
+				var items = data.items || data.products || data || [];
+				if (!items || items.length === 0) {
+					resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">لم يتم العثور على أي صنف مطابق.</div>';
+					return;
+				}
+				var html = '';
+				items.forEach(function(item) {
+					var name = item.name_ar || item.name_en || item.name || '';
+					var sku = item.sku || '';
+					var id = item.id;
+					var skuHtml = sku ? '<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">' + escapeHtml(sku) + '</div>' : '';
+					html += '<form method="POST" action="' + actionURL + '" style="margin:0;">' +
+						'<input type="hidden" name="product_id" value="' + id + '" />' +
+						'<input type="hidden" name="master_name" value="' + escapeHtml(name) + '" />' +
+						'<input type="hidden" name="master_sku" value="' + escapeHtml(sku) + '" />' +
+						'<button type="submit" class="saving-combobox-item" style="width:100%; text-align:inherit; display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; border:none; background:none; cursor:pointer; font-size:0.85rem; border-bottom:1px solid var(--border-subtle);">' +
+						'<div><div style="font-weight:700; color:var(--text-primary);">' + escapeHtml(name) + '</div>' + skuHtml + '</div>' +
+						'<span style="font-size:0.75rem; color:var(--brand-primary); font-weight:700;">ربط ✓</span>' +
+						'</button></form>';
+				});
+				resultsContainer.innerHTML = html;
+			})
+			.catch(function(err) {
+				resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--danger); font-size:0.8rem;">حدث خطأ أثناء البحث.</div>';
+			});
+	}
+
+	function escapeHtml(str) {
+		if (!str) return '';
+		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	}
+
+	document.addEventListener('click', function(e) {
+		if (!e.target.closest('.saving-catalog-cell')) {
+			document.querySelectorAll('.saving-catalog-dropdown').forEach(d => d.style.display = 'none');
+		}
+	});
+	</script>
+}
+
+templ savingThSort(view SavingImportView, colKey, label string) {
+	{{
+		isCurrent := view.Filter.SortBy == colKey
+		nextOrder := "asc"
+		if isCurrent && view.Filter.SortOrder == "asc" {
+			nextOrder = "desc"
+		}
+		sortURL := buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, colKey, nextOrder, 1, view.Filter.Limit, view.Filter.Search)
+	}}
+	<th>
+		<a href={ templ.SafeURL(sortURL) } class="row-center-xs gap-xs" style="color: inherit; text-decoration: none;">
+			<span>{ label }</span>
+			if isCurrent {
+				if view.Filter.SortOrder == "desc" {
+					<span style="font-size: 0.75rem;">▼</span>
+				} else {
+					<span style="font-size: 0.75rem;">▲</span>
+				}
+			} else {
+				<span style="font-size: 0.75rem; opacity: 0.4;">⇅</span>
+			}
+		</a>
+	</th>
+}
+
+templ savingFilterTab(view SavingImportView, matchKey, label string) {
+	{{
+		isActive := view.Filter.MatchFilter == matchKey
+		tabURL := buildSavingURL(view.ImportURL, view.Session.ID, matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.Filter.Limit, view.Filter.Search)
+	}}
+	<a href={ templ.SafeURL(tabURL) }
+		class={ "btn btn-sm", templ.KV("btn-primary", isActive), templ.KV("btn-ghost", !isActive) }>
+		{ label }
+	</a>
+}
+
+templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
+	{{
+		actionBase := fmt.Sprintf("%s/%s/items/%d", view.ImportURL, view.Session.ID, row.Index)
+		querySuffix := fmt.Sprintf("?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s",
+			view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, view.Filter.Page, view.Filter.Limit, view.Filter.Search)
+		searchURL := view.BaseURL + "/search-products"
+	}}
+	<tr id={ fmt.Sprintf("saving-row-%d", row.Index) } class={ templ.KV("opacity-50", !row.Included) }>
+		<td class="text-center align-middle">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/toggle" + querySuffix) } style="margin: 0;">
+				<input type="checkbox" checked?={ row.Included } onchange="this.form.submit()" title="تضمين / استثناء" />
+			</form>
+		</td>
+
+		<td class="align-middle">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="stack-2xs">
+				<div class="row-center-xs gap-xs">
+					<input type="text" name="name" value={ row.NameProduct } class="form-input text-sm"
+						style="padding: 0.25rem 0.5rem; font-weight: 600;" />
+					<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ الاسم">✓</button>
+				</div>
+				if row.SKU != "" {
+					<span class="text-2xs text-muted font-mono">{ row.SKU }</span>
+				}
+			</form>
+		</td>
+
+		<td class="align-middle saving-catalog-cell position-relative">
+			<div class="row-center-sm gap-xs">
+				if row.ProductID != nil && *row.ProductID > 0 {
+					<div class="stack-2xs flex-1">
+						<span class="text-sm fw-700 text-primary">{ row.MasterProductName }</span>
+						if row.MasterProductSKU != "" {
+							<span class="text-2xs text-muted font-mono">{ row.MasterProductSKU }</span>
+						}
+					</div>
+					<button type="button" class="btn btn-secondary btn-xs"
+						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)} }>
+						تغيير
+					</button>
+				} else {
+					<button type="button" class="btn btn-outline-warning btn-xs fw-700"
+						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)} }>
+						@components.IconPlus("icon-xs")
+						<span>ربط بالكتالوج</span>
+					</button>
+				}
+			</div>
+
+			<div class="saving-catalog-dropdown combobox-menu shadow-lg"
+				style="display:none; position:absolute; z-index:50; top:100%; start:0; width:340px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.5rem; margin-top:0.25rem;">
+				<div class="p-xs">
+					<input type="text" class="form-input saving-search-input w-100" placeholder="ابحث في الكتالوج المركزي باسم الدواء..."
+						value={ row.NameProduct } style="padding:0.4rem 0.6rem; font-size:0.85rem;" />
+				</div>
+				<div class="saving-search-results max-h-60 overflow-y-auto mt-xs"></div>
+				if row.ProductID != nil && *row.ProductID > 0 {
+					<div class="pt-xs mt-xs border-top" style="border-color: var(--border-subtle);">
+						<form method="POST" action={ templ.SafeURL(actionBase + "/match" + querySuffix) }>
+							<input type="hidden" name="product_id" value="0"/>
+							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
+								✕ إلغاء الربط (جعله غير مرتبط)
+							</button>
+						</form>
+					</div>
+				}
+			</div>
+		</td>
+
+		<td class="text-center align-middle">
+			if row.ProductID != nil && *row.ProductID > 0 {
+				if row.MatchType == "manual" {
+					<span class="badge badge-emerald text-xs fw-800">مطابقة يدوية</span>
+				} else if row.Confidence >= 0.75 {
+					<span class="badge badge-emerald text-xs fw-800">{ fmt.Sprintf("%.0f%%", row.Confidence*100) } (مطابق)</span>
+				} else {
+					<span class="badge badge-amber text-xs fw-700">{ fmt.Sprintf("%.0f%%", row.Confidence*100) }</span>
+				}
+			} else {
+				<span class="badge badge-rose text-xs">غير مرتبط</span>
+			}
+		</td>
+
+		<td class="text-center align-middle">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs">
+				<input type="number" step="1" min="1" name="quantity" value={ fmt.Sprintf("%.0f", row.Quantity) }
+					class="form-input text-center tabular-nums" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 60px;" />
+				<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ الكمية">✓</button>
+			</form>
+		</td>
+
+		<td class="text-center align-middle">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs">
+				<input type="number" step="0.01" min="0" name="price" value={ row.Price.String() }
+					class="form-input text-center tabular-nums" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 75px;" />
+				<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ السعر">✓</button>
+			</form>
+		</td>
+
+		<td class="text-center align-middle tabular-nums fw-700">
+			{ row.TotalValue.String() } ج.م
+		</td>
+	</tr>
+}
+
+templ savingPagination(view SavingImportView) {
+	{{
+		limit := view.Filter.Limit
+		if limit <= 0 {
+			limit = 25
+		}
+		totalPages := (view.RowTotal + limit - 1) / limit
+		currPage := view.Filter.Page
+		if currPage <= 0 {
+			currPage = 1
+		}
+	}}
+	<div class="b2b-pagination">
+		<div class="b2b-pagination-info">
+			عرض <strong>{ fmt.Sprint(len(view.Rows)) }</strong> من إجمالي <strong>{ fmt.Sprint(view.RowTotal) }</strong> صنف
+		</div>
+		if totalPages > 1 {
+			<div class="b2b-pagination-controls">
+				if currPage > 1 {
+					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage-1, limit, view.Filter.Search)) }
+						class="b2b-pagination-btn">
+						السابق
+					</a>
+				}
+				<span class="text-xs px-2">صفحة { fmt.Sprint(currPage) } من { fmt.Sprint(totalPages) }</span>
+				if currPage < totalPages {
+					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage+1, limit, view.Filter.Search)) }
+						class="b2b-pagination-btn">
+						التالي
+					</a>
+				}
+			</div>
+		}
+	</div>
+}

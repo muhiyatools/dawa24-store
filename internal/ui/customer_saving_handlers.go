@@ -216,6 +216,26 @@ func (h *UIHandler) CustomerSavingProductDeleteSubmit(w http.ResponseWriter, r *
 	h.redirectWithNotice(w, r, "/customer/saving-products", "success", "تم حذف الصنف من قائمة التوفير بنجاح.")
 }
 
+// CustomerSavingProductsDeleteAllSubmit deletes all saving products for the customer org.
+func (h *UIHandler) CustomerSavingProductsDeleteAllSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/saving-products", http.StatusSeeOther)
+		return
+	}
+
+	if h.catSvc != nil {
+		if err := h.catSvc.DeleteAllSavingProducts(ctx, actor.OrganizationID); err != nil {
+			h.log.ErrorContext(ctx, "delete all customer saving products error", "error", err)
+			h.redirectWithNotice(w, r, "/customer/saving-products", "error", "حدث خطأ أثناء حذف الأصناف.")
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/customer/saving-products", "success", "تم حذف جميع أصناف التوفير بنجاح.")
+}
+
 // CustomerSavingProductsImportSubmit handles Excel/CSV bulk import of saving products for pharmacy.
 func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -386,14 +406,6 @@ type SavingProductsPreviewResponse struct {
 	Headers    []string           `json:"headers"`
 	Detected   SavingDetectedCols `json:"detected"`
 	SampleRows [][]string         `json:"sample_rows"`
-}
-
-type SavingDetectedCols struct {
-	NameCol      int `json:"name_col"`
-	SKUCol       int `json:"sku_col"`
-	QtyCol       int `json:"qty_col"`
-	PriceCol     int `json:"price_col"`
-	ProductIDCol int `json:"product_id_col"`
 }
 
 // CustomerSavingProductsPreviewColumnsJSON reads uploaded spreadsheet and returns headers and detected columns.
@@ -789,11 +801,6 @@ func (h *UIHandler) CustomerSavingProductProvidersJSON(w http.ResponseWriter, r 
 // CustomerSavingProductSearchJSON delegates to VendorSavingProductSearchJSON logic.
 func (h *UIHandler) CustomerSavingProductSearchJSON(w http.ResponseWriter, r *http.Request) {
 	h.VendorSavingProductSearchJSON(w, r)
-}
-
-// CustomerSavingProductsImportPage renders bulk spreadsheet upload for customer saving products.
-func (h *UIHandler) CustomerSavingProductsImportPage(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/customer/saving-products", http.StatusSeeOther)
 }
 
 // CustomerSavingProductDetailPage renders single saving product delta details.

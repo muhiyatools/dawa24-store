@@ -344,6 +344,7 @@ func (mockCatalogRepoStub) GetSavingProductByID(context.Context, int64) (*catalo
 	return nil, nil
 }
 func (mockCatalogRepoStub) DeleteSavingProduct(context.Context, int64, int64) error { return nil }
+func (mockCatalogRepoStub) DeleteAllSavingProducts(context.Context, int64) error      { return nil }
 func (mockCatalogRepoStub) GetProductProviders(context.Context, int64) ([]*catalog.ProductProviderInfo, error) {
 	return nil, nil
 }
