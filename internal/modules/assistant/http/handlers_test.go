@@ -125,23 +125,47 @@ func (m *memoryRepo) GetConversationSummary(ctx context.Context, id int64) (*ass
 	}, nil
 }
 
-func (m *memoryRepo) ListAllConversations(ctx context.Context, limit, offset int) ([]*assistant.ConversationSummary, error) {
+func (m *memoryRepo) ListAllConversations(ctx context.Context, search string, limit, offset int) ([]*assistant.ConversationSummary, int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	var list []*assistant.ConversationSummary
 	for _, c := range m.convs {
-		list = append(list, &assistant.ConversationSummary{
-			ID:             c.ID,
-			PublicID:       c.PublicID,
-			OrganizationID: c.OrganizationID,
-			UserID:         c.UserID,
-			Title:          c.Title,
-			MessageCount:   len(m.messages[c.ID]),
-			CreatedAt:      c.CreatedAt,
-			UpdatedAt:      c.UpdatedAt,
-		})
+		if search == "" || strings.Contains(strings.ToLower(c.Title), strings.ToLower(search)) {
+			list = append(list, &assistant.ConversationSummary{
+				ID:             c.ID,
+				PublicID:       c.PublicID,
+				OrganizationID: c.OrganizationID,
+				UserID:         c.UserID,
+				Title:          c.Title,
+				MessageCount:   len(m.messages[c.ID]),
+				CreatedAt:      c.CreatedAt,
+				UpdatedAt:      c.UpdatedAt,
+			})
+		}
 	}
-	return list, nil
+	return list, len(list), nil
+}
+
+func (m *memoryRepo) GetAssistantStats(ctx context.Context) (*assistant.AssistantStats, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	totalMsgs := 0
+	for _, ms := range m.messages {
+		totalMsgs += len(ms)
+	}
+	return &assistant.AssistantStats{
+		TotalConversations: len(m.convs),
+		TotalMessages:      totalMsgs,
+		ActiveUsers:        len(m.convs),
+	}, nil
+}
+
+func (m *memoryRepo) DeleteConversation(ctx context.Context, id int64, orgID, userID int64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	delete(m.convs, id)
+	delete(m.messages, id)
+	return nil
 }
 
 func (m *memoryRepo) ListConversations(ctx context.Context, orgID, userID int64, limit, offset int) ([]*assistant.Conversation, error) {
@@ -384,5 +408,107 @@ func TestPhase6_VoiceTranscribeEndpoint(t *testing.T) {
 	_ = json.Unmarshal(rec.Body.Bytes(), &res)
 	if res.Text != "طلب دواء بروفين 400" {
 		t.Errorf("T6.2 failed: expected 'طلب دواء بروفين 400', got %q", res.Text)
+	}
+}
+
+func TestPhase7_ConversationsListAndHistoryEndpoints(t *testing.T) {
+	repo := newMemoryRepo()
+	_ = repo.CreateConversation(context.Background(), &assistant.Conversation{
+		OrganizationID: 10,
+		UserID:         50,
+		Title:          "استفسار عن أسعار البنادول",
+	})
+	_ = repo.SaveMessage(context.Background(), &assistant.Message{
+		ConversationID: 1,
+		OrganizationID: 10,
+		Role:           "user",
+		Content:        "ما هو سعر بنادول إكسترا؟",
+	})
+	_ = repo.SaveMessage(context.Background(), &assistant.Message{
+		ConversationID: 1,
+		OrganizationID: 10,
+		Role:           "assistant",
+		Content:        "سعر بنادول إكسترا هو 50 جنيهاً.",
+	})
+
+	svc := assistant.NewService(repo, &mockGateway{}, slog.Default())
+	handler := NewHandler(svc, &mockGateway{}, repo, slog.Default())
+	r := chi.NewRouter()
+	handler.RegisterRoutes(r)
+
+	// 1. List conversations
+	req := httptest.NewRequest("GET", "/api/v1/assistant/conversations", nil)
+	req = req.WithContext(authContext(50, 10))
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 list conversations, got %d", rec.Code)
+	}
+
+	var listResp struct {
+		Conversations []assistant.Conversation `json:"conversations"`
+	}
+	_ = json.Unmarshal(rec.Body.Bytes(), &listResp)
+	if len(listResp.Conversations) != 1 {
+		t.Fatalf("expected 1 conversation, got %d", len(listResp.Conversations))
+	}
+	if listResp.Conversations[0].Title != "استفسار عن أسعار البنادول" {
+		t.Errorf("unexpected conversation title: %s", listResp.Conversations[0].Title)
+	}
+
+	// 2. Fetch conversation history
+	reqHist := httptest.NewRequest("GET", "/api/v1/assistant/conversations/1", nil)
+	reqHist = reqHist.WithContext(authContext(50, 10))
+	recHist := httptest.NewRecorder()
+	r.ServeHTTP(recHist, reqHist)
+
+	if recHist.Code != http.StatusOK {
+		t.Fatalf("expected 200 history, got %d", recHist.Code)
+	}
+	var histResp struct {
+		Conversation assistant.Conversation `json:"conversation"`
+		Messages     []assistant.Message    `json:"messages"`
+	}
+	_ = json.Unmarshal(recHist.Body.Bytes(), &histResp)
+	if len(histResp.Messages) != 2 {
+		t.Fatalf("expected 2 messages, got %d", len(histResp.Messages))
+	}
+
+	// 3. Unauthorized access from another user
+	reqOther := httptest.NewRequest("GET", "/api/v1/assistant/conversations/1", nil)
+	reqOther = reqOther.WithContext(authContext(999, 10))
+	recOther := httptest.NewRecorder()
+	r.ServeHTTP(recOther, reqOther)
+	if recOther.Code != http.StatusNotFound {
+		t.Errorf("expected 404 for another user's conversation, got %d", recOther.Code)
+	}
+}
+
+func TestPhase8_DeleteConversationEndpoint(t *testing.T) {
+	repo := newMemoryRepo()
+	_ = repo.CreateConversation(context.Background(), &assistant.Conversation{
+		OrganizationID: 10,
+		UserID:         50,
+		Title:          "محادثة للحذف",
+	})
+
+	svc := assistant.NewService(repo, &mockGateway{}, slog.Default())
+	handler := NewHandler(svc, &mockGateway{}, repo, slog.Default())
+	r := chi.NewRouter()
+	handler.RegisterRoutes(r)
+
+	req := httptest.NewRequest("DELETE", "/api/v1/assistant/conversations/1", nil)
+	req = req.WithContext(authContext(50, 10))
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 on delete, got %d", rec.Code)
+	}
+
+	conv, _ := repo.GetConversation(context.Background(), 1)
+	if conv != nil {
+		t.Errorf("expected conversation 1 to be deleted from repo")
 	}
 }

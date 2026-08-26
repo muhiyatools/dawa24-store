@@ -8,7 +8,9 @@ type Repository interface {
 	GetConversation(ctx context.Context, id int64) (*Conversation, error)
 	GetConversationSummary(ctx context.Context, id int64) (*ConversationSummary, error)
 	ListConversations(ctx context.Context, orgID, userID int64, limit, offset int) ([]*Conversation, error)
-	ListAllConversations(ctx context.Context, limit, offset int) ([]*ConversationSummary, error)
+	ListAllConversations(ctx context.Context, search string, limit, offset int) ([]*ConversationSummary, int, error)
+	GetAssistantStats(ctx context.Context) (*AssistantStats, error)
+	DeleteConversation(ctx context.Context, id int64, orgID, userID int64) error
 	SaveMessage(ctx context.Context, m *Message) error
 	ListMessages(ctx context.Context, convID int64, limit int) ([]*Message, error)
 }

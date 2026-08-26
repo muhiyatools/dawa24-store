@@ -7,16 +7,89 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
+type mockUIAssistantRepo struct {
+	convs []*assistant.ConversationSummary
+	msgs  []*assistant.Message
+}
+
+func (m *mockUIAssistantRepo) CreateConversation(_ context.Context, _ *assistant.Conversation) error { return nil }
+func (m *mockUIAssistantRepo) GetConversation(_ context.Context, _ int64) (*assistant.Conversation, error) { return nil, nil }
+func (m *mockUIAssistantRepo) GetConversationSummary(_ context.Context, id int64) (*assistant.ConversationSummary, error) {
+	for _, c := range m.convs {
+		if c.ID == id {
+			return c, nil
+		}
+	}
+	return nil, nil
+}
+func (m *mockUIAssistantRepo) ListConversations(_ context.Context, _, _ int64, _, _ int) ([]*assistant.Conversation, error) { return nil, nil }
+func (m *mockUIAssistantRepo) ListAllConversations(_ context.Context, search string, limit, offset int) ([]*assistant.ConversationSummary, int, error) {
+	return m.convs, len(m.convs), nil
+}
+func (m *mockUIAssistantRepo) GetAssistantStats(_ context.Context) (*assistant.AssistantStats, error) {
+	return &assistant.AssistantStats{
+		TotalConversations: len(m.convs),
+		TotalMessages:      len(m.msgs),
+		ActiveUsers:        1,
+	}, nil
+}
+func (m *mockUIAssistantRepo) DeleteConversation(_ context.Context, _ int64, _, _ int64) error { return nil }
+func (m *mockUIAssistantRepo) SaveMessage(_ context.Context, _ *assistant.Message) error { return nil }
+func (m *mockUIAssistantRepo) ListMessages(_ context.Context, _ int64, _ int) ([]*assistant.Message, error) {
+	return m.msgs, nil
+}
+
 func TestAdminChatTreeAndHistoryRoutes(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger)
+
+	mockRepo := &mockUIAssistantRepo{
+		convs: []*assistant.ConversationSummary{
+			{
+				ID:                10,
+				PublicID:          uuid.New(),
+				OrganizationID:    1,
+				OrganizationName:  "صيدلية الأمل",
+				OrganizationType:  "customer",
+				UserID:            5,
+				UserName:          "د. أحمد صيدلي",
+				UserEmail:         "ahmed@amal.com",
+				Title:             "استفسار عن توافر الأدوية",
+				MessageCount:      4,
+				TotalInputTokens:  120,
+				TotalOutputTokens: 250,
+				CreatedAt:         time.Now().Add(-1 * time.Hour),
+				UpdatedAt:         time.Now(),
+			},
+		},
+		msgs: []*assistant.Message{
+			{
+				ID:             1,
+				ConversationID: 10,
+				Role:           "user",
+				Content:        "هل يوجد بدائل لبنادول إكسترا؟",
+				CreatedAt:      time.Now().Add(-55 * time.Minute),
+			},
+			{
+				ID:             2,
+				ConversationID: 10,
+				Role:           "assistant",
+				Content:        "نعم، تتوفر بدائل مثل أدول إكسترا وبارامول بلس.",
+				CreatedAt:      time.Now().Add(-54 * time.Minute),
+			},
+		},
+	}
+	handler.SetAssistantRepository(mockRepo)
 
 	r := chi.NewRouter()
 	handler.RegisterAdminRoutes(r)
@@ -45,6 +118,39 @@ func TestAdminChatTreeAndHistoryRoutes(t *testing.T) {
 				Role:    "super_admin",
 			},
 			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/chat/history with search query returns 200",
+			path:   "/admin/chat/history?q=panadol",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin GET /admin/chat/ai/10 returns 200",
+			path:   "/admin/chat/ai/10",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Legacy GET /admin/chat/history/10 redirects to /admin/chat/ai/10",
+			path:   "/admin/chat/history/10",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusMovedPermanently,
 		},
 	}
 

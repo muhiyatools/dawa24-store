@@ -71,8 +71,10 @@ func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*ass
 	query := `
 		SELECT 
 			c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || c.organization_id) AS org_name,
+			COALESCE(o.type, '') AS org_type,
 			c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
 			COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
+			COALESCE(u.role, '') AS user_role,
 			c.title, c.created_at, c.updated_at,
 			COUNT(m.id) AS message_count,
 			COALESCE(SUM(m.input_tokens), 0) AS total_input_tokens,
@@ -82,12 +84,12 @@ func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*ass
 		LEFT JOIN identity.users u ON u.id = c.user_id
 		LEFT JOIN assistant.messages m ON m.conversation_id = c.id
 		WHERE c.id = $1 AND c.deleted_at IS NULL
-		GROUP BY c.id, c.public_id, c.organization_id, o.name, c.user_id, u.full_name, u.email, u.phone, c.title, c.created_at, c.updated_at
+		GROUP BY c.id, c.public_id, c.organization_id, o.name, o.type, c.user_id, u.full_name, u.email, u.phone, u.role, c.title, c.created_at, c.updated_at
 	`
 	var s assistant.ConversationSummary
 	err := pool.QueryRow(ctx, query, id).Scan(
-		&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName,
-		&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone,
+		&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName, &s.OrganizationType,
+		&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone, &s.UserRole,
 		&s.Title, &s.CreatedAt, &s.UpdatedAt,
 		&s.MessageCount, &s.TotalInputTokens, &s.TotalOutputTokens,
 	)
@@ -100,19 +102,52 @@ func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*ass
 	return &s, nil
 }
 
-// ListAllConversations returns all assistant sessions across organizations for administrative audit.
-func (r *Repository) ListAllConversations(ctx context.Context, limit, offset int) ([]*assistant.ConversationSummary, error) {
+// ListAllConversations returns all assistant sessions across organizations for administrative audit with search and pagination.
+func (r *Repository) ListAllConversations(ctx context.Context, search string, limit, offset int) ([]*assistant.ConversationSummary, int, error) {
 	pool := r.db.Pool()
 
 	if limit <= 0 || limit > 100 {
 		limit = 50
 	}
 
-	query := `
+	whereClause := "WHERE c.deleted_at IS NULL"
+	args := []any{}
+	argIdx := 1
+
+	if search != "" {
+		whereClause += fmt.Sprintf(` AND (
+			c.title ILIKE $%d OR
+			u.full_name ILIKE $%d OR
+			u.email ILIKE $%d OR
+			u.phone ILIKE $%d OR
+			COALESCE(o.name->>'ar', o.name->>'en', '') ILIKE $%d
+		)`, argIdx, argIdx, argIdx, argIdx, argIdx)
+		args = append(args, "%"+search+"%")
+		argIdx++
+	}
+
+	// Count total
+	countQuery := fmt.Sprintf(`
+		SELECT COUNT(DISTINCT c.id)
+		FROM assistant.conversations c
+		LEFT JOIN org.organizations o ON o.id = c.organization_id
+		LEFT JOIN identity.users u ON u.id = c.user_id
+		%s
+	`, whereClause)
+
+	var total int
+	if err := pool.QueryRow(ctx, countQuery, args...).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("assistant: count conversations: %w", err)
+	}
+
+	// Fetch page
+	query := fmt.Sprintf(`
 		SELECT 
 			c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || c.organization_id) AS org_name,
+			COALESCE(o.type, '') AS org_type,
 			c.user_id, COALESCE(u.full_name, u.email, 'مستخدم #' || c.user_id) AS user_name,
 			COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
+			COALESCE(u.role, '') AS user_role,
 			c.title, c.created_at, c.updated_at,
 			COUNT(m.id) AS message_count,
 			COALESCE(SUM(m.input_tokens), 0) AS total_input_tokens,
@@ -121,14 +156,16 @@ func (r *Repository) ListAllConversations(ctx context.Context, limit, offset int
 		LEFT JOIN org.organizations o ON o.id = c.organization_id
 		LEFT JOIN identity.users u ON u.id = c.user_id
 		LEFT JOIN assistant.messages m ON m.conversation_id = c.id
-		WHERE c.deleted_at IS NULL
-		GROUP BY c.id, c.public_id, c.organization_id, o.name, c.user_id, u.full_name, u.email, u.phone, c.title, c.created_at, c.updated_at
+		%s
+		GROUP BY c.id, c.public_id, c.organization_id, o.name, o.type, c.user_id, u.full_name, u.email, u.phone, u.role, c.title, c.created_at, c.updated_at
 		ORDER BY c.updated_at DESC
-		LIMIT $1 OFFSET $2
-	`
-	rows, err := pool.Query(ctx, query, limit, offset)
+		LIMIT $%d OFFSET $%d
+	`, whereClause, argIdx, argIdx+1)
+
+	args = append(args, limit, offset)
+	rows, err := pool.Query(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("assistant: list all conversations: %w", err)
+		return nil, 0, fmt.Errorf("assistant: list all conversations: %w", err)
 	}
 	defer rows.Close()
 
@@ -136,16 +173,58 @@ func (r *Repository) ListAllConversations(ctx context.Context, limit, offset int
 	for rows.Next() {
 		var s assistant.ConversationSummary
 		if err := rows.Scan(
-			&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName,
-			&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone,
+			&s.ID, &s.PublicID, &s.OrganizationID, &s.OrganizationName, &s.OrganizationType,
+			&s.UserID, &s.UserName, &s.UserEmail, &s.UserPhone, &s.UserRole,
 			&s.Title, &s.CreatedAt, &s.UpdatedAt,
 			&s.MessageCount, &s.TotalInputTokens, &s.TotalOutputTokens,
 		); err != nil {
-			return nil, fmt.Errorf("assistant: scan conversation summary: %w", err)
+			return nil, 0, fmt.Errorf("assistant: scan conversation summary: %w", err)
 		}
 		convs = append(convs, &s)
 	}
-	return convs, rows.Err()
+	return convs, total, rows.Err()
+}
+
+// GetAssistantStats aggregates platform-wide assistant usage metrics.
+func (r *Repository) GetAssistantStats(ctx context.Context) (*assistant.AssistantStats, error) {
+	pool := r.db.Pool()
+
+	query := `
+		SELECT 
+			(SELECT COUNT(*) FROM assistant.conversations WHERE deleted_at IS NULL),
+			(SELECT COUNT(*) FROM assistant.messages),
+			(SELECT COALESCE(SUM(input_tokens), 0) FROM assistant.messages),
+			(SELECT COALESCE(SUM(output_tokens), 0) FROM assistant.messages),
+			(SELECT COUNT(DISTINCT user_id) FROM assistant.conversations WHERE deleted_at IS NULL)
+	`
+	var stats assistant.AssistantStats
+	err := pool.QueryRow(ctx, query).Scan(
+		&stats.TotalConversations,
+		&stats.TotalMessages,
+		&stats.TotalInputTokens,
+		&stats.TotalOutputTokens,
+		&stats.ActiveUsers,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("assistant: get stats: %w", err)
+	}
+	return &stats, nil
+}
+
+// DeleteConversation marks a conversation as deleted for a user.
+func (r *Repository) DeleteConversation(ctx context.Context, id int64, orgID, userID int64) error {
+	pool := r.db.Pool()
+
+	query := `
+		UPDATE assistant.conversations
+		SET deleted_at = now()
+		WHERE id = $1 AND organization_id = $2 AND user_id = $3 AND deleted_at IS NULL
+	`
+	_, err := pool.Exec(ctx, query, id, orgID, userID)
+	if err != nil {
+		return fmt.Errorf("assistant: delete conversation: %w", err)
+	}
+	return nil
 }
 
 // ListConversations returns recent active conversations for a user.

@@ -59,6 +59,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/assistant/health", h.AssistantHealth)
 	r.Get("/api/v1/assistant/conversations", h.AssistantConversations)
 	r.Get("/api/v1/assistant/conversations/{id}", h.AssistantHistory)
+	r.Delete("/api/v1/assistant/conversations/{id}", h.AssistantDeleteConversation)
 }
 
 type streamRequestPayload struct {

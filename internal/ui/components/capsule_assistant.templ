@@ -82,7 +82,30 @@ templ CapsuleAssistant() {
 				</div>
 
 				<!-- Header Action Buttons -->
-				<div class="row-center-xs">
+				<div style="display:flex; align-items:center; gap:0.4rem;">
+					<!-- New Chat Button -->
+					<button
+						type="button"
+						@click="startNewConversation()"
+						class="capsule-hdr-btn"
+						title="بدء محادثة جديدة"
+					>
+						@IconPlus("icon-xxs")
+						<span style="font-size:0.75rem;">جديدة</span>
+					</button>
+
+					<!-- History / Sessions Button -->
+					<button
+						type="button"
+						@click="toggleSessionsDrawer()"
+						class="capsule-hdr-btn"
+						:class="{ 'active': showSessionsDrawer }"
+						title="سجل المحادثات السابقة"
+					>
+						@IconClock("icon-xxs")
+						<span style="font-size:0.75rem;">السجل</span>
+					</button>
+
 					<!-- Close Button -->
 					<button
 						type="button"
@@ -94,6 +117,111 @@ templ CapsuleAssistant() {
 					>
 						@IconClose("icon-xs")
 					</button>
+				</div>
+			</div>
+
+			<!-- Sessions Drawer Overlay -->
+			<div
+				x-show="showSessionsDrawer"
+				x-cloak
+				x-transition:enter="transition ease-out duration-200"
+				x-transition:enter-start="opacity-0 -translate-y-2"
+				x-transition:enter-end="opacity-100 translate-y-0"
+				x-transition:leave="transition ease-in duration-150"
+				x-transition:leave-start="opacity-100 translate-y-0"
+				x-transition:leave-end="opacity-0 -translate-y-2"
+				class="capsule-sessions-overlay"
+			>
+				<!-- Drawer Top Bar -->
+				<div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised);">
+					<div style="display:flex; align-items:center; gap:0.4rem; font-weight:800; font-size:0.875rem; color:var(--text);">
+						@IconClock("icon-xs")
+						<span>المحادثات السابقة</span>
+					</div>
+					<button
+						type="button"
+						@click="showSessionsDrawer = false"
+						style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center; border-radius:4px;"
+						title="إغلاق السجل"
+					>
+						@IconClose("icon-xs")
+					</button>
+				</div>
+
+				<!-- Start New Chat Action in Drawer -->
+				<div style="padding:0.75rem 1rem 0.5rem 1rem; display:flex; flex-direction:column; gap:0.5rem;">
+					<button
+						type="button"
+						@click="startNewConversation()"
+						style="width:100%; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#ffffff; border:none; border-radius:var(--radius-md); padding:0.55rem 0.85rem; font-size:0.8rem; font-weight:800; display:flex; align-items:center; justify-content:center; gap:0.4rem; cursor:pointer; box-shadow:0 2px 6px rgba(37,99,235,0.25);"
+					>
+						@IconPlus("icon-xs")
+						<span>بدء محادثة جديدة الآن</span>
+					</button>
+
+					<!-- Search Filter -->
+					<div style="position:relative; width:100%;">
+						<input
+							type="text"
+							x-model="searchPastQuery"
+							placeholder="بحث في المحادثات..."
+							style="width:100%; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.4rem 2rem 0.4rem 0.75rem; font-size:0.775rem; color:var(--text); outline:none; box-sizing:border-box;"
+						/>
+						<div style="position:absolute; right:8px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; display:flex; align-items:center;">
+							@IconSearch("icon-xxs")
+						</div>
+					</div>
+				</div>
+
+				<!-- Sessions List Scrollable Container -->
+				<div style="flex:1 1 0%; min-height:0; overflow-y:auto; padding:0.5rem 1rem 1rem 1rem; display:flex; flex-direction:column; gap:0.5rem;">
+					<!-- Loading State -->
+					<template x-if="isLoadingPastSessions">
+						<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem 0; gap:0.5rem; color:var(--text-muted); font-size:0.8rem;">
+							<div class="capsule-spinner" style="width:20px; height:20px; border-color:var(--accent); border-top-color:transparent;"></div>
+							<span>جاري جلب المحادثات السابقة...</span>
+						</div>
+					</template>
+
+					<!-- Empty State -->
+					<template x-if="!isLoadingPastSessions && filteredPastConversations().length === 0">
+						<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem 0; text-align:center; color:var(--text-muted); gap:0.4rem;">
+							<div style="width:36px; height:36px; border-radius:50%; background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted);">
+								@IconClock("icon-sm")
+							</div>
+							<div style="font-size:0.825rem; font-weight:700; color:var(--text);">لا توجد محادثات سابقة</div>
+							<div style="font-size:0.725rem;">أي استفسار تطرحه يتم حفظه هنا تلقائياً لترجع له في أي وقت.</div>
+						</div>
+					</template>
+
+					<!-- Conversations Items -->
+					<template x-for="conv in filteredPastConversations()" :key="conv.id">
+						<div
+							class="capsule-session-card"
+							:class="{ 'active': conversationID === conv.id }"
+							@click="loadSession(conv.id)"
+						>
+							<div style="flex:1; min-width:0;">
+								<div style="display:flex; align-items:center; gap:0.35rem; margin-bottom:0.15rem;">
+									<span style="font-size:0.8rem; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" x-text="conv.title || 'محادثة كبسولة'"></span>
+									<template x-if="conversationID === conv.id">
+										<span style="font-size:0.65rem; background:var(--accent); color:#fff; padding:0.1rem 0.35rem; border-radius:4px; font-weight:700;">نشطة</span>
+									</template>
+								</div>
+								<div style="font-size:0.68rem; color:var(--text-muted);" x-text="formatDate(conv.updated_at)"></div>
+							</div>
+							<button
+								type="button"
+								@click.stop="deleteSession(conv.id)"
+								style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center; transition:all 120ms;"
+								onmouseover="this.style.color='#ef4444'; this.style.background='rgba(239,68,68,0.1)';"
+								onmouseout="this.style.color='var(--text-muted)'; this.style.background='none';"
+								title="حذف المحادثة"
+							>
+								@IconTrash("icon-xxs")
+							</button>
+						</div>
+					</template>
 				</div>
 			</div>
 
@@ -704,6 +832,63 @@ templ CapsuleAssistant() {
 			.capsule-thumb-delete:hover {
 				background: #ef4444;
 			}
+			/* Sessions Overlay and Header Buttons */
+			.capsule-hdr-btn {
+				background: var(--surface-sunken);
+				border: 1px solid var(--border);
+				color: var(--text-secondary);
+				height: 28px;
+				padding: 0 0.55rem;
+				border-radius: var(--radius-md);
+				cursor: pointer;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.35rem;
+				font-size: 0.725rem;
+				font-weight: 700;
+				transition: all 120ms ease;
+			}
+			.capsule-hdr-btn:hover {
+				background: var(--accent-subtle);
+				border-color: var(--accent);
+				color: var(--text);
+			}
+			.capsule-hdr-btn.active {
+				background: var(--accent);
+				border-color: var(--accent);
+				color: #ffffff;
+			}
+			.capsule-sessions-overlay {
+				position: absolute;
+				inset: 56px 0 0 0;
+				background: var(--surface-raised);
+				z-index: 9998;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+			}
+			.capsule-session-card {
+				background: var(--surface-sunken);
+				border: 1px solid var(--border);
+				border-radius: var(--radius-md);
+				padding: 0.65rem 0.85rem;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.5rem;
+				transition: all 120ms ease;
+				text-align: right;
+			}
+			.capsule-session-card:hover {
+				border-color: var(--accent);
+				background: var(--surface);
+			}
+			.capsule-session-card.active {
+				border-color: var(--accent);
+				background: var(--accent-subtle);
+			}
+
 			.capsule-spinner {
 				width: 14px;
 				height: 14px;
@@ -737,6 +922,10 @@ templ CapsuleAssistant() {
 					conversationID: 0,
 					abortController: null,
 					autoScrollEnabled: true,
+					showSessionsDrawer: false,
+					pastConversations: [],
+					isLoadingPastSessions: false,
+					searchPastQuery: '',
 
 					init() {
 						this.$nextTick(() => {
@@ -765,13 +954,113 @@ templ CapsuleAssistant() {
 						this.dragCounter = 0;
 					},
 
-					clearChat() {
+					filteredPastConversations() {
+						const q = (this.searchPastQuery || '').trim().toLowerCase();
+						if (!q) return this.pastConversations;
+						return this.pastConversations.filter(c => (c.title || '').toLowerCase().includes(q));
+					},
+
+					toggleSessionsDrawer() {
+						this.showSessionsDrawer = !this.showSessionsDrawer;
+						if (this.showSessionsDrawer) {
+							this.fetchConversations();
+						}
+					},
+
+					async fetchConversations() {
+						this.isLoadingPastSessions = true;
+						try {
+							const resp = await fetch('/api/v1/assistant/conversations');
+							if (resp.ok) {
+								const data = await resp.json();
+								this.pastConversations = data.conversations || [];
+							}
+						} catch (err) {
+							console.error('Failed to fetch conversations:', err);
+						} finally {
+							this.isLoadingPastSessions = false;
+						}
+					},
+
+					startNewConversation() {
 						if (this.isStreaming) this.cancelStream();
-						this.messages = [];
 						this.conversationID = 0;
+						this.messages = [];
 						this.attachedFiles = [];
 						this.inputQuery = '';
-						if (this.$refs.chatTextarea) this.$refs.chatTextarea.style.height = '24px';
+						this.showSessionsDrawer = false;
+						if (this.$refs.chatTextarea) {
+							this.$refs.chatTextarea.style.height = '24px';
+							this.$refs.chatTextarea.focus();
+						}
+					},
+
+					async loadSession(convID) {
+						if (this.isStreaming) this.cancelStream();
+						this.isLoadingPastSessions = true;
+						try {
+							const resp = await fetch('/api/v1/assistant/conversations/' + convID);
+							if (resp.ok) {
+								const data = await resp.json();
+								this.conversationID = convID;
+								this.messages = [];
+								if (data.messages && data.messages.length > 0) {
+									for (const m of data.messages) {
+										if (m.role === 'user') {
+											this.messages.push({
+												isUser: true,
+												text: m.content,
+												attachments: m.attachments || []
+											});
+										} else if (m.role === 'assistant') {
+											this.messages.push({
+												isUser: false,
+												text: m.content,
+												reasoning: '',
+												isStreaming: false
+											});
+										}
+									}
+								}
+								this.showSessionsDrawer = false;
+								this.scrollToBottom(true);
+							}
+						} catch (err) {
+							console.error('Failed to load session:', err);
+						} finally {
+							this.isLoadingPastSessions = false;
+						}
+					},
+
+					async deleteSession(convID) {
+						if (!confirm('هل أنت متأكد من حذف هذه المحادثة من سجلك؟')) return;
+						try {
+							const resp = await fetch('/api/v1/assistant/conversations/' + convID, {
+								method: 'DELETE'
+							});
+							if (resp.ok) {
+								this.pastConversations = this.pastConversations.filter(c => c.id !== convID);
+								if (this.conversationID === convID) {
+									this.startNewConversation();
+								}
+							}
+						} catch (err) {
+							console.error('Failed to delete session:', err);
+						}
+					},
+
+					formatDate(isoStr) {
+						if (!isoStr) return '';
+						try {
+							const d = new Date(isoStr);
+							return d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+						} catch (e) {
+							return isoStr;
+						}
+					},
+
+					clearChat() {
+						this.startNewConversation();
 					},
 
 					askChip(text) {
@@ -1127,6 +1416,7 @@ templ CapsuleAssistant() {
 											} else if (currentEvent === 'done') {
 												if (data.conversation_id) {
 													this.conversationID = data.conversation_id;
+													this.fetchConversations();
 												}
 												assistantMsg.isStreaming = false;
 											} else if (currentEvent === 'error') {

@@ -217,3 +217,27 @@ func (h *Handler) AssistantHistory(w http.ResponseWriter, r *http.Request) {
 		"messages":     msgs,
 	})
 }
+
+// AssistantDeleteConversation soft-deletes a conversation belonging to the authenticated caller.
+func (h *Handler) AssistantDeleteConversation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.UserID <= 0 {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	idStr := chi.URLParam(r, "id")
+	convID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || convID <= 0 {
+		http.Error(w, `{"error":"invalid_id"}`, http.StatusBadRequest)
+		return
+	}
+
+	if h.repo != nil {
+		_ = h.repo.DeleteConversation(ctx, convID, actor.OrgID, actor.UserID)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"success": true})
+}

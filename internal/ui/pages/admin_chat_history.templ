@@ -5,160 +5,181 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
-	"github.com/muhiya/dawa24-store/internal/modules/chat"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 type AdminChatHistoryData struct {
-	ActiveTab string // "ai" | "users"
-	AIConvs   []*assistant.ConversationSummary
-	UserConvs []*chat.Conversation
+	SearchQuery string
+	Page        int
+	PerPage     int
+	TotalCount  int
+	Stats       *assistant.AssistantStats
+	AIConvs     []*assistant.ConversationSummary
 }
 
-// AdminChatHistoryPage renders conversation threads list for AI Assistant and user-to-user chat.
+// AdminChatHistoryPage renders conversation threads list for AI Assistant.
 templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
-	@layouts.AdminShell("سجلات محادثات المنصة والرقابة", "chat_history", lang, dir) {
+	@layouts.AdminShell("سجلات محادثات المساعد الذكي كبسولة AI", "chat_history", lang, dir) {
 		<div class="card mb-0">
 			
 			<!-- Header -->
 			<div class="header-row" style="margin-bottom:1.25rem;">
 				<div>
-					<h2 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800;">سجلات محادثات المنصة والرقابة</h2>
-					<p class="subtitle" style="margin:0.25rem 0 0 0;">مراقبة وتدقيق محادثات المساعد الذكي كبسولة ومراسلات الصيدليات والموردين لحل النزاعات ومتابعة الأداء.</p>
+					<h2 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
+						@components.IconSparkles("icon-sm")
+						<span>سجلات محادثات المساعد الذكي كبسولة AI</span>
+					</h2>
+					<p class="subtitle" style="margin:0.25rem 0 0 0;">مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات.</p>
 				</div>
 			</div>
 
-			<!-- Navigation Tabs -->
-			<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.25rem; padding-bottom:0.5rem;">
-				<a
-					href="/admin/chat/history?tab=ai"
-					class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "ai"), templ.KV("btn-secondary", data.ActiveTab != "ai") }
-					style="font-weight:700; gap:0.4rem;"
-				>
-					@components.IconSparkles("icon-xs")
-					<span>جلسات المساعد كبسولة AI</span>
-					<span class="badge badge-sky" style="font-size:0.75rem; padding:0.15rem 0.45rem;">{ fmt.Sprintf("%d", len(data.AIConvs)) }</span>
-				</a>
-				<a
-					href="/admin/chat/history?tab=users"
-					class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "users"), templ.KV("btn-secondary", data.ActiveTab != "users") }
-					style="font-weight:700; gap:0.4rem;"
-				>
-					@components.IconMessageSquare("icon-xs")
-					<span>محادثات المستخدمين المباشرة</span>
-					<span class="badge badge-slate" style="font-size:0.75rem; padding:0.15rem 0.45rem;">{ fmt.Sprintf("%d", len(data.UserConvs)) }</span>
-				</a>
+			<!-- Stats Overview Cards -->
+			if data.Stats != nil {
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الجلسات</div>
+						<div style="font-size:1.6rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", data.Stats.TotalConversations) }</div>
+					</div>
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الرسائل المتبادلة</div>
+						<div style="font-size:1.6rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", data.Stats.TotalMessages) }</div>
+					</div>
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">المستخدمون النشطون</div>
+						<div style="font-size:1.6rem; font-weight:900; color:#10b981;" class="tabular-nums">{ fmt.Sprintf("%d", data.Stats.ActiveUsers) }</div>
+					</div>
+					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
+						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الرموز (Tokens)</div>
+						<div style="font-size:1.25rem; font-weight:800; color:var(--text-secondary);" class="tabular-nums">
+							<span>{ fmt.Sprintf("%d", data.Stats.TotalInputTokens + data.Stats.TotalOutputTokens) }</span>
+							<span style="font-size:0.7rem; color:var(--text-muted);">({ fmt.Sprintf("إدخال %d / توليد %d", data.Stats.TotalInputTokens, data.Stats.TotalOutputTokens) })</span>
+						</div>
+					</div>
+				</div>
+			}
+
+			<!-- Filter / Search Bar -->
+			<div style="margin-bottom:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem 1rem;">
+				<form method="GET" action="/admin/chat/history" style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+					<div style="flex:1; min-width:240px; position:relative;">
+						<input
+							type="text"
+							name="q"
+							value={ data.SearchQuery }
+							placeholder="البحث باسم المستخدم، البريد الإلكتروني، الهاتف، اسم المنشأة، أو موضوع الجلسة..."
+							style="width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.5rem 2.25rem 0.5rem 0.85rem; font-size:0.85rem; color:var(--text); outline:none; box-sizing:border-box;"
+						/>
+						<div style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; display:flex; align-items:center;">
+							@components.IconSearch("icon-xs")
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700; gap:0.35rem;">
+						@components.IconSearch("icon-xs")
+						<span>بحث وتصفية</span>
+					</button>
+					if data.SearchQuery != "" {
+						<a href="/admin/chat/history" class="btn btn-secondary btn-sm">
+							@components.IconClose("icon-xs")
+							<span>إلغاء التصفية</span>
+						</a>
+					}
+				</form>
 			</div>
 
-			<!-- TAB 1: AI Assistant Conversations -->
-			if data.ActiveTab == "ai" {
-				if len(data.AIConvs) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد جلسات ذكاء اصطناعي بعد",
-						Message: "لم يقم أي مستخدم بإجراء محادثات مع المساعد الذكي كبسولة حتى الآن.",
-					})
-				} else {
-					<div class="table-container">
-						<table class="b2b-table">
-							<thead>
+			<!-- AI Assistant Conversations Table -->
+			if len(data.AIConvs) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد جلسات مطابقة",
+					Message: "لم يتم العثور على أي جلسات محادثة للذكاء الاصطناعي تطابق معايير البحث.",
+				})
+			} else {
+				<div class="table-container">
+					<table class="b2b-table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>المستخدم المنشئ</th>
+								<th>المنشأة</th>
+								<th>عنوان / موضوع الجلسة</th>
+								<th>عدد الرسائل</th>
+								<th>استهلاك الرموز (Tokens)</th>
+								<th>تاريخ البدء</th>
+								<th>آخر نشاط</th>
+								<th class="text-end">الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, c := range data.AIConvs {
 								<tr>
-									<th>#</th>
-									<th>المستخدم المنشئ</th>
-									<th>المنشأة</th>
-									<th>عنوان / موضوع الجلسة</th>
-									<th>عدد الرسائل</th>
-									<th>استهلاك الرموز (Tokens)</th>
-									<th>آخر تحديث</th>
-									<th class="text-end">الإجراءات</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, c := range data.AIConvs {
-									<tr>
-										<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
-										<td>
-											<div class="fw-700 text-primary">{ c.UserName }</div>
-											if c.UserPhone != "" {
-												<div class="text-xs text-muted" dir="ltr">{ c.UserPhone }</div>
-											} else if c.UserEmail != "" {
-												<div class="text-xs text-muted" dir="ltr">{ c.UserEmail }</div>
+									<td class="tabular-nums">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="fw-700 text-primary">
+											#{ fmt.Sprintf("%d", c.ID) }
+										</a>
+									</td>
+									<td>
+										<div class="fw-700 text-primary">{ c.UserName }</div>
+										if c.UserRole != "" {
+											<span class="badge badge-slate" style="font-size:0.68rem; margin-top:0.15rem;">{ c.UserRole }</span>
+										}
+										if c.UserPhone != "" {
+											<div class="text-xs text-muted" dir="ltr">{ c.UserPhone }</div>
+										} else if c.UserEmail != "" {
+											<div class="text-xs text-muted" dir="ltr">{ c.UserEmail }</div>
+										}
+									</td>
+									<td>
+										<div style="font-weight:600; color:var(--text);">{ c.OrganizationName }</div>
+										<div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.15rem;">
+											if c.OrganizationType == "vendor" {
+												<span class="badge badge-sky" style="font-size:0.68rem;">مورد</span>
+											} else if c.OrganizationType == "customer" {
+												<span class="badge badge-emerald" style="font-size:0.68rem;">صيدلية</span>
 											}
-										</td>
-										<td>
-											<div style="font-weight:600; color:var(--text-secondary);">{ c.OrganizationName }</div>
-											<div class="text-xs text-muted">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</div>
-										</td>
-										<td>
+											<span class="text-xs text-muted">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</span>
+										</div>
+									</td>
+									<td>
+										<div style="max-width:280px; font-size:0.875rem;">
 											if c.Title != "" {
-												<strong>{ c.Title }</strong>
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } style="color:var(--text); text-decoration:none; font-weight:700; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title={ c.Title }>
+													{ c.Title }
+												</a>
 											} else {
 												<span style="color:var(--text-muted); font-style:italic;">محادثة بدون عنوان</span>
 											}
-										</td>
-										<td class="tabular-nums">
-											<span class="badge badge-emerald">{ fmt.Sprintf("%d رسائل", c.MessageCount) }</span>
-										</td>
-										<td class="tabular-nums text-sm">
-											<div><span class="text-muted">إدخال:</span> { fmt.Sprintf("%d", c.TotalInputTokens) }</div>
-											<div><span class="text-muted">توليد:</span> { fmt.Sprintf("%d", c.TotalOutputTokens) }</div>
-										</td>
-										<td class="text-sm text-secondary">
-											{ c.UpdatedAt.Format("2006-01-02 15:04") }
-										</td>
-										<td class="text-end">
-											<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm fw-700">
-												@components.IconEye("icon-xs")
-												<span>عرض المحادثة</span>
-											</a>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				}
-			}
-
-			<!-- TAB 2: User-to-User Conversations -->
-			if data.ActiveTab == "users" {
-				if len(data.UserConvs) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد محادثات مباشرة",
-						Message: "لم يتم بدء أي محادثات بين الصيدليات والموردين بعد.",
-					})
-				} else {
-					<div class="table-container">
-						<table class="b2b-table">
-							<thead>
-								<tr>
-									<th>#</th>
-									<th>الموضوع</th>
-									<th>المنشأة المبادرة</th>
-									<th>الطرف الآخر</th>
-									<th>النوع</th>
-									<th>الحالة</th>
-									<th class="text-end">الإجراءات</th>
+										</div>
+									</td>
+									<td class="tabular-nums">
+										<span class="badge badge-emerald">{ fmt.Sprintf("%d رسائل", c.MessageCount) }</span>
+									</td>
+									<td class="tabular-nums text-sm">
+										<div><span class="text-muted">إدخال:</span> { fmt.Sprintf("%d", c.TotalInputTokens) }</div>
+										<div><span class="text-muted">توليد:</span> { fmt.Sprintf("%d", c.TotalOutputTokens) }</div>
+									</td>
+									<td class="text-sm text-muted tabular-nums">
+										{ c.CreatedAt.Format("2006-01-02 15:04") }
+									</td>
+									<td class="text-sm text-secondary tabular-nums">
+										{ c.UpdatedAt.Format("2006-01-02 15:04") }
+									</td>
+									<td class="text-end">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm fw-700" style="gap:0.35rem;">
+											@components.IconEye("icon-xs")
+											<span>عرض المحادثة</span>
+										</a>
+									</td>
 								</tr>
-							</thead>
-							<tbody>
-								for _, c := range data.UserConvs {
-									<tr>
-										<td class="tabular-nums">#{ fmt.Sprintf("%d", c.ID) }</td>
-										<td><strong>{ c.Subject.Get("ar") }</strong></td>
-										<td>منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</td>
-										<td>منشأة #{ fmt.Sprintf("%d", c.CounterpartyOrgID) }</td>
-										<td><code>{ string(c.ContextType) }</code></td>
-										<td><span class="badge badge-sky">{ string(c.Status) }</span></td>
-										<td class="text-end">
-											<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/history/%d", c.ID)) } class="btn btn-secondary btn-sm">عرض الرسائل</a>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				}
+							}
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Footer Summary -->
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; font-size:0.85rem; color:var(--text-muted);">
+					<div>إجمالي الجلسات: <strong>{ fmt.Sprintf("%d", data.TotalCount) }</strong></div>
+					<div>عرض الصفحة { fmt.Sprintf("%d", data.Page) }</div>
+				</div>
 			}
 
 		</div>
@@ -168,7 +189,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 // AdminAIChatDetailPage renders full messages transcript for an AI assistant conversation.
 templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assistant.Message, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("محادثة ذكاء اصطناعي #%d", summary.ID), "chat_history", lang, dir) {
-		<div style="max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:1.25rem;">
+		<div style="max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:1.25rem;">
 			
 			<!-- Header Card -->
 			<div class="card mb-0">
@@ -187,13 +208,17 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 						</h2>
 						<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.4rem; display:flex; gap:1.25rem; flex-wrap:wrap;">
 							<div>👤 <strong>المستخدم:</strong> { summary.UserName } ({ summary.UserEmail })</div>
-							<div><strong>المنشأة:</strong> { summary.OrganizationName } (#{ fmt.Sprintf("%d", summary.OrganizationID) })</div>
-							<div>📅 <strong>التاريخ:</strong> { summary.CreatedAt.Format("2006-01-02 15:04") }</div>
+							<div>🏢 <strong>المنشأة:</strong> { summary.OrganizationName } (#{ fmt.Sprintf("%d", summary.OrganizationID) })</div>
+							<div>📅 <strong>تاريخ البدء:</strong> { summary.CreatedAt.Format("2006-01-02 15:04") }</div>
+							<div>⏱️ <strong>آخر نشاط:</strong> { summary.UpdatedAt.Format("2006-01-02 15:04") }</div>
 						</div>
 					</div>
 
 					<div class="row-center-sm">
-						<a href="/admin/chat/history?tab=ai" class="btn btn-secondary btn-sm">العودة للسجلات</a>
+						<a href="/admin/chat/history" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.35rem;">
+							@components.IconArrowRight("icon-xs")
+							<span>العودة لقائمة السجلات</span>
+						</a>
 					</div>
 				</div>
 
@@ -216,8 +241,9 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 
 			<!-- Transcript -->
 			<div class="card mb-0 p-card">
-				<h3 style="font-size:1.05rem; font-weight:800; margin:0 0 1.25rem 0; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
-					سجل المحادثة الكامل (Transcript)
+				<h3 style="font-size:1.05rem; font-weight:800; margin:0 0 1.25rem 0; border-bottom:1px solid var(--border); padding-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+					@components.IconFileText("icon-xs")
+					<span>سجل الحوار والرسائل الكامل (Full Transcript)</span>
 				</h3>
 
 				if len(msgs) == 0 {
@@ -231,7 +257,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 									<div style="max-width:85%; background:var(--surface-sunken); border:1px solid var(--border); border-radius:18px 18px 4px 18px; padding:0.85rem 1.15rem;">
 										<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.35rem; font-size:0.75rem; color:var(--text-muted);">
 											<span style="font-weight:700; color:var(--accent);">👤 { summary.UserName }</span>
-											<span>{ m.CreatedAt.Format("15:04:05") }</span>
+											<span class="tabular-nums">{ m.CreatedAt.Format("15:04:05") }</span>
 										</div>
 										<div style="font-size:0.9rem; line-height:1.6; color:var(--text); white-space:pre-wrap;" dir="auto">{ m.Content }</div>
 										if len(m.Attachments) > 0 {
@@ -268,7 +294,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 										<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.5rem; font-size:0.75rem; color:var(--text-muted);">
 											<span style="font-weight:700; color:#0284c7; display:flex; align-items:center; gap:0.3rem;">
 												@components.IconSparkles("icon-xxs")
-												<span>المساعد كبسولة</span>
+												<span>المساعد كبسولة AI</span>
 												if m.ModelRole != "" {
 													<code style="font-size:0.7rem; background:var(--surface-sunken); padding:0.1rem 0.3rem; border-radius:3px;">{ m.ModelRole }</code>
 												}
@@ -288,33 +314,3 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 	}
 }
 
-// AdminChatHistoryDetailPage renders conversation transcript for peer chat.
-templ AdminChatHistoryDetailPage(convID int64, msgs []*chat.Message, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("محادثة #%d", convID), "chat_history", lang, dir) {
-		<div class="card max-w-2xl mx-auto">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">محادثة #{ fmt.Sprintf("%d", convID) }</h2>
-					<p class="subtitle">عرض الرسائل المتبادلة للأغراض الإدارية والرقابية.</p>
-				</div>
-				<a href="/admin/chat/history?tab=users" class="btn btn-secondary btn-sm">العودة للسجلات</a>
-			</div>
-
-			if len(msgs) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد رسائل", Message: "المحادثة فارغة."})
-			} else {
-				<div class="stack">
-					for _, m := range msgs {
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-md);">
-							<div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">
-								<span>مستخدم #{ fmt.Sprintf("%d", m.SenderUserID) }</span>
-								<span>{ m.CreatedAt.Format("2006-01-02 15:04:05") }</span>
-							</div>
-							<div style="font-size:0.95rem; line-height:1.5;">{ m.Body }</div>
-						</div>
-					}
-				</div>
-			}
-		</div>
-	}
-}

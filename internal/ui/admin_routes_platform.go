@@ -75,7 +75,10 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Get("/admin/jobs", h.AdminJobsPage)
 		g.Get("/admin/chat/history", h.AdminChatHistoryPage)
 		g.Get("/admin/chat/ai/{id}", h.AdminAIChatDetailPage)
-		g.Get("/admin/chat/history/{id}", h.AdminChatHistoryDetailPage)
+		g.Get("/admin/chat/history/{id}", func(w http.ResponseWriter, r *http.Request) {
+			id := chi.URLParam(r, "id")
+			http.Redirect(w, r, "/admin/chat/ai/"+id, http.StatusMovedPermanently)
+		})
 		g.Get("/admin/ask-for", h.AdminAskForPage)
 		g.Get("/admin/ask-for/{id}", h.AdminAskForDetailPage)
 		g.Post("/admin/ask-for/{id}/respond", h.AdminAskForRespondSubmit)

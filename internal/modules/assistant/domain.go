@@ -27,16 +27,27 @@ type ConversationSummary struct {
 	PublicID          uuid.UUID `json:"public_id"`
 	OrganizationID    int64     `json:"organization_id"`
 	OrganizationName  string    `json:"organization_name"`
+	OrganizationType  string    `json:"organization_type,omitempty"`
 	UserID            int64     `json:"user_id"`
 	UserName          string    `json:"user_name"`
 	UserEmail         string    `json:"user_email"`
 	UserPhone         string    `json:"user_phone"`
+	UserRole          string    `json:"user_role,omitempty"`
 	Title             string    `json:"title"`
 	MessageCount      int       `json:"message_count"`
 	TotalInputTokens  int       `json:"total_input_tokens"`
 	TotalOutputTokens int       `json:"total_output_tokens"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
+}
+
+// AssistantStats provides aggregated metrics for the AI Assistant platform overview.
+type AssistantStats struct {
+	TotalConversations int `json:"total_conversations"`
+	TotalMessages      int `json:"total_messages"`
+	TotalInputTokens   int `json:"total_input_tokens"`
+	TotalOutputTokens  int `json:"total_output_tokens"`
+	ActiveUsers        int `json:"active_users"`
 }
 
 // Message represents one turn in a conversation.
