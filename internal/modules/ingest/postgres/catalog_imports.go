@@ -140,7 +140,7 @@ func (r *Repository) Begin(ctx context.Context, id int64) error {
 			    matched_rows = 0, review_rows = 0, unmatched_rows = 0, created_products = 0,
 			    findings = '[]'::JSONB, stats = '{}'::JSONB
 			WHERE id = $1 AND (
-				phase IN ('mapping','settings','confirm','failed')
+				phase IN ('mapping','settings','review','confirm','failed')
 				OR (phase = 'processing' AND started_at < now() - INTERVAL '`+staleRunAfter+`')
 			)`, id)
 		if err != nil {
@@ -168,7 +168,7 @@ func (r *Repository) Progress(ctx context.Context, id int64, percent int, note s
 		_, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET progress_percent = LEAST(GREATEST($2, 0), 100), progress_note = $3
-			WHERE id = $1 AND phase = 'processing'`, id, percent, note)
+			WHERE id = $1 AND phase IN ('processing','review','confirm')`, id, percent, note)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: import progress: %w", err)
 		}
@@ -176,8 +176,7 @@ func (r *Repository) Progress(ctx context.Context, id int64, percent int, note s
 	})
 }
 
-// Finish records the outcome of a completed run. Only a processing session can
-// be finished, so a stray late call cannot rewrite history.
+// Finish records the outcome of a completed run.
 func (r *Repository) Finish(ctx context.Context, s *ingest.Session) error {
 	stats, err := json.Marshal(s.Stats)
 	if err != nil {
@@ -195,7 +194,7 @@ func (r *Repository) Finish(ctx context.Context, s *ingest.Session) error {
 			    total_rows = $4, inserted_rows = $5, updated_rows = $6,
 			    skipped_rows = $7, error_rows = $8, matched_rows = $9,
 			    review_rows = $10, unmatched_rows = $11, created_products = $12
-			WHERE id = $1 AND phase = 'processing'`,
+			WHERE id = $1 AND phase IN ('processing','review','confirm','settings','mapping')`,
 			s.ID, stats, findings, s.TotalRows, s.InsertedRows, s.UpdatedRows,
 			s.SkippedRows, s.ErrorRows, s.MatchedRows, s.ReviewRows,
 			s.UnmatchedRows, s.CreatedProducts)
@@ -210,14 +209,13 @@ func (r *Repository) Finish(ctx context.Context, s *ingest.Session) error {
 	})
 }
 
-// Fail records a run that stopped on an error. The phase predicate stops a
-// stray Fail from flipping a completed import to failed retroactively.
+// Fail records a run that stopped on an error.
 func (r *Repository) Fail(ctx context.Context, id int64, message string) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		tag, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET phase = 'failed', completed_at = now(), error_message = $2
-			WHERE id = $1 AND phase = 'processing'`, id, message)
+			WHERE id = $1 AND phase IN ('processing','review','confirm','settings','mapping')`, id, message)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: fail import: %w", err)
 		}
@@ -237,7 +235,7 @@ func (r *Repository) Cancel(ctx context.Context, id int64) error {
 		tag, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET phase = 'cancelled', completed_at = now(), source_file = ''::BYTEA
-			WHERE id = $1 AND phase IN ('mapping','settings','confirm')`, id)
+			WHERE id = $1 AND phase IN ('mapping','settings','review','confirm')`, id)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: cancel import: %w", err)
 		}
