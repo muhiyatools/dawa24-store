@@ -294,7 +294,7 @@ func (r *Repository) Sweep(ctx context.Context) error {
 		if _, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET phase = 'cancelled', completed_at = now()
-			WHERE expires_at < now() AND phase IN ('mapping','settings','confirm')`); err != nil {
+			WHERE expires_at < now() AND phase IN ('mapping','settings','review','confirm')`); err != nil {
 			return fmt.Errorf("ingest postgres: sweep imports: %w", err)
 		}
 		// A run wedged in processing past the stale threshold is dead with its
@@ -308,4 +308,69 @@ func (r *Repository) Sweep(ctx context.Context) error {
 		}
 		return nil
 	})
+}
+
+// importDocs are the JSON columns of a session, encoded together so a failure
+// to marshal one never leaves a half-written row.
+type importDocs struct {
+	source    []byte
+	overrides []byte
+	settings  []byte
+	mapping   []byte
+}
+
+func encodeImport(s *ingest.Session) (importDocs, error) {
+	var docs importDocs
+	var err error
+	if docs.source, err = json.Marshal(s.Source); err != nil {
+		return docs, fmt.Errorf("ingest postgres: encode import source: %w", err)
+	}
+	if docs.overrides, err = json.Marshal(s.Overrides); err != nil {
+		return docs, fmt.Errorf("ingest postgres: encode import overrides: %w", err)
+	}
+	if docs.settings, err = json.Marshal(s.Settings); err != nil {
+		return docs, fmt.Errorf("ingest postgres: encode import settings: %w", err)
+	}
+	if s.Mapping == nil {
+		docs.mapping = []byte(`{}`)
+	} else if docs.mapping, err = json.Marshal(s.Mapping); err != nil {
+		return docs, fmt.Errorf("ingest postgres: encode import mapping: %w", err)
+	}
+	return docs, nil
+}
+
+// scanner is the shape pgx.Row and pgx.Rows share.
+type scanner interface {
+	Scan(dest ...any) error
+}
+
+func scanImport(row scanner, s *ingest.Session) error {
+	var phase string
+	var source, overrides, settings, mapping, stats, findings []byte
+	err := row.Scan(
+		&s.ID, &s.PublicID, &s.OrganizationID, &s.CreatedBy, &s.Filename,
+		&s.FileSizeBytes, &phase, &source, &overrides, &settings, &mapping,
+		&stats, &findings,
+		&s.TotalRows, &s.InsertedRows, &s.UpdatedRows, &s.SkippedRows, &s.ErrorRows,
+		&s.MatchedRows, &s.ReviewRows, &s.UnmatchedRows, &s.CreatedProducts,
+		&s.ProgressPercent, &s.ProgressNote, &s.ErrorMessage,
+		&s.StartedAt, &s.CompletedAt, &s.CreatedAt, &s.UpdatedAt, &s.ExpiresAt,
+	)
+	if err != nil {
+		return err
+	}
+	s.Phase = ingest.Phase(phase)
+	_ = json.Unmarshal(source, &s.Source)
+	_ = json.Unmarshal(overrides, &s.Overrides)
+	_ = json.Unmarshal(settings, &s.Settings)
+	_ = json.Unmarshal(stats, &s.Stats)
+	_ = json.Unmarshal(findings, &s.Findings)
+	if len(mapping) > 2 {
+		var snap ingest.MappingSnapshot
+		if json.Unmarshal(mapping, &snap) == nil {
+			s.Mapping = &snap
+		}
+	}
+	s.Settings = s.Settings.Normalize()
+	return nil
 }

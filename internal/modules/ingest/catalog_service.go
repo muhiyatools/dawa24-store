@@ -2,7 +2,6 @@ package ingest
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"

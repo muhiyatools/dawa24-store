@@ -46,4 +46,20 @@ func TestVendorIngestWizardResumability(t *testing.T) {
 	if rr2.Code != http.StatusSeeOther {
 		t.Errorf("expected redirect for non-existent session, got %d", rr2.Code)
 	}
+
+	// Step 3: GET /vendor/ingest/{id}/catalog-search
+	reqSearch, _ := http.NewRequestWithContext(ctx, "GET", "/vendor/ingest/999/catalog-search?q=panadol", nil)
+	rrSearch := httptest.NewRecorder()
+	r.ServeHTTP(rrSearch, reqSearch)
+	if rrSearch.Code != http.StatusOK {
+		t.Errorf("expected 200 OK for catalog-search, got %d", rrSearch.Code)
+	}
+
+	// Step 4: POST /vendor/ingest/{id}/rows/1/toggle
+	reqToggle, _ := http.NewRequestWithContext(ctx, "POST", "/vendor/ingest/999/rows/1/toggle", nil)
+	rrToggle := httptest.NewRecorder()
+	r.ServeHTTP(rrToggle, reqToggle)
+	if rrToggle.Code != http.StatusSeeOther {
+		t.Errorf("expected 303 redirect for row toggle, got %d", rrToggle.Code)
+	}
 }

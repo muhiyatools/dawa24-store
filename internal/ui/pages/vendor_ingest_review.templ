@@ -245,8 +245,12 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 		<!-- Price -->
 		<td style="text-align:center; vertical-align:middle;">
-			if row.Payload != nil && row.Payload.Price > 0 {
-				<span class="font-bold text-slate-800">{ fmt.Sprintf("%.2f", row.Payload.Price) }</span>
+			if row.Payload != nil && (row.Payload.NetPrice.IsPositive() || row.Payload.PublicPrice.IsPositive()) {
+				if row.Payload.NetPrice.IsPositive() {
+					<span class="font-bold text-slate-800">{ row.Payload.NetPrice.String() }</span>
+				} else {
+					<span class="font-bold text-slate-800">{ row.Payload.PublicPrice.String() }</span>
+				}
 			} else {
 				<span class="text-muted text-xs">-</span>
 			}

@@ -4,11 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -216,10 +219,13 @@ func (r *Repository) UpdateRow(
 			currExcluded = *isExcluded
 		}
 		if price != nil {
-			rowData.Price = *price
+			m := money.FromMinor(int64(math.Round(*price * 100)))
+			rowData.PublicPrice = m
+			rowData.NetPrice = m
 		}
 		if quantity != nil {
 			rowData.Quantity = *quantity
+			rowData.HasQuantity = true
 		}
 
 		newPayload, _ := json.Marshal(rowData)
@@ -317,76 +323,6 @@ func (r *Repository) UpdateCommittedRows(ctx context.Context, importID int64, ro
 		}
 		return nil
 	})
-}
-
-// importDocs are the JSON columns of a session, encoded together so a failure
-// to marshal one never leaves a half-written row.
-type importDocs struct {
-	source    []byte
-	overrides []byte
-	settings  []byte
-	mapping   []byte
-}
-
-func encodeImport(s *ingest.Session) (importDocs, error) {
-	var docs importDocs
-	var err error
-	if docs.source, err = json.Marshal(s.Source); err != nil {
-		return docs, fmt.Errorf("ingest postgres: encode import source: %w", err)
-	}
-	// A map keyed by int marshals to an object of numeric strings, which is
-	// exactly what the column override map needs and what decodeOverrides reads
-	// back.
-	if docs.overrides, err = json.Marshal(s.Overrides); err != nil {
-		return docs, fmt.Errorf("ingest postgres: encode import overrides: %w", err)
-	}
-	if docs.settings, err = json.Marshal(s.Settings); err != nil {
-		return docs, fmt.Errorf("ingest postgres: encode import settings: %w", err)
-	}
-	if s.Mapping == nil {
-		docs.mapping = []byte(`{}`)
-	} else if docs.mapping, err = json.Marshal(s.Mapping); err != nil {
-		return docs, fmt.Errorf("ingest postgres: encode import mapping: %w", err)
-	}
-	return docs, nil
-}
-
-// scanner is the shape pgx.Row and pgx.Rows share.
-type scanner interface {
-	Scan(dest ...any) error
-}
-
-func scanImport(row scanner, s *ingest.Session) error {
-	var phase string
-	var source, overrides, settings, mapping, stats, findings []byte
-	err := row.Scan(
-		&s.ID, &s.PublicID, &s.OrganizationID, &s.CreatedBy, &s.Filename,
-		&s.FileSizeBytes, &phase, &source, &overrides, &settings, &mapping,
-		&stats, &findings,
-		&s.TotalRows, &s.InsertedRows, &s.UpdatedRows, &s.SkippedRows, &s.ErrorRows,
-		&s.MatchedRows, &s.ReviewRows, &s.UnmatchedRows, &s.CreatedProducts,
-		&s.ProgressPercent, &s.ProgressNote, &s.ErrorMessage,
-		&s.StartedAt, &s.CompletedAt, &s.CreatedAt, &s.UpdatedAt, &s.ExpiresAt,
-	)
-	if err != nil {
-		return err
-	}
-	s.Phase = ingest.Phase(phase)
-	// A malformed document must not take the whole session down with it: the
-	// vendor can still see what happened and start again.
-	_ = json.Unmarshal(source, &s.Source)
-	_ = json.Unmarshal(overrides, &s.Overrides)
-	_ = json.Unmarshal(settings, &s.Settings)
-	_ = json.Unmarshal(stats, &s.Stats)
-	_ = json.Unmarshal(findings, &s.Findings)
-	if len(mapping) > 2 {
-		var snap ingest.MappingSnapshot
-		if json.Unmarshal(mapping, &snap) == nil {
-			s.Mapping = &snap
-		}
-	}
-	s.Settings = s.Settings.Normalize()
-	return nil
 }
 
 func trimTo(s string, limit int) string {

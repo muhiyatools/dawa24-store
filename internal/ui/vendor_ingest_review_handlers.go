@@ -153,20 +153,20 @@ func (h *UIHandler) VendorIngestCatalogSearchJSON(w http.ResponseWriter, r *http
 
 	products, err := h.ingSvc.SearchMasterCatalog(ctx, q)
 	if err != nil {
-		http.Error(w, {"error":"search_failed"}, http.StatusInternalServerError)
+		http.Error(w, `{"error":"search_failed"}`, http.StatusInternalServerError)
 		return
 	}
 
 	type searchItem struct {
-		ID            int64   json:"id"
-		NameAR        string  json:"name_ar"
-		NameEN        string  json:"name_en"
-		SKU           string  json:"sku"
-		Barcode       string  json:"barcode"
-		DosageForm    string  json:"dosage_form"
-		Concentration string  json:"concentration"
-		Manufacturer  string  json:"manufacturer"
-		PublicPrice   float64 json:"public_price"
+		ID            int64   `json:"id"`
+		NameAR        string  `json:"name_ar"`
+		NameEN        string  `json:"name_en"`
+		SKU           string  `json:"sku"`
+		Barcode       string  `json:"barcode"`
+		DosageForm    string  `json:"dosage_form"`
+		Concentration string  `json:"concentration"`
+		Manufacturer  string  `json:"manufacturer"`
+		PublicPrice   float64 `json:"public_price"`
 	}
 
 	out := make([]searchItem, 0, len(products))
@@ -181,8 +181,8 @@ func (h *UIHandler) VendorIngestCatalogSearchJSON(w http.ResponseWriter, r *http
 			Barcode:       p.Barcode,
 			DosageForm:    p.DosageForm,
 			Concentration: p.Concentration,
-			Manufacturer:  p.Manufacturer,
-			PublicPrice:   p.PublicPrice.Major(),
+			Manufacturer:  p.ManufacturingCompanies,
+			PublicPrice:   float64(p.Price.Minor()) / 100.0,
 		})
 	}
 

@@ -72,9 +72,6 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 
 	var matchedCount, reviewCount, unmatchedCount, errorCount int
 	var aiBudgetVal aiBudget
-	if session.Settings.UseAI && s.adjudicator != nil {
-		aiBudgetVal.allowance = 400
-	}
 
 	result, err := productmatch.Process(book, analysis.Layout, analysis.Mapping, opts,
 		func(batch []*productmatch.Row) error {
@@ -91,7 +88,7 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 			}
 
 			// Run AI adjudication on difficult rows if enabled
-			if session.Settings.UseAI && s.adjudicator != nil && aiBudgetVal.allowance > 0 {
+			if session.Settings.UseAI && s.adjudicator != nil && !aiBudgetVal.spent() {
 				wDummy := &importWriter{
 					svc:      s,
 					session:  session,
@@ -164,66 +161,6 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 	session.Phase = PhaseReview
 
 	return s.imports.SaveDraft(ctx, session)
-}
-
-// UpdateStagedRow modifies a staged row's editable attributes before commit.
-func (s *Service) UpdateStagedRow(
-	ctx context.Context, publicID string, rowID int64,
-	displayName, customVariantName string, price *float64, quantity *int, isExcluded *bool,
-) error {
-	session, err := s.LoadImport(ctx, publicID)
-	if err != nil {
-		return err
-	}
-	if session.Phase != PhaseReview {
-		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل الصفوف إلا في مرحلة المراجعة.")
-	}
-	return s.imports.UpdateRow(ctx, session.ID, rowID, displayName, customVariantName, price, quantity, isExcluded)
-}
-
-// AssignStagedRowMatch manually binds a staged row to a master catalog product.
-func (s *Service) AssignStagedRowMatch(
-	ctx context.Context, publicID string, rowID, productID int64,
-) error {
-	session, err := s.LoadImport(ctx, publicID)
-	if err != nil {
-		return err
-	}
-	if session.Phase != PhaseReview {
-		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل المطابقة إلا في مرحلة المراجعة.")
-	}
-	p, _, err := s.catalog.GetProduct(database.AsSystem(ctx), productID)
-	if err != nil || p == nil {
-		return apperr.NotFound("product")
-	}
-	name := p.Name.Get("ar")
-	if name == "" {
-		name = p.Name.Get("en")
-	}
-	return s.imports.AssignRowMatch(ctx, session.ID, rowID, productID, name, p.SKU)
-}
-
-// ToggleStagedRowExclude toggles row inclusion/exclusion.
-func (s *Service) ToggleStagedRowExclude(ctx context.Context, publicID string, rowID int64) (bool, error) {
-	session, err := s.LoadImport(ctx, publicID)
-	if err != nil {
-		return false, err
-	}
-	if session.Phase != PhaseReview {
-		return false, apperr.Conflict("import.not_in_review", "لا يمكن تعديل حالة الصف إلا في مرحلة المراجعة.")
-	}
-	return s.imports.ToggleRowExclude(ctx, session.ID, rowID)
-}
-
-// SearchMasterCatalog queries master products for the manual match search modal.
-func (s *Service) SearchMasterCatalog(ctx context.Context, query string) ([]*catalog.Product, error) {
-	if s.catalog == nil {
-		return nil, ErrImportStoreUnavailable
-	}
-	return s.catalog.Search(database.AsSystem(ctx), catalog.SearchParams{
-		Query: query,
-		Limit: 25,
-	})
 }
 
 // CommitImport writes all reviewed, non-excluded staged rows to catalog and inventory.
