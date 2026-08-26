@@ -36,6 +36,9 @@ func (s *Service) AssignStagedRowMatch(
 	if session.Phase != PhaseReview {
 		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل المطابقة إلا في مرحلة المراجعة.")
 	}
+	if productID <= 0 {
+		return s.imports.AssignRowMatch(ctx, session.ID, rowID, 0, "", "")
+	}
 	p, _, err := s.catalog.GetProduct(database.AsSystem(ctx), productID)
 	if err != nil || p == nil {
 		return apperr.NotFound("product")

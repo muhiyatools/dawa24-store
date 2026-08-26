@@ -106,18 +106,18 @@ func (h *UIHandler) VendorIngestRowMatchSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	productID, err := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
-	if err != nil || productID <= 0 {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", "يرجى اختيار صنف صحيح من الكتالوج.")
-		return
-	}
+	productID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
 
 	if err := h.ingSvc.AssignStagedRowMatch(ctx, publicID, rowID, productID); err != nil {
 		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", "تم ربط الصنف بالكتالوج المركزي بنجاح.")
+	if productID > 0 {
+		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", "تم ربط الصنف بالكتالوج المركزي بنجاح.")
+	} else {
+		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", "تم إلغاء ربط الصنف بالكتالوج.")
+	}
 }
 
 // VendorIngestRowToggleSubmit toggles whether a staged row will be included or excluded from commit.

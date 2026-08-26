@@ -100,7 +100,16 @@ func (r *Repository) Rows(
 		args = append(args, filter.Outcome)
 		where = append(where, fmt.Sprintf("r.outcome = $%d", len(args)))
 	}
-	if filter.MatchLevel != "" {
+	switch filter.MatchLevel {
+	case "matched":
+		where = append(where, "(r.product_id IS NOT NULL AND r.product_id > 0)")
+	case "review":
+		where = append(where, "((r.product_id IS NULL OR r.product_id = 0) AND r.match_level IN ('review', 'ambiguous'))")
+	case "unmatched":
+		where = append(where, "((r.product_id IS NULL OR r.product_id = 0) AND r.match_level NOT IN ('review', 'ambiguous'))")
+	case "":
+		// no match filter
+	default:
 		args = append(args, filter.MatchLevel)
 		where = append(where, fmt.Sprintf("r.match_level = $%d", len(args)))
 	}
@@ -239,22 +248,46 @@ func (r *Repository) UpdateRow(
 	})
 }
 
-// AssignRowMatch links a staged row to a master catalog product manually.
+// AssignRowMatch links a staged row to a master catalog product manually (or clears it if productID <= 0).
 func (r *Repository) AssignRowMatch(
 	ctx context.Context, importID, rowID, productID int64,
 	productName, productSKU string,
 ) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if productID > 0 {
+			if _, err := tx.Exec(txCtx, `
+				UPDATE ingest.catalog_import_rows
+				SET product_id = $3,
+				    match_level = 'exact',
+				    match_score = 1.0000,
+				    outcome = 'staged',
+				    is_manually_matched = true,
+				    message = 'مطابقة يدوية معتمدة من المستخدم'
+				WHERE id = $1 AND import_id = $2`,
+				rowID, importID, productID); err != nil {
+				return err
+			}
+		} else {
+			if _, err := tx.Exec(txCtx, `
+				UPDATE ingest.catalog_import_rows
+				SET product_id = NULL,
+				    match_level = 'none',
+				    match_score = 0.0000,
+				    outcome = 'staged',
+				    is_manually_matched = false,
+				    message = 'تم إلغاء الربط بالكتالوج'
+				WHERE id = $1 AND import_id = $2`,
+				rowID, importID); err != nil {
+				return err
+			}
+		}
+
 		_, err := tx.Exec(txCtx, `
-			UPDATE ingest.catalog_import_rows
-			SET product_id = $3,
-			    match_level = 'exact',
-			    match_score = 1.0000,
-			    outcome = 'staged',
-			    is_manually_matched = true,
-			    message = 'مطابقة يدوية معتمدة من المستخدم'
-			WHERE id = $1 AND import_id = $2`,
-			rowID, importID, productID)
+			UPDATE ingest.catalog_imports
+			SET matched_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND product_id IS NOT NULL AND product_id > 0),
+			    review_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND (product_id IS NULL OR product_id = 0) AND match_level IN ('review', 'ambiguous')),
+			    unmatched_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND (product_id IS NULL OR product_id = 0) AND match_level NOT IN ('review', 'ambiguous'))
+			WHERE id = $1`, importID)
 		return err
 	})
 }
