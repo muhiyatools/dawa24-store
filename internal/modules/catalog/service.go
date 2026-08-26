@@ -38,6 +38,9 @@ type Service struct {
 	// progress tracks background preparation runs so the review screen can show
 	// the admin what a long import is doing.
 	progress *ProgressTracker
+	// sheets holds decoded workbooks for the length of a mapping session, so
+	// correcting a column mapping does not re-read and re-decode the upload.
+	sheets *sheetCache
 }
 
 // SetInstitutionalGate installs the institutional work filter gate.

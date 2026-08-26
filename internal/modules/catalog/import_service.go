@@ -38,6 +38,10 @@ type ImportSessionStore interface {
 	// them, which is how a background run refuses to overwrite a state change
 	// it did not see.
 	UpdateImportSession(ctx context.Context, s *ImportSession, fromStatuses ...SessionStatus) error
+	// SaveImportProgress records where a background run has reached. It is a
+	// narrow write on purpose: the run does not own the rest of the row while
+	// it is in flight, and a full save would clobber a concurrent edit.
+	SaveImportProgress(ctx context.Context, publicID string, p ImportProgress) error
 	// ClaimImportSessionForCommit atomically flips one reviewable session to
 	// 'committing' and returns the fresh row, so two concurrent commits cannot
 	// both pass whatever process-local guards say.
@@ -75,6 +79,9 @@ func (s *Service) SetImportStore(store ImportSessionStore) {
 	if s.progress == nil {
 		s.progress = NewProgressTracker()
 	}
+	if s.sheets == nil {
+		s.sheets = newSheetCache()
+	}
 }
 
 // SetAIMapper installs the AI mapping port. Leaving it unset disables the AI
@@ -89,432 +96,11 @@ func (s *Service) AIAvailable(ctx context.Context) bool {
 // ErrImportUnavailable means the staging store was never wired.
 var ErrImportUnavailable = errors.New("catalog: import sessions are not configured")
 
-// AnalyzeImport reads an uploaded file and opens a review session for it.
-//
-// It parses the file once with no overrides purely to learn its shape — how many
-// blocks, which columns, how many rows survive — so the review screen can show
-// the admin what was found before asking them to confirm or correct it.
-func (s *Service) AnalyzeImport(
-	ctx context.Context, content []byte, filename string, actorID int64,
-) (*ImportSession, *ParseResult, error) {
-	if s.imports == nil {
-		return nil, nil, ErrImportUnavailable
-	}
-
-	sheet, err := ReadSpreadsheet(content, filename)
-	if err != nil {
-		return nil, nil, err
-	}
-	parsed := ParseProducts(sheet)
-
-	// The session is scoped to the organisation that owns the master catalogue,
-	// so the rows it matches against during review are the same rows the commit
-	// will write into.
-	orgID, err := s.imports.DefaultCatalogOrg(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	session := &ImportSession{
-		OrganizationID: orgID,
-		Filename:       filename,
-		FileSizeBytes:  int64(len(content)),
-		SourceFormat:   sheet.Format,
-		SheetName:      sheet.Sheet,
-		Delimiter:      sheet.Delimiter,
-		Status:         SessionDraft,
-		Mode:           ModeUpdateAndAdd,
-		Options:        DefaultImportOptions(),
-	}
-	if actorID > 0 {
-		session.CreatedBy = &actorID
-	}
-	applyParseStats(session, parsed)
-
-	if err := s.imports.CreateImportSession(ctx, session, content); err != nil {
-		return nil, nil, err
-	}
-	s.log.InfoContext(ctx, "catalogue import session opened",
-		"session", session.PublicID, "file", filename,
-		"rows", parsed.Stats.TotalRowsRead, "products", len(parsed.Products),
-		"blocks", len(parsed.Layout.Blocks))
-
-	return session, parsed, nil
-}
-
-// PrepareImport re-reads the session's file under the admin's settings, decides
-// what each row would do, enriches what it can, and stages the result.
-//
-// It is idempotent by construction: staging rows are replaced wholesale, so the
-// admin can adjust the column mapping and run it again as many times as they
-// need without accumulating anything.
-func (s *Service) PrepareImport(ctx context.Context, publicID string, settings ImportSettings) (*ImportSession, error) {
-	return s.prepare(ctx, publicID, settings, nil)
-}
-
-// PrepareImportAsync starts preparation in the background and returns at once.
-//
-// With AI enabled this is minutes of work; running it inside the request that
-// asked for it gives the admin a browser hanging on something that may outlive
-// its own timeout. The review screen polls Progress instead.
-func (s *Service) PrepareImportAsync(ctx context.Context, publicID string, settings ImportSettings) error {
-	if s.imports == nil {
-		return ErrImportUnavailable
-	}
-
-	report, claimed := s.progress.TryBegin(publicID)
-	if !claimed {
-		return apperr.Conflict("catalog.import_already_running",
-			"جارٍ بالفعل معالجة هذا الملف. يرجى الانتظار حتى تكتمل العملية.")
-	}
-	// Detached from the request: the admin's browser navigating away, or the
-	// request timing out, must not abandon a run that is already underway.
-	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), prepareTimeout)
-
-	go func() {
-		defer cancel()
-		_, err := s.prepare(runCtx, publicID, settings, report)
-		s.progress.Finish(publicID, err)
-		if err != nil {
-			s.log.ErrorContext(runCtx, "background import preparation failed",
-				"session", publicID, "error", err)
-		}
-	}()
-	return nil
-}
-
-// prepareTimeout bounds one background run. A file large enough to exceed this
-// needs splitting, and an admin should be told so rather than left watching a
-// bar that never moves.
-const prepareTimeout = 30 * time.Minute
-
-// ImportProgress reports where a background preparation has reached.
-func (s *Service) ImportProgress(publicID string) (ImportProgress, bool) {
-	return s.progress.Progress(publicID)
-}
-
-func (s *Service) prepare(
-	ctx context.Context, publicID string, settings ImportSettings, progress ProgressFunc,
-) (*ImportSession, error) {
-	if s.imports == nil {
-		return nil, ErrImportUnavailable
-	}
-	progress.report(ImportPhaseReading, 0, 0)
-
-	session, err := s.imports.GetImportSession(ctx, publicID)
-	if err != nil {
-		return nil, err
-	}
-	if !session.IsReviewable() {
-		return nil, apperr.Validation("catalog.import_not_reviewable",
-			"لا يمكن تعديل هذه الجلسة لأنها اكتملت أو أُلغيت. يرجى بدء عملية استيراد جديدة.", nil)
-	}
-
-	content, err := s.imports.ImportSourceFile(ctx, session.ID)
-	if err != nil {
-		return nil, err
-	}
-	if len(content) == 0 {
-		return nil, apperr.Validation("catalog.import_file_expired",
-			"انتهت صلاحية الملف المرفوع لهذه الجلسة. يرجى رفع الملف من جديد.", nil)
-	}
-
-	sheet, err := ReadSpreadsheet(content, session.Filename)
-	if err != nil {
-		return nil, err
-	}
-
-	session.Mode = settings.Mode
-	session.Options = settings.Options
-
-	// Request one: which column is which field. It runs before parsing because
-	// its whole purpose is to change how the sheet is read.
-	session.AICalls, session.AIApplied, session.AIFallback, session.AINote = 0, 0, false, ""
-	session.Overrides = s.resolveColumnMapping(ctx, session, sheet, settings.Overrides)
-
-	progress.report(ImportPhaseParsing, 0, 0)
-	parsed := ParseSheet(sheet, session.Overrides, settings.Options)
-	applyParseStats(session, parsed)
-	session.SheetName = sheet.Sheet
-	session.SourceFormat = sheet.Format
-	session.Delimiter = sheet.Delimiter
-
-	s.resolveTaxonomies(ctx, session, parsed, progress)
-
-	progress.report(ImportPhaseMatching, 0, len(parsed.Products))
-	matches, err := s.imports.MatchExistingProducts(ctx, parsed.Products)
-	if err != nil {
-		return nil, err
-	}
-	// The exact identifiers have had their turn. Everything they missed is
-	// scored against the catalogue in memory, and — where the buyer left the AI
-	// switch on — what similarity still cannot settle is adjudicated in batches.
-	// Without this the importer matched under a tenth of a real supplier file
-	// and staged the rest as new products, quietly duplicating the catalogue.
-	matchStats := s.resolveSimilarMatches(ctx, session, parsed.Products, matches)
-	session.AIMatched = matchStats.Similar + matchStats.AI
-	if matchStats.CeilingHit {
-		session.AIFallback = true
-	}
-
-	progress.report(ImportPhaseStaging, 0, len(parsed.Products))
-	rows := buildStagingRows(parsed, matches, session.Mode)
-	applyRowStats(session, rows)
-	session.NewBrands = collectNewBrands(parsed.Products, matches)
-	// NewCategories was already computed by resolveTaxonomies; both proposals
-	// are persisted here so the review screen can show them.
-	session.Status = SessionReady
-
-	// The guarded write comes before the rows: if the admin cancelled or a
-	// commit landed while this prepare ran, the transition fails here and the
-	// staging table is left for the reaper instead of resurrecting a dead
-	// session with fresh rows and a ready status.
-	if err := s.imports.UpdateImportSession(ctx, session, SessionDraft, SessionReady); err != nil {
-		return nil, err
-	}
-	if err := s.imports.ReplaceStagingRows(ctx, session.ID, rows); err != nil {
-		return nil, err
-	}
-
-	s.log.InfoContext(ctx, "catalogue import prepared",
-		"session", session.PublicID, "mode", session.Mode,
-		"insert", session.InsertRows, "update", session.UpdateRows,
-		"skip", session.SkipRows, "errors", session.ErrorRows,
-		"match_exact", matchStats.Exact, "match_similar", matchStats.Similar,
-		"match_ai", matchStats.AI, "match_unmatched", matchStats.Unmatched,
-		"match_rate_pct", matchStats.RatePercent(),
-		"ai_calls", session.AICalls, "ai_applied", session.AIApplied)
-	return session, nil
-}
-
 // ImportSettings are the choices the admin makes before processing.
 type ImportSettings struct {
 	Mode      ImportMode
 	Options   ImportOptions
 	Overrides LayoutOverrides
-}
-
-// resolveTaxonomies is the whole of AI's involvement after the column mapping:
-// two small requests that translate the file's distinct category and
-// pharmaceutical-form words onto the ones the catalogue already uses.
-//
-// Distinct is what makes it cheap. A fifty-thousand-row file has perhaps twenty
-// category words in it, so this is two requests regardless of the file's size,
-// and the answers are applied to every row by the ordinary importer.
-//
-// Failure is never fatal. Exact folding has already matched everything that
-// matches on spelling; without a model the rest are simply left for the admin
-// to see as unmatched, and the import proceeds.
-func (s *Service) resolveTaxonomies(
-	ctx context.Context, session *ImportSession, parsed *ParseResult, progress ProgressFunc,
-) {
-	progress.report(ImportPhaseMapping, 0, 0)
-
-	vocab, err := s.imports.ImportVocabulary(ctx, session.OrganizationID)
-	if err != nil {
-		s.log.WarnContext(ctx, "taxonomy vocabulary unavailable", "error", err)
-		return
-	}
-
-	var notes []string
-	if session.Options.AssignCategory {
-		notes = append(notes, s.resolveCategories(ctx, session, parsed, vocab)...)
-	}
-	if session.Options.AssignDosageForm {
-		notes = append(notes, s.resolveDosageForms(ctx, session, parsed, vocab)...)
-	}
-
-	applyDefaultCategory(parsed.Products, session.Options)
-	if len(notes) > 0 {
-		session.AINote = strings.Join(notes, " ")
-	}
-}
-
-// resolveCategories translates the file's category words and stamps the
-// resulting ids onto every product that used them.
-func (s *Service) resolveCategories(
-	ctx context.Context, session *ImportSession, parsed *ParseResult, vocab EnrichVocabulary,
-) []string {
-	sources := DistinctValues(parsed.Products, func(p *Product) string { return p.SourceCategory })
-	if len(sources) == 0 {
-		return nil
-	}
-
-	targets := make([]string, 0, len(vocab.Categories))
-	idByName := make(map[string]int64, len(vocab.Categories))
-	for _, option := range vocab.Categories {
-		targets = append(targets, option.Name)
-		idByName[option.Name] = option.ID
-	}
-
-	mapping := s.mapValues(ctx, session, ValueMapCategory, sources, targets)
-	for _, p := range parsed.Products {
-		if p == nil || p.SourceCategory == "" {
-			continue
-		}
-		if p.CategoryID != nil && *p.CategoryID > 0 {
-			continue
-		}
-		if name, ok := mapping.Lookup(p.SourceCategory); ok {
-			if id := idByName[name]; id > 0 {
-				resolved := id
-				p.CategoryID = &resolved
-			}
-		}
-	}
-
-	// Categories nothing existing covers. They become real rows at commit, and
-	// only when the admin left auto-creation on.
-	session.NewCategories = mapping.Unmatched()
-	return []string{fmt.Sprintf(
-		"تمت مطابقة %d فئة من أصل %d فئة مستوردة%s.",
-		mapping.Matched(), len(sources), unmatchedSuffix(len(mapping.Unmatched())))}
-}
-
-// resolveDosageForms translates the file's form words in place, so the products
-// carry the catalogue's own spelling rather than the supplier's.
-func (s *Service) resolveDosageForms(
-	ctx context.Context, session *ImportSession, parsed *ParseResult, vocab EnrichVocabulary,
-) []string {
-	sources := DistinctValues(parsed.Products, func(p *Product) string { return p.DosageForm })
-	if len(sources) == 0 {
-		return nil
-	}
-
-	mapping := s.mapValues(ctx, session, ValueMapDosageForm, sources, vocab.DosageForms)
-	for _, p := range parsed.Products {
-		if p == nil || p.DosageForm == "" {
-			continue
-		}
-		if canonical, ok := mapping.Lookup(p.DosageForm); ok {
-			p.DosageForm = canonical
-		}
-	}
-	return []string{fmt.Sprintf(
-		"تمت مطابقة %d شكل صيدلي من أصل %d شكل مستورد%s.",
-		mapping.Matched(), len(sources), unmatchedSuffix(len(mapping.Unmatched())))}
-}
-
-// mapValues runs one value-mapping request, falling back to exact folding alone
-// when the model is unavailable.
-func (s *Service) mapValues(
-	ctx context.Context, session *ImportSession, kind ValueMapKind, sources, targets []string,
-) ValueMapping {
-	if !session.Options.UseAI || s.mapper == nil || len(targets) == 0 {
-		return BuildValueMapping(sources, targets, ValueMapResult{})
-	}
-
-	req := ValueMapRequest{
-		Kind: kind, Sources: sources, Targets: targets,
-		OrganizationID: session.OrganizationID,
-	}
-	if session.CreatedBy != nil {
-		req.UserID = *session.CreatedBy
-	}
-
-	session.AICalls++
-	result, err := s.mapper.MapValues(ctx, req)
-	if err != nil {
-		session.AIFallback = true
-		s.log.WarnContext(ctx, "value mapping unavailable, using exact matching only",
-			"session", session.PublicID, "kind", kind, "error", err)
-		return BuildValueMapping(sources, targets, ValueMapResult{})
-	}
-
-	mapping := BuildValueMapping(sources, targets, result)
-	session.AIApplied += mapping.Matched()
-	return mapping
-}
-
-func unmatchedSuffix(unmatched int) string {
-	if unmatched == 0 {
-		return ""
-	}
-	return fmt.Sprintf("، و%d قيمة بلا مقابل", unmatched)
-}
-
-// resolveColumnMapping is the first AI request: it reads the header and a few
-// sample rows and says which column is which field.
-//
-// It runs only where the deterministic mapper is unsure. A file whose headers
-// are plain — and most are — never reaches a model at all, which is the point:
-// AI is here for the badly labelled file, not the ordinary one.
-func (s *Service) resolveColumnMapping(
-	ctx context.Context, session *ImportSession, data *SheetData, overrides LayoutOverrides,
-) LayoutOverrides {
-	if !session.Options.UseAI || s.mapper == nil {
-		return overrides
-	}
-
-	layout := AnalyzeLayout(data).Apply(data, overrides)
-	if !needsColumnHelp(layout.Primary) {
-		return overrides
-	}
-
-	req := BuildColumnMapRequest(data, layout)
-	req.OrganizationID = session.OrganizationID
-	if session.CreatedBy != nil {
-		req.UserID = *session.CreatedBy
-	}
-
-	session.AICalls++
-	result, err := s.mapper.MapColumns(ctx, req)
-	if err != nil {
-		session.AIFallback = true
-		s.log.WarnContext(ctx, "column mapping unavailable, using header detection only",
-			"session", session.PublicID, "error", err)
-		return overrides
-	}
-
-	suggested := ApplyColumnMap(result, layout.Primary, data.Width)
-	if len(suggested.Columns) == 0 {
-		return overrides
-	}
-
-	// The admin's own corrections outrank the model's, always.
-	merged := overrides
-	if merged.Columns == nil {
-		merged.Columns = map[string]int{}
-	}
-	for field, column := range suggested.Columns {
-		if _, chosen := overrides.Columns[field]; !chosen {
-			merged.Columns[field] = column
-		}
-	}
-	s.log.InfoContext(ctx, "column mapping assisted by ai",
-		"session", session.PublicID, "assigned", len(suggested.Columns))
-	return merged
-}
-
-// needsColumnHelp reports whether the header detection left enough doubt to be
-// worth a request.
-//
-// The test is whether the fields that decide an import — what a product is
-// called, what it costs, who makes it — were found confidently. A file that
-// names all of them plainly is read correctly without help.
-func needsColumnHelp(plan ColumnPlan) bool {
-	if plan.Positional {
-		return true
-	}
-	for _, field := range []string{FieldNameAR, FieldPrice, FieldManufacturer} {
-		column, bound := plan.Columns[field]
-		if !bound {
-			return true
-		}
-		if !boundWithCertainty(plan, field, column) {
-			return true
-		}
-	}
-	return false
-}
-
-func boundWithCertainty(plan ColumnPlan, field string, column int) bool {
-	for _, binding := range plan.Bindings {
-		if binding.Field == field && binding.Index == column {
-			return binding.Score >= scoreExact
-		}
-	}
-	return false
 }
 
 // applyDefaultCategory fills the fallback category the admin chose, for every
@@ -679,13 +265,6 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 	if s.imports == nil {
 		return nil, empty, ErrImportUnavailable
 	}
-	// Advisory fast path: the durable claim below is what actually guards the
-	// commit, but refusing here saves a doomed round trip in the common case.
-	if s.progress.Running(publicID) {
-		return nil, empty, apperr.Conflict("catalog.import_still_processing",
-			"لا تزال معالجة الملف جارية. يرجى الانتظار حتى اكتمالها ثم التأكيد.")
-	}
-
 	session, err := s.imports.ClaimImportSessionForCommit(ctx, publicID)
 	if err != nil {
 		return nil, empty, err
@@ -806,16 +385,21 @@ func (s *Service) CancelImport(ctx context.Context, publicID string) error {
 	if err != nil {
 		return err
 	}
-	if !session.IsReviewable() {
-		return apperr.Conflict("catalog.import_not_cancellable",
-			"لا يمكن إلغاء هذه الجلسة لأنها اكتملت بالفعل.")
-	}
-	if s.progress.Running(publicID) {
+	// The session row is the authority on whether a run is live. The in-memory
+	// tracker lags it — it is updated after the transaction commits — so
+	// consulting it here refused a cancel for the few milliseconds after a run
+	// had already finished and durably said so.
+	if session.IsProcessing() {
 		return apperr.Conflict("catalog.import_still_processing",
 			"لا تزال معالجة الملف جارية. انتظر حتى تكتمل ثم أعد المحاولة.")
 	}
+	if !session.IsReviewable() && session.Status != SessionFailed {
+		return apperr.Conflict("catalog.import_not_cancellable",
+			"لا يمكن إلغاء هذه الجلسة لأنها اكتملت بالفعل.")
+	}
+	from := session.Status
 	session.Status = SessionCancelled
-	if err := s.imports.UpdateImportSession(ctx, session, SessionDraft, SessionReady); err != nil {
+	if err := s.imports.UpdateImportSession(ctx, session, from); err != nil {
 		return err
 	}
 	s.releaseSessionWorkspace(ctx, session)
@@ -828,6 +412,7 @@ func (s *Service) CancelImport(ctx context.Context, publicID string) error {
 // reported as failed because its scratch space could not be tidied. The reaper
 // that runs when the next session opens collects whatever is left.
 func (s *Service) releaseSessionWorkspace(ctx context.Context, session *ImportSession) {
+	s.sheets.drop(session.PublicID)
 	if err := s.imports.ReleaseImportSourceFile(ctx, session.ID); err != nil {
 		s.log.WarnContext(ctx, "could not release import source file",
 			"session", session.PublicID, "error", err)
@@ -857,11 +442,26 @@ func (s *Service) ListStagingRows(
 	if err != nil {
 		return nil, nil, 0, err
 	}
-	rows, total, err := s.imports.ListStagingRows(ctx, session.ID, filter)
+	rows, total, err := s.ListStagingRowsFor(ctx, session.ID, filter)
 	if err != nil {
 		return nil, nil, 0, err
 	}
 	return session, rows, total, nil
+}
+
+// ListStagingRowsFor reads a page of the review table for a session already in
+// hand, so a caller that has just loaded the session does not load it again.
+//
+// The extra read is not free and it is not harmless: it is a second answer to
+// "what state is this import in", and a run finishing between the two is enough
+// for a screen to disagree with itself.
+func (s *Service) ListStagingRowsFor(
+	ctx context.Context, sessionID int64, filter StagingFilter,
+) ([]*StagingRow, int, error) {
+	if s.imports == nil {
+		return nil, 0, ErrImportUnavailable
+	}
+	return s.imports.ListStagingRows(ctx, sessionID, filter)
 }
 
 // GetStagingRow returns one staged row for review.
@@ -974,27 +574,31 @@ func SummarizeProduct(p *Product) string {
 // The review screen needs this to draw the mapping panel. It re-parses rather
 // than storing the plan because the admin's overrides change it, and a stored
 // copy would drift from what the next run actually does.
-func (s *Service) ImportStructure(ctx context.Context, publicID string) (ColumnPlan, error) {
+func (s *Service) ImportStructure(ctx context.Context, publicID string) (FileStructure, error) {
 	if s.imports == nil {
-		return ColumnPlan{}, ErrImportUnavailable
+		return FileStructure{}, ErrImportUnavailable
 	}
 	session, err := s.imports.GetImportSession(ctx, publicID)
 	if err != nil {
-		return ColumnPlan{}, err
+		return FileStructure{}, err
 	}
-	content, err := s.imports.ImportSourceFile(ctx, session.ID)
-	if err != nil {
-		return ColumnPlan{}, err
-	}
-	if len(content) == 0 {
-		return ColumnPlan{}, apperr.NotFound("import_source_file")
+	if !session.Structure.IsEmpty() {
+		return session.Structure, nil
 	}
 
-	sheet, err := ReadSpreadsheet(content, session.Filename)
+	// A session opened before the structure was stored, or one whose analysis
+	// predates this build. Re-read it once and keep the result, so the next
+	// render is free.
+	sheet, err := s.sheetFor(ctx, session)
 	if err != nil {
-		return ColumnPlan{}, err
+		return FileStructure{}, err
 	}
-	return AnalyzeLayout(sheet).Apply(sheet, session.Overrides).Primary, nil
+	session.Structure = BuildFileStructure(sheet, AnalyzeLayout(sheet).Apply(sheet, session.Overrides))
+	if err := s.imports.UpdateImportSession(ctx, session, session.Status); err != nil {
+		s.log.DebugContext(ctx, "could not backfill import structure",
+			"session", publicID, "error", err)
+	}
+	return session.Structure, nil
 }
 
 // EnricherRunning reports whether a background preparation is in flight. Tests

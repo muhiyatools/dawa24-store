@@ -40,10 +40,12 @@ templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 			} else {
 				@importReviewBanner(view)
 				@importReviewStats(view)
-				if view.Session.IsReviewable() {
+				if view.Session.IsStaged() {
 					@importStructureCard(view)
 					@importRowsCard(view)
 					@importConfirmCard(view)
+				} else if view.Session.Status == catalog.SessionFailed {
+					@importFailedCard(view)
 				}
 			}
 		</div>
@@ -69,7 +71,7 @@ templ importReviewBanner(view ImportReviewView) {
 				case catalog.SessionCommitted:
 					{ "تم حفظ الأصناف في الكتالوج المعتمد" }
 				case catalog.SessionFailed:
-					{ "فشل حفظ الأصناف" }
+					{ "توقفت العملية ولم يُحفظ أي صنف" }
 				default:
 					{ "مراجعة ما سيتم تنفيذه" }
 			}
@@ -83,8 +85,14 @@ templ importReviewBanner(view ImportReviewView) {
 		if view.Session.ErrorMessage != "" {
 			<p class="import-banner-detail">{ view.Session.ErrorMessage }</p>
 		}
-		if summary := view.AISummary(); summary != "" {
-			<p class="import-banner-detail">🤖 { summary }</p>
+		if summary := view.EnrichmentSummary(); summary != "" {
+			<p class="import-banner-detail">
+				if view.UsedAI() {
+					{ "🤖 " + summary }
+				} else {
+					{ summary }
+				}
+			</p>
 		}
 		if view.Notice != "" {
 			<p class="import-banner-detail">{ view.Notice }</p>
@@ -137,160 +145,101 @@ templ wizStat(value, label, tone string) {
 	</div>
 }
 
-// importStructureCard lets the admin correct the reading and run it again.
+// importStructureCard shows how the file was read, and sends the admin back to
+// step two to change it.
+//
+// It used to carry the mapping controls itself, which meant every render of
+// this page re-read the whole upload out of the database and decoded the
+// workbook again to draw them — on a nine-thousand-row file that was well over
+// a second before a single row appeared, on every page of the table. The
+// mapping now has its own screen and this one reads a stored description.
 templ importStructureCard(view ImportReviewView) {
-	<form method="POST" action={ importAction(view, "prepare") } hx-boost="false">
-		<div class="card mb-0">
-			<h2 class="wiz-head">🧭 كيف تمت قراءة الملف</h2>
-			<p class="wiz-sub">
-				راجع ربط الأعمدة. إذا كان أي عمود غير صحيح، صحّحه هنا وأعد المعالجة — لن يتأثر الكتالوج.
-			</p>
-			if len(view.Bindings) > 0 {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
+	<div class="card mb-0">
+		<h2 class="wiz-head">🧭 كيف تمت قراءة الملف</h2>
+		<p class="wiz-sub">
+			{ fmt.Sprintf("صف العناوين: %s · %d عمود مربوط بحقول المنتج",
+				headerRowLabel(view.Structure), len(view.Bindings)) }
+		</p>
+		if len(view.Bindings) > 0 {
+			<div class="table-container">
+				<table class="b2b-table">
+					<thead>
+						<tr>
+							<th>العمود</th>
+							<th>عنوانه في الملف</th>
+							<th>الحقل المرتبط</th>
+							<th>عيّنة من القيم</th>
+							<th>الثقة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, binding := range view.Bindings {
 							<tr>
-								<th>العمود</th>
-								<th>عنوانه في الملف</th>
-								<th>الحقل المرتبط</th>
-								<th>الثقة</th>
+								<td class="tabular-nums">{ binding.Column }</td>
+								<td>{ binding.Header }</td>
+								<td>{ binding.Field }</td>
+								<td class="text-muted">{ binding.Sample }</td>
+								<td>
+									<span class={ "badge", importConfidenceBadge(binding.Confidence) }>
+										{ binding.Confidence }
+									</span>
+								</td>
 							</tr>
-						</thead>
-						<tbody>
-							for _, binding := range view.Bindings {
-								<tr>
-									<td class="tabular-nums">{ binding.Column }</td>
-									<td>{ binding.Header }</td>
-									<td>{ binding.Field }</td>
-									<td>
-										<span class={ "badge", importConfidenceBadge(binding.Confidence) }>
-											{ binding.Confidence }
-										</span>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
-			if len(view.Unmapped) > 0 {
-				<p class="wiz-sub" style="margin-top:0.75rem;">أعمدة لم تُربط بأي حقل:</p>
-				<div class="import-chip-list">
-					for _, header := range view.Unmapped {
-						<span class="badge badge-slate">{ header }</span>
-					}
-				</div>
-			}
-			<h3 class="wiz-head" style="margin-top:1.25rem;">تعديل ربط الأعمدة</h3>
-			<p class="wiz-sub">اكتب رقم العمود كما يظهر في Excel (1 = العمود الأول). اتركه فارغاً للاكتشاف التلقائي، أو 0 لتجاهل الحقل.</p>
-			<div class="wiz-map">
-				@wizMapNumber("header_row", "صف العناوين", "رقم الصف الذي يحتوي على أسماء الأعمدة", view.Session.Overrides.HeaderRow)
-				@wizMapNumber("first_data_row", "أول صف بيانات", "", view.Session.Overrides.FirstDataRow)
-				@wizMapNumber("last_data_row", "آخر صف بيانات", "لتجاهل صفوف الإجماليات في نهاية الملف", view.Session.Overrides.LastDataRow)
-				for _, column := range view.Columns {
-					@wizMapColumn(column)
-				}
-			</div>
-		</div>
-		<div class="card mb-0">
-			@importModeCardInner(view)
-			<div class="wiz-actions">
-				<span class="wiz-actions-note">إعادة المعالجة لا تحفظ شيئاً — تعيد قراءة الملف بالإعدادات الجديدة فقط.</span>
-				<button type="submit" class="btn btn-secondary">🔄 إعادة المعالجة بالإعدادات الجديدة</button>
-			</div>
-		</div>
-	</form>
-}
-
-// importModeCardInner reuses the strategy and switch controls inside the review
-// form, so the admin changes their mind in place rather than starting over.
-templ importModeCardInner(view ImportReviewView) {
-	<h2 class="wiz-head">⚡ طريقة المعالجة</h2>
-	<p class="wiz-sub">حدد سلوك الاستيراد للأصناف المستخرجة</p>
-	<div class="wiz-choices">
-		for _, mode := range view.Modes {
-			<label class="wiz-choice">
-				<input
-					type="radio"
-					name="import_mode"
-					value={ string(mode.Mode) }
-					checked?={ mode.Mode == view.Session.Mode }
-				/>
-				<span class="wiz-choice-body">
-					<span class="wiz-choice-icon" aria-hidden="true">{ mode.Icon }</span>
-					<span>
-						<span class="wiz-choice-title">{ mode.Title }</span>
-						<p class="wiz-choice-text">{ mode.Description }</p>
-						if mode.Destructive {
-							<span class="wiz-choice-warn">⚠ يؤثر على كل الأصناف الحالية</span>
 						}
-					</span>
-				</span>
-			</label>
+					</tbody>
+				</table>
+			</div>
 		}
-	</div>
-	<h2 class="wiz-head" style="margin-top:1.25rem;">🧩 استكمال بيانات الأصناف</h2>
-	<div class="wiz-switches">
-		for _, toggle := range view.Toggles {
-			@importSwitch(toggle)
-		}
-	</div>
-	if len(view.Categories) > 0 {
-		<div class="wiz-map-item" style="margin-top:0.75rem;">
-			<label class="wiz-map-label" for="review-default-category">الفئة الافتراضية عند تعذّر التحديد</label>
-			<select id="review-default-category" name="default_category_id" class="wiz-map-input">
-				<option value="0">بدون فئة</option>
-				for _, category := range view.Categories {
-					<option
-						value={ fmt.Sprintf("%d", category.ID) }
-						selected?={ category.ID == view.Session.Options.DefaultCategoryID }
-					>{ category.Name }</option>
+		if len(view.Unmapped) > 0 {
+			<p class="wiz-sub mt-md">أعمدة لم تُربط بأي حقل:</p>
+			<div class="import-chip-list">
+				for _, header := range view.Unmapped {
+					<span class="badge badge-slate">{ header }</span>
 				}
-			</select>
-		</div>
-	}
-}
-
-templ wizMapNumber(name, label, hint string, value int) {
-	<div class="wiz-map-item">
-		<label class="wiz-map-label" for={ "map-" + name }>{ label }</label>
-		<input
-			id={ "map-" + name }
-			class="wiz-map-input"
-			type="number"
-			min="0"
-			name={ name }
-			if value > 0 {
-				value={ fmt.Sprintf("%d", value) }
-			}
-		/>
-		if hint != "" {
-			<span class="wiz-map-hint">{ hint }</span>
+			</div>
 		}
+		<div class="wiz-actions">
+			<span class="wiz-actions-note">
+				ربط عمود خاطئ؟ ارجع لخطوة مراجعة الأعمدة، صحّحه، وأعد المعالجة — لن يتأثر الكتالوج.
+			</span>
+			<a href={ importAction(view, "mapping") } class="btn btn-secondary">
+				🧭 تعديل ربط الأعمدة وإعادة المعالجة
+			</a>
+		</div>
 	</div>
 }
 
-templ wizMapColumn(column ImportColumnChoice) {
-	<div class="wiz-map-item">
-		<label class="wiz-map-label" for={ "map-col-" + column.Field }>{ column.Label }</label>
-		<input
-			id={ "map-col-" + column.Field }
-			class="wiz-map-input"
-			type="number"
-			min="0"
-			name={ "col_" + column.Field }
-			if column.Column > 0 {
-				value={ fmt.Sprintf("%d", column.Column) }
-			}
-		/>
-		<span class="wiz-map-hint">
-			if column.Detected != "" {
-				{ fmt.Sprintf("تم اكتشافه في العمود %s", column.Detected) }
-			} else {
-				لم يُكتشف في الملف
-			}
-		</span>
+// importFailedCard is what a stopped run leaves behind.
+//
+// A failure used to leave the admin on a screen with nothing on it: the wizard
+// only drew its cards for a reviewable session, and a failed one is not. The
+// upload is still on the row, though, and the commonest cause is a mapping that
+// read nothing — so the way out is the mapping screen, not another upload.
+templ importFailedCard(view ImportReviewView) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">تعذرت معالجة الملف</h2>
+		<p class="wiz-sub">
+			لم يُحفظ أي صنف في الكتالوج. الملف المرفوع ما زال محفوظاً، ويمكنك تصحيح ربط الأعمدة
+			وإعادة المعالجة دون رفعه من جديد.
+		</p>
+		<div class="wiz-actions">
+			<form method="POST" action={ importAction(view, "cancel") } hx-boost="false" class="wiz-actions-note">
+				<button type="submit" class="btn btn-ghost">إلغاء العملية</button>
+			</form>
+			<a href={ importAction(view, "mapping") } class="btn btn-primary">
+				🧭 تصحيح ربط الأعمدة وإعادة المحاولة
+			</a>
+		</div>
 	</div>
+}
+
+// headerRowLabel states where the column titles were found, or that they were
+// not, which changes how every row below should be read.
+func headerRowLabel(structure catalog.FileStructure) string {
+	if structure.Positional || structure.HeaderRow <= 0 {
+		return "غير موجود — قراءة بالترتيب"
+	}
+	return fmt.Sprintf("الصف %d", structure.HeaderRow)
 }
 
 templ importRowsCard(view ImportReviewView) {
@@ -576,7 +525,7 @@ templ importProgressCard(view ImportReviewView) {
 					} catch (e) {
 						console.error('progress poll failed', e);
 					}
-				}, 750);
+				}, 1500);
 			})();
 		</script>
 	</div>

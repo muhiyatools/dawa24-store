@@ -61,6 +61,15 @@ func (m *memoryImportStore) UpdateImportSession(
 	return nil
 }
 
+func (m *memoryImportStore) SaveImportProgress(
+	_ context.Context, _ string, p catalog.ImportProgress,
+) error {
+	if m.session != nil {
+		m.session.Progress = p
+	}
+	return nil
+}
+
 func (m *memoryImportStore) ClaimImportSessionForCommit(
 	_ context.Context, publicID string,
 ) (*catalog.ImportSession, error) {
@@ -344,7 +353,7 @@ func (mockCatalogRepoStub) GetSavingProductByID(context.Context, int64) (*catalo
 	return nil, nil
 }
 func (mockCatalogRepoStub) DeleteSavingProduct(context.Context, int64, int64) error { return nil }
-func (mockCatalogRepoStub) DeleteAllSavingProducts(context.Context, int64) error      { return nil }
+func (mockCatalogRepoStub) DeleteAllSavingProducts(context.Context, int64) error    { return nil }
 func (mockCatalogRepoStub) GetProductProviders(context.Context, int64) ([]*catalog.ProductProviderInfo, error) {
 	return nil, nil
 }
@@ -408,12 +417,21 @@ func TestPrepareImportWritesNothingToTheCatalogue(t *testing.T) {
 	svc, repo := newImportService(t, store)
 	ctx := context.Background()
 
-	session, parsed, err := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 7)
+	session, structure, err := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 7)
 	if err != nil {
 		t.Fatalf("analyse failed: %v", err)
 	}
-	if len(parsed.Products) != 3 {
-		t.Fatalf("parsed %d products, want 3", len(parsed.Products))
+	// Analysis describes the file; it deliberately does not parse it into
+	// products. What it must get right is the shape: three columns, a header
+	// row, and a name column bound to the first of them.
+	if len(structure.Columns) != 3 {
+		t.Fatalf("described %d columns, want 3", len(structure.Columns))
+	}
+	if structure.HeaderRow != 1 {
+		t.Fatalf("header row = %d, want 1", structure.HeaderRow)
+	}
+	if missing := structure.MissingCritical(); len(missing) != 0 {
+		t.Fatalf("critical fields unbound: %v", missing)
 	}
 
 	if _, err := svc.PrepareImport(ctx, session.PublicID, catalog.ImportSettings{

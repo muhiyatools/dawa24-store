@@ -125,23 +125,23 @@ type ImportOptions struct {
 	// the one that decides the match rate — which catalogue product an
 	// unresolved row is.
 	//
-	// It is on by default, unlike the enrichment switches above. Those invent
-	// data, so their default is off; this one only ever chooses among answers
-	// the deterministic engine already retrieved, and cannot invent a product.
-	// Defaulting it off meant an administrator had to remember a checkbox for
-	// the tier that does the most work.
+	// It is off by default like every other switch here. The deterministic
+	// engine — exact identifiers, then similarity scoring — is what an import
+	// must be judged on, and an admin diagnosing a bad match rate needs to see
+	// that engine's own result first. AI is turned on deliberately, for the
+	// file that needs it.
 	UseAI bool `json:"use_ai"`
 	// DefaultCategoryID is applied to every product that ends without one,
 	// including when AI is off. Zero leaves the column null.
 	DefaultCategoryID int64 `json:"default_category_id,omitempty"`
 }
 
-// DefaultImportOptions are what the upload screen starts on: infer the form
-// from the product name, which is deterministic and safe, plus AI matching,
-// which cannot invent anything. Every switch that would write invented data
-// starts off.
+// DefaultImportOptions are what the upload screen starts on: infer the
+// pharmaceutical form from the product name, which is deterministic and reads
+// only what the supplier already wrote. Every switch that writes something the
+// file did not say — including the AI assist — starts off.
 func DefaultImportOptions() ImportOptions {
-	return ImportOptions{AssignDosageForm: true, UseAI: true}
+	return ImportOptions{AssignDosageForm: true}
 }
 
 // WantsEnrichment reports whether any field-filling switch is on.
@@ -153,8 +153,16 @@ func (o ImportOptions) WantsEnrichment() bool {
 type SessionStatus string
 
 const (
-	// SessionDraft is analysed and awaiting the admin's review.
+	// SessionDraft is analysed: the file has been read and its structure
+	// worked out, and the admin is on the mapping step deciding how it should
+	// be interpreted. Nothing is staged yet.
 	SessionDraft SessionStatus = "draft"
+	// SessionProcessing is a preparation run in flight. It is durable on
+	// purpose: a run whose only record was a map in process memory left a
+	// session at 'draft' with no counts and no error when the process went
+	// away, which is exactly what an admin reads as "the import returns
+	// nothing".
+	SessionProcessing SessionStatus = "processing"
 	// SessionReady has been processed and is awaiting confirmation.
 	SessionReady SessionStatus = "ready"
 	// SessionCommitting is an atomic claim: a commit has taken ownership of the
@@ -211,6 +219,12 @@ type ImportSession struct {
 	Mode           ImportMode      `json:"import_mode"`
 	Options        ImportOptions   `json:"options"`
 	Overrides      LayoutOverrides `json:"layout_overrides"`
+	// Structure is the file as it was read, stored so the mapping and review
+	// screens render without decoding the workbook again.
+	Structure FileStructure `json:"structure"`
+	// Progress is the last phase the background run reported, persisted so a
+	// poll still answers after a restart.
+	Progress ImportProgress `json:"progress"`
 
 	TotalRows   int `json:"total_rows"`
 	ParsedRows  int `json:"parsed_rows"`
@@ -245,9 +259,34 @@ type ImportSession struct {
 }
 
 // IsReviewable reports whether the admin can still act on this session.
+//
+// A run in flight is deliberately excluded: re-preparing, cancelling or
+// committing while the background pass is writing staging rows would race it.
 func (s *ImportSession) IsReviewable() bool {
 	return s.Status == SessionDraft || s.Status == SessionReady
 }
+
+// IsProcessing reports whether a preparation run owns this session.
+func (s *ImportSession) IsProcessing() bool { return s.Status == SessionProcessing }
+
+// IsRetryable reports whether the admin can still correct the mapping and run
+// this session again.
+//
+// A failed run is included deliberately. The upload is still on the row and the
+// commonest cause of failure is a mapping that read nothing — so the fix is a
+// correction on the mapping screen, not making the admin find and re-upload a
+// 30 MB workbook because a checkbox was wrong.
+func (s *ImportSession) IsRetryable() bool {
+	return s.Status == SessionDraft || s.Status == SessionReady || s.Status == SessionFailed
+}
+
+// retryableStatuses are the states a preview or a re-run may transition from.
+func retryableStatuses() []SessionStatus {
+	return []SessionStatus{SessionDraft, SessionReady, SessionFailed}
+}
+
+// IsStaged reports whether there are reviewed rows waiting to be committed.
+func (s *ImportSession) IsStaged() bool { return s.Status == SessionReady }
 
 // Affected is how many catalogue rows committing would touch.
 func (s *ImportSession) Affected() int { return s.InsertRows + s.UpdateRows }

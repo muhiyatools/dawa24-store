@@ -18,6 +18,7 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Get("/admin/adv-products", h.AdminAdvProductsPage)
 		g.Get("/admin/products/import", h.AdminProductsImportPage)
 		g.Get("/admin/products/import/{id}", h.AdminProductsImportReviewPage)
+		g.Get("/admin/products/import/{id}/mapping", h.AdminProductsImportMappingPage)
 		g.Get("/admin/products/import/{id}/progress", h.AdminProductsImportProgress)
 		g.Get("/admin/import", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/products/import", http.StatusMovedPermanently)
@@ -72,6 +73,7 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		// The staged review: re-run the file under corrected settings, adjust
 		// which rows are included, then commit or discard. Only the commit
 		// route writes to the catalogue.
+		g.Post("/admin/products/import/{id}/preview", h.AdminProductsImportPreview)
 		g.Post("/admin/products/import/{id}/prepare", h.AdminProductsImportPrepare)
 		g.Post("/admin/products/import/{id}/rows/{rowID}", h.AdminProductsImportRowToggle)
 		g.Post("/admin/products/import/{id}/select", h.AdminProductsImportSelect)

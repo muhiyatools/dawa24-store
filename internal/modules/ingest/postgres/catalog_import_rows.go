@@ -102,11 +102,11 @@ func (r *Repository) Rows(
 	}
 	switch filter.MatchLevel {
 	case "matched":
-		where = append(where, "(r.product_id IS NOT NULL AND r.product_id > 0)")
+		where = append(where, "((r.is_manually_matched = true OR r.match_level IN ('barcode', 'code', 'exact', 'strong')) AND r.product_id IS NOT NULL AND r.product_id > 0)")
 	case "review":
-		where = append(where, "((r.product_id IS NULL OR r.product_id = 0) AND r.match_level IN ('review', 'ambiguous'))")
+		where = append(where, "(NOT r.is_manually_matched AND r.match_level IN ('review', 'ambiguous'))")
 	case "unmatched":
-		where = append(where, "((r.product_id IS NULL OR r.product_id = 0) AND r.match_level NOT IN ('review', 'ambiguous'))")
+		where = append(where, "(NOT r.is_manually_matched AND (r.product_id IS NULL OR r.product_id = 0 OR r.match_level IN ('none', 'unmatched', '')) AND r.match_level NOT IN ('review', 'ambiguous', 'barcode', 'code', 'exact', 'strong'))")
 	case "":
 		// no match filter
 	default:
@@ -308,9 +308,9 @@ func (r *Repository) AssignRowMatch(
 
 		_, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
-			SET matched_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND product_id IS NOT NULL AND product_id > 0),
-			    review_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND (product_id IS NULL OR product_id = 0) AND match_level IN ('review', 'ambiguous')),
-			    unmatched_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND (product_id IS NULL OR product_id = 0) AND match_level NOT IN ('review', 'ambiguous'))
+			SET matched_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND (is_manually_matched = true OR match_level IN ('barcode', 'code', 'exact', 'strong')) AND product_id IS NOT NULL AND product_id > 0),
+			    review_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND NOT is_manually_matched AND match_level IN ('review', 'ambiguous')),
+			    unmatched_rows = (SELECT COUNT(*) FROM ingest.catalog_import_rows WHERE import_id = $1 AND NOT is_manually_matched AND (product_id IS NULL OR product_id = 0 OR match_level IN ('none', 'unmatched', '')) AND match_level NOT IN ('review', 'ambiguous', 'barcode', 'code', 'exact', 'strong'))
 			WHERE id = $1`, importID)
 		return err
 	})

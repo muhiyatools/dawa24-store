@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -30,7 +31,8 @@ const sessionColumns = `
 	s.total_rows, s.parsed_rows, s.insert_rows, s.update_rows, s.skip_rows,
 	s.error_rows, s.warning_rows, s.block_count, s.new_brands, s.new_categories,
 	s.ai_calls, s.ai_applied, s.ai_matched, s.ai_note, s.ai_fallback,
-	s.error_message, s.created_at, s.updated_at, s.committed_at, s.expires_at`
+	s.error_message, s.created_at, s.updated_at, s.committed_at, s.expires_at,
+	s.structure, s.progress_phase, s.progress_current, s.progress_total, s.progress_at`
 
 // CreateImportSession opens a review session and collects abandoned ones.
 //
@@ -84,11 +86,21 @@ func (r *Repository) CreateImportSession(ctx context.Context, s *catalog.ImportS
 			return fmt.Errorf("catalog postgres: encode layout overrides: %w", err)
 		}
 
+		structure, err := json.Marshal(s.Structure)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: encode import structure: %w", err)
+		}
+
+		// The analysis counts are written here rather than left for the
+		// preparation pass. Omitting them is why a session sitting on the
+		// mapping step reported nought rows and nought blocks for a file of
+		// nine thousand: the screen was reading a row nobody had filled in.
 		return tx.QueryRow(txCtx, `
 			INSERT INTO catalog.import_sessions (
 				organization_id, created_by, filename, file_size_bytes,
 				source_format, sheet_name, delimiter, status, import_mode,
-				options, layout_overrides, source_file
+				options, layout_overrides, source_file,
+				total_rows, block_count, structure
 			) VALUES (
 				$1,
 				-- Attribution must never be the reason an import fails. A user id
@@ -96,12 +108,14 @@ func (r *Repository) CreateImportSession(ctx context.Context, s *catalog.ImportS
 				-- records as NULL, which is what the column's ON DELETE SET NULL
 				-- would have done anyway.
 				(SELECT u.id FROM identity.users u WHERE u.id = $2),
-				$3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12)
+				$3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12,
+				$13, $14, $15::jsonb)
 			RETURNING id, public_id, created_at, updated_at, expires_at
 		`,
 			s.OrganizationID, s.CreatedBy, s.Filename, s.FileSizeBytes,
 			s.SourceFormat, s.SheetName, s.Delimiter, string(s.Status), string(s.Mode),
 			string(options), string(overrides), sourceFile,
+			s.TotalRows, s.BlockCount, string(structure),
 		).Scan(&s.ID, &s.PublicID, &s.CreatedAt, &s.UpdatedAt, &s.ExpiresAt)
 	})
 }
@@ -200,6 +214,10 @@ func (r *Repository) UpdateImportSession(
 	if err != nil {
 		return fmt.Errorf("catalog postgres: encode new categories: %w", err)
 	}
+	structure, err := json.Marshal(s.Structure)
+	if err != nil {
+		return fmt.Errorf("catalog postgres: encode import structure: %w", err)
+	}
 
 	query := `
 		UPDATE catalog.import_sessions SET
@@ -207,9 +225,10 @@ func (r *Repository) UpdateImportSession(
 			sheet_name = $6, source_format = $7, delimiter = $8,
 			total_rows = $9, parsed_rows = $10, insert_rows = $11, update_rows = $12,
 			skip_rows = $13, error_rows = $14, warning_rows = $15, block_count = $16,
-			new_brands = $17::jsonb, new_categories = $25::jsonb,
-			ai_calls = $18, ai_applied = $19, ai_note = $20, ai_fallback = $21,
-			error_message = $22, committed_at = $23, ai_matched = $24
+			new_brands = $17::jsonb, new_categories = $18::jsonb,
+			ai_calls = $19, ai_applied = $20, ai_matched = $21, ai_note = $22, ai_fallback = $23,
+			error_message = $24, committed_at = $25, structure = $26::jsonb,
+			progress_phase = $27, updated_at = now()
 		WHERE id = $1`
 	args := []any{
 		s.ID, string(s.Status), string(s.Mode), string(options), string(overrides),
@@ -217,8 +236,8 @@ func (r *Repository) UpdateImportSession(
 		s.TotalRows, s.ParsedRows, s.InsertRows, s.UpdateRows,
 		s.SkipRows, s.ErrorRows, s.WarningRows, s.BlockCount,
 		string(brands), string(categories),
-		s.AICalls, s.AIApplied, s.AINote, s.AIFallback,
-		s.ErrorMessage, s.CommittedAt, s.AIMatched,
+		s.AICalls, s.AIApplied, s.AIMatched, s.AINote, s.AIFallback,
+		s.ErrorMessage, s.CommittedAt, string(structure), string(s.Progress.Phase),
 	}
 
 	if len(fromStatuses) > 0 {
@@ -226,7 +245,7 @@ func (r *Repository) UpdateImportSession(
 		for i, st := range fromStatuses {
 			statuses[i] = string(st)
 		}
-		query += ` AND status = ANY($26::text[])`
+		query += ` AND status = ANY($28::text[])`
 		args = append(args, statuses)
 	}
 
@@ -238,6 +257,29 @@ func (r *Repository) UpdateImportSession(
 		if tag.RowsAffected() == 0 {
 			return apperr.Conflict("catalog.import_state_changed",
 				"تغيرت حالة جلسة الاستيراد أثناء المعالجة. يرجى تحديث الصفحة ومراجعة الحالة.")
+		}
+		return nil
+	})
+}
+
+// SaveImportProgress records a background run's phase on the session row.
+//
+// It writes only the progress columns and only while the session is still the
+// running one. The alternative — reusing the full save — would have the
+// background goroutine overwrite counts, options and status it does not own,
+// which is a race that only ever shows up on a big file.
+func (r *Repository) SaveImportProgress(
+	ctx context.Context, publicID string, p catalog.ImportProgress,
+) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `
+			UPDATE catalog.import_sessions
+			SET progress_phase = $2, progress_current = $3, progress_total = $4,
+			    progress_at = now()
+			WHERE public_id = $1 AND status = 'processing'
+		`, publicID, string(p.Phase), p.Current, p.Total)
+		if err != nil {
+			return fmt.Errorf("catalog postgres: save import progress: %w", err)
 		}
 		return nil
 	})
@@ -255,10 +297,15 @@ func (r *Repository) UpdateImportSession(
 func (r *Repository) ClaimImportSessionForCommit(ctx context.Context, publicID string) (*catalog.ImportSession, error) {
 	var out *catalog.ImportSession
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// The alias is not decoration: sessionColumns qualifies every column
+		// with "s.", and an UPDATE's RETURNING can only see the target table
+		// under its own name unless one is given. Without it every commit
+		// failed with `missing FROM-clause entry for table "s"` — after the
+		// admin had reviewed the whole file and pressed save.
 		row := tx.QueryRow(txCtx, `
-			UPDATE catalog.import_sessions
+			UPDATE catalog.import_sessions AS s
 			SET status = 'committing', updated_at = now()
-			WHERE public_id = $1 AND status IN ('draft','ready')
+			WHERE s.public_id = $1 AND s.status = 'ready'
 			RETURNING `+sessionColumns, publicID)
 		s, err := scanImportSession(row)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -709,8 +756,9 @@ type rowScanner interface{ Scan(dest ...any) error }
 
 func scanImportSession(row rowScanner) (*catalog.ImportSession, error) {
 	var s catalog.ImportSession
-	var status, mode string
-	var options, overrides, brands, categories []byte
+	var status, mode, phase string
+	var options, overrides, brands, categories, structure []byte
+	var progressAt *time.Time
 
 	err := row.Scan(
 		&s.ID, &s.PublicID, &s.OrganizationID, &s.CreatedBy,
@@ -720,6 +768,7 @@ func scanImportSession(row rowScanner) (*catalog.ImportSession, error) {
 		&s.ErrorRows, &s.WarningRows, &s.BlockCount, &brands, &categories,
 		&s.AICalls, &s.AIApplied, &s.AIMatched, &s.AINote, &s.AIFallback,
 		&s.ErrorMessage, &s.CreatedAt, &s.UpdatedAt, &s.CommittedAt, &s.ExpiresAt,
+		&structure, &phase, &s.Progress.Current, &s.Progress.Total, &progressAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, apperr.NotFound("import_session")
@@ -741,6 +790,20 @@ func scanImportSession(row rowScanner) (*catalog.ImportSession, error) {
 	}
 	if err := json.Unmarshal(categories, &s.NewCategories); err != nil {
 		return nil, fmt.Errorf("catalog postgres: decode new categories: %w", err)
+	}
+	// The structure document is advisory: a session written before the column
+	// existed decodes to the zero value, and the screens fall back to
+	// re-reading the file rather than refusing to render.
+	if len(structure) > 0 {
+		if err := json.Unmarshal(structure, &s.Structure); err != nil {
+			return nil, fmt.Errorf("catalog postgres: decode import structure: %w", err)
+		}
+	}
+	s.Progress.Phase = catalog.ImportPhase(phase)
+	s.Progress.Message = s.Progress.Phase.Label()
+	if progressAt != nil {
+		s.Progress.UpdatedAt = *progressAt
+		s.Progress.StartedAt = *progressAt
 	}
 	return &s, nil
 }

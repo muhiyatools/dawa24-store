@@ -1,0 +1,271 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminProductsImportMapping is step two: how the file will be read.
+//
+// One form, two buttons. "تحديث المعاينة" re-reads the file under the changes
+// and redraws this screen; "بدء المعالجة" hands the same settings to the
+// background run. Neither writes to the catalogue, and the admin can go round
+// the loop as often as they like — which is the point, because the previous
+// screen made that decision for them and only showed the result afterwards.
+templ AdminProductsImportMapping(lang, dir string, view ImportMappingView) {
+	@layouts.AdminShell("مراجعة أعمدة الملف | Import Column Mapping", "import", lang, dir) {
+		@components.PageHeader(components.PageHeaderProps{
+			Title:    "مراجعة الأعمدة قبل المعالجة",
+			Subtitle: "تأكد من أن كل عمود في الملف مربوط بالحقل الصحيح، وراجع عيّنة من الأصناف كما ستُقرأ فعلياً",
+		}) {
+			<div class="row-center">
+				<a href="/admin/products/import" class="btn btn-secondary btn-sm fw-700">
+					@components.IconUpload("icon-xs")
+					<span>رفع ملف آخر</span>
+				</a>
+			</div>
+		}
+		<div class="wizard">
+			@wizardRail(StepMapping)
+			if view.Notice != "" {
+				@importStepNotice(view.Notice, view.NoticeKind)
+			}
+			<form method="POST" hx-boost="false" id="mapping-form">
+				@importFileCard(view)
+				@importMappingCard(view)
+				@importPreviewCard(view)
+				@importModeCard(view.Modes, view.Session.Mode)
+				@importOptionsCard(view.Toggles, view.Categories, view.Session.Options.DefaultCategoryID, view.AIAvailable)
+				@importMappingActions(view)
+			</form>
+		</div>
+	}
+}
+
+templ importStepNotice(message, kind string) {
+	<div
+		class={ "import-banner",
+			templ.KV("import-banner--error", kind == "error"),
+			templ.KV("import-banner--ok", kind != "error") }
+	>
+		<p class="import-banner-text">{ message }</p>
+	</div>
+}
+
+// importFileCard states what was read, before anything about mapping.
+templ importFileCard(view ImportMappingView) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">📄 الملف المرفوع</h2>
+		<p class="wiz-sub">{ view.HeaderSummary() }</p>
+		<div class="wiz-stats">
+			@wizStat(FormatCount(view.Structure.TotalRows), "صف في الملف", "")
+			@wizStat(fmt.Sprintf("%d", view.Structure.Width), "عمود", "")
+			@wizStat(view.HeaderRowLabel(), "صف العناوين", tonedHeaderRow(view))
+			@wizStat(FormatCount(view.TotalProducts), "صنف سيتم استخراجه", tonedProducts(view))
+			if view.RejectedRows > 0 {
+				@wizStat(FormatCount(view.RejectedRows), "صف مرفوض", "warn")
+			}
+			if view.DuplicateRows > 0 {
+				@wizStat(FormatCount(view.DuplicateRows), "صف مكرر سيُدمج", "")
+			}
+		</div>
+		if view.Structure.Positional {
+			<div class="import-banner import-banner--error mt-md">
+				<p class="import-banner-text">
+					لم يتعرّف النظام على صف عناوين في هذا الملف، وتمت قراءة الأعمدة بترتيبها.
+					حدّد رقم صف العناوين أدناه ثم اضغط «تحديث المعاينة».
+				</p>
+			</div>
+		}
+		if len(view.Structure.SheetsSkipped) > 0 {
+			<p class="wiz-sub mt-md">
+				{ fmt.Sprintf("تمت قراءة ورقة واحدة فقط. أوراق أخرى تحتوي على بيانات ولم تُقرأ: %s",
+					joinList(view.Structure.SheetsSkipped)) }
+			</p>
+		}
+	</div>
+}
+
+// importMappingCard is the screen's centre: every field, the column it reads
+// from, and what that column contains.
+templ importMappingCard(view ImportMappingView) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">🧭 ربط الأعمدة بالحقول</h2>
+		<p class="wiz-sub">
+			اختر لكل حقل العمود الذي يقرأ منه. القائمة تعرض حرف العمود وعنوانه في الملف،
+			وتحته أول القيم الموجودة فيه — إن لم تكن القيمة منطقية فالعمود خاطئ.
+		</p>
+		if len(view.Missing) > 0 {
+			<div class="import-banner import-banner--error mb-md">
+				<p class="import-banner-text">
+					{ fmt.Sprintf("حقول أساسية غير مربوطة: %s. لا يمكن بدء المعالجة قبل ربطها.",
+						joinList(view.Missing)) }
+				</p>
+			</div>
+		}
+		<div class="wiz-map">
+			@wizMapNumber("header_row", "صف العناوين", "رقم الصف الذي يحتوي على أسماء الأعمدة", view.Session.Overrides.HeaderRow)
+			@wizMapNumber("first_data_row", "أول صف بيانات", "اتركه فارغاً للبدء بعد صف العناوين", view.Session.Overrides.FirstDataRow)
+			@wizMapNumber("last_data_row", "آخر صف بيانات", "لتجاهل صفوف الإجماليات في نهاية الملف", view.Session.Overrides.LastDataRow)
+		</div>
+		<div class="table-container mt-md">
+			<table class="b2b-table">
+				<thead>
+					<tr>
+						<th>الحقل</th>
+						<th>العمود في الملف</th>
+						<th>عيّنة من القيم</th>
+						<th>الثقة</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, field := range view.Fields {
+						@importFieldLine(view, field)
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
+
+templ importFieldLine(view ImportMappingView, field ImportFieldRow) {
+	<tr>
+		<td>
+			<span class="fw-700">{ field.Label }</span>
+			if field.Critical {
+				<span class="badge badge-amber">أساسي</span>
+			}
+		</td>
+		<td>
+			<select name={ fieldSelectName(field.Field) } class="form-select">
+				<option value="0" selected?={ field.Column == 0 }>— لا تقرأ هذا الحقل —</option>
+				for _, option := range view.Options {
+					<option value={ fmt.Sprintf("%d", option.Value) } selected?={ option.Value == field.Column }>
+						{ option.Label }
+					</option>
+				}
+			</select>
+		</td>
+		<td class="text-muted">
+			if field.Bound() {
+				{ field.Sample }
+			}
+		</td>
+		<td>
+			if field.Bound() && field.Confidence != "" {
+				<span class={ "badge", importConfidenceBadge(field.Confidence) }>{ field.Confidence }</span>
+			} else if field.Bound() {
+				<span class="badge badge-slate">يدوي</span>
+			}
+		</td>
+	</tr>
+}
+
+// importPreviewCard shows the products this mapping produces. It is the answer
+// to "will this work", and it costs nothing to look at.
+templ importPreviewCard(view ImportMappingView) {
+	<div class="card mb-0">
+		<h2 class="wiz-head">
+			{ fmt.Sprintf("👁 معاينة أول %d صنف", len(view.PreviewRows)) }
+		</h2>
+		if view.PreviewIsEmpty() {
+			<div class="import-banner import-banner--error">
+				<p class="import-banner-text">
+					لن يُقرأ أي صنف بهذه الإعدادات. صحّح صف العناوين أو ربط عمود «اسم الصنف» ثم اضغط «تحديث المعاينة».
+				</p>
+			</div>
+		} else {
+			<p class="wiz-sub">
+				{ fmt.Sprintf("سيتم استخراج %s صنف من الملف. هذه أول الصفوف كما سيقرأها النظام.",
+					FormatCount(view.TotalProducts)) }
+			</p>
+			<div class="table-container">
+				<table class="b2b-table">
+					<thead>
+						<tr>
+							<th>الصف</th>
+							for _, column := range view.PreviewColumns {
+								<th>{ column.Label }</th>
+							}
+						</tr>
+					</thead>
+					<tbody>
+						for _, row := range view.PreviewRows {
+							<tr>
+								<td class="tabular-nums text-muted">{ fmt.Sprintf("%d", row.SourceRow) }</td>
+								for _, value := range row.Values {
+									<td>{ value }</td>
+								}
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+		if len(view.Issues) > 0 {
+			@importIssueList(view.Issues)
+		}
+	</div>
+}
+
+templ importIssueList(issues []catalog.RowIssue) {
+	<h3 class="wiz-head mt-md">ملاحظات على القراءة</h3>
+	<ul class="wiz-issues">
+		for _, issue := range issues {
+			<li class={ "wiz-issue", templ.KV("is-error", issue.Severity == catalog.SeverityError) }>
+				if issue.Row > 1 {
+					<span class="tabular-nums text-muted">{ fmt.Sprintf("صف %d:", issue.Row) }</span>
+				}
+				<span>{ issue.Message }</span>
+			</li>
+		}
+	</ul>
+}
+
+templ importMappingActions(view ImportMappingView) {
+	<div class="card mb-0">
+		<div class="wiz-actions">
+			<span class="wiz-actions-note">
+				لم يُحفظ أي صنف بعد. «تحديث المعاينة» يعيد قراءة الملف فقط، و«بدء المعالجة» يجهّز النتائج للمراجعة.
+			</span>
+			<div class="row-center">
+				<button
+					type="submit"
+					class="btn btn-secondary"
+					formaction={ mappingAction(view, "preview") }
+				>🔄 تحديث المعاينة</button>
+				<button
+					type="submit"
+					class="btn btn-primary"
+					formaction={ mappingAction(view, "prepare") }
+					disabled?={ !view.CanProcess() }
+				>▶ بدء المعالجة</button>
+			</div>
+		</div>
+	</div>
+}
+
+// wizMapNumber is one row-bound control: header row, first data row, last data
+// row. Empty means "keep what was detected", which is a different instruction
+// from any number the admin could type.
+templ wizMapNumber(name, label, hint string, value int) {
+	<div class="wiz-map-item">
+		<label class="wiz-map-label" for={ "map-" + name }>{ label }</label>
+		<input
+			id={ "map-" + name }
+			class="wiz-map-input"
+			type="number"
+			min="0"
+			name={ name }
+			if value > 0 {
+				value={ fmt.Sprintf("%d", value) }
+			}
+		/>
+		if hint != "" {
+			<span class="wiz-map-hint">{ hint }</span>
+		}
+	</div>
+}

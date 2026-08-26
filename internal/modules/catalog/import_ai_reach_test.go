@@ -9,21 +9,23 @@ import (
 
 // Whether the AI tier is reached at all.
 //
-// The complaint that started this was "I don't see any request logs". The AI
-// was reachable and answering the whole time; it was simply never asked,
-// because the tier only sees rows the deterministic engine left in a narrow
-// band — plausible, but not settled. Two things had made that band nearly empty:
-// the switch defaulted to off, so an administrator had to remember a checkbox
-// for the tier that decides the match rate; and with an empty catalogue there
-// are no candidates to choose between, so there is nothing to ask about.
-//
-// Neither is a bug in the AI. Both are invisible without a test that says out
-// loud when the tier is and is not reached.
+// The tier only ever sees rows the deterministic engine left in a narrow band —
+// plausible, but not settled — and with an empty catalogue there are no
+// candidates to choose between, so there is nothing to ask about. Neither is a
+// bug in the AI, and both are invisible without a test that says out loud when
+// the tier is and is not reached.
 
-// The switch is on unless someone turns it off.
-func TestAIIsOnByDefault(t *testing.T) {
-	if !catalog.DefaultImportOptions().UseAI {
-		t.Error("UseAI defaults to off; the tier that decides the match rate should not need finding")
+// The switch is off unless someone turns it on.
+//
+// It was on by default for a while, on the argument that the tier cannot invent
+// a product and only picks among candidates already retrieved. The argument is
+// sound and the default was still wrong: an import an administrator has not
+// audited must be judged on the deterministic engine's own result, and a run
+// that silently reaches a model is one whose match rate nobody can reproduce.
+// The switch sits on the mapping screen with everything else it changes.
+func TestAIIsOffByDefault(t *testing.T) {
+	if catalog.DefaultImportOptions().UseAI {
+		t.Error("UseAI defaults to on; an unaudited import must run deterministically")
 	}
 }
 

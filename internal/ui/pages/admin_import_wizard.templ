@@ -38,18 +38,16 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 			}
 			<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" onsubmit="handleImportSubmit()">
 				@importUploadCard()
-				@importModeCard(view.Modes, view.SelectedMode)
-				@importOptionsCard(view.Toggles, view.Categories, 0, view.AIAvailable)
 				<div class="card mb-0">
 					<div class="wiz-actions">
 						<span class="wiz-actions-note">
-							لن يتم حفظ أي صنف الآن — ستظهر لك نتيجة التحليل لمراجعتها قبل التأكيد.
+							الخطوة التالية هي مراجعة أعمدة الملف ومعاينة الأصناف — لن يُحفظ أي صنف قبل تأكيدك.
 						</span>
 						<div class="row-center">
 							<a href="/admin/products" class="btn btn-ghost">إلغاء</a>
 							<button type="submit" id="import-submit-btn" class="btn btn-primary">
 								@components.IconUpload("icon-xs")
-								<span id="import-submit-text">تحليل الملف ومعاينة النتائج</span>
+								<span id="import-submit-text">قراءة الملف ومراجعة الأعمدة</span>
 							</button>
 						</div>
 					</div>
@@ -99,7 +97,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 				const txt = document.getElementById('import-submit-text');
 				if (btn && txt) {
 					btn.disabled = true;
-					txt.textContent = '⏳ جاري رفع وتحليل الكتالوج...';
+					txt.textContent = '⏳ جاري رفع الملف وقراءة أعمدته...';
 				}
 			}
 		</script>
@@ -146,7 +144,7 @@ templ importUploadCard() {
 		<h2 class="wiz-head">ملف الأصناف</h2>
 		<p class="wiz-sub">
 			Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة
-			التي يتكرر فيها صف العناوين.
+			التي يتكرر فيها صف العناوين — وستراجع النتيجة بنفسك في الخطوة التالية قبل أي معالجة.
 		</p>
 		<label class="wiz-drop" id="import-drop">
 			<input

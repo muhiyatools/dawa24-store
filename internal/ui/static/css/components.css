@@ -1848,3 +1848,31 @@ dialog.modal::backdrop {
 @media (prefers-reduced-motion: reduce) {
 	.so-ring-value { transition: none; }
 }
+
+/* Import findings list ----------------------------------------------------
+   The mapping screen's notes on how the file read. They are advisory by
+   default and only the blocking ones are coloured, so a wall of amber does not
+   train the admin to ignore the one line that matters. */
+.wiz-issues {
+	list-style: none;
+	margin: 0.5rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+.wiz-issue {
+	display: flex;
+	gap: 0.4rem;
+	align-items: baseline;
+	font-size: 0.82rem;
+	color: var(--text-secondary);
+	padding: 0.4rem 0.6rem;
+	border-inline-start: 3px solid var(--border);
+	background: var(--surface-sunken);
+	border-radius: var(--radius-md);
+}
+.wiz-issue.is-error {
+	color: var(--danger, #ef4444);
+	border-inline-start-color: var(--danger, #ef4444);
+}

@@ -22,9 +22,13 @@ import (
 type ImportStep int
 
 const (
-	// StepConfigure is the upload screen: file, strategy, and switches.
+	// StepConfigure is the upload screen: choose a file.
 	StepConfigure ImportStep = iota
-	// StepReview is the staged result: structure, counts, per-row table.
+	// StepMapping is the column review: how the file will be read, what it
+	// yields, and the strategy to run it under. Nothing is staged until the
+	// admin leaves this screen deliberately.
+	StepMapping
+	// StepReview is the staged result: counts, per-row table, confirmation.
 	StepReview
 	// StepDone is the committed summary.
 	StepDone
@@ -46,7 +50,8 @@ func ImportSteps(current ImportStep) []ImportStepInfo {
 	labels := []struct {
 		icon, title string
 	}{
-		{"📤", "رفع الملف والإعدادات"},
+		{"📤", "رفع الملف"},
+		{"🧭", "مراجعة الأعمدة"},
 		{"🔍", "مراجعة النتائج"},
 		{"✅", "الحفظ في الكتالوج"},
 	}
@@ -152,6 +157,7 @@ func importToggles(opts catalog.ImportOptions, aiAvailable bool) []ImportToggle 
 			"(٢٥ صنفاً في الطلب الواحد، ومن بين مرشحين محدّدين فقط). لا يُعالَج أي صف على حدة، " +
 			"وإيقافه لا يعطّل الاستيراد بل يقلّل نسبة المطابقة فقط.",
 		Checked: opts.UseAI && aiAvailable,
+		Note:    "اختياري — الاستيراد يعمل بالكامل بدون تفعيله.",
 	}
 	if !aiAvailable {
 		ai.Disabled = true
@@ -167,10 +173,10 @@ type ImportReviewView struct {
 	Rows    []*catalog.StagingRow
 	Total   int
 
-	// Structure is how the file was read, for the mapping panel.
-	Bindings []ImportBindingRow
-	Unmapped []string
-	Columns  []ImportColumnChoice
+	// Structure is how the file was read, as stored on the session.
+	Structure catalog.FileStructure
+	Bindings  []ImportBindingRow
+	Unmapped  []string
 
 	Modes       []catalog.ImportModeOption
 	Toggles     []ImportToggle
@@ -233,14 +239,6 @@ type ImportPhaseInfo struct {
 	Done   bool
 }
 
-// ImportColumnChoice is one field the admin can rebind in the mapping panel.
-type ImportColumnChoice struct {
-	Field    string
-	Label    string
-	Column   int // one-based; zero means unbound
-	Detected string
-}
-
 // NewImportReviewView assembles the review screen.
 func NewImportReviewView(
 	session *catalog.ImportSession, counts catalog.StagingCounts,
@@ -265,50 +263,31 @@ func NewImportReviewView(
 	}
 	view.Page = filter.Offset/limit + 1
 	view.Pages = max((total+limit-1)/limit, 1)
-	view.Columns = importColumnChoices(session.Overrides)
 	return view
 }
 
-// importColumnChoices lists every field the mapping panel offers, carrying
-// forward whatever the admin has already overridden.
-func importColumnChoices(overrides catalog.LayoutOverrides) []ImportColumnChoice {
-	fields := []string{
-		catalog.FieldNameAR, catalog.FieldNameEN, catalog.FieldSKU, catalog.FieldBarcode,
-		catalog.FieldPrice, catalog.FieldPublicPrice, catalog.FieldDiscount,
-		catalog.FieldManufacturer, catalog.FieldDosageForm, catalog.FieldConcentration,
-		catalog.FieldGenericName, catalog.FieldActive, catalog.FieldUnit,
-		catalog.FieldDescriptionAR, catalog.FieldStatus,
-	}
-
-	out := make([]ImportColumnChoice, 0, len(fields))
-	for _, field := range fields {
-		out = append(out, ImportColumnChoice{
-			Field:  field,
-			Label:  catalog.FieldLabels[field],
-			Column: overrides.Columns[field],
-		})
-	}
-	return out
-}
-
-// SetStructure fills the mapping panel from a fresh parse of the file.
-func (v *ImportReviewView) SetStructure(plan catalog.ColumnPlan) {
-	v.Unmapped = plan.Unmapped
-	for _, b := range plan.Bindings {
+// SetStructure fills the review screen's read-only account of how the file was
+// interpreted, from the description stored on the session.
+//
+// Read-only on purpose. Correcting a mapping belongs to step two, and having
+// those controls here is what made the review page re-read and re-decode a
+// 32 MB workbook on every render, every filter change and every row toggle.
+func (v *ImportReviewView) SetStructure(structure catalog.FileStructure) {
+	v.Structure = structure
+	for _, col := range structure.Columns {
+		if col.Field == "" {
+			if col.Header != "" {
+				v.Unmapped = append(v.Unmapped, col.Header)
+			}
+			continue
+		}
 		v.Bindings = append(v.Bindings, ImportBindingRow{
-			Column:     columnLetter(b.Index),
-			Header:     b.Header,
-			Field:      catalog.FieldLabels[b.Field],
-			Confidence: confidenceLabel(b.Score),
+			Column:     col.Letter,
+			Header:     col.Header,
+			Field:      catalog.FieldLabels[col.Field],
+			Confidence: col.Confidence,
+			Sample:     col.SampleText(),
 		})
-	}
-
-	detected := map[string]string{}
-	for _, b := range plan.Bindings {
-		detected[b.Field] = columnLetter(b.Index)
-	}
-	for i := range v.Columns {
-		v.Columns[i].Detected = detected[v.Columns[i].Field]
 	}
 }
 
@@ -344,11 +323,14 @@ func (v ImportReviewView) SourceSummary() string {
 	return strings.Join(parts, " · ")
 }
 
-// AISummary is what AI did on this run, empty when it did not run.
+// EnrichmentSummary is what the taxonomy passes resolved on this run.
 //
-// It reports requests, not rows, because that is the shape of the work: a
-// fixed, small number of translation calls whatever the file's size.
-func (v ImportReviewView) AISummary() string {
+// The category and form passes run whether or not AI is on — exact folding
+// against the catalogue's own vocabulary is the first tier and usually the only
+// one — so this is not an AI report. It was rendered under a robot badge
+// regardless, which told an administrator who had deliberately left AI off that
+// a model had been consulted.
+func (v ImportReviewView) EnrichmentSummary() string {
 	if v.Session == nil || v.Session.AINote == "" {
 		return ""
 	}
@@ -357,6 +339,10 @@ func (v ImportReviewView) AISummary() string {
 	}
 	return fmt.Sprintf("%s (%d طلب ذكاء اصطناعي)", v.Session.AINote, v.Session.AICalls)
 }
+
+// UsedAI reports whether a model was actually asked anything, which is what the
+// robot badge should mean.
+func (v ImportReviewView) UsedAI() bool { return v.Session != nil && v.Session.AICalls > 0 }
 
 // MatchRate is the share of the file that resolved to a product the catalogue
 // already holds, rendered as a percentage.
@@ -392,7 +378,9 @@ func RowActionBadge(action catalog.RowAction) string {
 func SessionStatusLabel(status catalog.SessionStatus) string {
 	switch status {
 	case catalog.SessionDraft:
-		return "قيد الإعداد"
+		return "بانتظار مراجعة الأعمدة"
+	case catalog.SessionProcessing:
+		return "جارٍ المعالجة"
 	case catalog.SessionReady:
 		return "بانتظار التأكيد"
 	case catalog.SessionCommitted:
@@ -411,6 +399,8 @@ func SessionStatusBadge(status catalog.SessionStatus) string {
 	switch status {
 	case catalog.SessionCommitted:
 		return "badge-emerald"
+	case catalog.SessionProcessing:
+		return "badge-sky"
 	case catalog.SessionReady:
 		return "badge-amber"
 	case catalog.SessionFailed:
@@ -540,4 +530,20 @@ func ParseStagingFilter(values url.Values, pageSize int) catalog.StagingFilter {
 		filter.Offset = (page - 1) * pageSize
 	}
 	return filter
+}
+
+// SetRows fills the review table after the rows have been read.
+//
+// Paging is computed here rather than at construction because the rows are
+// fetched only for a session that has finished preparing; one in flight is
+// rendered without them.
+func (v *ImportReviewView) SetRows(rows []*catalog.StagingRow, total int, counts catalog.StagingCounts) {
+	v.Rows, v.Total, v.Counts = rows, total, counts
+
+	limit := v.Filter.Limit
+	if limit <= 0 {
+		limit = 100
+	}
+	v.Page = v.Filter.Offset/limit + 1
+	v.Pages = max((total+limit-1)/limit, 1)
 }

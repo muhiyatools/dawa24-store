@@ -17,6 +17,10 @@ type ImportBindingRow struct {
 	Header     string
 	Field      string
 	Confidence string
+	// Sample is what that column actually holds. A binding is judged by its
+	// values, not by its header: "السعر" bound to a column of dates is obvious
+	// here and invisible without it.
+	Sample string
 }
 
 // describeSource says which worksheet or delimiter the rows came from, so an
@@ -46,25 +50,16 @@ func delimiterLabel(d string) string {
 	}
 }
 
-// confidenceLabel translates a match score into something an admin can judge.
-// A "منخفضة" binding is the one worth checking before trusting the import.
-func confidenceLabel(score int) string {
-	switch {
-	case score >= 100:
-		return "مؤكدة"
-	case score >= 60:
-		return "عالية"
-	default:
-		return "منخفضة"
-	}
-}
-
 // importConfidenceBadge picks the badge colour for a mapping confidence.
+//
+// The words come from catalog.ConfidenceOf, which is the one place a score is
+// turned into a judgement; a second vocabulary here drifted from it and painted
+// every binding amber.
 func importConfidenceBadge(confidence string) string {
 	switch confidence {
-	case "مؤكدة":
+	case catalog.ConfidenceOf(100):
 		return "badge-emerald"
-	case "عالية":
+	case catalog.ConfidenceOf(60):
 		return "badge-sky"
 	default:
 		return "badge-amber"
