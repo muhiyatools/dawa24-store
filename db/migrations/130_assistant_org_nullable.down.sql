@@ -1,4 +1,4 @@
-﻿BEGIN;
+BEGIN;
 
 ALTER TABLE assistant.conversations ALTER COLUMN organization_id SET NOT NULL;
 ALTER TABLE assistant.messages ALTER COLUMN organization_id SET NOT NULL;

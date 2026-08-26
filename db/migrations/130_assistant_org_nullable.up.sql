@@ -1,4 +1,4 @@
-﻿-- 130_assistant_org_nullable
+-- 130_assistant_org_nullable
 -- Allow assistant conversations and messages for system/staff users without mandatory organization binding,
 -- and update RLS policies accordingly.
 
