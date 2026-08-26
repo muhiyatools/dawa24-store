@@ -33,7 +33,15 @@ import (
 type ImportSessionStore interface {
 	CreateImportSession(ctx context.Context, s *ImportSession, sourceFile []byte) error
 	GetImportSession(ctx context.Context, publicID string) (*ImportSession, error)
-	UpdateImportSession(ctx context.Context, s *ImportSession) error
+	// UpdateImportSession saves the whole session row. Any fromStatuses turn it
+	// into a guarded transition that fails when the stored status is not among
+	// them, which is how a background run refuses to overwrite a state change
+	// it did not see.
+	UpdateImportSession(ctx context.Context, s *ImportSession, fromStatuses ...SessionStatus) error
+	// ClaimImportSessionForCommit atomically flips one reviewable session to
+	// 'committing' and returns the fresh row, so two concurrent commits cannot
+	// both pass whatever process-local guards say.
+	ClaimImportSessionForCommit(ctx context.Context, publicID string) (*ImportSession, error)
 	ImportSourceFile(ctx context.Context, sessionID int64) ([]byte, error)
 	ReleaseImportSourceFile(ctx context.Context, sessionID int64) error
 	ListRecentImportSessions(ctx context.Context, orgID int64, limit int) ([]*ImportSession, error)
@@ -53,7 +61,12 @@ type ImportSessionStore interface {
 	// similarity tier that runs on whatever the exact identifiers missed.
 	ListMatchProducts(ctx context.Context) ([]MatchProduct, error)
 	ImportVocabulary(ctx context.Context, orgID int64) (EnrichVocabulary, error)
-	ArchiveAllProducts(ctx context.Context, orgID int64) (int64, error)
+	// BulkCommitProducts is the write side of commit as one transaction: an
+	// optional archive of the organisation's catalogue followed by the upsert,
+	// together or not at all. archiveOrg of zero skips the archive.
+	BulkCommitProducts(
+		ctx context.Context, prods []*Product, opts BulkWriteOptions, archiveOrg int64,
+	) (archived int64, result BulkWriteResult, err error)
 }
 
 // SetImportStore installs the staging persistence.
@@ -148,12 +161,12 @@ func (s *Service) PrepareImportAsync(ctx context.Context, publicID string, setti
 	if s.imports == nil {
 		return ErrImportUnavailable
 	}
-	if s.progress.Running(publicID) {
+
+	report, claimed := s.progress.TryBegin(publicID)
+	if !claimed {
 		return apperr.Conflict("catalog.import_already_running",
 			"جارٍ بالفعل معالجة هذا الملف. يرجى الانتظار حتى تكتمل العملية.")
 	}
-
-	report := s.progress.Begin(publicID)
 	// Detached from the request: the admin's browser navigating away, or the
 	// request timing out, must not abandon a run that is already underway.
 	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), prepareTimeout)
@@ -248,12 +261,18 @@ func (s *Service) prepare(
 	rows := buildStagingRows(parsed, matches, session.Mode)
 	applyRowStats(session, rows)
 	session.NewBrands = collectNewBrands(parsed.Products, matches)
+	// NewCategories was already computed by resolveTaxonomies; both proposals
+	// are persisted here so the review screen can show them.
 	session.Status = SessionReady
 
-	if err := s.imports.ReplaceStagingRows(ctx, session.ID, rows); err != nil {
+	// The guarded write comes before the rows: if the admin cancelled or a
+	// commit landed while this prepare ran, the transition fails here and the
+	// staging table is left for the reaper instead of resurrecting a dead
+	// session with fresh rows and a ready status.
+	if err := s.imports.UpdateImportSession(ctx, session, SessionDraft, SessionReady); err != nil {
 		return nil, err
 	}
-	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
+	if err := s.imports.ReplaceStagingRows(ctx, session.ID, rows); err != nil {
 		return nil, err
 	}
 
@@ -649,48 +668,38 @@ func applyRowStats(session *ImportSession, rows []*StagingRow) {
 // from staging with their recorded action, not recomputed. A row the admin
 // deselected does not come back, and a row shown as an update cannot arrive as
 // an insert.
+//
+// Ownership is taken atomically before anything else happens: the session is
+// flipped to 'committing' by a single conditional UPDATE, so two commits — two
+// tabs, two processes — cannot both write. The archive and the write then share
+// one transaction, so clear-and-add can never leave the catalogue archived with
+// nothing imported.
 func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSession, BulkWriteResult, error) {
 	empty := BulkWriteResult{Matches: map[int]MatchReason{}}
 	if s.imports == nil {
 		return nil, empty, ErrImportUnavailable
 	}
+	// Advisory fast path: the durable claim below is what actually guards the
+	// commit, but refusing here saves a doomed round trip in the common case.
+	if s.progress.Running(publicID) {
+		return nil, empty, apperr.Conflict("catalog.import_still_processing",
+			"لا تزال معالجة الملف جارية. يرجى الانتظار حتى اكتمالها ثم التأكيد.")
+	}
 
-	session, err := s.imports.GetImportSession(ctx, publicID)
+	session, err := s.imports.ClaimImportSessionForCommit(ctx, publicID)
 	if err != nil {
 		return nil, empty, err
-	}
-	if session.Status == SessionCommitted {
-		return session, empty, apperr.Conflict("catalog.import_already_committed",
-			"تم تنفيذ هذه العملية بالفعل. يرجى بدء عملية استيراد جديدة.")
-	}
-	if !session.IsReviewable() {
-		return session, empty, apperr.Validation("catalog.import_not_reviewable",
-			"لا يمكن تنفيذ هذه الجلسة لأنها أُلغيت أو انتهت صلاحيتها.", nil)
-	}
-	// Preparation runs in the background, so a commit can arrive while the
-	// staging table is still being filled. Committing then would write whatever
-	// happened to have landed — a partial catalogue built from a partial read.
-	if s.progress.Running(publicID) {
-		return session, empty, apperr.Conflict("catalog.import_still_processing",
-			"لا تزال معالجة الملف جارية. يرجى الانتظار حتى اكتمالها ثم التأكيد.")
 	}
 
 	rows, err := s.imports.LoadCommittableRows(ctx, session.ID)
 	if err != nil {
+		s.releaseClaim(ctx, session)
 		return session, empty, err
 	}
 	if len(rows) == 0 {
+		s.releaseClaim(ctx, session)
 		return session, empty, apperr.Validation("catalog.import_nothing_selected",
 			"لم يتم تحديد أي صنف للاستيراد. يرجى مراجعة الصفوف واختيار ما تريد حفظه.", nil)
-	}
-
-	if session.Mode == ModeClearAndAdd {
-		archived, err := s.imports.ArchiveAllProducts(ctx, session.OrganizationID)
-		if err != nil {
-			return session, empty, err
-		}
-		s.log.WarnContext(ctx, "catalogue archived before import",
-			"session", session.PublicID, "archived", archived)
 	}
 
 	prods := make([]*Product, 0, len(rows))
@@ -700,24 +709,49 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 			continue
 		}
 		// Carry the resolved identity forward so the write updates the row the
-		// preview named, rather than matching again against a catalogue the
-		// archive step may have just changed underneath it.
-		if row.Action == ActionUpdate && row.MatchedProductID != nil {
+		// preview named. Under clear-and-add everything inserts: the matched
+		// rows were archived with the rest of the catalogue inside the same
+		// transaction, so no stale identity survives to be updated.
+		if session.Mode != ModeClearAndAdd && row.Action == ActionUpdate && row.MatchedProductID != nil {
 			product.ID = *row.MatchedProductID
 		}
 		prods = append(prods, product)
 	}
 
+	archiveOrg := int64(0)
+	if session.Mode == ModeClearAndAdd {
+		archiveOrg = session.OrganizationID
+	}
+
+	// Validation runs before the transaction: a row the domain refuses is
+	// dropped and named, not fed to the database to abort the batch with.
+	if len(prods) > maxImportBatch {
+		s.releaseClaim(ctx, session)
+		return session, empty, apperr.Validation("catalog.import_too_large",
+			fmt.Sprintf("الملف يحتوي على %d صنف، والحد الأقصى المسموح به في عملية الاستيراد الواحدة هو %d صنف. يرجى تقسيم الملف.",
+				len(prods), maxImportBatch), nil)
+	}
+	valid, issues, err := s.validateImportBatch(prods)
+	if err != nil {
+		session.ErrorRows += len(issues)
+		s.releaseClaim(ctx, session)
+		return session, empty, err
+	}
+
 	// The toggles decide what the write may create. A taxonomy row that already
 	// exists is reused either way; these govern adding one that does not.
-	written, issues, err := s.BulkImportProducts(ctx, prods, BulkWriteOptions{
+	archived, written, err := s.imports.BulkCommitProducts(ctx, valid, BulkWriteOptions{
 		CreateBrands:     session.Options.AutoCreateBrands,
 		CreateCategories: session.Options.AssignCategory && session.Options.AutoCreateCategories,
-	})
+	}, archiveOrg)
+	if archived > 0 {
+		s.log.WarnContext(ctx, "catalogue archived before import",
+			"session", session.PublicID, "archived", archived)
+	}
 	if err != nil {
 		session.Status = SessionFailed
 		session.ErrorMessage = err.Error()
-		if updateErr := s.imports.UpdateImportSession(ctx, session); updateErr != nil {
+		if updateErr := s.imports.UpdateImportSession(ctx, session, SessionCommitting); updateErr != nil {
 			s.log.ErrorContext(ctx, "could not record import failure", "error", updateErr)
 		}
 		return session, written, err
@@ -733,7 +767,7 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 		session.ErrorRows += len(issues)
 	}
 
-	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
+	if err := s.imports.UpdateImportSession(ctx, session, SessionCommitting); err != nil {
 		return session, written, err
 	}
 	// The file and the staged rows have done their job; keeping the admin's
@@ -748,7 +782,22 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 	return session, written, nil
 }
 
+// releaseClaim hands a claimed session back to review. Used when commit stops
+// before writing anything — nothing selected, an oversized batch — where the
+// right outcome is the admin back on the review screen, not a failed session.
+func (s *Service) releaseClaim(ctx context.Context, session *ImportSession) {
+	session.Status = SessionReady
+	if err := s.imports.UpdateImportSession(ctx, session, SessionCommitting); err != nil {
+		s.log.ErrorContext(ctx, "could not release import commit claim",
+			"session", session.PublicID, "error", err)
+	}
+}
+
 // CancelImport discards a session without touching the catalogue.
+//
+// The transition is guarded: cancelling an already-committed session is refused
+// rather than reported as success, which is what the unguarded overwrite used
+// to do.
 func (s *Service) CancelImport(ctx context.Context, publicID string) error {
 	if s.imports == nil {
 		return ErrImportUnavailable
@@ -758,10 +807,15 @@ func (s *Service) CancelImport(ctx context.Context, publicID string) error {
 		return err
 	}
 	if !session.IsReviewable() {
-		return nil
+		return apperr.Conflict("catalog.import_not_cancellable",
+			"لا يمكن إلغاء هذه الجلسة لأنها اكتملت بالفعل.")
+	}
+	if s.progress.Running(publicID) {
+		return apperr.Conflict("catalog.import_still_processing",
+			"لا تزال معالجة الملف جارية. انتظر حتى تكتمل ثم أعد المحاولة.")
 	}
 	session.Status = SessionCancelled
-	if err := s.imports.UpdateImportSession(ctx, session); err != nil {
+	if err := s.imports.UpdateImportSession(ctx, session, SessionDraft, SessionReady); err != nil {
 		return err
 	}
 	s.releaseSessionWorkspace(ctx, session)

@@ -31,6 +31,26 @@ import (
 // keeping a single request from holding that much memory.
 const maxImportUploadBytes int64 = 32 << 20
 
+// maxImportRequestBytes caps the whole request body: the file plus generous
+// room for the multipart envelope and form fields. Without it a client can
+// stream an arbitrarily large "upload" that the server spools to disk in full
+// before anything checks the size.
+const maxImportRequestBytes int64 = maxImportUploadBytes + (1 << 20)
+
+// requirePlatformAdmin refuses any catalogue-import action from an actor that
+// is not platform staff. The routes carry middleware that should already have
+// let nothing else through; this re-checks at the feature because these
+// endpoints write to the shared master catalogue and every one of them runs
+// under AsSystem, which bypasses tenant scoping entirely.
+func (h *UIHandler) requirePlatformAdmin(w http.ResponseWriter, r *http.Request) bool {
+	actor, ok := authctx.From(r.Context())
+	if !ok || !actor.IsPlatformAdmin() {
+		http.Error(w, "صلاحيات غير كافية لتنفيذ هذه العملية.", http.StatusForbidden)
+		return false
+	}
+	return true
+}
+
 // reviewPageSize is how many staged rows one page of the review table shows.
 // A browser handed nine thousand table rows becomes unusable.
 const reviewPageSize = 100
@@ -67,6 +87,10 @@ func (h *UIHandler) renderImportConfigure(
 // stage it, and send the admin to the review screen.
 func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
 
 	if h.catSvc == nil {
 		h.renderImportConfigure(w, r, pages.ImportConfigureView{
@@ -115,6 +139,9 @@ func (h *UIHandler) AdminProductsImportSubmit(w http.ResponseWriter, r *http.Req
 
 // AdminProductsImportReviewPage is step two: the staged result.
 func (h *UIHandler) AdminProductsImportReviewPage(w http.ResponseWriter, r *http.Request) {
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
 	h.renderImportReview(w, r, "", http.StatusOK)
 }
 
@@ -186,6 +213,10 @@ func (h *UIHandler) AdminProductsImportPrepare(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
+
 	if h.catSvc == nil {
 		http.Error(w, "catalog service unavailable", http.StatusServiceUnavailable)
 		return
@@ -207,6 +238,10 @@ func (h *UIHandler) AdminProductsImportPrepare(w http.ResponseWriter, r *http.Re
 func (h *UIHandler) AdminProductsImportRowToggle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
+
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
 
 	if h.catSvc == nil {
 		http.Error(w, "catalog service unavailable", http.StatusServiceUnavailable)
@@ -245,6 +280,10 @@ func (h *UIHandler) AdminProductsImportSelect(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
+
 	if h.catSvc == nil {
 		http.Error(w, "catalog service unavailable", http.StatusServiceUnavailable)
 		return
@@ -267,6 +306,10 @@ func (h *UIHandler) AdminProductsImportSelect(w http.ResponseWriter, r *http.Req
 func (h *UIHandler) AdminProductsImportCommit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
+
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
 
 	if h.catSvc == nil {
 		http.Error(w, "catalog service unavailable", http.StatusServiceUnavailable)
@@ -312,9 +355,16 @@ func (h *UIHandler) AdminProductsImportCancel(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
+
 	if h.catSvc != nil {
 		if err := h.catSvc.CancelImport(database.AsSystem(ctx), publicID); err != nil {
 			h.log.WarnContext(ctx, "could not cancel import", "session", publicID, "error", err)
+			h.redirectWithNotice(w, r, "/admin/products/import/"+publicID+querySuffix(r), "error",
+				h.importMessage(err, r))
+			return
 		}
 	}
 	h.redirectWithNotice(w, r, "/admin/products/import", "success",
@@ -456,6 +506,12 @@ func (e *uploadError) Error() string { return e.message }
 // — the import wizard sends "import_file" and the older warehouse upload form
 // sends "file".
 func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
+	// The body cap is enforced here rather than trusting the multipart parser's
+	// memory limit, which bounds what is held in RAM, not what a client may
+	// stream. A w of nil only means "cannot flag the connection as too large";
+	// the read itself still fails past the cap.
+	r.Body = http.MaxBytesReader(nil, r.Body, maxImportRequestBytes)
+
 	if err := r.ParseMultipartForm(maxImportUploadBytes); err != nil {
 		return nil, "", &uploadError{
 			message: fmt.Sprintf("تعذرت قراءة الملف المرفوع. الحد الأقصى لحجم الملف هو %d ميجابايت.",
@@ -530,6 +586,11 @@ func (h *UIHandler) refreshProductIndex(ctx context.Context) {
 // stream into uselessness.
 func (h *UIHandler) AdminProductsImportProgress(w http.ResponseWriter, r *http.Request) {
 	publicID := chi.URLParam(r, "id")
+
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")
 

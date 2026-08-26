@@ -17,20 +17,61 @@ import (
 // so it can be rolled back and retried row by row.
 var errStockRejected = errors.New("inventory postgres: a row in the batch was rejected")
 
-// upsertStockSQL writes one balance. The quantity expression is chosen by mode
-// rather than parameterised, because Postgres cannot take an operator as a
-// parameter and the three forms are a closed set defined in this file.
+// upsertStockSQL writes one balance and records the change in the movement
+// ledger, atomically.
+//
+// The ledger entry is why this is a CTE rather than the plain upsert it used to
+// be: an import that replaces nine thousand balances wrote zero ledger rows,
+// so "why did this balance change overnight?" had no answer on file. The
+// previous balance is read first, the upsert runs against it, and both the
+// delta and the resulting balance land in inventory.stock_movements inside the
+// same transaction.
+//
+// The quantity expression is chosen by mode rather than parameterised, because
+// Postgres cannot take an operator as a parameter and the three forms are a
+// closed set defined below.
 const upsertStockSQL = `
-	INSERT INTO inventory.stocks (
-		organization_id, warehouse_id, product_id, product_variant_id,
-		quantity, min_threshold, negotiation
-	) VALUES ($1, $2, $3, $4, $5, $6, $7)
-	ON CONFLICT (warehouse_id, product_variant_id) DO UPDATE SET
-		quantity = %s,
-		min_threshold = GREATEST(EXCLUDED.min_threshold, 0),
-		product_id = EXCLUDED.product_id,
-		updated_at = now()
-	RETURNING id`
+	WITH prev AS (
+		SELECT id, quantity
+		FROM inventory.stocks
+		WHERE organization_id = $1 AND warehouse_id = $2 AND product_variant_id = $4
+		ORDER BY id
+		LIMIT 1
+	),
+	up AS (
+		INSERT INTO inventory.stocks (
+			organization_id, warehouse_id, product_id, product_variant_id,
+			quantity, min_threshold, negotiation
+		) VALUES ($1, $2, $3, $4, $5, $6, $7)
+		ON CONFLICT (warehouse_id, product_variant_id) DO UPDATE SET
+			quantity = %s,
+			min_threshold = CASE WHEN EXCLUDED.min_threshold > 0
+			                     THEN EXCLUDED.min_threshold
+			                     ELSE inventory.stocks.min_threshold END,
+			product_id = EXCLUDED.product_id,
+			deleted_at = NULL,
+			updated_at = now()
+		RETURNING id, quantity
+	),
+	movement AS (
+		INSERT INTO inventory.stock_movements (
+			organization_id, stock_id, type, quantity_delta, balance_after,
+			details, reference_type
+		)
+		SELECT $1, up.id,
+		       CASE
+		           WHEN up.quantity - COALESCE(prev.quantity, 0) > 0 THEN 'in'
+		           WHEN up.quantity - COALESCE(prev.quantity, 0) < 0 THEN 'out'
+		           ELSE 'adjustment'
+		       END,
+		       up.quantity - COALESCE(prev.quantity, 0),
+		       up.quantity,
+		       'استيراد كتالوج المورّد',
+		       'vendor_catalog_import'
+		FROM up LEFT JOIN prev ON true
+		RETURNING 1
+	)
+	SELECT up.id FROM up`
 
 // quantityExpression is what an existing balance becomes under each mode.
 func quantityExpression(mode inventory.StockMode, hasQuantity bool) string {
@@ -159,8 +200,10 @@ func stockFailureMessage(err error) string {
 		return "الكمية الناتجة سالبة؛ لا يمكن أن يقل الرصيد عن صفر"
 	case strings.Contains(msg, "violates foreign key"):
 		return "المخزن أو الصنف المرتبط غير موجود"
+	case strings.Contains(msg, "duplicate key"):
+		return "تعارض في تحديث الرصيد؛ أعد المحاولة"
 	}
-	return "تعذر تحديث الرصيد: " + msg
+	return "تعذر تحديث الرصيد بسبب خطأ غير متوقع؛ أعد المحاولة، وإن تكرر راجع الدعم الفني."
 }
 
 func maxInt(a, b int) int {

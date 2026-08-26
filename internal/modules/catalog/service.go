@@ -111,6 +111,29 @@ func (s *Service) BulkImportProducts(
 				len(prods), maxImportBatch), nil)
 	}
 
+	valid, issues, err := s.validateImportBatch(prods)
+	if err != nil {
+		return empty, issues, err
+	}
+
+	res, err := s.repo.BulkUpsertProducts(ctx, valid, opts)
+	if err != nil {
+		s.log.ErrorContext(ctx, "bulk import products failed",
+			"count", len(valid), "failures", len(res.Failures), "error", err)
+		return res, issues, err
+	}
+
+	s.log.InfoContext(ctx, "bulk import products completed",
+		"inserted", res.Inserted, "updated", res.Updated,
+		"brands_created", res.BrandsCreated, "categories_created", res.CategoriesCreated,
+		"submitted", len(valid))
+	return res, issues, nil
+}
+
+// validateImportBatch drops products the domain refuses and names them in the
+// returned issues, so a bad value is reported against its row rather than
+// aborting a transaction halfway through.
+func (s *Service) validateImportBatch(prods []*Product) ([]*Product, []RowIssue, error) {
 	valid := make([]*Product, 0, len(prods))
 	var issues []RowIssue
 
@@ -131,22 +154,10 @@ func (s *Service) BulkImportProducts(
 	}
 
 	if len(valid) == 0 {
-		return empty, issues, apperr.Validation("catalog.import_no_valid_rows",
+		return nil, issues, apperr.Validation("catalog.import_no_valid_rows",
 			"لا يوجد أي صنف صالح للاستيراد بعد التحقق من البيانات.", nil)
 	}
-
-	res, err := s.repo.BulkUpsertProducts(ctx, valid, opts)
-	if err != nil {
-		s.log.ErrorContext(ctx, "bulk import products failed",
-			"count", len(valid), "failures", len(res.Failures), "error", err)
-		return res, issues, err
-	}
-
-	s.log.InfoContext(ctx, "bulk import products completed",
-		"inserted", res.Inserted, "updated", res.Updated,
-		"brands_created", res.BrandsCreated, "categories_created", res.CategoriesCreated,
-		"submitted", len(valid))
-	return res, issues, nil
+	return valid, issues, nil
 }
 
 // validationMessage renders a domain validation failure for the import report,

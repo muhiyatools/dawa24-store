@@ -57,7 +57,10 @@ func (p Phase) Label() string {
 	case PhaseFailed:
 		return "فشل"
 	default:
-		return "ملغي"
+		// An unknown phase is rendered as itself. Mapping every future value to
+		// "ملغي" told a vendor their active import was cancelled when the truth
+		// was only that this build had never heard of it.
+		return string(p)
 	}
 }
 
@@ -256,9 +259,15 @@ func (s Settings) Normalize() Settings {
 		s.Duplicates = productmatch.DuplicateLastWins
 	}
 	// Below about half, similarity stops meaning anything: two pharmaceutical
-	// names share that much by sharing a manufacturer's house style.
-	if s.MinMatchScore < 0.5 || s.MinMatchScore > 1 {
+	// names share that much by sharing a manufacturer's house style. A value
+	// outside the range is clamped to the nearest edge rather than silently
+	// replaced by the default — a vendor who asked for 0.5 and got 0.78 with
+	// no word of it would keep wondering why their messy sheet stopped
+	// matching. Zero is the unset value and keeps the default.
+	if s.MinMatchScore <= 0 {
 		s.MinMatchScore = 0.78
+	} else {
+		s.MinMatchScore = min(s.MinMatchScore, 1)
 	}
 	if s.DefaultMinOrderQty <= 0 {
 		s.DefaultMinOrderQty = 1

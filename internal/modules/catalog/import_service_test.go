@@ -30,6 +30,7 @@ type memoryImportStore struct {
 	catalogue []catalog.MatchProduct
 	vocab     catalog.EnrichVocabulary
 	archived  int64
+	written   []*catalog.Product
 	nextID    int64
 }
 
@@ -53,9 +54,24 @@ func (m *memoryImportStore) GetImportSession(_ context.Context, publicID string)
 	return m.session, nil
 }
 
-func (m *memoryImportStore) UpdateImportSession(_ context.Context, s *catalog.ImportSession) error {
+func (m *memoryImportStore) UpdateImportSession(
+	_ context.Context, s *catalog.ImportSession, _ ...catalog.SessionStatus,
+) error {
 	m.session = s
 	return nil
+}
+
+func (m *memoryImportStore) ClaimImportSessionForCommit(
+	_ context.Context, publicID string,
+) (*catalog.ImportSession, error) {
+	if m.session == nil || m.session.PublicID != publicID {
+		return nil, fmt.Errorf("no such session %q", publicID)
+	}
+	if !m.session.IsReviewable() {
+		return nil, fmt.Errorf("session %s is not reviewable (status %s)", publicID, m.session.Status)
+	}
+	m.session.Status = catalog.SessionCommitting
+	return m.session, nil
 }
 
 func (m *memoryImportStore) ImportSourceFile(context.Context, int64) ([]byte, error) {
@@ -184,9 +200,24 @@ func (m *memoryImportStore) ImportVocabulary(context.Context, int64) (catalog.En
 	return m.vocab, nil
 }
 
-func (m *memoryImportStore) ArchiveAllProducts(context.Context, int64) (int64, error) {
-	m.archived++
-	return 7, nil
+func (m *memoryImportStore) BulkCommitProducts(
+	_ context.Context, prods []*catalog.Product, _ catalog.BulkWriteOptions, archiveOrg int64,
+) (int64, catalog.BulkWriteResult, error) {
+	archived := int64(0)
+	if archiveOrg > 0 {
+		m.archived++
+		archived = 7
+	}
+	m.written = append(m.written, prods...)
+	res := catalog.BulkWriteResult{Matches: map[int]catalog.MatchReason{}}
+	for _, p := range prods {
+		if p.ID > 0 {
+			res.Updated++
+			continue
+		}
+		res.Inserted++
+	}
+	return archived, res, nil
 }
 
 // mockCatalogRepoStub implements dummy methods for catalog.Repository.
@@ -378,8 +409,11 @@ func TestPrepareImportWritesNothingToTheCatalogue(t *testing.T) {
 		t.Fatalf("prepare failed: %v", err)
 	}
 
+	if len(store.written) != 0 {
+		t.Fatalf("preparing wrote %d products to the catalogue; it must write none", len(store.written))
+	}
 	if len(repo.written) != 0 {
-		t.Fatalf("preparing wrote %d products to the catalogue; it must write none", len(repo.written))
+		t.Fatalf("preparing wrote %d products via the catalogue repo; it must write none", len(repo.written))
 	}
 	if len(store.rows) != 3 {
 		t.Fatalf("staged %d rows, want 3", len(store.rows))
@@ -432,7 +466,7 @@ func TestCommitImportArchivesFirstOnlyForClearAndAdd(t *testing.T) {
 	for _, mode := range []catalog.ImportMode{catalog.ModeUpdateAndAdd, catalog.ModeClearAndAdd} {
 		t.Run(string(mode), func(t *testing.T) {
 			store := newMemoryStore()
-			svc, repo := newImportService(t, store)
+			svc, _ := newImportService(t, store)
 			ctx := context.Background()
 
 			session, _, _ := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
@@ -452,8 +486,8 @@ func TestCommitImportArchivesFirstOnlyForClearAndAdd(t *testing.T) {
 			if result.Total() != 3 {
 				t.Errorf("wrote %d products, want 3", result.Total())
 			}
-			if len(repo.written) != 3 {
-				t.Errorf("repository received %d products, want 3", len(repo.written))
+			if len(store.written) != 3 {
+				t.Errorf("repository received %d products, want 3", len(store.written))
 			}
 
 			wantArchive := int64(0)
@@ -469,7 +503,7 @@ func TestCommitImportArchivesFirstOnlyForClearAndAdd(t *testing.T) {
 
 func TestCommitImportSkipsDeselectedRows(t *testing.T) {
 	store := newMemoryStore()
-	svc, repo := newImportService(t, store)
+	svc, _ := newImportService(t, store)
 	ctx := context.Background()
 
 	session, _, _ := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
@@ -488,14 +522,14 @@ func TestCommitImportSkipsDeselectedRows(t *testing.T) {
 	} else if result.Total() != 2 {
 		t.Errorf("wrote %d products, want 2", result.Total())
 	}
-	if len(repo.written) != 2 {
-		t.Errorf("repository received %d products, want 2", len(repo.written))
+	if len(store.written) != 2 {
+		t.Errorf("repository received %d products, want 2", len(store.written))
 	}
 }
 
 func TestCommitImportRefusesASecondTime(t *testing.T) {
 	store := newMemoryStore()
-	svc, repo := newImportService(t, store)
+	svc, _ := newImportService(t, store)
 	ctx := context.Background()
 
 	session, _, _ := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
@@ -512,14 +546,14 @@ func TestCommitImportRefusesASecondTime(t *testing.T) {
 	if _, _, err := svc.CommitImport(ctx, session.PublicID); err == nil {
 		t.Fatal("a committed session was committed again")
 	}
-	if len(repo.written) != 3 {
-		t.Errorf("repository received %d products, want 3 — the second commit must write nothing", len(repo.written))
+	if len(store.written) != 3 {
+		t.Errorf("repository received %d products, want 3 — the second commit must write nothing", len(store.written))
 	}
 }
 
 func TestCancelImportPreventsCommit(t *testing.T) {
 	store := newMemoryStore()
-	svc, repo := newImportService(t, store)
+	svc, _ := newImportService(t, store)
 	ctx := context.Background()
 
 	session, _, _ := svc.AnalyzeImport(ctx, []byte(serviceFixture), "list.csv", 0)
@@ -535,8 +569,8 @@ func TestCancelImportPreventsCommit(t *testing.T) {
 	if _, _, err := svc.CommitImport(ctx, session.PublicID); err == nil {
 		t.Fatal("a cancelled session was committed")
 	}
-	if len(repo.written) != 0 {
-		t.Errorf("repository received %d products after a cancel, want 0", len(repo.written))
+	if len(store.written) != 0 {
+		t.Errorf("repository received %d products after a cancel, want 0", len(store.written))
 	}
 }
 
@@ -613,7 +647,7 @@ func TestValueMappingPrefersExactFolding(t *testing.T) {
 // A row the parser rejected must never be committed, whatever the mode says.
 func TestPrepareImportExcludesRejectedRows(t *testing.T) {
 	store := newMemoryStore()
-	svc, repo := newImportService(t, store)
+	svc, _ := newImportService(t, store)
 	ctx := context.Background()
 
 	fixture := "اسم الصنف,كود الصنف,سعر البيع\n" +
@@ -636,8 +670,8 @@ func TestPrepareImportExcludesRejectedRows(t *testing.T) {
 	} else if result.Total() != 1 {
 		t.Errorf("wrote %d products, want 1", result.Total())
 	}
-	if len(repo.written) != 1 {
-		t.Errorf("repository received %d products, want 1", len(repo.written))
+	if len(store.written) != 1 {
+		t.Errorf("repository received %d products, want 1", len(store.written))
 	}
 }
 
@@ -669,7 +703,7 @@ func (b *blockingMapper) MapValues(
 func TestCommitImportRefusesWhilePreparationIsRunning(t *testing.T) {
 	store := newMemoryStore()
 	store.vocab = testVocabulary()
-	svc, repo := newImportService(t, store)
+	svc, _ := newImportService(t, store)
 
 	blocker := &blockingMapper{release: make(chan struct{})}
 	svc.SetAIMapper(blocker)
@@ -698,8 +732,8 @@ func TestCommitImportRefusesWhilePreparationIsRunning(t *testing.T) {
 	if _, _, err := svc.CommitImport(ctx, session.PublicID); err == nil {
 		t.Error("a session still being prepared was committed")
 	}
-	if len(repo.written) != 0 {
-		t.Errorf("a mid-preparation commit wrote %d products", len(repo.written))
+	if len(store.written) != 0 {
+		t.Errorf("a mid-preparation commit wrote %d products", len(store.written))
 	}
 
 	close(blocker.release)
@@ -714,7 +748,7 @@ func TestCommitImportRefusesWhilePreparationIsRunning(t *testing.T) {
 	if _, _, err := svc.CommitImport(ctx, session.PublicID); err != nil {
 		t.Fatalf("commit after preparation finished: %v", err)
 	}
-	if len(repo.written) == 0 {
+	if len(store.written) == 0 {
 		t.Error("nothing was written after a successful preparation")
 	}
 }

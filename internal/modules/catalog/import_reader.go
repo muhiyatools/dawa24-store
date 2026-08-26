@@ -89,6 +89,20 @@ func looksLikeHTML(content []byte) bool {
 		bytes.HasPrefix(head, []byte("<?xml")) && bytes.Contains(head, []byte("<Workbook"))
 }
 
+// Decoding caps. An .xlsx is a ZIP of XML; 32 MB of highly compressible
+// workbook decompresses to gigabytes, and GetRows materialises a sheet whole.
+// These bound the decode so one malicious — or merely corrupt — upload cannot
+// exhaust the process's memory. A real distributor file is tens of thousands
+// of rows; both caps are an order of magnitude past that.
+const (
+	maxSheetRows  = 200_000
+	maxSheetCells = 5_000_000
+)
+
+// errSheetTooLarge is the refusal for a workbook past the decode caps.
+var errSheetTooLarge = errors.New(
+	"الملف أكبر من الحد المسموح به للاستيراد (200,000 صف). يرجى تقسيمه إلى عدة ملفات")
+
 // readExcel picks the worksheet that actually holds the catalogue.
 //
 // "The sheet with the most rows" is not good enough: exports routinely carry a
@@ -96,6 +110,11 @@ func looksLikeHTML(content []byte) bool {
 // twenty rows are the real data. Density — cells that contain something — picks
 // the right one, and hidden sheets are skipped because a hidden sheet is
 // something the supplier deliberately set aside.
+//
+// Sheets are scored through the streaming iterator rather than GetRows, so a
+// bomb workbook dies against the row cap mid-decode instead of after it has
+// been fully materialised in memory. Only the winning sheet is read into the
+// slice the parser consumes.
 func readExcel(content []byte) (*SheetData, error) {
 	f, err := excelize.OpenReader(bytes.NewReader(content))
 	if err != nil {
@@ -108,36 +127,28 @@ func readExcel(content []byte) (*SheetData, error) {
 		return nil, errors.New("ملف Excel لا يحتوي على أي أوراق عمل")
 	}
 
-	type scored struct {
+	type score struct {
 		name  string
-		rows  [][]string
+		rows  int
 		cells int
 	}
-	var best scored
+	var best score
 	var withData []string
 
 	for _, name := range sheets {
 		if visible, vErr := f.GetSheetVisible(name); vErr == nil && !visible {
 			continue
 		}
-		rows, rErr := f.GetRows(name)
-		if rErr != nil || len(rows) == 0 {
-			continue
+		rows, cells, sErr := scoreSheet(f, name)
+		if sErr != nil {
+			return nil, sErr
 		}
-		cells := 0
-		for _, row := range rows {
-			for _, cell := range row {
-				if CleanCellString(cell) != "" {
-					cells++
-				}
-			}
-		}
-		if cells == 0 {
+		if rows == 0 || cells == 0 {
 			continue
 		}
 		withData = append(withData, name)
 		if cells > best.cells {
-			best = scored{name: name, rows: rows, cells: cells}
+			best = score{name: name, rows: rows, cells: cells}
 		}
 	}
 
@@ -145,7 +156,12 @@ func readExcel(content []byte) (*SheetData, error) {
 		return nil, errors.New("جميع أوراق العمل في ملف Excel فارغة. يرجى التأكد من أن البيانات محفوظة في الملف قبل رفعه")
 	}
 
-	data := &SheetData{Rows: best.rows, Sheet: best.name, Format: "xlsx"}
+	rows, err := readRowsCapped(f, best.name)
+	if err != nil {
+		return nil, err
+	}
+
+	data := &SheetData{Rows: rows, Sheet: best.name, Format: "xlsx"}
 	for _, name := range withData {
 		if name != best.name {
 			data.SheetsSkipped = append(data.SheetsSkipped, name)
@@ -154,6 +170,66 @@ func readExcel(content []byte) (*SheetData, error) {
 	normalizeWidth(data)
 	return data, nil
 }
+
+// scoreSheet counts a sheet's non-empty cells through the streaming iterator,
+// enforcing the decode caps as it goes.
+func scoreSheet(f *excelize.File, name string) (rows, cells int, err error) {
+	iter, err := f.Rows(name)
+	if err != nil {
+		return 0, 0, nil // unreadable sheet: skip it, like the empty ones
+	}
+	defer func() { _ = iter.Close() }()
+
+	for iter.Next() {
+		rows++
+		if rows > maxSheetRows {
+			return 0, 0, errSheetTooLarge
+		}
+		row, err := iter.Columns()
+		if err != nil {
+			continue
+		}
+		for _, cell := range row {
+			if CleanCellString(cell) != "" {
+				cells++
+			}
+		}
+		if cells > maxSheetCells {
+			return 0, 0, errSheetTooLarge
+		}
+	}
+	return rows, cells, nil
+}
+
+// readRowsCapped reads one sheet whole, refusing past the row cap.
+func readRowsCapped(f *excelize.File, name string) ([][]string, error) {
+	iter, err := f.Rows(name)
+	if err != nil {
+		return nil, fmt.Errorf("تعذر قراءة ورقة العمل «%s» من ملف Excel (%v)", name, err)
+	}
+	defer func() { _ = iter.Close() }()
+
+	rows := make([][]string, 0, min(bestSheetCapacity, maxSheetRows))
+	for iter.Next() {
+		if len(rows) >= maxSheetRows {
+			return nil, errSheetTooLarge
+		}
+		record, err := iter.Columns()
+		if err != nil {
+			continue
+		}
+		rows = append(rows, record)
+	}
+	if err := iter.Error(); err != nil {
+		return nil, fmt.Errorf("تعذرت قراءة ملف Excel (%v)", err)
+	}
+	return rows, nil
+}
+
+// bestSheetCapacity is the initial allocation for the winning sheet: big enough
+// for the ordinary case, small enough that a hostile file does not get a huge
+// buffer up front.
+const bestSheetCapacity = 4096
 
 // readDelimited decodes CSV and its tab/semicolon/pipe relatives.
 func readDelimited(content []byte, filename string) (*SheetData, error) {
@@ -220,18 +296,30 @@ func readCSVRows(content []byte, delimiter rune) ([][]string, error) {
 		// blank lines the reader swallowed. A record that legitimately spans
 		// several lines through a quoted newline leaves blank rows behind it,
 		// which parse as empty and keep every later row number honest.
+		//
+		// The gap cap exists because a corrupt or hostile file can claim any
+		// line number. Rather than padding past it — unbounded memory — or
+		// skipping silently, which would shift every later row reference in
+		// the report onto the wrong spreadsheet row, an over-wide gap is a
+		// refusal the admin can act on.
 		if line, _ := reader.FieldPos(0); line > 0 {
 			gap := line - 1 - len(rows)
-			if gap > 0 && gap <= 1000 {
-				for len(rows) < line-1 {
-					rows = append(rows, nil)
-				}
+			if gap > maxBlankLineGap {
+				return nil, fmt.Errorf(
+					"يحتوي الملف على فراغ يتجاوز %d سطراً عند السطر %d، ولا يمكن ضمان صحة أرقام الصفوف بعده. يرجى إزالة الأسطر الفارغة الزائدة وإعادة الرفع",
+					maxBlankLineGap, line)
+			}
+			for len(rows) < line-1 {
+				rows = append(rows, nil)
 			}
 		}
 		rows = append(rows, record)
 	}
 	return rows, nil
 }
+
+// maxBlankLineGap is the widest run of blank lines the reader will reconstruct.
+const maxBlankLineGap = 1000
 
 // csvErrorHint turns encoding/csv's terse errors into something an admin can
 // act on without knowing what a "bare quote" is.

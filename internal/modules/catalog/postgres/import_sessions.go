@@ -28,7 +28,7 @@ const sessionColumns = `
 	s.filename, s.file_size_bytes, s.source_format, s.sheet_name, s.delimiter,
 	s.status, s.import_mode, s.options, s.layout_overrides,
 	s.total_rows, s.parsed_rows, s.insert_rows, s.update_rows, s.skip_rows,
-	s.error_rows, s.warning_rows, s.block_count, s.new_brands,
+	s.error_rows, s.warning_rows, s.block_count, s.new_brands, s.new_categories,
 	s.ai_calls, s.ai_applied, s.ai_matched, s.ai_note, s.ai_fallback,
 	s.error_message, s.created_at, s.updated_at, s.committed_at, s.expires_at`
 
@@ -59,6 +59,20 @@ func (r *Repository) CreateImportSession(ctx context.Context, s *catalog.ImportS
 			  AND s.status IN ('committed','cancelled','failed')
 		`); err != nil {
 			return fmt.Errorf("catalog postgres: reap finished staging rows: %w", err)
+		}
+
+		// A session claimed by a commit that never came back was interrupted —
+		// a crash, a deploy, a lost connection. Its claim must not stand
+		// forever: the admin would see a review screen that can neither be
+		// committed nor cancelled. Two hours is several times the longest sane
+		// commit, so anything older than that failed.
+		if _, err := tx.Exec(txCtx, `
+			UPDATE catalog.import_sessions
+			SET status = 'failed',
+			    error_message = 'توقفت عملية الحفظ قبل اكتمالها. يرجى بدء العملية من جديد.'
+			WHERE status = 'committing' AND updated_at < now() - INTERVAL '2 hours'
+		`); err != nil {
+			return fmt.Errorf("catalog postgres: reap stale committing sessions: %w", err)
 		}
 
 		options, err := json.Marshal(s.Options)
@@ -161,7 +175,15 @@ func (r *Repository) ReleaseImportSourceFile(ctx context.Context, sessionID int6
 }
 
 // UpdateImportSession writes back the counts, status and AI account.
-func (r *Repository) UpdateImportSession(ctx context.Context, s *catalog.ImportSession) error {
+//
+// The variadic fromStatuses turns the write into a guarded transition: given
+// any, the UPDATE carries `AND status = ANY(...)`, so a background prepare
+// cannot resurrect a session an admin cancelled while it ran — the previous
+// unconditional overwrite did exactly that. With none, the write is a plain
+// save of the row the caller already owns.
+func (r *Repository) UpdateImportSession(
+	ctx context.Context, s *catalog.ImportSession, fromStatuses ...catalog.SessionStatus,
+) error {
 	options, err := json.Marshal(s.Options)
 	if err != nil {
 		return fmt.Errorf("catalog postgres: encode import options: %w", err)
@@ -174,35 +196,85 @@ func (r *Repository) UpdateImportSession(ctx context.Context, s *catalog.ImportS
 	if err != nil {
 		return fmt.Errorf("catalog postgres: encode new brands: %w", err)
 	}
+	categories, err := json.Marshal(nonNilStrings(s.NewCategories))
+	if err != nil {
+		return fmt.Errorf("catalog postgres: encode new categories: %w", err)
+	}
+
+	query := `
+		UPDATE catalog.import_sessions SET
+			status = $2, import_mode = $3, options = $4::jsonb, layout_overrides = $5::jsonb,
+			sheet_name = $6, source_format = $7, delimiter = $8,
+			total_rows = $9, parsed_rows = $10, insert_rows = $11, update_rows = $12,
+			skip_rows = $13, error_rows = $14, warning_rows = $15, block_count = $16,
+			new_brands = $17::jsonb, new_categories = $25::jsonb,
+			ai_calls = $18, ai_applied = $19, ai_note = $20, ai_fallback = $21,
+			error_message = $22, committed_at = $23, ai_matched = $24
+		WHERE id = $1`
+	args := []any{
+		s.ID, string(s.Status), string(s.Mode), string(options), string(overrides),
+		s.SheetName, s.SourceFormat, s.Delimiter,
+		s.TotalRows, s.ParsedRows, s.InsertRows, s.UpdateRows,
+		s.SkipRows, s.ErrorRows, s.WarningRows, s.BlockCount,
+		string(brands), string(categories),
+		s.AICalls, s.AIApplied, s.AINote, s.AIFallback,
+		s.ErrorMessage, s.CommittedAt, s.AIMatched,
+	}
+
+	if len(fromStatuses) > 0 {
+		statuses := make([]string, len(fromStatuses))
+		for i, st := range fromStatuses {
+			statuses[i] = string(st)
+		}
+		query += ` AND status = ANY($26::text[])`
+		args = append(args, statuses)
+	}
 
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		tag, err := tx.Exec(txCtx, `
-			UPDATE catalog.import_sessions SET
-				status = $2, import_mode = $3, options = $4::jsonb, layout_overrides = $5::jsonb,
-				sheet_name = $6, source_format = $7, delimiter = $8,
-				total_rows = $9, parsed_rows = $10, insert_rows = $11, update_rows = $12,
-				skip_rows = $13, error_rows = $14, warning_rows = $15, block_count = $16,
-				new_brands = $17::jsonb,
-				ai_calls = $18, ai_applied = $19, ai_note = $20, ai_fallback = $21,
-				error_message = $22, committed_at = $23, ai_matched = $24
-			WHERE id = $1
-		`,
-			s.ID, string(s.Status), string(s.Mode), string(options), string(overrides),
-			s.SheetName, s.SourceFormat, s.Delimiter,
-			s.TotalRows, s.ParsedRows, s.InsertRows, s.UpdateRows,
-			s.SkipRows, s.ErrorRows, s.WarningRows, s.BlockCount,
-			string(brands),
-			s.AICalls, s.AIApplied, s.AINote, s.AIFallback,
-			s.ErrorMessage, s.CommittedAt, s.AIMatched,
-		)
+		tag, err := tx.Exec(txCtx, query, args...)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: update import session: %w", err)
 		}
 		if tag.RowsAffected() == 0 {
-			return apperr.NotFound("import_session")
+			return apperr.Conflict("catalog.import_state_changed",
+				"تغيرت حالة جلسة الاستيراد أثناء المعالجة. يرجى تحديث الصفحة ومراجعة الحالة.")
 		}
 		return nil
 	})
+}
+
+// ClaimImportSessionForCommit atomically takes ownership of a reviewable
+// session for committing, flipping it to 'committing' in the same statement
+// that reads it.
+//
+// The claim is what makes concurrent commits safe across processes: two
+// requests racing on one session cannot both pass, whatever in-process guards
+// say, because only one of them finds a reviewable row to flip. A claimed
+// session is not reviewable, so cancel and re-prepare are refused until the
+// commit finishes or the reaper records it failed.
+func (r *Repository) ClaimImportSessionForCommit(ctx context.Context, publicID string) (*catalog.ImportSession, error) {
+	var out *catalog.ImportSession
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		row := tx.QueryRow(txCtx, `
+			UPDATE catalog.import_sessions
+			SET status = 'committing', updated_at = now()
+			WHERE public_id = $1 AND status IN ('draft','ready')
+			RETURNING `+sessionColumns, publicID)
+		s, err := scanImportSession(row)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return apperr.Conflict("catalog.import_not_committable",
+				"لم تعد هذه الجلسة قابلة للحفظ. يرجى تحديث الصفحة ومراجعة حالتها.")
+		}
+		if err != nil {
+			return err
+		}
+		out = s
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 // ReplaceStagingRows swaps in a freshly parsed set of rows.
@@ -638,14 +710,14 @@ type rowScanner interface{ Scan(dest ...any) error }
 func scanImportSession(row rowScanner) (*catalog.ImportSession, error) {
 	var s catalog.ImportSession
 	var status, mode string
-	var options, overrides, brands []byte
+	var options, overrides, brands, categories []byte
 
 	err := row.Scan(
 		&s.ID, &s.PublicID, &s.OrganizationID, &s.CreatedBy,
 		&s.Filename, &s.FileSizeBytes, &s.SourceFormat, &s.SheetName, &s.Delimiter,
 		&status, &mode, &options, &overrides,
 		&s.TotalRows, &s.ParsedRows, &s.InsertRows, &s.UpdateRows, &s.SkipRows,
-		&s.ErrorRows, &s.WarningRows, &s.BlockCount, &brands,
+		&s.ErrorRows, &s.WarningRows, &s.BlockCount, &brands, &categories,
 		&s.AICalls, &s.AIApplied, &s.AIMatched, &s.AINote, &s.AIFallback,
 		&s.ErrorMessage, &s.CreatedAt, &s.UpdatedAt, &s.CommittedAt, &s.ExpiresAt,
 	)
@@ -666,6 +738,9 @@ func scanImportSession(row rowScanner) (*catalog.ImportSession, error) {
 	}
 	if err := json.Unmarshal(brands, &s.NewBrands); err != nil {
 		return nil, fmt.Errorf("catalog postgres: decode new brands: %w", err)
+	}
+	if err := json.Unmarshal(categories, &s.NewCategories); err != nil {
+		return nil, fmt.Errorf("catalog postgres: decode new categories: %w", err)
 	}
 	return &s, nil
 }

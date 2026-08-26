@@ -157,6 +157,12 @@ const (
 	SessionDraft SessionStatus = "draft"
 	// SessionReady has been processed and is awaiting confirmation.
 	SessionReady SessionStatus = "ready"
+	// SessionCommitting is an atomic claim: a commit has taken ownership of the
+	// session and is writing to the catalogue right now. It is not reviewable,
+	// so a second commit, a cancel, or a re-prepare cannot interleave with the
+	// run — and a crash mid-write leaves a row the next session-open reaper
+	// records as failed rather than a committable zombie.
+	SessionCommitting SessionStatus = "committing"
 	// SessionCommitted has been written to the catalogue.
 	SessionCommitted SessionStatus = "committed"
 	// SessionCancelled was discarded by the admin.

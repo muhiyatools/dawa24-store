@@ -119,11 +119,11 @@ func (s *Service) runImport(ctx context.Context, session *Session) error {
 		return err
 	}
 
+	applyRunResult(session, result, writer)
+
 	if err := s.retireAbsent(ctx, session, writer); err != nil {
 		return err
 	}
-
-	applyRunResult(session, result, writer)
 	if err := s.imports.Finish(ctx, session); err != nil {
 		return err
 	}
@@ -171,8 +171,20 @@ func (s *Service) prepareWriter(ctx context.Context, session *Session) (*importW
 
 // retireAbsent takes the vendor's other variants off sale, for the mode that
 // declares the file to be the whole catalogue.
+//
+// Not when the run was imperfect. The keep-list holds only the variants this
+// run actually wrote, so a row that failed its write — or never resolved onto
+// a catalogue product — would see its existing variant retired by the same run
+// that reported the problem: one bad cell out of nine thousand delisting a
+// product the vendor actively stocks. An imperfect file retires nothing; the
+// vendor fixes the rows and runs it again.
 func (s *Service) retireAbsent(ctx context.Context, session *Session, w *importWriter) error {
 	if session.Settings.Mode != ModeReplace {
+		return nil
+	}
+	if w.counts.errors > 0 || session.ErrorRows > 0 {
+		s.log.WarnContext(ctx, "replace-mode retirement skipped: run had failed rows",
+			"import", session.PublicID, "errors", w.counts.errors)
 		return nil
 	}
 	if err := s.imports.Progress(ctx, session.ID, 99, "جارٍ إيقاف الأصناف غير الموجودة في الملف"); err != nil {

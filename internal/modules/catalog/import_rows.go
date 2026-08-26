@@ -354,8 +354,22 @@ func (r *ParseResult) collectProducts(records [][]string) []*Product {
 			if existing, isDuplicate := seen[key]; isDuplicate {
 				mergeProduct(existing, prod)
 				r.Stats.DuplicateRows++
-				cursor.warn("", prod.Name.Get(i18n.AR),
-					"صنف مكرر داخل الملف نفسه؛ تم دمج بياناته مع الصف السابق بدلاً من تكراره في الكتالوج.")
+				// The finding is reported against the FIRST occurrence's row,
+				// the only one of the two that becomes a staged row — a warning
+				// attached to the duplicate's row number never reached the
+				// review table, and the admin was never told their file had
+				// merged rows at all.
+				firstRow := 0
+				if n := len(r.SourceRows); n > 0 {
+					firstRow = r.SourceRows[n-1]
+				}
+				r.addIssue(RowIssue{
+					Row: firstRow, Value: prod.Name.Get(i18n.AR),
+					Message: fmt.Sprintf(
+						"صنف مكرر داخل الملف نفسه (الصف %d)؛ تم دمج بياناته مع الصف %d بدلاً من تكراره في الكتالوج.",
+						rIdx+1, firstRow),
+					Severity: SeverityWarning,
+				})
 				continue
 			}
 
@@ -549,6 +563,19 @@ func (c rowCursor) readAmount(field string, required bool) (money.Amount, bool) 
 			return money.Zero, false
 		}
 		c.warn(c.label(field), raw, fmt.Sprintf("تعذر قراءة القيمة «%s» كرقم؛ تم تجاهلها.", raw))
+		return money.Zero, true
+
+	case info.Percent:
+		// A price column that says "25%" is a misaligned sheet, not a product
+		// priced at twenty-five piastres. The parser knows the cell was a
+		// percentage; staying silent here is how a whole column of prices
+		// lands as small change with nothing in the report to explain it.
+		if required {
+			c.reject(c.label(field), raw,
+				fmt.Sprintf("تم رفض الصف: قيمة السعر «%s» مكتوبة كنسبة مئوية وليست سعراً. يرجى تصحيح العمود في الملف.", raw))
+			return money.Zero, false
+		}
+		c.warn(c.label(field), raw, "قيمة مكتوبة كنسبة مئوية في عمود سعر؛ تم تجاهلها.")
 		return money.Zero, true
 
 	case amt.IsNegative():

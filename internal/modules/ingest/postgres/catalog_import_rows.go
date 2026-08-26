@@ -14,6 +14,21 @@ import (
 
 // The per-row outcome ledger, and the encoding both halves of the import share.
 
+// clampScore keeps a match score inside what match_score NUMERIC(5,4) accepts.
+// The scores are 0..1 by construction; this is the guard against an upstream
+// regression feeding a percentage or a NaN through — which would otherwise
+// overflow one CopyFrom call and lose every row outcome in the batch.
+func clampScore(score float64) float64 {
+	switch {
+	case score < 0:
+		return 0
+	case score > 1:
+		return 1
+	default:
+		return score
+	}
+}
+
 // AppendRows records a batch of row outcomes.
 //
 // CopyFrom rather than an insert per row: the ledger is written once per
@@ -41,7 +56,7 @@ func (r *Repository) AppendRows(
 		}
 		records = append(records, []any{
 			importID, orgID, row.SourceRow, row.Outcome, row.MatchLevel,
-			row.MatchScore, row.ProductID, row.VariantID,
+			clampScore(row.MatchScore), row.ProductID, row.VariantID,
 			trimTo(row.DisplayName, 300), trimTo(row.SourceCode, 100),
 			payload, candidates, issues, trimTo(row.Message, 500),
 		})

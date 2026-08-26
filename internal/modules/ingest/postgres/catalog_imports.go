@@ -107,9 +107,29 @@ func (r *Repository) SaveDraft(ctx context.Context, s *ingest.Session) error {
 	})
 }
 
+// staleRunAfter is how long a 'processing' phase is trusted before it is
+// treated as a run that died with its process. Begin refuses live runs; past
+// this age the claim is stale — a crash or deploy left the session wedged where
+// confirm, cancel and sweep all refused it, recoverable only by hand.
+const staleRunAfter = "2 hours"
+
 // Begin marks the run started and clears any previous outcome.
+//
+// The per-organisation advisory lock serialises claims across processes: two
+// different sessions for the same vendor confirming at once would otherwise
+// both load stale variant indexes and race their writes. The lock lives for
+// this transaction only — it makes the claim atomic, not the whole run — but
+// the phase predicate does the rest: only one of them finds a claimable row.
+//
+// A processing phase older than staleRunAfter is reclaimable, so a run killed
+// by a crash or a deploy cannot wedge the session forever.
 func (r *Repository) Begin(ctx context.Context, id int64) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx,
+			`SELECT pg_advisory_xact_lock(
+				(SELECT organization_id FROM ingest.catalog_imports WHERE id = $1))`, id); err != nil {
+			return fmt.Errorf("ingest postgres: lock import organization: %w", err)
+		}
 		tag, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET phase = 'processing', started_at = now(), completed_at = NULL,
@@ -117,7 +137,10 @@ func (r *Repository) Begin(ctx context.Context, id int64) error {
 			    inserted_rows = 0, updated_rows = 0, skipped_rows = 0, error_rows = 0,
 			    matched_rows = 0, review_rows = 0, unmatched_rows = 0, created_products = 0,
 			    findings = '[]'::JSONB, stats = '{}'::JSONB
-			WHERE id = $1 AND phase IN ('mapping','settings','confirm','failed')`, id)
+			WHERE id = $1 AND (
+				phase IN ('mapping','settings','confirm','failed')
+				OR (phase = 'processing' AND started_at < now() - INTERVAL '`+staleRunAfter+`')
+			)`, id)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: begin import: %w", err)
 		}
@@ -134,12 +157,16 @@ func (r *Repository) Begin(ctx context.Context, id int64) error {
 }
 
 // Progress records how far a run has reached.
+//
+// Guarded by phase: without the predicate a slow progress writer racing Finish
+// could overwrite a completed import's 100% with a mid-run figure — and leave
+// it there permanently.
 func (r *Repository) Progress(ctx context.Context, id int64, percent int, note string) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		_, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET progress_percent = LEAST(GREATEST($2, 0), 100), progress_note = $3
-			WHERE id = $1`, id, percent, note)
+			WHERE id = $1 AND phase = 'processing'`, id, percent, note)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: import progress: %w", err)
 		}
@@ -147,7 +174,8 @@ func (r *Repository) Progress(ctx context.Context, id int64, percent int, note s
 	})
 }
 
-// Finish records the outcome of a completed run.
+// Finish records the outcome of a completed run. Only a processing session can
+// be finished, so a stray late call cannot rewrite history.
 func (r *Repository) Finish(ctx context.Context, s *ingest.Session) error {
 	stats, err := json.Marshal(s.Stats)
 	if err != nil {
@@ -158,47 +186,61 @@ func (r *Repository) Finish(ctx context.Context, s *ingest.Session) error {
 		return fmt.Errorf("ingest postgres: encode import findings: %w", err)
 	}
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `
+		tag, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET phase = 'completed', completed_at = now(), progress_percent = 100,
 			    progress_note = '', stats = $2, findings = $3,
 			    total_rows = $4, inserted_rows = $5, updated_rows = $6,
 			    skipped_rows = $7, error_rows = $8, matched_rows = $9,
 			    review_rows = $10, unmatched_rows = $11, created_products = $12
-			WHERE id = $1`,
+			WHERE id = $1 AND phase = 'processing'`,
 			s.ID, stats, findings, s.TotalRows, s.InsertedRows, s.UpdatedRows,
 			s.SkippedRows, s.ErrorRows, s.MatchedRows, s.ReviewRows,
 			s.UnmatchedRows, s.CreatedProducts)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: finish import: %w", err)
 		}
-		return nil
-	})
-}
-
-// Fail records a run that stopped on an error.
-func (r *Repository) Fail(ctx context.Context, id int64, message string) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `
-			UPDATE ingest.catalog_imports
-			SET phase = 'failed', completed_at = now(), error_message = $2
-			WHERE id = $1`, id, message)
-		if err != nil {
-			return fmt.Errorf("ingest postgres: fail import: %w", err)
+		if tag.RowsAffected() == 0 {
+			return apperr.Conflict("import.not_processing",
+				"لم تعد هذه الجلسة قيد التنفيذ، ولم يتم تحديث نتيجتها.")
 		}
 		return nil
 	})
 }
 
-// Cancel discards an import without touching the catalogue.
+// Fail records a run that stopped on an error. The phase predicate stops a
+// stray Fail from flipping a completed import to failed retroactively.
+func (r *Repository) Fail(ctx context.Context, id int64, message string) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		tag, err := tx.Exec(txCtx, `
+			UPDATE ingest.catalog_imports
+			SET phase = 'failed', completed_at = now(), error_message = $2
+			WHERE id = $1 AND phase = 'processing'`, id, message)
+		if err != nil {
+			return fmt.Errorf("ingest postgres: fail import: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.Conflict("import.not_processing",
+				"لم تعد هذه الجلسة قيد التنفيذ، ولم يتم تسجيل الخطأ عليها.")
+		}
+		return nil
+	})
+}
+
+// Cancel discards an import without touching the catalogue. Cancelling a
+// session that is no longer open reports the conflict rather than pretending
+// the file was purged when it was not.
 func (r *Repository) Cancel(ctx context.Context, id int64) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `
+		tag, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_imports
 			SET phase = 'cancelled', completed_at = now(), source_file = ''::BYTEA
 			WHERE id = $1 AND phase IN ('mapping','settings','confirm')`, id)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: cancel import: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.Conflict("import.not_open", "لم تعد هذه الجلسة قابلة للإلغاء.")
 		}
 		return nil
 	})
@@ -252,6 +294,15 @@ func (r *Repository) Sweep(ctx context.Context) error {
 			SET phase = 'cancelled', completed_at = now()
 			WHERE expires_at < now() AND phase IN ('mapping','settings','confirm')`); err != nil {
 			return fmt.Errorf("ingest postgres: sweep imports: %w", err)
+		}
+		// A run wedged in processing past the stale threshold is dead with its
+		// process; recording it failed is what lets the vendor re-run it.
+		if _, err := tx.Exec(txCtx, `
+			UPDATE ingest.catalog_imports
+			SET phase = 'failed', completed_at = now(),
+			    error_message = 'توقفت العملية قبل اكتمالها. يمكن بدء الاستيراد من جديد.'
+			WHERE phase = 'processing' AND started_at < now() - INTERVAL '`+staleRunAfter+`'`); err != nil {
+			return fmt.Errorf("ingest postgres: sweep stale processing imports: %w", err)
 		}
 		return nil
 	})

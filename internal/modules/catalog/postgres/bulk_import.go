@@ -57,7 +57,8 @@ const insertProductQuery = `
 // empty-string default — so the guard is an explicit emptiness test per column.
 const updateProductQuery = `
 	UPDATE catalog.products SET
-		name        = $2,
+		name        = CASE WHEN $2::jsonb IS NULL OR $2::jsonb = '{}'::jsonb
+		                   THEN name ELSE $2::jsonb END,
 		description = CASE WHEN $3::jsonb IS NULL OR $3::jsonb = '{}'::jsonb
 		                   THEN description ELSE $3::jsonb END,
 		sku         = CASE WHEN $4::text  = '' THEN sku      ELSE $4::text  END,
@@ -90,49 +91,9 @@ func (r *Repository) BulkUpsertProducts(
 	}
 
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		defaultOrgID, err := resolveDefaultOrg(txCtx, tx)
-		if err != nil {
-			return err
-		}
-
-		for _, p := range prods {
-			applyWriteDefaults(p, defaultOrgID)
-		}
-
-		brandsCreated, err := resolveBrands(txCtx, tx, prods, opts.CreateBrands)
-		if err != nil {
-			return err
-		}
-		result.BrandsCreated = brandsCreated
-
-		categoriesCreated, err := resolveCategories(txCtx, tx, prods, opts.CreateCategories)
-		if err != nil {
-			return err
-		}
-		result.CategoriesCreated = categoriesCreated
-
-		existing, err := resolveExistingProducts(txCtx, tx, prods)
-		if err != nil {
-			return err
-		}
-
-		var toInsert, toUpdate []int
-		for i, p := range prods {
-			if m, ok := existing[i]; ok {
-				p.ID = m.id
-				result.Matches[i] = m.reason
-				toUpdate = append(toUpdate, i)
-				continue
-			}
-			toInsert = append(toInsert, i)
-		}
-
-		inserter := &batchWriter{tx: tx, prods: prods, res: &result, queue: queueInsert, scan: scanInsert}
-		if err := inserter.write(txCtx, toInsert); err != nil {
-			return err
-		}
-		updater := &batchWriter{tx: tx, prods: prods, res: &result, queue: queueUpdate, scan: scanUpdate}
-		return updater.write(txCtx, toUpdate)
+		var err error
+		result, err = bulkUpsertInTx(txCtx, tx, prods, opts)
+		return err
 	})
 
 	if err != nil {
@@ -143,6 +104,101 @@ func (r *Repository) BulkUpsertProducts(
 		return catalog.BulkWriteResult{Matches: map[int]catalog.MatchReason{}, Failures: failures}, err
 	}
 	return result, nil
+}
+
+// BulkCommitProducts is the whole clear-and-add commit in one transaction: the
+// archive of the existing catalogue and the write of the new one land together
+// or not at all.
+//
+// Splitting them across two transactions meant a failure in the write left the
+// catalogue archived with nothing imported — every live product soft-deleted
+// and no replacement on file. archiveOrg of zero skips the archive, which is
+// what every non-destructive mode passes.
+func (r *Repository) BulkCommitProducts(
+	ctx context.Context, prods []*catalog.Product, opts catalog.BulkWriteOptions,
+	archiveOrg int64,
+) (archived int64, result catalog.BulkWriteResult, err error) {
+	result = catalog.BulkWriteResult{Matches: map[int]catalog.MatchReason{}}
+	if len(prods) == 0 && archiveOrg <= 0 {
+		return 0, result, nil
+	}
+
+	err = r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if archiveOrg > 0 {
+			tag, err := tx.Exec(txCtx, `
+				UPDATE catalog.products
+				SET deleted_at = now(), updated_at = now()
+				WHERE organization_id = $1 AND deleted_at IS NULL
+			`, archiveOrg)
+			if err != nil {
+				return fmt.Errorf("catalog postgres: archive catalogue: %w", err)
+			}
+			archived = tag.RowsAffected()
+		}
+		if len(prods) == 0 {
+			return nil
+		}
+		var upsertErr error
+		result, upsertErr = bulkUpsertInTx(txCtx, tx, prods, opts)
+		return upsertErr
+	})
+	if err != nil {
+		failures := result.Failures
+		return 0, catalog.BulkWriteResult{Matches: map[int]catalog.MatchReason{}, Failures: failures}, err
+	}
+	return archived, result, nil
+}
+
+// bulkUpsertInTx is BulkUpsertProducts' body, callable inside a transaction the
+// caller owns — which is what lets the archive and the write share one.
+func bulkUpsertInTx(
+	ctx context.Context, tx pgx.Tx, prods []*catalog.Product, opts catalog.BulkWriteOptions,
+) (catalog.BulkWriteResult, error) {
+	result := catalog.BulkWriteResult{Matches: map[int]catalog.MatchReason{}}
+
+	defaultOrgID, err := resolveDefaultOrg(ctx, tx)
+	if err != nil {
+		return result, err
+	}
+
+	for _, p := range prods {
+		applyWriteDefaults(p, defaultOrgID)
+	}
+
+	brandsCreated, err := resolveBrands(ctx, tx, prods, opts.CreateBrands)
+	if err != nil {
+		return result, err
+	}
+	result.BrandsCreated = brandsCreated
+
+	categoriesCreated, err := resolveCategories(ctx, tx, prods, opts.CreateCategories)
+	if err != nil {
+		return result, err
+	}
+	result.CategoriesCreated = categoriesCreated
+
+	existing, err := resolveExistingProducts(ctx, tx, prods)
+	if err != nil {
+		return result, err
+	}
+
+	var toInsert, toUpdate []int
+	for i, p := range prods {
+		if m, ok := existing[i]; ok {
+			p.ID = m.id
+			result.Matches[i] = m.reason
+			toUpdate = append(toUpdate, i)
+			continue
+		}
+		toInsert = append(toInsert, i)
+	}
+
+	inserter := &batchWriter{tx: tx, prods: prods, res: &result, queue: queueInsert, scan: scanInsert}
+	if err := inserter.write(ctx, toInsert); err != nil {
+		return result, err
+	}
+	updater := &batchWriter{tx: tx, prods: prods, res: &result, queue: queueUpdate, scan: scanUpdate}
+	return result, updater.write(ctx, toUpdate)
 }
 
 // applyWriteDefaults fills the values the NOT NULL columns require. The products
@@ -171,8 +227,25 @@ func applyWriteDefaults(p *catalog.Product, defaultOrgID int64) {
 	}
 }
 
+// masterCatalogOrgEN is the canonical English name of the organisation that
+// owns the master catalogue. Migration 128 seeds it; resolveDefaultOrg creates
+// it on a deployment that predates the migration.
+const masterCatalogOrgEN = "Dawa24 Master Catalog"
+
+// masterCatalogOrgWhere is the one definition of "the master catalogue's
+// organisation" every lookup shares.
+const masterCatalogOrgWhere = `
+	deleted_at IS NULL AND status = 'approved'
+	AND name->>'en' = 'Dawa24 Master Catalog'`
+
 // resolveDefaultOrg finds the organisation that owns the master catalogue,
 // creating it only when the instance genuinely has none.
+//
+// The organisation is identified by its canonical name, never by "whichever
+// tenant sorts first". The previous lowest-id fallback once landed the whole
+// imported catalogue inside a customer pharmacy's tenant — and a second run
+// resolving to a different lowest id would have duplicated it rather than
+// updated it.
 func resolveDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
 	orgID, err := lookupDefaultOrg(ctx, tx)
 	if err != nil {
@@ -195,20 +268,20 @@ func resolveDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
 
 // lookupDefaultOrg finds the organisation that owns the master catalogue without
 // creating one, so it is safe inside a read-only transaction.
+//
+// It returns zero when no canonical organisation exists — never a substitute.
+// Preview and commit share this resolver, so both would agree an empty catalogue
+// means "everything inserts", which is the honest answer until migration 128
+// has seeded the real organisation.
 func lookupDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
 	var orgID int64
 	err := tx.QueryRow(ctx,
-		`SELECT id FROM org.organizations WHERE status = 'approved' ORDER BY id ASC LIMIT 1`).Scan(&orgID)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		`SELECT id FROM org.organizations WHERE `+masterCatalogOrgWhere+` LIMIT 1`).Scan(&orgID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, nil
+	}
+	if err != nil {
 		return 0, fmt.Errorf("catalog postgres: resolve default organization: %w", err)
-	}
-	if orgID > 0 {
-		return orgID, nil
-	}
-
-	err = tx.QueryRow(ctx, `SELECT id FROM org.organizations ORDER BY id ASC LIMIT 1`).Scan(&orgID)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		return 0, fmt.Errorf("catalog postgres: resolve any organization: %w", err)
 	}
 	return orgID, nil
 }

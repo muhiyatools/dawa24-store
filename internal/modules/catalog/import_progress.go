@@ -125,18 +125,34 @@ func NewProgressTracker() *ProgressTracker {
 }
 
 // Begin registers a run and returns the function that reports its progress.
+//
+// Deprecated in favour of TryBegin, which makes the check-and-claim atomic;
+// kept because tests drive it directly.
 func (t *ProgressTracker) Begin(sessionID string) ProgressFunc {
+	fn, _ := t.TryBegin(sessionID)
+	return fn
+}
+
+// TryBegin registers a run only when no other run holds the session, returning
+// false instead of overwriting one in flight. Check and claim happen under one
+// lock acquisition: the previous Running()-then-Begin() sequence had a gap two
+// simultaneous submits could both pass, each spawning a prepare against the
+// same session.
+func (t *ProgressTracker) TryBegin(sessionID string) (ProgressFunc, bool) {
 	if t == nil {
-		return nil
+		return nil, true
 	}
 	now := time.Now()
 
 	t.mu.Lock()
+	defer t.mu.Unlock()
+	if run, exists := t.runs[sessionID]; exists && !run.Phase.Terminal() {
+		return nil, false
+	}
 	t.runs[sessionID] = ImportProgress{
 		Phase: ImportPhaseReading, Message: ImportPhaseReading.Label(),
 		StartedAt: now, UpdatedAt: now,
 	}
-	t.mu.Unlock()
 
 	return func(phase ImportPhase, current, total int) {
 		t.mu.Lock()
@@ -149,7 +165,7 @@ func (t *ProgressTracker) Begin(sessionID string) ProgressFunc {
 			run.StartedAt = run.UpdatedAt
 		}
 		t.runs[sessionID] = run
-	}
+	}, true
 }
 
 // Finish marks a run complete, or failed with a reason.
