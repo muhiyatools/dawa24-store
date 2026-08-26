@@ -324,17 +324,7 @@ func (r *Repository) ListStagingRows(
 			return fmt.Errorf("catalog postgres: count staging rows: %w", err)
 		}
 
-		// The matched product's own name comes from the join rather than from a
-		// copy taken at staging time. An import is reviewed minutes or hours
-		// after it was prepared; a cached name would disagree with the product
-		// the admin opens to check it against, which is worse than no name.
-		query := fmt.Sprintf(`
-			SELECT r.id, r.session_id, r.source_row, r.block_index, r.action, r.included,
-			       r.matched_product_id, r.match_reason, r.payload, r.issues, r.ai_changes,
-			       COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), '') AS matched_name,
-			       COALESCE(p.sku, '') AS matched_sku
-			FROM catalog.import_staging_rows r
-			LEFT JOIN catalog.products p ON p.id = r.matched_product_id
+		query := fmt.Sprintf(stagingRowSelect+`
 			WHERE %s
 			ORDER BY r.source_row
 			LIMIT $%d OFFSET $%d`, qualify(clause), len(args)-1, len(args))
@@ -364,15 +354,8 @@ func (r *Repository) ListStagingRows(
 func (r *Repository) GetStagingRow(ctx context.Context, sessionID, rowID int64) (*catalog.StagingRow, error) {
 	var row *catalog.StagingRow
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		cursor, err := tx.Query(txCtx, `
-			SELECT r.id, r.session_id, r.source_row, r.block_index, r.action, r.included,
-			       r.matched_product_id, r.match_reason, r.payload, r.issues, r.ai_changes,
-			       COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), '') AS matched_name,
-			       COALESCE(p.sku, '') AS matched_sku
-			FROM catalog.import_staging_rows r
-			LEFT JOIN catalog.products p ON p.id = r.matched_product_id
-			WHERE r.id = $2 AND r.session_id = $1
-		`, sessionID, rowID)
+		cursor, err := tx.Query(txCtx, stagingRowSelect+`
+			WHERE r.id = $2 AND r.session_id = $1`, sessionID, rowID)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: get staging row: %w", err)
 		}
@@ -463,13 +446,10 @@ func (r *Repository) CountStagingActions(ctx context.Context, sessionID int64) (
 func (r *Repository) LoadCommittableRows(ctx context.Context, sessionID int64) ([]*catalog.StagingRow, error) {
 	var rows []*catalog.StagingRow
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		cursor, err := tx.Query(txCtx, `
-			SELECT id, session_id, source_row, block_index, action, included,
-			       matched_product_id, match_reason, payload, issues, ai_changes
-			FROM catalog.import_staging_rows
-			WHERE session_id = $1 AND included AND action <> 'skip' AND NOT has_error
-			ORDER BY source_row
-		`, sessionID)
+		cursor, err := tx.Query(txCtx, stagingRowSelect+`
+			WHERE r.session_id = $1 AND r.included
+			  AND r.action <> 'skip' AND NOT r.has_error
+			ORDER BY r.source_row`, sessionID)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: load committable rows: %w", err)
 		}
@@ -689,6 +669,28 @@ func scanImportSession(row rowScanner) (*catalog.ImportSession, error) {
 	}
 	return &s, nil
 }
+
+// stagingRowSelect is the one column list every staging-row read uses.
+//
+// It is shared rather than repeated because it drifted the moment it was not:
+// two of the three queries grew the matched-product join and the third did not,
+// and the mismatch surfaced only at commit time as "number of field
+// descriptions must equal number of destinations, got 11 and 13" — after the
+// admin had reviewed nine thousand rows and pressed save. scanStagingRow below
+// is the other half of this contract; the two change together or not at all.
+//
+// The matched product's name comes from the join rather than from a copy taken
+// at staging time. An import is reviewed minutes or hours after it was
+// prepared, and a cached name would disagree with the product the admin opens
+// to check it against — which is worse than showing no name.
+const stagingRowSelect = `
+	SELECT r.id, r.session_id, r.source_row, r.block_index, r.action, r.included,
+	       r.matched_product_id, r.match_reason, r.payload, r.issues, r.ai_changes,
+	       COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), '') AS matched_name,
+	       COALESCE(p.sku, '') AS matched_sku
+	FROM catalog.import_staging_rows r
+	LEFT JOIN catalog.products p ON p.id = r.matched_product_id
+`
 
 func scanStagingRow(cursor pgx.Rows) (*catalog.StagingRow, error) {
 	var row catalog.StagingRow

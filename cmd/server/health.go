@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -146,6 +147,20 @@ func (h *healthHandler) checkDatabase(ctx context.Context) componentStatus {
 	if err := db.Health(ctx); err != nil {
 		return componentStatus{Status: "down", Detail: err.Error(),
 			Latency: time.Since(start).Milliseconds()}
+	}
+
+	// A pool at its ceiling answers SELECT 1 perfectly well and is nonetheless
+	// the reason every other request is queuing. Reporting it as degraded is
+	// what makes the condition findable before it presents as a scattering of
+	// "context canceled" with nothing to tie them together.
+	stats := db.Stats()
+	if stats.Saturated {
+		return componentStatus{
+			Status: "degraded",
+			Detail: fmt.Sprintf("connection pool saturated: %d/%d in use, %d waits so far",
+				stats.Acquired, stats.Max, stats.Waiting),
+			Latency: time.Since(start).Milliseconds(),
+		}
 	}
 	return componentStatus{Status: "ok", Latency: time.Since(start).Milliseconds()}
 }

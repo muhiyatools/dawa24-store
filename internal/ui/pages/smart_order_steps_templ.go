@@ -338,12 +338,38 @@ type SmartOrderProgressData struct {
 	Events  []*smartorder.Event
 	Failed  bool
 	Message string
+	// Percent is how far the run has got, 0-100.
+	Percent int
+	// Caption names the stage currently running, in one short phrase.
+	Caption string
+}
+
+// ringOffset is the stroke-dashoffset that draws Percent of the ring.
+//
+// The circle has r=52, so its circumference is 2*pi*52 = 326.7. The dash array
+// is that whole length and the offset is the part left undrawn, which is why a
+// higher percentage means a smaller offset.
+func (d SmartOrderProgressData) ringOffset() string {
+	const circumference = 326.7
+	p := d.Percent
+	if p < 0 {
+		p = 0
+	}
+	if p > 100 {
+		p = 100
+	}
+	return fmt.Sprintf("%.1f", circumference-circumference*float64(p)/100)
 }
 
 // SmartOrderProgressPage is step 3: processing.
 //
-// Everything shown here comes from the database, not from the connection that
-// started the run — which is what lets a buyer close the tab, come back from
+// One number, one line of text. It used to be a spinner beside a list of every
+// stage the pipeline had entered, each with a count that read "0 / 804" because
+// stages reported before doing their work — four lines that told the buyer
+// nothing, and read as though the system had stalled at zero.
+//
+// Everything shown comes from the database, not from the connection that
+// started the run, which is what lets a buyer close the tab, come back from
 // another device, and find the run where it got to.
 func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -378,7 +404,7 @@ func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"container-fluid\" style=\"max-width:820px; margin:0 auto; padding:1.5rem 1rem;\"><h1 style=\"font-size:1.6rem; font-weight:800; margin:0 0 1.5rem 0;\">جارٍ تجهيز الطلب</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"container-fluid so-progress-page\"><h1 class=\"so-progress-title\">جارٍ تجهيز الطلب</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -387,14 +413,14 @@ func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ
 				return templ_7745c5c3_Err
 			}
 			if data.Failed {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div style=\"padding:1.25rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.10); border:1px solid var(--danger);\"><strong>تعذّر إكمال المطابقة</strong><p style=\"margin:0.5rem 0 0 0; font-size:0.88rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"so-progress-failed\"><strong>تعذّر إكمال المطابقة</strong><p class=\"so-progress-failed-detail\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(data.Message)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 141, Col: 70}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 167, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -405,58 +431,72 @@ func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"card\" style=\"padding:2rem;\"><div style=\"display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;\"><div class=\"spinner\" style=\"width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--primary-600); border-radius:50%; animation:spin 800ms linear infinite;\"></div><div><div style=\"font-weight:700;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"card so-progress-card\"><div class=\"so-ring\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var17 string
-				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(data.Message)
+				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Percent))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 148, Col: 51}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 172, Col: 53}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><div style=\"font-size:0.85rem; color:var(--text-secondary);\">يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.</div></div></div><ul style=\"margin:0; padding-inline-start:1.25rem; font-size:0.88rem; color:var(--text-secondary);\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				for _, e := range data.Events {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<li style=\"margin-bottom:0.3rem;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var18 string
-					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(e.Message["ar"])
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 157, Col: 25}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if e.Processed != nil && e.Total != nil && *e.Total > 0 {
-						var templ_7745c5c3_Var19 string
-						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(" (%d / %d)", *e.Processed, *e.Total))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 159, Col: 60}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</li>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" aria-label=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</ul></div><style>\n\t\t\t\t\t@keyframes spin { to { transform: rotate(360deg); } }\n\t\t\t\t</style> <meta http-equiv=\"refresh\" content=\"3\">")
+				var templ_7745c5c3_Var18 string
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Caption)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 173, Col: 31}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\"><svg class=\"so-ring-svg\" viewBox=\"0 0 120 120\" aria-hidden=\"true\"><circle class=\"so-ring-track\" cx=\"60\" cy=\"60\" r=\"52\"></circle> <circle class=\"so-ring-value\" cx=\"60\" cy=\"60\" r=\"52\" style=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("stroke-dashoffset:" + data.ringOffset())
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 181, Col: 56}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"></circle></svg><div class=\"so-ring-label\"><span class=\"so-ring-percent\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var20 string
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", data.Percent))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 185, Col: 72}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span></div></div><p class=\"so-progress-caption\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var21 string
+				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(data.Caption)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 188, Col: 50}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</p><p class=\"so-progress-note\">يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.</p></div><meta http-equiv=\"refresh\" content=\"3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

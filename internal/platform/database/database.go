@@ -242,7 +242,10 @@ func (db *DB) transact(ctx context.Context, opts pgx.TxOptions, fn func(context.
 
 	tx, err := pool.BeginTx(ctx, opts)
 	if err != nil {
-		return fmt.Errorf("database: begin: %w", err)
+		// BeginTx waits for a free connection and returns the context's error
+		// when it runs out of patience, so a saturated pool and a client that
+		// closed its tab are indistinguishable here. diagnose separates them.
+		return diagnose(ctx, pool, err)
 	}
 
 	defer func() {

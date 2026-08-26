@@ -42,23 +42,29 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	}
 	run.Stats.TotalRows = len(lines)
 
+	// Every stage reports when it FINISHES, with what it actually settled.
+	//
+	// It used to report on entry, always with processed=0, so the screen showed
+	// "0 / 804" under four stage names for the whole run and the buyer learned
+	// nothing from any of it. A count is only worth showing once it counts
+	// something.
+
 	// Stage 1 — normalise. Pure CPU, no I/O.
-	r.emit(ctx, run, smartorder.StageNormalize, 0, len(lines), "جارٍ تجهيز الأصناف", "Preparing items")
 	Normalize(lines)
 	smartorder.ApplyQuantities(cfg, lines)
+	r.emit(ctx, run, smartorder.StageNormalize, len(lines), len(lines),
+		"جارٍ تجهيز الأصناف", "Preparing items")
 
 	// Stage 2 — the exact tiers, each one query for the whole file.
-	r.emit(ctx, run, smartorder.StageResolve, 0, len(lines), "مطابقة الأكواد والأسماء", "Matching codes and names")
 	resolver := NewResolver(r.repo, cfg)
 	if err := resolver.Resolve(ctx, lines); err != nil {
 		return err
 	}
+	residual := Unresolved(lines)
+	r.emit(ctx, run, smartorder.StageResolve, len(lines)-len(residual), len(lines),
+		"مطابقة الأكواد والأسماء", "Matching codes and names")
 
 	// Stage 3 — score what is left against an in-memory catalogue.
-	residual := Unresolved(lines)
-	r.emit(ctx, run, smartorder.StageCandidates, len(lines)-len(residual), len(lines),
-		"مطابقة الأصناف المتبقية", "Matching remaining items")
-
 	matcher := NewMatcher(r.repo)
 	if err := matcher.Load(ctx); err != nil {
 		return err
@@ -71,20 +77,31 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 			"run_id", run.ID)
 	}
 	stillResidual := matcher.Score(residual)
+	r.emit(ctx, run, smartorder.StageCandidates, len(lines)-len(stillResidual), len(lines),
+		"مطابقة الأصناف المتبقية", "Matching remaining items")
 
 	// Stage 4 — AI, only on what remains and only if the buyer asked for it.
 	deterministicMS := int(time.Since(started).Milliseconds())
 	run.DeterministicMS = &deterministicMS
 
 	if cfg.UseAIMatching && r.ai != nil && len(stillResidual) > 0 {
-		r.emit(ctx, run, smartorder.StageAdjudicate, 0, len(stillResidual),
-			"مطابقة ذكية للأصناف الصعبة", "Resolving difficult items")
+		total := len(stillResidual)
 		adj := NewAdjudication(r.repo, r.ai)
+		// This is the stage that waits on a network, so it is the one that has
+		// to move the bar while it works. Reporting only on entry and exit left
+		// the buyer watching a still number through the slowest minute of the
+		// run.
+		adj.OnProgress = func(done int) {
+			r.emit(ctx, run, smartorder.StageAdjudicate, done, total,
+				"مطابقة ذكية للأصناف الصعبة", "Resolving difficult items")
+		}
 		adj.Run(ctx, stillResidual)
 
 		run.AI.Calls = adj.Stats.Requests
 		run.AI.LinesAdjudicated = adj.Stats.Adjudicated
 		run.AI.CeilingHit = adj.Stats.CeilingHit
+		r.emit(ctx, run, smartorder.StageAdjudicate, total, total,
+			"مطابقة ذكية للأصناف الصعبة", "Resolving difficult items")
 		if adj.Stats.CeilingHit {
 			r.emitWarn(ctx, run, smartorder.StageAdjudicate,
 				"تم بلوغ حد المطابقة الذكية؛ بقيت بعض الأصناف بلا مطابقة",
@@ -107,6 +124,8 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	if err := r.repo.UpdateLines(ctx, lines); err != nil {
 		return err
 	}
+	r.emit(ctx, run, smartorder.StageSelect, len(lines), len(lines),
+		"البحث عن الموردين", "Finding suppliers")
 
 	run.Stats = smartorder.CountByOutcome(lines)
 	run.EstimatedTotal = total
@@ -119,6 +138,11 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	}
 	totalMS := int(time.Since(started).Milliseconds())
 	run.TotalMS = &totalMS
+
+	// A terminal event, so the bar reaches 100 rather than stopping at 99 and
+	// being replaced by the results page mid-animation.
+	r.emit(ctx, run, smartorder.StageFinalize, 1, 1,
+		"اكتملت المطابقة", "Matching complete")
 
 	return r.repo.UpdateRunStats(ctx, run)
 }

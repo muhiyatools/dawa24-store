@@ -38,6 +38,8 @@ func (h *UIHandler) SmartOrderProgressPage(w http.ResponseWriter, r *http.Reques
 		Run:     run,
 		Events:  events,
 		Failed:  run.Status == smartorder.StatusFailed,
+		Percent: smartorder.RunPercent(events),
+		Caption: "جارٍ تجهيز الأصناف",
 		Message: "جارٍ مطابقة الأصناف والبحث عن الموردين…",
 	}
 	if data.Failed {
@@ -45,10 +47,14 @@ func (h *UIHandler) SmartOrderProgressPage(w http.ResponseWriter, r *http.Reques
 		if data.Message == "" {
 			data.Message = "حدث خطأ غير متوقع أثناء المعالجة."
 		}
-	} else if len(events) > 0 {
-		if ar, present := events[len(events)-1].Message["ar"]; present && ar != "" {
-			data.Message = ar
-		}
+	} else if stage := smartorder.CurrentStage(events); stage != "" {
+		data.Caption = stage.Label()
+	}
+	// A run that has been claimed but has emitted nothing yet is genuinely at
+	// the start, not stalled. Showing a little progress is the honest reading
+	// and stops a freshly queued run looking like a dead one.
+	if !data.Failed && data.Percent == 0 {
+		data.Percent = 2
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

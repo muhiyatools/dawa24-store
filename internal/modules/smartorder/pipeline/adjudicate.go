@@ -89,7 +89,14 @@ type Adjudication struct {
 	// batches run concurrently and this one field is written from several
 	// goroutines; Run folds it back into Stats before returning.
 	requests int64
-	Stats    AdjudicationStats
+	// settled counts the lines answered so far, for OnProgress.
+	settled int64
+	// OnProgress, when set, is called with the running count of lines answered.
+	// It is the only way the progress bar moves during the one stage that waits
+	// on a network; it is called from several goroutines and must be safe to
+	// call concurrently.
+	OnProgress func(done int)
+	Stats      AdjudicationStats
 }
 
 // AdjudicationStats is what the run records about this tier.
@@ -170,6 +177,12 @@ func (a *Adjudication) Run(ctx context.Context, residual []Residual) {
 				}
 			}()
 
+			// The batch is accounted whatever happens to it. A failed batch
+			// still leaves those lines settled — with their deterministic
+			// outcome — and a bar that stalls on failure tells the buyer the
+			// run has hung when it has not.
+			defer a.report(len(batch))
+
 			results, err := a.adjudicateWithBisection(adjCtx, batch)
 			if err != nil {
 				// A whole batch failing is not a run failure: those lines keep
@@ -217,6 +230,14 @@ func (a *Adjudication) Run(ctx context.Context, residual []Residual) {
 		_ = a.repo.SaveDecisions(ctx, toSave)
 		a.recordAliases(ctx, toSave)
 	}
+}
+
+// report advances the progress callback by one batch.
+func (a *Adjudication) report(n int) {
+	if a.OnProgress == nil {
+		return
+	}
+	a.OnProgress(int(atomic.AddInt64(&a.settled, int64(n))))
 }
 
 // plan slices the items into batches, up to the run's request budget.
