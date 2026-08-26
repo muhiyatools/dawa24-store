@@ -602,3 +602,13 @@ func (s *Service) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int6
 func (s *Service) DeleteAllProducts(ctx context.Context) (int64, error) {
 	return s.repo.DeleteAllProducts(ctx)
 }
+
+// GetProductBySKU looks up a master product by its exact SKU or barcode.
+func (s *Service) GetProductBySKU(ctx context.Context, sku string) (*Product, error) {
+	return s.repo.GetProductBySKU(ctx, sku)
+}
+
+// UpdateProductImageBySKU downloads and sets product image by its matching SKU.
+func (s *Service) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath string, imageLink string) (*Product, error) {
+	return s.repo.UpdateProductImageBySKU(ctx, sku, imagePath, imageLink)
+}

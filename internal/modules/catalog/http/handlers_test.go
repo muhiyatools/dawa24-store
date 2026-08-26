@@ -238,6 +238,12 @@ func (r stubRepo) DeleteAllProducts(ctx context.Context) (int64, error) {
 func (r stubRepo) DeleteAllSavingProducts(ctx context.Context, orgID int64) error {
 	return nil
 }
+func (r stubRepo) GetProductBySKU(ctx context.Context, sku string) (*catalog.Product, error) {
+	return nil, apperr.NotFound("product")
+}
+func (r stubRepo) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath, imageLink string) (*catalog.Product, error) {
+	return nil, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

@@ -141,6 +141,10 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									@components.IconUpload("icon-sm")
 									<span>استيراد الكتالوج العام</span>
 								</a>
+								<a href="/admin/products/images/import" class={ "sidebar-link", templ.KV("active", activeNav == "product_images_import") }>
+									@components.IconImage("icon-sm")
+									<span>استرداد صور المنتجات أو الكتالوج الرسمي</span>
+								</a>
 							}
 							if canAccessAdmin(ctx, "catalog.product.view") {
 							<a href="/admin/brands" class={ "sidebar-link", templ.KV("active", activeNav == "brands") }>

@@ -25,6 +25,13 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Get("/admin/products/sample.csv", h.AdminProductsSampleCSV)
 		g.Get("/admin/products/sample.xlsx", h.AdminProductsSampleXLSX)
 
+		// Product Images Recovery & Import
+		g.Get("/admin/products/images/import", h.AdminProductImagesImportPage)
+		g.Get("/admin/products/images/import/{id}", h.AdminProductImagesSessionPage)
+		g.Get("/admin/products/images/import/{id}/progress", h.AdminProductImagesProgressJSON)
+		g.Get("/admin/products/images/import/sample.xlsx", h.AdminProductImagesSampleXLSX)
+		g.Get("/admin/products/images/import/sample.csv", h.AdminProductImagesSampleCSV)
+
 		// Inventory & Warehouses
 		g.Get("/admin/stocks", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/warehouses", http.StatusMovedPermanently)
@@ -70,6 +77,10 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Post("/admin/products/import/{id}/select", h.AdminProductsImportSelect)
 		g.Post("/admin/products/import/{id}/commit", h.AdminProductsImportCommit)
 		g.Post("/admin/products/import/{id}/cancel", h.AdminProductsImportCancel)
+		// Product Images Recovery POST routes
+		g.Post("/admin/products/images/import/upload", h.AdminProductImagesUploadSubmit)
+		g.Post("/admin/products/images/import/{id}/mapping", h.AdminProductImagesMappingSubmit)
+		g.Post("/admin/products/images/import/{id}/cancel", h.AdminProductImagesCancelSubmit)
 		g.Post("/admin/brands/new", h.AdminBrandCreateSubmit)
 		g.Post("/admin/brands/{id}/edit", h.AdminBrandEditSubmit)
 		g.Post("/admin/brands/{id}/status", h.AdminBrandStatusSubmit)

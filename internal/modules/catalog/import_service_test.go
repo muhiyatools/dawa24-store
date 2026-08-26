@@ -360,6 +360,12 @@ func (mockCatalogRepoStub) DeleteAllVariantsByOrg(context.Context, int64) (int64
 func (mockCatalogRepoStub) DeleteAllProducts(context.Context) (int64, error) {
 	return 0, nil
 }
+func (mockCatalogRepoStub) GetProductBySKU(context.Context, string) (*catalog.Product, error) {
+	return nil, nil
+}
+func (mockCatalogRepoStub) UpdateProductImageBySKU(context.Context, string, string, string) (*catalog.Product, error) {
+	return nil, nil
+}
 
 // stagingRepo is the minimal catalog.Repository the commit path needs.
 type stagingRepo struct {

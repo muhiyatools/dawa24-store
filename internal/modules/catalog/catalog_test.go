@@ -333,6 +333,25 @@ func (m *mockCatalogRepo) DeleteAllProducts(_ context.Context) (int64, error) {
 	return 0, nil
 }
 
+func (m *mockCatalogRepo) GetProductBySKU(_ context.Context, sku string) (*Product, error) {
+	for _, p := range m.products {
+		if p.SKU == sku || p.Barcode == sku {
+			return p, nil
+		}
+	}
+	return nil, apperr.NotFound("product")
+}
+
+func (m *mockCatalogRepo) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath string, imageLink string) (*Product, error) {
+	p, err := m.GetProductBySKU(ctx, sku)
+	if err != nil {
+		return nil, err
+	}
+	p.Image = imagePath
+	p.ImageLink = imageLink
+	return p, nil
+}
+
 func TestProductEffectivePrice(t *testing.T) {
 	p := &Product{
 		Price:    money.MustParse("100.00"),

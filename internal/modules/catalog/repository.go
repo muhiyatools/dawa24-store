@@ -108,4 +108,6 @@ type Repository interface {
 	BatchUpsertSavingProducts(ctx context.Context, orgID int64, userID *int64, items []*SavingProduct) (added, updated int, err error)
 	ListAllSavingProductsAdmin(ctx context.Context, userID *int64, orgID *int64, search string, filter string, limit, offset int) ([]*SavingProductAdminView, *SavingProductAdminStats, error)
 	ListAllMasterProductsForMatching(ctx context.Context) ([]*CatalogMatchSource, error)
+	GetProductBySKU(ctx context.Context, sku string) (*Product, error)
+	UpdateProductImageBySKU(ctx context.Context, sku string, imagePath string, imageLink string) (*Product, error)
 }

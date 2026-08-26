@@ -1,0 +1,378 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ AdminProductImagesImportPage(view AdminProductImagesImportView, lang, dir string) {
+	@layouts.AdminShell("استرداد صور المنتجات أو الكتالوج الرسمي | Dawa24", "product_images_import", lang, dir) {
+		<div class="stack-lg">
+			<!-- Header -->
+			@components.PageHeader(components.PageHeaderProps{
+				Title:    "استرداد صور المنتجات أو الكتالوج الرسمي",
+				Subtitle: "ارفع ملف Excel أو CSV يحتوي على كود الصنف (SKU) ورابط الصورة لتحميلها وربطها بالكتالوج المعتمد تلقائياً",
+			}) {
+				<div class="row-center" style="gap:0.5rem; flex-wrap:wrap;">
+					<a href="/admin/products/images/import/sample.xlsx" class="btn btn-secondary btn-sm fw-700">
+						@components.IconDownload("icon-xs")
+						<span>نموذج Excel</span>
+					</a>
+					<a href="/admin/products/images/import/sample.csv" class="btn btn-secondary btn-sm fw-700">
+						@components.IconDownload("icon-xs")
+						<span>نموذج CSV</span>
+					</a>
+					<a href="/admin/products" class="btn btn-secondary btn-sm fw-700">
+						@components.IconPackage("icon-xs")
+						<span>كتالوج الأدوية المعتمدة</span>
+					</a>
+				</div>
+			}
+
+			<!-- Flash Notices -->
+			if view.NoticeMsg != "" {
+				<div class={ "flash-banner", templ.KV("flash-error", view.NoticeType == "error"), templ.KV("flash-success", view.NoticeType == "success") }>
+					<div class="row-center-sm">
+						if view.NoticeType == "error" {
+							@components.IconAlert("icon-sm")
+						} else {
+							@components.IconCheckCircle("icon-sm")
+						}
+						<span>{ view.NoticeMsg }</span>
+					</div>
+				</div>
+			}
+
+			<!-- Stage Router -->
+			if view.Session == nil || view.Session.Phase == AdminImagePhaseUpload {
+				@adminImageUploadStage(view)
+			} else if view.Session.Phase == AdminImagePhaseMapping {
+				@adminImageMappingStage(view)
+			} else if view.Session.Phase == AdminImagePhaseProcessing {
+				@adminImageProcessingStage(view)
+			} else {
+				@adminImageCompletedStage(view)
+			}
+		</div>
+	}
+}
+
+templ adminImageUploadStage(view AdminProductImagesImportView) {
+	<div class="stack-lg">
+		<!-- Upload Dropzone Card -->
+		<div class="card" style="padding:2rem;">
+			<form method="POST" action="/admin/products/images/import/upload" enctype="multipart/form-data" class="stack-md">
+				<div style="text-align:center; padding:2.5rem 1.5rem; border:2px dashed var(--border-subtle); border-radius:var(--radius-xl); background:var(--bg-surface-sunken); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+					<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--brand-surface); color:var(--brand-primary); display:flex; align-items:center; justify-content:center;">
+						@components.IconImage("icon-lg")
+					</div>
+					<div>
+						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">
+							اختر ملف Excel أو CSV لصور المنتجات
+						</h3>
+						<p style="font-size:0.875rem; color:var(--text-muted);">
+							يجب أن يحتوي الملف على عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL)
+						</p>
+					</div>
+					<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-input" style="max-width:360px;" />
+					<button type="submit" class="btn btn-primary btn-md fw-700" style="min-width:220px;">
+						@components.IconUpload("icon-sm")
+						<span>رفع الملف وبدء المطابقة ←</span>
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Sessions History -->
+		if len(view.Sessions) > 0 {
+			<div class="card">
+				<div class="card-header" style="padding:1rem 1.25rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+					<h3 style="font-size:1rem; font-weight:800; color:var(--text-primary);">سجل جلسات استرداد الصور</h3>
+					<span class="badge badge-neutral">{ fmt.Sprintf("%d جلسة", len(view.Sessions)) }</span>
+				</div>
+				<div class="table-responsive">
+					<table class="b2b-table">
+						<thead>
+							<tr>
+								<th>الملف</th>
+								<th>التاريخ</th>
+								<th>إجمالي الصفوف</th>
+								<th>الناجحة</th>
+								<th>غير موجودة</th>
+								<th>الأخطاء</th>
+								<th>الحالة</th>
+								<th>الإجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, sess := range view.Sessions {
+								<tr>
+									<td style="font-weight:700; color:var(--text-primary);">{ sess.Filename }</td>
+									<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">{ sess.CreatedAt.Format("2006-01-02 15:04") }</td>
+									<td class="tabular-nums font-bold">{ fmt.Sprintf("%d", sess.TotalRows) }</td>
+									<td><span class="badge badge-success">{ fmt.Sprintf("%d", sess.SuccessRows) }</span></td>
+									<td><span class="badge badge-amber">{ fmt.Sprintf("%d", sess.NotFoundRows) }</span></td>
+									<td><span class="badge badge-danger">{ fmt.Sprintf("%d", sess.ErrorRows) }</span></td>
+									<td>
+										if sess.Phase == AdminImagePhaseCompleted {
+											<span class="badge badge-success">مكتمل ✓</span>
+										} else if sess.Phase == AdminImagePhaseProcessing {
+											<span class="badge badge-sky">جارٍ التحميل...</span>
+										} else {
+											<span class="badge badge-neutral">بانتظار التأكيد</span>
+										}
+									</td>
+									<td>
+										<div class="row-center" style="gap:0.35rem;">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s", sess.ID)) } class="btn btn-secondary btn-xs fw-700">
+												<span>فتح الجلسة ←</span>
+											</a>
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/cancel", sess.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة؟');">
+												<button type="submit" class="btn btn-danger btn-xs" title="حذف الجلسة">
+													@components.IconTrash("icon-xs")
+												</button>
+											</form>
+										</div>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		}
+	</div>
+}
+
+templ adminImageMappingStage(view AdminProductImagesImportView) {
+	<div class="card" style="padding:1.75rem;">
+		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/mapping", view.Session.ID)) } class="stack-lg">
+			<div>
+				<h3 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">
+					تأكيد مطابقة أعمدة ملف الصور ({ view.Session.Filename })
+				</h3>
+				<p style="font-size:0.875rem; color:var(--text-muted);">
+					تحقق من تحديد عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL) بشكل صحيح لبدء التنزيل والربط.
+				</p>
+			</div>
+
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+				<div class="form-group">
+					<label class="form-label font-bold">عمود كود الصنف (SKU) *</label>
+					<select name="sku_col" class="form-input" required>
+						for idx, h := range view.Session.Headers {
+							<option value={ fmt.Sprintf("%d", idx) } selected?={ idx == view.Session.DetectedSKUCol }>
+								{ fmt.Sprintf("العمود %d: %s", idx+1, h) }
+							</option>
+						}
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label class="form-label font-bold">عمود رابط صورة المنتج (Image URL) *</label>
+					<select name="url_col" class="form-input" required>
+						for idx, h := range view.Session.Headers {
+							<option value={ fmt.Sprintf("%d", idx) } selected?={ idx == view.Session.DetectedURLCol }>
+								{ fmt.Sprintf("العمود %d: %s", idx+1, h) }
+							</option>
+						}
+					</select>
+				</div>
+			</div>
+
+			<!-- Sample Preview Table -->
+			if len(view.Session.SampleRows) > 0 {
+				<div>
+					<h4 style="font-size:0.9rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem;">معاينة لأول 5 صفوف من الملف:</h4>
+					<div class="table-responsive">
+						<table class="b2b-table">
+							<thead>
+								<tr>
+									for _, h := range view.Session.Headers {
+										<th>{ h }</th>
+									}
+								</tr>
+							</thead>
+							<tbody>
+								for _, row := range view.Session.SampleRows {
+									<tr>
+										for _, cell := range row {
+											<td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{ cell }</td>
+										}
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			}
+
+			<div class="row-center" style="justify-content:flex-end; gap:0.75rem;">
+				<a href="/admin/products/images/import" class="btn btn-secondary btn-md">إلغاء والعودة</a>
+				<button type="submit" class="btn btn-primary btn-md fw-800" style="min-width:200px;">
+					@components.IconImage("icon-sm")
+					<span>تأكيد وبدء تنزيل وربط الصور 🚀</span>
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ adminImageProcessingStage(view AdminProductImagesImportView) {
+	<div class="card" style="padding:2.5rem; text-align:center;" id="image-processing-card">
+		<div style="width:72px; height:72px; border-radius:var(--radius-full); background:var(--brand-surface); color:var(--brand-primary); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto;">
+			@components.IconRefresh("icon-lg")
+		</div>
+		<h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">
+			جارٍ تنزيل الصور وحفظها وربطها بالكتالوج...
+		</h3>
+		<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.5rem;" id="progress-note">
+			{ view.Session.ProgressNote }
+		</p>
+
+		<!-- Progress Bar -->
+		<div style="max-width:500px; margin:0 auto 1.5rem auto;">
+			<div style="background:var(--bg-surface-sunken); height:16px; border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border-subtle);">
+				<div id="progress-bar-fill" style={ "background:linear-gradient(90deg, var(--brand-primary), var(--accent)); height:100%; width:" + fmt.Sprintf("%d", view.Session.Progress) + "%; transition:width 0.3s ease;" }></div>
+			</div>
+			<div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
+				<span id="progress-percent-label">{ fmt.Sprintf("%d", view.Session.Progress) + "%" }</span>
+				<span>إجمالي { fmt.Sprintf("%d", view.Session.TotalRows) } صنفاً</span>
+			</div>
+		</div>
+
+		<script>
+			(function() {
+				var sessionID = window.location.pathname.split('/').pop();
+				var interval = setInterval(function() {
+					fetch('/admin/products/images/import/' + sessionID + '/progress')
+						.then(function(res) { return res.json(); })
+						.then(function(data) {
+							if (!data || !data.success) return;
+							var p = data.progress || 0;
+							var fill = document.getElementById('progress-bar-fill');
+							var label = document.getElementById('progress-percent-label');
+							var note = document.getElementById('progress-note');
+							if (fill) fill.style.width = p + '%';
+							if (label) label.textContent = p + '%';
+							if (note && data.progress_note) note.textContent = data.progress_note;
+							if (data.phase === 'completed' || data.phase === 'failed') {
+								clearInterval(interval);
+								setTimeout(function() { window.location.reload(); }, 600);
+							}
+						})
+						.catch(function(err) {});
+				}, 1500);
+			})();
+		</script>
+	</div>
+}
+
+templ adminImageCompletedStage(view AdminProductImagesImportView) {
+	<div class="stack-lg">
+		<!-- Stats Grid -->
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+			<div class="card" style="padding:1.25rem;">
+				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الصفوف المفحوصة</div>
+				<div style="font-size:1.6rem; font-weight:800; color:var(--text-primary);">{ fmt.Sprintf("%d", view.Session.TotalRows) }</div>
+			</div>
+			<div class="card" style="padding:1.25rem; border-inline-start:4px solid var(--success);">
+				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">تم تنزيلها وربطها بنجاح</div>
+				<div style="font-size:1.6rem; font-weight:800; color:var(--success);">{ fmt.Sprintf("%d", view.Session.SuccessRows) }</div>
+			</div>
+			<div class="card" style="padding:1.25rem; border-inline-start:4px solid var(--warning);">
+				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">أصناف غير موجودة بالكتالوج</div>
+				<div style="font-size:1.6rem; font-weight:800; color:var(--warning);">{ fmt.Sprintf("%d", view.Session.NotFoundRows) }</div>
+			</div>
+			<div class="card" style="padding:1.25rem; border-inline-start:4px solid var(--danger);">
+				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">أخطاء في التنزيل / روابط تالفة</div>
+				<div style="font-size:1.6rem; font-weight:800; color:var(--danger);">{ fmt.Sprintf("%d", view.Session.ErrorRows) }</div>
+			</div>
+		</div>
+
+		<!-- Interactive Results Table -->
+		<div class="card">
+			<div class="card-header" style="padding:1.25rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div>
+					<h3 style="font-size:1.1rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">
+						نتائج معالجة وتنزيل صور المنتجات
+					</h3>
+					<span style="font-size:0.8rem; color:var(--text-muted);">الملف: { view.Session.Filename }</span>
+				</div>
+				<div class="row-center" style="gap:0.75rem;">
+					<a href="/admin/products/images/import" class="btn btn-secondary btn-sm fw-700">
+						@components.IconRefresh("icon-xs")
+						<span>عملية استرداد جديدة</span>
+					</a>
+					<a href="/admin/products" class="btn btn-primary btn-sm fw-700">
+						@components.IconPackage("icon-xs")
+						<span>كتالوج الأدوية المعتمدة ←</span>
+					</a>
+				</div>
+			</div>
+
+			<div class="table-responsive">
+				<table class="b2b-table">
+					<thead>
+						<tr>
+							<th style="width:40px;">#</th>
+							<th style="width:80px;">الصورة</th>
+							<th>كود الصنف (SKU)</th>
+							<th>المنتج المطابق بالكتالوج</th>
+							<th>رابط الصورة الأصلي</th>
+							<th>الحالة</th>
+							<th>التفاصيل / الملاحظة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, r := range view.Session.Rows {
+							<tr>
+								<td class="tabular-nums font-mono">{ fmt.Sprintf("%d", r.Index) }</td>
+								<td>
+									if r.SavedImagePath != "" {
+										<img src={ r.SavedImagePath } alt={ r.SKU } style="width:44px; height:44px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border-subtle); background:var(--bg-surface-sunken);" />
+									} else {
+										<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--bg-surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.75rem;">-</div>
+									}
+								</td>
+								<td style="font-family:monospace; font-weight:700; color:var(--text-primary);">{ r.SKU }</td>
+								<td>
+									if r.ProductID != nil && *r.ProductID > 0 {
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *r.ProductID)) } target="_blank" style="font-weight:700; color:var(--brand-primary); text-decoration:none;">
+											{ r.ProductName } ↗
+										</a>
+									} else {
+										<span style="color:var(--text-muted);">-</span>
+									}
+								</td>
+								<td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.8rem; direction:ltr; text-align:right;">
+									<a href={ templ.SafeURL(r.ImageURL) } target="_blank" rel="noopener" style="color:var(--text-muted); text-decoration:underline;">
+										{ r.ImageURL }
+									</a>
+								</td>
+								<td>
+									if r.Status == "success" {
+										<span class="badge badge-success">تم الحفظ والربط ✓</span>
+									} else if r.Status == "not_found" {
+										<span class="badge badge-amber">غير موجود بالكتالوج</span>
+									} else {
+										<span class="badge badge-danger">فشل التنزيل</span>
+									}
+								</td>
+								<td style="font-size:0.8rem; color:var(--text-secondary);">
+									if r.ErrorMsg != "" {
+										<span style="color:var(--danger);">{ r.ErrorMsg }</span>
+									} else {
+										<span style="color:var(--success);">تم الحفظ بنجاح</span>
+									}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+}
