@@ -327,6 +327,26 @@ func (r *Repository) ListCitiesByGovernorate(ctx context.Context, governorateID 
 	return list, err
 }
 
+// GetCity returns a single city by ID with its governorate details.
+func (r *Repository) GetCity(ctx context.Context, id int64) (*platformadmin.City, error) {
+	var c platformadmin.City
+	var govName *i18n.Text
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false)
+			FROM platform_admin.cities c
+			LEFT JOIN platform_admin.governorates g ON g.id = c.governorate_id
+			WHERE c.id = $1;
+		`
+		return tx.QueryRow(txCtx, query, id).Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital)
+	})
+	if err != nil {
+		return nil, err
+	}
+	c.GovernorateName = govName
+	return &c, nil
+}
+
 // ToggleCityStatus toggles the active state of a city in the database.
 func (r *Repository) ToggleCityStatus(ctx context.Context, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -347,6 +367,19 @@ func (r *Repository) CreateCity(ctx context.Context, c *platformadmin.City) erro
 			RETURNING id;
 		`
 		return tx.QueryRow(txCtx, query, c.CountryID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital).Scan(&c.ID)
+	})
+}
+
+// UpdateCity updates an existing city / district.
+func (r *Repository) UpdateCity(ctx context.Context, c *platformadmin.City) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE platform_admin.cities
+			SET governorate_id = $2, name = $3, latitude = $4, longitude = $5, is_active = $6, is_capital = $7
+			WHERE id = $1;
+		`
+		_, err := tx.Exec(txCtx, query, c.ID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital)
+		return err
 	})
 }
 

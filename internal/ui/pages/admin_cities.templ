@@ -29,7 +29,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							المحافظات والمدن والمراكز الجغرافية
 						</h2>
 					</div>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:700px; line-height:1.6;">
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:720px; line-height:1.6;">
 						منظومة التقسيم الهرمي للمحافظات والمدن والمراكز والأحياء المعتمدة في جمهورية مصر العربية مع الإحداثيات الجغرافية المكانية (GPS) لضبط نطاقات التغطية وعمليات الشحن والتوصيل.
 					</p>
 				</div>
@@ -175,7 +175,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									<th style="padding:0.6rem 0.75rem;">المحافظة التابعة</th>
 									<th style="padding:0.6rem 0.75rem;">الإحداثيات الجغرافية (GPS)</th>
 									<th style="padding:0.6rem 0.75rem;">الحالة</th>
-									<th style="padding:0.6rem 0.75rem; text-align:end;">الإجراء</th>
+									<th style="padding:0.6rem 0.75rem; text-align:end;">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody style="divide-y:1px solid var(--border);">
@@ -233,15 +233,37 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 											}
 										</td>
 										<td style="padding:0.6rem 0.75rem; text-align:end;">
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } class="m-0 inline">
-												<button type="submit" class="btn btn-secondary btn-xs text-xs">
-													if c.IsActive {
-														<span>تعطيل</span>
-													} else {
-														<span>تفعيل</span>
-													}
+											<div style="display:inline-flex; align-items:center; gap:0.35rem;">
+												<button
+													type="button"
+													class="btn btn-ghost btn-xs text-xs"
+													style="color:var(--accent); font-weight:700; border:1px solid var(--border);"
+													onclick={ templ.ComponentScript{
+														Call: fmt.Sprintf("openEditCityModal(%d, %d, %q, %q, %f, %f, %t, %t)",
+															c.ID,
+															govIDOrDefault(c.GovernorateID),
+															c.Name["ar"],
+															c.Name["en"],
+															c.Latitude,
+															c.Longitude,
+															c.IsCapital,
+															c.IsActive,
+														),
+													} }
+												>
+													✏️ تعديل
 												</button>
-											</form>
+
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } class="m-0 inline">
+													<button type="submit" class="btn btn-secondary btn-xs text-xs">
+														if c.IsActive {
+															<span>تعطيل</span>
+														} else {
+															<span>تفعيل</span>
+														}
+													</button>
+												</form>
+											</div>
 										</td>
 									</tr>
 								}
@@ -386,5 +408,147 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				</div>
 			</div>
 		</div>
+
+		<!-- Edit City Modal -->
+		<div
+			id="edit-city-modal"
+			style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem;"
+			onclick="if(event.target === this) closeEditCityModal()"
+		>
+			<div
+				style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-2xl); max-width:540px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-2xl); padding:1.75rem;"
+				class="stack"
+			>
+				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:0.5rem;">
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+							✏️
+						</div>
+						<div>
+							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+								تعديل بيانات المدينة / الحي
+							</h3>
+							<div style="font-size:0.75rem; color:var(--text-muted);">تحديث الاسم، المحافظة التابعة، والإحداثيات الجغرافية</div>
+						</div>
+					</div>
+					<button type="button" onclick="closeEditCityModal()" class="btn btn-ghost btn-xs text-lg text-muted" style="cursor:pointer; padding:0.25rem 0.5rem;">
+						✕
+					</button>
+				</div>
+
+				<form id="edit-city-form" method="POST" action="" class="stack" style="gap:1rem;">
+					<div>
+						<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+							المحافظة التابعة <span class="text-danger">*</span>
+						</label>
+						<select id="edit-city-gov" name="governorate_id" required class="form-input w-full" style="font-size:0.875rem;">
+							<option value="">-- اختر المحافظة --</option>
+							for _, g := range data.Governorates {
+								<option value={ fmt.Sprintf("%d", g.ID) }>
+									{ g.Name["ar"] } ({ g.Name["en"] })
+								</option>
+							}
+						</select>
+					</div>
+
+					<div>
+						<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+							اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
+						</label>
+						<input type="text" id="edit-city-name-ar" name="name_ar" required placeholder="مثال: مدينة نصر" class="form-input w-full" style="font-size:0.875rem;"/>
+					</div>
+
+					<div>
+						<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+							اسم المدينة / الحي بالإنجليزية
+						</label>
+						<input type="text" id="edit-city-name-en" name="name_en" placeholder="Nasr City" class="form-input w-full" style="font-size:0.875rem;"/>
+					</div>
+
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+						<div>
+							<label class="form-label" style="font-size:0.8rem; font-weight:700;">خط العرض (Latitude)</label>
+							<input type="number" step="any" id="edit-city-lat" name="city_lat" placeholder="30.0444" class="form-input w-full" style="font-size:0.85rem; font-family:monospace;"/>
+						</div>
+						<div>
+							<label class="form-label" style="font-size:0.8rem; font-weight:700;">خط الطول (Longitude)</label>
+							<input type="number" step="any" id="edit-city-lon" name="city_lon" placeholder="31.2357" class="form-input w-full" style="font-size:0.85rem; font-family:monospace;"/>
+						</div>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.5rem; background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<a id="edit-city-map-link" href="#" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:0.35rem; color:var(--accent); font-size:0.8rem; font-weight:600; text-decoration:none;">
+							📍 <span>معاينة الموقع على خرائط جوجل</span>
+						</a>
+					</div>
+
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; background:var(--surface-raised); padding:0.75rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+						<label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.825rem; font-weight:600; color:var(--text);">
+							<input type="checkbox" id="edit-city-is-capital" name="is_capital" value="true" class="form-checkbox"/>
+							<span>عاصمة / مركز رئيسي</span>
+						</label>
+
+						<label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.825rem; font-weight:600; color:var(--text);">
+							<input type="checkbox" id="edit-city-is-active" name="is_active" value="true" class="form-checkbox"/>
+							<span>حالة التفعيل (نشطة)</span>
+						</label>
+					</div>
+
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
+						<button type="button" onclick="closeEditCityModal()" class="btn btn-secondary btn-sm" style="font-weight:700;">
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; min-width:140px; justify-content:center;">
+							@components.IconCheck("icon-xs")
+							<span>حفظ التعديلات</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<script>
+			function openEditCityModal(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {
+				const modal = document.getElementById('edit-city-modal');
+				const form = document.getElementById('edit-city-form');
+				if (!modal || !form) return;
+
+				form.action = '/admin/cities/' + id + '/edit';
+				document.getElementById('edit-city-gov').value = govId ? String(govId) : '';
+				document.getElementById('edit-city-name-ar').value = nameAr || '';
+				document.getElementById('edit-city-name-en').value = nameEn || '';
+				document.getElementById('edit-city-lat').value = (lat && lat !== 0) ? lat : '';
+				document.getElementById('edit-city-lon').value = (lon && lon !== 0) ? lon : '';
+				document.getElementById('edit-city-is-capital').checked = !!isCapital;
+				document.getElementById('edit-city-is-active').checked = !!isActive;
+
+				const mapLink = document.getElementById('edit-city-map-link');
+				if (mapLink && lat && lon) {
+					mapLink.href = 'https://www.google.com/maps?q=' + lat + ',' + lon;
+				}
+
+				modal.style.display = 'flex';
+			}
+
+			function closeEditCityModal() {
+				const modal = document.getElementById('edit-city-modal');
+				if (modal) {
+					modal.style.display = 'none';
+				}
+			}
+
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') {
+					closeEditCityModal();
+				}
+			});
+		</script>
 	}
+}
+
+func govIDOrDefault(g *int64) int64 {
+	if g == nil {
+		return 0
+	}
+	return *g
 }

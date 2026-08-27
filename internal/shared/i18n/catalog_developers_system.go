@@ -1,0 +1,53 @@
+package i18n
+
+func loadDevelopersAndSystemKeys(e *engine) {
+	// --- Developer Portal & Diagnostics ---
+	addKey(e, "dev.title", "dev", "بوابة المطورين والأدوات التقنية", "Developer Portal & Platform Tools", "Developer portal title")
+	addKey(e, "dev.subtitle", "dev", "وحدة التحكم التقنية الموحدة: الاستعلام المباشر عبر SQL Console، مراقبة AI Gateway، تشخيص الأخطاء، وسجل التدقيق الأمني.", "Unified platform control: SQL Console, AI Gateway monitor, Error Diagnostics, and Security Audit Trail.", "Dev portal subtitle")
+	addKey(e, "dev.tab_sql", "dev", "لوحة SQL Console", "SQL Console", "Tab SQL console")
+	addKey(e, "dev.tab_gateway", "dev", "بوابة الذكاء الاصطناعي (AI Gateway)", "AI Gateway", "Tab AI Gateway")
+	addKey(e, "dev.tab_errors", "dev", "تشخيص الأخطاء (Error Diagnostics)", "Error Diagnostics", "Tab Error Diagnostics")
+	addKey(e, "dev.tab_audit", "dev", "سجل التدقيق والعمليات (Audit Trail)", "Audit Trail", "Tab Audit Trail")
+	addKey(e, "dev.sql_run", "dev", "تشغيل الاستعلام (Execute Query)", "Run Query", "Execute SQL button")
+	addKey(e, "dev.sql_clear", "dev", "مسح المحرر", "Clear Editor", "Clear SQL editor button")
+	addKey(e, "dev.sql_query_time", "dev", "زمن التنفيذ: %d مللي ثانية", "Execution Time: %d ms", "SQL execution time metric")
+	addKey(e, "dev.sql_rows_count", "dev", "عدد الصفوف المسترجعة: %d", "Rows Returned: %d", "SQL rows count metric")
+	addKey(e, "dev.sql_history", "dev", "سجل الاستعلامات المنفذة", "Query Execution History", "SQL query history title")
+	addKey(e, "dev.ai_model_fast", "dev", "نموذج السرعة الفائقة (Fast Model)", "Fast Capability Model", "Fast model label")
+	addKey(e, "dev.ai_model_quality", "dev", "نموذج الجودة الفائقة (Quality Model)", "Quality Capability Model", "Quality model label")
+	addKey(e, "dev.ai_endpoint", "dev", "رابط Gateway Endpoint", "Gateway Endpoint URL", "Gateway endpoint label")
+	addKey(e, "dev.ai_virtual_key", "dev", "المفتاح الافتراضي (Virtual Key)", "Virtual Key", "Virtual key label")
+	addKey(e, "dev.ai_save_settings", "dev", "حفظ إعدادات بوابة AI", "Save AI Gateway Settings", "Save AI settings button")
+	addKey(e, "dev.err_total", "dev", "إجمالي الأخطاء المسجلة", "Total Error Logs", "Total errors metric")
+	addKey(e, "dev.err_critical_24h", "dev", "أخطاء حرجة (آخر 24 ساعة)", "Critical Errors (Last 24h)", "Critical 24h metric")
+	addKey(e, "dev.err_unresolved", "dev", "أخطاء قيد المتابعة", "Unresolved Issues", "Unresolved issues metric")
+	addKey(e, "dev.err_affected_users", "dev", "المستخدمون المتأثرون", "Affected Users", "Affected users metric")
+	addKey(e, "dev.err_level_critical", "dev", "حرج (CRITICAL)", "Critical", "Critical severity badge")
+	addKey(e, "dev.err_level_error", "dev", "خطأ (ERROR)", "Error", "Error severity badge")
+	addKey(e, "dev.err_level_warning", "dev", "تحذير (WARNING)", "Warning", "Warning severity badge")
+	addKey(e, "dev.err_level_exception", "dev", "استثناء (EXCEPTION)", "Exception", "Exception severity badge")
+	addKey(e, "dev.err_status_new", "dev", "جديد", "New", "Error status new")
+	addKey(e, "dev.err_status_investigating", "dev", "قيد الفحص", "Investigating", "Error status investigating")
+	addKey(e, "dev.err_status_resolved", "dev", "تم الحل", "Resolved", "Error status resolved")
+	addKey(e, "dev.err_status_ignored", "dev", "متجاهل", "Ignored", "Error status ignored")
+
+	// --- Trash & Soft Delete Recovery ---
+	addKey(e, "trash.title", "admin", "سلة المحذوفات والاسترداد (Trash & Recovery)", "Trash & Recovery", "Trash recovery page title")
+	addKey(e, "trash.subtitle", "admin", "استعراض السجلات المحذوفة ناعماً (Soft-Deleted) وإمكانية استرجاعها فوراً أو حذفها نهائياً من قاعدة البيانات.", "Review soft-deleted records with instant one-click restoration or permanent purging.", "Trash recovery subtitle")
+	addKey(e, "trash.restore_btn", "admin", "استرجاع السجل", "Restore Record", "Restore button")
+	addKey(e, "trash.purge_btn", "admin", "حذف نهائي", "Purge Permanently", "Purge button")
+	addKey(e, "trash.restore_confirm", "admin", "هل أنت متأكد من استرجاع هذا السجل إلى حالته النشطة؟", "Are you sure you want to restore this record?", "Restore confirmation")
+	addKey(e, "trash.purge_confirm", "admin", "تحذير: الحذف النهائي لا يمكن التراجع عنه. هل أنت متأكد؟", "Warning: Permanent purge cannot be undone. Are you sure?", "Purge confirmation")
+	addKey(e, "trash.restored_success", "admin", "تم استرجاع السجل بنجاح.", "Record restored successfully.", "Restore success notice")
+	addKey(e, "trash.purged_success", "admin", "تم حذف السجل نهائياً من قاعدة البيانات.", "Record permanently purged.", "Purge success notice")
+
+	// --- Policies & CMS ---
+	addKey(e, "policy.title", "admin", "السياسات والشروط والخصوصية", "Policies & Terms of Service", "Policy page title")
+	addKey(e, "policy.terms_of_service", "admin", "شروط الاستخدام والخدمة", "Terms of Service", "Terms of service policy")
+	addKey(e, "policy.privacy_policy", "admin", "سياسة الخصوصية وسرية البيانات", "Privacy Policy", "Privacy policy")
+	addKey(e, "policy.refund_policy", "admin", "سياسة المرتجعات والاسترداد", "Refund & Return Policy", "Refund policy")
+	addKey(e, "policy.new_version", "admin", "+ إصدار جديد من الوثيقة", "+ New Document Version", "New version button")
+	addKey(e, "policy.publish_version", "admin", "نشر الإصدار وتطبيقه", "Publish Version", "Publish version button")
+	addKey(e, "policy.published_badge", "admin", "منشور ونشط", "Published & Active", "Published badge")
+	addKey(e, "policy.draft_badge", "admin", "مسودة غير منشورة", "Draft (Unpublished)", "Draft badge")
+}

@@ -80,12 +80,20 @@ func (r stubRepo) ListCitiesByGovernorate(context.Context, int64) ([]*platformad
 	r.fail("ListCitiesByGovernorate")
 	return nil, nil
 }
+func (r stubRepo) GetCity(context.Context, int64) (*platformadmin.City, error) {
+	r.fail("GetCity")
+	return nil, nil
+}
 func (r stubRepo) ToggleCityStatus(context.Context, int64) error {
 	r.fail("ToggleCityStatus")
 	return nil
 }
 func (r stubRepo) CreateCity(context.Context, *platformadmin.City) error {
 	r.fail("CreateCity")
+	return nil
+}
+func (r stubRepo) UpdateCity(context.Context, *platformadmin.City) error {
+	r.fail("UpdateCity")
 	return nil
 }
 func (r stubRepo) ListCurrencies(context.Context) ([]*platformadmin.Currency, error) {
@@ -276,10 +284,16 @@ func (happyRepo) ListAllCities(ctx context.Context, countryID int64) ([]*platfor
 func (happyRepo) ListCitiesByGovernorate(ctx context.Context, governorateID int64) ([]*platformadmin.City, error) {
 	return []*platformadmin.City{{ID: 1, CountryID: 1, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
 }
+func (happyRepo) GetCity(ctx context.Context, id int64) (*platformadmin.City, error) {
+	return &platformadmin.City{ID: id, CountryID: 1, Name: i18n.Text{"en": "Cairo"}, IsActive: true}, nil
+}
 func (happyRepo) ToggleCityStatus(ctx context.Context, id int64) error {
 	return nil
 }
 func (happyRepo) CreateCity(ctx context.Context, c *platformadmin.City) error {
+	return nil
+}
+func (happyRepo) UpdateCity(ctx context.Context, c *platformadmin.City) error {
 	return nil
 }
 func (happyRepo) ListCurrencies(ctx context.Context) ([]*platformadmin.Currency, error) {

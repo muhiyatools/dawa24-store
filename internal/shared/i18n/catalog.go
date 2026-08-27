@@ -7,6 +7,12 @@ func loadCatalogDefaults(e *engine) {
 	loadAdminKeys(e)
 	loadCommerceAndIngestKeys(e)
 	loadFrontendUIKeys(e)
+	loadBillingAndHRKeys(e)
+	loadCompareAndPromoKeys(e)
+	loadDevelopersAndSystemKeys(e)
+	loadOrgBranchesGeoKeys(e)
+	loadChatAndAttachmentsKeys(e)
+	loadErrorsAndValidationKeys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

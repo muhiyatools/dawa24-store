@@ -89,11 +89,19 @@ func (m *mockPlatformAdminRepo) ListCitiesByGovernorate(_ context.Context, _ int
 	return nil, nil
 }
 
+func (m *mockPlatformAdminRepo) GetCity(_ context.Context, _ int64) (*City, error) {
+	return nil, nil
+}
+
 func (m *mockPlatformAdminRepo) ToggleCityStatus(_ context.Context, _ int64) error {
 	return nil
 }
 
 func (m *mockPlatformAdminRepo) CreateCity(_ context.Context, _ *City) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) UpdateCity(_ context.Context, _ *City) error {
 	return nil
 }
 

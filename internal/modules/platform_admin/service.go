@@ -98,6 +98,11 @@ func (s *Service) ListCitiesByGovernorate(ctx context.Context, governorateID int
 	return s.repo.ListCitiesByGovernorate(ctx, governorateID)
 }
 
+// GetCity returns a single city by ID.
+func (s *Service) GetCity(ctx context.Context, id int64) (*City, error) {
+	return s.repo.GetCity(ctx, id)
+}
+
 // ToggleCityStatus toggles the active state of a city.
 func (s *Service) ToggleCityStatus(ctx context.Context, id int64) error {
 	return s.repo.ToggleCityStatus(ctx, id)
@@ -106,6 +111,11 @@ func (s *Service) ToggleCityStatus(ctx context.Context, id int64) error {
 // CreateCity adds a new city with spatial coordinates.
 func (s *Service) CreateCity(ctx context.Context, c *City) error {
 	return s.repo.CreateCity(ctx, c)
+}
+
+// UpdateCity updates an existing city with new data.
+func (s *Service) UpdateCity(ctx context.Context, c *City) error {
+	return s.repo.UpdateCity(ctx, c)
 }
 
 // ListCurrencies returns supported currencies.
