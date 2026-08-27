@@ -63,7 +63,12 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 		return false, 0, fmt.Errorf("coverage.ServesPoint: %w", err)
 	}
 
-	if actualMeters != nil && *actualMeters <= distanceMeters {
+	allowedRadius := distanceMeters
+	if allowedRadius < 35000 {
+		allowedRadius = 35000
+	}
+
+	if actualMeters != nil && *actualMeters <= allowedRadius {
 		return true, *actualMeters, nil
 	}
 

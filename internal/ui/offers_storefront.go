@@ -141,9 +141,12 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 					canAddToCart = false
 				}
 			} else if customerBranchID <= 0 {
-				isCovered = false
-				covReason = "يرجى تحديد فرع الاستلام للتحقق من التغطية"
-				canAddToCart = false
+				isCovered = true
+				if stockQty > 0 {
+					canAddToCart = true
+				} else {
+					covReason = "نفد المخزون لدى المورد"
+				}
 			}
 		} else {
 			isCovered = true
@@ -263,7 +266,7 @@ func (h *UIHandler) visibleOffersForActor(ctx context.Context, actor *authctx.Ac
 	}
 	lat, lng, ok := h.pharmacyBranchCoords(ctx, actor)
 	if !ok {
-		return nil
+		lat, lng = 30.0444, 31.2357
 	}
 	offers, err := h.promoSvc.ListOffersVisibleTo(ctx, lat, lng, int(time.Now().Weekday()), limit, 0)
 	if err != nil {

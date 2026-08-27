@@ -114,11 +114,19 @@ func (p *availabilityProbe) CustomerBranch(ctx context.Context, branchID int64) 
 	if b == nil {
 		return commerce.BranchAvailability{}, nil
 	}
+	lat := b.Latitude
+	lng := b.Longitude
+	if lat == nil || lng == nil {
+		defLat := 30.0444
+		defLng := 31.2357
+		lat = &defLat
+		lng = &defLng
+	}
 	return commerce.BranchAvailability{
 		ID:             b.ID,
 		OrganizationID: b.OrganizationID,
-		Latitude:       b.Latitude,
-		Longitude:      b.Longitude,
+		Latitude:       lat,
+		Longitude:      lng,
 	}, nil
 }
 

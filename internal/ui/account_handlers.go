@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -240,8 +241,8 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 			invoice = inv
 		} else {
 			vendorOrgID := int64(1)
-			if len(order.Shipments) > 0 && order.Shipments[0].VendorOrgID > 0 {
-				vendorOrgID = order.Shipments[0].VendorOrgID
+			if len(order.Shipments) > 0 && order.Shipments[0].OrganizationID > 0 {
+				vendorOrgID = order.Shipments[0].OrganizationID
 			} else if order.VendorBranchID != nil {
 				vendorOrgID = *order.VendorBranchID
 			}
@@ -403,11 +404,16 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		}
 	} else if order != nil && len(order.Lines) > 0 {
 		for idx, l := range order.Lines {
-			discPct := l.DiscountPercent
+			discPct := 0.0
 			unitPrice := l.UnitPrice
 			netPrice := l.UnitPrice
-			if discPct > 0 {
-				netPrice = money.FromMinor(int64(float64(unitPrice.Minor()) * (1.0 - discPct/100.0)))
+			if l.UnitPrice.IsPositive() && l.Quantity > 0 {
+				computedLinePrice := money.FromMinor(l.UnitPrice.Minor() * int64(l.Quantity))
+				if computedLinePrice.Minor() > l.TotalPrice.Minor() {
+					diff := computedLinePrice.Minor() - l.TotalPrice.Minor()
+					discPct = float64(diff) / float64(computedLinePrice.Minor()) * 100.0
+					netPrice = money.FromMinor(l.TotalPrice.Minor() / int64(l.Quantity))
+				}
 			}
 			printableLines = append(printableLines, &billing.PrintableInvoiceLine{
 				Index:           idx + 1,
