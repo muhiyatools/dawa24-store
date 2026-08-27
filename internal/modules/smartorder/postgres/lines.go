@@ -118,12 +118,8 @@ func insertLineBatch(ctx context.Context, tx pgx.Tx, batch []*smartorder.Line) e
 }
 
 // ListLines returns a filtered page of results plus the total matching count.
-//
-// f.All bypasses paging for the callers that must see the whole run. It is not
-// a convenience: the pipeline, the recalculation and the finalisation are all
-// wrong on any run longer than one page, and silently so.
 func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.LineFilter) ([]*smartorder.Line, int, error) {
-	if !f.All && (f.Limit <= 0 || f.Limit > 200) {
+	if !f.All && (f.Limit <= 0 || f.Limit > 500) {
 		f.Limit = 50
 	}
 	var out []*smartorder.Line
@@ -132,6 +128,17 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		where := []string{"run_id = $1"}
 		args := []any{runID}
+
+		if f.MatchGroup != "" {
+			switch f.MatchGroup {
+			case "matched":
+				where = append(where, "(matched_product_id IS NOT NULL AND outcome = 'ordered')")
+			case "unmatched":
+				where = append(where, "(matched_product_id IS NULL OR outcome = 'unmatched')")
+			case "review":
+				where = append(where, "(outcome IN ('no_supplier', 'coverage_blocked', 'institutional_blocked', 'out_of_stock', 'below_min_qty', 'zero_qty'))")
+			}
+		}
 
 		if f.Outcome != "" {
 			args = append(args, f.Outcome)
@@ -143,13 +150,40 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 		}
 		if f.Search != "" {
 			args = append(args, "%"+f.Search+"%")
-			where = append(where, "raw_name ILIKE $"+strconv.Itoa(len(args)))
+			param := "$" + strconv.Itoa(len(args))
+			where = append(where, "(raw_name ILIKE "+param+" OR raw_sku ILIKE "+param+" OR raw_barcode ILIKE "+param+")")
 		}
 		clause := strings.Join(where, " AND ")
 
 		if err := tx.QueryRow(txCtx,
 			`SELECT count(*) FROM smartorder.run_lines WHERE `+clause+`;`, args...).Scan(&total); err != nil {
 			return err
+		}
+
+		// Sort column resolution
+		sortCol := "row_number"
+		switch f.SortBy {
+		case "name":
+			sortCol = "raw_name"
+		case "matched_name":
+			sortCol = "matched_product_id"
+		case "method":
+			sortCol = "match_method"
+		case "confidence":
+			sortCol = "match_confidence"
+		case "qty", "quantity":
+			sortCol = "effective_qty"
+		case "outcome", "status":
+			sortCol = "outcome"
+		default:
+			sortCol = "row_number"
+		}
+
+		sortOrder := "ASC"
+		if strings.ToUpper(f.SortOrder) == "DESC" {
+			sortOrder = "DESC"
+		} else if f.SortBy == "confidence" && f.SortOrder == "" {
+			sortOrder = "DESC"
 		}
 
 		page := ""
@@ -159,7 +193,7 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 		}
 		rows, err := tx.Query(txCtx,
 			`SELECT `+lineColumns+` FROM smartorder.run_lines WHERE `+clause+`
-			 ORDER BY row_number`+page+`;`, args...)
+			 ORDER BY `+sortCol+` `+sortOrder+`, row_number ASC`+page+`;`, args...)
 		if err != nil {
 			return err
 		}

@@ -173,43 +173,7 @@ func (s *Service) Candidates(ctx context.Context, orgID, lineID int64) ([]Candid
 	return s.repo.ListCandidates(ctx, orgID, lineID)
 }
 
-// CorrectMatch applies a buyer's correction and remembers it.
-//
-// The correction is written to the shared learned-mapping table so the same text
-// resolves automatically on every future import — this is what makes the third
-// import of a recurring file need no manual work at all.
-func (s *Service) CorrectMatch(ctx context.Context, orgID, lineID, productID int64) (*Line, error) {
-	line, err := s.repo.GetLine(ctx, orgID, lineID)
-	if err != nil {
-		return nil, err
-	}
-	line.MatchedProductID = &productID
-	line.MatchMethod = MethodManual
-	line.MatchConfidence = 1.0
-	line.CorrectedByUser = true
 
-	if err := s.repo.UpdateLines(ctx, []*Line{line}); err != nil {
-		return nil, err
-	}
-	if err := s.repo.SaveLearnedMapping(ctx, orgID, line.RawName, productID); err != nil {
-		s.log.WarnContext(ctx, "could not remember match correction",
-			"line_id", lineID, "error", err)
-	}
-
-	// A person has now confirmed this name means this product. That is exactly
-	// the evidence an alias needs, so it is promoted to the deterministic tier
-	// and every future import — for every buyer — resolves it without asking.
-	// This is the loop that makes the AI share of a run shrink over time.
-	source := "manual"
-	if line.MatchMethod == MethodAI {
-		source = "ai_confirmed"
-	}
-	if err := s.repo.SaveAlias(ctx, productID, line.NormName, source, 1.0); err != nil {
-		s.log.WarnContext(ctx, "could not record product alias",
-			"line_id", lineID, "error", err)
-	}
-	return line, nil
-}
 
 // SetQuantity applies a buyer's quantity edit.
 func (s *Service) SetQuantity(ctx context.Context, orgID, lineID int64, qty float64) error {

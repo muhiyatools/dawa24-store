@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -65,7 +66,7 @@ func (h *UIHandler) SmartOrderProgressPage(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// SmartOrderResultsPage renders step 4.
+// SmartOrderResultsPage renders step 4: matching and supplier results.
 func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -75,19 +76,42 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 	}
 
 	q := r.URL.Query()
+
+	// Default filter is "unmatched" as requested, unless explicitly overridden
+	match := q.Get("match")
+	if match == "" && q.Get("outcome") != "" {
+		match = q.Get("outcome")
+	} else if match == "" && !q.Has("all") && !q.Has("match") && !q.Has("outcome") {
+		match = "unmatched"
+	} else if match == "all" {
+		match = ""
+	}
+
 	page, _ := strconv.Atoi(q.Get("page"))
 	if page < 1 {
 		page = 1
 	}
-	const perPage = 100
 
-	lines, total, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{
-		Outcome: q.Get("outcome"),
-		Method:  q.Get("method"),
-		Search:  q.Get("q"),
-		Limit:   perPage,
-		Offset:  (page - 1) * perPage,
-	})
+	limit := 25
+	if l, err := strconv.Atoi(q.Get("limit")); err == nil && (l == 10 || l == 25 || l == 50 || l == 100 || l == -1) {
+		limit = l
+	}
+
+	sortBy := strings.TrimSpace(q.Get("sort"))
+	sortOrder := strings.TrimSpace(q.Get("order"))
+	search := strings.TrimSpace(q.Get("q"))
+
+	filter := smartorder.LineFilter{
+		MatchGroup: match,
+		SortBy:     sortBy,
+		SortOrder:  sortOrder,
+		Search:     search,
+		Limit:      limit,
+		Offset:     (page - 1) * limit,
+		All:        limit == -1,
+	}
+
+	lines, total, err := h.smartOrderSvc.Results(ctx, run, filter)
 	if err != nil {
 		h.log.ErrorContext(ctx, "load smart order results", "run_id", run.ID, "error", err)
 		http.Error(w, "تعذّر تحميل النتائج", http.StatusInternalServerError)
@@ -96,7 +120,15 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.SmartOrderResultsPage(lang, dir, pages.SmartOrderResultsData{
-		Run: run, Lines: lines, Total: total, Page: page, Filter: q.Get("outcome"),
+		Run:       run,
+		Lines:     lines,
+		Total:     total,
+		Page:      page,
+		PerPage:   limit,
+		Match:     match,
+		SortBy:    sortBy,
+		SortOrder: sortOrder,
+		Search:    search,
 	}).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render smart order results page", "error", err)
 	}

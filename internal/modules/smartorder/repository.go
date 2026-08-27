@@ -175,11 +175,14 @@ func (m *Mapping) Column(field string) (int, bool) {
 // reports 200 totals, matches 200 products, and places an order missing 700
 // items, with nothing anywhere saying so.
 type LineFilter struct {
-	Outcome string
-	Method  string
-	Search  string
-	Limit   int
-	Offset  int
+	Outcome    string
+	MatchGroup string // "all", "matched", "unmatched", "review"
+	Method     string
+	Search     string
+	SortBy     string // "row", "name", "matched_name", "method", "confidence", "qty", "outcome"
+	SortOrder  string // "asc", "desc"
+	Limit      int
+	Offset     int
 	// All disables paging entirely; Limit and Offset are then ignored.
 	All bool
 }

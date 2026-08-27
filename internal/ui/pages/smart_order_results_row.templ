@@ -1,0 +1,297 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+)
+
+templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
+	<tr style="border-bottom:1px solid var(--border);">
+		<!-- Row Number -->
+		<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; color:var(--text-muted); font-size:0.8rem;" class="tabular-nums">
+			{ fmt.Sprintf("%d", l.RowNumber) }
+		</td>
+
+		<!-- Raw Name & Details -->
+		<td style="padding:0.85rem 1rem;">
+			<div style="font-weight:700; font-size:0.9rem; color:var(--text); line-height:1.4;">
+				{ l.RawName }
+			</div>
+			<div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem; margin-top:0.25rem;">
+				if l.RawSKU != "" {
+					<span class="badge badge-slate" style="font-size:0.7rem;">كود: { l.RawSKU }</span>
+				}
+				if l.RawBarcode != "" {
+					<span class="badge badge-outline" style="font-size:0.7rem;">باركود: { l.RawBarcode }</span>
+				}
+				if l.QtyParseNote != "" {
+					<span style="font-size:0.725rem; color:var(--warning); font-weight:600;">({ l.QtyParseNote })</span>
+				}
+			</div>
+		</td>
+
+		<!-- Catalog Matched Product Cell with In-Cell Dropdown -->
+		<td style="padding:0.85rem 1rem; position:relative;" class="catalog-cell-container">
+			<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+				if l.Matched() {
+					<div style="display:flex; flex-direction:column; gap:0.15rem;">
+						<div style="font-weight:700; font-size:0.875rem; color:var(--text);">
+							if l.MatchedProductName != "" {
+								{ l.MatchedProductName }
+							} else {
+								صنف كتالوج #{ fmt.Sprintf("%d", *l.MatchedProductID) }
+							}
+						</div>
+						<div style="font-size:0.725rem; color:var(--accent); font-family:monospace; font-weight:700;">
+							#{ fmt.Sprintf("%d", *l.MatchedProductID) }
+						</div>
+					</div>
+					<button
+						type="button"
+						data-line-id={ fmt.Sprint(l.ID) }
+						data-line-name={ l.RawName }
+						class="btn btn-secondary btn-xs fw-700"
+						onclick="toggleCatalogDropdown(this)"
+						title="تغيير الصنف المربوط بالكتالوج">
+						🔄 تغيير
+					</button>
+				} else {
+					<div style="display:flex; align-items:center; gap:0.4rem;">
+						<span class="badge badge-rose" style="font-size:0.75rem; font-weight:700;">
+							غير مطابق بالكتالوج
+						</span>
+					</div>
+					<button
+						type="button"
+						data-line-id={ fmt.Sprint(l.ID) }
+						data-line-name={ l.RawName }
+						class="btn btn-primary btn-xs fw-700"
+						onclick="toggleCatalogDropdown(this)"
+						title="بحث وربط بالكتالوج المركزي">
+						🔍 ربط
+					</button>
+				}
+			</div>
+
+			<!-- In-Cell Search Dropdown Menu -->
+			<div id={ fmt.Sprintf("catalog-dropdown-%d", l.ID) }
+				class="combobox-menu"
+				data-public-id={ data.Run.PublicID }
+				data-match={ data.Match }
+				data-sort={ data.SortBy }
+				data-order={ data.SortOrder }
+				data-page={ fmt.Sprint(data.Page) }
+				data-limit={ fmt.Sprint(data.PerPage) }
+				data-search={ data.Search }
+				style="display:none; position:absolute; top:calc(100% + 4px); inset-inline-start:0; min-width:340px; max-width:440px; z-index:100; padding:0.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-xl);">
+				
+				<div style="margin-bottom:0.5rem;">
+					<input
+						type="text"
+						placeholder="ابحث بالاسم أو SKU في الكتالوج المركزي..."
+						data-line-id={ fmt.Sprint(l.ID) }
+						class="form-control"
+						style="padding:0.4rem 0.65rem; font-size:0.85rem; width:100%; height:36px;"
+						oninput="onDropdownSearchInput(this)"
+					/>
+				</div>
+
+				<div id={ fmt.Sprintf("dropdown-results-%d", l.ID) } style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:0.35rem;">
+					<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">
+						جارٍ البحث في الكتالوج...
+					</div>
+				</div>
+
+				if l.Matched() {
+					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:0.5rem;">
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", data.Run.PublicID, l.ID, data.Match, data.SortBy, data.SortOrder, data.Page, data.PerPage, data.Search)) } style="margin:0;">
+							<button type="submit" class="btn btn-ghost btn-xs text-danger" style="width:100%; text-align:start; justify-content:flex-start;">
+								✕ إلغاء الربط (جعله غير مطابق)
+							</button>
+						</form>
+					</div>
+				}
+			</div>
+		</td>
+
+		<!-- Match Method -->
+		<td style="padding:0.85rem 0.75rem; text-align:center;">
+			<span class="badge badge-slate" style="font-size:0.75rem; font-weight:600;">
+				{ MatchMethodLabel(l.MatchMethod) }
+			</span>
+		</td>
+
+		<!-- Confidence Score -->
+		<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; font-size:0.85rem;" class="tabular-nums">
+			if l.MatchConfidence > 0 {
+				{ fmt.Sprintf("%.0f%%", l.MatchConfidence*100) }
+			} else {
+				<span style="color:var(--text-muted);">—</span>
+			}
+		</td>
+
+		<!-- Quantity -->
+		<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:800; font-size:0.9rem;" class="tabular-nums">
+			{ fmt.Sprintf("%g", l.EffectiveQty) }
+		</td>
+
+		<!-- Outcome Status Badge -->
+		<td style="padding:0.85rem 1rem; text-align:center;">
+			<span style={ outcomeChip(l.Outcome) }>
+				{ SmartOrderOutcomeLabel(l.Outcome) }
+			</span>
+		</td>
+	</tr>
+}
+
+templ smartOrderScript() {
+	<script>
+		var activeDropdownLineId = null;
+		var catalogSearchTimer = null;
+
+		function toggleCatalogDropdown(btn) {
+			var lineId = btn.getAttribute('data-line-id');
+			var lineName = btn.getAttribute('data-line-name') || '';
+			var dropdown = document.getElementById('catalog-dropdown-' + lineId);
+			if (!dropdown) return;
+
+			if (activeDropdownLineId && activeDropdownLineId !== lineId) {
+				var prev = document.getElementById('catalog-dropdown-' + activeDropdownLineId);
+				if (prev) prev.style.display = 'none';
+			}
+
+			if (dropdown.style.display === 'block') {
+				dropdown.style.display = 'none';
+				activeDropdownLineId = null;
+			} else {
+				dropdown.style.display = 'block';
+				activeDropdownLineId = lineId;
+				var input = dropdown.querySelector('input[type="text"]');
+				if (input) {
+					if (!input.value.trim()) {
+						input.value = lineName;
+					}
+					input.focus();
+					searchCatalogForDropdown(lineId, input.value.trim());
+				}
+			}
+		}
+
+		function closeAllDropdowns() {
+			if (activeDropdownLineId) {
+				var el = document.getElementById('catalog-dropdown-' + activeDropdownLineId);
+				if (el) el.style.display = 'none';
+				activeDropdownLineId = null;
+			}
+		}
+
+		document.addEventListener('click', function(e) {
+			if (!e.target.closest('.catalog-cell-container')) {
+				closeAllDropdowns();
+			}
+		});
+
+		function onDropdownSearchInput(input) {
+			var lineId = input.getAttribute('data-line-id');
+			clearTimeout(catalogSearchTimer);
+			catalogSearchTimer = setTimeout(function() {
+				searchCatalogForDropdown(lineId, input.value.trim());
+			}, 300);
+		}
+
+		function searchCatalogForDropdown(lineId, query) {
+			var resultsBox = document.getElementById('dropdown-results-' + lineId);
+			var dropdown = document.getElementById('catalog-dropdown-' + lineId);
+			if (!resultsBox || !dropdown) return;
+
+			var publicId = dropdown.getAttribute('data-public-id');
+			var match = dropdown.getAttribute('data-match') || '';
+			var sortBy = dropdown.getAttribute('data-sort') || '';
+			var sortOrder = dropdown.getAttribute('data-order') || '';
+			var page = dropdown.getAttribute('data-page') || '1';
+			var limit = dropdown.getAttribute('data-limit') || '25';
+			var search = dropdown.getAttribute('data-search') || '';
+
+			if (!query) {
+				resultsBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">يرجى كتابة اسم الصنف للبحث</div>';
+				return;
+			}
+
+			resultsBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">جارٍ البحث في الكتالوج المركزي...</div>';
+
+			fetch('/customer/smart-order/' + encodeURIComponent(publicId) + '/catalog-search?q=' + encodeURIComponent(query))
+				.then(function(res) { return res.json(); })
+				.then(function(data) {
+					if (!data || data.length === 0) {
+						resultsBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">لم يتم العثور على نتائج في الكتالوج</div>';
+						return;
+					}
+					resultsBox.innerHTML = '';
+					data.forEach(function(p) {
+						var card = document.createElement('div');
+						card.style.background = 'var(--surface-sunken)';
+						card.style.border = '1px solid var(--border)';
+						card.style.borderRadius = 'var(--radius-lg)';
+						card.style.padding = '0.5rem 0.75rem';
+
+						var form = document.createElement('form');
+						form.method = 'POST';
+						form.action = '/customer/smart-order/' + encodeURIComponent(publicId) + '/lines/' + encodeURIComponent(lineId) + '/match?match=' + encodeURIComponent(match) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);
+						form.style.margin = '0';
+
+						var hiddenInput = document.createElement('input');
+						hiddenInput.type = 'hidden';
+						hiddenInput.name = 'product_id';
+						hiddenInput.value = p.id;
+						form.appendChild(hiddenInput);
+
+						var btn = document.createElement('button');
+						btn.type = 'submit';
+						btn.className = 'btn btn-ghost btn-xs';
+						btn.style.display = 'flex';
+						btn.style.justifyContent = 'space-between';
+						btn.style.alignItems = 'center';
+						btn.style.width = '100%';
+						btn.style.padding = '0';
+						btn.style.textAlign = 'start';
+						btn.style.color = 'var(--text)';
+
+						var info = document.createElement('div');
+						var nameDiv = document.createElement('div');
+						nameDiv.style.fontWeight = '700';
+						nameDiv.style.fontSize = '0.8rem';
+						nameDiv.style.color = 'var(--text)';
+						nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
+						info.appendChild(nameDiv);
+
+						var metaDiv = document.createElement('div');
+						metaDiv.style.fontSize = '0.7rem';
+						metaDiv.style.color = 'var(--text-muted)';
+						metaDiv.style.marginTop = '2px';
+						var metaText = '';
+						if (p.sku) metaText += 'SKU: ' + p.sku + ' ';
+						if (p.dosage_form) metaText += '· ' + p.dosage_form + ' ';
+						if (p.concentration) metaText += '· ' + p.concentration;
+						metaDiv.textContent = metaText;
+						info.appendChild(metaDiv);
+
+						btn.appendChild(info);
+
+						var badge = document.createElement('span');
+						badge.className = 'badge badge-primary';
+						badge.style.fontSize = '0.7rem';
+						badge.style.fontWeight = '700';
+						badge.textContent = 'اختيار';
+						btn.appendChild(badge);
+
+						form.appendChild(btn);
+						card.appendChild(form);
+						resultsBox.appendChild(card);
+					});
+				})
+				.catch(function() {
+					resultsBox.innerHTML = '<div style="text-align:center; color:var(--danger); padding:0.75rem; font-size:0.775rem;">تعذر تحميل النتائج</div>';
+				});
+		}
+	</script>
+}

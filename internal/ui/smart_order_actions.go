@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -149,11 +151,84 @@ func (h *UIHandler) smartOrderBack(w http.ResponseWriter, r *http.Request, run *
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
 
+// SmartOrderCatalogSearch returns JSON results for the in-cell modal/combobox.
+func (h *UIHandler) SmartOrderCatalogSearch(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	if q == "" {
+		_ = json.NewEncoder(w).Encode([]any{})
+		return
+	}
+
+	type catalogItem struct {
+		ID            int64   `json:"id"`
+		NameAR        string  `json:"name_ar"`
+		NameEN        string  `json:"name_en"`
+		SKU           string  `json:"sku"`
+		Barcode       string  `json:"barcode"`
+		DosageForm    string  `json:"dosage_form"`
+		Concentration string  `json:"concentration"`
+		Manufacturer  string  `json:"manufacturer"`
+		PublicPrice   float64 `json:"public_price"`
+	}
+
+	var out []catalogItem
+	if h.ingSvc != nil {
+		products, err := h.ingSvc.SearchMasterCatalog(ctx, q)
+		if err == nil {
+			for _, p := range products {
+				out = append(out, catalogItem{
+					ID:            p.ID,
+					NameAR:        p.Name.Get("ar"),
+					NameEN:        p.Name.Get("en"),
+					SKU:           p.SKU,
+					Barcode:       p.Barcode,
+					DosageForm:    p.DosageForm,
+					Concentration: p.Concentration,
+					Manufacturer:  p.ManufacturingCompanies,
+					PublicPrice:   float64(p.Price.Minor()) / 100.0,
+				})
+			}
+		}
+	}
+
+	_ = json.NewEncoder(w).Encode(out)
+}
+
+// SmartOrderMatchSubmit updates or unmatches a line in smart order results.
+func (h *UIHandler) SmartOrderMatchSubmit(w http.ResponseWriter, r *http.Request) {
+	run, lineID, ok := h.smartOrderLineAction(w, r)
+	if !ok {
+		return
+	}
+	_ = r.ParseForm()
+
+	productID, _ := strconv.ParseInt(r.FormValue("product_id"), 10, 64)
+	if h.smartOrderSvc != nil {
+		if _, err := h.smartOrderSvc.CorrectMatch(r.Context(), run.OrganizationID, lineID, productID); err != nil {
+			h.log.WarnContext(r.Context(), "smart order manual match failed", "line_id", lineID, "error", err)
+		}
+	}
+
+	h.smartOrderRecalculate(r, run)
+
+	q := r.URL.Query()
+	vals := url.Values{}
+	for _, key := range []string{"match", "outcome", "sort", "order", "page", "limit", "q"} {
+		if v := q.Get(key); v != "" {
+			vals.Set(key, v)
+		}
+	}
+	redirectURL := "/customer/smart-order/" + run.PublicID + "/results"
+	if len(vals) > 0 {
+		redirectURL += "?" + vals.Encode()
+	}
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+}
+
 // RegisterSmartOrderRoutes mounts the wizard on the customer surface.
-//
-// Registered alongside the existing purchase-request routes: smart ordering is
-// an additional way to start a طلب الشراء, not a replacement for the ones
-// already there (FR-000, FR-058).
 func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 	r.Get("/customer/smart-order", h.SmartOrderHistoryPage)
 	r.Get("/customer/smart-order/history", h.SmartOrderHistoryPage)
@@ -164,10 +239,12 @@ func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 	r.Post("/customer/smart-order/{id}/mapping", h.SmartOrderMappingSubmit)
 	r.Get("/customer/smart-order/{id}/progress", h.SmartOrderProgressPage)
 	r.Get("/customer/smart-order/{id}/results", h.SmartOrderResultsPage)
+	r.Get("/customer/smart-order/{id}/catalog-search", h.SmartOrderCatalogSearch)
 	r.Get("/customer/smart-order/{id}/review", h.SmartOrderReviewPage)
 	r.Get("/customer/smart-order/{id}/export", h.SmartOrderExportCSV)
 
 	r.Post("/customer/smart-order/{id}/lines/{lineID}/quantity", h.SmartOrderQuantitySubmit)
+	r.Post("/customer/smart-order/{id}/lines/{lineID}/match", h.SmartOrderMatchSubmit)
 	r.Post("/customer/smart-order/{id}/lines/{lineID}/supplier", h.SmartOrderSupplierSubmit)
 	r.Post("/customer/smart-order/{id}/lines/{lineID}/remove", h.SmartOrderRemoveSubmit)
 	r.Post("/customer/smart-order/{id}/finalize", h.SmartOrderFinalizeSubmit)
