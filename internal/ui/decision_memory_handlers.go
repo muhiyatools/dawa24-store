@@ -96,23 +96,23 @@ func (h *UIHandler) CustomerDecisionMemoryPage(w http.ResponseWriter, r *http.Re
 	}
 	offset := (page - 1) * limit
 
-	mappings, total, err := h.catSvc.ListCustomerMappings(ctx, actor.OrganizationID, search, limit, offset)
+	decisions, total, err := h.catSvc.ListMatchDecisions(ctx, search, limit, offset)
 	if err != nil {
-		h.log.ErrorContext(ctx, "failed to list customer mappings", "org_id", actor.OrganizationID, "error", err)
+		h.log.ErrorContext(ctx, "failed to list match decisions for customer", "error", err)
 	}
 
-	data := pages.DecisionMemoryData{
-		Mappings: mappings,
-		Total:    total,
-		Page:     page,
-		PerPage:  limit,
-		Search:   search,
+	data := pages.CustomerDecisionMemoryData{
+		Decisions: decisions,
+		Total:     total,
+		Page:      page,
+		PerPage:   limit,
+		Search:    search,
 	}
 
 	_ = pages.CustomerDecisionMemoryPage(lang, dir, data).Render(ctx, w)
 }
 
-// CustomerDecisionMemoryDeleteSubmit deletes a single customer saved mapping.
+// CustomerDecisionMemoryDeleteSubmit deletes a single customer saved match decision.
 func (h *UIHandler) CustomerDecisionMemoryDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -128,16 +128,16 @@ func (h *UIHandler) CustomerDecisionMemoryDeleteSubmit(w http.ResponseWriter, r 
 		return
 	}
 
-	if err := h.catSvc.DeleteCustomerMapping(ctx, actor.OrganizationID, id); err != nil {
-		h.log.ErrorContext(ctx, "failed to delete customer mapping", "id", id, "org_id", actor.OrganizationID, "error", err)
+	if err := h.catSvc.DeleteMatchDecision(ctx, id); err != nil {
+		h.log.ErrorContext(ctx, "failed to delete match decision", "id", id, "error", err)
 		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "حدث خطأ أثناء حذف القرار.")
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم حذف الربط من ذاكرة القرارات بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم حذف القرار من ذاكرة المطابقة بنجاح.")
 }
 
-// CustomerDecisionMemoryClearSubmit clears all saved mappings for the customer pharmacy.
+// CustomerDecisionMemoryClearSubmit clears all match decisions from the memory.
 func (h *UIHandler) CustomerDecisionMemoryClearSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -146,11 +146,11 @@ func (h *UIHandler) CustomerDecisionMemoryClearSubmit(w http.ResponseWriter, r *
 		return
 	}
 
-	if err := h.catSvc.ClearCustomerMappings(ctx, actor.OrganizationID); err != nil {
-		h.log.ErrorContext(ctx, "failed to clear customer mappings", "org_id", actor.OrganizationID, "error", err)
+	if err := h.catSvc.ClearMatchDecisions(ctx); err != nil {
+		h.log.ErrorContext(ctx, "failed to clear match decisions", "error", err)
 		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "حدث خطأ أثناء مسح الذاكرة.")
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم مسح ذاكرة القرارات الخاصة بصيدليتك بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم مسح ذاكرة قرارات المطابقة بنجاح.")
 }
