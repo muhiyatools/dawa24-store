@@ -142,9 +142,7 @@ func formatDistanceKM(meters int) string {
 templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 	@layouts.VendorShell("نطاق التغطية والتوزيع الأسبوعي المتنقل", "coverage", lang, dir) {
 		<!-- Hidden dataset for client-side hierarchical cities -->
-		<script id="cities-dataset-json" type="application/json">
-			{ templ.Raw(citiesToJSON(data.Cities)) }
-		</script>
+		<div id="cities-dataset" data-cities={ citiesToJSON(data.Cities) } style="display:none;"></div>
 
 		<div x-data="{
 			filterDay: 'all',
@@ -175,11 +173,13 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				is_active: true
 			},
 			init() {
-				const el = document.getElementById('cities-dataset-json');
-				if (el && el.textContent) {
+				const el = document.getElementById('cities-dataset');
+				if (el) {
 					try {
-						this.allCitiesList = JSON.parse(el.textContent);
+						const raw = el.getAttribute('data-cities') || '[]';
+						this.allCitiesList = JSON.parse(raw);
 					} catch(e) {
+						console.error('Failed to parse cities JSON:', e);
 						this.allCitiesList = [];
 					}
 				}
@@ -202,12 +202,30 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				this.selectedCities = [];
 				this.allCitiesInGov = false;
 				this.citySearch = '';
+				if (this.selectedGovId) {
+					const gId = parseInt(this.selectedGovId, 10);
+					const existing = this.allCitiesList.filter(c => c.gov_id === gId);
+					if (existing.length === 0) {
+						fetch('/vendor/coverage/governorates/' + gId + '/cities')
+							.then(r => r.json())
+							.then(items => {
+								if (Array.isArray(items)) {
+									items.forEach(item => {
+										if (!this.allCitiesList.some(x => x.id === item.id)) {
+											this.allCitiesList.push(item);
+										}
+									});
+								}
+							})
+							.catch(e => console.error('Failed to load cities via API:', e));
+					}
+				}
 			},
 			get filteredCities() {
 				if (!this.selectedGovId) return [];
-				const gId = parseInt(this.selectedGovId);
+				const gId = parseInt(this.selectedGovId, 10);
 				return this.allCitiesList.filter(c => {
-					const matchGov = c.gov_id === gId;
+					const matchGov = (c.gov_id === gId) || (String(c.gov_id) === String(this.selectedGovId));
 					if (!matchGov) return false;
 					if (!this.citySearch) return true;
 					const q = this.citySearch.toLowerCase();
@@ -225,8 +243,8 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				}
 			},
 			toggleSelectAllCities() {
-				const gId = parseInt(this.selectedGovId);
-				const available = this.allCitiesList.filter(c => c.gov_id === gId);
+				const gId = parseInt(this.selectedGovId, 10);
+				const available = this.allCitiesList.filter(c => c.gov_id === gId || String(c.gov_id) === String(this.selectedGovId));
 				if (this.allCitiesInGov || this.selectedCities.length === available.length) {
 					this.selectedCities = [];
 					this.allCitiesInGov = false;

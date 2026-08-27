@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -610,4 +611,52 @@ func (h *UIHandler) VendorDeliveryBandDeleteSubmit(w http.ResponseWriter, r *htt
 // VendorBranchCoveragePage redirects branch-specific coverage view to the main coverage console.
 func (h *UIHandler) VendorBranchCoveragePage(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/vendor/coverage", http.StatusSeeOther)
+}
+
+// APIGovernorateCitiesJSON returns all cities belonging to a governorate as JSON.
+func (h *UIHandler) APIGovernorateCitiesJSON(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	govID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || govID <= 0 {
+		http.Error(w, `{"error":"invalid governorate id"}`, http.StatusBadRequest)
+		return
+	}
+
+	if h.adminSvc == nil {
+		http.Error(w, `{"error":"admin service unavailable"}`, http.StatusServiceUnavailable)
+		return
+	}
+
+	cities, err := h.adminSvc.ListCitiesByGovernorate(ctx, govID)
+	if err != nil {
+		h.log.ErrorContext(ctx, "failed to list cities by governorate", "error", err, "gov_id", govID)
+		http.Error(w, `{"error":"failed to query cities"}`, http.StatusInternalServerError)
+		return
+	}
+
+	type cityResponse struct {
+		ID        int64   `json:"id"`
+		GovID     int64   `json:"gov_id"`
+		NameAR    string  `json:"name_ar"`
+		NameEN    string  `json:"name_en"`
+		Lat       float64 `json:"lat"`
+		Lon       float64 `json:"lon"`
+		IsCapital bool    `json:"is_capital"`
+	}
+
+	resp := make([]cityResponse, 0, len(cities))
+	for _, c := range cities {
+		resp = append(resp, cityResponse{
+			ID:        c.ID,
+			GovID:     govID,
+			NameAR:    c.Name.Get("ar"),
+			NameEN:    c.Name.Get("en"),
+			Lat:       c.Latitude,
+			Lon:       c.Longitude,
+			IsCapital: c.IsCapital,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(resp)
 }
