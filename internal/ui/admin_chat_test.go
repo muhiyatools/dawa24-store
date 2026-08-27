@@ -22,8 +22,12 @@ type mockUIAssistantRepo struct {
 	msgs  []*assistant.Message
 }
 
-func (m *mockUIAssistantRepo) CreateConversation(_ context.Context, _ *assistant.Conversation) error { return nil }
-func (m *mockUIAssistantRepo) GetConversation(_ context.Context, _ int64) (*assistant.Conversation, error) { return nil, nil }
+func (m *mockUIAssistantRepo) CreateConversation(_ context.Context, _ *assistant.Conversation) error {
+	return nil
+}
+func (m *mockUIAssistantRepo) GetConversation(_ context.Context, _ int64) (*assistant.Conversation, error) {
+	return nil, nil
+}
 func (m *mockUIAssistantRepo) GetConversationSummary(_ context.Context, id int64) (*assistant.ConversationSummary, error) {
 	for _, c := range m.convs {
 		if c.ID == id {
@@ -32,7 +36,9 @@ func (m *mockUIAssistantRepo) GetConversationSummary(_ context.Context, id int64
 	}
 	return nil, nil
 }
-func (m *mockUIAssistantRepo) ListConversations(_ context.Context, _, _ int64, _, _ int) ([]*assistant.Conversation, error) { return nil, nil }
+func (m *mockUIAssistantRepo) ListConversations(_ context.Context, _, _ int64, _, _ int) ([]*assistant.Conversation, error) {
+	return nil, nil
+}
 func (m *mockUIAssistantRepo) ListAllConversations(_ context.Context, search string, limit, offset int) ([]*assistant.ConversationSummary, int, error) {
 	return m.convs, len(m.convs), nil
 }
@@ -43,7 +49,9 @@ func (m *mockUIAssistantRepo) GetAssistantStats(_ context.Context) (*assistant.A
 		ActiveUsers:        1,
 	}, nil
 }
-func (m *mockUIAssistantRepo) DeleteConversation(_ context.Context, _ int64, _, _ int64) error { return nil }
+func (m *mockUIAssistantRepo) DeleteConversation(_ context.Context, _ int64, _, _ int64) error {
+	return nil
+}
 func (m *mockUIAssistantRepo) SaveMessage(_ context.Context, _ *assistant.Message) error { return nil }
 func (m *mockUIAssistantRepo) ListMessages(_ context.Context, _ int64, _ int) ([]*assistant.Message, error) {
 	return m.msgs, nil

@@ -138,9 +138,12 @@ func TestDecodeRejectsAResponseWithNoJSON(t *testing.T) {
 // so the overlap is asserted rather than assumed.
 func TestSystemPromptStatesTheRulesTheApplierEnforces(t *testing.T) {
 	for _, want := range []string{
-		"STRENGTH IS DECISIVE",
+		"DIFFERENT STRENGTH",
+		"DIFFERENT LINE EXTENSION",
+		"DIFFERENT BRAND, SAME MOLECULE",
+		"SHARED COMPANY IS NOT SHARED IDENTITY",
 		"MUST NOT output an id that does not appear in the CATALOG section",
-		"below 0.70",
+		"below 0.80",
 		`{"results":[`,
 	} {
 		if !strings.Contains(enhanceSystemPrompt, want) {

@@ -119,6 +119,12 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>محتوى الصفحات والأقسام</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "platform.setting.view") {
+								<a href="/admin/translations" class={ "sidebar-link", templ.KV("active", activeNav == "translations") }>
+									@components.IconGlobe("icon-sm")
+									<span>اللغات والترجمة</span>
+								</a>
+							}
 						</div>
 
 						<!-- Group 4: إدارة المنتجات والمخزون (inventory_management) -->

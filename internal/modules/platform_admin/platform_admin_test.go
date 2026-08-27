@@ -194,6 +194,30 @@ func (m *mockPlatformAdminRepo) ListAuditLogByOrg(_ context.Context, _ int64, _,
 	return nil, nil
 }
 
+func (m *mockPlatformAdminRepo) ListTranslations(_ context.Context, _ TranslationFilter) ([]*Translation, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockPlatformAdminRepo) GetTranslationByKey(_ context.Context, _ string) (*Translation, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) UpsertTranslation(_ context.Context, _ *Translation) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) DeleteTranslation(_ context.Context, _ string) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) GetTranslationStats(_ context.Context) (*TranslationStats, error) {
+	return &TranslationStats{}, nil
+}
+
+func (m *mockPlatformAdminRepo) LoadAllCustomTranslations(_ context.Context) (map[string]i18n.Text, error) {
+	return map[string]i18n.Text{}, nil
+}
+
 func TestPlatformAdminSettingsAndGeo(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockPlatformAdminRepo()

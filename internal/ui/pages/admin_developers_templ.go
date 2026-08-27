@@ -320,7 +320,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"gpt-4o-mini\"> <span style=\"font-size:0.72rem; color:var(--text-muted);\">يُستخدم في مطابقة الأصناف وتوسيع البحث.</span></div><div class=\"form-group m-0\"><label class=\"form-label\">نموذج المهام الدقيقة (Quality)</label> <input type=\"text\" name=\"quality_model\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"qwen3.7-flash\"> <span style=\"font-size:0.72rem; color:var(--text-muted);\">يُستخدم في مطابقة الأصناف وتوسيع البحث.</span></div><div class=\"form-group m-0\"><label class=\"form-label\">نموذج المهام الدقيقة (Quality)</label> <input type=\"text\" name=\"quality_model\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -333,7 +333,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"gpt-4o-mini\"> <span style=\"font-size:0.72rem; color:var(--text-muted);\">يُستخدم في استكمال بيانات الأصناف أثناء الاستيراد.</span></div></div><p style=\"font-size:0.75rem; color:var(--text-muted); margin:-0.5rem 0 0 0;\">اتركهما فارغين لاستخدام النموذج الافتراضي. يجب أن يكون الاسم مطابقاً لما تنشره البوابة.</p><div style=\"padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface-sunken);\"><div style=\"font-size:0.8rem; font-weight:700; margin-bottom:0.25rem;\">مفتاح لوحة التحكم (Admin Panel Key)</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"qwen3.7-flash\"> <span style=\"font-size:0.72rem; color:var(--text-muted);\">يُستخدم في استكمال بيانات الأصناف أثناء الاستيراد.</span></div></div><p style=\"font-size:0.75rem; color:var(--text-muted); margin:-0.5rem 0 0 0;\">اتركهما فارغين لاستخدام النموذج الافتراضي. يجب أن يكون الاسم مطابقاً لما تنشره البوابة.</p><div style=\"padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface-sunken);\"><div style=\"font-size:0.8rem; font-weight:700; margin-bottom:0.25rem;\">مفتاح لوحة التحكم (Admin Panel Key)</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

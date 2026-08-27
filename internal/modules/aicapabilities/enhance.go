@@ -38,7 +38,7 @@ import (
 // EnhancePromptVersion changes whenever the rendered input or the system prompt
 // changes. It is part of the decision cache key, so a prompt change orphans the
 // old answers instead of silently reusing answers to a different question.
-const EnhancePromptVersion = "sm-enh-v1"
+const EnhancePromptVersion = "sm-enh-v3"
 
 // CatalogEntry is one catalogue product as the model sees it.
 //
@@ -216,18 +216,31 @@ func (s *Service) EnhanceMatches(ctx context.Context, req EnhanceRequest) ([]Enh
 // large costs nothing, because the model stops when it stops. So this is
 // deliberately generous.
 func enhanceMaxTokens(items int) int {
-	n := items*70 + 512
-	if n > 32000 {
-		n = 32000
+	n := items*80 + 1024
+	if n > 60000 {
+		n = 60000
 	}
 	return n
 }
 
 // isSchemaRejection reports whether an error looks like the Gateway or the model
 // refusing the structured-output request rather than failing the work itself.
+//
+// Any bad request counts, not only one that names the schema. Structured output
+// is the only optional, model-dependent thing in this call — everything else is
+// a chat completion the Gateway has always accepted — so a 400 after sending one
+// is overwhelmingly likely to be about it, and models differ in whether they say
+// so. Retrying without the schema costs one request and recovers the whole
+// stage; not retrying loses every decision in the batch because a model does not
+// implement a protocol nicety. If the 400 was about something else the retry
+// fails identically and the deterministic result stands, which is where this was
+// heading anyway.
 func isSchemaRejection(err error) bool {
 	if err == nil || errors.Is(err, gateway.ErrDisabled) {
 		return false
+	}
+	if errors.Is(err, gateway.ErrBadRequest) {
+		return true
 	}
 	msg := strings.ToLower(err.Error())
 	return strings.Contains(msg, "response_format") ||

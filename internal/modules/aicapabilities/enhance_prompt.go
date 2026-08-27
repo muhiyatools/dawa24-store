@@ -50,34 +50,87 @@ ITEM rows:
 - current_guess is the deterministic engine's own best guess as "id@score", or "-" when it had none. It is a suggestion you may confirm or overrule.
 - options is a comma-separated list of catalogue ids retrieved for this item, best first.
 
-# DECISION RULES, in order of authority
+# THE ONE QUESTION
 
-1. STRENGTH IS DECISIVE. 500 mg and 1 g are different products. 10 mg and 20 mg are different products. If raw_text states a strength and no candidate carries it, answer null — never round, never pick "the closest strength".
-   - Combination products state combined strengths: "اتاكاند 32 بلس" is candesartan 32 mg with hydrochlorothiazide and matches a catalogue entry written "32/25 مجم". Matching a combination to its single-ingredient sibling is a wrong match.
-   - Ratios ("250مجم/5مل") must match as ratios.
+Every decision reduces to this: **is the pharmacy asking for the thing this catalogue row names?**
 
-2. DOSAGE FORM MUST BE COMPATIBLE. Tablet, capsule, syrup, suspension, ampoule/injection, vial, cream, ointment, gel, drops, spray, suppository and sachet are distinct. A tablet is not a syrup. If raw_text states no form, do not invent one.
+Two failures are possible and they are not symmetric.
 
-3. IT MUST BE THE SAME MEDICINE. A brand and its own generic at the same strength and form ARE the same product. Two different brands of the same molecule are NOT — never substitute one for the other. A pharmacy ordering "اريكتامكس" has not ordered "سياليس": "بديل سياليس" means "alternative to Cialis" and identifies the FIRST name, never the second.
+- MISSED MATCH: the same medicine written differently, and you answered null. A person then matches it by hand. Cost: one minute.
+- WRONG MATCH: two different medicines that share some words, and you joined them. A pharmacy receives the wrong drug. Cost: a patient.
 
-4. TRANSLITERATION IS NOT A DIFFERENCE. Arabic spellings of one Latin brand vary freely: ابليفاى / ابيليفاي / أبيليفاي are all "abilify"; ى and ي, ة and ه, أ إ آ and ا are interchangeable. Use english_name to confirm. A spelling variant of the same brand at the same strength and form IS a match.
+So: be generous about SPELLING and stingy about IDENTITY. Different spelling of one product is a match. Different product sharing two words is not, no matter how similar the names look.
 
-5. IGNORE COMMERCIAL NOISE IN raw_text. Egyptian price lists append the price, the distributor and marketing words to the name: "سعر جديد", "س.ج 141ج", "سعر32ج", "/ايبيكو", "**", "عرض". A number attached to "ج", or preceded by "س.ج" or "سعر", is a PRICE IN POUNDS — never a strength and never a pack size. A token after "/" is usually the distributor or the manufacturer.
+# WHAT IS THE SAME PRODUCT
 
-6. PACK SIZE IS WEAK EVIDENCE. Prefer a candidate whose pack size agrees, but never reject the only correct medicine over a pack count, and never choose a different medicine because its pack count matches.
+These are the SAME product and you SHOULD match them:
 
-7. WHEN IN DOUBT, ABSTAIN. Two candidates that fit equally well means null. A brand you cannot find in the window means null. Your output becomes a purchase order for medicines: a confident wrong match ships the wrong drug to a patient, while a null simply asks a human to look. Null is a good answer and is expected for a meaningful share of items.
+- Arabic transliteration variants of one Latin brand. ابليفاى = ابيليفاي = أبيليفاي = abilify. ازرجا = ازارجا. بنادول = بانادول. اباندروكير = ايباندروكير. The letters ى/ي, ة/ه, أ/إ/آ/ا are interchangeable, and Egyptians insert or drop long vowels freely.
+- One word or two. ارمو ويك = ارموويك. اكوابلس = اكوا بلس. الفيرينسبازم = الفرين سبازم.
+- The catalogue spelling out what the pharmacy left off: strength, pack count, film-coating, "اقراص", the company. "ابيمول" matches "ابيمول 500مجم 20 قرص" when nothing contradicts.
+- A brand and its own generic at the same strength and form, when the catalogue carries only one of them.
+- Tablet written as capsule or the reverse. Pharmacies use اقراص/كبسول loosely for any solid oral form.
+
+# WHAT IS A DIFFERENT PRODUCT
+
+These SHARE WORDS and are NOT the same product. Answer null unless a candidate matches exactly.
+
+1. DIFFERENT STRENGTH. اكسامايد 5مجم, اكسامايد 10مجم and اكسامايد 100مجم are three products. 500 mg is not 1 g. 0.025% is not 0.5%. Never round, never pick "the closest strength". If raw_text states a strength and no candidate carries it, answer null.
+
+2. DIFFERENT LINE EXTENSION. The extra word IS the product:
+   بانادول ≠ بانادول اكسترا ≠ بانادول نايت ≠ بانادول ادفانس ≠ بانادول كولد
+   ديكلوفين ≠ ديكلوفين بلس ≠ ديكلوفين فاست
+   اوميجا ار اكس ≠ اوميجا ار اكس بلس
+   ال كارنتين ≠ ال كارنتين بلس
+   Words that carry identity this way: بلس/plus, فورت/forte, اكسترا/extra, ادفانس, نايت, داي, كولد, فلو, ساينس, فاست, ريتارد, ماكس, الترا, توتال, جولد, لايت, زيرو, بيبي, جونيور, دوو, and the release codes SR CR XR MR XL LA.
+   If raw_text has one of these and the candidate does not — or the candidate has one and raw_text does not — they are different products.
+
+3. DIFFERENT COMBINATION. A combination is not its single-ingredient sibling. اموكسيسيللين is not اموكسيسيللين + حمض الكلافيولانيك (اوجمنتين). اتاكاند is not اتاكاند بلس. Combined strengths must match as written: 32 in "اتاكاند 32 بلس" is the candesartan, and matches a catalogue "32/25 مجم"; it does not match "16/12.5 مجم".
+
+4. DIFFERENT BRAND, SAME MOLECULE. NEVER substitute. اريكتامكس is not سياليس. اتوموكسابكس is not اتوموكستين. Two brands of one molecule are two products a pharmacy buys separately at different prices. "بديل سياليس" means "an alternative TO Cialis" and identifies the FIRST name in the line, never Cialis.
+
+5. DIFFERENT ROUTE OR FORM. A syrup is not a tablet. An injection is not a syrup. An eye drop is not an eye gel. A cream is not an oral capsule. A sachet of granules is not a strip of tablets. An orally disintegrating tablet — ديسكملت, زيديس, ذائبة بالفم, ODT — is a different product from the ordinary tablet of the same brand and strength.
+
+6. SHARED COMPANY IS NOT SHARED IDENTITY. Egyptian price lists append the distributor: "/ايبيكو", "/ادويا", "/ميباكو", "/العربية". ابيفيناك from ايبيكو and سيفوتاكس from ايبيكو share only their manufacturer and are completely different drugs. A company name is never evidence of a match.
+
+7. SHARED PREFIX IS NOT SHARED IDENTITY. امبريد and امبريديل are different products. اوبتيبرد and اوبتي بروست are different products. Two brands beginning with the same three or four letters are usually unrelated.
+
+# BEFORE YOU ANSWER, CHECK
+
+For the candidate you are about to name, ask yourself:
+- Does every word in raw_text that identifies a product appear, or have an equivalent, in the candidate?
+- Does the candidate carry an identity word — a strength, a line extension — that raw_text does not?
+If either answer is bad, answer null.
+
+# READING raw_text
+
+Egyptian price lists append noise to the product name. Strip it before you judge:
+- "سعر جديد", "سعرجديد", "س.ج", "سعر", "عرض", "خصم", "**" — commercial noise.
+- A number attached to "ج", or following "س.ج" or "سعر", is a PRICE IN POUNDS. "اركوكسيا 120مجم س.ج 137ج" is 120 mg priced at 137 pounds; 137 is not a strength and not a pack size.
+- A word after "/" is usually the distributor or the manufacturer.
+- Words describing what the medicine does — "مسكن", "مضاد للالتهاب", "للبرد", "للاسهال", "للاطفال" — are the pharmacist's own note. The catalogue never carries them, and they identify nothing.
+- The pharmacy sometimes spells the strength in Arabic words: "اربعمية ملجم" is 400 mg.
+
+# PACK SIZE
+
+Weak evidence. Prefer a candidate whose pack count agrees, but never reject the only correct medicine over a pack count, and never choose a DIFFERENT medicine because its pack count matches.
 
 # CHOOSING AN ID
 
 Prefer an id from that item's own options list. You MAY use any id present in the CATALOG section — options are retrieval hints, not a cage, and the correct product is sometimes there because it was retrieved for a different item. You MUST NOT output an id that does not appear in the CATALOG section, and you MUST NOT invent one.
 
+Your answers are re-checked against the catalogue before they are applied: an id whose strength, line extension or dosage form contradicts raw_text is discarded and the item is left unmatched. Naming one costs the pharmacy the match you were trying to make, so apply the rules above yourself rather than relying on the check.
+
 # CONFIDENCE
 
 - 0.95-1.00: same brand, same strength, same form, corroborated by english_name.
 - 0.85-0.94: same medicine, one attribute unstated on one side.
-- 0.70-0.84: confident on the medicine, uncertain which catalogue variant.
-- below 0.70: do not answer with an id — answer null instead.
+- 0.80-0.84: confident on the medicine, uncertain which catalogue variant.
+- below 0.80: do not answer with an id — answer null instead. This is not a
+  formality: an answer below it is discarded, so a low-confidence id is simply a
+  slower way of saying null.
+
+Null is a good answer. On a typical batch a third or more of the items have no correct candidate in the window, because the pharmacy ordered something this catalogue does not carry. Reporting that honestly is worth more than a guess.
 
 # OUTPUT
 

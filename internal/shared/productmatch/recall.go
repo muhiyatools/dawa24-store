@@ -71,13 +71,21 @@ type recallIndex struct {
 	once sync.Once
 	tri  map[string][]*MasterProduct
 	sci  map[string][]*MasterProduct
+	// makers is every word that appears in some product's manufacturer field.
+	// It is drawn from the catalogue rather than from a list, because the
+	// companies that matter are the ones this catalogue actually names.
+	makers map[string]bool
 }
 
 func (idx *Index) recall() *recallIndex {
 	idx.tri.once.Do(func() {
 		tri := make(map[string][]*MasterProduct, idx.total*8)
 		sci := make(map[string][]*MasterProduct, idx.total)
+		makers := make(map[string]bool, 2048)
 		for _, p := range idx.products {
+			for _, tok := range coreTokens(p.Manufacturer) {
+				makers[tok] = true
+			}
 			seen := make(map[string]bool, len(p.triAR)+len(p.triEN))
 			for _, set := range [][]string{p.triAR, p.triEN} {
 				for _, t := range set {
@@ -92,7 +100,7 @@ func (idx *Index) recall() *recallIndex {
 				sci[tok] = append(sci[tok], p)
 			}
 		}
-		idx.tri.tri, idx.tri.sci = tri, sci
+		idx.tri.tri, idx.tri.sci, idx.tri.makers = tri, sci, makers
 	})
 	return &idx.tri
 }
@@ -247,42 +255,6 @@ func (idx *Index) rateForRecall(q *query, p *MasterProduct) scoredProduct {
 		score:   clamp(score),
 		reason:  "ترشيح موسّع " + percent(name),
 	}
-}
-
-// StrengthConflict reports whether a row and a catalogue product state doses
-// that cannot be the same medicine.
-//
-// It is the deterministic re-check the AI stage runs before writing anything.
-// The model is instructed at length that strength is decisive and is usually
-// right about it, but "usually" is not a standard that should decide which
-// medicine a pharmacy receives.
-//
-// It answers false whenever either side is silent, because that is missing
-// information rather than disagreement — and a catalogue that records the dose
-// only inside the product name, as much of this one does, is silent often.
-// Combination strengths ("32/25 مجم") parse to their leading figure, so a row
-// written "اتاكاند 32 بلس" agrees with them rather than being blocked.
-func (idx *Index) StrengthConflict(row *Row, productID int64) bool {
-	if idx == nil || row == nil {
-		return false
-	}
-	p, ok := idx.byID[productID]
-	if !ok {
-		return false
-	}
-	rowDoses := strengthSet(row.Name + " " + row.NameEN + " " + row.Concentration)
-	prodDoses := strengthSet(p.NameAR + " " + p.NameEN + " " + p.Concentration)
-	if len(rowDoses) == 0 || len(prodDoses) == 0 {
-		return false
-	}
-	for _, a := range rowDoses {
-		for _, b := range prodDoses {
-			if sameStrength(a, b) {
-				return false
-			}
-		}
-	}
-	return true
 }
 
 // strengthSet is every dose a text states, not merely the first.

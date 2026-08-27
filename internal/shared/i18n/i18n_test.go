@@ -241,3 +241,55 @@ func TestTextScan(t *testing.T) {
 	// Ensure driver.Valuer / sql.Scanner interface satisfaction
 	var _ driver.Valuer = i18n.Text{}
 }
+
+func TestEngineTranslationAndOverrides(t *testing.T) {
+	// Test basic key lookup
+	arSave := i18n.T(i18n.AR, "common.save")
+	if arSave != "حفظ" {
+		t.Errorf("T(AR, common.save) = %q; want %q", arSave, "حفظ")
+	}
+	enSave := i18n.T(i18n.EN, "common.save")
+	if enSave != "Save" {
+		t.Errorf("T(EN, common.save) = %q; want %q", enSave, "Save")
+	}
+
+	// Test fallback for missing key
+	unknown := i18n.T(i18n.EN, "unknown.custom.key")
+	if unknown != "unknown.custom.key" {
+		t.Errorf("T(EN, unknown.custom.key) = %q; want %q", unknown, "unknown.custom.key")
+	}
+
+	// Test arguments format
+	key := "common.rows_per_page"
+	arCount := i18n.T(i18n.AR, key, 50)
+	if arCount != "50 صفوف" {
+		t.Errorf("T(AR, common.rows_per_page, 50) = %q; want %q", arCount, "50 صفوف")
+	}
+
+	// Test Override
+	i18n.SetOverride("common.save", i18n.New("حفظ فوري", "Instant Save"))
+	if got := i18n.T(i18n.AR, "common.save"); got != "حفظ فوري" {
+		t.Errorf("Overridden T(AR) = %q; want %q", got, "حفظ فوري")
+	}
+	if got := i18n.T(i18n.EN, "common.save"); got != "Instant Save" {
+		t.Errorf("Overridden T(EN) = %q; want %q", got, "Instant Save")
+	}
+
+	// Test RemoveOverride
+	i18n.RemoveOverride("common.save")
+	if got := i18n.T(i18n.AR, "common.save"); got != "حفظ" {
+		t.Errorf("Reverted T(AR) = %q; want %q", got, "حفظ")
+	}
+
+	// Test GetAllKeyEntries
+	entries := i18n.GetAllKeyEntries()
+	if len(entries) == 0 {
+		t.Error("GetAllKeyEntries returned empty slice")
+	}
+
+	// Test GetNamespaces
+	namespaces := i18n.GetNamespaces()
+	if len(namespaces) == 0 {
+		t.Error("GetNamespaces returned empty slice")
+	}
+}

@@ -124,7 +124,6 @@ func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*ass
 	return &s, nil
 }
 
-
 // DeleteConversation marks a conversation as deleted for a user.
 func (r *Repository) DeleteConversation(ctx context.Context, id int64, orgID, userID int64) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {

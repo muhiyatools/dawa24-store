@@ -1,0 +1,302 @@
+package pages
+
+import (
+	"fmt"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type AdminTranslationsData struct {
+	Translations []*platformadmin.Translation
+	Stats        *platformadmin.TranslationStats
+	Namespaces   []string
+	SelectedNS   string
+	Query        string
+	CustomFilter string
+	Pagination   components.PaginationProps
+}
+
+templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
+	@layouts.AdminShell("اللغات وإدارة الترجمة والتدويل (i18n)", "translations", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+			<!-- Header Banner -->
+			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+				<div>
+					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+						<span style="font-size:1.5rem;">🌐</span>
+						<h2 style="font-size:1.4rem; font-weight:800; color:var(--text); margin:0;">
+							{ i18n.T(lang, "admin.translations_title") }
+						</h2>
+						<span class="badge badge-sky" style="font-size:0.725rem;">i18n Dynamic Engine</span>
+					</div>
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:680px; line-height:1.6;">
+						{ i18n.T(lang, "admin.translations_sub") }
+					</p>
+				</div>
+				<div style="display:flex; align-items:center; gap:0.75rem;">
+					<form method="POST" action="/admin/translations/sync" style="margin:0;">
+						<button type="submit" class="btn btn-secondary btn-sm fw-700" title="مزامنة وتحديث كافة المفاتيح الافتراضية من الكود إلى قاعدة البيانات">
+							@components.IconRefresh("icon-xs")
+							<span>{ i18n.T(lang, "admin.translations_sync") }</span>
+						</button>
+					</form>
+				</div>
+			</div>
+
+			<!-- Stats Row -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.35rem;">
+						{ i18n.T(lang, "admin.translations_total_keys") }
+					</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">
+						if data.Stats != nil {
+							{ fmt.Sprintf("%d", data.Stats.TotalKeys) }
+						} else {
+							0
+						}
+					</div>
+				</div>
+
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.35rem;">
+						{ i18n.T(lang, "admin.translations_custom_overrides") }
+					</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+						if data.Stats != nil {
+							{ fmt.Sprintf("%d", data.Stats.CustomOverrides) }
+						} else {
+							0
+						}
+					</div>
+				</div>
+
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.35rem;">
+						{ i18n.T(lang, "admin.translations_namespaces") }
+					</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">
+						if data.Stats != nil {
+							{ fmt.Sprintf("%d", data.Stats.TotalNamespaces) }
+						} else {
+							0
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- Search & Filter Controls -->
+			<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+				<form method="GET" action="/admin/translations" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
+					<div style="flex:1; min-width:260px; position:relative;">
+						<input
+							type="text"
+							name="q"
+							value={ data.Query }
+							placeholder={ i18n.T(lang, "common.search_placeholder") }
+							class="form-control"
+							style="width:100%; height:40px;"
+						/>
+					</div>
+
+					<div style="min-width:180px;">
+						<select name="ns" class="form-select" style="height:40px; width:100%;">
+							<option value="">{ i18n.T(lang, "admin.translations_all_namespaces") }</option>
+							for _, ns := range data.Namespaces {
+								<option value={ ns } selected?={ data.SelectedNS == ns }>{ ns }</option>
+							}
+						</select>
+					</div>
+
+					<div style="min-width:160px;">
+						<select name="custom" class="form-select" style="height:40px; width:100%;">
+							<option value="">{ i18n.T(lang, "common.all") }</option>
+							<option value="true" selected?={ data.CustomFilter == "true" }>{ i18n.T(lang, "admin.translations_custom_badge") }</option>
+							<option value="false" selected?={ data.CustomFilter == "false" }>{ i18n.T(lang, "admin.translations_default_badge") }</option>
+						</select>
+					</div>
+
+					<button type="submit" class="btn btn-primary fw-700" style="height:40px; padding:0 1.25rem;">
+						@components.IconSearch("icon-xs")
+						<span>{ i18n.T(lang, "common.filter") }</span>
+					</button>
+					if data.Query != "" || data.SelectedNS != "" || data.CustomFilter != "" {
+						<a href="/admin/translations" class="btn btn-secondary" style="height:40px;" title="إعادة تعيين الفلاتر">
+							<span>{ i18n.T(lang, "common.cancel") }</span>
+						</a>
+					}
+				</form>
+			</div>
+
+			<!-- Translations Table -->
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;">
+				<div class="table-responsive">
+					<table class="table" style="margin:0; width:100%;">
+						<thead>
+							<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
+								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:240px;">
+									{ i18n.T(lang, "admin.translations_key_col") }
+								</th>
+								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:130px;">
+									{ i18n.T(lang, "admin.translations_ns_col") }
+								</th>
+								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary);">
+									{ i18n.T(lang, "admin.translations_ar_col") }
+								</th>
+								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary);">
+									{ i18n.T(lang, "admin.translations_en_col") }
+								</th>
+								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:100px; text-align:center;">
+									{ i18n.T(lang, "admin.translations_type_col") }
+								</th>
+								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:130px; text-align:center;">
+									{ i18n.T(lang, "common.actions") }
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							if len(data.Translations) == 0 {
+								<tr>
+									<td colspan="6" style="padding:3rem 1rem; text-align:center; color:var(--text-muted);">
+										<div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+										<div style="font-weight:700; font-size:1rem; color:var(--text);">
+											{ i18n.T(lang, "common.no_results") }
+										</div>
+									</td>
+								</tr>
+							}
+							for _, tr := range data.Translations {
+								<tr style="border-bottom:1px solid var(--border);">
+									<td style="padding:0.85rem 1rem; font-family:monospace; font-size:0.825rem; font-weight:700; color:var(--text);">
+										{ tr.Key }
+									</td>
+									<td style="padding:0.85rem 1rem;">
+										<span class="badge badge-slate" style="font-size:0.75rem; font-weight:700;">
+											{ tr.Namespace }
+										</span>
+									</td>
+									<td style="padding:0.85rem 1rem; font-size:0.875rem; color:var(--text); line-height:1.5;" dir="rtl">
+										{ tr.TextAR }
+									</td>
+									<td style="padding:0.85rem 1rem; font-size:0.875rem; color:var(--text); line-height:1.5;" dir="ltr">
+										{ tr.TextEN }
+									</td>
+									<td style="padding:0.85rem 1rem; text-align:center;">
+										if tr.IsCustom {
+											<span class="badge badge-emerald" style="font-size:0.725rem;">
+												{ i18n.T(lang, "admin.translations_custom_badge") }
+											</span>
+										} else {
+											<span class="badge badge-slate" style="font-size:0.725rem;">
+												{ i18n.T(lang, "admin.translations_default_badge") }
+											</span>
+										}
+									</td>
+									<td style="padding:0.85rem 1rem; text-align:center;">
+										<div style="display:inline-flex; align-items:center; gap:0.35rem;">
+											<button
+												type="button"
+												class="btn btn-secondary btn-xs fw-700"
+												onclick={ showEditModal(tr.Key, tr.Namespace, tr.TextAR, tr.TextEN, tr.Description) }
+												title="تعديل الترجمة"
+											>
+												@components.IconEdit("icon-xxs")
+												<span>{ i18n.T(lang, "common.edit") }</span>
+											</button>
+											if tr.IsCustom {
+												<form method="POST" action="/admin/translations/reset" style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من استعادة الترجمة الافتراضية؟');">
+													<input type="hidden" name="key" value={ tr.Key } />
+													<button type="submit" class="btn btn-icon btn-xs" style="color:var(--danger-text);" title="استعادة القيمة الافتراضية">
+														@components.IconRefresh("icon-xxs")
+													</button>
+												</form>
+											}
+										</div>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Pagination Footer -->
+				<div style="padding:1rem; border-top:1px solid var(--border); display:flex; justify-content:center;">
+					@components.B2BPagination(data.Pagination)
+				</div>
+			</div>
+		</div>
+
+		<!-- Edit Translation Modal -->
+		<div id="edit-translation-modal" class="modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:var(--z-modal); align-items:center; justify-content:center; padding:1rem;">
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-xl); overflow:hidden;">
+				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+					<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+						{ i18n.T(lang, "admin.translations_edit_modal") }
+					</h3>
+					<button type="button" class="btn btn-icon btn-xs" onclick="closeEditModal()">
+						@components.IconX("icon-xs")
+					</button>
+				</div>
+				<form method="POST" action="/admin/translations" style="padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;">
+					<div>
+						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+							{ i18n.T(lang, "admin.translations_key_col") }
+						</label>
+						<input type="text" id="modal-key" name="key" readonly class="form-control" style="background:var(--surface-sunken); font-family:monospace; font-weight:700;" />
+					</div>
+
+					<div>
+						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+							{ i18n.T(lang, "admin.translations_ar_col") }
+						</label>
+						<textarea id="modal-text-ar" name="text_ar" rows="3" class="form-control" style="resize:vertical;" dir="rtl" required></textarea>
+					</div>
+
+					<div>
+						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+							{ i18n.T(lang, "admin.translations_en_col") }
+						</label>
+						<textarea id="modal-text-en" name="text_en" rows="3" class="form-control" style="resize:vertical;" dir="ltr" required></textarea>
+					</div>
+
+					<div>
+						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+							الوصف أو ملاحظات الاستخدام
+						</label>
+						<input type="text" id="modal-desc" name="description" class="form-control" />
+					</div>
+
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+						<button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+							{ i18n.T(lang, "common.cancel") }
+						</button>
+						<button type="submit" class="btn btn-primary fw-700">
+							{ i18n.T(lang, "common.save_changes") }
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<script>
+			function showEditModal(key, ns, ar, en, desc) {
+				document.getElementById('modal-key').value = key;
+				document.getElementById('modal-text-ar').value = ar;
+				document.getElementById('modal-text-en').value = en;
+				document.getElementById('modal-desc').value = desc || '';
+				var m = document.getElementById('edit-translation-modal');
+				m.style.display = 'flex';
+			}
+			function closeEditModal() {
+				var m = document.getElementById('edit-translation-modal');
+				m.style.display = 'none';
+			}
+		</script>
+	}
+}
+
+script showEditModal(key, ns, ar, en, desc string) {
+	showEditModal(key, ns, ar, en, desc);
+}

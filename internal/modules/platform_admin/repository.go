@@ -2,6 +2,8 @@ package platformadmin
 
 import (
 	"context"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Repository defines storage operations for system settings and locations.
@@ -57,4 +59,11 @@ type Repository interface {
 	GetErrorLogByID(ctx context.Context, id int64) (*ErrorLog, error)
 	UpdateErrorLogStatus(ctx context.Context, id int64, status string) error
 	GetErrorDiagnosticsMetrics(ctx context.Context) (total, critical24h, unresolved, affectedUsers int, err error)
+
+	ListTranslations(ctx context.Context, filter TranslationFilter) ([]*Translation, int, error)
+	GetTranslationByKey(ctx context.Context, key string) (*Translation, error)
+	UpsertTranslation(ctx context.Context, t *Translation) error
+	DeleteTranslation(ctx context.Context, key string) error
+	GetTranslationStats(ctx context.Context) (*TranslationStats, error)
+	LoadAllCustomTranslations(ctx context.Context) (map[string]i18n.Text, error)
 }

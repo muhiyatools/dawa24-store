@@ -28,6 +28,19 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/settings/payment-methods/{id}/delete", h.AdminPlatformPaymentMethodDeleteSubmit)
 	})
 
+	// Translations & Localization
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("platform.setting.view", h.log))
+		g.Get("/admin/translations", h.AdminTranslationsPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("platform.setting.update", h.log))
+		g.Post("/admin/translations", h.AdminTranslationUpdateSubmit)
+		g.Post("/admin/translations/reset", h.AdminTranslationResetSubmit)
+		g.Post("/admin/translations/sync", h.AdminTranslationsSyncSubmit)
+	})
+
 	// Content & Policies & Cities & Services & Reference Data
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.content.view", h.log))

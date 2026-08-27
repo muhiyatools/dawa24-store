@@ -143,31 +143,107 @@ var noiseWords = map[string]bool{
 // formKeyOf collapses the many ways a form is written onto one token, so
 // "أقراص", "قرص", "tab" and "tablets" compare equal.
 func formKeyOf(text string) string {
-	clean := sheet.NormalizeName(text)
+	words := strings.Fields(sheet.NormalizeName(text))
+	if len(words) == 0 {
+		return ""
+	}
+	// Letter runs rather than whole words, because Egyptian price lists glue the
+	// count to the form: "20قرص", "3شريط", "24كبسوله".
+	//
+	// The extractor is local rather than appendLetterRuns, and that is not
+	// duplication: appendLetterRuns exists to DROP measure and form words on its
+	// way to the identifying vocabulary, which is precisely the opposite of what
+	// is wanted here. Reusing it silently returned "" for every glued form —
+	// "افوصويا 3شريط" and "اورسوفالك 20كبسولة" both came back with no form at all.
+	var runs []string
+	for _, w := range words {
+		runs = append(runs, letterRuns(w)...)
+	}
 	for _, rule := range formGroups {
 		for _, w := range rule.words {
-			if strings.Contains(clean, w) {
-				return rule.key
+			for _, run := range runs {
+				if formWordMatches(run, w) {
+					return rule.key
+				}
 			}
 		}
 	}
 	return ""
 }
 
+// letterRuns splits a token into its maximal runs of non-digit characters,
+// keeping every one of them.
+func letterRuns(w string) []string {
+	if !hasDigit(w) {
+		return []string{w}
+	}
+	var out []string
+	runes := []rune(w)
+	start := -1
+	flush := func(end int) {
+		if start >= 0 && end > start {
+			out = append(out, string(runes[start:end]))
+		}
+		start = -1
+	}
+	for i, r := range runes {
+		if (r >= '0' && r <= '9') || r == '.' || r == ',' || r == '/' {
+			flush(i)
+			continue
+		}
+		if start < 0 {
+			start = i
+		}
+	}
+	flush(len(runes))
+	return out
+}
+
+// formWordMatches decides whether one word of a product name names a form.
+//
+// It used to be `strings.Contains` over the whole text, and that was a real
+// defect rather than a nicety: "جل" is a form word, and "امباجليفورم",
+// "اميجليسباير" and "جلوكوفاج" all contain it, so three ordinary oral products
+// were filed as topical gels. That is invisible in the deterministic scorer —
+// it just quietly subtracts 0.28 from a correct match — and it made the AI
+// stage refuse correct answers outright.
+//
+// Short words must therefore match a whole letter run. Longer ones may match as
+// a prefix, which is what carries "كبسولات" and "كبسوله" from "كبسول" and "tabs"
+// from "tab" without listing every inflection.
+func formWordMatches(run, word string) bool {
+	if run == word {
+		return true
+	}
+	if len([]rune(word)) < 4 {
+		return false
+	}
+	return strings.HasPrefix(run, word)
+}
+
+// formGroups are ordered MOST SPECIFIC FIRST, and the order is load-bearing.
+//
+// The first group whose word appears wins, so a general term listed early
+// swallows the specific term that actually names the product: with "liquid"
+// ahead of "drops", the catalogue entry "افيميو قطرة عين معلق 10 مل" keys as a
+// liquid because it says "معلق", and stops matching the pharmacy line that says
+// "قطره". Eye drops suspended in a liquid are still eye drops.
 var formGroups = []struct {
 	key   string
 	words []string
 }{
-	{"tablet", []string{"اقراص", "قرص", "شريط", "tab", "tablet"}},
-	{"capsule", []string{"كبسول", "كبسوله", "cap", "capsule"}},
-	{"liquid", []string{"شراب", "معلق", "محلول", "syr", "syrup", "susp", "solution"}},
-	{"injectable", []string{"حقن", "امبول", "فيال", "امبوله", "amp", "vial", "inj"}},
-	{"topical", []string{"كريم", "مرهم", "جل", "جيل", "لوسيون", "دهان", "cream", "oint", "gel", "lotion"}},
-	{"drops", []string{"نقط", "قطره", "قطرة", "drop"}},
-	{"suppository", []string{"لبوس", "تحاميل", "supp"}},
-	{"spray", []string{"بخاخ", "اسبراي", "سبراي", "spray"}},
-	{"sachet", []string{"فوار", "كيس", "اكياس", "ساشيه", "sachet", "eff"}},
-	{"wash", []string{"غسول", "شامبو", "صابون", "wash", "shampoo", "soap"}},
+	{"drops", []string{"نقط", "قطره", "قطرة", "نقطه", "drop", "drops"}},
+	{"spray", []string{"بخاخ", "اسبراي", "سبراي", "رذاذ", "spray", "inhaler"}},
+	{"suppository", []string{"لبوس", "تحاميل", "تحميله", "اقماع", "قمع", "supp"}},
+	{"wash", []string{"غسول", "شامبو", "صابون", "مضمضه", "wash", "shampoo", "soap"}},
+	{"topical", []string{"كريم", "مرهم", "جل", "جيل", "لوسيون", "دهان", "معجون",
+		"cream", "oint", "ointment", "gel", "lotion", "paste"}},
+	{"injectable", []string{"حقن", "حقنه", "امبول", "امبوله", "امبولات", "فيال",
+		"amp", "amps", "vial", "inj", "injection"}},
+	{"sachet", []string{"فوار", "كيس", "اكياس", "ساشيه", "اكياس", "sachet", "eff", "sachets"}},
+	{"capsule", []string{"كبسول", "كبسوله", "cap", "caps", "capsule"}},
+	{"tablet", []string{"اقراص", "قرص", "قرصين", "شريط", "كابلت", "tab", "tabs", "tablet", "caplet"}},
+	{"liquid", []string{"شراب", "معلق", "محلول", "syr", "syrup", "susp", "solution", "suspension"}},
 }
 
 // doseUnits normalises the strength units onto a common base: milligrams for

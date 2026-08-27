@@ -182,6 +182,31 @@ func (r stubRepo) QueueStats(context.Context) (map[string]int, error) {
 	return nil, nil
 }
 
+func (r stubRepo) ListTranslations(context.Context, platformadmin.TranslationFilter) ([]*platformadmin.Translation, int, error) {
+	r.fail("ListTranslations")
+	return nil, 0, nil
+}
+func (r stubRepo) GetTranslationByKey(context.Context, string) (*platformadmin.Translation, error) {
+	r.fail("GetTranslationByKey")
+	return nil, nil
+}
+func (r stubRepo) UpsertTranslation(context.Context, *platformadmin.Translation) error {
+	r.fail("UpsertTranslation")
+	return nil
+}
+func (r stubRepo) DeleteTranslation(context.Context, string) error {
+	r.fail("DeleteTranslation")
+	return nil
+}
+func (r stubRepo) GetTranslationStats(context.Context) (*platformadmin.TranslationStats, error) {
+	r.fail("GetTranslationStats")
+	return nil, nil
+}
+func (r stubRepo) LoadAllCustomTranslations(context.Context) (map[string]i18n.Text, error) {
+	r.fail("LoadAllCustomTranslations")
+	return nil, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) GetSetting(ctx context.Context, key string) (*platformadmin.SystemSetting, error) {
@@ -307,6 +332,25 @@ func (happyRepo) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offs
 
 func (happyRepo) QueueStats(ctx context.Context) (map[string]int, error) {
 	return map[string]int{"available": 3, "completed": 10, "retryable": 1}, nil
+}
+
+func (happyRepo) ListTranslations(ctx context.Context, filter platformadmin.TranslationFilter) ([]*platformadmin.Translation, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) GetTranslationByKey(ctx context.Context, key string) (*platformadmin.Translation, error) {
+	return nil, nil
+}
+func (happyRepo) UpsertTranslation(ctx context.Context, t *platformadmin.Translation) error {
+	return nil
+}
+func (happyRepo) DeleteTranslation(ctx context.Context, key string) error {
+	return nil
+}
+func (happyRepo) GetTranslationStats(ctx context.Context) (*platformadmin.TranslationStats, error) {
+	return &platformadmin.TranslationStats{}, nil
+}
+func (happyRepo) LoadAllCustomTranslations(ctx context.Context) (map[string]i18n.Text, error) {
+	return map[string]i18n.Text{}, nil
 }
 
 const testCookieName = "dawa24_session"

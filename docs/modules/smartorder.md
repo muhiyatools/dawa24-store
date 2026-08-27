@@ -74,53 +74,87 @@ Spec: `specs/001-smart-ordering-system/`.
    that 1,473-row file goes from fifteen requests to eight. Ordinary files take
    one.
 
-6. **The AI stage is bounded, cached and re-checked.** At most 200 items and
-   200 KB of rendered input per request, 10 requests and 6 minutes per run;
-   duplicate lines are collapsed into one question. Every decision is cached on
+6. **The AI stage is bounded, cached and re-checked.** At most 200 items per
+   request, 12 requests and 8 minutes per run, 4 in flight; duplicate lines are
+   collapsed into one question. Every decision is cached on
    `sha256(normalised text ‖ sorted candidate ids ‖ prompt version)`, so a
-   recurring file costs almost nothing the second time. Before anything is
-   written, three guards run: the product must be one the model was shown, the
-   confidence must reach 0.70, and the strength must not conflict with the
-   catalogue's own record.
+   recurring file costs almost nothing the second time.
 
-7. **The prompt is generated, never authored by a model.**
+7. **Nothing the model says is applied unchecked.** `productmatch.IdentityConflict`
+   re-derives, from the catalogue's own record, whether the two things can be the
+   same product at all — and refuses the answer if they cannot. It exists because
+   the reported failure was not hallucination but plausibility: brand families in
+   this catalogue differ by a single word, and a model reading "بانادول 24 قرص"
+   against "بانادول اكسترا 24 قرص" sees four words of agreement. Four checks, all
+   measured against live data:
+
+   - **strength** — three doses of one brand are three products; combinations
+     compare as ratios, and units only conflict when both sides state the same one;
+   - **line extension** — بلس, اكسترا, نايت, فورت, ريتارد, ديسكملت, SR/CR/XR and the
+     rest are the product, not a description of it;
+   - **dosage form** — tablets and capsules are one class because pharmacies write
+     them interchangeably, and everything else is distinct;
+   - **shared distinctive word** — some word of the line must correspond to some
+     word of the product, spelling allowed to differ, with manufacturer names
+     excluded from both sides. That exclusion is the point: "ابيفيناك حقن /ايبيكو"
+     was matched to "سيفوتاكس 500مجم فيال ايبيكو" in production, two different
+     drugs whose only shared word names the company that makes both.
+
+   On a live 1,004-line residue the guards refused 133 of the model's answers —
+   strength 42, line extension 47, evidence 39, form 5. A refusal costs one line
+   of manual work; a false acceptance ships the wrong medicine.
+
+8. **The confidence floor is 0.80, and it is the model's own judgement.** Its
+   confidence is sharply bimodal on real data — 0.95 for what it is sure of — and
+   the answers in the seventies were the ones sharing only a category suffix
+   (ديرم, بيد). Taking it at its word removes that class for almost no loss.
+
+9. **The prompt is generated, never authored by a model.**
    `aicapabilities.RenderEnhanceInput` is a pure function of the request — no
    clock, no map iteration, no randomness — because the decision cache keys on
    the question asked. The answer is strict JSON with a JSON-schema response
    format where the Gateway supports one, and a prompt that specifies the same
    shape in full where it does not.
 
-8. **Supplier selection is strict priority within a tolerance band.** The
+10. **Chain-of-thought is switched off for this capability.** The default model
+    is a reasoning model: its `reasoning` output is billed and drawn from the
+    same `max_tokens` budget as the answer. Two hundred product matches reasoned
+    through individually exceed any output ceiling, and when they do the model
+    returns an EMPTY answer with `finish_reason: "length"` — a total, silent
+    failure that looks like a model with nothing to say. `gateway.budget.think`
+    is false for everything except the human-facing chat.
+
+11. **Supplier selection is strict priority within a tolerance band.** The
    highest-priority enabled criterion decides, but only among candidates within
    the tolerance (default 5%) of the cheapest eligible net price. When the band
    rejects a criterion's winner, the line names the skipped supplier and by how
    much it missed. Ties break deterministically, ending in `vendor_org_id`, so
    re-running an unchanged file selects the same suppliers.
 
-9. **Eligibility checks are ordered, and the order is the design.** own_org →
+12. **Eligibility checks are ordered, and the order is the design.** own_org →
    inactive → institutional → coverage → stock → min_qty. The **first** failure
    is reported, because it is the most actionable: an offer both out of stock and
    outside coverage is a coverage problem, and saying "out of stock" sends the
    buyer hunting for a supplier they did not need to find.
 
-10. **Nothing is silently substituted or dropped.** Finalisation re-verifies every
+13. **Nothing is silently substituted or dropped.** Finalisation re-verifies every
    line; a line that changed blocks the whole order and is named. Quantity cells
    that cannot be read (`"2-3"`, negatives, garbage) produce no quantity and a
    note, never a guess.
 
-11. **The review cart is not the shopping cart.** No path in this module reads or
+14. **The review cart is not the shopping cart.** No path in this module reads or
    writes `commerce.carts` or `commerce.cart_items`. An abandoned import must not
    leave items in a cart the buyer believes is empty.
 
-12. **One order path.** Finalisation goes through `commerce.Service.Checkout`, so
+15. **One order path.** Finalisation goes through `commerce.Service.Checkout`, so
    multi-vendor shipment partitioning, order numbering, status history and the
    documents gate are identical to an ordinary order.
 
-13. **Money is `money.Amount` throughout.** Net prices, bands and line totals are
+16. **Money is `money.Amount` throughout.** Net prices, bands and line totals are
     integer minor-unit arithmetic. The one exception is `runs.ai_cost_estimate`,
     which is USD telemetry and deliberately not `money.Amount`.
 
-14. **Row level security** on all seven tenant-owned tables via
+17. **Row level security** on all seven tenant-owned tables via
     `platform.tenant_visible(organization_id)`. Cross-tenant catalogue reads use
     `database.AsSystem` with the marketplace justification stated at the call
     site. A run belonging to another organisation is Not Found, never Forbidden.

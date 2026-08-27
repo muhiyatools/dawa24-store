@@ -84,7 +84,7 @@ func reviewFor(id int64, raw string, candidates ...int64) Review {
 
 func runEnhancement(t *testing.T, repo *enhanceRepo, ai *stubEnhancer, reviews []Review) *Enhancement {
 	t.Helper()
-	e := NewEnhancement(repo, ai, testIndex())
+	e := NewEnhancement(repo, ai, testIndex(), nil)
 	e.Run(context.Background(), reviews)
 	return e
 }
@@ -304,7 +304,7 @@ func TestEnhancementProgressCountsLinesNotQuestions(t *testing.T) {
 	c := reviewFor(3, "ارموويك 50مجم", 103)
 
 	var done int
-	e := NewEnhancement(repo, ai, testIndex())
+	e := NewEnhancement(repo, ai, testIndex(), nil)
 	e.OnProgress = func(n int) { done = n }
 	e.Run(context.Background(), []Review{a, b, c})
 

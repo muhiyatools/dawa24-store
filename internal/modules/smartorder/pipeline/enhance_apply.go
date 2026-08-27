@@ -15,10 +15,11 @@ package pipeline
 //     becoming an order.
 //  2. The confidence must clear the floor. The prompt asks for abstention below
 //     it; this enforces it, because an instruction is not a guarantee.
-//  3. The strength must not conflict with the catalogue's own record. The model
-//     is instructed at length that strength is decisive and is usually right —
-//     but "usually" is not a standard that should decide which medicine a
-//     pharmacy receives.
+//  3. The product must survive productmatch.IdentityConflict — the strength, the
+//     line-extension word, the dosage form and the shared distinctive word all
+//     re-checked against the catalogue's own record. The model is instructed at
+//     length on every one of these and is usually right, but "usually" is not a
+//     standard that should decide which medicine a pharmacy receives.
 
 import (
 	"context"
@@ -29,20 +30,16 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // apply validates a batch's answers and writes the ones that survive.
 //
-// Three guards, in order of how much damage they prevent:
-//
-//  1. The product must be one the model was actually shown. This is what stops a
-//     hallucinated id becoming an order.
-//  2. The confidence must clear the floor. Below it the answer is remembered but
-//     not applied, so the same question is not paid for twice.
-//  3. The strength must not conflict. The model is instructed on this and is
-//     usually right, but "usually" is not a standard that should govern which
-//     medicine a pharmacy receives, so it is re-checked deterministically
-//     against the catalogue's own record.
+// An answer the guards refuse is deliberately NOT written to the decision cache.
+// Caching it would save a request next time and would also freeze a judgement
+// the guards may later make differently — the modifier vocabulary grows, the
+// catalogue gains a product — and a cached wrong premise is worse than a
+// repeated question. Only what the model actually decided is remembered.
 func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []smartorder.CachedDecision {
 	saved := make([]smartorder.CachedDecision, 0, len(outcomes))
 
@@ -88,11 +85,12 @@ func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []smartor
 			// outcome.
 			e.Stats.Abstained += len(group)
 
-		case e.index.StrengthConflict(lead.Row, *out.ProductID):
-			e.Stats.Rejected += len(group)
-			continue
-
 		default:
+			if c := e.index.IdentityConflict(lead.Row, *out.ProductID); !c.None() {
+				e.refuse(c, lead, *out.ProductID, len(group))
+				continue
+			}
+
 			decision.ChosenProductID = out.ProductID
 			for _, r := range group {
 				before := r.Line.MatchedProductID
@@ -108,6 +106,26 @@ func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []smartor
 		saved = append(saved, decision)
 	}
 	return saved
+}
+
+// refuse records a rejected decision and says why.
+//
+// The reason is logged rather than shown: a buyer does not need to know that the
+// model proposed something and was overruled, but an operator asking "is the AI
+// stage helping or fighting the matcher?" needs the answer, and it is not
+// recoverable after the fact.
+//
+// It touches Stats directly rather than through count(), because every caller
+// already holds e.mu. Routing it through count() would deadlock on the first
+// refusal.
+func (e *Enhancement) refuse(c productmatch.MatchConflict, r Review, productID int64, lines int) {
+	e.Stats.Rejected += lines
+	e.Stats.RefusedBy[c.Kind]++
+	if e.log != nil {
+		e.log.Debug("AI match refused by the identity guard",
+			"line_id", r.Line.ID, "text", r.Line.RawName,
+			"product_id", productID, "conflict", c.Kind, "detail", c.Detail)
+	}
 }
 
 func inWindow(window map[int64]struct{}, id int64) bool {
@@ -174,7 +192,9 @@ func (e *Enhancement) applyCache(ctx context.Context, reviews []Review) ([]Revie
 		if d.ChosenProductID == nil || d.Confidence < MinApplyConfidence {
 			continue
 		}
-		if e.index.StrengthConflict(r.Row, *d.ChosenProductID) {
+		if c := e.index.IdentityConflict(r.Row, *d.ChosenProductID); !c.None() {
+			e.Stats.Rejected++
+			e.Stats.RefusedBy[c.Kind]++
 			continue
 		}
 		before := r.Line.MatchedProductID

@@ -107,6 +107,20 @@ func BuildRow(l *smartorder.Line) *productmatch.Row {
 		rest = strings.Replace(rest, m[0], " ", 1)
 	}
 
+	// The distributor, which Egyptian price lists write after a slash:
+	// "ابيفيناك حقن /ايبيكو", "ال كارنتين شراب/ميباكو". Left in the name it is
+	// not merely dead weight — it is actively wrong, because two unrelated
+	// medicines from the same house share it and nothing else. On the live
+	// catalogue that is exactly how "ابيفيناك حقن /ايبيكو" came to be matched to
+	// "سيفوتاكس 500مجم فيال ايبيكو": one shared word, two different drugs.
+	//
+	// Moved into Manufacturer it becomes what it is — weak corroboration the
+	// scorer may add to a match but never decide one on.
+	if name, maker, ok := splitDistributor(rest); ok {
+		rest = name
+		row.Manufacturer = maker
+	}
+
 	// Pack size, same reasoning.
 	if m := packPattern.FindStringSubmatch(rest); m != nil {
 		row.PackSize = atoiSafe(m[1])
@@ -145,6 +159,29 @@ func BuildRow(l *smartorder.Line) *productmatch.Row {
 		row.Name = raw
 	}
 	return row
+}
+
+// splitDistributor separates a trailing "/distributor" from a product name.
+//
+// Only a trailing segment counts, and only one that does not begin with a digit.
+// Slashes are load-bearing elsewhere in these lines — "افيفافاسك 5/160مجم" is a
+// combination strength and "250مجم/5مل" is a concentration — and mistaking
+// either for a company name would throw away the figure that identifies the
+// product.
+func splitDistributor(text string) (name, maker string, ok bool) {
+	cut := strings.LastIndex(text, "/")
+	if cut < 0 {
+		return "", "", false
+	}
+	head := strings.TrimSpace(text[:cut])
+	tail := strings.TrimSpace(text[cut+1:])
+	if head == "" || tail == "" {
+		return "", "", false
+	}
+	if r := []rune(tail)[0]; r >= '0' && r <= '9' {
+		return "", "", false
+	}
+	return head, tail, true
 }
 
 func atoiSafe(s string) int {

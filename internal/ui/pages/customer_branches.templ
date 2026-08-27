@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -14,44 +15,52 @@ type CustomerBranchesData struct {
 }
 
 templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms []string) {
-	@layouts.CustomerShell("فروع الصيدلية ومواقع الاستلام", "branches", lang, dir, perms) {
+	@layouts.CustomerShell(i18n.T(lang, "nav.pharmacy_branches"), "branches", lang, dir, perms) {
 		<div style="display:flex; flex-direction:column; gap:1.75rem;">
 			<!-- Header Banner -->
 			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
 				<div>
 					<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
-						فروع الصيدلية ومواقع الاستلام 📍
+						{ i18n.T(lang, "customer.branches_title") }
 					</h2>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;">
-						إدارة فروع الصيدلية ومواقع استلام شحنات الأدوية. يتم استخدام إحداثيات كل فرع لتحديد العروض والموردين الذين يغطون موقعك الجغرافي.
+						{ i18n.T(lang, "customer.branches_sub") }
 					</p>
 				</div>
 				<a href="#new-branch-form" class="btn btn-primary btn-sm fw-700">
 					@components.IconPlus("icon-xs")
-					<span>+ إضافة فرع جديد</span>
+					<span>{ i18n.T(lang, "customer.add_branch") }</span>
 				</a>
 			</div>
 
 			<!-- Metrics Strip -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
 				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الفروع المسجلة</div>
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">
+						{ i18n.T(lang, "customer.total_branches") }
+					</div>
 					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.Branches)) }</div>
 				</div>
 				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">الفرع الرئيسي للشراء</div>
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">
+						{ i18n.T(lang, "customer.main_branch") }
+					</div>
 					<div style="font-size:1.15rem; font-weight:800; color:var(--accent);">
 						if len(data.Branches) > 0 {
-							<span>{ data.Branches[0].Name["ar"] }</span>
+							<span>{ data.Branches[0].Name.Get(i18n.ParseLang(lang)) }</span>
 						} else {
 							<span>غير محدد</span>
 						}
 					</div>
 				</div>
 				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">حالة التغطية الجغرافية</div>
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">
+						{ i18n.T(lang, "customer.coverage_status") }
+					</div>
 					<div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;">
-						<span class="badge badge-emerald" style="font-size:0.775rem;">نشط ومغطى بالتوريد</span>
+						<span class="badge badge-emerald" style="font-size:0.775rem;">
+							{ i18n.T(lang, "customer.active_covered") }
+						</span>
 					</div>
 				</div>
 			</div>

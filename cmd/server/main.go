@@ -78,6 +78,17 @@ func run() error {
 	// trading.
 	adminRepo := platformadminPostgres.NewRepository(deps.Handle())
 	adminSvc := platformadmin.NewService(adminRepo, log)
+
+	// Sync custom database translations into the runtime i18n engine in background
+	go func() {
+		for i := 0; i < 30; i++ {
+			time.Sleep(1500 * time.Millisecond)
+			if err := adminSvc.SyncRuntimeOverrides(context.Background()); err == nil {
+				break
+			}
+		}
+	}()
+
 	// The admin panel's Gateway identity is provisioned on demand from the
 	// administrator credentials in إعدادات النظام, so an operator never has to
 	// paste a Bearer key by hand.

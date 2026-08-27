@@ -153,7 +153,7 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 	matcher.Retrieve(reviews)
 
 	total := len(reviews)
-	enh := NewEnhancement(r.repo, r.ai, matcher.Index())
+	enh := NewEnhancement(r.repo, r.ai, matcher.Index(), r.log)
 	// This is the stage that waits on a network, so it is the one that has to
 	// move the bar while it works. Reporting only on entry and exit left the
 	// buyer watching a still number through the slowest minute of the run.
@@ -174,7 +174,8 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 		"run_id", run.ID, "reviewed", enh.Stats.Reviewed, "cache_hits", enh.Stats.CacheHits,
 		"requests", enh.Stats.Requests, "improved", enh.Stats.Improved,
 		"confirmed", enh.Stats.Confirmed, "abstained", enh.Stats.Abstained,
-		"rejected", enh.Stats.Rejected, "ceiling_hit", enh.Stats.CeilingHit)
+		"rejected", enh.Stats.Rejected, "refused_by", enh.Stats.RefusedBy,
+		"ceiling_hit", enh.Stats.CeilingHit)
 
 	r.emit(ctx, run, smartorder.StageAIEnhance, total, total,
 		"اكتمل تحسين المطابقة بالذكاء الاصطناعي", "AI enhancement completed")

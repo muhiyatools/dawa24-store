@@ -31,6 +31,7 @@ package pipeline
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -43,7 +44,7 @@ import (
 // prompt, the rendered input, or the retrieval that fills it. It is part of the
 // cache key, so a change orphans old decisions rather than silently reusing
 // answers to a different question.
-const PromptVersion = "sm-enh-v1"
+const PromptVersion = "sm-enh-v3"
 
 // Ceilings bound what one run may do.
 //
@@ -51,45 +52,76 @@ const PromptVersion = "sm-enh-v1"
 // buyer as an opaque failure. Stopping first, and saying so, is the difference
 // between "the system degraded and told me" and "the system broke".
 const (
-	// RecallLimit is how many catalogue products are retrieved per line. Above
-	// roughly a dozen the extra rows are noise the model pays to read; below
-	// half that, the correct product starts falling off the end.
-	RecallLimit = 12
+	// RecallLimit is how many catalogue products are retrieved per line.
+	//
+	// Sixteen rather than a dozen, because the model behind this now has a
+	// million-token context and charges three cents a million: the four extra
+	// rows cost nothing measurable and buy the cases where the correct product
+	// ranks eighth because the pharmacy misspelled the brand. Far above this the
+	// list stops being a shortlist and starts being a haystack.
+	RecallLimit = 16
 
 	// MaxInputBytes caps one request's rendered input, in BYTES rather than
-	// characters — Arabic is two bytes per character in UTF-8 and conflating
+	// characters — Arabic is two bytes per character in UTF-8, and conflating
 	// the two halves the budget without anyone noticing.
 	//
-	// Measured on a live 1,473-row file: 200 KB packs about 150 items with a
-	// shared window of roughly 1,400 catalogue rows, which is 55-65k tokens.
-	// That sits inside a 128k context with room for the answer, and it is what
-	// takes that file from fifteen requests to eight.
-	MaxInputBytes = 200_000
+	// A million-token context takes roughly two and a half megabytes of this
+	// mixture. One megabyte is a deliberate fraction of that: it leaves the
+	// answer, the system prompt and any Gateway-side overhead a wide margin, and
+	// it is far more than the item ceiling below will ever fill anyway. The
+	// byte budget is now a backstop rather than the binding constraint, which is
+	// the right shape — a request should be sized by how many answers it can
+	// safely produce, not by how much text it can hold.
+	MaxInputBytes = 1_000_000
 
-	// MaxItemsPerRequest bounds the answer rather than the question. Two
-	// hundred decisions is a large but bounded completion; beyond it a
-	// truncated response would lose the whole batch.
+	// MaxItemsPerRequest bounds the ANSWER, and that is now what limits a batch.
+	//
+	// Not the token ceiling — three hundred decisions is only twenty thousand
+	// output tokens against a model that allows sixty-six — but LATENCY, which
+	// is measured: a 104-item request against the live Gateway returned in
+	// thirty-five seconds, and 300-item requests were still generating past
+	// ninety. A buyer is waiting on this stage, and a batch that is too large
+	// also loses more when it fails, since a failed batch takes every line in it
+	// back to the deterministic outcome.
+	//
+	// Two hundred sits where the whole residue of an ordinary file still fits in
+	// one round of concurrent requests without any single one of them running
+	// long.
 	MaxItemsPerRequest = 200
 
 	// MaxRequestsPerRun is the spend ceiling, and it is the one number here
-	// that is a business decision rather than a measurement. Ten requests cover
-	// roughly 1,500 unresolved lines — a file where the deterministic engine
-	// failed on almost everything. Anything past it keeps its deterministic
-	// outcome and is reported as such rather than silently dropped.
-	MaxRequestsPerRun = 10
+	// that is a business decision rather than a measurement. Twelve requests at
+	// two hundred items cover a file with 2,400 unresolved lines — one where the
+	// deterministic engine failed on almost everything. Anything past it keeps
+	// its deterministic outcome and is reported as such rather than silently
+	// dropped.
+	//
+	// At the model's published price a full twelve costs under five US cents,
+	// so this ceiling is about bounding latency and blast radius, not spend.
+	MaxRequestsPerRun = 12
 
-	// MaxConcurrent is deliberately low. These are large prompts; running many
-	// at once buys little and risks the Gateway's own rate limit.
-	MaxConcurrent = 3
+	// MaxConcurrent is what actually determines how long the stage takes, since
+	// the total output tokens are the same however the items are divided. Four
+	// clears a thousand-line residue in two rounds while staying well inside any
+	// sane rate limit.
+	MaxConcurrent = 4
 
 	// MaxWallClock bounds the stage. The run itself is allowed twenty minutes,
 	// so this leaves ample room for supplier resolution afterwards.
-	MaxWallClock = 6 * time.Minute
+	MaxWallClock = 8 * time.Minute
 
 	// MinApplyConfidence is the floor below which an answer is recorded but not
-	// applied. The prompt already instructs the model to answer null below 0.70;
-	// this enforces it, because an instruction is not a guarantee.
-	MinApplyConfidence = 0.70
+	// applied. The prompt instructs the model to answer null below the same
+	// figure; this enforces it, because an instruction is not a guarantee.
+	//
+	// Eight tenths, because the model's confidence turns out to be well
+	// calibrated and sharply bimodal: on a live 1,004-line residue it answered
+	// 0.95 for everything it was sure of, and the handful it scored in the
+	// seventies included "ابى ديرم كريم" matched to "هاي ديرم كريم" — two
+	// different products sharing only the category suffix ديرم, which no
+	// deterministic guard can tell from a brand. The model knew. Taking it at
+	// its word costs almost nothing and removes exactly that class of mistake.
+	MinApplyConfidence = 0.80
 )
 
 // Enhancer resolves a batch of review lines against a catalogue window.
@@ -156,13 +188,18 @@ type Review struct {
 // "did the AI do anything for me?" — and it counts lines whose matched product
 // changed, not lines the model replied about.
 type EnhancementStats struct {
-	Reviewed   int
-	CacheHits  int
-	Requests   int
-	Improved   int
-	Confirmed  int
-	Abstained  int
-	Rejected   int
+	Reviewed  int
+	CacheHits int
+	Requests  int
+	Improved  int
+	Confirmed int
+	Abstained int
+	Rejected  int
+	// RefusedBy counts refusals by conflict kind — strength, modifier, form,
+	// evidence. It is the number that says whether the guards are protecting the
+	// buyer or fighting the model, and it is the first thing to look at when
+	// this stage stops helping.
+	RefusedBy  map[string]int
 	CeilingHit bool
 }
 
@@ -171,6 +208,7 @@ type Enhancement struct {
 	repo  smartorder.Repository
 	ai    Enhancer
 	index *productmatch.Index
+	log   *slog.Logger
 	now   func() time.Time
 
 	requests int64
@@ -185,9 +223,18 @@ type Enhancement struct {
 	Stats EnhancementStats
 }
 
-// NewEnhancement constructs the AI stage.
-func NewEnhancement(repo smartorder.Repository, ai Enhancer, index *productmatch.Index) *Enhancement {
-	return &Enhancement{repo: repo, ai: ai, index: index, now: time.Now}
+// NewEnhancement constructs the AI stage. A nil logger is allowed; refusals are
+// then simply not recorded.
+func NewEnhancement(repo smartorder.Repository, ai Enhancer, index *productmatch.Index,
+	log *slog.Logger) *Enhancement {
+	return &Enhancement{
+		repo:  repo,
+		ai:    ai,
+		index: index,
+		log:   log,
+		now:   time.Now,
+		Stats: EnhancementStats{RefusedBy: map[string]int{}},
+	}
 }
 
 // Run improves what it can and leaves the rest as the deterministic engine found
