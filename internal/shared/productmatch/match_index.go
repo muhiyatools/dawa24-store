@@ -75,6 +75,10 @@ type Index struct {
 	// brand name count for more than the word "شراب".
 	df    map[string]int
 	total int
+	// tri holds the trigram and scientific-name posting lists that only Recall
+	// needs, built lazily. Most runs never reach the AI stage, and an index
+	// nothing reads should not be paid for on every import.
+	tri recallIndex
 }
 
 // NewIndex builds the matching index. Ownership of the slice passes to it.

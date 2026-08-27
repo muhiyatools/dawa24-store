@@ -34,7 +34,8 @@ const runColumns = `
 	coverage_blocked_rows, institutional_blocked_rows, below_min_qty_rows,
 	estimated_total, budget_exceeded, budget_overage,
 	order_id, finalized_at,
-	ai_enabled, ai_calls, ai_lines_adjudicated, ai_cost_estimate, ai_ceiling_hit,
+	ai_enabled, ai_calls, ai_lines_reviewed, ai_lines_adjudicated, ai_lines_improved,
+	ai_cache_hits, ai_cost_estimate, ai_ceiling_hit,
 	deterministic_ms, total_ms, COALESCE(failure_reason, '') AS failure_reason,
 	created_at, updated_at`
 
@@ -49,7 +50,8 @@ func scanRun(row pgx.Row) (*smartorder.Run, error) {
 		&r.Stats.CoverageBlockedRows, &r.Stats.InstitutionalBlockedRows, &r.Stats.BelowMinQtyRows,
 		&r.EstimatedTotal, &r.BudgetExceeded, &overage,
 		&r.OrderID, &r.FinalizedAt,
-		&r.AI.Enabled, &r.AI.Calls, &r.AI.LinesAdjudicated, &r.AI.CostEstimate, &r.AI.CeilingHit,
+		&r.AI.Enabled, &r.AI.Calls, &r.AI.LinesReviewed, &r.AI.LinesAdjudicated,
+		&r.AI.LinesImproved, &r.AI.CacheHits, &r.AI.CostEstimate, &r.AI.CeilingHit,
 		&r.DeterministicMS, &r.TotalMS, &r.FailureReason, &r.CreatedAt, &r.UpdatedAt,
 	); err != nil {
 		return nil, err
@@ -189,14 +191,16 @@ func (r *Repository) UpdateRunStats(ctx context.Context, run *smartorder.Run) er
 				institutional_blocked_rows = $7, below_min_qty_rows = $8,
 				estimated_total = $9, budget_exceeded = $10, budget_overage = $11,
 				ai_calls = $12, ai_lines_adjudicated = $13, ai_cost_estimate = $14,
-				ai_ceiling_hit = $15, deterministic_ms = $16, total_ms = $17
+				ai_ceiling_hit = $15, deterministic_ms = $16, total_ms = $17,
+				ai_lines_reviewed = $18, ai_lines_improved = $19, ai_cache_hits = $20
 			WHERE id = $1;`,
 			run.ID, run.Stats.TotalRows, run.Stats.MatchedRows, run.Stats.UnmatchedRows,
 			run.Stats.NoSupplierRows, run.Stats.CoverageBlockedRows,
 			run.Stats.InstitutionalBlockedRows, run.Stats.BelowMinQtyRows,
 			run.EstimatedTotal, run.BudgetExceeded, run.BudgetOverage,
 			run.AI.Calls, run.AI.LinesAdjudicated, run.AI.CostEstimate,
-			run.AI.CeilingHit, run.DeterministicMS, run.TotalMS)
+			run.AI.CeilingHit, run.DeterministicMS, run.TotalMS,
+			run.AI.LinesReviewed, run.AI.LinesImproved, run.AI.CacheHits)
 		return err
 	})
 }

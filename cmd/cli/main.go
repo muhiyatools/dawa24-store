@@ -13,8 +13,11 @@ import (
 
 	dbfs "github.com/muhiya/dawa24-store/db"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	orgPG "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 )
 
@@ -143,7 +146,14 @@ func run() error {
 		return activateImported(ctx, db, log, os.Args[2:])
 
 	case "smartorder-smoke":
-		return smartOrderSmoke(ctx, db, log, os.Args[2:])
+		// Env-configured credentials, not the admin settings source the server
+		// uses: a smoke run is driven by an operator who can set
+		// GATEWAY_ENABLED and GATEWAY_VIRTUAL_KEY, and reaching into the admin
+		// tables from a CLI would test a different code path than the one being
+		// smoked.
+		gw := gateway.New(cfg.Gateway, log)
+		return smartOrderSmoke(ctx, db, gw,
+			org.NewService(orgPG.NewRepository(db), log), log, os.Args[2:])
 
 	case "health":
 		if err := db.Health(ctx); err != nil {

@@ -138,13 +138,29 @@ type Stats struct {
 // CostEstimate is USD with six decimals and deliberately not money.Amount:
 // that type is EGP minor units for orders, and conflating the two is how a
 // gateway bill ends up on an invoice.
+//
+// LinesImproved is the number that answers the buyer's actual question — "did
+// this do anything for me?" — and it counts lines whose matched product changed,
+// not lines the model replied about. A run that reviewed four hundred lines and
+// improved three should read as exactly that.
 type AIUsage struct {
-	Enabled          bool    `json:"enabled"`
-	Calls            int     `json:"calls"`
-	LinesAdjudicated int     `json:"lines_adjudicated"`
-	CostEstimate     float64 `json:"cost_estimate"`
-	CeilingHit       bool    `json:"ceiling_hit"`
+	Enabled bool `json:"enabled"`
+	Calls   int  `json:"calls"`
+	// LinesReviewed is how many lines were sent, after the decision cache had
+	// answered everything it could.
+	LinesReviewed int `json:"lines_reviewed"`
+	// LinesAdjudicated is how many lines the model actually answered.
+	LinesAdjudicated int `json:"lines_adjudicated"`
+	// LinesImproved is how many ended the stage matched to a different product
+	// than the deterministic engine left them on.
+	LinesImproved int     `json:"lines_improved"`
+	CacheHits     int     `json:"cache_hits"`
+	CostEstimate  float64 `json:"cost_estimate"`
+	CeilingHit    bool    `json:"ceiling_hit"`
 }
+
+// Improved reports whether the AI stage changed anything the buyer can see.
+func (a AIUsage) Improved() bool { return a.LinesImproved > 0 }
 
 // Line is one imported spreadsheet row.
 type Line struct {
@@ -267,6 +283,15 @@ const (
 	StageNormalize  Stage = "normalize"
 	StageResolve    Stage = "resolve"
 	StageCandidates Stage = "candidates"
+	// StageInitialDone marks the deterministic engine finishing. It is a
+	// milestone rather than work, and it exists because a buyer must be able to
+	// see that ordinary matching is complete while the AI stage is still
+	// running — otherwise a run that is 90% done looks identical to one that has
+	// hung.
+	StageInitialDone Stage = "initial_done"
+	// StageAIEnhance is the AI stage. StageAdjudicate is its former name, kept
+	// so runs recorded before the rework still render.
+	StageAIEnhance  Stage = "ai_enhance"
 	StageAdjudicate Stage = "adjudicate"
 	StageSelect     Stage = "select"
 	StageFinalize   Stage = "finalize"

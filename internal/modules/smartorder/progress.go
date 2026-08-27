@@ -22,13 +22,18 @@ type stageBand struct{ start, end int }
 // stageBands are measured shares, in pipeline order. They must be contiguous
 // and end at 100, or the bar jumps.
 var stageBands = map[Stage]stageBand{
-	StageParse:      {0, 4},
-	StageNormalize:  {4, 8},
-	StageResolve:    {8, 30},
-	StageCandidates: {30, 55},
-	StageAdjudicate: {55, 84},
-	StageSelect:     {84, 99},
-	StageFinalize:   {99, 100},
+	StageParse:       {0, 3},
+	StageNormalize:   {3, 6},
+	StageResolve:     {6, 24},
+	StageCandidates:  {24, 44},
+	StageInitialDone: {44, 46},
+	// The AI stage owns the widest band because it is the one that waits on a
+	// network. It is also the one whose progress is reported batch by batch, so
+	// the bar keeps moving through it rather than sitting still for a minute.
+	StageAIEnhance:  {46, 80},
+	StageAdjudicate: {46, 80},
+	StageSelect:     {80, 98},
+	StageFinalize:   {98, 100},
 }
 
 // Band returns the stage's share of the overall bar.
@@ -52,12 +57,14 @@ func (s Stage) Label() string {
 		return "مطابقة الأكواد والأسماء"
 	case StageCandidates:
 		return "مطابقة الأصناف المتبقية"
-	case StageAdjudicate:
-		return "مطابقة ذكية للأصناف الصعبة"
+	case StageInitialDone:
+		return "اكتملت المطابقة المبدئية"
+	case StageAIEnhance, StageAdjudicate:
+		return "الذكاء الاصطناعي يحسّن المطابقات غير المؤكدة"
 	case StageSelect:
 		return "البحث عن الموردين"
 	case StageFinalize:
-		return "إنهاء الطلب"
+		return "اكتملت المطابقة"
 	}
 	return "جارٍ المعالجة"
 }

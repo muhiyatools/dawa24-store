@@ -48,6 +48,16 @@ const (
 	// because that one answers a single row: sending ten thousand of those is how
 	// a weekly budget disappears in one import.
 	CapMatchAdjudicate Capability = "matching.adjudicate"
+	// CapMatchEnhance resolves every unsettled row of ONE import against a
+	// de-duplicated catalogue window, in as few requests as the payload allows.
+	//
+	// It supersedes CapMatchAdjudicate for smart ordering. The difference is not
+	// batch size but what is on the table: adjudication offers each row the five
+	// products the scorer that already failed picked for it, while enhancement
+	// sends a retrieved window shared across the whole batch and lets the model
+	// answer from any of it. That is the difference between a second opinion and
+	// a second vote on the same shortlist.
+	CapMatchEnhance Capability = "matching.enhance"
 )
 
 // Tier is the class of model a capability needs, not a model itself.
@@ -97,6 +107,12 @@ var budgets = map[Capability]budget{
 	// costs a whole batch again, and the pipeline's bisection handles failure
 	// better than a blind repeat would.
 	CapMatchAdjudicate: {timeout: 90 * time.Second, retries: 1, tier: TierFast},
+	// Enhancement sends the largest prompt this application produces — a
+	// catalogue window of a few thousand rows — and expects a compact JSON
+	// answer. The timeout is sized for that prompt being read, not for the
+	// answer being written, and the quality tier is deliberate: this is the one
+	// capability whose mistakes become a purchase order.
+	CapMatchEnhance: {timeout: 240 * time.Second, retries: 1, tier: TierQuality},
 }
 
 // modelFor resolves a capability's tier to the model name to send.

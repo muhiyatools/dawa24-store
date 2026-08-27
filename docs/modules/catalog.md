@@ -56,3 +56,54 @@ The `catalog` bounded context manages pharmaceutical products, packaging variant
 - `POST /api/v1/catalog/products/{id}/variants` — Create new variant under product.
 - `GET /api/v1/catalog/categories` — List taxonomy categories.
 - `GET /api/v1/catalog/brands` — List manufacturers and brands.
+
+## The master-catalogue import wizard
+
+`/admin/products/import` — four steps, in `internal/ui/admin_import_*.go`,
+`internal/ui/pages/admin_import_*.templ`, and `internal/modules/catalog/import_*.go`.
+
+| Step | Route | What it does | Writes |
+|---|---|---|---|
+| 1 · upload | `POST /admin/products/import` | `AnalyzeImport`: decode the sheet, find its blocks and header, describe every column | one `catalog.import_sessions` row, status `draft`, plus the file |
+| 2 · map | `GET/POST .../{id}/mapping`, `POST .../{id}/preview` | `PreviewImport`: re-read under the admin's bindings, show the first 25 products | the session's `structure`, `options`, `layout_overrides` |
+| 3 · review | `POST .../{id}/prepare` → `GET .../{id}` | `PrepareImportAsync`: parse, match, stage | `catalog.import_staging_rows`, status `processing` → `ready` |
+| 4 · commit | `POST .../{id}/commit` | `CommitImport` | `catalog.products`, status `ready` → `committed` |
+
+Nothing before step 4 touches the catalogue. Steps 1–3 are re-runnable as often
+as the admin likes.
+
+### Invariants
+
+- **The mapping step is not skippable.** Step 1 must never start processing.
+  A run against a mapping nobody has seen is how an import of nine thousand
+  products arrives as a review screen full of zeros with nothing to explain it.
+  `AdminProductsImportReviewPage` redirects a `draft` session back to `/mapping`
+  for the same reason: an unprocessed session is not an empty result.
+- **`session.status` is the authority on what an import is doing.**
+  `ProgressTracker` is a per-process convenience and its `Progress` reports
+  whether an *entry exists*, not whether a run is live. Only a non-terminal live
+  snapshot may override the row (`SessionProgress`).
+- **Staging rows land before the status does.** `prepare` writes
+  `ReplaceStagingRows` while the session is still `processing`, then flips to
+  `ready`. The reverse order left a window in which the review screen, the
+  progress poll and a commit all saw a finished import with an empty table.
+- **One read per render.** `renderImportReview` takes the session once, through
+  `SessionProgress`, and decides everything from it. Two reads let a run
+  finishing between them render a progress bar for work that was already over.
+- **`UseAI` is off by default** (`DefaultImportOptions`). An unaudited import
+  must be judged on the deterministic engine's own match rate; the switch sits
+  on the mapping screen beside everything else that changes the outcome.
+- **A failed run is recoverable, not a dead end.** `IsRetryable` includes
+  `failed`: the upload is still on the row and the usual cause is a mapping that
+  read nothing, so the route out is `/mapping`, not another upload.
+- **The mapping screen never re-decodes the workbook to draw itself.** The
+  reading is stored on the session as `structure` (see `catalog.FileStructure`),
+  and `sheetCache` holds the decoded sheet for fifteen minutes so successive
+  previews are a map lookup rather than a 32 MB read plus a full decode.
+
+### Known legacy quirks preserved
+
+- A row with an identifier but no name is imported under `صنف دوائي #<code>`
+  rather than dropped. Losing stock a pharmacy owns is worse than a bad label.
+- A file whose header repeats every N rows (a print-paginated ERP export) is read
+  as N blocks, each through its own header. `AnalyzeLayout` documents why.

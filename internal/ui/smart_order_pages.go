@@ -49,6 +49,8 @@ func (h *UIHandler) SmartOrderProgressPage(w http.ResponseWriter, r *http.Reques
 		}
 	} else if stage := smartorder.CurrentStage(events); stage != "" {
 		data.Caption = stage.Label()
+		data.AIRunning = stage == smartorder.StageInitialDone ||
+			stage == smartorder.StageAIEnhance || stage == smartorder.StageAdjudicate
 	}
 	// A run that has been claimed but has emitted nothing yet is genuinely at
 	// the start, not stalled. Showing a little progress is the honest reading

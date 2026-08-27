@@ -83,6 +83,28 @@ func outcomeChip(o smartorder.Outcome) string {
 	}
 }
 
+// aiSummary says what the AI stage actually did, in one sentence.
+//
+// The figure that matters is how many matches it *changed*, not how many lines
+// it was asked about: a buyer told "reviewed 412 items" learns nothing, while
+// "improved 37 of 412" is a claim they can go and check in the table below by
+// filtering on طريقة المطابقة = ذكاء اصطناعي.
+func aiSummary(ai smartorder.AIUsage) string {
+	reviewed := ai.LinesReviewed + ai.CacheHits
+	if ai.LinesImproved == 0 {
+		return fmt.Sprintf(
+			"تمت مراجعة %d صنف لم تتمكن المطابقة الحتمية من حسمها، ولم يُضِف الذكاء الاصطناعي مطابقة جديدة موثوقة.",
+			reviewed)
+	}
+	out := fmt.Sprintf(
+		"تمت مراجعة %d صنف لم تتمكن المطابقة الحتمية من حسمها، وتم تحسين مطابقة %d منها.",
+		reviewed, ai.LinesImproved)
+	if ai.CacheHits > 0 {
+		out += fmt.Sprintf(" (%d منها أُجيبت من ذاكرة القرارات دون تكلفة إضافية)", ai.CacheHits)
+	}
+	return out
+}
+
 // statCard renders one figure from the run statistics.
 templ statCard(label string, value string, tone string) {
 	<div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); min-width:150px; flex:1;">
@@ -122,9 +144,18 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 				</div>
 			}
 
+			if data.Run.AI.Enabled && data.Run.AI.LinesReviewed+data.Run.AI.CacheHits > 0 {
+				<div style="padding:0.9rem 1.25rem; border-radius:var(--radius-lg); background:rgba(16,185,129,0.09); border:1px solid var(--border); margin-bottom:1rem; font-size:0.9rem;">
+					<strong>تحسين المطابقة بالذكاء الاصطناعي</strong>
+					<div style="color:var(--text-secondary); margin-top:0.35rem;">
+						{ aiSummary(data.Run.AI) }
+					</div>
+				</div>
+			}
+
 			if data.Run.AI.CeilingHit {
 				<div style="padding:0.9rem 1.25rem; border-radius:var(--radius-lg); background:rgba(245,158,11,0.10); border:1px solid var(--warning); margin-bottom:1.5rem; font-size:0.9rem;">
-					تم بلوغ حد المطابقة الذكية لهذا الطلب، وبقيت بعض الأصناف بمطابقتها الحتمية فقط.
+					تم بلوغ حد التحسين بالذكاء الاصطناعي لهذا الطلب، وبقيت بعض الأصناف بمطابقتها الحتمية فقط.
 				</div>
 			}
 

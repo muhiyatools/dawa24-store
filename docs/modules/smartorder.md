@@ -16,7 +16,8 @@ Spec: `specs/001-smart-ordering-system/`.
 
 - **PostgreSQL schema:** `smartorder`
 - **Migrations:** `123_drop_automation_requests`, `124_smartorder`,
-  `125_match_decisions`, `126_product_index_variant_stock`
+  `125_match_decisions`, `126_product_index_variant_stock`,
+  `127_smartorder_files`, `132_smartorder_ai_enhance`
 - **Tables owned:**
   - `smartorder.runs` — one end-to-end execution, its counters and totals.
   - `smartorder.run_config` — the configuration snapshot the run executed under.
@@ -28,7 +29,7 @@ Spec: `specs/001-smart-ordering-system/`.
   - `smartorder.line_selections` — the chosen candidate and what decided it.
   - `smartorder.run_events` — append-only progress and audit.
   - `smartorder.criteria_profiles` — the buyer's remembered defaults.
-- **Tables shared with `catalog`:** `catalog.match_decisions` (adjudication
+- **Tables shared with `catalog`:** `catalog.match_decisions` (AI decision
   cache), `catalog.product_aliases` (learned alias channel). Both are catalogue
   knowledge rather than buyer data, and are deliberately **not** tenant-scoped.
 
@@ -47,48 +48,79 @@ Spec: `specs/001-smart-ordering-system/`.
    single easiest way to lose that. `pipeline/retrieval` asserts the query count
    does not scale with row count.
 
-3. **The deterministic engine is primary; AI is the last and smallest tier.**
-   A line resolved at or above the **0.850 cutoff** is never sent for
-   adjudication and is never overwritten by it. With AI off the run still
-   completes and produces a finalisable order.
+3. **The deterministic engine is primary; AI only enhances what it left.**
+   The engine runs to completion over the whole file first. What reaches the AI
+   stage is exactly the two populations the buyer would otherwise see as
+   `غير مطابق` and `مطلوب للمراجعة`: no match at all, or a match below the
+   **0.850 cutoff**. A line at or above the cutoff is never sent and is never
+   overwritten. With AI off the run still completes and produces a finalisable
+   order.
 
-4. **Adjudication is batched, bounded and cached.** At most 25 items per request,
-   5 candidates per item, 40 requests and 90 seconds per run. Every decision is
-   cached on `sha256(normalised text ‖ sorted candidate ids ‖ prompt version)`,
-   so a recurring file costs almost nothing the second time. A result naming a
-   product outside the candidate list is rejected.
+4. **Retrieval for AI is separate from, and wider than, the scorer's shortlist.**
+   `productmatch.Recall` unions three strategies — shared distinctive words,
+   shared character trigrams, and the molecule — with the scorer's disqualifying
+   penalties removed. This is the change that made the stage worth running:
+   measured on a live 1,473-row file, the scorer's own shortlist was **empty for
+   25% of review lines** (which the old adjudicator therefore skipped entirely)
+   and averaged 2.2 candidates; recall leaves 0.1% empty at 12 candidates each,
+   and puts products like `ابيليفاي 10مجم` in front of a line typed `ابليفاى
+   10مجم` that shares no whole word with it.
 
-5. **Supplier selection is strict priority within a tolerance band.** The
+5. **One catalogue window per request, shared by every item in it.** Each item
+   names its own shortlist by id, but the model may answer with any id in the
+   window — the correct product is often present because it was retrieved for a
+   different line. De-duplicating the union is what makes a whole file fit in one
+   or a few calls: 13,453 candidate references become 10,294 catalogue rows, and
+   that 1,473-row file goes from fifteen requests to eight. Ordinary files take
+   one.
+
+6. **The AI stage is bounded, cached and re-checked.** At most 200 items and
+   200 KB of rendered input per request, 10 requests and 6 minutes per run;
+   duplicate lines are collapsed into one question. Every decision is cached on
+   `sha256(normalised text ‖ sorted candidate ids ‖ prompt version)`, so a
+   recurring file costs almost nothing the second time. Before anything is
+   written, three guards run: the product must be one the model was shown, the
+   confidence must reach 0.70, and the strength must not conflict with the
+   catalogue's own record.
+
+7. **The prompt is generated, never authored by a model.**
+   `aicapabilities.RenderEnhanceInput` is a pure function of the request — no
+   clock, no map iteration, no randomness — because the decision cache keys on
+   the question asked. The answer is strict JSON with a JSON-schema response
+   format where the Gateway supports one, and a prompt that specifies the same
+   shape in full where it does not.
+
+8. **Supplier selection is strict priority within a tolerance band.** The
    highest-priority enabled criterion decides, but only among candidates within
    the tolerance (default 5%) of the cheapest eligible net price. When the band
    rejects a criterion's winner, the line names the skipped supplier and by how
    much it missed. Ties break deterministically, ending in `vendor_org_id`, so
    re-running an unchanged file selects the same suppliers.
 
-6. **Eligibility checks are ordered, and the order is the design.** own_org →
+9. **Eligibility checks are ordered, and the order is the design.** own_org →
    inactive → institutional → coverage → stock → min_qty. The **first** failure
    is reported, because it is the most actionable: an offer both out of stock and
    outside coverage is a coverage problem, and saying "out of stock" sends the
    buyer hunting for a supplier they did not need to find.
 
-7. **Nothing is silently substituted or dropped.** Finalisation re-verifies every
+10. **Nothing is silently substituted or dropped.** Finalisation re-verifies every
    line; a line that changed blocks the whole order and is named. Quantity cells
    that cannot be read (`"2-3"`, negatives, garbage) produce no quantity and a
    note, never a guess.
 
-8. **The review cart is not the shopping cart.** No path in this module reads or
+11. **The review cart is not the shopping cart.** No path in this module reads or
    writes `commerce.carts` or `commerce.cart_items`. An abandoned import must not
    leave items in a cart the buyer believes is empty.
 
-9. **One order path.** Finalisation goes through `commerce.Service.Checkout`, so
+12. **One order path.** Finalisation goes through `commerce.Service.Checkout`, so
    multi-vendor shipment partitioning, order numbering, status history and the
    documents gate are identical to an ordinary order.
 
-10. **Money is `money.Amount` throughout.** Net prices, bands and line totals are
+13. **Money is `money.Amount` throughout.** Net prices, bands and line totals are
     integer minor-unit arithmetic. The one exception is `runs.ai_cost_estimate`,
     which is USD telemetry and deliberately not `money.Amount`.
 
-11. **Row level security** on all seven tenant-owned tables via
+14. **Row level security** on all seven tenant-owned tables via
     `platform.tenant_visible(organization_id)`. Cross-tenant catalogue reads use
     `database.AsSystem` with the marketplace justification stated at the call
     site. A run belonging to another organisation is Not Found, never Forbidden.

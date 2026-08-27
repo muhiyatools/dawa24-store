@@ -126,6 +126,11 @@ type SmartOrderProgressData struct {
 	Percent int
 	// Caption names the stage currently running, in one short phrase.
 	Caption string
+	// AIRunning says the deterministic engine has finished and the AI stage has
+	// not. It earns its own line of text because this is the one point in the
+	// run where "still working" and "nearly done" are both true, and a buyer who
+	// cannot tell them apart reads the pause as a fault.
+	AIRunning bool
 }
 
 // ringOffset is the stroke-dashoffset that draws Percent of the ring.
@@ -186,6 +191,12 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 						</div>
 					</div>
 					<p class="so-progress-caption">{ data.Caption }</p>
+					if data.AIRunning {
+						<p class="so-progress-note">
+							اكتملت المطابقة المبدئية، ويجري الآن تحسين الأصناف غير المطابقة أو التي تحتاج مراجعة.
+							ستظهر النتائج النهائية بعد انتهاء هذه المرحلة.
+						</p>
+					}
 					<p class="so-progress-note">
 						يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.
 					</p>

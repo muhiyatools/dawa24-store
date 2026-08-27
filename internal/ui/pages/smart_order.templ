@@ -141,9 +141,12 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 						<span>استخدام منتجات التوفير في المطابقة</span>
 					</label>
 					<label style="display:flex; align-items:center; gap:0.75rem;">
-						<input type="checkbox" name="use_ai_matching" disabled?={ !data.AIAvailable } checked?={ data.AIAvailable && data.Profile != nil && data.Profile.UseAIMatching }/>
-						<span>المطابقة بالذكاء الاصطناعي للأصناف الصعبة</span>
+						<input type="checkbox" name="use_ai_matching" disabled?={ !data.AIAvailable } checked?={ data.AIAvailable && (data.Profile == nil || data.Profile.UseAIMatching) }/>
+						<span>تحسين المطابقة بالذكاء الاصطناعي للأصناف غير المؤكدة</span>
 					</label>
+					<p style="color:var(--text-secondary); font-size:0.85rem; margin:-0.35rem 0 0 0; padding-inline-start:1.9rem;">
+						تعمل المطابقة العادية أولاً، ثم يراجع الذكاء الاصطناعي فقط الأصناف غير المطابقة أو التي تحتاج مراجعة. لن تظهر النتائج قبل انتهاء المرحلتين.
+					</p>
 					if !data.AIAvailable {
 						<p style="color:var(--warning); font-size:0.85rem; margin:0; padding-inline-start:1.9rem;">
 							{ data.AIUnavailableReason }

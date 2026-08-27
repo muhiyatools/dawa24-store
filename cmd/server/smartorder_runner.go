@@ -51,9 +51,9 @@ func inlineSmartOrderRunner(
 	repo := smartorderPG.New(db)
 	coverage := workflow.NewCoverageService(db)
 
-	// AI is optional; a nil adjudicator makes the pipeline skip the tier, which
+	// AI is optional; a nil enhancer makes the pipeline skip the stage, which
 	// is the same path a disabled Gateway takes.
-	var adjudicator pipeline.Adjudicator
+	var enhancer pipeline.Enhancer
 	if ai != nil && ai.Enabled() {
 		caps := aicapabilities.NewService(ai, log)
 		caps.SetKeyResolver(func(ctx context.Context, orgID int64) (string, error) {
@@ -63,13 +63,13 @@ func inlineSmartOrderRunner(
 			}
 			return o.AIVirtualKey, nil
 		})
-		adjudicator = pipeline.NewGatewayAdjudicator(&serverBatchAdapter{caps: caps})
+		enhancer = pipeline.NewGatewayEnhancer(&serverEnhanceAdapter{caps: caps})
 	}
 
 	runner := pipeline.NewRunner(repo,
 		serverCoverageGate(coverage),
 		serverInstitutionalGate(orgSvc),
-		adjudicator, log)
+		enhancer, log)
 
 	return func(_ context.Context, runID, orgID int64) error {
 		go func() {
@@ -178,41 +178,33 @@ func serverInstitutionalGate(svc *org.Service) pipeline.InstitutionalGate {
 	})
 }
 
-// serverBatchAdapter bridges aicapabilities to the pipeline's gateway contract.
-type serverBatchAdapter struct {
+// serverEnhanceAdapter bridges aicapabilities to the pipeline's gateway contract.
+//
+// The translation is mechanical and lives here rather than in either module,
+// because this is the only place allowed to know about both.
+type serverEnhanceAdapter struct {
 	caps *aicapabilities.Service
 }
 
-func (b *serverBatchAdapter) AdjudicateBatch(ctx context.Context, items []pipeline.GatewayItem) ([]pipeline.GatewayDecision, error) {
-	in := make([]aicapabilities.AdjudicateItem, 0, len(items))
-	for _, it := range items {
-		item := aicapabilities.AdjudicateItem{LineID: it.LineID, Text: it.Text}
-		for _, c := range it.Candidates {
-			item.Candidates = append(item.Candidates, aicapabilities.AdjudicateCandidate{
-				ProductID:     c.ProductID,
-				Name:          c.Name,
-				NameEN:        c.NameEN,
-				Scientific:    c.Scientific,
-				DosageForm:    c.DosageForm,
-				Concentration: c.Concentration,
-				Manufacturer:  c.Manufacturer,
-			})
-		}
-		in = append(in, item)
+func (b *serverEnhanceAdapter) EnhanceBatch(ctx context.Context, batch pipeline.GatewayBatch) ([]pipeline.GatewayOutcome, error) {
+	req := aicapabilities.EnhanceRequest{
+		Catalog: make([]aicapabilities.CatalogEntry, 0, len(batch.Catalog)),
+		Items:   make([]aicapabilities.EnhanceItem, 0, len(batch.Items)),
+	}
+	for _, c := range batch.Catalog {
+		req.Catalog = append(req.Catalog, aicapabilities.CatalogEntry(c))
+	}
+	for _, it := range batch.Items {
+		req.Items = append(req.Items, aicapabilities.EnhanceItem(it))
 	}
 
-	decisions, err := b.caps.AdjudicateBatch(ctx, in)
+	decisions, err := b.caps.EnhanceMatches(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]pipeline.GatewayDecision, 0, len(decisions))
+	out := make([]pipeline.GatewayOutcome, 0, len(decisions))
 	for _, d := range decisions {
-		out = append(out, pipeline.GatewayDecision{
-			LineID:     d.LineID,
-			ProductID:  d.ProductID,
-			Confidence: d.Confidence,
-			Reason:     d.Reason,
-		})
+		out = append(out, pipeline.GatewayOutcome(d))
 	}
 	return out, nil
 }

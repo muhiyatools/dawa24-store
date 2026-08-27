@@ -14,13 +14,13 @@ type Runner struct {
 	repo          smartorder.Repository
 	coverage      CoverageGate
 	institutional InstitutionalGate
-	ai            Adjudicator
+	ai            Enhancer
 	log           *slog.Logger
 }
 
 // NewRunner constructs the pipeline.
 func NewRunner(repo smartorder.Repository, cov CoverageGate, inst InstitutionalGate,
-	ai Adjudicator, log *slog.Logger) *Runner {
+	ai Enhancer, log *slog.Logger) *Runner {
 	return &Runner{repo: repo, coverage: cov, institutional: inst, ai: ai, log: log}
 }
 
@@ -76,38 +76,26 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 		r.log.ErrorContext(ctx, "catalogue index is empty; every line will be unmatched",
 			"run_id", run.ID)
 	}
-	stillResidual := matcher.Score(residual)
-	r.emit(ctx, run, smartorder.StageCandidates, len(lines)-len(stillResidual), len(lines),
+	reviews := matcher.Score(residual)
+	r.emit(ctx, run, smartorder.StageCandidates, len(lines)-len(reviews), len(lines),
 		"مطابقة الأصناف المتبقية", "Matching remaining items")
 
-	// Stage 4 — AI, only on what remains and only if the buyer asked for it.
+	// The deterministic engine is done. Saying so out loud, as its own event, is
+	// what lets the buyer see that ordinary matching finished and something else
+	// is still working — without it, a run three quarters through the AI stage
+	// is indistinguishable from one that has hung.
 	deterministicMS := int(time.Since(started).Milliseconds())
 	run.DeterministicMS = &deterministicMS
+	r.emit(ctx, run, smartorder.StageInitialDone, len(lines)-len(reviews), len(lines),
+		"اكتملت المطابقة المبدئية", "Initial matching completed")
 
-	if cfg.UseAIMatching && r.ai != nil && len(stillResidual) > 0 {
-		total := len(stillResidual)
-		adj := NewAdjudication(r.repo, r.ai)
-		// This is the stage that waits on a network, so it is the one that has
-		// to move the bar while it works. Reporting only on entry and exit left
-		// the buyer watching a still number through the slowest minute of the
-		// run.
-		adj.OnProgress = func(done int) {
-			r.emit(ctx, run, smartorder.StageAdjudicate, done, total,
-				"مطابقة ذكية للأصناف الصعبة", "Resolving difficult items")
-		}
-		adj.Run(ctx, stillResidual)
-
-		run.AI.Calls = adj.Stats.Requests
-		run.AI.LinesAdjudicated = adj.Stats.Adjudicated
-		run.AI.CeilingHit = adj.Stats.CeilingHit
-		r.emit(ctx, run, smartorder.StageAdjudicate, total, total,
-			"مطابقة ذكية للأصناف الصعبة", "Resolving difficult items")
-		if adj.Stats.CeilingHit {
-			r.emitWarn(ctx, run, smartorder.StageAdjudicate,
-				"تم بلوغ حد المطابقة الذكية؛ بقيت بعض الأصناف بلا مطابقة",
-				"AI matching limit reached; some items were left unmatched")
-		}
-	}
+	// Stage 4 — AI enhancement, on exactly the lines the engine left as
+	// غير مطابق or مطلوب للمراجعة, and on nothing else.
+	//
+	// The results are NOT released to the buyer while this runs: the run stays
+	// in `processing` until the whole pipeline finishes, so what they finally
+	// see already includes whatever this improved.
+	r.enhance(ctx, run, cfg, matcher, reviews)
 
 	if err := r.repo.UpdateLines(ctx, lines); err != nil {
 		return err
@@ -142,9 +130,60 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	// A terminal event, so the bar reaches 100 rather than stopping at 99 and
 	// being replaced by the results page mid-animation.
 	r.emit(ctx, run, smartorder.StageFinalize, 1, 1,
-		"اكتملت المطابقة", "Matching complete")
+		"اكتملت المطابقة", "Matching completed")
 
 	return r.repo.UpdateRunStats(ctx, run)
+}
+
+// enhance runs the AI stage over the lines the deterministic engine could not
+// settle, and folds what it learns back into those same lines.
+//
+// It is a no-op — not a failure — when the buyer turned AI off, when the Gateway
+// is unconfigured, or when the engine settled everything. Nothing it does can
+// fail the run: the deterministic outcome is always there to fall back to, which
+// is what lets a pharmacy order when the Gateway is down.
+func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartorder.Config,
+	matcher *Matcher, reviews []Review) {
+	if !cfg.UseAIMatching || r.ai == nil || len(reviews) == 0 {
+		return
+	}
+
+	// Retrieval runs here rather than inside the fuzzy stage so that a run which
+	// never reaches AI never pays for it.
+	matcher.Retrieve(reviews)
+
+	total := len(reviews)
+	enh := NewEnhancement(r.repo, r.ai, matcher.Index())
+	// This is the stage that waits on a network, so it is the one that has to
+	// move the bar while it works. Reporting only on entry and exit left the
+	// buyer watching a still number through the slowest minute of the run.
+	enh.OnProgress = func(done int) {
+		r.emit(ctx, run, smartorder.StageAIEnhance, done, total,
+			"الذكاء الاصطناعي يحسّن المطابقات غير المؤكدة", "AI is improving uncertain matches")
+	}
+	enh.Run(ctx, reviews)
+
+	run.AI.Calls = enh.Stats.Requests
+	run.AI.LinesReviewed = enh.Stats.Reviewed
+	run.AI.LinesAdjudicated = enh.Stats.Improved + enh.Stats.Confirmed + enh.Stats.Abstained
+	run.AI.LinesImproved = enh.Stats.Improved
+	run.AI.CacheHits = enh.Stats.CacheHits
+	run.AI.CeilingHit = enh.Stats.CeilingHit
+
+	r.log.InfoContext(ctx, "smart order AI enhancement finished",
+		"run_id", run.ID, "reviewed", enh.Stats.Reviewed, "cache_hits", enh.Stats.CacheHits,
+		"requests", enh.Stats.Requests, "improved", enh.Stats.Improved,
+		"confirmed", enh.Stats.Confirmed, "abstained", enh.Stats.Abstained,
+		"rejected", enh.Stats.Rejected, "ceiling_hit", enh.Stats.CeilingHit)
+
+	r.emit(ctx, run, smartorder.StageAIEnhance, total, total,
+		"اكتمل تحسين المطابقة بالذكاء الاصطناعي", "AI enhancement completed")
+
+	if enh.Stats.CeilingHit {
+		r.emitWarn(ctx, run, smartorder.StageAIEnhance,
+			"تم بلوغ حد التحسين بالذكاء الاصطناعي؛ بقيت بعض الأصناف كما هي",
+			"AI enhancement limit reached; some items were left as matched deterministically")
+	}
 }
 
 func (r *Runner) emit(ctx context.Context, run *smartorder.Run, stage smartorder.Stage,

@@ -9,9 +9,12 @@ func event(stage Stage, processed, total int) *Event {
 // The bands must be contiguous and reach 100. A gap shows as the bar jumping;
 // an overlap shows as it retreating, and both read as a fault.
 func TestStageBandsTileTheWholeBar(t *testing.T) {
+	// StageAdjudicate is deliberately absent: it is the AI stage's former name
+	// and shares StageAIEnhance's band so that pre-rework runs still render.
+	// Walking both would read as an overlap.
 	order := []Stage{
-		StageParse, StageNormalize, StageResolve,
-		StageCandidates, StageAdjudicate, StageSelect, StageFinalize,
+		StageParse, StageNormalize, StageResolve, StageCandidates,
+		StageInitialDone, StageAIEnhance, StageSelect, StageFinalize,
 	}
 
 	prevEnd := 0
@@ -35,16 +38,16 @@ func TestStageBandsTileTheWholeBar(t *testing.T) {
 // end left the buyer watching a still number through the longest minute of the
 // run.
 func TestPercentInterpolatesWithinAStage(t *testing.T) {
-	start, end := StageAdjudicate.Band()
+	start, end := StageAIEnhance.Band()
 
-	if got := event(StageAdjudicate, 0, 600).Percent(); got != start {
+	if got := event(StageAIEnhance, 0, 600).Percent(); got != start {
 		t.Errorf("nothing done = %d%%, want %d%%", got, start)
 	}
-	if got := event(StageAdjudicate, 600, 600).Percent(); got != end {
+	if got := event(StageAIEnhance, 600, 600).Percent(); got != end {
 		t.Errorf("all done = %d%%, want %d%%", got, end)
 	}
 
-	half := event(StageAdjudicate, 300, 600).Percent()
+	half := event(StageAIEnhance, 300, 600).Percent()
 	mid := start + (end-start)/2
 	if half != mid {
 		t.Errorf("half done = %d%%, want %d%%", half, mid)
@@ -69,13 +72,13 @@ func TestRunPercentNeverRetreats(t *testing.T) {
 		event(StageNormalize, 804, 804),
 		event(StageResolve, 189, 804),
 		event(StageCandidates, 500, 804),
-		event(StageAdjudicate, 300, 615),
+		event(StageAIEnhance, 300, 615),
 		// Out of order, and lower than what came before it.
 		event(StageResolve, 0, 804),
 	}
 
 	got := RunPercent(events)
-	want := event(StageAdjudicate, 300, 615).Percent()
+	want := event(StageAIEnhance, 300, 615).Percent()
 	if got != want {
 		t.Errorf("run percent = %d, want %d — a late low event dragged the bar back", got, want)
 	}
@@ -94,10 +97,10 @@ func TestPercentIsClampedToItsBand(t *testing.T) {
 func TestCurrentStageIsTheLatestOne(t *testing.T) {
 	events := []*Event{
 		event(StageResolve, 1, 1),
-		event(StageAdjudicate, 1, 2),
+		event(StageAIEnhance, 1, 2),
 	}
-	if got := CurrentStage(events); got != StageAdjudicate {
-		t.Errorf("current stage = %q, want %q", got, StageAdjudicate)
+	if got := CurrentStage(events); got != StageAIEnhance {
+		t.Errorf("current stage = %q, want %q", got, StageAIEnhance)
 	}
 	if got := CurrentStage(nil); got != "" {
 		t.Errorf("no events = %q, want empty", got)
