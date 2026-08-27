@@ -40,6 +40,10 @@ func (r stubRepo) SaveWeeklyCoverage(context.Context, *workflow.WeeklyCoverage) 
 	r.fail("SaveWeeklyCoverage")
 	return nil
 }
+func (r stubRepo) SaveBatchWeeklyCoverage(context.Context, []*workflow.WeeklyCoverage) error {
+	r.fail("SaveBatchWeeklyCoverage")
+	return nil
+}
 func (r stubRepo) UpdateWeeklyCoverage(context.Context, *workflow.WeeklyCoverage) error {
 	r.fail("UpdateWeeklyCoverage")
 	return nil
@@ -121,6 +125,9 @@ func (happyRepo) GetPriorityRequestByID(ctx context.Context, id int64) (*workflo
 }
 func (happyRepo) SaveWeeklyCoverage(ctx context.Context, c *workflow.WeeklyCoverage) error {
 	c.ID = 1
+	return nil
+}
+func (happyRepo) SaveBatchWeeklyCoverage(ctx context.Context, coverages []*workflow.WeeklyCoverage) error {
 	return nil
 }
 func (happyRepo) UpdateWeeklyCoverage(ctx context.Context, c *workflow.WeeklyCoverage) error {

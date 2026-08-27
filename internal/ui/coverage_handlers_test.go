@@ -55,6 +55,14 @@ func (m *mockCoverageRepo) SaveWeeklyCoverage(_ context.Context, c *workflow.Wee
 	m.coverages[c.ID] = c
 	return nil
 }
+func (m *mockCoverageRepo) SaveBatchWeeklyCoverage(ctx context.Context, coverages []*workflow.WeeklyCoverage) error {
+	for _, c := range coverages {
+		if err := m.SaveWeeklyCoverage(ctx, c); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 func (m *mockCoverageRepo) UpdateWeeklyCoverage(_ context.Context, c *workflow.WeeklyCoverage) error {
 	if _, ok := m.coverages[c.ID]; !ok {
 		return apperr.NotFound("weekly_coverage")
