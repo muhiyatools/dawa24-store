@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // orderColumns is the canonical order projection (063: offer_id,
@@ -149,6 +150,58 @@ func (r *Repository) CreateOrder(
 				opID = line.OfferProductID
 			}
 
+			pName := line.ProductName
+			vName := line.VariantName
+			sku := line.SKU
+
+			if pName.IsEmpty() && pvID != nil && *pvID > 0 {
+				var fetchedPName, fetchedVName, fetchedSKU string
+				var fetchedPID int64
+				err := tx.QueryRow(txCtx, `
+					SELECT COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), pv.sku, ''),
+					       COALESCE(NULLIF(pv.name->>'ar', ''), NULLIF(pv.name->>'en', ''), ''),
+					       COALESCE(pv.sku, ''),
+					       p.id
+					FROM catalog.product_variants pv
+					JOIN catalog.products p ON p.id = pv.product_id
+					WHERE pv.id = $1`, *pvID).Scan(&fetchedPName, &fetchedVName, &fetchedSKU, &fetchedPID)
+				if err == nil {
+					if pName.IsEmpty() && fetchedPName != "" {
+						pName = i18n.New(fetchedPName, fetchedPName)
+					}
+					if vName.IsEmpty() && fetchedVName != "" {
+						vName = i18n.New(fetchedVName, fetchedVName)
+					}
+					if sku == "" {
+						sku = fetchedSKU
+					}
+					if pID == nil && fetchedPID > 0 {
+						pID = &fetchedPID
+					}
+				}
+			}
+
+			if pName.IsEmpty() && pID != nil && *pID > 0 {
+				var fetchedPName, fetchedSKU string
+				err := tx.QueryRow(txCtx, `
+					SELECT COALESCE(NULLIF(name->>'ar', ''), NULLIF(name->>'en', ''), sku, ''),
+					       COALESCE(sku, '')
+					FROM catalog.products
+					WHERE id = $1`, *pID).Scan(&fetchedPName, &fetchedSKU)
+				if err == nil {
+					if pName.IsEmpty() && fetchedPName != "" {
+						pName = i18n.New(fetchedPName, fetchedPName)
+					}
+					if sku == "" {
+						sku = fetchedSKU
+					}
+				}
+			}
+
+			if pName.IsEmpty() {
+				pName = i18n.New("صنف دواء 24", "Dawa24 Product")
+			}
+
 			queryLine := `
 				INSERT INTO commerce.order_lines (
 					order_id, shipment_id, organization_id, product_id,
@@ -161,7 +214,7 @@ func (r *Repository) CreateOrder(
 			`
 			err := tx.QueryRow(txCtx, queryLine,
 				line.OrderID, line.ShipmentID, line.OrganizationID, pID,
-				pvID, line.ProductName, line.VariantName, line.SKU,
+				pvID, pName, vName, sku,
 				opID, line.UnitPrice, line.Quantity, line.DiscountAmount,
 				line.TotalPrice, line.ListPrice, line.OriginalPrice, line.OriginalDiscount,
 				line.IsNegotiated, line.ProposedUnitPrice,

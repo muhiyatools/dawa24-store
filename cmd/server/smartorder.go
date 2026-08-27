@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
@@ -83,9 +84,15 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, log *slog.L
 					discount = d
 				}
 			}
+			raw := l.RawName
+			if raw == "" {
+				raw = "صنف دواء 24"
+			}
+			pName := i18n.New(raw, raw)
 			items = append(items, commerce.CheckoutLineItem{
 				VendorOrgID:      l.VendorOrgID,
 				ProductVariantID: &variantID,
+				ProductName:      pName,
 				UnitPrice:        l.UnitPrice,
 				Quantity:         int(l.Quantity),
 				DiscountAmount:   discount,

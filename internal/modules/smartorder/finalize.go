@@ -50,6 +50,7 @@ type PlaceOrderLine struct {
 	UnitPrice   money.Amount
 	DiscountBps int64
 	LineNet     money.Amount
+	RawName     string
 }
 
 // StaleLine is a line that changed between generation and finalisation.
@@ -154,6 +155,7 @@ func (f *Finalizer) Finalize(ctx context.Context, run *Run) (orderID int64, stal
 			UnitPrice:   candidate.Price,
 			DiscountBps: candidate.DiscountBps,
 			LineNet:     net,
+			RawName:     l.RawName,
 		})
 	}
 
