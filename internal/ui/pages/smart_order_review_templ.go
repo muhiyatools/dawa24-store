@@ -112,7 +112,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Run.RunNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 71, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 71, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +134,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Error)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 77, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 77, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -158,7 +158,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(s.RawName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 90, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 90, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -171,7 +171,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(s.Detail)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 90, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 90, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.BranchName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 98, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 98, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -207,7 +207,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Run.EstimatedTotal.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 100, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 100, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -230,7 +230,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Run.BudgetOverage.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 108, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 108, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -254,7 +254,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(g.VendorName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 117, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 117, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -267,7 +267,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(g.Subtotal.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 118, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 118, Col: 84}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -285,7 +285,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(l.Line.RawName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 125, Col: 31}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 125, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -303,7 +303,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(l.Line.MatchedProductName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 128, Col: 68}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 128, Col: 68}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -321,7 +321,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(decidedLabel(l.DecidedBy))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 132, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 132, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -339,7 +339,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(" — تُخطّي %s لتجاوزه نطاق التسامح بنسبة %.0f%%", l.SkippedName, l.SkippedExcess))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 135, Col: 139}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 135, Col: 139}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -357,7 +357,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(l.UnitPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 140, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 140, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -370,7 +370,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", l.DiscountPct))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 141, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 141, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var18 templ.SafeURL
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 143, Col: 141}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 143, Col: 141}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -396,7 +396,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%g", l.Line.EffectiveQty))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 144, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 144, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
@@ -409,7 +409,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(l.LineNet.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 148, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 148, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -427,7 +427,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 						var templ_7745c5c3_Var21 templ.SafeURL
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/candidates", data.Run.PublicID, l.Line.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 151, Col: 125}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 151, Col: 125}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -440,7 +440,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 						var templ_7745c5c3_Var22 string
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("موردون بدلاء (%d)", l.Alternatives))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 152, Col: 73}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 152, Col: 73}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
@@ -458,7 +458,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var23 templ.SafeURL
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 155, Col: 139}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 155, Col: 139}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -487,7 +487,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(l.RawName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 173, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 173, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -500,7 +500,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(outcomeChip(l.Outcome))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 175, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 175, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -513,7 +513,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(SmartOrderOutcomeLabel(l.Outcome))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 175, Col: 84}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 175, Col: 84}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -536,7 +536,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 			var templ_7745c5c3_Var27 templ.SafeURL
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_review.templ`, Line: 184, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_review.templ`, Line: 184, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {

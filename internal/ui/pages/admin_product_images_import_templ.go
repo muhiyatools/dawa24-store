@@ -118,7 +118,7 @@ func AdminProductImagesImportPage(view AdminProductImagesImportView, lang, dir s
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var4).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func AdminProductImagesImportPage(view AdminProductImagesImportView, lang, dir s
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(view.NoticeMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 43, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 43, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -245,7 +245,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d جلسة", len(view.Sessions)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 93, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 93, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -263,7 +263,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Filename)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 112, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 112, Col: 80}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -276,7 +276,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 113, Col: 128}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 113, Col: 128}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -289,7 +289,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sess.TotalRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 114, Col: 79}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 114, Col: 79}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sess.SuccessRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 115, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 115, Col: 84}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -315,7 +315,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sess.NotFoundRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 116, Col: 83}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 116, Col: 83}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sess.ErrorRows))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 117, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 117, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -361,7 +361,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var15 templ.SafeURL
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s", sess.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 129, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 129, Col: 92}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -374,7 +374,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var16 templ.SafeURL
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/cancel", sess.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 132, Col: 118}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 132, Col: 118}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -434,7 +434,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 		var templ_7745c5c3_Var18 templ.SafeURL
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/mapping", view.Session.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 151, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 151, Col: 118}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -447,7 +447,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(view.Session.Filename)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 154, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 154, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -465,7 +465,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 166, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 166, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
@@ -488,7 +488,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 167, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 167, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -511,7 +511,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 177, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 177, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 			if templ_7745c5c3_Err != nil {
@@ -534,7 +534,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 178, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 178, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -562,7 +562,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(h)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 194, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 194, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
@@ -590,7 +590,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(cell)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 202, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 202, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -663,7 +663,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(view.Session.ProgressNote)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 232, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 232, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -676,7 +676,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("background:linear-gradient(90deg, var(--brand-primary), var(--accent)); height:100%; width:" + fmt.Sprintf("%d", view.Session.Progress) + "%; transition:width 0.3s ease;")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 238, Col: 211}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 238, Col: 211}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
@@ -689,7 +689,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.Progress) + "%")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 241, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 241, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -702,7 +702,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.TotalRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 242, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 242, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -744,7 +744,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.TotalRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 279, Col: 122}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 279, Col: 122}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -757,7 +757,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.SuccessRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 283, Col: 119}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 283, Col: 119}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -770,7 +770,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.NotFoundRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 287, Col: 120}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 287, Col: 120}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
@@ -783,7 +783,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 		var templ_7745c5c3_Var35 string
 		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.ErrorRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 291, Col: 116}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 291, Col: 116}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
@@ -796,7 +796,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 		var templ_7745c5c3_Var36 string
 		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(view.Session.Filename)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 302, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 302, Col: 97}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
@@ -830,7 +830,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", r.Index))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 332, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 332, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 			if templ_7745c5c3_Err != nil {
@@ -848,7 +848,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(r.SavedImagePath)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 335, Col: 37}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 335, Col: 37}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 				if templ_7745c5c3_Err != nil {
@@ -861,7 +861,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 				var templ_7745c5c3_Var39 string
 				templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(r.SKU)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 335, Col: 51}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 335, Col: 51}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 				if templ_7745c5c3_Err != nil {
@@ -884,7 +884,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(r.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 340, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 340, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 			if templ_7745c5c3_Err != nil {
@@ -902,7 +902,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 				var templ_7745c5c3_Var41 templ.SafeURL
 				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/%d", *r.ProductID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 343, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 343, Col: 82}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 				if templ_7745c5c3_Err != nil {
@@ -915,7 +915,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(r.ProductName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 344, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 344, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {
@@ -938,7 +938,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 			var templ_7745c5c3_Var43 templ.SafeURL
 			templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(r.ImageURL))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 351, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 351, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 			if templ_7745c5c3_Err != nil {
@@ -951,7 +951,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 			var templ_7745c5c3_Var44 string
 			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(r.ImageURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 352, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 352, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 			if templ_7745c5c3_Err != nil {
@@ -989,7 +989,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 				var templ_7745c5c3_Var45 string
 				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(r.ErrorMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 366, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_product_images_import.templ`, Line: 366, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 				if templ_7745c5c3_Err != nil {

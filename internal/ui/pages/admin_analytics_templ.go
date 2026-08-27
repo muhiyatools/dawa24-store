@@ -174,7 +174,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(country)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 87, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 87, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -187,7 +187,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d زيارة", count))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 88, Col: 119}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 88, Col: 119}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -200,7 +200,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("width:" + fmt.Sprintf("%d", calcPercent(count, a.Total)) + "%; height:100%; background:var(--accent); border-radius:var(--radius-full);")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 91, Col: 159}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 91, Col: 159}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -246,7 +246,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(city)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 117, Col: 84}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 117, Col: 84}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -259,7 +259,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", count))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 118, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 118, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -295,7 +295,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(d)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 141, Col: 12}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 141, Col: 12}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -308,7 +308,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", count))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 141, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 141, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(os)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 153, Col: 13}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 153, Col: 13}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -344,7 +344,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", count))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 153, Col: 51}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 153, Col: 51}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -367,7 +367,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(b)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 165, Col: 12}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 165, Col: 12}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -380,7 +380,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", count))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 165, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 165, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -416,7 +416,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(v.VisitedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 213, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 213, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -429,7 +429,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(v.CreatedAt.Format("15:04:05"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 216, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 216, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -442,7 +442,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(v.Country)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 223, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 223, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -455,7 +455,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(v.City)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 226, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 226, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -468,7 +468,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(v.IP)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 233, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 233, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -481,7 +481,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(v.Device)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 240, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 240, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -494,7 +494,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(v.Browser)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 247, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 247, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -507,7 +507,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(v.OS)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 254, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_analytics.templ`, Line: 254, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {

@@ -44,10 +44,14 @@ type Service struct {
 	catalog   CatalogPort
 	inventory InventoryPort
 	runs      runRegistry
-	// adjudicator settles the rows the deterministic engine could not, in
-	// batches. Optional: unset means the tier is skipped and the import keeps
-	// its deterministic answer, which is the same path a disabled gateway takes.
-	adjudicator Adjudicator
+	// enhancer settles the rows the deterministic engine could not. Optional:
+	// unset means the stage is skipped and the import keeps its deterministic
+	// answer, which is the same path a disabled gateway takes.
+	enhancer Enhancer
+	// memory is the shared decision cache. Optional: without it the stage pays
+	// for every question instead of reusing answers bought earlier — by this
+	// vendor, by another, or by a pharmacy's smart order.
+	memory MatchMemory
 }
 
 // NewService creates a new ingest service.

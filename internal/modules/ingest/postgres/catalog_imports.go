@@ -22,7 +22,7 @@ import (
 // importColumns is the projection every read shares.
 const importColumns = `
 	id, public_id, organization_id, created_by, filename, file_size_bytes,
-	phase, source, overrides, settings, mapping, stats, findings,
+	phase, source, overrides, settings, mapping, stats, findings, ai_stats,
 	total_rows, inserted_rows, updated_rows, skipped_rows, error_rows,
 	matched_rows, review_rows, unmatched_rows, created_products,
 	progress_percent, progress_note, error_message,
@@ -94,11 +94,12 @@ func (r *Repository) SaveDraft(ctx context.Context, s *ingest.Session) error {
 			UPDATE ingest.catalog_imports
 			SET phase = $2, source = $3, overrides = $4, settings = $5, mapping = $6,
 			    total_rows = $7, matched_rows = $8, review_rows = $9, unmatched_rows = $10,
-			    error_rows = $11, updated_rows = $12, inserted_rows = $13, skipped_rows = $14
+			    error_rows = $11, updated_rows = $12, inserted_rows = $13, skipped_rows = $14,
+			    ai_stats = $15
 			WHERE id = $1 AND phase IN ('mapping','settings','review','confirm')`,
 			s.ID, string(s.Phase), docs.source, docs.overrides, docs.settings,
 			docs.mapping, s.TotalRows, s.MatchedRows, s.ReviewRows, s.UnmatchedRows,
-			s.ErrorRows, s.UpdatedRows, s.InsertedRows, s.SkippedRows)
+			s.ErrorRows, s.UpdatedRows, s.InsertedRows, s.SkippedRows, docs.aiStats)
 		if err != nil {
 			return fmt.Errorf("ingest postgres: save import draft: %w", err)
 		}
@@ -315,6 +316,7 @@ type importDocs struct {
 	overrides []byte
 	settings  []byte
 	mapping   []byte
+	aiStats   []byte
 }
 
 func encodeImport(s *ingest.Session) (importDocs, error) {
@@ -334,6 +336,9 @@ func encodeImport(s *ingest.Session) (importDocs, error) {
 	} else if docs.mapping, err = json.Marshal(s.Mapping); err != nil {
 		return docs, fmt.Errorf("ingest postgres: encode import mapping: %w", err)
 	}
+	if docs.aiStats, err = json.Marshal(s.AI); err != nil {
+		return docs, fmt.Errorf("ingest postgres: encode import ai stats: %w", err)
+	}
 	return docs, nil
 }
 
@@ -344,11 +349,11 @@ type scanner interface {
 
 func scanImport(row scanner, s *ingest.Session) error {
 	var phase string
-	var source, overrides, settings, mapping, stats, findings []byte
+	var source, overrides, settings, mapping, stats, findings, aiStats []byte
 	err := row.Scan(
 		&s.ID, &s.PublicID, &s.OrganizationID, &s.CreatedBy, &s.Filename,
 		&s.FileSizeBytes, &phase, &source, &overrides, &settings, &mapping,
-		&stats, &findings,
+		&stats, &findings, &aiStats,
 		&s.TotalRows, &s.InsertedRows, &s.UpdatedRows, &s.SkippedRows, &s.ErrorRows,
 		&s.MatchedRows, &s.ReviewRows, &s.UnmatchedRows, &s.CreatedProducts,
 		&s.ProgressPercent, &s.ProgressNote, &s.ErrorMessage,
@@ -363,6 +368,7 @@ func scanImport(row scanner, s *ingest.Session) error {
 	_ = json.Unmarshal(settings, &s.Settings)
 	_ = json.Unmarshal(stats, &s.Stats)
 	_ = json.Unmarshal(findings, &s.Findings)
+	_ = json.Unmarshal(aiStats, &s.AI)
 	if len(mapping) > 2 {
 		var snap ingest.MappingSnapshot
 		if json.Unmarshal(mapping, &snap) == nil {

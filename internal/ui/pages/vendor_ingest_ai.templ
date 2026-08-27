@@ -1,0 +1,145 @@
+package pages
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+)
+
+// The AI enhancement panel on the review screen.
+//
+// A vendor turned a switch on and waited; this is the account of what that
+// bought them. It leads with the one number that answers their actual question
+// — how many rows the smart matching settled — and puts the rest behind it in
+// smaller type, because "how many were answered from memory" is interesting to
+// an operator and merely reassuring to a vendor.
+//
+// It renders nothing when the stage never ran. A panel of zeroes on an import
+// that did not use AI reads as a failure rather than as an absence.
+
+// aiPanel is the account of the enhancement stage.
+templ aiPanel(view VendorImportView) {
+	if view.Session != nil && view.Session.AI.Ran {
+		<section class="card mb-lg" style="border: 1px solid var(--border-strong); border-inline-start: 3px solid var(--primary); background: var(--surface-sunken);">
+			<div class="row-center-sm justify-between flex-wrap gap-sm mb-md">
+				<div class="row-center-sm gap-sm">
+					<span style="font-size: 1.4rem; line-height: 1;">🤖</span>
+					<div>
+						<div class="fw-800 text-base">{ aiHeadline(view.Session.AI) }</div>
+						<div class="text-xs text-muted">{ aiSubline(view.Session.AI) }</div>
+					</div>
+				</div>
+				if view.Session.AI.CacheHits > 0 {
+					<span class="badge badge-outline text-xs" title="أصناف أُجيبت من ذاكرة القرارات المشتركة دون أي تكلفة إضافية">
+						♻️ { fmt.Sprint(view.Session.AI.CacheHits) } صنف من الذاكرة — بلا تكلفة
+					</span>
+				}
+			</div>
+
+			<div class="import-stats">
+				@aiStat("تحسّنت مطابقته", fmt.Sprint(view.Session.AI.Improved), "import-stat--ok",
+					"أصناف كانت غير مطابقة أو تحتاج مراجعة، وحسمها الذكاء الاصطناعي وتم ربطها بالكتالوج.")
+				@aiStat("أُجيب من الذاكرة", fmt.Sprint(view.Session.AI.CacheHits), "",
+					"إجابات محفوظة من عمليات سابقة — لك أو لغيرك — أُعيد استخدامها دون إرسال أي طلب.")
+				@aiStat("أُرسل للمراجعة", fmt.Sprint(view.Session.AI.Reviewed), "",
+					"أصناف لم تكن في الذاكرة، فأُرسلت فعلياً للمطابقة الذكية.")
+				@aiStat("تُرك للمراجعة اليدوية", fmt.Sprint(view.Session.AI.Abstained+view.Session.AI.Rejected), "import-stat--warn",
+					"أصناف امتنع النموذج عن حسمها، أو رفض اقتراحَه فحصُ الهوية لاختلاف التركيز أو الشكل أو الإضافة التجارية.")
+				@aiStat("عدد الطلبات", fmt.Sprint(view.Session.AI.Requests), "",
+					"عدد طلبات الذكاء الاصطناعي التي احتاجها الملف كاملاً، مهما بلغ عدد صفوفه.")
+			</div>
+
+			if view.Session.AI.CeilingHit {
+				<p class="text-xs mt-md mb-0" style="color: var(--warning-fg, var(--text-muted));">
+					⚠️ بلغ الملف الحد الأقصى للمراجعة الذكية في العملية الواحدة، فاحتفظت بقية الأصناف بنتيجة
+					المطابقة الحتمية كما هي. غالباً يعني هذا أن ربط الأعمدة يحتاج تصحيحاً — راجع عمود اسم الصنف،
+					أو قسّم الملف إلى ملفات أصغر.
+				</p>
+			}
+			<p class="text-xs text-muted mt-md mb-0">
+				لم يُطبَّق أي اقتراح إلا بعد إعادة فحصه أمام الكتالوج: يُرفض أي صنف يختلف تركيزه أو شكله
+				الصيدلي أو إضافته التجارية (بلس، فورت، اكسترا…) عمّا هو مكتوب في ملفك. المطابقات الحتمية
+				المؤكدة لم تُمَس.
+			</p>
+		</section>
+	} else if view.Session != nil && !view.Session.Settings.UseAI {
+		<section class="card mb-lg" style="border: 1px dashed var(--border-strong); background: var(--surface-sunken);">
+			<div class="row-center-sm gap-sm">
+				<span style="font-size: 1.2rem; line-height: 1;">🤖</span>
+				<div class="text-xs text-muted">
+					المطابقة الذكية كانت متوقفة في هذه العملية، فالنتائج أدناه من المطابقة الحتمية وحدها.
+					يمكنك العودة إلى الإعدادات وتفعيلها لإعادة فحص الأصناف غير المطابقة.
+				</div>
+			</div>
+		</section>
+	}
+}
+
+// aiStat is one figure with the sentence that explains it on hover.
+templ aiStat(label, value, tone, hint string) {
+	<div class={ "import-stat", tone } title={ hint }>
+		<span class="import-stat-value">{ value }</span>
+		<span class="import-stat-label">{ label }</span>
+	</div>
+}
+
+// aiHeadline states the outcome in one line.
+//
+// It leads with what changed, because a vendor scanning this screen wants to
+// know whether to look at the table again — not how the stage is architected.
+func aiHeadline(s ingest.AIStats) string {
+	switch {
+	case s.Improved == 1:
+		return "المطابقة الذكية حسمت صنفاً واحداً إضافياً"
+	case s.Improved > 1:
+		return fmt.Sprintf("المطابقة الذكية حسمت %d صنفاً إضافياً", s.Improved)
+	default:
+		return "المطابقة الذكية راجعت الأصناف الصعبة ولم تجد ما تضيفه"
+	}
+}
+
+// aiSubline says what it cost and what it refused, in one sentence.
+func aiSubline(s ingest.AIStats) string {
+	parts := make([]string, 0, 3)
+	if s.Requests > 0 {
+		parts = append(parts, fmt.Sprintf("%d طلب للملف كاملاً", s.Requests))
+	}
+	if s.CacheHits > 0 {
+		parts = append(parts, fmt.Sprintf("%d صنف من الذاكرة", s.CacheHits))
+	}
+	if left := s.Abstained + s.Rejected; left > 0 {
+		parts = append(parts, fmt.Sprintf("%d صنف بقي للمراجعة اليدوية", left))
+	}
+	if len(parts) == 0 {
+		return "لم تُرسل أي طلبات؛ أُجيب كل شيء من الذاكرة."
+	}
+	return strings.Join(parts, " · ")
+}
+
+// AIMatchedRow reports whether this row's match came from the AI stage.
+//
+// It reads the reason the stage wrote rather than a flag, because that reason
+// is what the vendor sees when they ask why the row is matched — and a badge
+// that could disagree with the text beside it would be worse than no badge.
+func AIMatchedRow(row *ingest.RowOutcome) bool {
+	return row != nil && row.ProductID != nil && *row.ProductID > 0 &&
+		strings.HasPrefix(row.Message, "مطابقة بالذكاء الاصطناعي")
+}
+
+// AIMatchReason is the model's own short justification, without the prefix the
+// badge already carries.
+func AIMatchReason(row *ingest.RowOutcome) string {
+	reason := strings.TrimPrefix(row.Message, "مطابقة بالذكاء الاصطناعي:")
+	reason = strings.TrimPrefix(reason, "مطابقة بالذكاء الاصطناعي")
+	return strings.TrimSpace(reason)
+}
+
+// aiRowTitle is the tooltip on an AI-matched row: the model's own reason, or a
+// plain statement when it gave none.
+func aiRowTitle(row *ingest.RowOutcome) string {
+	if reason := AIMatchReason(row); reason != "" {
+		return "سبب المطابقة: " + reason
+	}
+	return "حُسمت هذه المطابقة بالذكاء الاصطناعي بعد فحصها أمام الكتالوج"
+}

@@ -201,6 +201,10 @@ func mountModuleRoutes(
 	// and without the catalogue there is nothing to match against. Wiring them
 	// here keeps the module free of the composition root.
 	ingSvcUI.SetImportStore(ingRepoUI)
+	// The decision cache the AI stage reads before it asks anything. Shared
+	// with the smart order, on purpose: both ask the same question through the
+	// same prompt, so an answer either bought is free to the other.
+	ingSvcUI.SetMatchMemory(ingRepoUI)
 	ingSvcUI.SetCatalogPort(catSvcUI)
 	ingSvcUI.SetInventoryPort(invSvcUI)
 
@@ -287,10 +291,13 @@ func mountModuleRoutes(
 		// Without it the import matched barcodes and identical spellings only,
 		// and staged everything else as a new product.
 		catSvcUI.SetMatchAdjudicator(mapper)
-		// The vendor import gets the same tier, through the same prompt and the
-		// same shortlist contract. Two adjudicators would drift apart the first
-		// time either prompt was tuned.
-		ingSvcUI.SetAdjudicator(ingest.NewCatalogAdjudicator(mapper))
+		// The vendor import runs the smart order's enhancement stage: the same
+		// system prompt, the same shared catalogue window, the same guards, and
+		// the same decision cache in catalog.match_decisions — so an answer
+		// bought by a pharmacy's order is free to the vendor whose price list
+		// asks the same question, and there is one prompt to tune rather than
+		// two that drift.
+		ingSvcUI.SetEnhancer(ingest.NewGatewayEnhancer(&ingestEnhanceAdapter{caps: aiCapabilitiesSvc}))
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)

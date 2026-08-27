@@ -59,20 +59,11 @@ type importWriter struct {
 	counts    counters
 	touched   []int64
 	processed int
-	// ai is the run's AI allowance, carried across batches so the budget is a
-	// property of the import rather than of each five hundred rows.
-	ai aiBudget
 }
 
 // write handles one batch of parsed rows.
 func (w *importWriter) write(ctx context.Context, batch []*productmatch.Row) error {
 	decisions := w.decide(batch)
-	// The AI tier runs between deciding and writing, on the rows the
-	// deterministic engine could not settle and only where the vendor asked for
-	// it. A row it resolves stops being a new catalogue entry and becomes an
-	// update to the existing one — which is the difference between a shared
-	// catalogue and forty spellings of Panadol.
-	w.adjudicate(ctx, decisions)
 	w.settle(decisions)
 	if err := w.writeVariants(ctx, decisions); err != nil {
 		return err
@@ -151,6 +142,9 @@ const (
 	bucketReview
 	bucketUnmatched
 )
+
+// settled reports whether a row in this bucket needs no further attention.
+func (b matchBucket) settled() bool { return b == bucketMatched }
 
 func bucketOf(m productmatch.MatchResult) matchBucket {
 	switch {

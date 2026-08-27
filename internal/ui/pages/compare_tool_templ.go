@@ -62,7 +62,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(noticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 21, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 21, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -80,7 +80,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(noticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 28, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 28, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -107,7 +107,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملفات موردين مسجلة", len(files)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 63, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 63, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -120,7 +120,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملف", len(files)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 97, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 97, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -148,7 +148,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", f.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 135, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 135, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -161,7 +161,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(f.SupplierName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 143, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 143, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -179,7 +179,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف جاهز", f.RowCount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 147, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 147, Col: 62}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(f.OriginalFilename)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 156, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 156, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -215,7 +215,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(f.CreatedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 156, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 156, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {

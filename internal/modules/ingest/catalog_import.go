@@ -300,6 +300,10 @@ type Session struct {
 
 	Stats    productmatch.Stats   `json:"stats"`
 	Findings []productmatch.Issue `json:"findings,omitempty"`
+	// AI is what the enhancement stage did, and it is the vendor's answer to
+	// "was the smart matching worth switching on?". Zero on an import that
+	// never ran it.
+	AI AIStats `json:"ai"`
 
 	TotalRows     int `json:"total_rows"`
 	InsertedRows  int `json:"inserted_rows"`

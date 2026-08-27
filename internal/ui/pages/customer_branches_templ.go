@@ -62,7 +62,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "customer.branches_title"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 24, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 24, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -75,7 +75,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "customer.branches_sub"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 27, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 27, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "customer.add_branch"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 32, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 32, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -109,7 +109,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "customer.total_branches"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 40, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 40, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -122,7 +122,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 42, Col: 133}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 42, Col: 133}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "customer.main_branch"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 46, Col: 44}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 46, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -153,7 +153,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Branches[0].Name.Get(i18n.ParseLang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 50, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 50, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "customer.coverage_status"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 58, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 58, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -189,7 +189,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "customer.active_covered"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 62, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 62, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -226,7 +226,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["ar"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 93, Col: 28}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 93, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -236,7 +236,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["en"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 95, Col: 28}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 95, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -265,7 +265,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 103, Col: 119}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 103, Col: 119}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
@@ -288,7 +288,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var15 templ.SafeURL
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 109, Col: 105}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 109, Col: 105}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -311,7 +311,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 120, Col: 85}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 120, Col: 85}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -330,7 +330,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 123, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 123, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -353,7 +353,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 132, Col: 100}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 132, Col: 100}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -381,7 +381,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var19 templ.SafeURL
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(b.GoogleMapsURL))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 139, Col: 51}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 139, Col: 51}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -399,7 +399,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						var templ_7745c5c3_Var20 templ.SafeURL
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 143, Col: 113}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 143, Col: 113}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -440,7 +440,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 200, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 200, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -454,7 +454,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 202, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 202, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -464,7 +464,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches.templ`, Line: 204, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches.templ`, Line: 204, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {

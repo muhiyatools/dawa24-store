@@ -127,7 +127,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 106, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 106, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 					if templ_7745c5c3_Err != nil {
@@ -155,7 +155,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 118, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 118, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -184,7 +184,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 130, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 130, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -210,7 +210,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 136, Col: 30}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 136, Col: 30}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(b.ManagerName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 140, Col: 85}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 140, Col: 85}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -273,7 +273,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(it.ProductName.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 211, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 211, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -286,7 +286,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", it.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 212, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 212, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -299,7 +299,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(CartItemTotal(it).String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 214, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 214, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -317,7 +317,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(cart.Items)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 222, Col: 93}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 222, Col: 93}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -330,7 +330,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(CartTotal(cart).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_checkout.templ`, Line: 239, Col: 36}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_checkout.templ`, Line: 239, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {

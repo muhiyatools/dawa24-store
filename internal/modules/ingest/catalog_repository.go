@@ -47,6 +47,11 @@ type ImportStore interface {
 	Rows(ctx context.Context, importID int64, filter RowFilter) ([]*RowOutcome, int, error)
 	// RowCounts tallies the ledger by outcome, for the results screen's tabs.
 	RowCounts(ctx context.Context, importID int64) (map[string]int, error)
+	// ApplyAIMatches folds every answer the AI stage accepted onto the staged
+	// rows in one statement. A per-row update here would put a round trip
+	// behind each of two thousand matches and undo the whole point of batching
+	// the requests that produced them.
+	ApplyAIMatches(ctx context.Context, importID int64, matches []AIMatch) error
 	// UpdateRow updates fields on a staged row before commit.
 	UpdateRow(ctx context.Context, importID, rowID int64, displayName, customVariantName string, price *float64, quantity *int, isExcluded *bool) error
 	// SetBatchQuantity applies a uniform quantity to all staged rows of an import.

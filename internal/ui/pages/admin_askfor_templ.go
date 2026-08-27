@@ -57,7 +57,7 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(requests)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 17, Col: 135}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 17, Col: 135}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -85,7 +85,7 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", r.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 41, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 41, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -98,7 +98,7 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(r.Title.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 42, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 42, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(string(r.Type))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 43, Col: 35}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 43, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -124,7 +124,7 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", r.FromOrgID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 44, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 44, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", r.ToOrgID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 45, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 45, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -170,7 +170,7 @@ func AdminAskForPage(requests []*workflow.Request, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var9 templ.SafeURL
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/ask-for/%d", r.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 56, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 56, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -241,7 +241,7 @@ func AdminAskForDetailPage(r *workflow.Request, lang, dir string) templ.Componen
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(r.Title.Get("ar"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 74, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 74, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -254,7 +254,7 @@ func AdminAskForDetailPage(r *workflow.Request, lang, dir string) templ.Componen
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", r.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 75, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 75, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -267,7 +267,7 @@ func AdminAskForDetailPage(r *workflow.Request, lang, dir string) templ.Componen
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(string(r.Type))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 75, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 75, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -280,7 +280,7 @@ func AdminAskForDetailPage(r *workflow.Request, lang, dir string) templ.Componen
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(r.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 82, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 82, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -293,7 +293,7 @@ func AdminAskForDetailPage(r *workflow.Request, lang, dir string) templ.Componen
 			var templ_7745c5c3_Var16 templ.SafeURL
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/ask-for/%d/respond", r.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_askfor.templ`, Line: 85, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_askfor.templ`, Line: 85, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {

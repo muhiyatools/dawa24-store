@@ -82,7 +82,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalGovernorates))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 55, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 55, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -92,7 +92,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Governorates)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 57, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 57, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -107,7 +107,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCities))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 67, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 67, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -117,7 +117,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Cities)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 69, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 69, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 100, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 100, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -150,7 +150,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 101, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 101, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -163,7 +163,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 101, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 101, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.CityCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 101, Col: 80}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 101, Col: 80}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 104, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 104, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -207,7 +207,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 105, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 105, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 105, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 105, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.CityCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 105, Col: 80}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 105, Col: 80}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 116, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 116, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Cities)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 142, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 142, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -295,7 +295,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 161, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 161, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -308,7 +308,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 161, Col: 71}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 161, Col: 71}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Cities)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 167, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 167, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -363,7 +363,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 199, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 199, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -381,7 +381,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 201, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 201, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -404,7 +404,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 205, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 205, Col: 100}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -427,7 +427,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs((*c.GovernorateName)["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 211, Col: 41}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 211, Col: 41}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -450,7 +450,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var24 templ.SafeURL
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", c.Latitude, c.Longitude)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 219, Col: 113}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 219, Col: 113}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
@@ -463,7 +463,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 225, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 225, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
@@ -530,7 +530,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var27 templ.SafeURL
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 257, Col: 100}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 257, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 				if templ_7745c5c3_Err != nil {
@@ -577,7 +577,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 301, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 301, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 					if templ_7745c5c3_Err != nil {
@@ -590,7 +590,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 302, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 302, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -603,7 +603,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 302, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 302, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -621,7 +621,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 305, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 305, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 					if templ_7745c5c3_Err != nil {
@@ -634,7 +634,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 306, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 306, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
@@ -647,7 +647,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 306, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 306, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
@@ -702,7 +702,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Governorates)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 392, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 392, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
@@ -725,7 +725,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var36 templ.SafeURL
 				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 397, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 397, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 				if templ_7745c5c3_Err != nil {
@@ -738,7 +738,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var37 string
 				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var35).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 				if templ_7745c5c3_Err != nil {
@@ -751,7 +751,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 401, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 401, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 				if templ_7745c5c3_Err != nil {
@@ -764,7 +764,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var39 string
 				templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.CityCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 402, Col: 88}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 402, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 				if templ_7745c5c3_Err != nil {
@@ -787,7 +787,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var40 string
 				templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 447, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 447, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 				if templ_7745c5c3_Err != nil {
@@ -800,7 +800,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var41 string
 				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 448, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 448, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 				if templ_7745c5c3_Err != nil {
@@ -813,7 +813,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 448, Col: 41}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_cities.templ`, Line: 448, Col: 41}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {

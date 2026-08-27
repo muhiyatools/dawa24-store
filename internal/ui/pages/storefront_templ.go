@@ -133,7 +133,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d أقسام مسجلة", len(sections)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 173, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 173, Col: 105}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -161,7 +161,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeIcon(s.SectionType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 190, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 190, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -174,7 +174,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(s.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 194, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 194, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.DisplayOrder))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 203, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 203, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -225,7 +225,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 217, Col: 71}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 217, Col: 71}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -246,7 +246,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var8 templ.SafeURL
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/toggle", s.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 225, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 225, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -274,7 +274,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var9 templ.SafeURL
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 236, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 236, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -300,7 +300,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(s.Description.Get(i18n.Lang(lang)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 247, Col: 46}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 247, Col: 46}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -318,7 +318,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 254, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 254, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(sectionTypeIcon(s.SectionType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 261, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 261, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -344,7 +344,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(s.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 263, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 263, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -357,7 +357,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 268, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 268, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 					if templ_7745c5c3_Err != nil {
@@ -370,7 +370,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var15 templ.SafeURL
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/update", s.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 276, Col: 110}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 276, Col: 110}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(s.SectionType)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 277, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 277, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 					if templ_7745c5c3_Err != nil {
@@ -396,7 +396,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(s.Title.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 281, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 281, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -409,7 +409,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(s.Title.Get("en"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 285, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 285, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 					if templ_7745c5c3_Err != nil {
@@ -422,7 +422,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", s.DisplayOrder))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 292, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 292, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
@@ -495,7 +495,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(s.Description.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 311, Col: 175}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 311, Col: 175}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -508,7 +508,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(s.Description.Get("en"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 315, Col: 176}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 315, Col: 176}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -541,7 +541,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-section-modal-%d", s.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/storefront.templ`, Line: 334, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 334, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 					if templ_7745c5c3_Err != nil {

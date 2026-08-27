@@ -48,6 +48,9 @@ templ importReviewStage(view VendorImportView) {
 			</div>
 		</div>
 
+		<!-- What the AI stage did, directly under the counters it changed -->
+		@aiPanel(view)
+
 		<!-- Filter Tabs and Search Bar -->
 		<div class="b2b-filter-bar mb-md">
 			<div class="row-center-sm flex-wrap gap-xs">
@@ -409,6 +412,11 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			<div class="row-center-xs flex-wrap gap-xs items-center">
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div class="fw-700 text-sm">{ row.MatchedCatalogName() }</div>
+					if AIMatchedRow(row) {
+						<span class="badge badge-outline text-xs"
+							style="border-color: var(--primary); color: var(--primary);"
+							title={ aiRowTitle(row) }>🤖 ذكاء اصطناعي</span>
+					}
 					<button type="button"
 						data-row-id={ fmt.Sprint(row.ID) }
 						data-row-name={ row.DisplayName }
