@@ -132,6 +132,8 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 		if f.MatchGroup != "" {
 			switch f.MatchGroup {
 			case "matched":
+				where = append(where, "(matched_product_id IS NOT NULL)")
+			case "matched_available", "available":
 				where = append(where, "(matched_product_id IS NOT NULL AND outcome = 'ordered')")
 			case "unmatched":
 				where = append(where, "(matched_product_id IS NULL OR outcome = 'unmatched')")

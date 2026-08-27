@@ -352,6 +352,25 @@ func (m *mockCatalogRepo) UpdateProductImageBySKU(ctx context.Context, sku strin
 	return p, nil
 }
 
+func (m *mockCatalogRepo) ListMatchDecisions(_ context.Context, _ string, _, _ int) ([]*MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogRepo) DeleteMatchDecision(_ context.Context, _ int64) error {
+	return nil
+}
+func (m *mockCatalogRepo) ClearMatchDecisions(_ context.Context) error {
+	return nil
+}
+func (m *mockCatalogRepo) ListCustomerMappings(_ context.Context, _ int64, _ string, _, _ int) ([]*CustomerMappingView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogRepo) DeleteCustomerMapping(_ context.Context, _, _ int64) error {
+	return nil
+}
+func (m *mockCatalogRepo) ClearCustomerMappings(_ context.Context, _ int64) error {
+	return nil
+}
+
 func TestProductEffectivePrice(t *testing.T) {
 	p := &Product{
 		Price:    money.MustParse("100.00"),

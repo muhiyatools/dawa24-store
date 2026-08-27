@@ -615,3 +615,33 @@ func (s *Service) GetProductBySKU(ctx context.Context, sku string) (*Product, er
 func (s *Service) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath string, imageLink string) (*Product, error) {
 	return s.repo.UpdateProductImageBySKU(ctx, sku, imagePath, imageLink)
 }
+
+// ListMatchDecisions returns platform-wide decision memory records.
+func (s *Service) ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*MatchDecisionView, int, error) {
+	return s.repo.ListMatchDecisions(ctx, search, limit, offset)
+}
+
+// DeleteMatchDecision removes a single match decision from the system cache.
+func (s *Service) DeleteMatchDecision(ctx context.Context, id int64) error {
+	return s.repo.DeleteMatchDecision(ctx, id)
+}
+
+// ClearMatchDecisions purges all cached matching decisions from the system.
+func (s *Service) ClearMatchDecisions(ctx context.Context) error {
+	return s.repo.ClearMatchDecisions(ctx)
+}
+
+// ListCustomerMappings returns the saved learned matching decisions for a customer/vendor organization.
+func (s *Service) ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*CustomerMappingView, int, error) {
+	return s.repo.ListCustomerMappings(ctx, orgID, search, limit, offset)
+}
+
+// DeleteCustomerMapping removes a saved product mapping for an organization.
+func (s *Service) DeleteCustomerMapping(ctx context.Context, orgID, id int64) error {
+	return s.repo.DeleteCustomerMapping(ctx, orgID, id)
+}
+
+// ClearCustomerMappings purges all saved product mappings for an organization.
+func (s *Service) ClearCustomerMappings(ctx context.Context, orgID int64) error {
+	return s.repo.ClearCustomerMappings(ctx, orgID)
+}

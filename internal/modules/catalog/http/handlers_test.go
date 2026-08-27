@@ -244,6 +244,24 @@ func (r stubRepo) GetProductBySKU(ctx context.Context, sku string) (*catalog.Pro
 func (r stubRepo) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath, imageLink string) (*catalog.Product, error) {
 	return nil, nil
 }
+func (r stubRepo) ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (r stubRepo) DeleteMatchDecision(ctx context.Context, id int64) error {
+	return nil
+}
+func (r stubRepo) ClearMatchDecisions(ctx context.Context) error {
+	return nil
+}
+func (r stubRepo) ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.CustomerMappingView, int, error) {
+	return nil, 0, nil
+}
+func (r stubRepo) DeleteCustomerMapping(ctx context.Context, orgID, id int64) error {
+	return nil
+}
+func (r stubRepo) ClearCustomerMappings(ctx context.Context, orgID int64) error {
+	return nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

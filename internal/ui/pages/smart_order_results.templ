@@ -47,6 +47,17 @@ func buildSmartOrderResultsURL(publicID, match, sort, order string, page, limit 
 	return base
 }
 
+func smartOrderMatchedAvailableCount(r *smartorder.Run) int {
+	if r == nil {
+		return 0
+	}
+	avail := r.Stats.MatchedRows - (r.Stats.NoSupplierRows + r.Stats.CoverageBlockedRows + r.Stats.InstitutionalBlockedRows + r.Stats.BelowMinQtyRows)
+	if avail < 0 {
+		return 0
+	}
+	return avail
+}
+
 func smartOrderReviewCount(r *smartorder.Run) int {
 	if r == nil {
 		return 0
@@ -240,11 +251,11 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			<!-- Filter Tabs Bar & Search Toolbar -->
 			<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:1rem;">
 				
-				<!-- Tabs -->
+				<!-- Tabs: 3 focused filters + All -->
 				<div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
 					@soFilterTab(data, "unmatched", "غير مطابق", data.Run.Stats.UnmatchedRows)
 					@soFilterTab(data, "matched", "مطابق", data.Run.Stats.MatchedRows)
-					@soFilterTab(data, "review", "يحتاج مراجعة", smartOrderReviewCount(data.Run))
+					@soFilterTab(data, "matched_available", "مطابق ومتوفر", smartOrderMatchedAvailableCount(data.Run))
 					@soFilterTab(data, "all", "الكل", data.Run.Stats.TotalRows)
 				</div>
 
@@ -311,8 +322,8 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 								<th style="padding:0.85rem 0.75rem; width:130px; text-align:center;">
 									@soSortHeader(data, "method", "طريقة المطابقة")
 								</th>
-								<th style="padding:0.85rem 0.75rem; width:95px; text-align:center;">
-									@soSortHeader(data, "confidence", "الثقة")
+								<th style="padding:0.85rem 0.75rem; width:110px; text-align:center;">
+									@soSortHeader(data, "confidence", "نسبة التطابق")
 								</th>
 								<th style="padding:0.85rem 0.75rem; width:90px; text-align:center;">
 									@soSortHeader(data, "qty", "الكمية")

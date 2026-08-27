@@ -375,6 +375,24 @@ func (mockCatalogRepoStub) GetProductBySKU(context.Context, string) (*catalog.Pr
 func (mockCatalogRepoStub) UpdateProductImageBySKU(context.Context, string, string, string) (*catalog.Product, error) {
 	return nil, nil
 }
+func (mockCatalogRepoStub) ListMatchDecisions(context.Context, string, int, int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (mockCatalogRepoStub) DeleteMatchDecision(context.Context, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) ClearMatchDecisions(context.Context) error {
+	return nil
+}
+func (mockCatalogRepoStub) ListCustomerMappings(context.Context, int64, string, int, int) ([]*catalog.CustomerMappingView, int, error) {
+	return nil, 0, nil
+}
+func (mockCatalogRepoStub) DeleteCustomerMapping(context.Context, int64, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) ClearCustomerMappings(context.Context, int64) error {
+	return nil
+}
 
 // stagingRepo is the minimal catalog.Repository the commit path needs.
 type stagingRepo struct {

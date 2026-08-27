@@ -110,4 +110,12 @@ type Repository interface {
 	ListAllMasterProductsForMatching(ctx context.Context) ([]*CatalogMatchSource, error)
 	GetProductBySKU(ctx context.Context, sku string) (*Product, error)
 	UpdateProductImageBySKU(ctx context.Context, sku string, imagePath string, imageLink string) (*Product, error)
+
+	// Decision Memory & Mappings Management
+	ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*MatchDecisionView, int, error)
+	DeleteMatchDecision(ctx context.Context, id int64) error
+	ClearMatchDecisions(ctx context.Context) error
+	ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*CustomerMappingView, int, error)
+	DeleteCustomerMapping(ctx context.Context, orgID, id int64) error
+	ClearCustomerMappings(ctx context.Context, orgID int64) error
 }

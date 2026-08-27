@@ -204,6 +204,25 @@ func (m *mockCatalogImageRepo) UpdateProductImageBySKU(_ context.Context, sku st
 	return nil, apperr.NotFound("product")
 }
 
+func (m *mockCatalogImageRepo) ListMatchDecisions(_ context.Context, _ string, _, _ int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogImageRepo) DeleteMatchDecision(_ context.Context, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) ClearMatchDecisions(_ context.Context) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) ListCustomerMappings(_ context.Context, _ int64, _ string, _, _ int) ([]*catalog.CustomerMappingView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogImageRepo) DeleteCustomerMapping(_ context.Context, _, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) ClearCustomerMappings(_ context.Context, _ int64) error {
+	return nil
+}
+
 func TestDetectImageImportColumns(t *testing.T) {
 	tests := []struct {
 		name       string

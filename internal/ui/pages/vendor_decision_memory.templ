@@ -1,0 +1,269 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type DecisionMemoryData struct {
+	Mappings []*catalog.CustomerMappingView
+	Total    int
+	Page     int
+	PerPage  int
+	Search   string
+	IsVendor bool
+}
+
+func buildDecisionMemoryURL(isVendor bool, search string, page, limit int) string {
+	vals := url.Values{}
+	if search != "" {
+		vals.Set("q", search)
+	}
+	if page > 1 {
+		vals.Set("page", fmt.Sprintf("%d", page))
+	}
+	if limit != 50 && limit != 0 {
+		vals.Set("limit", fmt.Sprintf("%d", limit))
+	}
+	base := "/customer/decision-memory"
+	if isVendor {
+		base = "/vendor/decision-memory"
+	}
+	if len(vals) > 0 {
+		return base + "?" + vals.Encode()
+	}
+	return base
+}
+
+templ DecisionMemoryContent(data DecisionMemoryData) {
+	<div class="container-fluid" style="max-width:1320px; margin:0 auto; padding:1.5rem 1rem; display:flex; flex-direction:column; gap:1.5rem;">
+		
+		<!-- Header Banner -->
+		<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+			<div>
+				<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
+					🧠 ذاكرة قرارات المطابقة (Decision Memory)
+				</h1>
+				<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.5;">
+					قائمة الأصناف والربط اليدوي الذي قمت باعتماده سابقاً. يتذكر النظام هذه الاختيارات تلقائياً عند استيراد نفس الأصناف مستقبلاً في منظومة الطلب الذكي أو الكتالوج.
+				</p>
+			</div>
+			<div style="display:flex; align-items:center; gap:0.75rem;">
+				if data.Total > 0 {
+					<button
+						type="button"
+						class="btn btn-outline-danger btn-sm fw-700"
+						onclick="confirmClearMyDecisions()"
+						title="مسح كافة القرارات المحفوظة الخاصة بك">
+						🗑️ مسح ذاكرة القرارات
+					</button>
+				}
+			</div>
+		</div>
+
+		<!-- Stats Card -->
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+			<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+				<div style="font-size:1.75rem; font-weight:800; color:var(--primary-700);" class="tabular-nums">
+					{ fmt.Sprintf("%d", data.Total) }
+				</div>
+				<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-top:0.25rem;">
+					إجمالي الأصناف المربوطة والمحفوظة بالذاكرة
+				</div>
+			</div>
+		</div>
+
+		<!-- Search & Rows-Per-Page Form -->
+		{{
+			actionURL := "/customer/decision-memory"
+			if data.IsVendor {
+				actionURL = "/vendor/decision-memory"
+			}
+		}}
+		<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+			<form method="GET" action={ templ.SafeURL(actionURL) } style="display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem; margin:0;">
+				<div style="flex:1; min-width:260px;">
+					<input
+						type="text"
+						name="q"
+						value={ data.Search }
+						placeholder="بحث باسم الصنف كما ورد بالملف، أو اسم الصنف بالكتالوج..."
+						class="form-control"
+						style="width:100%; height:38px; font-size:0.875rem;"
+					/>
+				</div>
+
+				<div style="min-width:130px;">
+					<select name="limit" onchange="this.form.submit()" class="form-select" style="height:38px; font-size:0.85rem; width:100%;">
+						<option value="25" selected?={ data.PerPage == 25 }>25 عنصر</option>
+						<option value="50" selected?={ data.PerPage == 50 || data.PerPage == 0 }>50 عنصر</option>
+						<option value="100" selected?={ data.PerPage == 100 }>100 عنصر</option>
+					</select>
+				</div>
+
+				<button type="submit" class="btn btn-primary btn-sm fw-700" style="height:38px; padding:0 1.25rem;">
+					🔍 بحث
+				</button>
+
+				if data.Search != "" {
+					<a href={ templ.SafeURL(actionURL) } class="btn btn-secondary btn-sm" style="height:38px;">
+						إلغاء البحث
+					</a>
+				}
+			</form>
+		</div>
+
+		<!-- Main Table Card -->
+		<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-xs);">
+			<div class="table-responsive">
+				<table class="table" style="margin:0; width:100%; border-collapse:collapse;">
+					<thead>
+						<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.825rem; text-align:start;">
+							<th style="padding:0.85rem 0.75rem; width:65px; text-align:center;">#</th>
+							<th style="padding:0.85rem 1rem; min-width:240px;">اسم الصنف كما ورد بملفاتك</th>
+							<th style="padding:0.85rem 1rem; min-width:280px;">الصنف المربوط بالكتالوج المركزي</th>
+							<th style="padding:0.85rem 0.75rem; width:120px; text-align:center;">المصدر</th>
+							<th style="padding:0.85rem 0.75rem; width:140px; text-align:center;">تاريخ الحفظ والتعديل</th>
+							<th style="padding:0.85rem 0.75rem; width:90px; text-align:center;">إجراءات</th>
+						</tr>
+					</thead>
+					<tbody>
+						if len(data.Mappings) == 0 {
+							<tr>
+								<td colspan="6" style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+									<div style="font-size:2rem; margin-bottom:0.5rem;">📁</div>
+									<div style="font-weight:700; font-size:1rem; color:var(--text);">لا توجد قرارات مطابقة محفوظة حالياً</div>
+									<div style="font-size:0.85rem; margin-top:0.25rem;">عند تعديل أو ربط صنف يدوياً في نتائج الطلب الذكي، سيتم حفظه هنا لتطبيقه تلقائياً في المرات القادمة.</div>
+								</td>
+							</tr>
+						}
+						for _, m := range data.Mappings {
+							<tr style="border-bottom:1px solid var(--border);">
+								<!-- ID -->
+								<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; color:var(--text-muted); font-size:0.8rem;" class="tabular-nums">
+									{ fmt.Sprintf("%d", m.ID) }
+								</td>
+
+								<!-- Raw Name -->
+								<td style="padding:0.85rem 1rem;">
+									<div style="font-weight:700; font-size:0.9rem; color:var(--text); line-height:1.4;">
+										{ m.RawName }
+									</div>
+								</td>
+
+								<!-- Matched Product -->
+								<td style="padding:0.85rem 1rem;">
+									<div style="font-weight:700; font-size:0.875rem; color:var(--primary-700);">
+										if m.ProductName != "" {
+											{ m.ProductName }
+										} else {
+											صنف كتالوج #{ fmt.Sprintf("%d", m.ProductID) }
+										}
+									</div>
+									<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.2rem;">
+										<span style="font-size:0.725rem; color:var(--accent); font-family:monospace; font-weight:700;">
+											#{ fmt.Sprintf("%d", m.ProductID) }
+										</span>
+										if m.ProductSKU != "" {
+											<span class="badge badge-slate" style="font-size:0.675rem;">
+												كود: { m.ProductSKU }
+											</span>
+										}
+									</div>
+								</td>
+
+								<!-- Source -->
+								<td style="padding:0.85rem 0.75rem; text-align:center;">
+									<span class="badge badge-slate" style="font-size:0.75rem;">
+										if m.Source == "manual" {
+											ربط يدوي
+										} else if m.Source == "ai_confirmed" {
+											تأكيد ذكاء اصطناعي
+										} else {
+											{ m.Source }
+										}
+									</span>
+								</td>
+
+								<!-- Updated At -->
+								<td style="padding:0.85rem 0.75rem; text-align:center; font-size:0.775rem; color:var(--text-muted);" class="tabular-nums">
+									{ m.UpdatedAt.Format("2006-01-02 15:04") }
+								</td>
+
+								<!-- Actions -->
+								<td style="padding:0.85rem 0.75rem; text-align:center;">
+									{{
+										deleteURL := fmt.Sprintf("/customer/decision-memory/%d/delete", m.ID)
+										if data.IsVendor {
+											deleteURL = fmt.Sprintf("/vendor/decision-memory/%d/delete", m.ID)
+										}
+									}}
+									<form method="POST" action={ templ.SafeURL(deleteURL) } onsubmit="return confirm('هل أنت متأكد من حذف هذا القرار من الذاكرة؟');" style="margin:0;">
+										<input type="hidden" name="q" value={ data.Search } />
+										<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
+										<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
+										<button type="submit" class="btn btn-outline-danger btn-xs" title="حذف هذا القرار">
+											🗑️
+										</button>
+									</form>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Pagination Bar -->
+			if data.Total > data.PerPage {
+				<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.25rem; border-top:1px solid var(--border); background:var(--surface-sunken); font-size:0.85rem;">
+					<div style="color:var(--text-secondary);">
+						إجمالي النتائج: <strong>{ fmt.Sprintf("%d", data.Total) }</strong>
+					</div>
+					<div style="display:flex; align-items:center; gap:0.5rem;">
+						if data.Page > 1 {
+							<a href={ templ.SafeURL(buildDecisionMemoryURL(data.IsVendor, data.Search, data.Page-1, data.PerPage)) } class="btn btn-secondary btn-xs">
+								السابق
+							</a>
+						}
+						<span style="font-weight:700; color:var(--text); padding:0 0.4rem;">
+							صفحة { fmt.Sprintf("%d", data.Page) }
+						</span>
+						if data.Page * data.PerPage < data.Total {
+							<a href={ templ.SafeURL(buildDecisionMemoryURL(data.IsVendor, data.Search, data.Page+1, data.PerPage)) } class="btn btn-secondary btn-xs">
+								التالي
+							</a>
+						}
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+
+	<!-- Clear All Modal / Confirmation Script -->
+	<script>
+		function confirmClearMyDecisions() {
+			if (confirm("⚠️ هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة الخاصة بك؟ لن يتذكر النظام هذه الروابط في الملفات القادمة.")) {
+				var form = document.createElement('form');
+				form.method = 'POST';
+				form.action = window.location.pathname.startsWith('/vendor') ? '/vendor/decision-memory/clear' : '/customer/decision-memory/clear';
+				document.body.appendChild(form);
+				form.submit();
+			}
+		}
+	</script>
+}
+
+templ VendorDecisionMemoryPage(lang, dir string, data DecisionMemoryData) {
+	@layouts.VendorShell("ذاكرة قرارات المطابقة | Dawa24", "decision_memory", lang, dir) {
+		@DecisionMemoryContent(data)
+	}
+}
+
+templ CustomerDecisionMemoryPage(lang, dir string, data DecisionMemoryData) {
+	@layouts.CustomerShell("ذاكرة قرارات المطابقة | Dawa24", "decision_memory", lang, dir, nil) {
+		@DecisionMemoryContent(data)
+	}
+}

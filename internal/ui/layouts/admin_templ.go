@@ -754,13 +754,13 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "inventory.warehouse.manage") {
-					var templ_7745c5c3_Var46 = []any{"sidebar-link", templ.KV("active", activeNav == "warehouses")}
+				if canAccessAdmin(ctx, "catalog.product.view") {
+					var templ_7745c5c3_Var46 = []any{"sidebar-link", templ.KV("active", activeNav == "match_decisions")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var46...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<a href=\"/admin/warehouses\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<a href=\"/admin/match-decisions\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -777,22 +777,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconPackage("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconZap("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<span>المستودعات</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<span>ذاكرة قرارات المطابقة (AI)</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 				if canAccessAdmin(ctx, "inventory.warehouse.manage") {
-					var templ_7745c5c3_Var48 = []any{"sidebar-link", templ.KV("active", activeNav == "temp_warehouses")}
+					var templ_7745c5c3_Var48 = []any{"sidebar-link", templ.KV("active", activeNav == "warehouses")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var48...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<a href=\"/admin/user/temparte-warehouses\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<a href=\"/admin/warehouses\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -813,18 +813,18 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span>المستودعات المؤقتة</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span>المستودعات</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "workflow.coverage.view") {
-					var templ_7745c5c3_Var50 = []any{"sidebar-link", templ.KV("active", activeNav == "weekly_coverages")}
+				if canAccessAdmin(ctx, "inventory.warehouse.manage") {
+					var templ_7745c5c3_Var50 = []any{"sidebar-link", templ.KV("active", activeNav == "temp_warehouses")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var50...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<a href=\"/admin/weekly-coverages\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<a href=\"/admin/user/temparte-warehouses\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -841,26 +841,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconMapPin("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconPackage("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span>التغطية الأسبوعية</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span>المستودعات المؤقتة</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</div><!-- Group 5: المبيعات والمالية (sales_and_finance) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>المبيعات والمالية</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if canAccessAdmin(ctx, "commerce.order.view") {
-					var templ_7745c5c3_Var52 = []any{"sidebar-link", templ.KV("active", activeNav == "orders" || activeNav == "offer_orders")}
+				if canAccessAdmin(ctx, "workflow.coverage.view") {
+					var templ_7745c5c3_Var52 = []any{"sidebar-link", templ.KV("active", activeNav == "weekly_coverages")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var52...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<a href=\"/admin/orders\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<a href=\"/admin/weekly-coverages\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -873,26 +869,30 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconTruck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconMapPin("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<span>طلبات الشراء وأوامر التوريد</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<span>التغطية الأسبوعية</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "billing.invoice.view") || canAccessAdmin(ctx, "billing.payment.view") || canAccessAdmin(ctx, "billing.invoice.read") {
-					var templ_7745c5c3_Var54 = []any{"sidebar-link", templ.KV("active", activeNav == "finance" || activeNav == "invoices" || activeNav == "payments" || activeNav == "wallets" || activeNav == "earnings_order" || activeNav == "earnings_offers")}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div><!-- Group 5: المبيعات والمالية (sales_and_finance) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>المبيعات والمالية</span></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if canAccessAdmin(ctx, "commerce.order.view") {
+					var templ_7745c5c3_Var54 = []any{"sidebar-link", templ.KV("active", activeNav == "orders" || activeNav == "offer_orders")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var54...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<a href=\"/admin/finance\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<a href=\"/admin/orders\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -909,22 +909,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconWallet("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconTruck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<span>الإدارة المالية والمحافظ</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<span>طلبات الشراء وأوامر التوريد</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "billing.subscription_plan.view") {
-					var templ_7745c5c3_Var56 = []any{"sidebar-link", templ.KV("active", activeNav == "plans" || activeNav == "subscriptions")}
+				if canAccessAdmin(ctx, "billing.invoice.view") || canAccessAdmin(ctx, "billing.payment.view") || canAccessAdmin(ctx, "billing.invoice.read") {
+					var templ_7745c5c3_Var56 = []any{"sidebar-link", templ.KV("active", activeNav == "finance" || activeNav == "invoices" || activeNav == "payments" || activeNav == "wallets" || activeNav == "earnings_order" || activeNav == "earnings_offers")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var56...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<a href=\"/admin/plans\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<a href=\"/admin/finance\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -941,26 +941,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconTag("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconWallet("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<span>باقات وخطط الاشتراك</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<span>الإدارة المالية والمحافظ</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</div><!-- Group 6: العروض والتسويق (offers_promotions_management) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>العروض والتسويق</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if canAccessAdmin(ctx, "promo.offer.view") {
-					var templ_7745c5c3_Var58 = []any{"sidebar-link", templ.KV("active", activeNav == "offers")}
+				if canAccessAdmin(ctx, "billing.subscription_plan.view") {
+					var templ_7745c5c3_Var58 = []any{"sidebar-link", templ.KV("active", activeNav == "plans" || activeNav == "subscriptions")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var58...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<a href=\"/admin/offers\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<a href=\"/admin/plans\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -973,7 +969,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -981,18 +977,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<span>مراجعة عروض الموردين</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<span>باقات وخطط الاشتراك</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "promo.offer.manage") {
-					var templ_7745c5c3_Var60 = []any{"sidebar-link", templ.KV("active", activeNav == "offers_packages")}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</div><!-- Group 6: العروض والتسويق (offers_promotions_management) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>العروض والتسويق</span></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if canAccessAdmin(ctx, "promo.offer.view") {
+					var templ_7745c5c3_Var60 = []any{"sidebar-link", templ.KV("active", activeNav == "offers")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var60...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<a href=\"/admin/offers-packages\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<a href=\"/admin/offers\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1009,22 +1009,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconLayers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconTag("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span>باقات العروض والرعايات</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span>مراجعة عروض الموردين</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 				if canAccessAdmin(ctx, "promo.offer.manage") {
-					var templ_7745c5c3_Var62 = []any{"sidebar-link", templ.KV("active", activeNav == "offer_locations")}
+					var templ_7745c5c3_Var62 = []any{"sidebar-link", templ.KV("active", activeNav == "offers_packages")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var62...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<a href=\"/admin/offers/locations\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<a href=\"/admin/offers-packages\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1041,22 +1041,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconMapPin("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconLayers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<span>مواقع تغطية العروض</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<span>باقات العروض والرعايات</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "promo.ad.view") {
-					var templ_7745c5c3_Var64 = []any{"sidebar-link", templ.KV("active", activeNav == "ads")}
+				if canAccessAdmin(ctx, "promo.offer.manage") {
+					var templ_7745c5c3_Var64 = []any{"sidebar-link", templ.KV("active", activeNav == "offer_locations")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var64...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<a href=\"/admin/ads\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<a href=\"/admin/offers/locations\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1073,22 +1073,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconStar("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconMapPin("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<span>الإعلانات</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<span>مواقع تغطية العروض</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 				if canAccessAdmin(ctx, "promo.ad.view") {
-					var templ_7745c5c3_Var66 = []any{"sidebar-link", templ.KV("active", activeNav == "ad_plans")}
+					var templ_7745c5c3_Var66 = []any{"sidebar-link", templ.KV("active", activeNav == "ads")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var66...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<a href=\"/admin/ad-plan\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<a href=\"/admin/ads\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1105,22 +1105,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconLayers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconStar("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span>خطط الإعلانات</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span>الإعلانات</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "platform.analytics.view") {
-					var templ_7745c5c3_Var68 = []any{"sidebar-link", templ.KV("active", activeNav == "analytics")}
+				if canAccessAdmin(ctx, "promo.ad.view") {
+					var templ_7745c5c3_Var68 = []any{"sidebar-link", templ.KV("active", activeNav == "ad_plans")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var68...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<a href=\"/admin/analytics\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<a href=\"/admin/ad-plan\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1137,26 +1137,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconChart("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconLayers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "<span>التحليلات والإحصائيات</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "<span>خطط الإعلانات</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</div><!-- Group 7: أدوات أخرى (tools) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>الأدوات والخدمات</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if canAccessAdmin(ctx, "platform.message.view") {
-					var templ_7745c5c3_Var70 = []any{"sidebar-link", templ.KV("active", activeNav == "messages")}
+				if canAccessAdmin(ctx, "platform.analytics.view") {
+					var templ_7745c5c3_Var70 = []any{"sidebar-link", templ.KV("active", activeNav == "analytics")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var70...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<a href=\"/admin/messages\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<a href=\"/admin/analytics\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1169,26 +1165,30 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconMail("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconChart("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "<span>رسائل واستفسارات التواصل</span></a> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<span>التحليلات والإحصائيات</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				if canAccessAdmin(ctx, "hr.job.view") {
-					var templ_7745c5c3_Var72 = []any{"sidebar-link", templ.KV("active", activeNav == "jobs")}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "</div><!-- Group 7: أدوات أخرى (tools) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>الأدوات والخدمات</span></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if canAccessAdmin(ctx, "platform.message.view") {
+					var templ_7745c5c3_Var72 = []any{"sidebar-link", templ.KV("active", activeNav == "messages")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var72...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "<a href=\"/admin/jobs\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "<a href=\"/admin/messages\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1205,26 +1205,22 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconUsers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconMail("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span>وظائف وشواغر القطاع</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span>رسائل واستفسارات التواصل</span></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "</div><!-- Group 8: إدارة الحذف والمحذوفات (system_deletes_trash) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>إدارة المحذوفات</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if canAccessAdmin(ctx, "platform.trash.view") {
-					var templ_7745c5c3_Var74 = []any{"sidebar-link", templ.KV("active", activeNav == "trash")}
+				if canAccessAdmin(ctx, "hr.job.view") {
+					var templ_7745c5c3_Var74 = []any{"sidebar-link", templ.KV("active", activeNav == "jobs")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var74...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "<a href=\"/admin/trash-list\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<a href=\"/admin/jobs\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1237,30 +1233,30 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = components.IconTrash("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconUsers("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<span>سلة المحذوفات الشاملة</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span>وظائف وشواغر القطاع</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "</div><!-- Group 9: أدوات المطور (developer) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>المطور والتشخيص</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "</div><!-- Group 8: إدارة الحذف والمحذوفات (system_deletes_trash) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>إدارة المحذوفات</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if canAccessAdmin(ctx, "platform.developer.sql") {
-					var templ_7745c5c3_Var76 = []any{"sidebar-link", templ.KV("active", activeNav == "developers")}
+				if canAccessAdmin(ctx, "platform.trash.view") {
+					var templ_7745c5c3_Var76 = []any{"sidebar-link", templ.KV("active", activeNav == "trash")}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var76...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<a href=\"/admin/developers\" class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<a href=\"/admin/trash-list\" class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1273,7 +1269,43 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconTrash("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<span>سلة المحذوفات الشاملة</span></a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "</div><!-- Group 9: أدوات المطور (developer) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>المطور والتشخيص</span></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if canAccessAdmin(ctx, "platform.developer.sql") {
+					var templ_7745c5c3_Var78 = []any{"sidebar-link", templ.KV("active", activeNav == "developers")}
+					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var78...)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<a href=\"/admin/developers\" class=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var79 string
+					templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var78).String())
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 1, Col: 0}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var79)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1281,12 +1313,12 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "<span>أدوات المطورين والـ AI</span></a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "<span>أدوات المطورين والـ AI</span></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</div></nav><div style=\"margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" class=\"btn sidebar-footer-btn\" style=\"width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md);\" title=\"كتالوج المنتجات\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "</div></nav><div style=\"margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" class=\"btn sidebar-footer-btn\" style=\"width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md);\" title=\"كتالوج المنتجات\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1294,20 +1326,20 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "<span>كتالوج المنتجات</span></a></div></aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\"><!-- Top Admin Header --><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border); background:var(--surface-raised); padding:0 var(--space-6); height:var(--header-height); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-sticky);\"><div style=\"display:flex; align-items:center; gap:var(--space-3);\"><h1 style=\"font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<span>كتالوج المنتجات</span></a></div></aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\"><!-- Top Admin Header --><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border); background:var(--surface-raised); padding:0 var(--space-6); height:var(--header-height); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-sticky);\"><div style=\"display:flex; align-items:center; gap:var(--space-3);\"><h1 style=\"font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var78 string
-				templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+				var templ_7745c5c3_Var80 string
+				templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 357, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 363, Col: 98}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var80))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "</h1></div><div style=\"display:flex; align-items:center; gap:var(--space-4);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "</h1></div><div style=\"display:flex; align-items:center; gap:var(--space-4);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1319,7 +1351,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "<div style=\"display:flex; align-items:center; gap:0.65rem; border-inline-start:1px solid var(--border); padding-inline-start:1rem;\"><div style=\"width:30px; height:30px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "<div style=\"display:flex; align-items:center; gap:0.65rem; border-inline-start:1px solid var(--border); padding-inline-start:1rem;\"><div style=\"width:30px; height:30px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1327,7 +1359,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "</div><div style=\"display:flex; flex-direction:column;\"><span style=\"font-size:var(--text-xs); font-weight:600; color:var(--text);\">مدير النظام العام</span> <span style=\"font-size:10px; color:var(--text-muted);\">Super Admin</span></div><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; margin-inline-start:0.35rem;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger-text); border-color:var(--danger-border); font-weight:600; padding:0.3rem 0.65rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "</div><div style=\"display:flex; flex-direction:column;\"><span style=\"font-size:var(--text-xs); font-weight:600; color:var(--text);\">مدير النظام العام</span> <span style=\"font-size:10px; color:var(--text-muted);\">Super Admin</span></div><form action=\"/auth/logout\" method=\"POST\" style=\"margin:0; margin-inline-start:0.35rem;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"color:var(--danger-text); border-color:var(--danger-border); font-weight:600; padding:0.3rem 0.65rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1335,7 +1367,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container p-modal\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container p-modal\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1343,7 +1375,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "</div></main></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 131, "</div></main></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

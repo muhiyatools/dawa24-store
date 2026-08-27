@@ -81,6 +81,10 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							@components.IconTag("icon-sm")
 							<span>منتجات التوفير</span>
 						</a>
+						<a href="/vendor/decision-memory" class={ "sidebar-link", templ.KV("active", activeNav == "decision_memory") }>
+							@components.IconZap("icon-sm")
+							<span>ذاكرة قرارات المطابقة</span>
+						</a>
 						<a href="/vendor/inventory" class={ "sidebar-link", templ.KV("active", activeNav == "inventory") }>
 							@components.IconLayers("icon-sm")
 							<span>إدارة المخزون</span>

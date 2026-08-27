@@ -58,6 +58,12 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		})
 		g.Get("/admin/saving-products/user/{userId}", h.AdminSavingProductsPage)
 		g.Get("/admin/saving-products/org/{organizationId}", h.AdminSavingProductsPage)
+
+		// Decision Memory & AI Matching Decisions
+		g.Get("/admin/match-decisions", h.AdminMatchDecisionsPage)
+		g.Post("/admin/match-decisions/{id}/delete", h.AdminMatchDecisionDeleteSubmit)
+		g.Post("/admin/match-decisions/clear", h.AdminMatchDecisionsClearSubmit)
+
 		// Brands & Categories
 		g.Get("/admin/brands", h.AdminBrandsPage)
 		g.Get("/admin/categories", h.AdminCategoriesPage)

@@ -176,6 +176,12 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 									<span>منتجات التوفير</span>
 								</a>
 							}
+							if canAccessAdmin(ctx, "catalog.product.view") {
+							<a href="/admin/match-decisions" class={ "sidebar-link", templ.KV("active", activeNav == "match_decisions") }>
+									@components.IconZap("icon-sm")
+									<span>ذاكرة قرارات المطابقة (AI)</span>
+								</a>
+							}
 							if canAccessAdmin(ctx, "inventory.warehouse.manage") {
 							<a href="/admin/warehouses" class={ "sidebar-link", templ.KV("active", activeNav == "warehouses") }>
 									@components.IconPackage("icon-sm")

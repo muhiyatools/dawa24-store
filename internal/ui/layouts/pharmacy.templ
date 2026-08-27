@@ -66,6 +66,10 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconPackage("icon-sm")
 							<span>{ i18n.T(lang, "nav.saving_products") }</span>
 						</a>
+						<a href="/customer/decision-memory" class={ "sidebar-link", templ.KV("active", activeNav == "decision_memory") }>
+							@components.IconZap("icon-sm")
+							<span>ذاكرة قرارات المطابقة</span>
+						</a>
 						<a href="/suppliers" class={ "sidebar-link", templ.KV("active", activeNav == "suppliers") }>
 							@components.IconBuilding("icon-sm")
 							<span>{ i18n.T(lang, "nav.suppliers_directory") }</span>

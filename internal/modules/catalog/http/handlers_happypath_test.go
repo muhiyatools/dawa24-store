@@ -182,6 +182,24 @@ func (happyRepo) GetProductBySKU(ctx context.Context, sku string) (*catalog.Prod
 func (happyRepo) UpdateProductImageBySKU(ctx context.Context, sku string, imagePath, imageLink string) (*catalog.Product, error) {
 	return nil, nil
 }
+func (happyRepo) ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) DeleteMatchDecision(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) ClearMatchDecisions(ctx context.Context) error {
+	return nil
+}
+func (happyRepo) ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.CustomerMappingView, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) DeleteCustomerMapping(ctx context.Context, orgID, id int64) error {
+	return nil
+}
+func (happyRepo) ClearCustomerMappings(ctx context.Context, orgID int64) error {
+	return nil
+}
 
 func newAuthedRouter(repo catalog.Repository) http.Handler {
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))

@@ -380,6 +380,11 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Get("/pharmacy/subscription", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
 	})
+
+	// Decision Memory (ذاكرة قرارات المطابقة)
+	r.Get("/customer/decision-memory", h.CustomerDecisionMemoryPage)
+	r.Post("/customer/decision-memory/{id}/delete", h.CustomerDecisionMemoryDeleteSubmit)
+	r.Post("/customer/decision-memory/clear", h.CustomerDecisionMemoryClearSubmit)
 }
 
 // RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
@@ -387,6 +392,11 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
 	r.Get("/vendor/subscription", h.TenantSubscriptionPage)
+
+	// Decision Memory (ذاكرة قرارات المطابقة)
+	r.Get("/vendor/decision-memory", h.VendorDecisionMemoryPage)
+	r.Post("/vendor/decision-memory/{id}/delete", h.VendorDecisionMemoryDeleteSubmit)
+	r.Post("/vendor/decision-memory/clear", h.VendorDecisionMemoryClearSubmit)
 	r.Get("/vendor/organization", h.VendorOrganizationPage)
 	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
 	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)

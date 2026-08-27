@@ -124,42 +124,44 @@ func (r *Resolver) applyLearned(ctx context.Context, lines []*smartorder.Line) e
 	return nil
 }
 
+func isStandardBarcode(b string) bool {
+	b = strings.TrimSpace(b)
+	if len(b) < 8 || len(b) > 18 {
+		return false
+	}
+	for _, r := range b {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
 func (r *Resolver) applyCodes(ctx context.Context, lines []*smartorder.Line) error {
-	var skus, barcodes []string
+	var barcodes []string
 	for _, l := range lines {
 		if l.Matched() {
 			continue
 		}
-		if s := strings.ToLower(strings.TrimSpace(l.RawSKU)); s != "" {
-			skus = append(skus, s)
-		}
-		if b := strings.ToLower(strings.TrimSpace(l.RawBarcode)); b != "" {
+		if b := strings.ToLower(strings.TrimSpace(l.RawBarcode)); b != "" && isStandardBarcode(b) {
 			barcodes = append(barcodes, b)
 		}
 	}
-	if len(skus) == 0 && len(barcodes) == 0 {
+	if len(barcodes) == 0 {
 		return nil
 	}
-	hits, err := r.repo.ResolveByCodes(ctx, skus, barcodes)
+	hits, err := r.repo.ResolveByCodes(ctx, nil, barcodes)
 	if err != nil {
 		return err
 	}
 
-	// Barcode before SKU: a barcode identifies the physical package, whereas a
-	// SKU is a supplier's own numbering that can collide across catalogues.
 	for _, l := range lines {
 		if l.Matched() {
 			continue
 		}
-		if b := strings.ToLower(strings.TrimSpace(l.RawBarcode)); b != "" {
+		if b := strings.ToLower(strings.TrimSpace(l.RawBarcode)); b != "" && isStandardBarcode(b) {
 			if id, ok := hits[b]; ok {
 				setMatch(l, id, smartorder.MethodBarcode, confBarcode)
-				continue
-			}
-		}
-		if s := strings.ToLower(strings.TrimSpace(l.RawSKU)); s != "" {
-			if id, ok := hits[s]; ok {
-				setMatch(l, id, smartorder.MethodSKU, confSKU)
 			}
 		}
 	}

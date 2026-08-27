@@ -373,3 +373,33 @@ func ComposeUniqueRowID(productID int64, variantID, branchID *int64) string {
 	}
 	return "p_" + strconv.FormatInt(productID, 10)
 }
+
+// MatchDecisionView represents a record in the AI & matching decision memory cache.
+type MatchDecisionView struct {
+	ID                int64     `json:"id"`
+	DecisionKey       string    `json:"decision_key"`
+	NormName          string    `json:"norm_name"`
+	ChosenProductID   *int64    `json:"chosen_product_id,omitempty"`
+	ChosenProductName string    `json:"chosen_product_name,omitempty"`
+	ChosenProductSKU  string    `json:"chosen_product_sku,omitempty"`
+	Confidence        float64   `json:"confidence"`
+	Reason            string    `json:"reason,omitempty"`
+	PromptVersion     string    `json:"prompt_version"`
+	HitCount          int64     `json:"hit_count"`
+	CreatedAt         time.Time `json:"created_at"`
+	LastUsedAt        time.Time `json:"last_used_at"`
+}
+
+// CustomerMappingView represents a customer/vendor saved product mapping record.
+type CustomerMappingView struct {
+	ID             int64     `json:"id"`
+	OrganizationID int64     `json:"organization_id"`
+	RawName        string    `json:"raw_name"`
+	ProductID      int64     `json:"product_id"`
+	ProductName    string    `json:"product_name"`
+	ProductSKU     string    `json:"product_sku"`
+	Source         string    `json:"source"`
+	Status         string    `json:"status"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
