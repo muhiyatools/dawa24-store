@@ -212,6 +212,7 @@ type Settings struct {
 	InferConcentration  bool `json:"infer_concentration"`
 	RejectExpired       bool `json:"reject_expired"`
 
+	DefaultQuantity     int  `json:"default_quantity,omitempty"`
 	DefaultMinOrderQty  int  `json:"default_min_order_qty"`
 	DefaultMinThreshold int  `json:"default_min_threshold"`
 	MarkNegotiable      bool `json:"mark_negotiable"`
@@ -261,6 +262,9 @@ func (s Settings) Normalize() Settings {
 		s.MinMatchScore = 0.30
 	} else {
 		s.MinMatchScore = min(max(s.MinMatchScore, 0.05), 1)
+	}
+	if s.DefaultQuantity < 0 {
+		s.DefaultQuantity = 0
 	}
 	if s.DefaultMinOrderQty <= 0 {
 		s.DefaultMinOrderQty = 1

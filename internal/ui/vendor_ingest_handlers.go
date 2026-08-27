@@ -172,6 +172,16 @@ func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Req
 		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
+
+	if qStr := strings.TrimSpace(r.PostFormValue("default_quantity")); qStr != "" {
+		if defQty, err := strconv.Atoi(qStr); err == nil && defQty >= 0 {
+			if s, err := h.ingSvc.LoadImport(ctx, publicID); err == nil && s != nil {
+				s.Settings.DefaultQuantity = defQty
+				_, _ = h.ingSvc.SaveSettings(ctx, publicID, s.Settings)
+			}
+		}
+	}
+
 	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
 }
 
@@ -208,6 +218,9 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	// as "on" would make the results screen claim AI work that never happened.
 	settings.UseAI = checked(r, "use_ai") && h.ingSvc.AIAvailable()
 	settings.RecordRows = checked(r, "record_rows")
+	if v, err := strconv.Atoi(r.PostFormValue("default_quantity")); err == nil && v >= 0 {
+		settings.DefaultQuantity = v
+	}
 	if v, err := strconv.Atoi(r.PostFormValue("default_min_order_qty")); err == nil {
 		settings.DefaultMinOrderQty = v
 	}

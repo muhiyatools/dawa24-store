@@ -127,6 +127,11 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 					unmatchedCount++
 				}
 
+				if !d.row.HasQuantity && session.Settings.DefaultQuantity > 0 {
+					d.row.Quantity = session.Settings.DefaultQuantity
+					d.row.HasQuantity = true
+				}
+
 				stagedRows = append(stagedRows, RowOutcome{
 					SourceRow:         d.row.Number,
 					Outcome:           outcomeVal,

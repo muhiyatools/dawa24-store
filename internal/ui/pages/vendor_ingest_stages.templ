@@ -52,6 +52,10 @@ templ importMappingStage(view VendorImportView) {
 											<span class="badge badge-emerald text-xs">
 												✓ مربوط بـ: { st.ColumnName }
 											</span>
+										} else if st.Field == productmatch.FieldQuantity {
+											<span class="badge badge-sky text-xs">
+												📦 غير موجود بالملف — حدد كمية افتراضية في (3) أدناه
+											</span>
 										} else {
 											<span class="badge badge-amber text-xs">
 												⚠️ لم يُربط تلقائياً — حدده من الجدول أدناه
@@ -60,7 +64,11 @@ templ importMappingStage(view VendorImportView) {
 									</td>
 									<td class="text-xs text-muted">
 										if st.Field == productmatch.FieldQuantity {
-											<strong class="text-primary">يتم قيد هذه الكمية في المستودع المحدد في الخطوة التالية</strong>
+											if st.ColumnIndex >= 0 {
+												<strong class="text-primary">يتم قيد هذه الكمية في المستودع المحدد في الخطوة التالية</strong>
+											} else {
+												<strong class="text-primary">يمكنك تعيين كمية موحدة في (3) أدناه أو إدخال الكميات يدوياً في المراجعة</strong>
+											}
 										} else {
 											<span>—</span>
 										}
@@ -94,6 +102,34 @@ templ importMappingStage(view VendorImportView) {
 							}
 						</tbody>
 					</table>
+				</div>
+			</div>
+
+			<!-- Section 3: Manual / Default Stock Quantity Setting -->
+			<div class="card">
+				<div class="row-center-sm gap-sm mb-2">
+					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+						📦
+					</div>
+					<div>
+						<h2 class="wiz-head mb-0">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2>
+						<p class="wiz-sub mb-0">
+							إذا كان ملفك يحتوي فقط على أسماء الأصناف والأسعار دون عمود للكمية، يمكنك كتابة كمية افتراضية هنا ليتم تطبيقها على كافة الأصناف تلقائياً، مع إمكانية تعديل كمية أي صنف يدوياً لاحقاً في مرحلة المراجعة.
+						</p>
+					</div>
+				</div>
+
+				<div class="row-center-sm gap-md flex-wrap mt-3" style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+					<label class="form-label mb-0 fw-800 text-sm">
+						الكمية الافتراضية لكل صنف:
+					</label>
+					<input type="number" name="default_quantity" min="0" placeholder="مثال: 50 أو 100"
+						value={ defaultQuantityDisplay(view.Session) }
+						class="form-input tabular-nums fw-700 text-center"
+						style="width:140px; height:42px; font-size:1rem; border-radius:var(--radius-lg);"/>
+					<span class="text-xs text-muted">
+						(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المستودع المختار.
+					</span>
 				</div>
 			</div>
 
@@ -305,6 +341,12 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 			<div class="wiz-map">
 				<div class="wiz-map-item">
+					<span class="wiz-map-label">الكمية الافتراضية لكل صنف (إذا لم تكن محددة بالملف)</span>
+					<input class="wiz-map-input" type="number" name="default_quantity" min="0" placeholder="مثال: 50 أو 100"
+						value={ defaultQuantityDisplay(view.Session) }/>
+					<span class="wiz-map-hint">تُطبَّق تلقائياً على كافة الأصناف التي لم يُحدد لها رصيد في الملف.</span>
+				</div>
+				<div class="wiz-map-item">
 					<span class="wiz-map-label">أقل كمية للطلب (افتراضياً)</span>
 					<input class="wiz-map-input" type="number" name="default_min_order_qty" min="1"
 						value={ fmt.Sprint(view.Session.Settings.DefaultMinOrderQty) }/>
@@ -369,4 +411,11 @@ templ vendorImportSwitch(name, icon, title, text string, on bool) {
 		</span>
 		<span class="wiz-track" aria-hidden="true"></span>
 	</label>
+}
+
+func defaultQuantityDisplay(s *ingest.Session) string {
+	if s != nil && s.Settings.DefaultQuantity > 0 {
+		return fmt.Sprint(s.Settings.DefaultQuantity)
+	}
+	return ""
 }
