@@ -33,22 +33,16 @@ type PurchasePriorityRequest struct {
 
 // WeeklyCoverage defines branch geographic delivery schedules.
 type WeeklyCoverage struct {
-	ID             int64  `json:"id"`
-	PublicID       string `json:"public_id"`
-	OrganizationID int64  `json:"organization_id"`
-	BranchID       int64  `json:"branch_id"`
-	CityID         *int64 `json:"city_id,omitempty"`
-	DayOfWeek      int    `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
-	// CoverageFrom/CoverageTo are the optional daily service window as "HH:MM".
-	// They map to nullable Postgres TIME columns, so they are pointers: a blank
-	// form field means "no window" (NULL), not the empty string. Writing "" into
-	// a TIME column fails with `invalid input syntax for type time`, and reading
-	// a TIME straight into a Go string fails because pgx maps TIME to
-	// pgtype.Time — both bugs shipped, and both are why the coverage screen
-	// could not load. See postgres.coverageColumns.
-	CoverageFrom   *string   `json:"coverage_from,omitempty"`
-	CoverageTo     *string   `json:"coverage_to,omitempty"`
-	Address        string    `json:"address,omitempty"`
+	ID             int64   `json:"id"`
+	PublicID       string  `json:"public_id"`
+	OrganizationID int64   `json:"organization_id"`
+	BranchID       int64   `json:"branch_id"`
+	GovernorateID  *int64  `json:"governorate_id,omitempty"`
+	CityID         *int64  `json:"city_id,omitempty"`
+	DayOfWeek      int     `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
+	CoverageFrom   *string `json:"coverage_from,omitempty"`
+	CoverageTo     *string `json:"coverage_to,omitempty"`
+	Address        string  `json:"address,omitempty"`
 	Latitude       *float64  `json:"latitude,omitempty"`
 	Longitude      *float64  `json:"longitude,omitempty"`
 	DistanceMeters int       `json:"distance_meters"`
@@ -57,12 +51,16 @@ type WeeklyCoverage struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-// CoverageView extends WeeklyCoverage with denormalized branch, city, and organization names for display.
+// CoverageView extends WeeklyCoverage with denormalized branch, governorate, city, and organization names for display.
 type CoverageView struct {
 	WeeklyCoverage
-	BranchName string `json:"branch_name"`
-	CityName   string `json:"city_name,omitempty"`
-	OrgName    string `json:"org_name,omitempty"`
+	BranchName        string `json:"branch_name"`
+	GovernorateName   string `json:"governorate_name,omitempty"`
+	GovernorateNameAr string `json:"governorate_name_ar,omitempty"`
+	CityName          string `json:"city_name,omitempty"`
+	CityNameAr        string `json:"city_name_ar,omitempty"`
+	CityNameEn        string `json:"city_name_en,omitempty"`
+	OrgName           string `json:"org_name,omitempty"`
 }
 
 // Validate ensures weekly coverage fields are valid.

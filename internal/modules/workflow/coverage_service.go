@@ -37,19 +37,19 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 		query := `
 			SELECT wc.distance_meters,
 			       platform.distance_meters(
-			           COALESCE(wc.latitude, b.latitude, c.latitude)::numeric,
-			           COALESCE(wc.longitude, b.longitude, c.longitude)::numeric,
+			           COALESCE(wc.latitude, c.latitude, b.latitude)::numeric,
+			           COALESCE(wc.longitude, c.longitude, b.longitude)::numeric,
 			           $2::numeric,
 			           $3::numeric
 			       )::integer AS actual_meters
 			FROM workflow.weekly_coverages wc
+			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
 			LEFT JOIN org.branches b ON b.id = wc.branch_id
-			LEFT JOIN platform_admin.cities c ON c.id = COALESCE(wc.city_id, b.city_id)
 			WHERE wc.organization_id = $1::bigint
 			  AND wc.day_of_week = $4::integer
 			  AND wc.is_active = true
-			  AND COALESCE(wc.latitude, b.latitude, c.latitude) IS NOT NULL
-			  AND COALESCE(wc.longitude, b.longitude, c.longitude) IS NOT NULL
+			  AND COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL
+			  AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NOT NULL
 			ORDER BY actual_meters ASC
 			LIMIT 1;
 		`

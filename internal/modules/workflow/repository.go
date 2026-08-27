@@ -15,6 +15,7 @@ type Repository interface {
 	GetCandidateProducts(ctx context.Context, userID int64, authorizedWorkIDs []int64, preferredSupplierIDs []int64, budget *money.Amount, limit int) ([]CandidateProduct, error)
 
 	SaveWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error
+	SaveBatchWeeklyCoverage(ctx context.Context, coverages []*WeeklyCoverage) error
 	UpdateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error
 	DeleteWeeklyCoverage(ctx context.Context, id int64) error
 	ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error

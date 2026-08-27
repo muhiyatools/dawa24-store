@@ -66,6 +66,16 @@ func (s *Service) CreateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) e
 	return s.repo.SaveWeeklyCoverage(ctx, c)
 }
 
+// CreateBatchWeeklyCoverage creates multiple branch weekly coverage entries.
+func (s *Service) CreateBatchWeeklyCoverage(ctx context.Context, coverages []*WeeklyCoverage) error {
+	for _, c := range coverages {
+		if err := c.Validate(); err != nil {
+			return err
+		}
+	}
+	return s.repo.SaveBatchWeeklyCoverage(ctx, coverages)
+}
+
 // UpdateWeeklyCoverage updates an existing branch weekly coverage entry.
 func (s *Service) UpdateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error {
 	if err := c.Validate(); err != nil {

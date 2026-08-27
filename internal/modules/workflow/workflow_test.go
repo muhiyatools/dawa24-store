@@ -49,6 +49,15 @@ func (m *mockWorkflowRepo) SaveWeeklyCoverage(_ context.Context, c *WeeklyCovera
 	return nil
 }
 
+func (m *mockWorkflowRepo) SaveBatchWeeklyCoverage(ctx context.Context, coverages []*WeeklyCoverage) error {
+	for _, c := range coverages {
+		if err := m.SaveWeeklyCoverage(ctx, c); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (m *mockWorkflowRepo) UpdateWeeklyCoverage(_ context.Context, c *WeeklyCoverage) error {
 	for i, existing := range m.coverage[c.BranchID] {
 		if existing.ID == c.ID {
