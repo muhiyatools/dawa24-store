@@ -93,6 +93,7 @@ func (h *UIHandler) SmartOrderFinalizeSubmit(w http.ResponseWriter, r *http.Requ
 
 	orderID, stale, err := h.smartOrderFinalizer.Finalize(ctx, run)
 	if err != nil {
+		h.log.WarnContext(ctx, "smart order finalize failed", "run_id", run.ID, "error", err)
 		h.smartOrderBack(w, r, run, translateSmartOrderError(err))
 		return
 	}

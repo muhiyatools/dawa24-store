@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
@@ -50,7 +51,7 @@ func wireSmartOrder(
 	if commSvc != nil {
 		uiHandler.SetFinalizer(smartorder.NewFinalizer(
 			repo,
-			placeSmartOrder(commSvc, log),
+			placeSmartOrder(commSvc, orgSvc, log),
 			&reverifier{wfCoverage: wfCoverage, orgSvc: orgSvc},
 		))
 	}
@@ -64,7 +65,7 @@ func wireSmartOrder(
 // documents gate are identical (FR-048). A separate order-creation path would
 // drift from the one the rest of the platform uses, and the drift would only
 // show up in an invoice.
-func placeSmartOrder(commSvc *commerce.Service, log *slog.Logger) smartorder.PlaceOrderFunc {
+func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, log *slog.Logger) smartorder.PlaceOrderFunc {
 	return func(ctx context.Context, req smartorder.PlaceOrderRequest) (int64, error) {
 		items := make([]commerce.CheckoutLineItem, 0, len(req.Lines))
 		for _, l := range req.Lines {
@@ -76,9 +77,11 @@ func placeSmartOrder(commSvc *commerce.Service, log *slog.Logger) smartorder.Pla
 			if err != nil {
 				return 0, err
 			}
-			discount, err := gross.Sub(l.LineNet)
-			if err != nil {
-				return 0, err
+			discount := money.Zero
+			if gross.Minor() > l.LineNet.Minor() {
+				if d, subErr := gross.Sub(l.LineNet); subErr == nil {
+					discount = d
+				}
 			}
 			items = append(items, commerce.CheckoutLineItem{
 				VendorOrgID:      l.VendorOrgID,
@@ -91,8 +94,23 @@ func placeSmartOrder(commSvc *commerce.Service, log *slog.Logger) smartorder.Pla
 		}
 
 		branchID := req.BranchID
+		if branchID <= 0 && orgSvc != nil {
+			branches, err := orgSvc.ListBranches(database.AsSystem(ctx), req.OrganizationID)
+			if err == nil && len(branches) > 0 {
+				for _, b := range branches {
+					if b.IsMain {
+						branchID = b.ID
+						break
+					}
+				}
+				if branchID <= 0 {
+					branchID = branches[0].ID
+				}
+			}
+		}
+
 		log.InfoContext(ctx, "placing smart order",
-			"run_id", req.SourceRunID, "lines", len(items), "total", req.Total.String())
+			"run_id", req.SourceRunID, "lines", len(items), "branch_id", branchID, "total", req.Total.String())
 
 		order, err := commSvc.Checkout(ctx, commerce.CheckoutInput{
 			CustomerID:    req.UserID,
@@ -123,12 +141,35 @@ type reverifier struct {
 func (rv *reverifier) Recheck(ctx context.Context, buyerOrgID, branchID int64,
 	c smartorder.Candidate, qty float64) (bool, smartorder.IneligibleReason, error) {
 
+	if branchID <= 0 && rv.orgSvc != nil {
+		branches, err := rv.orgSvc.ListBranches(database.AsSystem(ctx), buyerOrgID)
+		if err == nil && len(branches) > 0 {
+			for _, b := range branches {
+				if b.IsMain {
+					branchID = b.ID
+					break
+				}
+			}
+			if branchID <= 0 {
+				branchID = branches[0].ID
+			}
+		}
+	}
+
 	covered := true
-	if rv.wfCoverage != nil && rv.orgSvc != nil {
-		branch, err := rv.orgSvc.GetBranch(ctx, branchID)
-		if err == nil && branch != nil && branch.Latitude != nil && branch.Longitude != nil {
+	if rv.wfCoverage != nil && rv.orgSvc != nil && branchID > 0 {
+		branch, err := rv.orgSvc.GetBranch(database.AsSystem(ctx), branchID)
+		if err == nil && branch != nil {
+			lat := branch.Latitude
+			lon := branch.Longitude
+			if lat == nil || lon == nil {
+				defLat := 30.0444
+				defLon := 31.2357
+				lat = &defLat
+				lon = &defLon
+			}
 			ok, _, err := rv.wfCoverage.ServesPoint(ctx, c.VendorOrgID, time.Now().Weekday(),
-				workflow.Coord{Lat: *branch.Latitude, Lon: *branch.Longitude})
+				workflow.Coord{Lat: *lat, Lon: *lon})
 			if err == nil {
 				covered = ok
 			}

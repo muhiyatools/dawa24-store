@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder/pipeline"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -346,18 +348,82 @@ func (h *UIHandler) smartOrderFail(w http.ResponseWriter, r *http.Request, messa
 }
 
 // translateSmartOrderError turns a domain error into something a pharmacist can
-// act on, rather than an error code.
+// act on, rather than a generic or technical error code.
 func translateSmartOrderError(err error) string {
+	if err == nil {
+		return ""
+	}
+
+	var appErr *apperr.Error
+	if errors.As(err, &appErr) && appErr.Msg != "" {
+		msg := appErr.Msg
+		switch {
+		case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, "اختيار فرع"):
+			return "يرجى اختيار فرع الاستلام قبل المتابعة."
+		case strings.Contains(msg, "branch_no_location"):
+			return "لم يتم تحديد موقع فرع الاستلام على الخريطة، يرجى تحديده لتتمكن من الطلب."
+		case strings.Contains(msg, "branch_not_owned"):
+			return "فرع الاستلام المحدد لا يتبع حسابك."
+		case strings.Contains(msg, "nothing_to_order"):
+			return "لا توجد أصناف صالحة للطلب ومحددة بمورد وكمية أكبر من صفر."
+		case strings.Contains(msg, "customer_required"):
+			return "بيانات العميل غير مكتملة."
+		case strings.Contains(msg, "empty_cart"):
+			return "سلة الطلب فارغة."
+		case strings.Contains(msg, "missing_documents") || strings.Contains(msg, "documents"):
+			return "يرجى استكمال المستندات الإلزامية للمؤسسة قبل إتمام الطلب."
+		case strings.Contains(msg, "min_order_not_met"):
+			return "إجمالي الطلب أقل من الحد الأدنى للطلب لدى المورد."
+		case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, "لا يغطي"):
+			return "بعض الأصناف المختارة غير متاحة للطلب حالياً أو خارج نطاق التغطية."
+		case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, "غير متوفر"):
+			return "بعض الأصناف نفدت من المخزون لدى المورد."
+		case strings.Contains(msg, "insufficient_stock"):
+			return "الكمية المطلوبة تتجاوز المخزون المتاح لدى المورد."
+		case strings.Contains(msg, "below_minimum"):
+			return "الكمية المطلوبة أقل من الحد الأدنى للطلب من الصنف."
+		case strings.Contains(msg, "mapping_incomplete"):
+			return "عيّن عمودًا لاسم الصنف أو كوده أو الباركود قبل بدء المطابقة."
+		case strings.Contains(msg, "already_finalized"):
+			return "تم اعتماد هذا الطلب من قبل."
+		case strings.Contains(msg, "stale"):
+			return "تغيّرت الإعدادات بعد إنشاء النتائج. أعد التشغيل قبل الاعتماد."
+		}
+		return msg
+	}
+
 	msg := err.Error()
 	switch {
-	case strings.Contains(msg, "branch_required"):
-		return "اختر فرع التسليم قبل المتابعة."
+	case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, "اختيار فرع"):
+		return "يرجى اختيار فرع الاستلام قبل المتابعة."
+	case strings.Contains(msg, "branch_no_location"):
+		return "لم يتم تحديد موقع فرع الاستلام على الخريطة، يرجى تحديده لتتمكن من الطلب."
+	case strings.Contains(msg, "branch_not_owned"):
+		return "فرع الاستلام المحدد لا يتبع حسابك."
 	case strings.Contains(msg, "mapping_incomplete"):
 		return "عيّن عمودًا لاسم الصنف أو كوده أو الباركود قبل بدء المطابقة."
 	case strings.Contains(msg, "already_finalized"):
 		return "تم اعتماد هذا الطلب من قبل."
 	case strings.Contains(msg, "stale"):
 		return "تغيّرت الإعدادات بعد إنشاء النتائج. أعد التشغيل قبل الاعتماد."
+	case strings.Contains(msg, "nothing_to_order"):
+		return "لا توجد أصناف صالحة للطلب ومحددة بمورد وكمية أكبر من صفر."
+	case strings.Contains(msg, "customer_required"):
+		return "بيانات العميل غير مكتملة."
+	case strings.Contains(msg, "empty_cart"):
+		return "سلة الطلب فارغة."
+	case strings.Contains(msg, "missing_documents") || strings.Contains(msg, "documents"):
+		return "يرجى استكمال المستندات الإلزامية للمؤسسة قبل إتمام الطلب."
+	case strings.Contains(msg, "min_order_not_met"):
+		return "إجمالي الطلب أقل من الحد الأدنى للطلب لدى المورد."
+	case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, "لا يغطي"):
+		return "بعض الأصناف المختارة غير متاحة للطلب حالياً أو خارج نطاق التغطية."
+	case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, "غير متوفر"):
+		return "بعض الأصناف نفدت من المخزون لدى المورد."
+	case strings.Contains(msg, "insufficient_stock"):
+		return "الكمية المطلوبة تتجاوز المخزون المتاح لدى المورد."
+	case strings.Contains(msg, "below_minimum"):
+		return "الكمية المطلوبة أقل من الحد الأدنى للطلب من الصنف."
 	}
-	return "تعذّر إكمال العملية."
+	return "تعذّر إكمال العملية: " + msg
 }

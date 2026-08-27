@@ -104,7 +104,7 @@ func (p *availabilityProbe) CustomerBranch(ctx context.Context, branchID int64) 
 	if p.org == nil {
 		return commerce.BranchAvailability{}, nil
 	}
-	b, err := p.org.GetBranch(ctx, branchID)
+	b, err := p.org.GetBranch(database.AsSystem(ctx), branchID)
 	if err != nil {
 		if isNotFound(err) {
 			return commerce.BranchAvailability{}, nil

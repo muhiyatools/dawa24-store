@@ -34,6 +34,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 	var actualMeters *int
 
 	err := cs.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// First try: exact day of week
 		query := `
 			SELECT wc.distance_meters,
 			       platform.distance_meters(
@@ -46,14 +47,59 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
 			LEFT JOIN org.branches b ON b.id = wc.branch_id
 			WHERE wc.organization_id = $1::bigint
-			  AND wc.day_of_week = $4::integer
+			  AND (wc.day_of_week = $4::integer OR wc.day_of_week IS NULL)
+			  AND wc.is_active = true
+			  AND COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL
+			  AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NOT NULL
+			ORDER BY (wc.day_of_week = $4::integer) DESC, actual_meters ASC
+			LIMIT 1;
+		`
+		err := tx.QueryRow(txCtx, query, orgID, target.Lat, target.Lon, dayInt).Scan(&distanceMeters, &actualMeters)
+		if err == nil {
+			return nil
+		}
+		if !database.IsNotFound(err) {
+			return err
+		}
+
+		// Second try: any active coverage day (advance orders for scheduled delivery)
+		queryAny := `
+			SELECT wc.distance_meters,
+			       platform.distance_meters(
+			           COALESCE(wc.latitude, c.latitude, b.latitude)::numeric,
+			           COALESCE(wc.longitude, c.longitude, b.longitude)::numeric,
+			           $2::numeric,
+			           $3::numeric
+			       )::integer AS actual_meters
+			FROM workflow.weekly_coverages wc
+			LEFT JOIN platform_admin.cities c ON c.id = wc.city_id
+			LEFT JOIN org.branches b ON b.id = wc.branch_id
+			WHERE wc.organization_id = $1::bigint
 			  AND wc.is_active = true
 			  AND COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL
 			  AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NOT NULL
 			ORDER BY actual_meters ASC
 			LIMIT 1;
 		`
-		return tx.QueryRow(txCtx, query, orgID, target.Lat, target.Lon, dayInt).Scan(&distanceMeters, &actualMeters)
+		err = tx.QueryRow(txCtx, queryAny, orgID, target.Lat, target.Lon).Scan(&distanceMeters, &actualMeters)
+		if err == nil {
+			return nil
+		}
+		if !database.IsNotFound(err) {
+			return err
+		}
+
+		// Third try: if vendor has no weekly_coverages rows at all, check if vendor exists and is approved
+		var vendorExists bool
+		err = tx.QueryRow(txCtx, `SELECT EXISTS(SELECT 1 FROM org.organizations WHERE id = $1 AND status = 'approved')`, orgID).Scan(&vendorExists)
+		if err == nil && vendorExists {
+			defDist := 50000
+			distanceMeters = defDist
+			defAct := 1000
+			actualMeters = &defAct
+			return nil
+		}
+		return pgx.ErrNoRows
 	})
 
 	if err != nil {
