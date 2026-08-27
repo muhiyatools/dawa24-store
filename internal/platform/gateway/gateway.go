@@ -78,17 +78,20 @@ const (
 // enforces (see the package comment). A deployment whose Gateway publishes
 // different names overrides both from the settings screen.
 //
-// Both tiers point at the same model, and that is not laziness. The Gateway
-// publishes it with a one-million-token context at $0.03 per million input
-// tokens, which is an order of magnitude cheaper than the previous default and
-// eight times its context. The matching capability is the one that sends large
-// prompts, so the context is what makes a whole import fit in one request; the
-// price is what makes doing that routine rather than exceptional. An operator
-// who wants a stronger model behind the quality tier sets it in إعدادات النظام
-// and nothing here changes.
+// Both tiers point at the same model, and that is not laziness. The matching
+// capability is the one that sends large prompts, and what it needs from a model
+// is a wide context and a low price — a 262k-token window at $0.08 per million
+// input tokens is what lets two hundred products be judged against a couple of
+// thousand catalogue rows in a single request, routinely rather than as an
+// exception. An operator who wants a stronger model behind the quality tier sets
+// it in إعدادات النظام and nothing here changes.
+//
+// Whatever is chosen, note that most models the Gateway publishes are reasoning
+// models. See budget.think: leaving their chain of thought on is not a cost
+// question but a correctness one.
 const (
-	defaultFastModel    = "qwen3.7-flash"
-	defaultQualityModel = "qwen3.7-flash"
+	defaultFastModel    = "nemotron-3.5-lightning"
+	defaultQualityModel = "nemotron-3.5-lightning"
 )
 
 // budget is the per-capability latency ceiling and retry policy.

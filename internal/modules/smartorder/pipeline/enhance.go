@@ -65,14 +65,18 @@ const (
 	// characters — Arabic is two bytes per character in UTF-8, and conflating
 	// the two halves the budget without anyone noticing.
 	//
-	// A million-token context takes roughly two and a half megabytes of this
-	// mixture. One megabyte is a deliberate fraction of that: it leaves the
-	// answer, the system prompt and any Gateway-side overhead a wide margin, and
-	// it is far more than the item ceiling below will ever fill anyway. The
-	// byte budget is now a backstop rather than the binding constraint, which is
-	// the right shape — a request should be sized by how many answers it can
-	// safely produce, not by how much text it can hold.
-	MaxInputBytes = 1_000_000
+	// Measured against the live Gateway, this mixture of Arabic, Latin and
+	// digits runs about two bytes to the token: a 290 KB request reported 145k
+	// input tokens. The default model's window is 262k tokens, so 400 KB is
+	// roughly 200k in — leaving the answer, the system prompt and any
+	// Gateway-side overhead a comfortable margin.
+	//
+	// It is a backstop rather than the binding constraint: the item ceiling
+	// below fills about 300 KB at its limit, so this only ever splits a batch
+	// whose catalogue window came out unusually wide. That is the right shape —
+	// a request should be sized by how many answers it can safely produce, not
+	// by how much text it can hold.
+	MaxInputBytes = 400_000
 
 	// MaxItemsPerRequest bounds the ANSWER, and that is now what limits a batch.
 	//

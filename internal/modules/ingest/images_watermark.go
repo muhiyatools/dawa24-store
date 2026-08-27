@@ -1,13 +1,13 @@
-﻿package ingest
+package ingest
 
 import (
 	"bytes"
 	"image"
 	"image/color"
 	"image/draw"
+	_ "image/gif"
 	"image/jpeg"
 	"image/png"
-	_ "image/gif"
 	"strings"
 )
 
@@ -117,7 +117,7 @@ func ApplyWatermark(imgData []byte, ext string) ([]byte, error) {
 	charW := 6 * scale
 	charH := 7 * scale
 	textWidth := len(text) * charW
-	
+
 	padX := 10 * scale
 	padY := 6 * scale
 	badgeW := textWidth + (padX * 2)

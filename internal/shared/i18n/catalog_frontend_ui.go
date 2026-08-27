@@ -1,4 +1,4 @@
-﻿package i18n
+package i18n
 
 func loadFrontendUIKeys(e *engine) {
 	// --- Smart Order Wizard & Results ---

@@ -173,8 +173,6 @@ func (s *Service) Candidates(ctx context.Context, orgID, lineID int64) ([]Candid
 	return s.repo.ListCandidates(ctx, orgID, lineID)
 }
 
-
-
 // SetQuantity applies a buyer's quantity edit.
 func (s *Service) SetQuantity(ctx context.Context, orgID, lineID int64, qty float64) error {
 	if qty < 0 {

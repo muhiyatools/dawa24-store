@@ -1,4 +1,4 @@
-﻿package smartorder
+package smartorder
 
 import (
 	"context"

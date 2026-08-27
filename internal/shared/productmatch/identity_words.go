@@ -60,9 +60,6 @@ const (
 	commonWordShare = 20
 )
 
-// IdentityConflict reports whether a row and a catalogue product cannot be the
-// same product, on evidence a model is not permitted to overrule.
-//
 // sharedProductWord is the check that answers "different products that happen to
 // share two words".
 //
@@ -199,10 +196,6 @@ func editSimilarity(a, b string) float64 {
 	return 1 - float64(prev[len(rb)])/float64(longest)
 }
 
-// StrengthConflict reports a dose disagreement on its own.
-//
-// Kept separate from IdentityConflict because the dose is the one attribute
-// worth checking in isolation: it is the check with no false positives to trade
 // modifiersIn is the set of line-extension keys a text carries.
 func modifiersIn(text string) map[string]struct{} {
 	out := make(map[string]struct{}, 2)

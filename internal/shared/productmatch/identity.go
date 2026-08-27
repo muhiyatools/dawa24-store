@@ -37,6 +37,9 @@ type MatchConflict struct {
 // None reports whether the match is allowed.
 func (c MatchConflict) None() bool { return c.Kind == "" }
 
+// IdentityConflict reports whether a row and a catalogue product cannot be the
+// same product, on evidence a model is not permitted to overrule.
+//
 // The checks run cheapest-first and stop at the first conflict, because the
 // first one found is the one worth telling an operator about.
 func (idx *Index) IdentityConflict(row *Row, productID int64) MatchConflict {
@@ -69,6 +72,10 @@ func (idx *Index) IdentityConflict(row *Row, productID int64) MatchConflict {
 	return MatchConflict{}
 }
 
+// StrengthConflict reports a dose disagreement on its own.
+//
+// Kept separate from IdentityConflict because the dose is the one attribute
+// worth checking in isolation: it is the check with no false positives to trade
 // away, since two different strengths of one brand are always two products.
 func (idx *Index) StrengthConflict(row *Row, productID int64) bool {
 	if idx == nil || row == nil {
