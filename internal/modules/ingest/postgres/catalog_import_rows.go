@@ -272,6 +272,48 @@ func (r *Repository) UpdateRow(
 	})
 }
 
+// SetBatchQuantity applies a uniform quantity to all staged rows of an import.
+func (r *Repository) SetBatchQuantity(ctx context.Context, importID int64, quantity int) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `
+			SELECT id, payload
+			FROM ingest.catalog_import_rows
+			WHERE import_id = $1`, importID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		type rowPayloadItem struct {
+			id      int64
+			payload []byte
+		}
+		var items []rowPayloadItem
+		for rows.Next() {
+			var it rowPayloadItem
+			if err := rows.Scan(&it.id, &it.payload); err == nil {
+				items = append(items, it)
+			}
+		}
+		rows.Close()
+
+		for _, it := range items {
+			var rowData productmatch.Row
+			_ = json.Unmarshal(it.payload, &rowData)
+			rowData.Quantity = quantity
+			rowData.HasQuantity = true
+			newPayload, _ := json.Marshal(rowData)
+			if _, err := tx.Exec(txCtx, `
+				UPDATE ingest.catalog_import_rows
+				SET payload = $2
+				WHERE id = $1 AND import_id = $3`, it.id, newPayload, importID); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
 // AssignRowMatch links a staged row to a master catalog product manually (or clears it if productID <= 0).
 func (r *Repository) AssignRowMatch(
 	ctx context.Context, importID, rowID, productID int64,

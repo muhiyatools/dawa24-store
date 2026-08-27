@@ -92,6 +92,34 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", "تم تحديث بيانات الصنف بنجاح.")
 }
 
+// VendorIngestBatchQuantitySubmit applies a uniform quantity to all staged items in the import.
+func (h *UIHandler) VendorIngestBatchQuantitySubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	publicID := chi.URLParam(r, "id")
+	if h.ingSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "خدمة الاستيراد غير متاحة.")
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج.")
+		return
+	}
+
+	qStr := strings.TrimSpace(r.PostFormValue("batch_quantity"))
+	qty, err := strconv.Atoi(qStr)
+	if err != nil || qty < 0 {
+		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", "يرجى إدخال كمية صحيحة أكبر من أو تساوي الصفر.")
+		return
+	}
+
+	if err := h.ingSvc.SetBatchQuantity(ctx, publicID, qty); err != nil {
+		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", fmt.Sprintf("تم تعيين الكمية (%d) لجميع أصناف الملف بنجاح.", qty))
+}
+
 // VendorIngestRowMatchSubmit manually assigns a master catalog product to a staged row.
 func (h *UIHandler) VendorIngestRowMatchSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

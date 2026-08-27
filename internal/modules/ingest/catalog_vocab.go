@@ -25,6 +25,18 @@ func (s *Service) UpdateStagedRow(
 	return s.imports.UpdateRow(ctx, session.ID, rowID, displayName, customVariantName, price, quantity, isExcluded)
 }
 
+// SetBatchQuantity applies a uniform quantity to all staged rows in the import session.
+func (s *Service) SetBatchQuantity(ctx context.Context, publicID string, quantity int) error {
+	session, err := s.LoadImport(ctx, publicID)
+	if err != nil {
+		return err
+	}
+	if session.Phase != PhaseReview {
+		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل الكميات إلا في مرحلة المراجعة.")
+	}
+	return s.imports.SetBatchQuantity(ctx, session.ID, quantity)
+}
+
 // AssignStagedRowMatch manually binds a staged row to a master catalog product.
 func (s *Service) AssignStagedRowMatch(
 	ctx context.Context, publicID string, rowID, productID int64,

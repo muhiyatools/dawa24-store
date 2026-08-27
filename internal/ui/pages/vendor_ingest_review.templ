@@ -82,6 +82,27 @@ templ importReviewStage(view VendorImportView) {
 			</form>
 		</div>
 
+		<!-- Batch Quantity Setter Card -->
+		<div class="card mb-md" style="background: var(--surface-sunken); border: 1px dashed var(--border-strong); padding: 0.75rem 1.25rem; border-radius: var(--radius-xl);">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/batch-quantity?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+				class="row-center-sm flex-wrap gap-md justify-between"
+				onsubmit="return confirm('هل تريد تطبيق هذه الكمية على جميع الأصناف في الملف؟');">
+				<div class="row-center-sm gap-xs">
+					<span style="font-size: 1.1rem;">📦</span>
+					<span class="fw-800 text-sm">تعيين كمية موحدة لكافة الأصناف في الملف:</span>
+					<span class="text-xs text-muted">(مفيد في حال لم يحتوي ملفك على عمود للكمية)</span>
+				</div>
+				<div class="row-center-sm gap-xs">
+					<input type="number" name="batch_quantity" min="0" placeholder="مثال: 50" required
+						class="form-input text-center tabular-nums fw-700"
+						style="width: 100px; height: 34px; padding: 0.2rem 0.5rem; font-size: 0.9rem; border-radius: var(--radius-md);"/>
+					<button type="submit" class="btn btn-primary btn-sm fw-700" style="height: 34px; padding: 0 1rem;">
+						تطبيق على جميع الأصناف
+					</button>
+				</div>
+			</form>
+		</div>
+
 		<!-- Table -->
 		<div class="b2b-table-card">
 			<div class="b2b-table-container">
@@ -465,28 +486,69 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			}
 		</td>
 
-		<!-- Price -->
+		<!-- Price (Editable Inline) -->
 		<td class="text-center align-middle tabular-nums">
-			if row.Payload != nil && (row.Payload.NetPrice.IsPositive() || row.Payload.PublicPrice.IsPositive()) {
-				if row.Payload.NetPrice.IsPositive() {
-					<span class="fw-700">{ row.Payload.NetPrice.String() }</span>
-				} else {
-					<span class="fw-700">{ row.Payload.PublicPrice.String() }</span>
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+				class="row-center-xs gap-xs" style="justify-content: center;">
+				<input type="hidden" name="display_name" value={ row.DisplayName }/>
+				if row.Payload != nil && row.Payload.HasQuantity {
+					<input type="hidden" name="quantity" value={ fmt.Sprint(row.Payload.Quantity) }/>
 				}
-			} else {
-				<span class="text-muted text-xs">-</span>
-			}
+				<input type="number" name="price"
+					value={ rowPriceValue(row) }
+					step="0.01"
+					min="0"
+					placeholder="0.00"
+					class="form-input text-center tabular-nums fw-700"
+					style="width: 78px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
+					title="تعديل السعر يدوياً"/>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ السعر">✓</button>
+			</form>
 		</td>
 
-		<!-- Quantity -->
+		<!-- Quantity (Editable Inline) -->
 		<td class="text-center align-middle tabular-nums">
-			if row.Payload != nil && row.Payload.HasQuantity {
-				<span class="badge badge-secondary text-xs">{ fmt.Sprint(row.Payload.Quantity) }</span>
-			} else {
-				<span class="text-muted text-xs">-</span>
-			}
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+				class="row-center-xs gap-xs" style="justify-content: center;">
+				<input type="hidden" name="display_name" value={ row.DisplayName }/>
+				if row.Payload != nil && (row.Payload.NetPrice.IsPositive() || row.Payload.PublicPrice.IsPositive()) {
+					if row.Payload.NetPrice.IsPositive() {
+						<input type="hidden" name="price" value={ row.Payload.NetPrice.String() }/>
+					} else {
+						<input type="hidden" name="price" value={ row.Payload.PublicPrice.String() }/>
+					}
+				}
+				<input type="number" name="quantity"
+					value={ rowQuantityValue(row) }
+					step="1"
+					min="0"
+					placeholder="0"
+					class="form-input text-center tabular-nums fw-700"
+					style="width: 70px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
+					title="تعديل أو إدخال الكمية يدوياً"/>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ الكمية">✓</button>
+			</form>
 		</td>
 	</tr>
+}
+
+func rowQuantityValue(row *ingest.RowOutcome) string {
+	if row != nil && row.Payload != nil && row.Payload.HasQuantity {
+		return fmt.Sprint(row.Payload.Quantity)
+	}
+	return ""
+}
+
+func rowPriceValue(row *ingest.RowOutcome) string {
+	if row != nil && row.Payload != nil {
+		if row.Payload.NetPrice.IsPositive() {
+			return row.Payload.NetPrice.String()
+		}
+		if row.Payload.PublicPrice.IsPositive() {
+			return row.Payload.PublicPrice.String()
+		}
+	}
+	return ""
 }
 
 templ reviewPagination(view VendorImportView) {

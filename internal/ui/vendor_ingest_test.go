@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -61,5 +62,23 @@ func TestVendorIngestWizardResumability(t *testing.T) {
 	r.ServeHTTP(rrToggle, reqToggle)
 	if rrToggle.Code != http.StatusSeeOther {
 		t.Errorf("expected 303 redirect for row toggle, got %d", rrToggle.Code)
+	}
+
+	// Step 5: POST /vendor/ingest/{id}/batch-quantity
+	reqBatch, _ := http.NewRequestWithContext(ctx, "POST", "/vendor/ingest/999/batch-quantity", strings.NewReader("batch_quantity=50"))
+	reqBatch.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rrBatch := httptest.NewRecorder()
+	r.ServeHTTP(rrBatch, reqBatch)
+	if rrBatch.Code != http.StatusSeeOther {
+		t.Errorf("expected 303 redirect for batch quantity, got %d", rrBatch.Code)
+	}
+
+	// Step 6: POST /vendor/ingest/{id}/rows/1/update with quantity and price
+	reqUpdate, _ := http.NewRequestWithContext(ctx, "POST", "/vendor/ingest/999/rows/1/update", strings.NewReader("display_name=Panadol&quantity=25&price=45.50"))
+	reqUpdate.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rrUpdate := httptest.NewRecorder()
+	r.ServeHTTP(rrUpdate, reqUpdate)
+	if rrUpdate.Code != http.StatusSeeOther {
+		t.Errorf("expected 303 redirect for row update, got %d", rrUpdate.Code)
 	}
 }

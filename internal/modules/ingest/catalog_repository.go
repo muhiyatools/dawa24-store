@@ -49,6 +49,8 @@ type ImportStore interface {
 	RowCounts(ctx context.Context, importID int64) (map[string]int, error)
 	// UpdateRow updates fields on a staged row before commit.
 	UpdateRow(ctx context.Context, importID, rowID int64, displayName, customVariantName string, price *float64, quantity *int, isExcluded *bool) error
+	// SetBatchQuantity applies a uniform quantity to all staged rows of an import.
+	SetBatchQuantity(ctx context.Context, importID int64, quantity int) error
 	// AssignRowMatch links a staged row to a master catalog product manually.
 	AssignRowMatch(ctx context.Context, importID, rowID, productID int64, productName, productSKU string) error
 	// ToggleRowExclude flips the is_excluded flag of a staged row.
