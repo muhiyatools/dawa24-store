@@ -455,6 +455,8 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/api/geo/governorates/{id}/cities", h.APIGovernorateCitiesJSON)
 	r.Post("/vendor/coverage", h.VendorCoverageCreateSubmit)
 	r.Post("/vendor/coverage/{id}", h.VendorCoverageUpdateSubmit)
+	r.Post("/vendor/coverage/{id}/update", h.VendorCoverageUpdateSubmit)
+	r.Post("/vendor/coverage/{id}/edit", h.VendorCoverageUpdateSubmit)
 	r.Post("/vendor/coverage/{id}/delete", h.VendorCoverageDeleteSubmit)
 	r.Post("/vendor/coverage/{id}/toggle", h.VendorCoverageToggleSubmit)
 	r.Get("/vendor/coverage/branch/{branchID}", h.VendorBranchCoveragePage)

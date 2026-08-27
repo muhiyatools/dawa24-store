@@ -235,6 +235,25 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 			cityName := city.Name.Get("ar")
 			lat := city.Latitude
 			lon := city.Longitude
+
+			// Read city-specific timing and radius override if provided:
+			cityFromStr := strings.TrimSpace(r.PostFormValue(fmt.Sprintf("coverage_from_%d", city.ID)))
+			cityToStr := strings.TrimSpace(r.PostFormValue(fmt.Sprintf("coverage_to_%d", city.ID)))
+			cityDistStr := strings.TrimSpace(r.PostFormValue(fmt.Sprintf("distance_meters_%d", city.ID)))
+
+			cFromTime := fromTime
+			if cityFromStr != "" {
+				cFromTime = workflow.TimeOfDay(cityFromStr)
+			}
+			cToTime := toTime
+			if cityToStr != "" {
+				cToTime = workflow.TimeOfDay(cityToStr)
+			}
+			cDistance := distanceMeters
+			if d, err := strconv.Atoi(cityDistStr); err == nil && d > 0 {
+				cDistance = d
+			}
+
 			for _, day := range daysToCreate {
 				newCoverages = append(newCoverages, &workflow.WeeklyCoverage{
 					OrganizationID: actor.OrganizationID,
@@ -242,12 +261,12 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 					GovernorateID:  city.GovernorateID,
 					CityID:         &cityID,
 					DayOfWeek:      day,
-					CoverageFrom:   fromTime,
-					CoverageTo:     toTime,
+					CoverageFrom:   cFromTime,
+					CoverageTo:     cToTime,
 					Address:        cityName,
 					Latitude:       &lat,
 					Longitude:      &lon,
-					DistanceMeters: distanceMeters,
+					DistanceMeters: cDistance,
 					IsActive:       isActive,
 				})
 			}
@@ -320,7 +339,14 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
+		id, err = strconv.ParseInt(r.PostFormValue("id"), 10, 64)
+	}
+	if err != nil || id <= 0 {
+		id, err = strconv.ParseInt(r.PostFormValue("coverage_id"), 10, 64)
+	}
 	if err != nil || id <= 0 {
 		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "معرف التغطية غير صالح.")
 		return
@@ -470,7 +496,14 @@ func (h *UIHandler) VendorCoverageDeleteSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
+		id, err = strconv.ParseInt(r.PostFormValue("id"), 10, 64)
+	}
+	if err != nil || id <= 0 {
+		id, err = strconv.ParseInt(r.PostFormValue("coverage_id"), 10, 64)
+	}
 	if err != nil || id <= 0 {
 		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "معرف التغطية غير صالح.")
 		return
@@ -502,7 +535,14 @@ func (h *UIHandler) VendorCoverageToggleSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
+		id, err = strconv.ParseInt(r.PostFormValue("id"), 10, 64)
+	}
+	if err != nil || id <= 0 {
+		id, err = strconv.ParseInt(r.PostFormValue("coverage_id"), 10, 64)
+	}
 	if err != nil || id <= 0 {
 		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "معرف التغطية غير صالح.")
 		return
