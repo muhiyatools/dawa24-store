@@ -115,11 +115,7 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
-		return
-	}
-	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
+		http.Redirect(w, r, "/auth/login?redirect=/compare/head-to-head", http.StatusSeeOther)
 		return
 	}
 
@@ -132,9 +128,207 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 	}
 
+	sourceID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("source")), 10, 64)
+	targetID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("target")), 10, 64)
+
+	// Default selection to first two files if not specified and at least 2 files exist
+	if sourceID <= 0 && len(files) >= 1 {
+		sourceID = files[0].ID
+	}
+	if targetID <= 0 && len(files) >= 2 {
+		targetID = files[1].ID
+	}
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	minPStr := strings.TrimSpace(r.URL.Query().Get("min_price"))
+	maxPStr := strings.TrimSpace(r.URL.Query().Get("max_price"))
+	minDStr := strings.TrimSpace(r.URL.Query().Get("min_discount"))
+	maxDStr := strings.TrimSpace(r.URL.Query().Get("max_discount"))
+	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
+	if tab == "" {
+		tab = "all"
+	}
+
+	var minP, maxP, minD, maxD *float64
+	if v, err := strconv.ParseFloat(minPStr, 64); err == nil && v >= 0 {
+		minP = &v
+	}
+	if v, err := strconv.ParseFloat(maxPStr, 64); err == nil && v >= 0 {
+		maxP = &v
+	}
+	if v, err := strconv.ParseFloat(minDStr, 64); err == nil && v >= 0 {
+		minD = &v
+	}
+	if v, err := strconv.ParseFloat(maxDStr, 64); err == nil && v >= 0 {
+		maxD = &v
+	}
+
+	var outcome *compare.HeadToHeadOutcome
+	if tab == "your_better" {
+		o := compare.OutcomeYourBetter
+		outcome = &o
+	} else if tab == "equal" {
+		o := compare.OutcomeEqual
+		outcome = &o
+	} else if tab == "competitor_better" {
+		o := compare.OutcomeCompetitorBetter
+		outcome = &o
+	}
+
+	var result *compare.HeadToHeadComparisonResult
+	if h.compareSvc != nil && sourceID > 0 && targetID > 0 {
+		res, err := h.compareSvc.RunSupplierVsSupplierDetailed(ctx, compare.HeadToHeadFilter{
+			SourceFileID: sourceID,
+			TargetFileID: targetID,
+			Query:        q,
+			MinPrice:     minP,
+			MaxPrice:     maxP,
+			MinDiscount:  minD,
+			MaxDiscount:  maxD,
+			Outcome:      outcome,
+		})
+		if err != nil {
+			h.log.ErrorContext(ctx, "failed to run head-to-head comparison", "error", err)
+		} else {
+			result = res
+		}
+	}
+
+	pageData := pages.HeadToHeadPageData{
+		Result:       result,
+		Files:        files,
+		SourceFileID: sourceID,
+		TargetFileID: targetID,
+		Query:        q,
+		MinPrice:     minPStr,
+		MaxPrice:     maxPStr,
+		MinDiscount:  minDStr,
+		MaxDiscount:  maxDStr,
+		ActiveTab:    tab,
+		IsCustomer:   actor.IsCustomer(),
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareToolPage(lang, dir, files, "", "").Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render head to head", "error", err)
+	if err := pages.CompareHeadToHeadPage(lang, dir, pageData).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render head to head page", "error", err)
+	}
+}
+
+// CompareMarketBenchmarkPage handles benchmarking a supplier file against platform market suppliers.
+func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/compare/market-benchmark", http.StatusSeeOther)
+		return
+	}
+
+	var files []*compare.CompareFile
+	if h.compareSvc != nil {
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
+		}
+		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+	}
+
+	fileID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("file")), 10, 64)
+	if fileID <= 0 && len(files) > 0 {
+		fileID = files[0].ID
+	}
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	minPStr := strings.TrimSpace(r.URL.Query().Get("min_price"))
+	maxPStr := strings.TrimSpace(r.URL.Query().Get("max_price"))
+	minDStr := strings.TrimSpace(r.URL.Query().Get("min_discount"))
+	maxDStr := strings.TrimSpace(r.URL.Query().Get("max_discount"))
+	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
+	if tab == "" {
+		tab = "all"
+	}
+
+	var minP, maxP, minD, maxD *float64
+	if v, err := strconv.ParseFloat(minPStr, 64); err == nil && v >= 0 {
+		minP = &v
+	}
+	if v, err := strconv.ParseFloat(maxPStr, 64); err == nil && v >= 0 {
+		maxP = &v
+	}
+	if v, err := strconv.ParseFloat(minDStr, 64); err == nil && v >= 0 {
+		minD = &v
+	}
+	if v, err := strconv.ParseFloat(maxDStr, 64); err == nil && v >= 0 {
+		maxD = &v
+	}
+
+	var result *compare.MarketBenchmarkResult
+	if h.compareSvc != nil && fileID > 0 {
+		res, err := h.compareSvc.RunMarketBenchmarkDetailed(ctx, compare.MarketBenchmarkFilter{
+			FileID:      fileID,
+			Query:       q,
+			MinPrice:    minP,
+			MaxPrice:    maxP,
+			MinDiscount: minD,
+			MaxDiscount: maxD,
+			Tab:         tab,
+		})
+		if err != nil {
+			h.log.ErrorContext(ctx, "failed to run market benchmark", "error", err)
+		} else {
+			result = res
+		}
+	}
+
+	pageData := pages.MarketBenchmarkPageData{
+		Result:      result,
+		Files:       files,
+		FileID:      fileID,
+		Query:       q,
+		MinPrice:    minPStr,
+		MaxPrice:    maxPStr,
+		MinDiscount: minDStr,
+		MaxDiscount: maxDStr,
+		ActiveTab:   tab,
+		IsCustomer:  actor.IsCustomer(),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.CompareMarketBenchmarkPage(lang, dir, pageData).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render market benchmark page", "error", err)
+	}
+}
+
+// CompareMarketIntelligencePage renders the market intelligence dashboard.
+func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/compare/market-intelligence", http.StatusSeeOther)
+		return
+	}
+
+	var report *compare.MarketIntelligenceReport
+	if h.compareSvc != nil {
+		rep, err := h.compareSvc.GetMarketIntelligenceReport(ctx)
+		if err != nil {
+			h.log.ErrorContext(ctx, "failed to get market intelligence report", "error", err)
+		} else {
+			report = rep
+		}
+	}
+
+	pageData := pages.MarketIntelligencePageData{
+		Report:     report,
+		IsCustomer: actor.IsCustomer(),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.CompareMarketIntelligencePage(lang, dir, pageData).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render market intelligence page", "error", err)
 	}
 }
 

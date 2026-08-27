@@ -3,9 +3,13 @@ package spreadsheet
 import (
 	"bytes"
 	"encoding/csv"
+	"encoding/xml"
 	"errors"
 	"fmt"
+	"io"
+	"strconv"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/extrame/xls"
@@ -17,10 +21,11 @@ import (
 type Format string
 
 const (
-	FormatXLSX Format = "xlsx"
-	FormatXLS  Format = "xls"
-	FormatCSV  Format = "csv"
-	FormatHTML Format = "html"
+	FormatXLSX    Format = "xlsx"
+	FormatXLS     Format = "xls"
+	FormatXML2003 Format = "xml2003"
+	FormatCSV     Format = "csv"
+	FormatHTML    Format = "html"
 )
 
 // SniffFormat detects the workbook or tabular data format from raw bytes.
@@ -34,13 +39,20 @@ func SniffFormat(data []byte) Format {
 		return FormatXLS
 	}
 
-	// Check for HTML table disguised as spreadsheet
 	sampleLen := len(data)
-	if sampleLen > 1024 {
-		sampleLen = 1024
+	if sampleLen > 2048 {
+		sampleLen = 2048
 	}
 	trimmed := strings.TrimSpace(string(data[:sampleLen]))
 	lower := strings.ToLower(trimmed)
+
+	// Check for XML Spreadsheet 2003 disguised as .xls
+	if strings.Contains(lower, "urn:schemas-microsoft-com:office:spreadsheet") ||
+		(strings.Contains(lower, "<?xml") && strings.Contains(lower, "<workbook")) {
+		return FormatXML2003
+	}
+
+	// Check for HTML table disguised as spreadsheet
 	if strings.HasPrefix(lower, "<!doctype html") || strings.HasPrefix(lower, "<html") ||
 		strings.Contains(lower, "<table") {
 		return FormatHTML
@@ -50,7 +62,7 @@ func SniffFormat(data []byte) Format {
 }
 
 // ReadRows parses all rows from a spreadsheet byte buffer regardless of whether it is
-// .xlsx, .xls, .csv, or an HTML table.
+// .xlsx, .xls, .csv, XML-Spreadsheet 2003, or an HTML table.
 func ReadRows(data []byte) ([][]string, error) {
 	if len(data) == 0 {
 		return nil, errors.New("empty file data")
@@ -63,25 +75,31 @@ func ReadRows(data []byte) ([][]string, error) {
 		return readXLSX(data)
 	case FormatXLS:
 		return readXLS(data)
+	case FormatXML2003:
+		return readXMLSpreadsheet2003(data)
 	case FormatHTML:
 		return readHTMLTable(data)
 	case FormatCSV:
 		return readCSV(data)
 	default:
-		// Try XLSX first, then fallback to XLS, then CSV
-		rows, err := readXLSX(data)
-		if err == nil && len(rows) > 0 {
+		// Robust cascaded fallback
+		if rows, err := readXLSX(data); err == nil && len(rows) > 0 {
 			return rows, nil
 		}
-		rows, err = readXLS(data)
-		if err == nil && len(rows) > 0 {
+		if rows, err := readXLS(data); err == nil && len(rows) > 0 {
+			return rows, nil
+		}
+		if rows, err := readXMLSpreadsheet2003(data); err == nil && len(rows) > 0 {
+			return rows, nil
+		}
+		if rows, err := readHTMLTable(data); err == nil && len(rows) > 0 {
 			return rows, nil
 		}
 		return readCSV(data)
 	}
 }
 
-// ReadHeadersAndPreview extracts the first row as headers and up to previewCount subsequent rows.
+// ReadHeadersAndPreview extracts the first detected header row and up to previewCount subsequent rows.
 func ReadHeadersAndPreview(data []byte, previewCount int) (headers []string, preview [][]string, err error) {
 	allRows, err := ReadRows(data)
 	if err != nil {
@@ -91,12 +109,15 @@ func ReadHeadersAndPreview(data []byte, previewCount int) (headers []string, pre
 		return nil, nil, errors.New("file contains no rows")
 	}
 
-	headers = sanitizeRow(allRows[0])
+	headerIdx := FindHeaderRowIndex(allRows)
+	headers = sanitizeRow(allRows[headerIdx])
+
+	startRow := headerIdx + 1
 	maxPreview := len(allRows)
-	if 1+previewCount < maxPreview {
-		maxPreview = 1 + previewCount
+	if startRow+previewCount < maxPreview {
+		maxPreview = startRow + previewCount
 	}
-	for i := 1; i < maxPreview; i++ {
+	for i := startRow; i < maxPreview; i++ {
 		preview = append(preview, sanitizeRow(allRows[i]))
 	}
 	return headers, preview, nil
@@ -105,9 +126,15 @@ func ReadHeadersAndPreview(data []byte, previewCount int) (headers []string, pre
 func readXLSX(data []byte) ([][]string, error) {
 	f, err := excelize.OpenReader(bytes.NewReader(data))
 	if err != nil {
-		// If excelize fails on a disguised file, try XLS fallback
+		// Fallbacks
 		if xlsRows, xlsErr := readXLS(data); xlsErr == nil && len(xlsRows) > 0 {
 			return xlsRows, nil
+		}
+		if xmlRows, xmlErr := readXMLSpreadsheet2003(data); xmlErr == nil && len(xmlRows) > 0 {
+			return xmlRows, nil
+		}
+		if htmlRows, htmlErr := readHTMLTable(data); htmlErr == nil && len(htmlRows) > 0 {
+			return htmlRows, nil
 		}
 		if csvRows, csvErr := readCSV(data); csvErr == nil && len(csvRows) > 0 {
 			return csvRows, nil
@@ -121,25 +148,41 @@ func readXLSX(data []byte) ([][]string, error) {
 		return nil, errors.New("workbook has no sheets")
 	}
 
-	// Read from the first sheet
-	rows, err := f.GetRows(sheets[0])
-	if err != nil {
-		return nil, fmt.Errorf("failed to read sheet %s: %w", sheets[0], err)
-	}
-
-	var cleaned [][]string
-	for _, r := range rows {
-		if !isRowEmpty(r) {
-			cleaned = append(cleaned, sanitizeRow(r))
+	// Read from first non-empty sheet
+	for _, sheetName := range sheets {
+		rows, err := f.GetRows(sheetName)
+		if err == nil && len(rows) > 0 {
+			var cleaned [][]string
+			for _, r := range rows {
+				if !isRowEmpty(r) {
+					cleaned = append(cleaned, sanitizeRow(r))
+				}
+			}
+			if len(cleaned) > 0 {
+				return cleaned, nil
+			}
 		}
 	}
-	return cleaned, nil
+
+	return nil, errors.New("workbook contains no data in any sheet")
 }
 
 func readXLS(data []byte) ([][]string, error) {
+	// Try UTF-8 first
 	wb, err := xls.OpenReader(bytes.NewReader(data), "utf-8")
 	if err != nil {
-		// Fallback to trying as XLSX or CSV
+		// Try Windows-1256 Arabic encoding
+		wb, err = xls.OpenReader(bytes.NewReader(data), "windows-1256")
+	}
+
+	if err != nil {
+		// Fallback to XML Spreadsheet 2003 or HTML or CSV
+		if xmlRows, xmlErr := readXMLSpreadsheet2003(data); xmlErr == nil && len(xmlRows) > 0 {
+			return xmlRows, nil
+		}
+		if htmlRows, htmlErr := readHTMLTable(data); htmlErr == nil && len(htmlRows) > 0 {
+			return htmlRows, nil
+		}
 		if csvRows, csvErr := readCSV(data); csvErr == nil && len(csvRows) > 0 {
 			return csvRows, nil
 		}
@@ -167,7 +210,70 @@ func readXLS(data []byte) ([][]string, error) {
 			result = append(result, sanitizeRow(rowVals))
 		}
 	}
+
+	if len(result) == 0 {
+		// If binary reader returned empty rows, attempt XML/HTML parsing
+		if xmlRows, xmlErr := readXMLSpreadsheet2003(data); xmlErr == nil && len(xmlRows) > 0 {
+			return xmlRows, nil
+		}
+		if htmlRows, htmlErr := readHTMLTable(data); htmlErr == nil && len(htmlRows) > 0 {
+			return htmlRows, nil
+		}
+	}
+
 	return result, nil
+}
+
+// readXMLSpreadsheet2003 parses Microsoft Office XML Spreadsheet 2003 files (common in older Egyptian ERPs).
+func readXMLSpreadsheet2003(data []byte) ([][]string, error) {
+	decoder := xml.NewDecoder(bytes.NewReader(data))
+	var rows [][]string
+	var currentRow []string
+	var currentCell strings.Builder
+	inCellData := false
+
+	for {
+		tok, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		switch se := tok.(type) {
+		case xml.StartElement:
+			local := strings.ToLower(se.Name.Local)
+			if local == "row" {
+				currentRow = make([]string, 0)
+			} else if local == "cell" {
+				currentCell.Reset()
+			} else if local == "data" {
+				inCellData = true
+			}
+		case xml.EndElement:
+			local := strings.ToLower(se.Name.Local)
+			if local == "row" {
+				if !isRowEmpty(currentRow) {
+					rows = append(rows, sanitizeRow(currentRow))
+				}
+				currentRow = nil
+			} else if local == "cell" {
+				currentRow = append(currentRow, strings.TrimSpace(currentCell.String()))
+			} else if local == "data" {
+				inCellData = false
+			}
+		case xml.CharData:
+			if inCellData {
+				currentCell.Write(se)
+			}
+		}
+	}
+
+	if len(rows) == 0 {
+		return nil, errors.New("no rows found in XML spreadsheet")
+	}
+	return rows, nil
 }
 
 func readCSV(data []byte) ([][]string, error) {
@@ -272,4 +378,111 @@ func sanitizeRow(row []string) []string {
 		res[i] = val
 	}
 	return res
+}
+
+// FindHeaderRowIndex scans the leading rows (up to 10) to detect the true header row.
+func FindHeaderRowIndex(rows [][]string) int {
+	if len(rows) <= 1 {
+		return 0
+	}
+
+	headerKeywords := []string{
+		"اسم", "صنف", "منتج", "سعر", "خصم", "كود", "باركود", "كمية", "جمهور", "صافي",
+		"name", "product", "item", "price", "discount", "sku", "code", "barcode", "qty", "net",
+	}
+
+	bestIdx := 0
+	maxMatches := 0
+	maxScan := len(rows)
+	if maxScan > 10 {
+		maxScan = 10
+	}
+
+	for i := 0; i < maxScan; i++ {
+		row := rows[i]
+		matches := 0
+		for _, cell := range row {
+			lower := strings.ToLower(strings.TrimSpace(cell))
+			for _, kw := range headerKeywords {
+				if strings.Contains(lower, kw) {
+					matches++
+					break
+				}
+			}
+		}
+		if matches > maxMatches {
+			maxMatches = matches
+			bestIdx = i
+		}
+	}
+
+	return bestIdx
+}
+
+// ParseCleanDiscount robustly converts any raw discount string into a percentage float (e.g. "25%", "0.25", "25.5 %" -> 25.5).
+func ParseCleanDiscount(raw string) float64 {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return 0.0
+	}
+
+	// Remove percentage signs, currency indicators, and extraneous characters
+	var sb strings.Builder
+	hasDot := false
+	for _, r := range raw {
+		if unicode.IsDigit(r) {
+			sb.WriteRune(r)
+		} else if (r == '.' || r == ',') && !hasDot {
+			sb.WriteRune('.')
+			hasDot = true
+		}
+	}
+
+	cleaned := sb.String()
+	if cleaned == "" {
+		return 0.0
+	}
+
+	val, err := strconv.ParseFloat(cleaned, 64)
+	if err != nil || val <= 0 {
+		return 0.0
+	}
+
+	// If entered as decimal ratio e.g. 0.25 -> 25.0%
+	if val > 0 && val < 1.0 {
+		val = val * 100.0
+	}
+
+	// Cap at 100%
+	if val > 100.0 {
+		val = 100.0
+	}
+
+	return val
+}
+
+// ParseCleanPrice extracts numerical price from raw text stripping currencies like EGP or ج.م.
+func ParseCleanPrice(raw string) (float64, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return 0.0, errors.New("empty price")
+	}
+
+	var sb strings.Builder
+	hasDot := false
+	for _, r := range raw {
+		if unicode.IsDigit(r) {
+			sb.WriteRune(r)
+		} else if (r == '.' || r == ',') && !hasDot {
+			sb.WriteRune('.')
+			hasDot = true
+		}
+	}
+
+	cleaned := sb.String()
+	if cleaned == "" {
+		return 0.0, errors.New("invalid price format")
+	}
+
+	return strconv.ParseFloat(cleaned, 64)
 }

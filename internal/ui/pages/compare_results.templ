@@ -54,16 +54,19 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 					</div>
 				</div>
 
-				<!-- Navigation Subtabs -->
+				<!-- Navigation Subtabs for all 4 Analysis Modes -->
 				<div style="display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;">
 					<a href="/compare/results" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg);">
-						المقارنة المجمعة بين الموردين
+						📊 المقارنة المجمعة بين الموردين
 					</a>
 					<a href="/compare/head-to-head" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
-						⚖️ مقارنة رأس برأس (مورد ضد مورد)
+						🏢 مقارنة مورد بمورد
 					</a>
-					<a href="/market-discounts" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
-						مقارنة المورد مع متوسط السوق
+					<a href="/compare/market-benchmark" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+						🧠 مقارنة مع موردين السوق
+					</a>
+					<a href="/compare/market-intelligence" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+						🧠 تقرير ذكاء السوق
 					</a>
 				</div>
 			</div>

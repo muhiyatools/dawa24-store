@@ -236,6 +236,8 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Post("/compare/run", h.CompareRunSubmit)
 		pub.Get("/compare/results", h.CompareResultsPage)
 		pub.Get("/compare/head-to-head", h.CompareHeadToHeadPage)
+		pub.Get("/compare/market-benchmark", h.CompareMarketBenchmarkPage)
+		pub.Get("/compare/market-intelligence", h.CompareMarketIntelligencePage)
 		pub.Get("/market-discounts", h.MarketDiscountsPage)
 		pub.Get("/tracking", h.GuestOrderTrackingPage)
 		pub.Get("/promotions/track-click/{offer}", h.PublicPromotionTrackClick)

@@ -64,6 +64,22 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 						</span>
 					</div>
 				</div>
+
+				<!-- Navigation Subtabs for all 4 Analysis Modes -->
+				<div style="display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;">
+					<a href="/compare/results" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+						📊 المقارنة المجمعة بين الموردين
+					</a>
+					<a href="/compare/head-to-head" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+						🏢 مقارنة مورد بمورد
+					</a>
+					<a href="/compare/market-benchmark" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+						🧠 مقارنة مع موردين السوق
+					</a>
+					<a href="/compare/market-intelligence" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+						🧠 تقرير ذكاء السوق
+					</a>
+				</div>
 			</div>
 
 			<!-- 3-Column Workspace (Matching Image 5) -->

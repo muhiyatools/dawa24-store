@@ -26,6 +26,7 @@ templ PublicShell(title string, lang string, dir string) {
 						if features.Enabled(ctx, "offers.enabled") {
 							<a href="/offers" style="font-size:var(--text-sm); font-weight:600; color:var(--accent); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">العروض والتخفيضات</a>
 						}
+						<a href="/compare/results" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">مقارنة الخصومات</a>
 						<a href="/suppliers" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">دليل الموردين</a>
 						if features.Enabled(ctx, "jobs.enabled") {
 							<a href="/jobs" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">وظائف وصيادلة</a>
